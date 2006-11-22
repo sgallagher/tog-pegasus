@@ -723,66 +723,33 @@ void CIMMessageDeserializer::_deserializeUserCertificate(
     XmlReader::expectEndTag(parser, "PGUSERCERT");
 }
 
-const Array<String> CIMMessageDeserializer::_tokenizeCert(
-    const String& input,
-    const Char16 separator)
-{
-    Array<String> tokens;
-    if (input.size() != 0)
-    {
-        Uint32 start = 0;
-        Uint32 length = 0;
-        Uint32 end = 0;
-        while ((end = input.find(start, separator)) != PEG_NOT_FOUND)
-        {
-            length = end - start;
-            tokens.append(input.subString(start, length));
-            start += (length + 1);
-        }
-
-        if(start <= input.size())
-        {
-            tokens.append(input.subString(start));
-        }
-    }
-    return tokens;
-}
-
 const SSLCertificateInfo CIMMessageDeserializer:: _toSSLCertificateInfo(
     const String& s)
 {
-    //Tokenize string with ":"
+    //Tokenize string with "\n"
+    Array<String> str = _tokenizeCert(s,'\n');
 
-    Array<String> str = _tokenizeCert(s,':');
-
-    //Search for "\n" and "\t" and remove them
+    //Remove these strings from Array,since they are description of values.
+    str.remove(0);
+    str.remove(2);
 
     for(Uint32 i = 0; i< str.size(); i++)
     {
         while(str[i].size() != PEG_NOT_FOUND)
         {
-            if (str[i].find("\n") != PEG_NOT_FOUND)
-            {
-                // Now remove token separator "\n"
-                Uint32 pos = str[i].find(0,'\n');
-                str[i].remove(pos-1,1);
-            }
+            //Search for "\t" and remove it.
             if (str[i].find("\t") != PEG_NOT_FOUND)
             {
-                // Now remove token separator "\t"
                 Uint32 pos = str[i].find(0,'\t');
                 str[i].remove(pos-1,1);
             }
-            /*if ((str[i].find("\n") != PEG_NOT_FOUND) ||
-                (str[i].find("\t") != PEG_NOT_FOUND))
-            {
-                // Now remove token separators ("\n" and "\t")
-                Uint32 newLine = str[i].find(0,'\n');
-                str[i].remove(newLine-1,1);
 
-                Uint32 tabChar = str[i].find(0,'\t');
-                str[i].remove(tabChar-1,1);
-            } */
+            //Search for first occurance of ":" and remove string till ":".
+            if (str[i].find(":") != PEG_NOT_FOUND)
+            {
+                Uint32 pos = str[i].find(0,':');
+                str[i].remove(0,pos);
+            }
         }
     }
 
@@ -797,6 +764,31 @@ const SSLCertificateInfo CIMMessageDeserializer:: _toSSLCertificateInfo(
         subjectName, issuerName, depth, errorCode, respCode);
 
     return sslCertificateInfo;
+}
+
+const Array<String> CIMMessageDeserializer::_tokenizeCert(
+    const String& input,
+    const Char16 separator)
+{
+    Array<String> tokens;
+    if (input.size() != 0)
+    {
+        Uint32 start = 0;
+        Uint32 length = 0;
+        Uint32 end = 0;
+
+        while (end = input.find(start, separator) != PEG_NOT_FOUND)
+        {
+            length = end - start;
+            tokens.append(input.subString(start, length));
+            start += (length + 1);
+        }
+        if(start <= input.size())
+        {
+            tokens.append(input.subString(start));
+        }
+    }
+    return tokens;
 }
 
 //

@@ -687,6 +687,7 @@ void CIMMessageSerializer::_serializeOperationContext(
             operationContext.get(SSLCertificateChainContainer::NAME);
 
         XmlWriter::append(out, "<PGOCSCCC>\n");
+
         Array<SSLCertificateInfo> userCert = container.getUserCert();
         for (Uint32 i=0; i < userCert.size(); i++)
         {
@@ -706,12 +707,13 @@ void CIMMessageSerializer::_serializeUserCertificate(
     Buffer& out,
     const SSLCertificateInfo& userCert)
 {
-    // Use a PGUSERCERT element to encapsulate the UserCertificate
-    // encoding
+    /*
+        Use a PGUSERCERT element to encapsulate the UserCertificate
+        encoding.
+    */
+
     XmlWriter::append(out, "<PGUSERCERT>\n");
-
     XmlWriter::appendValueElement(out, userCert.toString());
-
     XmlWriter::append(out, "</PGUSERCERT>\n");
 }
 

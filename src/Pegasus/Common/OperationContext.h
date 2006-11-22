@@ -974,10 +974,13 @@ private:
 class SSLCertificateChainContainerRep;
 
 /*
-    An SSL Certificate Chain Container holds information about the client certificate chain that
-    was used to authenticate the request.  Specifically, this container hold a representation of all of
-    the certificates that were in the client's SSL certificate chain.  A provider
-    must explicitly register for this container in its provider registration.
+    An SSL Certificate Chain Container holds information about the client
+    certificate chain that was used to authenticate the request.
+    Specifically, this container hold a representation of all of the
+    certificates that were in the client's SSL certificate chain.  A provider
+    must explicitly register for this container in its provider registration
+    by using the member "RequestedOperationContextContainers[]" of PG_Provider
+    class instance.
 */
 
 class PEGASUS_COMMON_LINKAGE SSLCertificateChainContainer
@@ -990,18 +993,21 @@ public:
     static const String NAME;
 
     /**
-        Constructs an SSLCertificateChainContainer object from the specified Container.
+        Constructs an SSLCertificateChainContainer object from the
+        specified Container.
         @param container The Container object to copy.
         @exception DynamicCastFailedException If the specified Container
          object is not an SSLCertificateChainContainer object.
     */
-    SSLCertificateChainContainer(const OperationContext::Container& container);
+    SSLCertificateChainContainer(
+        const OperationContext::Container& container);
 
     /**
         Constructs a copy of the specified SSLCertificateChainContainer.
         @param container The SSLCertificateChainContainer object to copy.
     */
-    SSLCertificateChainContainer(const SSLCertificateChainContainer& container);
+    SSLCertificateChainContainer(
+        const SSLCertificateChainContainer& container);
 
     /**
         Constructs an SSLCertificateChainContainer with a specified user name.
@@ -1009,7 +1015,8 @@ public:
          null if the user was not authenticated via
          a trusted client certificate
     */
-    SSLCertificateChainContainer(const Array<SSLCertificateInfo>& userCert);
+    SSLCertificateChainContainer(
+        const Array<SSLCertificateInfo>& userCert);
 
     /**
         Destructs the SSLCertificateChainContainer.
@@ -1021,7 +1028,8 @@ public:
         to this object.
         @param container The SSLCertificateChainContainer object to copy.
     */
-    SSLCertificateChainContainer & operator=(const SSLCertificateChainContainer& container);
+    SSLCertificateChainContainer & operator=(
+        const SSLCertificateChainContainer& container);
 
     /**
         Returns the unique name for this Container type.
@@ -1030,22 +1038,24 @@ public:
     virtual String getName() const;
 
     /**
-        Makes a copy of this SSLCertificateChainContainer object.  The caller is
-        responsible for cleaning up the copy by calling destroy() method.
+        Makes a copy of this SSLCertificateChainContainer object.
+        The caller is responsible for cleaning up the copy by calling
+        destroy() method.
         @return A pointer to the new Container object.
     */
     virtual OperationContext::Container * clone() const;
 
     /**
-        Cleans up an SSLCertificateChainContainer object that was created by the
-        clone() method.
+        Cleans up an SSLCertificateChainContainer object that was created by
+        the clone() method.
     */
     virtual void destroy();
 
     /**
-      * Gets the chain of SSL certificates from the SSLCertificateChainContainer object
-      * @return The chain of client certificates if the user was authenticated via SSL,
-         an empty array if not
+        Gets the chain of SSL certificates from the
+        SSLCertificateChainContainer object
+        @return The chain of client certificates if the user was authenticated
+         via SSL, an empty array if not
     */
       Array<SSLCertificateInfo> getUserCert() const;
 

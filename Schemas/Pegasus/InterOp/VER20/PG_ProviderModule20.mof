@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -73,7 +73,7 @@ class PG_ProviderModule : CIM_LogicalElement {
         "DesignatedUserContext MUST be NULL.")]
    string DesignatedUserContext;
 
-      [Description ( 
+      [Description (
         "   Indicates the current status(es) of the element. "
         "Various health and operational statuses are "
         "defined. Many of the enumeration's values are self-"
@@ -106,18 +106,18 @@ class PG_ProviderModule : CIM_LogicalElement {
         "OperationalStatus properties. As always, Status (since it "
         "is single-valued) provides the primary status of the "
         "element."),
-       ValueMap {"0", "1", "2", "3", "4", "5", "6", "7", "8", 
-             "9", "10", "11", "12", "13"}, 
+       ValueMap {"0", "1", "2", "3", "4", "5", "6", "7", "8",
+             "9", "10", "11", "12", "13"},
        Values {"Unknown", "Other", "OK", "Degraded", "Stressed",
-             "Predictive Failure", "Error", "Non-Recoverable Error", 
-             "Starting", "Stopping", "Stopped", "In Service", 
-             "No Contact", "Lost Communication"}, 
+             "Predictive Failure", "Error", "Non-Recoverable Error",
+             "Starting", "Stopping", "Stopped", "In Service",
+             "No Contact", "Lost Communication"},
        ModelCorrespondence {
-        "CIM_ManagedSystemElement.OtherStatusDescription"} ] 
+        "CIM_ManagedSystemElement.OtherStatusDescription"} ]
     uint16 OperationalStatus[];
       [Description (
         "A string describing the status - used when the "
-        "OperationalStatus property is set to 1 (\"Other\")."), 
+        "OperationalStatus property is set to 1 (\"Other\")."),
        ModelCorrespondence {
         "CIM_ManagedSystemElement.OperationalStatus"} ]
     string OtherStatusDescription;
@@ -136,7 +136,7 @@ class PG_ProviderModule : CIM_LogicalElement {
          "Manager and one or more managed resources. A Provider operates "
          "at the request of the CIM_ObjectManager. ") ]
 class PG_Provider : CIM_LogicalElement {
-      [Key, Propagated ("PG_ProviderModule.Name"),  
+      [Key, Propagated ("PG_ProviderModule.Name"),
        Description ("The scoping PG_ProviderModule name.") ]
    string ProviderModuleName;
       [Key, Override("Name"), Description ("A human-readable name that"
@@ -144,8 +144,8 @@ class PG_Provider : CIM_LogicalElement {
    string Name;
       [Description ("Indicates the OperationContext containers that "
        "are requested by the provider."),
-       ValueMap {"0", "1", "2", "3"}, 	
-       Values {"SSLCertificateChainContainer", "Reserved1", "Reserved2", "Reserved3"}]
+       ValueMap {"0", "1.."},
+       Values {"SSLCertificateChainContainer", "Reserved"}]
    uint16 RequestedOperationContextContainers[];
 };
 
@@ -157,10 +157,10 @@ class PG_Provider : CIM_LogicalElement {
 	 "abstract superclass which contains required properties for both "
 	 "provider and consumer.")]
 class PG_CapabilitiesRegistration : CIM_ManagedElement {
-      [Key, Propagated ("PG_Provider.ProviderModuleName"), 
+      [Key, Propagated ("PG_Provider.ProviderModuleName"),
        Description ("The scoping PG_ProviderModule name.") ]
    string ProviderModuleName;
-      [Key, Propagated ("PG_Provider.Name"), 
+      [Key, Propagated ("PG_Provider.Name"),
        Description ("The scoping PG_Provider name.") ]
    string ProviderName;
       [Key, Description ("A value that uniquely identifies "
@@ -189,7 +189,7 @@ class PG_ProviderCapabilities : PG_CapabilitiesRegistration {
        "information.")]
    string ClassName;
       [Required, Description ("Namespaces describes the namespaces that are "
-       "supported by the Provider for ClassName.")] 
+       "supported by the Provider for ClassName.")]
    string Namespaces[];
       [Description (
        "SupportedProperties lists the properties supported "
@@ -223,7 +223,7 @@ class PG_ConsumerCapabilities : PG_CapabilitiesRegistration {
        "destinations for which indications will be delivered to "
        "this consumer. An indication destination corresponds to the "
        "path portion of the destination URL specified in a "
-       "CIM_IndicationHandlerCIMXML instance.")] 
+       "CIM_IndicationHandlerCIMXML instance.")]
    string Destinations[];
 };
 
@@ -235,7 +235,7 @@ class PG_ConsumerCapabilities : PG_CapabilitiesRegistration {
       "ProviderCapabilitiesElements is an association describing "
       "the capabilities that are supported by a Provider. ") ]
 class PG_ProviderCapabilitiesElements : CIM_Dependency {
-      [Key, Override ("Antecedent"), Min(1), Max(1), 
+      [Key, Override ("Antecedent"), Min(1), Max(1),
        Description ("The CIM Provider supporting the Capability.") ]
     PG_Provider REF Antecedent;
       [Override ("Dependent"), Weak,
@@ -252,7 +252,7 @@ class PG_ProviderCapabilitiesElements : CIM_Dependency {
       "ProviderModuleElements is an association describing "
       "the Provider that are supported by a ProviderModule. ") ]
 class PG_ProviderModuleElements : CIM_Dependency {
-      [Override ("Antecedent"), Min(1), Max(1), Key, 
+      [Override ("Antecedent"), Min(1), Max(1), Key,
        Description ("The Provider Module containing the Provider.") ]
     PG_ProviderModule REF Antecedent;
       [Override ("Dependent"), Weak,

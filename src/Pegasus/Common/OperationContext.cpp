@@ -967,7 +967,8 @@ public:
 // SSLCertificateChainContainer
 //
 
-const String SSLCertificateChainContainer::NAME = "SSLCertificateChainContainer";
+const String SSLCertificateChainContainer::NAME =
+    "SSLCertificateChainContainer";
 
 SSLCertificateChainContainer::SSLCertificateChainContainer(
     const OperationContext::Container & container)
@@ -979,7 +980,6 @@ SSLCertificateChainContainer::SSLCertificateChainContainer(
     {
         throw DynamicCastFailedException();
     }
-
     _rep = new SSLCertificateChainContainerRep();
     _rep->userCert = p->_rep->userCert;
 }
@@ -1013,9 +1013,7 @@ SSLCertificateChainContainer & SSLCertificateChainContainer::operator=(
     {
         return (*this);
     }
-
     _rep->userCert = container._rep->userCert;
-
     return (*this);
 }
 

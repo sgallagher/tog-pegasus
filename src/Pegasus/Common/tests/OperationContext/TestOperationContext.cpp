@@ -857,22 +857,36 @@ void Test11()
     Array<SSLCertificateInfo> userCert;
     for (Uint32 i =0; i<3; i++)
     {
-        const String subjectName = String("TestCertificate"+i);
-        const String issuerName = String("TestIssuer"+i);
-        const Uint32 errorDepth = i;
-        const Uint32 errorCode = i+1;
-        const Uint32 respCode = i+2;
+        const String subjectName = String("TestCertificate");
+        const String issuerName = String("TestIssuer");
+        const Uint32 errorDepth = i+1;
+        const Uint32 errorCode = i+2;
+        const Uint32 respCode = i+3;
 
         SSLCertificateInfo sslCertificate(
             subjectName, issuerName, errorDepth, errorCode, respCode);
+
+        if (verbose)
+        {
+            cout << sslCertificate.toString() << endl;
+        }
         userCert.append(sslCertificate);
     }
-
     {
         context.insert(SSLCertificateChainContainer(userCert));
 
         SSLCertificateChainContainer container = context.get(
             SSLCertificateChainContainer::NAME);
+
+        if (verbose)
+        {
+            cout << "Test SSLCertificateChainContainer. "
+                 << endl;
+            cout << "  Size of the UserCert array = "
+                 << userCert.size() << endl;
+            cout << "  Size of the Container UserCert = "
+                 << container.getUserCert().size() << endl;
+        }
 
         if(userCert.size() != (container.getUserCert()).size())
         {
@@ -887,15 +901,56 @@ void Test11()
     {
         context.insert(SSLCertificateChainContainer(userCert));
 
-        //
-        //  This tests the SSLCertificateChainContainer copy constructor.
-        //
+        /** This tests the SSLCertificateChainContainer copy
+            constructor.
+        */
         SSLCertificateChainContainer container = context.get(
             SSLCertificateChainContainer::NAME);
+        SSLCertificateChainContainer container1(container);
+
+        if (verbose)
+        {
+            cout << "Test SSLCertificateChainContainer copy constructor."
+                 << endl;
+            cout << "  Size of the UserCert array = "
+                 << userCert.size() << endl;
+            cout << "  Size of the Container UserCert = "
+                 << container1.getUserCert().size() << endl;
+        }
+
+        if(userCert.size() != (container1.getUserCert()).size())
+        {
+            cout << " SSLCertificateChainContainer copy constructor failed"
+                 << endl;
+            throw 0;
+        }
+    }
+    context.clear();
+    {
+        context.insert(SSLCertificateChainContainer(userCert));
+
+        /** This tests the SSLCertificateChainContainer Overloaded
+            Assignment Operator.
+        */
+        SSLCertificateChainContainer container = context.get(
+            SSLCertificateChainContainer::NAME);
+        SSLCertificateChainContainer container1 = context.get(
+            SSLCertificateChainContainer::NAME);
+        container = container1;
+
+        if (verbose)
+        {
+            cout << "Test SSLCertificateChainContainer Assignment Operator."
+                 << endl;
+            cout << "  Size of the UserCert array = "
+                 << userCert.size() << endl;
+            cout << "  Size of the Container UserCert = "
+                 << container.getUserCert().size() << endl;
+        }
 
         if(userCert.size() != (container.getUserCert()).size())
         {
-            cout << " SSLCertificateChainContainer copy constructor failed"
+            cout << " SSLCertificateChainContainer Assignment operator failed"
                  << endl;
             throw 0;
         }

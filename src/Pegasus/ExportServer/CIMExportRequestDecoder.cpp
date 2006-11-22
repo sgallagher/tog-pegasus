@@ -196,8 +196,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       PEG_TRACE((
           TRC_HTTP,
           Tracer::LEVEL3,
-          "CIMExportRequestDecoder::handleHTTPMessage user cert chain size is %d", userCert.size()));
-
+          "CIMExportRequestDecoder::handleHTTPMessage "
+          "user Cert chain size is %d",
+          userCert.size()));
    }
 
    Boolean closeConnect = httpMessage->getCloseConnect();
@@ -906,7 +907,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
         if (userCert.size() != 0)
         {
-            request->operationContext.insert(SSLCertificateChainContainer(userCert));
+            request->operationContext.insert(
+                SSLCertificateChainContainer(userCert));
         }
 // l10n end
 

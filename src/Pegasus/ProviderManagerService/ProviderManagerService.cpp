@@ -377,11 +377,13 @@ void ProviderManagerService::handleCimRequest(
         provider = pidc.getProvider();
 
         Array<Uint16> requestedOperationContextContainers;
-        Uint32 pos1 = provider.findProperty(PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
+        Uint32 pos1 = provider.findProperty(
+            PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
 
         if (pos1 != PEG_NOT_FOUND)
         {
-            provider.getProperty(pos1).getValue().get(requestedOperationContextContainers);
+            provider.getProperty(pos1).getValue().get(
+                requestedOperationContextContainers);
         }
 
         for (Uint32 i=0; i<requestedOperationContextContainers.size(); i++)
@@ -389,10 +391,11 @@ void ProviderManagerService::handleCimRequest(
             if (requestedOperationContextContainers[i] != 0)
             {
                 /**
-                    remove the SSL client certificate container unless the provider
-                    explicitly registered for it
+                    remove the SSL client certificate container unless the
+                    provider explicitly registered for it.
                 */
-                request->operationContext.remove(SSLCertificateChainContainer::NAME);
+                request->operationContext.remove(
+                    SSLCertificateChainContainer::NAME);
             }
         }
 

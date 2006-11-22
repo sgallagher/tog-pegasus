@@ -1578,5 +1578,9 @@ SSLCallbackInfo::~SSLCallbackInfo()
     PEG_METHOD_EXIT();
 }
 
+#define PEGASUS_ARRAY_T SSLCertificateInfoRep
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 

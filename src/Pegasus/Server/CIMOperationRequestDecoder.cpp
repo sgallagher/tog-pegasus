@@ -224,8 +224,9 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       PEG_TRACE((
           TRC_HTTP,
           Tracer::LEVEL3,
-          "CIMOperationRequestDecoder::handleHTTPMessage user cert chain size is %d", userCert.size()));
-
+          "CIMOperationRequestDecoder::handleHTTPMessage user Cert"
+          " chain size is %d",
+          userCert.size()));
    }
 
    // Parse the HTTP message:
@@ -1467,7 +1468,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
             cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
             if (userCert.size() != NULL)
             {
-                cimmsg->operationContext.insert(SSLCertificateChainContainer(userCert));
+                cimmsg->operationContext.insert(
+                    SSLCertificateChainContainer(userCert));
             }
         }
         else

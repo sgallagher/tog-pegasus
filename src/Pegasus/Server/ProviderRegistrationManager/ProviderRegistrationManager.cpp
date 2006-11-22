@@ -2132,11 +2132,13 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 (_PROPERTY_PROVIDER_NAME)).getValue().get(providerName);
 
             // get provider RequestedOperationContextContainers
-            Uint32 pos = instance.findProperty(PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
+            Uint32 pos = instance.findProperty(
+                _PROPERTY_REQUESTEDOPERATIONCONTEXTCONTAINERS);
 
             if (pos != PEG_NOT_FOUND)
             {
-                instance.getProperty(pos).getValue().get(requestedOperationContextContainers);
+                instance.getProperty(pos).getValue().get(
+                    requestedOperationContextContainers);
             }
 
             //

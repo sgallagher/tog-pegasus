@@ -448,7 +448,7 @@ private:
     friend class SSLContextManager;
 };
 
-#define PEGASUS_ARRAY_T SSLCertificateInfo
+#define PEGASUS_ARRAY_T SSLCertificateInfoRep
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 

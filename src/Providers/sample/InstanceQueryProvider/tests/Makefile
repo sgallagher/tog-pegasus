@@ -59,10 +59,10 @@ poststarttests:
 
 	@$(ECHO) +++++ Enumerating Sample_InstanceQueryProviderClass $(SAMPLEPROVIDERNS)
 
-	CLI ei Sample_InstanceQueryProviderClass "-n $(SAMPLEPROVIDERNS)" --sum -count 3
+	cimcli ei Sample_InstanceQueryProviderClass "-n $(SAMPLEPROVIDERNS)" --sum -count 3
 
 	@$(ECHO) +++++ Querying Sample_InstanceQueryProviderClass $(SAMPLEPROVIDERNS)
-	CLI xq "select * from Sample_InstanceQueryProviderClass where identifier=2 or idetifier=3" \
+	cimcli xq "select * from Sample_InstanceQueryProviderClass where identifier=2 or idetifier=3" \
 	 "-n $(SAMPLEPROVIDERNS)" -s -count 2
 
 

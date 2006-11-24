@@ -84,7 +84,7 @@ cimmof_repository:
 tests:
 
 poststarttests:
-#	CLI sp -n $(NAMESPACE) JMPIProperty_TestPropertyTypes.InstanceId=1 PropertyString "hello"
+#	cimcli sp -n $(NAMESPACE) JMPIProperty_TestPropertyTypes.InstanceId=1 PropertyString "hello"
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES)
 	make -f JarMakefile $@

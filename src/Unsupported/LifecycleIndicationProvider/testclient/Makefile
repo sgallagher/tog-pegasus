@@ -62,13 +62,13 @@ poststarttests:
 	@$(ECHO) "TestLifecycleIndication createInstance"
 	@$(PROGRAM) createInstance
 	@$(ECHO) "How many instances exist? Lets enumerate them..."
-	-CLI ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
+	-cimcli ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
 	@$(ECHO) "TestLifecycleIndication deleteInstance"
 	@$(PROGRAM) deleteInstance
 	@$(ECHO) "TestLifecycleIndication deleteInstance"
 	@$(PROGRAM) deleteInstance
 	@$(ECHO) "We've deleted two instances, should just be one left..."
-	-CLI ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
+	-cimcli ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
 	@$(ECHO) "TestLifecycleIndication deleteInstance"
 	@$(PROGRAM) deleteInstance
 	@$(ECHO) "TestLifecycleIndication cleanup"
@@ -82,13 +82,13 @@ poststarttests:
 	@$(ECHO) "TestLifecycleIndication createInstance"
 	@$(PROGRAM) createInstance
 	@$(ECHO) "How many instances exist? Lets enumerate them..."
-	-CLI ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
+	-cimcli ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
 	@$(ECHO) "TestLifecycleIndication deleteInstance"
 	@$(PROGRAM) deleteInstance
 	@$(ECHO) "TestLifecycleIndication deleteInstance"
 	@$(PROGRAM) deleteInstance
 	@$(ECHO) "We've deleted two instances, should just be one left..."
-	-CLI ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
+	-cimcli ei -n $(SAMPLEPROVIDERNS) $(SAMPLECLASS)
 	@$(ECHO) "TestLifecycleIndication deleteInstance"
 	@$(PROGRAM) deleteInstance
 	@$(ECHO) "TestLifecycleIndication cleanup"

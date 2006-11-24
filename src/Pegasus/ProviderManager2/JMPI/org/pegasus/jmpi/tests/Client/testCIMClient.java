@@ -48,7 +48,7 @@ import org.pegasus.jmpi.UnsignedInt16;
 import org.pegasus.jmpi.UnsignedInt32;
 import org.pegasus.jmpi.UnsignedInt64;
 
-// CLI dq -n root/SampleProvider JMPINewQualifierType
+// cimcli dq -n root/SampleProvider JMPINewQualifierType
 
 public class testCIMClient
 {

@@ -111,7 +111,7 @@ ShutdownService* ShutdownService::getInstance(CIMServer* cimserver)
 
 /**
     The shutdown method to be called by the ShutdownProvider to
-    process a shutdown request from the CLI client.
+    process a shutdown request from the cimcli client.
 */
 void ShutdownService::shutdown(
     Boolean force,

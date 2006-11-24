@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Mark Hamzy,    hamzy@us.ibm.com
-//
-// Modified By: Mark Hamzy,    hamzy@us.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 package Associations;
 
@@ -589,7 +585,7 @@ public class JMPIAssociationProvider
       {
          CIMProperty[] props    = {
             new CIMProperty ("Name",
-                             new CIMValue (name)),                                    /* @TBD: CLI doesnt pass this in: className */
+                             new CIMValue (name)),                                    /* @TBD: cimcli doesnt pass this in: className */
             new CIMProperty ("Identifier",
                              new CIMValue (new UnsignedInt8 (Integer.toString (id)))) /* @TBD: ... className */
          };

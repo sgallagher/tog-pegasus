@@ -98,7 +98,7 @@ Installation instructions:
 
 4) Issue requests against CIMOM to see if its working, for example
 
-        CLI -n root/local ni Linux_ComputerSystem
+        cimcli -n root/local ni Linux_ComputerSystem
 
    All commands against root/local will be routed to the CMPIRDaemon.
 

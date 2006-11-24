@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jake Kitchener (jakekit@us.ibm.com)
-//
-// Modified By: Heather Sterling (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -54,8 +50,8 @@
  * You must create a subscription against one of the provider's indication classes in order for it to be enabled
  * for indications.
  * 
- * To exercise the provider, you can script commands using CLI:
- *  >./CLI im PG_DynamicIndication sendIndication severity=0 classname=MyTestIndication description=test
+ * To exercise the provider, you can script commands using cimcli:
+ *  >./cimcli im PG_DynamicIndication sendIndication severity=0 classname=MyTestIndication description=test
  */ 
 
 PEGASUS_NAMESPACE_BEGIN

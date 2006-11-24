@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//          Mary Hinton (m.hinton@verizon.net)
-//
-// Modified By: Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
-//              Adrian Schuur (schuur@de.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce(jojustin@in.ibm.com) for Bug #1664
-//              Amit K Arora (amita@in.ibm.com) for Bug#2926
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4349, #4228, #5064
-//              Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug#4069
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
@@ -180,74 +168,74 @@ static const char* commonOptions = "    -count, -d, -delay, -p, -l, -u, -o, -x,\
  -v, --sum, --timeout, -r, --t ";
 
 const char *examples[] = {
-"CLI ni -n test/TestProvider TEST_Person -- enumerateinstancenames of class \n",
+"cimcli ni -n test/TestProvider TEST_Person -- enumerateinstancenames of class \n",
 "    -n, classname \n",
-"CLI niall -n root/cimv2     \n        -- enumerateinstancenames of \
+"cimcli niall -n root/cimv2     \n        -- enumerateinstancenames of \
 all classes under the namespace root/cimv2 \n",
 "    -n, -di, classname \n",
-"CLI ei PG_ComputerSystem   -- enumerateinstances of class \n",
+"cimcli ei PG_ComputerSystem   -- enumerateinstances of class \n",
 "    -n, -di, -lo, -iq, -pl, classname, includeClassOrigin \n",
-"CLI nc -- Enumerate class names from root/cimv2. \n",
+"cimcli nc -- Enumerate class names from root/cimv2. \n",
 "    -n, -di, classname \n",
-"CLI ec -n root/cimv2 -- Enumerate classes from namespace root/cimv2. \n",
+"cimcli ec -n root/cimv2 -- Enumerate classes from namespace root/cimv2. \n",
 "    -n, -di, -lo, -iq, includeClassOrigin \n",
-"CLI gc CIM_door -u guest -p guest\n    -- Get class \
+"cimcli gc CIM_door -u guest -p guest\n    -- Get class \
 user = guest and password = guest. \n",
 "    -n, -lo, -iq, -pl, className, includeClassOrigin \n",
-"CLI gi -n test/TestProvider TEST_Person    ---  getInstance of class \n",
+"cimcli gi -n test/TestProvider TEST_Person    ---  getInstance of class \n",
 "    -n, -lo, -iq, -pl, includeClassOrigin \n",
-"CLI ci -n test/TestProvider TEST_Person Name=Michael -- createInstance of" 
+"cimcli ci -n test/TestProvider TEST_Person Name=Michael -- createInstance of" 
 " class \n",
 "    -n \n",
-"CLI di -n test/TestProvider TEST_Person    ---  deleteInstance of class"
+"cimcli di -n test/TestProvider TEST_Person    ---  deleteInstance of class"
 " interactively \n",
 "    -n \n",
 "Operation Not supported.. \n",
 " \n",
 "Operation Not supported.. \n",
 " \n",
-"CLI dc -n test/TestProvider TEST_Person  \n     --- deletes the Class when"
+"cimcli dc -n test/TestProvider TEST_Person  \n     --- deletes the Class when"
 " there are no instance and sub-class for this class \n",
 "    -n \n",
 "Operation Not supported.. \n",
 " \n",
 "Operation Not supported.. \n",
 " \n",
-"CLI gq Association -- Get the qualifiers in mof output format \n",
+"cimcli gq Association -- Get the qualifiers in mof output format \n",
 "    -n, qualifierName \n",
 "Operation Not supported.. \n",
 " \n",
-"CLI eq -n test/TestProvider  ---  enumerateQualifiers of namespace"
+"cimcli eq -n test/TestProvider  ---  enumerateQualifiers of namespace"
 "\n     test/TestProvider \n",
 "    -n \n",
-"CLI dq -n test/TestProvider ASSOCIATION  --- deleteQualifier Association in"
+"cimcli dq -n test/TestProvider ASSOCIATION  --- deleteQualifier Association in"
 " namespace test/TestProvider \n",
 "    -n, qualifierName \n",
-"CLI a TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n  or"
-"\nCLI a TST_Person -n test/TestProvider -ac TST_Lineage \n",
+"cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n  or"
+"\ncimcli a TST_Person -n test/TestProvider -ac TST_Lineage \n",
 "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i \n",
-"CLI an TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n or"
-"\nCLI an TST_Person -n test/TestProvider -ac TST_Lineage \n",
+"cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n or"
+"\ncimcli an TST_Person -n test/TestProvider -ac TST_Lineage \n",
 "    -n, -ac, -rc, -r, -rr, -i \n",
-"CLI r TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n  or"
-"\nCLI r TST_Person -n test/TestProvider -rc TST_Lineage \n",
+"cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n  or"
+"\ncimcli r TST_Person -n test/TestProvider -rc TST_Lineage \n",
 "    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i \n",
-"CLI rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n or"
-"\nCLI rn TST_Person -n test/TestProvider -rc TST_Lineage \n",
+"cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n or"
+"\ncimcli rn TST_Person -n test/TestProvider -rc TST_Lineage \n",
 "    -n, -rc, -r, -i \n",
-"CLI im Sample_MethodProviderClass.Name=\\\"mooo\\\" SayHello"
+"cimcli im Sample_MethodProviderClass.Name=\\\"mooo\\\" SayHello"
 "\n   -n root/SampleProvider -ip p1=fred \n",
 "    -n, -ip \n",
-"CLI xq \"select * from CIM_ComputerSystem\"   \n   ---- "
+"cimcli xq \"select * from CIM_ComputerSystem\"   \n   ---- "
 "This command will work when the code is compiled with ExecQuery enabled \n",
 "    -n, queryLanguage, query \n",
-"CLI ns    ---  enumerate all Namespaces in repository \n",
+"cimcli ns    ---  enumerate all Namespaces in repository \n",
 " No options Required \n",
-"CLI son   --- Switch On's the statistical information on CIMServer \n",
+"cimcli son   --- Switch On's the statistical information on CIMServer \n",
 " No options Required \n",
-"CLI soff  --- Switch OFF's the statistical information on CIMServer \n",
+"cimcli soff  --- Switch OFF's the statistical information on CIMServer \n",
 " No options Required \n",
-"CLI ?     --- Displays help command \n",
+"cimcli ?     --- Displays help command \n",
 " No options Required"
 };
 
@@ -2149,7 +2137,7 @@ void GetOptions(
 
     om.registerOptions(optionsTable, NUM_OPTIONS);
 
-    String configFile = "CLI.conf";
+    String configFile = "cimcli.conf";
 
     //cout << "Config file from " << configFile << endl;
 
@@ -2325,7 +2313,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                     exit(0);
                 }
             }
-            cout << "Command not found. Type CLI -hc to list valid commands."
+            cout << "Command not found. Type cimcli -hc to list valid commands."
                  << endl;
             exit(1);
         }

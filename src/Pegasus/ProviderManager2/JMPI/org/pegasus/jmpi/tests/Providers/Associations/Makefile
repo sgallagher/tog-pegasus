@@ -96,41 +96,41 @@ cimmof_repository:
 tests:
 
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
-	@CLI a  --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Teacher
-	@CLI an --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Teacher
-	@CLI r  --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Teacher
-	@CLI rn --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Teacher
-	@CLI a  --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIExpAssociation_Teacher.Name="Teacher1",Identifier=1'
-	@CLI an --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIExpAssociation_Teacher.Name="Teacher1",Identifier=1'
-	@CLI r  --sum -count 1 -n $(NAMESPACE) -r Teaches JMPIExpAssociation_Teacher
-	@CLI rn --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIExpAssociation_Teacher.Name="Teacher1",Identifier=1'
+	@cimcli a  --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Teacher
+	@cimcli an --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Teacher
+	@cimcli r  --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Teacher
+	@cimcli rn --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Teacher
+	@cimcli a  --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIExpAssociation_Teacher.Name="Teacher1",Identifier=1'
+	@cimcli an --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIExpAssociation_Teacher.Name="Teacher1",Identifier=1'
+	@cimcli r  --sum -count 1 -n $(NAMESPACE) -r Teaches JMPIExpAssociation_Teacher
+	@cimcli rn --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIExpAssociation_Teacher.Name="Teacher1",Identifier=1'
 
-	@CLI a  --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Student
-	@CLI an --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Student
-	@CLI r  --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Student
-	@CLI rn --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Student
-	@CLI a  --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIExpAssociation_Student.Name="Student1",Identifier=1'
-	@CLI an --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIExpAssociation_Student.Name="Student1",Identifier=1'
-	@CLI r  --sum -count 1 -n $(NAMESPACE) -r TaughtBy JMPIExpAssociation_Student
-	@CLI rn --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIExpAssociation_Student.Name="Student1",Identifier=1'
+	@cimcli a  --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Student
+	@cimcli an --sum -count 1 -n $(NAMESPACE) JMPIExpAssociation_Student
+	@cimcli r  --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Student
+	@cimcli rn --sum -count 2 -n $(NAMESPACE) JMPIExpAssociation_Student
+	@cimcli a  --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIExpAssociation_Student.Name="Student1",Identifier=1'
+	@cimcli an --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIExpAssociation_Student.Name="Student1",Identifier=1'
+	@cimcli r  --sum -count 1 -n $(NAMESPACE) -r TaughtBy JMPIExpAssociation_Student
+	@cimcli rn --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIExpAssociation_Student.Name="Student1",Identifier=1'
 
-	@CLI a  --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Teacher
-	@CLI an --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Teacher
-	@CLI r  --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Teacher
-	@CLI rn --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Teacher
-	@CLI a  --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIAssociation_Teacher.Name="Teacher1",Identifier=1'
-	@CLI an --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIAssociation_Teacher.Name="Teacher1",Identifier=1'
-	@CLI r  --sum -count 1 -n $(NAMESPACE) -r Teaches JMPIAssociation_Teacher
-	@CLI rn --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIAssociation_Teacher.Name="Teacher1",Identifier=1'
+	@cimcli a  --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Teacher
+	@cimcli an --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Teacher
+	@cimcli r  --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Teacher
+	@cimcli rn --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Teacher
+	@cimcli a  --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIAssociation_Teacher.Name="Teacher1",Identifier=1'
+	@cimcli an --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIAssociation_Teacher.Name="Teacher1",Identifier=1'
+	@cimcli r  --sum -count 1 -n $(NAMESPACE) -r Teaches JMPIAssociation_Teacher
+	@cimcli rn --sum -count 3 -n $(NAMESPACE) -r Teaches 'JMPIAssociation_Teacher.Name="Teacher1",Identifier=1'
 
-	@CLI a  --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Student
-	@CLI an --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Student
-	@CLI r  --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Student
-	@CLI rn --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Student
-	@CLI a  --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIAssociation_Student.Name="Student1",Identifier=1'
-	@CLI an --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIAssociation_Student.Name="Student1",Identifier=1'
-	@CLI r  --sum -count 1 -n $(NAMESPACE) -r TaughtBy JMPIAssociation_Student
-	@CLI rn --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIAssociation_Student.Name="Student1",Identifier=1'
+	@cimcli a  --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Student
+	@cimcli an --sum -count 1 -n $(NAMESPACE) JMPIAssociation_Student
+	@cimcli r  --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Student
+	@cimcli rn --sum -count 2 -n $(NAMESPACE) JMPIAssociation_Student
+	@cimcli a  --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIAssociation_Student.Name="Student1",Identifier=1'
+	@cimcli an --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIAssociation_Student.Name="Student1",Identifier=1'
+	@cimcli r  --sum -count 1 -n $(NAMESPACE) -r TaughtBy JMPIAssociation_Student
+	@cimcli rn --sum -count 3 -n $(NAMESPACE) -r TaughtBy 'JMPIAssociation_Student.Name="Student1",Identifier=1'
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES)
 	$(PEGASUS_JAVA_JAR) -cf $@ $(addprefix -C .. $(PACKAGEDIR),$^) $(addprefix -C .. $(PACKAGEDIR),$(EXTRAJAR1CLASSES))

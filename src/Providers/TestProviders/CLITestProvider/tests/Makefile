@@ -28,7 +28,7 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Test the CLI test Provider using the script
+# Test the cimcli test Provider using the script
 #//==============================================================================
 #//
 #// Author: Muni s Reddy (mreddy@in.ibm.com)   for bug #4792
@@ -63,10 +63,10 @@ poststarttests:
 
 	@$(ECHO) 1. +++++ Test For Reference params
 
-	$(SSH)CLI im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
+	$(SSH)cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
 
 	@$(ECHO) 2. +++++ Test String  params  which include square brackets
-	$(SSH)CLI im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a="\[string-param\]"
+	$(SSH)cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a="\[string-param\]"
 clean:
 
 # END_OF_FILE

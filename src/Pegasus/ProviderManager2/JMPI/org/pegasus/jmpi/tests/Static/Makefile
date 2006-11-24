@@ -40,7 +40,7 @@ NAMESPACE        = root/SampleProvider
 all clean depend build messages tests repository:
 
 poststarttests:
-	CLI -n $(NAMESPACE) im JMPIExpInstance_TestPropertyTypes resetProvider
+	cimcli -n $(NAMESPACE) im JMPIExpInstance_TestPropertyTypes resetProvider
 	$(MAKE) -C CreateInstance $(MFLAGS) $@
 	$(MAKE) -C DeleteInstance $(MFLAGS) $@
 	$(MAKE) -C EnumerateInstances $(MFLAGS) $@
@@ -50,7 +50,7 @@ poststarttests:
 #	$(MAKE) -C Headers $(MFLAGS) $@
 	$(MAKE) -C InvokeMethod $(MFLAGS) $@
 #	$(MAKE) -C ModifyClass $(MFLAGS) $@
-	CLI -n $(NAMESPACE) im JMPIExpInstance_TestPropertyTypes enableModifications fState=true
+	cimcli -n $(NAMESPACE) im JMPIExpInstance_TestPropertyTypes enableModifications fState=true
 	$(MAKE) -C ModifyInstance $(MFLAGS) $@
 #	$(MAKE) -C Property $(MFLAGS) $@
-	CLI -n $(NAMESPACE) im JMPIExpInstance_TestPropertyTypes resetProvider
+	cimcli -n $(NAMESPACE) im JMPIExpInstance_TestPropertyTypes resetProvider

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//          Mary Hinton (m.hinton@verizon.net)
-//
-// Modified By: Adrian Schuur (schuur&de.ibm.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4228, #5064
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CLI_CLIENTLIB_H
@@ -48,7 +42,7 @@
 #include <Pegasus/Common/Stopwatch.h>
 
 PEGASUS_NAMESPACE_BEGIN
-#define CDEBUG(X) PEGASUS_STD(cout) << "CLI " << X << PEGASUS_STD(endl)
+#define CDEBUG(X) PEGASUS_STD(cout) << "cimcli " << X << PEGASUS_STD(endl)
 //#define CDEBUG(X)
 //#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "CIMOpReqDsptchr", Logger::INFORMATION, "$0", X)
 
@@ -128,7 +122,7 @@ static CMD_STRUCT CommandTable[] =
     {ID_EnumerateInstanceNames,  "enumerateInstanceNames", 2 ,"ni",
         "Enumerate instancenames of <instancename>  " },
     {ID_EnumerateAllInstanceNames,"enumallInstanceNames", 2 , "niall",
-        " Enumerate all instancenames in namespace. CLI niall" },
+        " Enumerate all instancenames in namespace." },
     {ID_EnumerateInstances,      "enumerateInstances",2 ,   "ei",
         " Enumerate instances of <classname> " },
     {ID_EnumerateClassNames,     "enumerateClassNames",2 ,  "nc",

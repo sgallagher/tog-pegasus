@@ -1,26 +1,27 @@
-CLI(1)									CLI(1)
+cimcli(1)							     cimcli(1)
 
 
 
 NAME
-       CLI - command line WBEM Client
+       cimcli - command line WBEM Client
 
 SYNOPSIS
-       CLI [operation] [object] [options] [extra-parameters] ...
+       cimcli [operation] [object] [options] [extra-parameters] ...
 
-       CLI is available for all platforms that support the Pegasus CIM Server.
+       cimcli is available for all platforms that support the 
+              Pegasus CIM Server.
 
 
 DESCRIPTION
-       CLI is a command line test tool for executing CIM client operations. It
-       implements  all	of  the	 DMTF CIM operations except for the modify and
+       cimcli is a command line test tool for executing CIM client operations.
+       It implements all of the DMTF CIM operations except for the modify and
        create class/instance operations and includes several other  operations
        that are useful in testing including getting all namespaces and enumer-
        ating all instances in a namespace.
 
-       Each execution of CLI invokes a CIM Operation  with  the	 corresponding
-       command	parameters equivalent to the CIM Operations defined in the CIM
-       Operations over HTTP specification.
+       Each execution of cimcli invokes a CIM Operation with the corresponding
+       command  parameters  equivalent  to  he  CIM Operations  defined in the
+       CIM Operations over HTTP specification.
 
        In addition to the basic CIM Operations defined in  the	specification,
        this tool implements a number of other specific operations that support
@@ -39,11 +40,11 @@ DESCRIPTION
 
 	      The format of this command is generally:
 
-       CLI [Operation] [objectname] [options] [extra parameters]
+       cimcli [Operation] [objectname] [options] [extra parameters]
 
 
        [Operation]
-	      defines the  operation to be executed. CLI executes all  of  the
+	      defines the operation to be executed. cimcli executes all of the
 	      DMTF  CIM Operations (ex. getclass) and a set of compound opera-
 	      tion (enumeratenamespaces). There are two forms for each	Opera-
 	      tion definition, a short form typically two characters (i.e. gc)
@@ -100,12 +101,12 @@ DESCRIPTION
 	       in some cases or simply strings depending on the operation.
 
 
-	       NOTE: CLI does not protect the  user  against  inputting	 extra
+	       NOTE: cimcli does not protect the  user against inputting extra
 	       options or parameters.  Since the options are heavily dependent
 	       on the operation	 to  be	 executed,  it	simply	ignores	 those
 	       options	that  are not used with a particular operation.	 Thus,
 	       entering the -r option (role)  with  a  getClass	 operation  is
-	       syntatically allowed but CLI ignores the parameter.
+	       syntatically allowed but cimcli ignores the parameter.
 
 
 UNIVERSAL OPTIONS
@@ -121,12 +122,12 @@ UNIVERSAL OPTIONS
 	      Host name or IP address and optionally port for this  operation.
 	      The default for this command if the the -n option is not used is
 	      to use the Pegasus connectLocal() function  to  connect  to  the
-	      server.	Note  that  this  means	 that  a  command  like CLI gc
+	      server. Note that  this  means  that  a  command  like cimcli gc
 	      CIM_Door may not work when trying to connect to a	 server	 other
-	      than Pegasus on the same system. If CLI is to be used to connect
-	      to a CIM Server other than Pegasus on the	 same  system  use  -l
-	      localhost	 or  -l	 127.0.0.1  or	the actual name or IP address.
-	      This will force CLI to make the connection in  the  normal  way,
+	      than Pegasus on the same system. If cimcli is to be used to con-
+              nect to a CIM Server  other than Pegasus  on the same system use
+              -l localhost or -l 127.0.0.1  or	the actual name or IP address.
+	      This will force cimcli to make the connection in the normal way,
 	      not using connectLocal()
 
        -u [user-name]
@@ -153,8 +154,8 @@ UNIVERSAL OPTIONS
 	      tion  round trip time for the operation. Note that when combined
 	      with the repeat option, the output  includes  maximum,  minimum,
 	      and average times for the operation.  There are a specific oper-
-	      ations in CLI to turn control statistics generation (See son and
-	      soff operations)
+	      ations in cimcli to turn control statistics generation (See son 
+              and soff operations)
 
        --r [repeat_count]
 	      Repeat the operation repeat_count times. This repeats the opera-
@@ -192,7 +193,8 @@ UNIVERSAL OPTIONS
 
 
        OPERATIONS
-	      This section defines the individual operations supported by CLI.
+	      This section defines  the  individual  operations  supported  by
+              cimcli.
 	      Note  that  the  either the names (ex EnumerateInstances) or the
 	      shortcut (ei) may be used in inputting  an  operation  defintion
 	      and they they are case independent.
@@ -223,7 +225,7 @@ UNIVERSAL OPTIONS
 
 	      Example:
 
-		   CLI ci CIM_door name=abc size=zyx
+		   cimcli ci CIM_door name=abc size=zyx
 
 	      Returns  the  object path of the created instance if the call to
 	      the cim server was executed.  Otherwise it returns the exception
@@ -234,9 +236,9 @@ UNIVERSAL OPTIONS
 	      Issues  the  enumerateClasses CIM operation which enumerates the
 	      class hiearchy starting at the level defined by <classname>.
 
-	      The format is: CLI ec [classname] [options]
+	      The format is: cimcli ec [classname] [options]
 
-	      where classname is not required.	If it is omitted, CLI  inserts
+	      where classname is not required. If it's omitted, cimcli inserts
 	      an  empty	 classname  into the CIM operation which tells the CIM
 	      Server to start at the top of the class inheritance  tree.   The
 	      possible options that represent the parameters of the enumerate-
@@ -262,7 +264,7 @@ UNIVERSAL OPTIONS
        nc EnumerateClassNames
 	      Enumerate Class Names.  The format is:
 
-		   CLI[ <classname> ] [options] where the used options are:
+		   cimcli[ <classname> ] [options] where the used options are:
 
 	      The options specific to this operation include;
 
@@ -284,7 +286,7 @@ UNIVERSAL OPTIONS
 	      Execute the enumerateInstanceNames CIM Operation. The syntax for
 	      this operation is:
 
-	      CLI ni [classname] [options]
+	      cimcli ni [classname] [options]
 
 	      This  operation  takes as input options specific to this command
 	      the following:
@@ -308,17 +310,17 @@ UNIVERSAL OPTIONS
 
 	      Example:
 
-		      CLI   ni	CIM_ManagedElement  -p	password  -n  name  -n
-	      root/PG_Interop	   Execute the	enumerateInstanceNames	opera-
-	      tion   on	  CIM_ManagedElement   class  in  the  root/PG_Interop
-		   namespace.
+		  cimcli ni CIM_ManagedElement -n root/PG_Interop
+
+              	  Execute the enumerateInstanceNames operation on 
+                  CIM_ManagedElement class in the root/PG_Interopnamespace.
 
 
        ei EnumerateInstances
 	      Execute the CIM operation enumerateInstances. The format of this
 	      operation is:
 
-	      CLI ei <className> [options]
+	      cimcli ei <className> [options]
 
 	      In order to provide all of the options allowed for the CIM oper-
 	      ation EnumerateInstances it uses the following options  specific
@@ -349,11 +351,11 @@ UNIVERSAL OPTIONS
 
 	      Example
 
-		  CLI ei CIM_ComputerSystem -niq -di
+		  cimcli ei CIM_ComputerSystem -niq -di
 
 		  This example enumerates CIM_ComputerSystem in the  namespace
-	      root/CIMV2  (default)  requesting without qualifiers (-niq) with
-	      deepInheritance (-di).
+	          root/CIMV2 (default) requesting without qualifiers (-niq) 
+                  with deepInheritance (-di).
 
 
        niall enumerateallinstanceNames
@@ -366,17 +368,17 @@ UNIVERSAL OPTIONS
 
 	      The format is:
 
-	      CLI niall [options]
+	      cimcli niall [options]
 
 	      where  the  options  include  any	 of the universal options (ex.
 	      namespace, location, etc.)
 
 	      Example
 
-		  CLI niall -n test/testproviders
+		  cimcli niall -n test/testproviders
 
-		  Returns  all	instancenames  in  the	namespace   test/test-
-	      providers by executing enumerateinstancenames
+		  Returns  all	instancenames  in  the	namespace 
+                  test/testproviders by executing enumerateinstancenames
 		  on each class in the namespace.
 
 
@@ -398,7 +400,7 @@ UNIVERSAL OPTIONS
 
 	      which causes execution of the CIM getinstance operation.	OR
 
-	      CLI gi [class-name] [options]
+	      cimcli gi [class-name] [options]
 
 	      which presents a list of possible instances  to  the  user  from
 	      which  one  can  be selected for the getinstance.	 In this case,
@@ -430,12 +432,12 @@ UNIVERSAL OPTIONS
 
 	      Example:
 
-		   CLI gi cim_managedElement
+		   cimcli gi cim_managedElement
 
-	      This  is an interactive request that returns a list of instances
-	      from an enumerateinstance of CIM_ManagedElement from  which  the
-	      user  can	 select	 one  which  CLI  will	return	as  a complete
-	      instance.
+	           This  is an interactive request that returns a list of 
+                   instances from an enumerateinstance of CIM_ManagedElement
+                   from which the user can select one which cimcli will return
+                   as a complete instance.
 
 
 
@@ -443,42 +445,45 @@ UNIVERSAL OPTIONS
 	      Delete instance executed a single deleteInstance command to  the
 	      CIM Server.  The syntax is
 
-		   CLI di [objectname] [options]
+		   cimcli di [objectname] [options]
 
 	      This  command  requires  the  [objectname]  parameter.   If this
 	      parameter is a full instance name with className and  key	 bind-
 	      ings, the deleteInstance CIM Operation is executed directly.  If
 	      it is a class name with no keybindings, the   enumerateInstances
 	      command is executed and the list of returned instances presented
-	      to the console for the user to select one to delete.   CLI  then
+	      to the console for the user to select one to delete. cimcli then
 	      executes	deleteInstance	with  the  selected  instance name and
 	      returns the response,
 
 	      return - there is an empty response if the instance was success-
 	      fully deleted or an exception return if there were any errors.
 
-	      CLI di [object] [options]
+	      cimcli di [object] [options]
 
 	      Examples:
 
 
-	      CLI di PG_test
+	           cimcli di PG_test
 
-	      Executes enumerateInstanceName on PG_test and allows the user to
-	      select the instance to be deleted.
+	           Executes enumerateInstanceName on PG_test and allows the 
+                   user to select the instance to be deleted.
 
-	      CLI di PG_test.name="abc"
+	           cimcli di PG_test.name="abc"
 
-	      Attempts to delete that object in the default namespace.
+	           Attempts to delete that object in the default namespace.
 
 
        gq getQualifier
 	      getQualifier displays the target qualifier. The syntax is
 
-	      CLI gq [qualifier name] [options]
+	      cimcli gq [qualifier name] [options]
 
-	      Example:	    CLI gq abstract - returns the mof or xml  for  the
-	      abstract qualifier.
+	      Example:	    
+
+                   cimcli gq abstract 
+
+                   Returns the mof or xml for the abstract qualifier.
 
        sq setQualifier
 	      This command is not implemented.
@@ -488,7 +493,7 @@ UNIVERSAL OPTIONS
 	      Issues  the  CIM	Operation  to  enumerate all of the qualifiers
 	      defined in the target namespace. The syntax is:
 
-		   CLI eq [options]
+		   cimcli eq [options]
 
 	      There are no special options for this operation.
 
@@ -497,7 +502,7 @@ UNIVERSAL OPTIONS
 	      Issues the CIM operation to delete the target qualifier  defined
 	      by qualifier_name in the target namespace.  The Syntax is:
 
-	      CLI dq [qualifier_name] [options]
+	      cimcli dq [qualifier_name] [options]
 
 
 	      NOTE: This should be used with great caution.
@@ -507,7 +512,7 @@ UNIVERSAL OPTIONS
 	      Enumerate	 the  associators CIM Operation for the target object-
 	      name.  The syntax for this operation is:
 
-	      CLI a [objectname] [options]
+	      cimcli a [objectname] [options]
 
 	      Note that the objectname may be either a classname or an instan-
 	      cename.	If  classname  is  supplied,  the  return  is a set of
@@ -540,7 +545,7 @@ UNIVERSAL OPTIONS
 	      Enumerate	 teh associator names for the target object.  The syn-
 	      tax for this operation is:
 
-		  CLI an [objectname] [options]
+		  cimcli an [objectname] [options]
 
 	      where objectname can be either a class name or an instance name.
 
@@ -566,7 +571,7 @@ UNIVERSAL OPTIONS
 	      Executes	the  CIM  Operation  references.  Which	 returns   CIM
 	      Objects.	The format of the operation is:
 
-		   CLI r [objectname] [options]
+		   cimcli r [objectname] [options]
 
 	      Note  that the objectname may be either a classname or aninstan-
 	      cename.  If classname is	supplied,  the	return	is  a  set  of
@@ -601,7 +606,7 @@ UNIVERSAL OPTIONS
 	      Executes the CIM Operation referencenames.  The  format  of  the
 	      operation is:
 
-	      CLI rn [objectname] [options]
+	      cimcli rn [objectname] [options]
 
 	      Note that the objectname may be either a classname or a specific
 	      instancename.  If classname is supplied, the return is a set  of
@@ -626,7 +631,7 @@ UNIVERSAL OPTIONS
 	      This  operation  executes	 an  extrinsic	operation to execute a
 	      method on a CIM class or instance.  The form of the command is:
 
-	      CLI im [objectname] [methodname] *[parameters] [options]
+	      cimcli im [objectname] [methodname] *[parameters] [options]
 
 	      Note that there  there  are  two	required  parameters  to  this
 	      command, the objectname and the [methodname].
@@ -638,7 +643,7 @@ UNIVERSAL OPTIONS
 
 	      Example:
 
-		   CLI PG_WBEMSLPTemplate register -n root/PG_Interop
+		   cimcli PG_WBEMSLPTemplate register -n root/PG_Interop
 
 	      The parameters are supplied as name=value pairs. In the  current
 	      version, all parameters are treated as strings.
@@ -646,7 +651,7 @@ UNIVERSAL OPTIONS
 
        eq executeQuery
 	       The executeQuery operation is not supported in the current ver-
-	      sion of CLI.
+	      sion of cimcli.
 
 
        son    Set the CIMServer	 statistics  to	 enabled  by  doing  a	modify
@@ -655,7 +660,7 @@ UNIVERSAL OPTIONS
 	      and  having  also	 implemented the functionality of enabling and
 	      disabling	 statistics   through	setting	  this	 property   in
 	      CIM_ObjectManager.  This should be considered a temporary opera-
-	      tion in CLI until a more	permanent  utility  is	provided  with
+	      tion in cimcli until a more permanent utility  is	provided  with
 	      OpenPegasus  to  manage  this type of functionality.  The corre-
 	      sponding operation soff will attempt to  disable	statistics  on
 	      the  server.   This works with OpenPegasus servers starting with
@@ -663,14 +668,14 @@ UNIVERSAL OPTIONS
 
 	      The syntax of the operation is:
 
-	      CLI son
+	      cimcli son
 
 
        soff   See the operaiton son.  This is the corresponding	 operation  to
 	      turn  off statistics in the server.  The syntax of the operation
 	      is:
 
-	      CLI soff
+	      cimcli soff
 
 
        ns enumeratenamespaces
@@ -684,12 +689,12 @@ UNIVERSAL OPTIONS
 
 	      The format of the operation is:
 
-	      CLI ns [options]
+	      cimcli ns [options]
 
 	      Note that since this operation enumerates namespaces, the names-
 	      pace option (-n) is not valid.
 
-	      Examples	    CLI ns
+	      Examples	    cimcli ns
 
        ? Show Command Options
 	      This operation simply shows the Command options
@@ -716,7 +721,7 @@ OPTIONS LIST
 
        -count [count]
 	      Expected count of objects returned if  the  summary  set.	 Tests
-	      this  count  and	display	 difference.   Terminates the CLI call
+	      this  count  and	display difference. Terminates the cimcli call
 	      nonzero if test fails  . Default(). This can be used in  testing
 	      to  confirm  that	 a  predefined	number of objects is returned.
 	      Example: -count 100 will expect  100  objects  or	 names	to  be
@@ -841,7 +846,7 @@ OPTIONS LIST
        -x     Output objects in xml instead of mof format. Default(false)
 
 
-       /B --v Displays CLI and Pegasus software Version.
+       /B --v Displays cimcli and Pegasus software Version.
 
 
        -v     Verbose	Display.  Includes  Detailed  Param  Input  display  .
@@ -864,10 +869,10 @@ OPTIONS LIST
        --help Prints full help message with commands, options, examples.
 
 
-       -ho    Prints list of CLI options.
+       -ho    Prints list of cimcli options.
 
 
-       -hc    Prints  CLI  Operation command list.  This list includes the CIM
+       -hc    Prints cimcli Operation command list. This list includes the CIM
 	      Operatons defined by the CIM Operations specification and	 other
 	      operations  that	were felt to be useful in testing CIM environ-
 	      ments.
@@ -880,8 +885,8 @@ OPTIONS LIST
 	      to set timeout.
 
 
-       -d     More detailed debug messages from CLI. This can be useful in the
-	      case where the user is debugging CIM funtionality.
+       -d     More detailed debug messages from cimcli.  This can be useful in
+              the case where the user is debugging CIM funtionality.
 
 
        -trace [trace_level]
@@ -892,7 +897,7 @@ OPTIONS LIST
        --r [repeat_count]
 	      Number of times to repeat the function. Zero means one time. The
 	      option ca be used to repeate an operation within a  single  call
-	      to  CLI.	 It simply repeats the operation defined the number of
+	      to cimcli. It simply repeats the operation defined the number of
 	      times defined by the repeate_count within the  same  connection.
 	      Thus,  it	 establishes  the  connection  executes	 the operation
 	      repeat_count times and then terminates.  It can be used with the
@@ -913,11 +918,11 @@ OPTIONS LIST
 
        -s     Boolean option thatpecifies that the Client  should  attempt  to
 	      connnect	over  the  secure  connection  using  SSL. This option
-	      causes CLI to modify the client connect call to set the  SSLCon-
-	      text option to the certificate defined with the --cert and --key
-	      options.	If this option is set but neither the --cert or	 --key
-	      options  are  included,  the  SSLContext for the connect call is
-	      submitted with the Cert and key marked NULL.
+	      causes  cimcli  to  modify  the  client  connect call to set the
+              SSLContext option to the certificate defined with the --cert and
+               --key options . If this option is set but neither the --cert or
+               --key options are included, the SSLContext for the connect call
+               is submitted with the Cert and key marked NULL.
 
 
        --cert Defines a certificate to be used with the client connect if  the
@@ -932,44 +937,46 @@ OPTIONS LIST
 EXAMPLES
        Execute an enumerateinstancenames CIM operation for the pg_computersys-
        tem Class
-       CLI enumerateinstancenames pg_computersystem  -- enumerateinstances  of
-       class
+       cimcli enumerateinstancenames pg_computersystem  -- enumerateinstances
+       of class
 	  or
-	CLI ei pg_computersystem    -- Same as above
+	cimcli ei pg_computersystem    -- Same as above
 
 
        Enumerate the class names from the default namespace "root/cimv2"
-	CLI enumerateclassnames -- Enumerate classnames from root/cimv2.
+	cimcli enumerateclassnames -- Enumerate classnames from root/cimv2.
 
        Enumerate class names from the namespace "root"
-	CLI ec /n root -- Enumerate classnames from namespace root.
+	cimcli ec /n root -- Enumerate classnames from namespace root.
 
-	CLI  ec -o xml	 -- Enumerate classes with XML output starting at root
-       CLI enumerateclasses CIM_Computersystem -o xml
+	cimcli  ec -o xml	 -- Enumerate classes with XML output starting
+        at root
+        
+       cimcli enumerateclasses CIM_Computersystem -o xml
 	   -- Enumerate classes in MOF starting with CIM_Computersystem
 
-	CLI getclass CIM_door -a -u guest -p guest
+	cimcli getclass CIM_door -a -u guest -p guest
 	   -- Get class with authentication set and user = guest,  password  =
        guest.
 
-	CLI  rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage.
+       cimcli rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage
 
-	CLI ec -o XML -- enumerate classes and output XML rather than MOF.
+	cimcli ec -o XML -- enumerate classes and output XML rather than MOF.
 
-	CLI getqualifiers -- Get the qualifiers in mof output format
+	cimcli getqualifiers -- Get the qualifiers in mof output format
 
 BUGS
        Currently at least some platforms and shells  have  problems  with  the
        double-quote  which  is used extensively in object names within CIM. To
-       get around this, the character ’@’ has been mapped to the  double-quote
-       so that inputting a command line with this character in place of quotes
-       is acceptable.  Thus, for example,
+       get   around  this,  the  character  ’@’  has been  mapped  to  the
+       double-quote so that inputting a command  line  with  this character in
+       place of quotes is acceptable.  Thus, for example,
 
-       CLI rn TST_Person.name=@MIKE@ ...
+       cimcli rn TST_Person.name=@MIKE@ ...
 
        is equivalent to
 
-       CLI rn TST_Person.name-"MIKE" ...
+       cimcli rn TST_Person.name-"MIKE" ...
 
        In this version there is no way to  turn	 this  character  mapping  off
        which means that the @ character is lost.
@@ -977,7 +984,7 @@ BUGS
 
 WARNINGS
 RETURN VALUE
-       CLI returns the following codes:
+       cimcli returns the following codes:
 
        0 - Successfull execution of the operation.
 
@@ -989,4 +996,4 @@ AUTHOR
 
 
 
-				     LOCAL				CLI(1)
+				     LOCAL			     cimcli(1)

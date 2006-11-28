@@ -217,8 +217,13 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
 #else
             String localeStr(_locale);
 #endif
-            parms.contentlanguages.append(LanguageTag(
-                LanguageParser::convertLocaleIdToLanguageTag(localeStr)));
+			// The "root" locale indicates that an ICU message bundle is not present
+			// for the current locale setting.
+            if (localeStr != "root")
+            {
+                parms.contentlanguages.append(LanguageTag(
+                    LanguageParser::convertLocaleIdToLanguageTag(localeStr)));
+            }
         }
         else
         {
@@ -325,9 +330,14 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
                     String localeStr(_locale);
 #endif
 
-                    parms.contentlanguages.append(LanguageTag(
-                        LanguageParser::convertLocaleIdToLanguageTag(
-                            localeStr)));
+					// The "root" locale indicates that an ICU message bundle is not present
+					// for the current locale setting.
+                    if (localeStr != "root")
+                    {
+                        parms.contentlanguages.append(LanguageTag(
+                            LanguageParser::convertLocaleIdToLanguageTag(
+                                localeStr)));
+                    }
                     PEG_METHOD_EXIT();
                     return;
                 }
@@ -418,6 +428,8 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
 #endif
             }
 
+			// The "root" locale indicates that an ICU message bundle is not present
+			// for the current locale setting.
             if (localeStr != "root")
             {
                 parms.contentlanguages.append(LanguageTag(

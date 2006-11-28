@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMExportRequestDecoder::CIMExportRequestDecoder(
    MessageQueueService* outputQueue,
    Uint32 returnQueueId)
-   :   
+   :
    Base(PEGASUS_QUEUENAME_EXPORTREQDECODER),
    _outputQueue(outputQueue),
    _returnQueueId(returnQueueId),
@@ -68,7 +68,7 @@ CIMExportRequestDecoder::~CIMExportRequestDecoder()
 }
 
 void CIMExportRequestDecoder::sendResponse(
-    Uint32 queueId, 
+    Uint32 queueId,
     Buffer& message,
     Boolean closeConnect)
 {
@@ -83,12 +83,12 @@ void CIMExportRequestDecoder::sendResponse(
 }
 
 void CIMExportRequestDecoder::sendEMethodError(
-   Uint32 queueId, 
+   Uint32 queueId,
    HttpMethod httpMethod,
    const String& messageId,
    const String& eMethodName,
    const CIMException& cimException,
-   Boolean closeConnect) 
+   Boolean closeConnect)
 {
     Buffer message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
@@ -146,22 +146,22 @@ void CIMExportRequestDecoder::handleEnqueue()
 //
 // From the HTTP/1.1 Specification (RFC 2626):
 //
-// Both types of message consist of a start-line, zero or more header fields 
-// (also known as "headers"), an empty line (i.e., a line with nothing 
-// preceding the CRLF) indicating the end of the header fields, and possibly 
+// Both types of message consist of a start-line, zero or more header fields
+// (also known as "headers"), an empty line (i.e., a line with nothing
+// preceding the CRLF) indicating the end of the header fields, and possibly
 // a message-body.
 //
 // Example CIM request:
 //
-//     M-POST /cimom HTTP/1.1 
-//     HOST: www.erewhon.com 
-//     Content-Type: application/xml; charset="utf-8" 
-//     Content-Length: xxxx 
-//     Man: http://www.dmtf.org/cim/operation ; ns=73 
+//     M-POST /cimom HTTP/1.1
+//     HOST: www.erewhon.com
+//     Content-Type: application/xml; charset="utf-8"
+//     Content-Length: xxxx
+//     Man: http://www.dmtf.org/cim/operation ; ns=73
 //     73-CIMExport: MethodRequest
 //     73-CIMExportMethod: ExportIndication
-//     73-CIMObject: root/cimv2 
-// 
+//     73-CIMObject: root/cimv2
+//
 //------------------------------------------------------------------------------
 
 void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
@@ -175,7 +175,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String userName;
 
    // Bug #351:
-   if ( httpMessage->message.size() == 0 ) 
+   if ( httpMessage->message.size() == 0 )
    {
 	// The message is empty; just drop it. The connection has
 	// probably closed.
@@ -304,7 +304,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // <bug #351>
    // PEGASUS_ASSERT(exportHeaderFound);
-   if (!exportHeaderFound) 
+   if (!exportHeaderFound)
    {
 	sendHttpError(
             queueId,
@@ -371,8 +371,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       {
          // This is not a valid value, and we use EMPTY to mean "absent"
          sendHttpError(
-             queueId, 
-             HTTP_STATUS_BADREQUEST, 
+             queueId,
+             HTTP_STATUS_BADREQUEST,
              "header-mismatch",
              String::EMPTY,
              closeConnect);
@@ -383,16 +383,16 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 // l10n start
    AcceptLanguageList acceptLanguages;
    ContentLanguageList contentLanguages;
-   try 
-   { 
+   try
+   {
 	if(httpMessage->acceptLanguagesDecoded){
 		acceptLanguages = httpMessage->acceptLanguages;
 	}else{
-		// Get and validate the Accept-Language header, if set 	   	  
-		String acceptLanguageHeader;		
+		// Get and validate the Accept-Language header, if set
+		String acceptLanguageHeader;
 		if (HTTPMessage::lookupHeader(
-		      headers, 
-	    	  "Accept-Language", 
+		      headers,
+	    	  "Accept-Language",
 		      acceptLanguageHeader,
 	    	  false) == true)
 	    {
@@ -400,38 +400,38 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	            acceptLanguageHeader);
 	    }
 	}
-	
+
 	if(httpMessage->contentLanguagesDecoded){
 		contentLanguages = httpMessage->contentLanguages;
 	}else{
-		// Get and validate the Content-Language header, if set 	
+		// Get and validate the Content-Language header, if set
 		String contentLanguageHeader;
 		if (HTTPMessage::lookupHeader(
-		      headers, 
-	    	  "Content-Language", 
+		      headers,
+	    	  "Content-Language",
 		      contentLanguageHeader,
 	    	  false) == true)
-	    {						
+	    {
 	        contentLanguages = LanguageParser::parseContentLanguageHeader(
 	            contentLanguageHeader);
 	    }
 	}
-	
-   }			
+
+   }
    catch (Exception &e)
    {
 	Thread::clearLanguages();
 	MessageLoaderParms msgParms("ExportServer.CIMExportRequestDecoder.REQUEST_NOT_VALID","request-not-valid");
 	String msg(MessageLoader::getMessage(msgParms));
 	sendHttpError(
-            queueId, 
-            HTTP_STATUS_BADREQUEST, 
+            queueId,
+            HTTP_STATUS_BADREQUEST,
             msg,
             e.getMessage(),
-            closeConnect);		         	
+            closeConnect);
        	return;
-   }        
-// l10n end   
+   }
+// l10n end
 
    // Zero-terminate the message:
 
@@ -465,7 +465,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
             "header-mismatch",
             "CIMContentType value syntax error.",
             closeConnect);
-       return; 
+       return;
    }
    // Validating content falls within UTF8
    // (required to be complaint with section C12 of Unicode 4.0 spec, chapter 3.)
@@ -482,7 +482,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
                    "request-not-valid",
                    "Invalid UTF-8 character detected.",
                    closeConnect);
-	       return; 
+	       return;
 	   }
 	   UTF8_NEXT(content,count);
        }
@@ -495,7 +495,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        queueId,
        httpMethod,
        content,
-       requestUri, 
+       requestUri,
        cimProtocolVersion,
        cimExportMethod,
        userName,
@@ -517,13 +517,13 @@ void CIMExportRequestDecoder::handleMethodRequest(
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
-    Boolean closeConnect)	 
+    Boolean closeConnect)
 {
 // l10n
 	// Set the Accept-Language into the thread for this service.
 	// This will allow all code in this thread to get
 	// the languages for the messages returned to the client.
-	Thread::setLanguages(new AcceptLanguageList(httpAcceptLanguages));	
+	Thread::setLanguages(new AcceptLanguageList(httpAcceptLanguages));
 
    //
    // If CIM Listener is shutting down, return error response
@@ -566,9 +566,11 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
-      // Reject cimVersion not in 2.x
+      // Reject cimVersion not in 2.0 to 2.3
 
-      if ((cimVersion[0] != '2') || (cimVersion[1] != '.'))
+      if ((cimVersion[0] != '2') || (cimVersion[1] != '.') ||
+          ((cimVersion[2] != '0') && (cimVersion[2] != '1') &&
+           (cimVersion[2] != '2') && (cimversion[2] != '3')))
       {
          sendHttpError(
              queueId,
@@ -675,7 +677,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
              "unsupported-protocol-version",
              String::EMPTY,
              closeConnect);
-                       
+
          return;
       }
 
@@ -684,7 +686,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
          // We wouldn't have gotten here if CIMExportBatch header was
          // specified, so this must be indicative of a header mismatch
          sendHttpError(
-             queueId, 
+             queueId,
              HTTP_STATUS_BADREQUEST,
              "header-mismatch",
              String::EMPTY,
@@ -697,7 +699,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Expect <SIMPLEEXPREQ ...>
 
       XmlReader::expectStartTag(parser, entry, "SIMPLEEXPREQ");
-	
+
       // Expect <EXPMETHODCALL ...>
 
       if (!XmlReader::getEMethodCallStartTag(parser, cimExportMethodName))
@@ -705,7 +707,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
 	// l10n
 
-	// throw XmlValidationError(parser.getLine(), 
+	// throw XmlValidationError(parser.getLine(),
 	//		  "expected EXPMETHODCALL element");
 
 	MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder.EXPECTED_EXPMETHODCALL_ELEMENT",
@@ -718,47 +720,47 @@ void CIMExportRequestDecoder::handleMethodRequest(
       //     3.3.9. CIMExportMethod
       //
       //     This header MUST be present in any CIM Export Request
-      //     message that contains a Simple Export Request. 
+      //     message that contains a Simple Export Request.
       //
       //     It MUST NOT be present in any CIM Export Response message,
       //     nor in any CIM Export Request message that is not a
-      //     Simple Export Request. It MUST NOT be present in any CIM 
-      //     Operation Request or Response message. 
+      //     Simple Export Request. It MUST NOT be present in any CIM
+      //     Operation Request or Response message.
       //
       //     The name of the CIM export method within a Simple Export
       //     Request is defined to be the value of the NAME attribute
-      //     of the <EXPMETHODCALL> element. 
+      //     of the <EXPMETHODCALL> element.
       //
       //     If a CIM Listener receives a CIM Export Request for which
       //     either:
       //
       //     - The CIMExportMethod header is present but has an invalid
-      //       value, or; 
+      //       value, or;
       //     - The CIMExportMethod header is not present but the Export
-      //       Request Message is a Simple Export Request, or; 
+      //       Request Message is a Simple Export Request, or;
       //     - The CIMExportMethod header is present but the Export
-      //       Request Message is not a Simple Export Request, or; 
+      //       Request Message is not a Simple Export Request, or;
       //     - The CIMExportMethod header is present, the Export Request
       //       Message is a Simple Export Request, but the CIMIdentifier
       //       value (when unencoded) does not match the unique method
-      //       name within the Simple Export Request, 
+      //       name within the Simple Export Request,
       //
       //     then it MUST fail the request and return a status of
       //     "400 Bad Request" (and MUST include a CIMError header in the
-      //     response with a value of header-mismatch), subject to the 
-      //     considerations specified in Errors. 
+      //     response with a value of header-mismatch), subject to the
+      //     considerations specified in Errors.
       if (!String::equalNoCase(cimExportMethodName, cimExportMethodInHeader))
       {
          // ATTN-RK-P3-20020404: How to decode cimExportMethodInHeader?
          sendHttpError(
-             queueId, 
+             queueId,
              HTTP_STATUS_BADREQUEST,
              "header-mismatch",
              String::EMPTY,
              closeConnect);
          return;
       }
-	
+
       // This try block only catches CIMExceptions, because they must be
       // responded to with a proper EMETHODRESPONSE.  Other exceptions are
       // caught in the outer try block.
@@ -845,7 +847,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 		   "CIMExportRequestDecoder::handleMethodRequest - XmlException has occurred. Message: $0",e.getMessage());
 
       sendHttpError(
-          queueId, 
+          queueId,
           HTTP_STATUS_BADREQUEST,
           "request-not-well-formed",
           e.getMessage(),
@@ -871,7 +873,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Any exceptions we're expecting should be caught separately and
       // dealt with appropriately.  This is a last resort.
       sendHttpError(
-          queueId, 
+          queueId,
           HTTP_STATUS_INTERNALSERVERERROR,
           String::EMPTY,
           String::EMPTY,
@@ -890,7 +892,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	request->operationContext.insert(IdentityContainer(userName));
 	request->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
 	request->operationContext.set(AcceptLanguageListContainer(AcceptLanguageList()));
-// l10n end	
+// l10n end
 
    request->ipAddress = ipAddress;
 
@@ -901,7 +903,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
 CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicationRequest(
    Uint32 queueId,
-   XmlParser& parser, 
+   XmlParser& parser,
    const String& messageId,
    const String& requestUri)
 {
@@ -926,13 +928,13 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
 
       XmlReader::expectEndTag(parser, "EXPPARAMVALUE");
    }
-    
+
    CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(
-      messageId,  
+      messageId,
       destStr,
       instanceName,
       QueueIdStack(queueId, _returnQueueId));
-    
+
    return(request);
 }
 
@@ -942,4 +944,3 @@ void CIMExportRequestDecoder::setServerTerminating(Boolean flag)
 }
 
 PEGASUS_NAMESPACE_END
-

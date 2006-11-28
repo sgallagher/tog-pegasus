@@ -29,7 +29,7 @@
 #//
 #//==============================================================================
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/CimError
+DIR = Pegasus/Common/tests/CIMError
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

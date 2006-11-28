@@ -55,12 +55,16 @@ struct PEGASUS_CLIENT_LINKAGE ClientOpPerformanceData
 
     /** Contains the number of microseconds elapsed during the CIM Server
         processing of the request.
+        WARNING: This elapsed time may be constrained by limitations in the
+        granularity of the system clock on certain platforms.
     */
     Uint64 serverTime;
 
     /** Contains the number of microseconds elapsed during the complete
         processing of the request, including time spent on the network and
         in the CIM Server (serverTime).
+        WARNING: This elapsed time may be constrained by limitations in the
+        granularity of the system clock on certain platforms.
     */
     Uint64 roundTripTime;
 

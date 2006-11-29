@@ -64,7 +64,7 @@ public class CIMClient
                                                    boolean       includeQualifiers,
                                                    boolean       includeClassOrigin,
                                                    String        propertyList[]);
-    private native long   _deleteClass            (long          cc,
+    private native void   _deleteClass            (long          cc,
                                                    long          ns,
                                                    long          path);
     private native void   _createClass            (long          cc,

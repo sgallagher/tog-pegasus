@@ -59,7 +59,7 @@ public class CIMProperty
     private native void    _addQualifier    (long   ci,   long   v);
     private native void    _finalize        (long   ci);
     private native int     _findQualifier   (long   ci,   String qualifier);
-    private native int     _getQualifier    (long   ci,   int    index);
+    private native long    _getQualifier    (long   ci,   int    index);
 
     protected void finalize ()
     {

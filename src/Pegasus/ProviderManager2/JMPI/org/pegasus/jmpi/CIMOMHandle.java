@@ -51,10 +51,10 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                                 boolean       includeClassOrigin,
                                                 String[]      propertyList)
       throws CIMException;
-   private native long _deleteClass            (long          cInst,
+   private native void _deleteClass            (long          cInst,
                                                 long          ciCop)
       throws CIMException;
-   private native long _createClass            (long          cInst,
+   private native void _createClass            (long          cInst,
                                                 long          ciCop,
                                                 long          ciClass)
       throws CIMException;
@@ -81,7 +81,7 @@ public class CIMOMHandle implements ProviderCIMOMHandle
                                                 boolean       includeClassOrigin,
                                                 String[]      propertyList)
       throws CIMException;
-   private native long _deleteInstance         (long          cInst,
+   private native void _deleteInstance         (long          cInst,
                                                 long          ciCop)
       throws CIMException;
    private native long _createInstance         (long          cInst,

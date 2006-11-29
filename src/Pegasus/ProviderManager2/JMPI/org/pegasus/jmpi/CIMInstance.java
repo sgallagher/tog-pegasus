@@ -76,7 +76,6 @@ public class CIMInstance
     private native long   _getQualifier     (long     cInst,
                                              String   n);
     private native long   _clone            (long     cInst);
-    private native String _toString         (long     cInst);
     private native void   _finalize         (long     ci);
     private native long   _getObjectPath    (long     cInst);
     private native void   _setObjectPath    (long     cInst,

@@ -67,7 +67,7 @@ public class CIMClass implements CIMElement
                                              Vector   vec);
    private native boolean _hasQualifier     (long     cInst,
                                              String   n);
-   private native long    _addProperty      (long     cInst,
+   private native void    _addProperty      (long     cInst,
                                              long     p);
    private native void    _setProperties    (long     cInst,
                                              Vector   vec);

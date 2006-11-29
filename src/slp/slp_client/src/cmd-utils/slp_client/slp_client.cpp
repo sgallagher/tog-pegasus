@@ -3021,6 +3021,17 @@ void destroy_slp_client(struct slp_client *client)
   lslpFreeScopeList((lslpScopeList *)(client->_spi));
   lslpFreeScopeList(client->_scopes);
   _LSLP_FREE_DEINIT(client->_crypto_context);
+
+  //Freeing memory allocated during client creation.
+  free(client->_pr_buf);
+  free(client->_msg_buf);
+  free(client->_rcv_buf);
+  free(client->_scratch);
+  free(client->_err_buf);
+
+  //Freeing memory allocated for regs in __srv_reg_local
+  lslpFreeSrvRegList(&client->regs);
+
   free(client);
   DEBUG_PRINT((DEBUG_EXIT, "destroy_slp_client:ok "));
   return;
@@ -4232,7 +4243,6 @@ void lslpFreeSrvRegList(lslpSrvRegHead *head)
       _LSLP_UNLINK(temp);
       lslpFreeSrvReg(temp);
     }
-  free(head);
 }	
 
 

@@ -158,7 +158,6 @@ PEGASUS_ADMIN_CMDS = \
    cimauth \
    cimconfig \
    cimserver \
-   cimuser \
    cimprovagt \
    cimservera \
    cimreparchive \

@@ -307,11 +307,10 @@ IndicationHandlerService::_handleIndication(
     // time to write the error message to the log
     if (!handleIndicationSuccess)
     {
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "HandlerService.IndicationHandlerService."
-                    "INDICATION_DELIVERY_FAILED",
-                "Failed to deliver an indication. Reason: ").toString() +
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "HandlerService.IndicationHandlerService."
+                "INDICATION_DELIVERY_FAILED",
+            "Failed to deliver an indication: $0",
             cimException.getMessage());
     }
 

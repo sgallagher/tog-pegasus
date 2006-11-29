@@ -3670,8 +3670,9 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS10405:
+        *    Substitution {0} is a string containing an Exception message
         */
-        HandlerService.IndicationHandlerService.INDICATION_DELIVERY_FAILED:string {"PGS10405: Failed to deliver an indication. Reason: "}
+        HandlerService.IndicationHandlerService.INDICATION_DELIVERY_FAILED:string {"PGS10405: Failed to deliver an indication: {0}"}
 
 
         // ==========================================================

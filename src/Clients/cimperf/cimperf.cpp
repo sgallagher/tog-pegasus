@@ -29,19 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
-//              Willis White (whiwill@us.ibm.com)
-//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for Bug#3449
-//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3684
-//              Melvin Solomon, IBM(msolomon@in.ibm.com) for Bug# 3866
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* This is a simplistic display program for the CIMOM performance characteristics.
+/* This is a simplistic display program for the CIMOM performance 
+    characteristics.
     This version simply gets the instances of the performace class and displays
     the resulting average counts.
     TODO  KS
@@ -60,8 +51,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/Message.h>
-#define NUMBER_OF_MESSAGES 26
+#include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -75,36 +65,37 @@ const String DEFAULT_NAMESPACE = "root/cimv2";
 
 const char* _OPERATION_NAME[] =
 {
-                                    // Enumerated     ValueMap Value
-                                    // value from     from class
-                                    // internal       CIM_StatisticalData
-                                    // message type
-                                    // -------------- -------------------
-  "GetClass",                       //     1           3
-  "GetInstance",                    //     2           4
-  "IndicationDelivery",             //     3           26
-  "DeleteClass",                    //     4           5
-  "DeleteInstance",                 //     5           6
-  "CreateClass",                    //     6           7
-  "CreateInstance",                 //     7           8
-  "ModifyClass",                    //     8           9
-  "ModifyInstance",                 //     9          10
-  "EnumerateClasses",               //    10          11
-  "EnumerateClassNames",            //    11          12
-  "EnumerateInstances",             //    12          13
-  "EnumerateInstanceNames",         //    13          14
-  "ExecQuery",                      //    14          15
-  "Associators",                    //    15          16
-  "AssociatorNames",                //    16          17
-  "References",                     //    17          18
-  "ReferenceNames",                 //    18          19
-  "GetProperty",                    //    19          20
-  "SetProperty",                    //    20          21
-  "GetQualifier",                   //    21          22
-  "SetQualifier",                   //    22          23
-  "DeleteQualifier",                //    23          24
-  "EnumerateQualifiers",            //    24          25
-  "InvokeMethod"                    //    25          Not Present
+    //                                   Enumerated       ValueMap Value
+    //                                   value from       from class
+    //                                   internal         CIM_StatisticalData
+    //                                   StatisticalData
+    //                                   ---------------  -------------------
+    "GetClass",                       //     0               3
+    "GetInstance",                    //     1               4
+    "IndicationDelivery",             //     2              26
+    "DeleteClass",                    //     3               5
+    "DeleteInstance",                 //     4               6
+    "CreateClass",                    //     5               7
+    "CreateInstance",                 //     6               8
+    "ModifyClass",                    //     7               9
+    "ModifyInstance",                 //     8              10
+    "EnumerateClasses",               //     9              11
+    "EnumerateClassNames",            //    10              12
+    "EnumerateInstances",             //    11              13
+    "EnumerateInstanceNames",         //    12              14
+    "ExecQuery",                      //    13              15
+    "Associators",                    //    14              16
+    "AssociatorNames",                //    15              17
+    "References",                     //    16              18
+    "ReferenceNames",                 //    17              19
+    "GetProperty",                    //    18              20
+    "SetProperty",                    //    19              21
+    "GetQualifier",                   //    20              22
+    "SetQualifier",                   //    21              23
+    "DeleteQualifier",                //    22              24
+    "EnumerateQualifiers",            //    23              25
+    "InvokeMethod"                    //    24              Not Present, use
+                                      //                      1 "Other"
 };
 
 //------------------------------------------------------------------------------
@@ -143,8 +134,8 @@ void mofFormat(
     {
         count++;
         // This is too simplistic and must move to a token based mini parser
-        // but will do for now. One problem is tokens longer than 12 characters that
-        // overrun the max line length.
+        // but will do for now. One problem is tokens longer than 12 characters
+        // that overrun the max line length.
         switch (c)
         {
             case '\n':
@@ -209,7 +200,8 @@ void mofFormat(
     delete [] var;
 }
 
-/* method to build an OptionManager object - which holds and organizes options and the properties */
+/* Method to build an OptionManager object - which holds and organizes options
+   and the properties */
 
 void GetOptions(
     OptionManager& om,
@@ -223,10 +215,11 @@ void GetOptions(
 
     static struct OptionRow optionsTable[] =
     //The values in the OptionRows below are:
-    //optionname, defaultvalue, is required, type, domain, domainsize, flag, hlpmsg
+    //optionname, defaultvalue, is required, type, domain, domainsize, flag, 
+    //  hlpmsg
     {
         {"port", "5988", false, Option::INTEGER, 0, 0, "p",
-                "specifies port"},
+            "specifies port"},
 
         {"location", "localhost", false, Option::STRING, 0, 0, "h",
                 "specifies hostname of system"},
@@ -263,115 +256,111 @@ void GetOptions(
 }
 
 
-/* method that maps from operation type to operation name. */
+/* Method that maps from operation type to operation name. */
 
 const char* opTypeToOpName(Uint16 type)
 {
     const char* opName = NULL;
     switch (type)
     {
-        case 0:
-            opName = _OPERATION_NAME[DUMMY_MESSAGE];
-            break;
-
         case 3:
-            opName =  _OPERATION_NAME[CIM_GET_CLASS_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::GET_CLASS];
             break;
 
         case 4:
-            opName =  _OPERATION_NAME[ CIM_GET_INSTANCE_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::GET_INSTANCE];
             break;
 
         case 5:
-            opName = _OPERATION_NAME[CIM_DELETE_CLASS_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::DELETE_CLASS];
             break;
 
         case 6:
-            opName = _OPERATION_NAME[CIM_DELETE_INSTANCE_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::DELETE_INSTANCE];
             break;
 
         case 7:
-            opName = _OPERATION_NAME[CIM_CREATE_CLASS_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::CREATE_CLASS];
             break;
 
         case 8:
-            opName = _OPERATION_NAME[CIM_CREATE_INSTANCE_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::CREATE_INSTANCE];
             break;
 
         case 9:
-            opName = _OPERATION_NAME[CIM_MODIFY_CLASS_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::MODIFY_CLASS];
             break;
 
         case 10:
-            opName = _OPERATION_NAME[CIM_MODIFY_INSTANCE_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::MODIFY_INSTANCE];
             break;
 
         case 11:
-            opName = _OPERATION_NAME[CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_CLASSES];
             break;
 
         case 12:
-            opName = _OPERATION_NAME[CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_CLASS_NAMES];
             break;
 
         case 13:
-            opName = _OPERATION_NAME[CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_INSTANCES];
             break;
 
         case 14:
-            opName = _OPERATION_NAME[CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_INSTANCE_NAMES];
             break;
 
         case 15:
-            opName = _OPERATION_NAME[CIM_EXEC_QUERY_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::EXEC_QUERY];
             break;
 
         case 16:
-            opName = _OPERATION_NAME[CIM_ASSOCIATORS_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::ASSOCIATORS];
             break;
 
         case 17:
-            opName = _OPERATION_NAME[CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::ASSOCIATOR_NAMES];
             break;
 
         case 18:
-            opName = _OPERATION_NAME[CIM_REFERENCES_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::REFERENCES];
             break;
 
         case 19:
-            opName = _OPERATION_NAME[CIM_REFERENCE_NAMES_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::REFERENCE_NAMES];
             break;
 
         case 20:
-            opName = _OPERATION_NAME[CIM_GET_PROPERTY_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::GET_PROPERTY];
             break;
 
         case 21:
-            opName = _OPERATION_NAME[CIM_SET_PROPERTY_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::SET_PROPERTY];
             break;
 
         case 22:
-            opName = _OPERATION_NAME[CIM_GET_QUALIFIER_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::GET_QUALIFIER];
             break;
 
         case 23:
-            opName = _OPERATION_NAME[CIM_SET_QUALIFIER_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::SET_QUALIFIER];
             break;
 
         case 24:
-            opName = _OPERATION_NAME[CIM_DELETE_QUALIFIER_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::DELETE_QUALIFIER];
             break;
 
         case 25:
-            opName = _OPERATION_NAME[CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_QUALIFIERS];
             break;
 
         case  26:
-            opName = _OPERATION_NAME[CIM_EXPORT_INDICATION_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::INDICATION_DELIVERY];
             break;
 
         case 1:
-            opName = _OPERATION_NAME[CIM_INVOKE_METHOD_REQUEST_MESSAGE];
+            opName = _OPERATION_NAME[StatisticalData::INVOKE_METHOD];
             break;
 
         default:
@@ -453,7 +442,8 @@ int main(int argc, char** argv)
     CIMClient client;
 
     try
-    {   if(String::equal(location,"localhost"))
+    {
+        if (String::equal(location,"localhost"))
             client.connectLocal();
         else
             client.connect(location, port, userN, passW);
@@ -484,15 +474,17 @@ int main(int argc, char** argv)
 
         // First print the header for table of values
         printf("%-25s%10s %10s %10s %10s %10s\n",
-    "Operation", "Number of", "Server", "Provider", "Request", "Response");
+            "Operation", "Number of", "Server", "Provider", "Request", 
+            "Response");
 
-    printf("%-25s%10s %10s %10s %10s %10s\n",
-    "Type", "Requests", "Time", "Time", "Size", "Size");
+        printf("%-25s%10s %10s %10s %10s %10s\n",
+            "Type", "Requests", "Time", "Time", "Size", "Size");
 
-    printf("%-25s%10s %10s %10s %10s %10s\n",
-    " ", " ", "(usec)", "(usec)", "(bytes)", "(bytes)");
+        printf("%-25s%10s %10s %10s %10s %10s\n",
+            " ", " ", "(usec)", "(usec)", "(bytes)", "(bytes)");
 
-        printf("%-25s\n", "-------------------------------------------------------------------------------");
+        printf("%-25s\n", "-------------------------------------------"
+                          "------------------------------------");
 
         // This section of code loops through all the instances of
         // CIM_CIMOMStatisticalData (one for each intrinsic request type) and
@@ -509,7 +501,8 @@ int main(int argc, char** argv)
             // Note that for the moment it is simply an integer.
             Uint32 pos;
             CIMProperty p;
-            //Operation Type is decoded as const char* ,hence type has changed from string to const char*
+            // Operation Type is decoded as const char*, hence type has 
+            // changed from string to const char*
             const char* statName = NULL;
             CIMValue v;
             Uint16 type;
@@ -530,7 +523,8 @@ int main(int argc, char** argv)
 
             // Get number of requests property - "NumberofOperations"
             Uint64 numberOfRequests = 0;
-            if ((pos = instance.findProperty("NumberOfOperations")) != PEG_NOT_FOUND)
+            if ((pos = instance.findProperty("NumberOfOperations")) != 
+                PEG_NOT_FOUND)
             {
 
                 p = (instance.getProperty(pos));
@@ -543,7 +537,8 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "NumberofOperations was not a CIMTYPE_SINT64 and should be" << endl;
+                    cerr << "NumberofOperations was not a CIMTYPE_SINT64 and"
+                            " should be" << endl;
                 }
             }
             else
@@ -557,7 +552,8 @@ int main(int argc, char** argv)
             Sint64 averageCimomTime = 0;
             Uint64 totalCT = 0;
 
-            if ((pos = instance.findProperty("CimomElapsedTime")) != PEG_NOT_FOUND)
+            if ((pos = instance.findProperty("CimomElapsedTime")) != 
+                PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
                 v = p.getValue();
@@ -569,7 +565,8 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "Error Property value " << "CimomElapsedTime" << endl;
+                    cerr << "Error Property value " << "CimomElapsedTime" << 
+                        endl;
                 }
             }
             else
@@ -587,7 +584,8 @@ int main(int argc, char** argv)
             Uint64 averageProviderTime = 0;
             Uint64 totalPT = 0;
 
-            if ((pos = instance.findProperty("ProviderElapsedTime")) != PEG_NOT_FOUND)
+            if ((pos = instance.findProperty("ProviderElapsedTime")) != 
+                PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
                 v = p.getValue();
@@ -598,7 +596,8 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "Error Property Vlaue " << "ProviderElapsedTime" << endl;
+                    cerr << "Error Property Vlaue " << "ProviderElapsedTime" <<
+                        endl;
                 }
             }
             else
@@ -626,7 +625,8 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "RequestSize is not of type CIMTYPE_SINT64" << endl ;
+                    cerr << "RequestSize is not of type CIMTYPE_SINT64" << 
+                        endl ;
                 }
             }
             else
@@ -654,7 +654,7 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "RequestSize is not of type CIMTYPE_SINT64" << endl ;
+                    cerr << "RequestSize is not of type CIMTYPE_SINT64" << endl;
                 }
             }
             else

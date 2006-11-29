@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Arthur Pichlkostner
-//             (checked in: Markus Mueller sedgewick_de@yahoo.de)
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1939
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOMStatDataProvider_h
@@ -51,67 +47,72 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_STATISTICPROVIDER_LINKAGE CIMOMStatDataProvider :
-	public CIMInstanceProvider
+    public CIMInstanceProvider
 {
 public:
-	CIMOMStatDataProvider();
-	virtual ~CIMOMStatDataProvider();
+    CIMOMStatDataProvider();
+    virtual ~CIMOMStatDataProvider();
 
     // CIMProvider interface
     // Note:  The initialize() and terminate() methods are not called for
     // Control Providers.
-    virtual void initialize(CIMOMHandle& cimom) { }
-    virtual void terminate() { }
+    virtual void initialize(CIMOMHandle& cimom)
+    {
+    }
+    virtual void terminate()
+    {
+    }
 
-	// CIMStatisticalDataProvider interface
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-                const Boolean includeQualifiers,
-                const Boolean includeClassOrigin,
-                const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // CIMStatisticalDataProvider interface
+    virtual void getInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-                const Boolean includeQualifiers,
-                const Boolean includeClassOrigin,
-                const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    virtual void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    virtual void enumerateInstanceNames(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ObjectPathResponseHandler & handler);
 
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-                const Boolean includeQualifiers,
-                const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    virtual void modifyInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList & propertyList,
+        ResponseHandler & handler);
 
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    virtual void createInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        ObjectPathResponseHandler & handler);
 
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+    virtual void deleteInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ResponseHandler & handler);
 
-   CIMInstance getInstance(Uint16 type, CIMObjectPath cimRef);
-   Uint16 getOpType(Uint16 type);
+    CIMInstance getInstance(Uint16 type, CIMObjectPath cimRef);
+    Uint16 getOpType(Uint16 type);
 
-   protected:
-      CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
-	  void checkObjectManager();
+protected:
+    CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
+    void checkObjectManager();
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
+    

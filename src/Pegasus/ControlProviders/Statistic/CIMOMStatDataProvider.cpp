@@ -29,30 +29,24 @@
 //
 //==============================================================================
 //
-// Author: Arthur Pichlkostner
-//             (checked in: Markus Mueller sedgewick_de@yahoo.de)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1939
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOMStatDataProvider.h"
-
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/Message.h>
-
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMStatDataProvider::CIMOMStatDataProvider()
 {
-   for (Uint32 i=0; i<StatisticalData::length; i++){
-      char buffer[32];
-      sprintf(buffer, "%d", i);
-      _references[i] = CIMObjectPath(
-        "CIM_CIMOMStatisticalData.InstanceID=\"CIM_CIMOMStatisticalData"+String(buffer)+"\"");
-   }
+    for (Uint32 i=0; i<StatisticalData::length; i++)
+    {
+        char buffer[32];
+        sprintf(buffer, "%d", i);
+        _references[i] = CIMObjectPath(
+            "CIM_CIMOMStatisticalData.InstanceID=\"CIM_CIMOMStatisticalData"+
+            String(buffer)+"\"");
+    }
 
 }
 
@@ -61,165 +55,167 @@ CIMOMStatDataProvider::~CIMOMStatDataProvider()
 }
 
 void CIMOMStatDataProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	CIMObjectPath localReference = CIMObjectPath(
-		String::EMPTY,
-		CIMNamespaceName(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    CIMObjectPath localReference = CIMObjectPath(
+        String::EMPTY,
+        CIMNamespaceName(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
-	{  //cout << "this is what we are looking at " << _references[i].toString() <<endl <<endl;
-		if(localReference == _references[i])
-		{
-			// deliver requested instance
-			handler.deliver(getInstance(i, instanceReference));
-			break;
-		}
-	}
+    // instance index corresponds to reference index
+    for (Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
+    {
+        if (localReference == _references[i])
+        {
+            // deliver requested instance
+            handler.deliver(getInstance(i, instanceReference));
+            break;
+        }
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMStatDataProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
     // begin processing the request
-	handler.processing();
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
-	{
-	   // deliver instance
-		handler.deliver(getInstance(i, classReference));
+    // instance index corresponds to reference index
+    for (Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
+    {
+        // deliver instance
+        handler.deliver(getInstance(i, classReference));
 
-	}
+    }
 
-//	printf("have all the instances\n");
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMStatDataProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
-	{
-		// deliver reference
-		handler.deliver(_references[i]);
-	}
+    for (Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
+    {
+        // deliver reference
+        handler.deliver(_references[i]);
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMStatDataProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-        const Boolean includeQualifiers,
-        const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
-	throw CIMNotSupportedException("StatisticalData::modifyInstance");
+    throw CIMNotSupportedException("StatisticalData::modifyInstance");
 }
 
 void CIMOMStatDataProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
-	throw CIMNotSupportedException("StatisticalData::createInstance");
+    throw CIMNotSupportedException("StatisticalData::createInstance");
 }
 
 void CIMOMStatDataProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
-throw CIMNotSupportedException("StatisticalData::deleteInstance");
+    throw CIMNotSupportedException("StatisticalData::deleteInstance");
 }
 
-CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef)
+CIMInstance CIMOMStatDataProvider::getInstance(
+    Uint16 type, 
+    CIMObjectPath cimRef)
 {
 
-   StatisticalData* sd = StatisticalData::current();
-   char buffer[32];
-   sprintf(buffer, "%u", type);
+    StatisticalData* sd = StatisticalData::current();
+    char buffer[32];
+    sprintf(buffer, "%u", type);
 
-   checkObjectManager();
+    checkObjectManager();
 
-   CIMDateTime cimom_time = CIMDateTime((sd->cimomTime[type]), true);
-   CIMDateTime provider_time = CIMDateTime((sd->providerTime[type]), true);
-   Uint16 mof_type = getOpType(type);
+    CIMDateTime cimom_time = CIMDateTime((sd->cimomTime[type]), true);
+    CIMDateTime provider_time = CIMDateTime((sd->providerTime[type]), true);
+    Uint16 mof_type = getOpType(type);
 
 
 
-   CIMInstance requestedInstance("CIM_CIMOMStatisticalData");
-   requestedInstance.addProperty(CIMProperty("InstanceID",
-      CIMValue("CIM_CIMOMStatisticalData"+String(buffer))));
-   requestedInstance.addProperty(CIMProperty("OperationType",
-      CIMValue(mof_type)));
-   requestedInstance.addProperty(CIMProperty("NumberOfOperations",
-      CIMValue((Uint64)sd->numCalls[type])));
-   requestedInstance.addProperty(CIMProperty("CimomElapsedTime",
-      CIMValue(cimom_time)));
-   requestedInstance.addProperty(CIMProperty("ProviderElapsedTime",
-      CIMValue(provider_time)));
-   requestedInstance.addProperty(CIMProperty("RequestSize",
-      CIMValue((Uint64)sd->requestSize[type])));
-   requestedInstance.addProperty(CIMProperty("ResponseSize",
-      CIMValue((Uint64)sd->responseSize[type])));
-   requestedInstance.addProperty( CIMProperty("Description",
-      CIMValue(String("CIMOM performance statistics for CIM request "))));
-   requestedInstance.addProperty(CIMProperty("Caption",
-      CIMValue(String("CIMOM performance statistics for CIM request"))));
+    CIMInstance requestedInstance("CIM_CIMOMStatisticalData");
+    requestedInstance.addProperty(CIMProperty("InstanceID",
+        CIMValue("CIM_CIMOMStatisticalData"+String(buffer))));
+    requestedInstance.addProperty(CIMProperty("OperationType",
+        CIMValue(mof_type)));
+    requestedInstance.addProperty(CIMProperty("NumberOfOperations",
+        CIMValue((Uint64)sd->numCalls[type])));
+    requestedInstance.addProperty(CIMProperty("CimomElapsedTime",
+        CIMValue(cimom_time)));
+    requestedInstance.addProperty(CIMProperty("ProviderElapsedTime",
+        CIMValue(provider_time)));
+    requestedInstance.addProperty(CIMProperty("RequestSize",
+        CIMValue((Uint64)sd->requestSize[type])));
+    requestedInstance.addProperty(CIMProperty("ResponseSize",
+        CIMValue((Uint64)sd->responseSize[type])));
+    requestedInstance.addProperty( CIMProperty("Description",
+        CIMValue(String("CIMOM performance statistics for CIM request "))));
+    requestedInstance.addProperty(CIMProperty("Caption",
+        CIMValue(String("CIMOM performance statistics for CIM request"))));
 
-   requestedInstance.setPath(_references[type]);
+    requestedInstance.setPath(_references[type]);
 
-//cout << "at the end of getinstance of CIMOMStat" << endl;
-   return requestedInstance;
+    return requestedInstance;
 }
 
 /*CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
-{
-        //break millisecond value into days, hours, minutes, seconds and milliseconds
-        //turn each number into a string and append them to each other
+{ 
+    // Break millisecond value into days, hours, minutes, seconds and 
+    // milliseconds.
+    // Turn each number into a string and append them to each other.
 
-   	const Sint64 oneDay = Sint64(864) * 100000000;
+    const Sint64 oneDay = Sint64(864) * 100000000;
 
         Sint64 ndays = date/oneDay;        //one day = 8.64*10^10 millisecond
-        Sint64 rem = date % oneDay;                //rem_1 is remander of above operation
+        Sint64 rem = date % oneDay;      //rem_1 is remander of above operation
         char buf_day[9];
         sprintf(buf_day,"%08d",(int)ndays);
 
 String test = String(buf_day);
 
-
-        Sint64 nhour = rem/PEGASUS_UINT64_LITERAL(3600000000);  //one hour = 3.6*10^9 milliseconds
-        Sint64 rem_2 = rem%PEGASUS_UINT64_LITERAL(3600000000);    //rem_2 is remander of above operation
+        //one hour = 3.6*10^9 milliseconds
+        Sint64 nhour = rem/PEGASUS_UINT64_LITERAL(3600000000);  
+        //rem_2 is remander of above operation
+        Sint64 rem_2 = rem%PEGASUS_UINT64_LITERAL(3600000000);    
         char buf_hour[3];
         sprintf(buf_hour,"%02d",(int)nhour);
 
@@ -256,7 +252,8 @@ String dhmsm = dhms.append(String(buf_milsec));
     }
     catch(Exception& e)
     {
-        cout << "Error in string convert of " << dhmsm << " " << e.getMessage() << endl;;
+        cout << "Error in string convert of " << dhmsm << " " << 
+            e.getMessage() << endl;;
         ans.clear();
     }
 //cout<<"this is being passed back for toDateTime" << ans.toString() << endl;
@@ -268,32 +265,24 @@ String dhmsm = dhms.append(String(buf_milsec));
 
 void CIMOMStatDataProvider::checkObjectManager()
 {
+    StatisticalData* sData = StatisticalData::current();
 
-	StatisticalData* sData = StatisticalData::current();
+    if (!sData->copyGSD)
+    {  
+       //set all values to 0 if CIM_ObjectManager is False
 
-	if (!sData->copyGSD)
-	{  //set all values to 0 if CIM_ObjectManager is False
-
-		for (Uint16 i=0; i<StatisticalData::length; i++)
-		{
-		  sData->numCalls[i] = 0;
-		  sData->cimomTime[i] = 0;
-		  sData->providerTime[i] = 0;
-		  sData->responseSize[i] = 0;
-		  sData->requestSize[i] = 0;
-		}
-//		printf("just set all tha values of StatistcalData to 0\n");
-
-	}
-
-//	printf("at the end of the checkObjectManager func\n");
+        for (Uint16 i=0; i<StatisticalData::length; i++)
+        {
+            sData->numCalls[i] = 0;
+            sData->cimomTime[i] = 0;
+            sData->providerTime[i] = 0;
+            sData->responseSize[i] = 0;
+            sData->requestSize[i] = 0;
+        }
+    }
 }
 
 
-// The range of operation types is defined in Message.h  as 1-113.
-// For operation types with values grater than 39, forty is subtracted
-// (in StatisticalData.h and Message.cpp
-//
 // This conversion makes make the OperationType attribute of the
 // CIM_CIMOMStatisticalData instances agree with DMTF spec.
 // The CIM_StatisticalData class specifys type 0 as "unknown"
@@ -308,128 +297,116 @@ Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
 {
     Uint16 outType;
 
-
     switch (type)
     {
-        case DUMMY_MESSAGE:
-	  outType=0;
-	  break;
+        case StatisticalData::GET_CLASS:
+            outType= 3 ;
+            break;
 
-	case CIM_GET_CLASS_REQUEST_MESSAGE:
-	  outType= 3 ;
-	  break;
+        case StatisticalData::GET_INSTANCE:
+            outType= 4;
+            break;
 
-	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-	  outType= 4;
-	  break;
+        case StatisticalData::INDICATION_DELIVERY:
+            outType= 26;
+            break;
 
-	case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-	  outType= 5;
-	  break;
+        case StatisticalData::DELETE_CLASS:
+            outType= 5;
+            break;
 
-	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	  outType= 6;
-	  break;
+        case StatisticalData::DELETE_INSTANCE:
+            outType= 6;
+            break;
 
-	case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-	  outType= 7;
-	  break;
+        case StatisticalData::CREATE_CLASS:
+            outType= 7;
+            break;
 
-	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	  outType= 8;
-	  break;
+        case StatisticalData::CREATE_INSTANCE:
+            outType= 8;
+            break;
 
-	case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-	  outType= 9;
-	  break;
+        case StatisticalData::MODIFY_CLASS:
+            outType= 9;
+            break;
 
-	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	  outType= 10;
-	  break;
+        case StatisticalData::MODIFY_INSTANCE:
+            outType= 10;
+            break;
 
-	case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-	  outType= 11;
-	  break;
+        case StatisticalData::ENUMERATE_CLASSES:
+            outType= 11;
+            break;
 
-	case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-	  outType= 12;
-	  break;
+        case StatisticalData::ENUMERATE_CLASS_NAMES:
+            outType= 12;
+            break;
 
-	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	  outType= 13;
-	  break;
+        case StatisticalData::ENUMERATE_INSTANCES:
+            outType= 13;
+            break;
 
-	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	  outType= 14;
-	  break;
+        case StatisticalData::ENUMERATE_INSTANCE_NAMES:
+            outType= 14;
+            break;
 
-	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	  outType= 15;
-	  break;
+        case StatisticalData::EXEC_QUERY:
+            outType= 15;
+            break;
 
-	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-	  outType= 16;
-	  break;
+        case StatisticalData::ASSOCIATORS:
+            outType= 16;
+            break;
 
-	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-	  outType= 17;
-	  break;
+        case StatisticalData::ASSOCIATOR_NAMES:
+            outType= 17;
+            break;
 
-	case CIM_REFERENCES_REQUEST_MESSAGE:
-	  outType= 18;
-	  break;
+        case StatisticalData::REFERENCES:
+            outType= 18;
+            break;
 
-	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	  outType= 19;
-	  break;
+        case StatisticalData::REFERENCE_NAMES:
+            outType= 19;
+            break;
 
-	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	  outType= 20;
-	  break;
+        case StatisticalData::GET_PROPERTY:
+            outType= 20;
+            break;
 
-	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	  outType= 21;
-	  break;
+        case StatisticalData::SET_PROPERTY:
+            outType= 21;
+            break;
 
-	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-	  outType= 22;
-	  break;
+        case StatisticalData::GET_QUALIFIER:
+            outType= 22;
+            break;
 
-	case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-	  outType= 23;
-	  break;
+        case StatisticalData::SET_QUALIFIER:
+            outType= 23;
+            break;
 
-	case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-	  outType= 24;
-	  break;
+        case StatisticalData::DELETE_QUALIFIER:
+            outType= 24;
+            break;
 
-	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-	  outType= 25;
-	  break;
+        case StatisticalData::ENUMERATE_QUALIFIERS:
+            outType= 25;
+            break;
 
-	case  CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-	  outType= 26;
-	  break;
-
-	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	  outType= 1;
-	  break;
+        case StatisticalData::INVOKE_METHOD:
+            outType= 1;
+            break;
 
         default:
-	  // If this is a response type then ouput "other"
-	  if (type < CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE)
-	    outType=1;
-	  else
-	    // This type is unknown so output "Unknown"
-	    outType=0;
-	  break;
-
-
+            // This type is unknown so output "Unknown"
+            outType=0;
+            break;
     }
 
-    // printf("about to return form getOpType type = %d, outType = %d\n",type, outType);
     return outType;
 }
 
-
 PEGASUS_NAMESPACE_END
+    

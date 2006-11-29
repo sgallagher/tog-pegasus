@@ -1067,7 +1067,7 @@ BOOL prepare_attr_query( struct slp_client *client,
     bptr += ( 2 + len );
 
     /* if there is room, set the url length and copy the url */
-    len = strlen(url);
+    len = (int16) strlen(url);
     if(total_len + 2 + len < LSLP_MTU ) {
       _LSLP_SETSHORT(bptr, len, 0 );
       if(len)
@@ -1082,7 +1082,7 @@ BOOL prepare_attr_query( struct slp_client *client,
       else
 	scopeptr = scopes;
 
-      len = strlen(scopeptr);
+      len = (int16) strlen(scopeptr);
       if(total_len + 2 + len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, len, 0 );
 	
@@ -1094,7 +1094,7 @@ BOOL prepare_attr_query( struct slp_client *client,
 	
 	/* if there is room, set the tag list length and copy the tag list */
 	if(tags != NULL)
-	  len = strlen(tags);
+	  len = (int16) strlen(tags);
 	else
 	  len = 0;
 	

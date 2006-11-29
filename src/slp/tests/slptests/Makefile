@@ -28,10 +28,33 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../..
+ROOT=$(PEGASUS_ROOT)
+
+DIR = slp/tests/slptests
 
 include $(ROOT)/mak/config.mak
 
-DIRS = slp_client slp_agent tests
+LIBRARIES = \
+    pegslp_client \
+    pegcommon \
+    pegserver
 
-include $(ROOT)/mak/recurse.mak
+PROGRAM = TestSLP_SA
+
+SOURCES = SLP_SA_Tests.cpp
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  SYS_LIBS = ws2_32.lib advapi32.lib
+endif
+
+include $(ROOT)/mak/program.mak
+
+# slptests are executed under a slptests target because, both cimserver
+# and SLP should be running. There is no special settings required for cimserver 
+slptests:
+	$(PROGRAM)
+
+tests:
+
+poststarttests:
+

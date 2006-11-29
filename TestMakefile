@@ -100,6 +100,7 @@ usage2: FORCE
 	$(USAGE)
 	$(USAGE)"serversuite             - the collection of test run by the servertests rule"
 	$(USAGE)"run_STRESS_TS1          - Executes the stresstests"
+	$(USAGE)"slptests                - Executes the slptests"
 	$(USAGE)
 
 
@@ -273,7 +274,12 @@ ifeq ($(PEGASUS_TEST_SDK),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/SDK/samples -f Makefile setupSDK 
 endif
 
-
+# slptests are run under separate target because these testcases require that
+# both the cimserver and SLP are running. There is no need for special options
+# while starting cimserver.
+slptests:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/slp/tests/slptests -f Makefile slptests
+	@ $(ECHO) "+++++ TestMakefile slp test suite completed"
 
 servertests: servertestsclean servertestssetup serversuite
 	@ $(ECHO) "+++++ TestMakefile servertests suites complete"

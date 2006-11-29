@@ -33,6 +33,7 @@ ROOT=../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-	srv_reg
+	srv_reg \
+	slptests 
 
 include $(ROOT)/mak/recurse.mak

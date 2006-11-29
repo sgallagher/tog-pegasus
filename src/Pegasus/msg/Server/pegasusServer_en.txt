@@ -6320,23 +6320,6 @@ CIM server listening on HTTPS port {0}."}
         *     
         */
         Common.AuditLogger.UPDATE_PROVIDER_MODULE_STATUS:string {"PGS17813: The operational status of module {0} has changed from {1} to {2}."} 
-        // ==========================================================
-        // Messages for DynListener.cimlistener 
-        //  Please use message prefix "PGS18000"
-        // ==========================================================
-        
-        /**
-        * @note PGS17800:
-        *     
-        */
-        DynListener.cimlistener.KILL_PERM_DENIED:string {"PGS18000: Permission denied: Not permitted to shutdown cimlistener process."}
-
-        /**
-        * @note PGS18000:
-        *    Substitution {0} is a system error message (a string)
-        */
-        DynListener.cimlistener.KILL_FAILED:string {"PGS18001: Failed to shutdown cimlistener process. Error: \"{1}\""}
-
 
         /**
         * @note PGS17814:
@@ -6352,6 +6335,69 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {2} is a string containing a ip address
         */
         Common.AuditLogger.BASIC_AUTHENTICATION:string {"PGS17815: Basic authentication attempt: successful = {0}, user name = {1}, IP address = {2}."}
+
+
+        // ==========================================================
+        // Messages for DynListener.cimlistener 
+        //  Please use message prefix "PGS18000"
+        // ==========================================================
+        
+        /**
+        * @note PGS18000:
+        *     
+        */
+        DynListener.cimlistener.KILL_PERM_DENIED:string {"PGS18000: Permission denied: Not permitted to shutdown cimlistener process."}
+
+        /**
+        * @note PGS18001:
+        *    Substitution {0} is a system error message (a string)
+        */
+        DynListener.cimlistener.KILL_FAILED:string {"PGS18001: Failed to shutdown cimlistener process. Error: \"{1}\""}
+
+
+        // ==========================================================
+        // Messages for SLP
+        // Please use message prefix "PGS18200"
+        // ==========================================================
+
+        /**
+        * @note PGS18200:
+        *    Substitution {0} is a string containing message from exception
+        *     
+        */
+        Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION:string{"PGS18200: CIM Server registration with Internal SLP Failed. Exception: {0}"}
+
+        /**
+        * @note PGS18201:
+        *    Substitution {0} is a string containing message from exception
+        *     
+        */
+        Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION:string{"PGS18201: CIM Server registration with External SLP Failed. Exception: {0}"}
+
+        /**
+        * @note PGS18202:
+        *     
+        */
+        Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR:string{"PGS18202: CIM Server registration with Internal SLP Failed."}
+
+        /**
+        * @note PGS18203:
+        *     
+        */
+        Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR:string{"PGS18203: CIM Server registration with External SLP Failed."}
+
+        /**
+        * @note PGS18204:
+        *     
+        */
+        Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED:string{"PGS18204: SLP Registration Initiated"}
+
+        /**
+        * @note PGS18205:
+        *     
+        */
+        Pegasus.Server.SLP.PROTOCOLS_NOT_ENABLED:string{"PGS18205: Both Http and Https protocols are disabled, SLP registration skipped."}
+
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

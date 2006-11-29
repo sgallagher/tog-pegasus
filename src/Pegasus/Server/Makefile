@@ -72,6 +72,10 @@ LIBRARIES = \
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 LIBRARIES += \
 	InteropProvider
+ifdef PEGASUS_SLP_REG_TIMEOUT
+LIBRARIES += \
+	pegslp_client
+endif
 endif
 
 ifndef PEGASUS_DISABLE_PERFINST
@@ -107,6 +111,10 @@ SOURCES = \
 	QuerySupportRouter.cpp \
 	WQLOperationRequestDispatcher.cpp
 
+ifdef PEGASUS_SLP_REG_TIMEOUT
+SOURCES += \
+        SLPAttrib.cpp
+endif
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

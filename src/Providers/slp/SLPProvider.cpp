@@ -1139,7 +1139,11 @@ Boolean SLPProvider::populateRegistrationData(
         (const char *)CstrRegistration,
         (const char *)CfullServiceName,
         "DEFAULT",
+#if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
+        PEGASUS_SLP_REG_TIMEOUT  * 60);
+#else
         0xffff);
+#endif
 
     if (!goodRtn)
     {
@@ -1492,12 +1496,25 @@ void SLPProvider::invokeMethod(
         if (methodName.equal("register"))
         {
             if (initFlag == false)
+            {
                 if (issueSLPRegistrations())
+                {
+                // PEP 267 ifdef is added to allow reregistrations.
+                // issueRegistration sets initFlag to true.   
+#if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
+                   initFlag = false;
+#endif
                     response = 0;
+                }
                 else
+                {
                     response = 2;
+                } 
+             }
             else
+             {
                 response = 1;
+        }
         }
         else if (methodName.equal("unregister"))
         {

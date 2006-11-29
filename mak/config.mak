@@ -656,6 +656,17 @@ ifdef PEGASUS_USE_OPENSLP
     endif
 endif
 
+# PEP 267
+# SLP reregistration support.
+# PEGASUS_SLP_REG_TIMEOUT is defined as the SLP registration timeout
+# interval, in minutes.
+ifdef PEGASUS_SLP_REG_TIMEOUT
+    ifeq ($(PEGASUS_ENABLE_SLP),true)
+       DEFINES += -DPEGASUS_SLP_REG_TIMEOUT=$(PEGASUS_SLP_REG_TIMEOUT)
+     else
+       $(error PEGASUS_SLP_REG_TIMEOUT defined but PEGASUS_ENABLE_SLP is not true. Please correct this inconsistency)
+     endif
+ endif
 
 ############################################################################
 #

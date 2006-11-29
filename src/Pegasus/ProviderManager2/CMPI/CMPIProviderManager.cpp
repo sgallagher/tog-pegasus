@@ -319,7 +319,7 @@ void CMPIProviderManager::unloadIdleProviders()
     catch(const CIMException & e)  \
     { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
                 "Exception: " + e.getMessage()); \
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); \
+        handler.setCIMException(e); \
     } \
     catch(const Exception & e) \
     { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
@@ -475,7 +475,9 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -643,7 +645,9 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -775,7 +779,9 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -911,7 +917,9 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1050,7 +1058,9 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1182,7 +1192,9 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1327,7 +1339,9 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1508,7 +1522,9 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1655,7 +1671,9 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1830,7 +1848,9 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1973,7 +1993,9 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2145,7 +2167,9 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2457,7 +2481,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2665,7 +2690,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -3109,7 +3135,9 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -3306,7 +3334,9 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
             response->operationContext.set(
                 ContentLanguageListContainer(
                     ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(CMGetCharPtr(cldata.value.string)))));
+                        LanguageParser::parseContentLanguageHeader(
+                            CMGetCharPtr(cldata.value.string)))));
+            handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)

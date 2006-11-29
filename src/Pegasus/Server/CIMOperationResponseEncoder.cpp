@@ -306,6 +306,15 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
         return;
     }
 
+    CIMResponseMessage* response = (CIMResponseMessage*)message;
+    if (response->thread_changed())
+    {
+        AutoPtr<AcceptLanguageList> langs(new AcceptLanguageList((
+            (AcceptLanguageListContainer)response->operationContext.get(
+                AcceptLanguageListContainer::NAME)).getLanguages()));
+        Thread::setLanguages(langs.release());
+    }
+
     Tracer::trace(
         TRC_HTTP,
         Tracer::LEVEL3,

@@ -334,7 +334,8 @@ test03 (CIMClient & client)
           contLangs = client.getResponseContentLanguages();
           cout << "ContentLanguage size == " << contLangs.size() << endl;
           PEGASUS_TEST_ASSERT (contLangs.size() == 1);
-          cout << "ContentLanguage == " << contLangs.getLanguageTag(0).toString();
+          cout << "ContentLanguage == " << 
+              contLangs.getLanguageTag(0).toString() << endl;
           PEGASUS_TEST_ASSERT (contLangs.getLanguageTag(0).toString() == "en-US");
       }
 #endif

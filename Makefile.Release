@@ -162,7 +162,8 @@ PEGASUS_ADMIN_CMDS = \
    cimprovagt \
    cimservera \
    cimreparchive \
-   repupgrade
+   repupgrade \
+   cimsub
 
 PEGASUS_USER_CMDS = \
    cimmof \
@@ -194,6 +195,7 @@ PEGASUS_REPOSITORY_DIRS = \
 PEGASUS_UNIX_MAN_USER_PAGES = \
    cimmof.1 \
    cimprovider.1 \
+   cimsub.1 \
    osinfo.1 \
    wbemexec.1 
 

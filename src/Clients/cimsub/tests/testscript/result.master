@@ -48,10 +48,10 @@ Usage: cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername]
                   [-H [hnamespace:][hclassname.]handlername] 
               -e [-n namespace] -F [fnamespace:]filtername 
                   -H [hnamespace:][hclassname.]handlername 
-              -d [-n namespace] -F [fnamespace:]filtername]
+              -d [-n namespace] -F [fnamespace:]filtername
                   -H [hnamespace:][hclassname.]handlername 
               -r s|f|h|a [-n namespace] [-F[fnamespace:]filtername] 
-                  -H [hnamespace:][hclassname.]handlername]
+                  [-H [hnamespace:][hclassname.]handlername]
               --help
               --version
 Options : 

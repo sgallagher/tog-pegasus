@@ -363,7 +363,7 @@ CIMSubCommand::CIMSubCommand()
     usage.append("              -").append(OPTION_DISABLE);
     usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]");
     usage.append(" -").append(OPTION_FILTER).append
-        (" [fnamespace:]filtername]\n");
+        (" [fnamespace:]filtername\n");
     usage.append("                  -").append(OPTION_HANDLER).append
         (" [hnamespace:][hclassname.]handlername \n");
 
@@ -375,7 +375,7 @@ CIMSubCommand::CIMSubCommand()
     usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]");
     usage.append(" [-").append(OPTION_FILTER).append
         ("[fnamespace:]filtername] \n");
-    usage.append("                  -").append(OPTION_HANDLER).append
+    usage.append("                  [-").append(OPTION_HANDLER).append
         (" [hnamespace:][hclassname.]handlername]\n");
 
     usage.append("              --").append(LONG_HELP).append("\n");

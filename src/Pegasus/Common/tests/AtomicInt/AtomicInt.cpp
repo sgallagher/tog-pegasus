@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Konrad Rzeszutek, IBM Corp.
-// Modified by:
-//         Steve Hills (steve.hills@ncr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -83,7 +78,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
 
     for (;;)
     {
-	const size_t N = 10000000;
+	const size_t N = 100000;
 
 	for (size_t i = 0; i < N; i++)
 	{

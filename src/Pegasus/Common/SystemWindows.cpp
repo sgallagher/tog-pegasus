@@ -696,7 +696,22 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     DWORD dwEntriesRead = 0;
     DWORD dwTotalEntries = 0;
     NET_API_STATUS nStatus;
+    wchar_t wcUserName[UNLEN+1];
+    wchar_t wcGroupName[UNLEN+1];
 
+    //Convert user name to unicode
+    if (!MultiByteToWideChar(CP_ACP,0,userName, -1, wcUserName, 
+        strlen(userName)+1))
+    {
+        return false;
+    }
+    
+    //Convert group name to unicode
+    if (!MultiByteToWideChar(CP_ACP, 0, groupName, -1, wcGroupName, 
+        strlen(groupName)+1))
+    {
+        return false;
+    }
 
     //
     // Call the NetUserGetLocalGroups function
@@ -706,14 +721,15 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     // function should also return the names of the local
     // groups in which the user is indirectly a member.
     //
-    nStatus = NetUserGetLocalGroups(NULL,
-                                   (LPCWSTR)userName,
-                                   dwLevel,
-                                   dwFlags,
-                                   (LPBYTE *) &pBuf,
-                                   dwPrefMaxLen,
-                                   &dwEntriesRead,
-                                   &dwTotalEntries);
+    nStatus = NetUserGetLocalGroups(
+        NULL,   
+        (LPCWSTR)wcUserName,
+        dwLevel,
+        dwFlags,
+        (LPBYTE *) &pBuf,
+        dwPrefMaxLen,
+        &dwEntriesRead,
+        &dwTotalEntries);
 
     //
     // If the call succeeds,
@@ -735,7 +751,8 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
                 //
                 // Compare the user's group name to groupName.
                 //
-                if ( strcmp ((char *)pTmpBuf->lgrui0_name, groupName) == 0 )
+
+                if (wcscmp(pTmpBuf->lgrui0_name, wcGroupName) == 0)
                 {
                     // User is a member of the group.
                     retVal = true;
@@ -769,13 +786,15 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
         //
         // Call the NetUserGetGroups function, specifying level 0.
         //
-        nStatus = NetUserGetGroups(NULL,
-                                  (LPCWSTR)userName,
-                                  dwLevel,
-                                  (LPBYTE*)&pBuf,
-                                  dwPrefMaxLen,
-                                  &dwEntriesRead,
-                                  &dwTotalEntries);
+        nStatus = NetUserGetGroups(
+            NULL,
+            (LPCWSTR)wcUserName,
+            dwLevel,
+            (LPBYTE*)&pBuf,
+            dwPrefMaxLen,
+            &dwEntriesRead,
+            &dwTotalEntries);        
+
         //
         // If the call succeeds,
         //
@@ -796,7 +815,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
                     //
                     // Compare the user's group name to groupName.
                     //
-                    if ( strcmp ((char *)pTmpBuf->grui0_name, groupName) == 0 )
+                    if (wcscmp(pTmpBuf->grui0_name, wcGroupName) == 0)
                     {
                         // User is a member of the group.
                         retVal = true;

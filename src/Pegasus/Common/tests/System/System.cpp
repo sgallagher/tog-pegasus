@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -110,13 +110,60 @@ int main(int argc, char** argv)
 
     strcpy( full_path_buff, "/path1/path2/file1" );
     System::extract_file_path( full_path_buff, extracted_dir_name );
-    PEGASUS_TEST_ASSERT(System::strcasecmp( "/path1/path2/", extracted_dir_name )
+    PEGASUS_TEST_ASSERT(System::strcasecmp("/path1/path2/", extracted_dir_name)
         == 0);
 
     strcpy( full_path_buff, "\\path1\\path2\\file1" );
     System::extract_file_path( full_path_buff, extracted_dir_name );
-    PEGASUS_TEST_ASSERT(System::strcasecmp( "\\path1\\path2\\", extracted_dir_name )
-        == 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp(
+        "\\path1\\path2\\", extracted_dir_name) == 0);
+
+    // userSuccess variable contains the username part of the userGroup      //
+    // userFailure variable contains the username not part of the userGroup  //
+    // By default  this test case uses root user,root group for success      //
+    // condition under non-windows platforms. Administrator user and         //
+    // Administrator group for success condition under Windows platform.     //
+    // and guest user to check for failure condition.                        //
+    // However the existance of user names above are not verified            //
+    // If the user wishes to provide different values he can specify through //
+    // the environment variables PEGASUS_TEST_ISGROUP_USER_SUCCESS,          //
+    // PEGASUS_TEST_ISGROUP_USER_FAILURE, PEGASUS_TEST_ISGROUP_GROUP         //
+
+#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+
+    const char* envValue;
+    char userSuccess[20],userFailure[20],userGroup[20];
+
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+    strcpy(userSuccess,"root");
+    strcpy(userGroup,"root");
+    strcpy(userFailure,"guest");
+#else
+    strcpy(userSuccess,"Administrator");
+    strcpy(userGroup,"Administrators");
+    strcpy(userFailure,"Guest");
+#endif
+
+    if ((envValue=getenv("PEGASUS_TEST_ISGROUP_USER_SUCCESS"))!=NULL)
+    {
+        strcpy(userSuccess,envValue);
+    }
+
+    if ((envValue = getenv("PEGASUS_TEST_ISGROUP_GROUP"))!=NULL)
+    {
+        strcpy(userGroup,envValue);
+    }
+
+    PEGASUS_TEST_ASSERT(System::isGroupMember(userSuccess,userGroup)==true);
+
+    if ((envValue=getenv("PEGASUS_TEST_ISGROUP_USER_FAIL"))!=NULL)
+    {
+        strcpy(userFailure,envValue);
+    }
+
+    PEGASUS_TEST_ASSERT(System::isGroupMember(userFailure,userGroup)==false);
+
+#endif
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

@@ -68,6 +68,12 @@ LOCAL_CLEAN_TARGET = \
 	$(JAR4CLASSES) $(addprefix $(PEGASUS_HOME)/lib/,$(JAR4)) \
 	*.class
 
+QUOTE=\"
+
+ifeq ($(OS_TYPE),vms)
+QUOTE=""
+endif
+
 all build: 			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
 
 depend:
@@ -116,36 +122,36 @@ cimmof_repository:
 tests:
 
 poststarttests:			$(addprefix $(PEGASUS_HOME)/lib/,$(JARS))
-	cimcli im -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes' 'resetProvider'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes.CreationClassName="JMPIExpInstance_TestPropertyTypes",InstanceId=1'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes.CreationClassName="JMPIExpInstance_TestPropertyTypes",InstanceId=2'
-	cimcli ni --sum -count 2 -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes'
-	cimcli ei --sum -count 2 -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes'
-	cimcli im -n $(NAMESPACE) 'JMPIExpInstance_TestPropertyTypes' 'enableModifications' 'fState=true'
+	cimcli im -n $(NAMESPACE) "JMPIExpInstance_TestPropertyTypes" "resetProvider"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPIExpInstance_TestPropertyTypes.CreationClassName=$(QUOTE)JMPIExpInstance_TestPropertyTypes$(QUOTE),InstanceId=1"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPIExpInstance_TestPropertyTypes.CreationClassName=$(QUOTE)JMPIExpInstance_TestPropertyTypes$(QUOTE),InstanceId=2"
+	cimcli ni --sum -count 2 -n $(NAMESPACE) "JMPIExpInstance_TestPropertyTypes"
+	cimcli ei --sum -count 2 -n $(NAMESPACE) "JMPIExpInstance_TestPropertyTypes"
+	cimcli im -n $(NAMESPACE) "JMPIExpInstance_TestPropertyTypes" "enableModifications" "fState=true"
 
-	cimcli im -n $(NAMESPACE) 'JMPIInstance_TestPropertyTypes' 'resetProvider'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPIInstance_TestPropertyTypes.CreationClassName="JMPIInstance_TestPropertyTypes",InstanceId=1'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPIInstance_TestPropertyTypes.CreationClassName="JMPIInstance_TestPropertyTypes",InstanceId=2'
-	cimcli ni --sum -count 2 -n $(NAMESPACE) 'JMPIInstance_TestPropertyTypes'
-	cimcli ei --sum -count 2 -n $(NAMESPACE) 'JMPIInstance_TestPropertyTypes'
-	cimcli im -n $(NAMESPACE) 'JMPIInstance_TestPropertyTypes' 'enableModifications' 'fState=true'
+	cimcli im -n $(NAMESPACE) "JMPIInstance_TestPropertyTypes" "resetProvider"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPIInstance_TestPropertyTypes.CreationClassName=$(QUOTE)JMPIInstance_TestPropertyTypes$(QUOTE),InstanceId=1"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPIInstance_TestPropertyTypes.CreationClassName=$(QUOTE)JMPIInstance_TestPropertyTypes$(QUOTE),InstanceId=2"
+	cimcli ni --sum -count 2 -n $(NAMESPACE) "JMPIInstance_TestPropertyTypes"
+	cimcli ei --sum -count 2 -n $(NAMESPACE) "JMPIInstance_TestPropertyTypes"
+	cimcli im -n $(NAMESPACE) "JMPIInstance_TestPropertyTypes" "enableModifications" "fState=true"
 
-	cimcli im -n $(NAMESPACE) 'JMPICIMInstance_TestPropertyTypes' 'resetProvider'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPICIMInstance_TestPropertyTypes.CreationClassName="JMPICIMInstance_TestPropertyTypes",InstanceId=1'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPICIMInstance_TestPropertyTypes.CreationClassName="JMPICIMInstance_TestPropertyTypes",InstanceId=2'
-	cimcli ni --sum -count 2 -n $(NAMESPACE) 'JMPICIMInstance_TestPropertyTypes'
-	cimcli ei --sum -count 2 -n $(NAMESPACE) 'JMPICIMInstance_TestPropertyTypes'
-	cimcli im -n $(NAMESPACE) 'JMPICIMInstance_TestPropertyTypes' 'enableModifications' 'fState=true'
+	cimcli im -n $(NAMESPACE) "JMPICIMInstance_TestPropertyTypes" "resetProvider"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPICIMInstance_TestPropertyTypes.CreationClassName=$(QUOTE)JMPICIMInstance_TestPropertyTypes$(QUOTE),InstanceId=1"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPICIMInstance_TestPropertyTypes.CreationClassName=$(QUOTE)JMPICIMInstance_TestPropertyTypes$(QUOTE),InstanceId=2"
+	cimcli ni --sum -count 2 -n $(NAMESPACE) "JMPICIMInstance_TestPropertyTypes"
+	cimcli ei --sum -count 2 -n $(NAMESPACE) "JMPICIMInstance_TestPropertyTypes"
+	cimcli im -n $(NAMESPACE) "JMPICIMInstance_TestPropertyTypes" "enableModifications" "fState=true"
 
-	cimcli im -n $(NAMESPACE) 'JMPICIMInstance2_TestPropertyTypes' 'resetProvider'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPICIMInstance2_TestPropertyTypes.CreationClassName="JMPICIMInstance2_TestPropertyTypes",InstanceId=1'
-	cimcli gi --sum -count 1 -n $(NAMESPACE) 'JMPICIMInstance2_TestPropertyTypes.CreationClassName="JMPICIMInstance2_TestPropertyTypes",InstanceId=2'
-	cimcli ni --sum -count 2 -n $(NAMESPACE) 'JMPICIMInstance2_TestPropertyTypes'
-	cimcli ei --sum -count 2 -n $(NAMESPACE) 'JMPICIMInstance2_TestPropertyTypes'
-	cimcli im -n $(NAMESPACE) 'JMPICIMInstance2_TestPropertyTypes' 'enableModifications' 'fState=true'
+	cimcli im -n $(NAMESPACE) "JMPICIMInstance2_TestPropertyTypes" "resetProvider"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPICIMInstance2_TestPropertyTypes.CreationClassName=$(QUOTE)JMPICIMInstance2_TestPropertyTypes$(QUOTE),InstanceId=1"
+	cimcli gi --sum -count 1 -n $(NAMESPACE) "JMPICIMInstance2_TestPropertyTypes.CreationClassName=$(QUOTE)JMPICIMInstance2_TestPropertyTypes$(QUOTE),InstanceId=2"
+	cimcli ni --sum -count 2 -n $(NAMESPACE) "JMPICIMInstance2_TestPropertyTypes"
+	cimcli ei --sum -count 2 -n $(NAMESPACE) "JMPICIMInstance2_TestPropertyTypes"
+	cimcli im -n $(NAMESPACE) "JMPICIMInstance2_TestPropertyTypes" "enableModifications" "fState=true"
 
 poststarttests2:
-	cimcli xq -n $(NAMESPACE) 'SELECT InstanceId FROM JMPIExpInstance_TestPropertyTypes WHERE InstanceId = 1' 'WQL'
+	cimcli xq -n $(NAMESPACE) "SELECT InstanceId FROM JMPIExpInstance_TestPropertyTypes WHERE InstanceId = 1" "WQL"
 
 $(PEGASUS_HOME)/lib/$(JAR1):	$(JAR1CLASSES) CommonInstanceProvider.class
 	make -f JarMakefile $@

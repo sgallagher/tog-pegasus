@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.9 2006/10/04 11:20:38 thilo.boehm Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.10 2006/11/29 14:04:49 marek Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -176,7 +176,11 @@ void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 #define _LSLP_BEGINTHREAD(start, stacksize, arg) \
           lslp_linux_begin_thread((start),(stacksize),(arg))
 
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #define _LSLP_STRTOK(n, d, s) strtok_r((n), (d), (s))
+#else
+#define _LSLP_STRTOK(n, d, s) strtok((n), (d) )
+#endif
 
 #define _LSLP_ENDTHREAD(handle, code)  pthread_exit((handle))
 #define _LSLP_SIG_ACTION() _lslp_sig_action()

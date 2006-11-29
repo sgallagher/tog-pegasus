@@ -131,7 +131,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         char tmp [8];
         char* tmpp = & (tmp [0]);
         strncpy (tmpp, entry.text, 8);
-#if !defined(PEGASUS_COMPILER_MSVC)
+#if !defined(PEGASUS_COMPILER_MSVC) && !defined(PEGASUS_OS_ZOS)
         char *last;
         char* p = strtok_r (tmpp, HTTP_SP, &last);
 #else

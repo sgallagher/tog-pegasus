@@ -451,7 +451,7 @@ void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
     try
     {
 
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) && !defined(PEGASUS_OS_ZOS)
         char* last;
         for (const char* p = strtok_r(trapOidCopy, ".", &last); p;
             p=strtok_r(NULL, ".", &last))

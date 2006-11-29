@@ -1324,6 +1324,7 @@ inline static CMPIBoolean CMIsInterval
 
     // CMPIError macros
 
+#   ifdef CMPI_VER_200
 
 #   ifdef CMPI_INLINE
 /** Gets the type of this Error
@@ -1703,6 +1704,7 @@ inline static CMPIStatus (*setMessageArguments)(CMPIError* er, CMPIArray* ma)
               ((e)->ft->setMessageArguments((e),(ma)))
 #   endif
 
+#   endif /* CMPI_VER_200 */
 
 
     // CMPIEnumeration Macros

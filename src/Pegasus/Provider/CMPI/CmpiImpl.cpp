@@ -627,8 +627,8 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter
       (CMPIIndicationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
        const CMPISelectExp* eSe, const char* ns, const CMPIObjectPath* eCop, 
        CMPIBoolean first){
-   const CmpiContext ctx((CMPIContext*)eCtx);
   try {
+   const CmpiContext ctx((CMPIContext*)eCtx);
    CmpiResult rslt((CMPIResult*)eRslt);
    const CmpiObjectPath cop((CMPIObjectPath*)eCop);
    const CmpiSelectExp se(eSe);
@@ -647,7 +647,7 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter
 CMPIStatus CmpiIndicationMI::driveDeActivateFilter
       (CMPIIndicationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
        const CMPISelectExp* eSe, const char* ns, const CMPIObjectPath* eCop, 
-       const CMPIBoolean last){
+       CMPIBoolean last){
   try {
    const CmpiContext ctx((CMPIContext*)eCtx);
    CmpiResult rslt((CMPIResult*)eRslt);

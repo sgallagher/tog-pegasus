@@ -2026,7 +2026,17 @@ void HTTPConnection::_handleReadEvent()
             _monitor->setState (_entry_index, _MonitorEntry::BUSY);
             _monitor->tickle();
         }
-        _outputMessageQueue->enqueue(message);
+        try
+        {
+            _outputMessageQueue->enqueue(message);
+        }
+        catch (Exception& e)
+        {
+            String httpStatus =
+                HTTP_STATUS_BADREQUEST + httpDetailDelimiter + e.getMessage();
+            _handleReadEventFailure(httpStatus);
+        }   
+
         _clearIncoming();
 
         if (bytesRead == 0)
@@ -2080,7 +2090,9 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
             }
             catch (...)
             {
-                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                Tracer::trace(
+                    TRC_DISCARDED_DATA, 
+                    Tracer::LEVEL2,
                     "HTTPConnection::run handleEnqueue(msg) failure");
                 return true;
             }

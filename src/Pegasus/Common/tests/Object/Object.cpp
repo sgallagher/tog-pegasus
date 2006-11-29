@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//      Jenny Yu (jenny_yu@hp.com)
-//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
-//      David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
-//      Chip Vincent (cvincent@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -77,7 +69,8 @@ void test01()
     CIMClass cimClass3 = CIMClass(oclass1);
 
     PEGASUS_TEST_ASSERT(oclass1.getClassName() == CIMName ("MyClass"));
-    PEGASUS_TEST_ASSERT(oclass1.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
+    PEGASUS_TEST_ASSERT(oclass1.getPath() == 
+        CIMObjectPath("//localhost/root/cimv2:MyClass"));
     PEGASUS_TEST_ASSERT (oclass1.isClass ());
     PEGASUS_TEST_ASSERT (!oclass1.isInstance ());
     PEGASUS_TEST_ASSERT (oclass2.isClass ());
@@ -101,21 +94,31 @@ void test01()
 
     // Test qualifiers
     oinstance1.addQualifier(CIMQualifier(CIMName ("Key"), true));
-    oinstance1.addQualifier(CIMQualifier(CIMName ("Description"), String("Just a Test")));
+    oinstance1.addQualifier(CIMQualifier(CIMName ("Description"),
+        String("Just a Test")));
     oinstance1.addQualifier(CIMQualifier(CIMName ("q1"), true));
     oinstance1.addQualifier(CIMQualifier(CIMName ("q2"), true));
 
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("Key")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("Description")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q3")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("Key"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("Description"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q1"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q2"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q3"))
+        == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(oinstance1.getQualifierCount() == 4);
 
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q3")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q4")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q1"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q2"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q3"))
+        == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q4"))
+        == PEG_NOT_FOUND);
 
     Uint32 posQualifier;
     posQualifier = oinstance1.findQualifier(CIMName ("q1"));
@@ -128,6 +131,23 @@ void test01()
         PEGASUS_TEST_ASSERT(!q1.isUninitialized());
         CIMConstQualifier cq1 = oinstance1.getQualifier(posQualifier);
         PEGASUS_TEST_ASSERT(!cq1.isUninitialized());
+        
+        /**
+            Added to cover the function
+            CIMConstQualifier CIMObject::getQualifier(Uint32 index) const
+            in CIMObject.cpp
+        */
+        const CIMObject coinstance1 = cimInstance1;
+        CIMConstQualifier cq2 = coinstance1.getQualifier(0);
+        PEGASUS_TEST_ASSERT(!cq2.isUninitialized());
+
+        /**
+            Added to cover the function Added to cover the function
+            CIMConstProperty CIMObject::getProperty(Uint32 index) const
+            in CIMObject.cpp
+        */
+        CIMConstProperty cp1 =  coinstance1.getProperty(0);
+        PEGASUS_TEST_ASSERT(!cp1.isUninitialized());
     }
     catch(IndexOutOfBoundsException& e)
     {
@@ -138,16 +158,22 @@ void test01()
 
     oinstance1.removeQualifier(posQualifier);
     PEGASUS_TEST_ASSERT(oinstance1.getQualifierCount() == 3);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q1"))
+        == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findQualifier(CIMName ("q2"))
+        != PEG_NOT_FOUND);
 
     // Test properties
-    oinstance1.addProperty(CIMProperty(CIMName ("message"), String("Hello There")));
+    oinstance1.addProperty(CIMProperty(CIMName ("message"),
+        String("Hello There")));
     oinstance1.addProperty(CIMProperty(CIMName ("count"), Uint32(77)));
 
-    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("ratio")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("count"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("message"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("ratio"))
+        == PEG_NOT_FOUND);
 
     CIMProperty cp =
        oinstance1.getProperty(oinstance1.findProperty(CIMName ("message")));
@@ -155,7 +181,8 @@ void test01()
     Uint32 posProperty;
     posProperty = oinstance1.findProperty(CIMName ("count"));
     oinstance1.removeProperty(posProperty);
-    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(oinstance1.findProperty(CIMName ("count"))
+        == PEG_NOT_FOUND);
 
     PEGASUS_TEST_ASSERT(oinstance1.getPropertyCount() == 1);
 
@@ -193,6 +220,39 @@ void test02()
     CIMConstObject cobj2(cclass1);
     CIMConstObject cobj3(obj1);
 
+    /**
+        Added to cover the constructor and getPath() in CIMClass.cpp
+    */
+    CIMConstClass cclass11(obj1);
+    PEGASUS_TEST_ASSERT( !cclass11.isUninitialized());
+ 
+    cclass11.getPath();
+    PEGASUS_TEST_ASSERT( cclass11.getPath().toString() ==
+        "//localhost/root/cimv2:MyClass" );
+    
+    /**
+        Added to cover the function CIMConstObject& CIMConstObject::operator=(
+        const CIMConstObject& x) in CIMObject.cpp
+    */
+    const CIMConstObject cobj111(class1);
+    cobj1=cobj111;
+    PEGASUS_TEST_ASSERT( cobj1.toString() == cobj111.toString());
+
+    /**
+        Added to cover the function Boolean CIMConstObject::isUninitialized()
+        const in CIMObject.cpp
+    */
+    Boolean result=0;
+    PEGASUS_TEST_ASSERT( result == cobj1.isUninitialized());
+
+    /**
+        Added to cover the function String CIMConstObject::toString () const
+        in CIMObject.cpp
+    */
+    String result1;
+    result1 = cobj1.toString();
+    PEGASUS_TEST_ASSERT( result1 != "<CLASS  NAME=\"MyClass\" ></CLASS>" );
+    
     //
     // Construct from CIMInstance
     //
@@ -200,7 +260,8 @@ void test02()
     CIMObject obj2 = instance;
 
     obj2.addQualifier(CIMQualifier(CIMName ("Key"), true));
-    obj2.addQualifier(CIMQualifier(CIMName ("Description"), String("Just a Test")));
+    obj2.addQualifier(CIMQualifier(CIMName ("Description"),
+        String("Just a Test")));
     obj2.addProperty(CIMProperty(CIMName ("message"), String("Hello There")));
     obj2.addProperty(CIMProperty(CIMName ("count"), Uint32(77)));
 
@@ -217,7 +278,8 @@ void test02()
     CIMConstObject cobj12 = cinstance;
 
     PEGASUS_TEST_ASSERT(cobj1.getClassName() == CIMName ("MyClass"));
-    PEGASUS_TEST_ASSERT(cobj1.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
+    PEGASUS_TEST_ASSERT(cobj1.getPath() ==
+        CIMObjectPath("//localhost/root/cimv2:MyClass"));
 
     // clone the instance object
     CIMObject cloneObj = cobj4.clone();
@@ -233,9 +295,12 @@ void test02()
 
     // Test qualifiers
     PEGASUS_TEST_ASSERT(ccloneObj.getQualifierCount() == 2);
-    PEGASUS_TEST_ASSERT(ccloneObj.findQualifier(CIMName ("Key")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(ccloneObj.findQualifier(CIMName ("Description")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(ccloneObj.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(ccloneObj.findQualifier(CIMName ("Key"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(ccloneObj.findQualifier(CIMName ("Description"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(ccloneObj.findQualifier(CIMName ("q1"))
+        == PEG_NOT_FOUND);
 
     Uint32 posQualifier;
     posQualifier = ccloneObj.findQualifier(CIMName ("Key"));
@@ -254,9 +319,12 @@ void test02()
 
     // Test properties
     PEGASUS_TEST_ASSERT(ccloneObj.getPropertyCount() == 2);
-    PEGASUS_TEST_ASSERT(ccloneObj.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(ccloneObj.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(ccloneObj.findProperty(CIMName ("ratio")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(ccloneObj.findProperty(CIMName ("count"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(ccloneObj.findProperty(CIMName ("message"))
+        != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(ccloneObj.findProperty(CIMName ("ratio"))
+        == PEG_NOT_FOUND);
 
     Uint32 posProperty;
     posProperty = ccloneObj.findProperty(CIMName ("message"));
@@ -309,16 +377,17 @@ void test03()
 //*********************************************************************
 void test04()
 {
-    // Verify class name cannot be changed after creation. only a test for CIMObject
-    // is needed because CIMClass and CIMInstance use CIMClass::setPath() to
-    // perform this function.
+    // Verify class name cannot be changed after creation. only a test for
+    // CIMObject is needed because CIMClass and CIMInstance use
+    // CIMClass::setPath() to perform this function.
     try
     {
         CIMObject cimObject(CIMInstance("MyClass"));
 
         cimObject.setPath(CIMObjectPath("//localhost/root/cimv2:YourClass"));
 
-        throw Exception("Failed to detect name change via CIMObject::setPath().");
+        throw Exception(
+            "Failed to detect name change via CIMObject::setPath().");
     }
     catch(Exception &)
     {
@@ -326,7 +395,8 @@ void test04()
 
         if(verbose)
         {
-            cout << "Successfully prevented class name change via setPath()." << endl;
+            cout << "Successfully prevented class name change via setPath()."
+                << endl;
         }
     }
 
@@ -384,7 +454,8 @@ void test04()
     //  Test CIMInstance
     //
     CIMInstance instance1 (CIMName ("MyClass"));
-    instance1.addProperty (CIMProperty (CIMName ("message"), String("Hello There")));
+    instance1.addProperty (CIMProperty (CIMName ("message"),
+        String("Hello There")));
     instance1.addProperty (CIMProperty (CIMName ("count"), Uint32 (77)));
     CIMObjectPath path = instance1.buildPath (class1);
     CIMObjectPath path2 = instance1.getPath ();
@@ -406,7 +477,8 @@ void test04()
     //  Test instance CIMObject
     //
     CIMInstance instance2 (CIMName ("MyClass"));
-    instance2.addProperty (CIMProperty (CIMName ("message"), String("Good-bye...")));
+    instance2.addProperty (CIMProperty (CIMName ("message"),
+        String("Good-bye...")));
     instance2.addProperty (CIMProperty (CIMName ("count"), Uint32 (88)));
     CIMObject oinstance1 = instance2;
     CIMObjectPath opath = instance2.buildPath (class1);

@@ -65,9 +65,15 @@ noReturn CMReturn (CMPIrc rc);
    */
 noReturn CMReturnWithString (CMPIrc rc, CMPIString * str);
 #   else
-#      define CMReturnWithString(rc,str) \
-      { CMPIStatus stat={(rc),(str)}; \
-         return stat; }
+#      define CMReturnWithString(rc_,str_) \
+       do \
+       { \
+           CMPIStatus stat;\
+           stat.rc=rc_;\
+           stat.msg=str_; \
+           return stat; \
+       } \
+       while (0)
 #   endif
 
 #   ifdef DOC_ONLY

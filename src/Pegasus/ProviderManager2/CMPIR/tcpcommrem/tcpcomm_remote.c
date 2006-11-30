@@ -673,7 +673,7 @@ static void TCPCOMM_IndicationMI_enableIndications (int socket,
                                                       CONST CMPIContext * ctx,
                                                       CONST CMPIObjectPath * cop)
 {
-    CMPIStatus rc;
+    CMPIStatus rc = { CMPI_RC_OK , NULL };
 
     CMPIIndicationMI *mi =
         RBGetIndicationMI(CMPIBroker2remote_broker((broker)));
@@ -684,11 +684,13 @@ static void TCPCOMM_IndicationMI_enableIndications (int socket,
     {
         SET_STATUS_INIT_FAILED(rc);
     }
-
+    // To make compatibilty with old providers it was decided to discard the
+    // returned CMPIStatus here. This will prevent us from breaking existing
+    // CMPI Indication providers. -V 5886
 #ifdef CMPI_VER_100
-    rc = mi->ft->enableIndications(mi, ctx);
+    mi->ft->enableIndications(mi, ctx);
 #else
-    rc = mi->ft->enableIndications(mi);
+    mi->ft->enableIndications(mi);
 #endif
     (__sft)->serialize_CMPIStatus(socket, &rc);
 }
@@ -698,7 +700,7 @@ static void TCPCOMM_IndicationMI_disableIndications (int socket,
                                                       CONST CMPIContext * ctx,
                                                       CONST CMPIObjectPath * cop)
 {
-    CMPIStatus rc;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
     CMPIIndicationMI *mi =
         RBGetIndicationMI(CMPIBroker2remote_broker((broker)));
     TRACE_NORMAL(("Executing remote MI request."));
@@ -708,10 +710,13 @@ static void TCPCOMM_IndicationMI_disableIndications (int socket,
     {
         SET_STATUS_INIT_FAILED(rc);
     }
+    // To make compatibilty with old providers it was decided to discard the
+    // returned CMPIStatus here. This will prevent us from breaking existing
+    // CMPI Indication providers. -V 5886
 #ifdef CMPI_VER_100
-    rc = mi->ft->disableIndications(mi, ctx);
+    mi->ft->disableIndications(mi, ctx);
 #else
-    rc = mi->ft->disableIndications(mi);
+    mi->ft->disableIndications(mi);
 #endif
     (__sft)->serialize_CMPIStatus(socket, &rc);
 }
@@ -1483,7 +1488,7 @@ CMPIString* TCPCOMM_getMessage(CONST CMPIBroker* broker,
 #ifdef CMPI_VER_200
 
 CMPIError* TCPCOMM_newCMPIError(
-    const CMPIBroker* broker, 
+    const CMPIBroker* broker,
     const char* owner, const char* msgID, const char* msg,
     const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc,
     const CMPIrc cimStatusCode, CMPIStatus* rc)
@@ -1556,7 +1561,7 @@ CMPIStatus TCPCOMM_openMessageFile(
 
 CMPIStatus TCPCOMM_closeMessageFile(
     const CMPIBroker *broker,
-    const CMPIMsgFileHandle msgFileHandle) 
+    const CMPIMsgFileHandle msgFileHandle)
 {
 	CMPIStatus __rc, *rc = &__rc;
 	CMPIContext *context;
@@ -1585,9 +1590,9 @@ CMPIStatus TCPCOMM_closeMessageFile(
 }
 
 CMPIString* TCPCOMM_getMessage2(
-    const CMPIBroker *broker, const char *msgId, 
+    const CMPIBroker *broker, const char *msgId,
     const CMPIMsgFileHandle msgFileHandle, const char *defMsg,
-    CMPIStatus* rc, CMPICount count, ...) 
+    CMPIStatus* rc, CMPICount count, ...)
 {
     CMPIString *result=NULL;
     CMPIContext *context;

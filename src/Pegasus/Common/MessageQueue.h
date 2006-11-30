@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_MessageQueue_h
 #define Pegasus_MessageQueue_h
@@ -119,10 +119,10 @@ public:
     virtual Message* dequeue();
 
     /** Returns true if there are no messages on the queue. */
-    Boolean isEmpty() const { return _messageList.is_empty(); }
+    Boolean isEmpty() const { return  (Boolean) _messageList.is_empty(); }
 
     /** Returns the number of messages on the queue. */
-    Uint32 getCount() const { return _messageList.size(); }
+    Uint32 getCount() const {  return (Uint32) _messageList.size(); }
 
     /** Retrieve the queue id for this queue. */
     Uint32 getQueueId() const throw() { return _queueId; }

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -53,6 +49,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <Pegasus/Provider/CMPI/cmpipl.h>
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #define _ALL_SOURCE
 #endif
@@ -66,6 +63,19 @@
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #define atoll(X) strtoll(X, NULL, 10)
 #endif
+
+// Adding this to the POSIX 1970 microseconds epoch produces a 1 BCE epoch
+// as used by CIMDateTime. -V 5885
+// This POSIX_1970_EPOCH_OFFSET value should be same as the 
+// POSIX_1970_EPOCH_OFFSET value found in CIMDateTime.cpp
+
+// ATTN: Need to find the way to sync changes made to POSIX_1970_EPOCH_OFFSET
+// value in CIMDateTime.cpp here.
+
+static const CMPIUint64 POSIX_1970_EPOCH_OFFSET  =
+                          (CMPIUint64)(62167219200000000);
+
+
 //! Native extension of the CMPIDateTime data type.
 /*!
   This structure stores the information needed to represent time for
@@ -290,19 +300,68 @@ static struct native_datetime * __new_datetime ( int mm_add,
 
   \return a pointer to a native CMPIDateTime.
  */
+
+// ATTN: This code is copied from actual implementation of  CIMDateTime::
+// getCurrentDateTime(). Need to find some way to sync the changes made to 
+// CIMDateTime::getCurrentDateTime() here. -V 5885
+
 CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
 {
-	struct timeval tv;
-	struct timezone tz;
-	CMPIUint64 msecs;
+    // Get sec and usec:
+    time_t sec;
+    CMPIUint64 usec;
+    // ATTN: if this fails on your platform, use time() to obtain the
+    // sec element and set usec to zero.
+    struct timeval tv;
+#if defined(PEGASUS_OS_VMS)
+    void *tz = NULL;
+#else
+    struct timezone tz;
+#endif
+    gettimeofday(&tv, &tz);
+    sec = tv.tv_sec;
+    usec = (CMPIUint64) tv.tv_usec;
 
-	gettimeofday ( &tv, &tz );
+    // Get the localtime
 
-	msecs = (CMPIUint64) 1000000 * (CMPIUint64) tv.tv_sec
-		+ (CMPIUint64) tv.tv_usec;
+    struct tm* tmval;
+    struct tm tmvalBuffer;
+    tmval = localtime_r(&sec, &tmvalBuffer);
 
-	return (CMPIDateTime *) __new_datetime ( TOOL_MM_ADD,
-						 msecs,
+    // Calculate minutes East of GMT.
+
+    int tzMinutesEast;
+    {
+# if defined(PEGASUS_OS_SOLARIS)
+        tzMinutesEast =
+            -(int)((tmval->tm_isdst > 0 && daylight) ? altzone : timezone) / 60;
+# elif defined(PEGASUS_OS_HPUX)
+        tzMinutesEast = - (int) timezone / 60;
+        if ((tmval->tm_isdst > 0) && daylight)
+        {
+            // ATTN: It is unclear how to determine the DST offset.
+            // Assume 1 hour.
+            tzMinutesEast += 60;
+        }
+# elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_VMS)
+        tzMinutesEast = (int) tmval->tm_gmtoff/60;
+# else
+        tzMinutesEast = -tz.tz_minuteswest;
+        if (tz.tz_dsttime > 0)
+        {
+            // ATTN: It is unclear how to determine the DST offset.
+            // Assume 1 hour.
+            tzMinutesEast += 60;
+        }
+# endif
+    }
+
+    usec = POSIX_1970_EPOCH_OFFSET +
+        (CMPIUint64)(sec + tzMinutesEast * 60) * (CMPIUint64) 1000000 +
+        (CMPIUint64) usec;
+
+    return (CMPIDateTime *) __new_datetime ( TOOL_MM_ADD,
+						 usec,
 						 0,
 						 rc );
 }

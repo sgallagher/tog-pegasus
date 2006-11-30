@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "Attribute.h"
 
@@ -71,7 +71,7 @@ PEGASUS_STD(ostream)& operator<<(
 {
     os << attr.getTag();
     Array<String> vals = attr.getValues();
-    for (int i = 0; i < vals.size(); i++)
+    for (Uint32 i = 0; i < vals.size(); i++)
     {
         if (i == 0)
         {

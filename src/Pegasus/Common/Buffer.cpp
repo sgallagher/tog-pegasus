@@ -140,7 +140,7 @@ void Buffer::_reserve_aux(size_t cap)
         _rep->size = 0;
     }
     else
-        _rep = _reallocate(_rep, _next_pow_2(cap));
+        _rep = _reallocate(_rep, _next_pow_2( (Uint32)cap));
 }
 
 void Buffer::_append_char_aux()

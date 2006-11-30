@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMMessageSerializer.h>
 #include <Pegasus/Common/CIMMessageDeserializer.h>
@@ -79,7 +79,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     Status writeStatus;
     try
     {
-        Uint32 messageLength = messageBuffer.size ();
+        Uint32 messageLength = (Uint32) messageBuffer.size ();
         const char * messageData = messageBuffer.getData ();
 
         writeStatus = writeBuffer ((const char *) &messageLength,

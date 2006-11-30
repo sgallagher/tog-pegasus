@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ThreadPool_h
 #define Pegasus_ThreadPool_h
@@ -125,12 +125,12 @@ public:
 
     inline Uint32 runningCount()
     {
-        return _runningThreads.size();
+        return (Uint32) _runningThreads.size();
     }
 
     inline Uint32 idleCount()
     {
-        return _idleThreads.size();
+        return (Uint32) _idleThreads.size();
     }
 
 private:

@@ -661,9 +661,22 @@ extern "C" {
       CMPI_Broker *mb=(CMPI_Broker*)eMb;
       CMPIProviderManager::indProvRecord *prec;
       OperationContext* context=CM_Context(ctx);
+      // When an indication to be delivered comes from Remote providers, 
+      // the CMPIBroker contains the name of the provider in the form 
+      // of physical-name:logical-name. Search using logical-name. -V 5884
+      String provider_name;
+      CMPIUint32 n;
 
+      if ( (n = mb->name.find(':') ) != PEG_NOT_FOUND)
+      {
+          provider_name = mb->name.subString (n + 1);
+      }
+      else
+      {
+          provider_name = mb->name;
+      }
       ReadLock readLock(CMPIProviderManager::rwSemProvTab);
-      if (CMPIProviderManager::provTab.lookup(mb->name,prec)) {
+      if (CMPIProviderManager::provTab.lookup(provider_name,prec)) {
          if (prec->enabled) {
             try {
                context->get(SubscriptionInstanceNamesContainer::NAME);

@@ -34,6 +34,13 @@
 ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
+# Create a single variable to control schema compile
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+	PEGASUS_BUILD_INTEROP=TRUE
+endif
+ifndef PEGASUS_DISABLE_PERFINST
+	PEGASUS_BUILD_INTEROP=TRUE
+endif
 
 #Directories to recurse
 DIRS = \
@@ -64,8 +71,12 @@ DIRS = \
 	CIMOMHandleTestProvider \
 	CIMOMHandleTestProvider/testclient \
 	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
+	TestAggregationOutputProvider/testclient
+
+ifdef PEGASUS_BUILD_INTEROP 
+DIRS += \
 	TestServerProfileProviders
+endif
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 DIRS += \

@@ -58,6 +58,14 @@ REMOTE_TESTPROVIDERNS = test/Remote/Localhost
 REMOTE_TESTPROVIDERNSDIRECTORY = $(REPOSITORY_ROOT)/test\#Remote\#Localhost
 endif
 
+# Create a single variable to control schema compile
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+	PEGASUS_BUILD_INTEROP=TRUE
+endif
+ifndef PEGASUS_DISABLE_PERFINST
+	PEGASUS_BUILD_INTEROP=TRUE
+endif
+
 EI_SCHEMA_DIR = $(ROOT)/Schemas/CIM2101
 EI_DYNAMIC_TEST_NAMESPACE = test/EmbeddedInstance/Dynamic
 EI_STATIC_TEST_NAMESPACE = test/EmbeddedInstance/Static
@@ -164,10 +172,12 @@ endif
 	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
 
+ifdef PEGASUS_BUILD_INTEROP 
 	@ $(ECHO) +++++ Loading TestServerProfile class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestServerProfileSchema.mof
 	@ $(ECHO) +++++ Registering TestServerProfile Providers ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestServerProfileR.mof
+endif
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
@@ -269,10 +279,12 @@ endif
 	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
 
+ifdef PEGASUS_BUILD_INTEROP 
 	@ $(ECHO) +++++ Loading TestServerProfile class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof "-n$(TESTPROVIDERNS)" TestServerProfileSchema.mof
 	@ $(ECHO) +++++ Registering TestServerProfile Providers ...
 	@ cimmof "-n$(INTEROPNS)" TestServerProfileR.mof
+endif
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...

@@ -32,7 +32,6 @@ ROOT=../../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-#    ExportServer
+DIRS =
 
 include $(ROOT)/mak/recurse.mak

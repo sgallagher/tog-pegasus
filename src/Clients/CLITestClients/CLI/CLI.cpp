@@ -740,24 +740,56 @@ int main(int argc, char** argv)
         if (opts.time)
         {
             if (repeatCount == 0)
-                cout << CommandTable[cmdIndex].CommandName <<  " " << opts.inputObjectName << " Time= " 
-                << opts.saveElapsedTime << " Sec "
-                << " SvrTime= " << returnedPerformanceData.serverTime << " us "
-                << " RtTime= " << returnedPerformanceData.roundTripTime << " us "
-                << "Req size= " << returnedPerformanceData.requestSize
-                << " b Resp size= " << returnedPerformanceData.responseSize << " b"
-                << endl;
+            {
+                cout << CommandTable[cmdIndex].CommandName
+                    << " "
+                    << opts.inputObjectName
+                    << " Time= "
+                    << opts.saveElapsedTime
+                    << " Sec "
+                    << " SvrTime= "
+                    << CIMValue(returnedPerformanceData.serverTime).toString()
+                    << " us "
+                    << " RtTime= "
+                    << CIMValue(returnedPerformanceData.roundTripTime).
+                           toString()
+                    << " us "
+                    << "Req size= "
+                    << CIMValue(returnedPerformanceData.requestSize).toString()
+                    << " b Resp size= "
+                    << CIMValue(returnedPerformanceData.responseSize).toString()
+                    << " b"
+                    << endl;
+            }
             else
             {
-                cout << CommandTable[cmdIndex].CommandName << " " << opts.inputObjectName << " Total Time " << totalTime << " for "
-                    << repeatCount << " ops. Avg= " << (totalTime * 1000000)/repeatCount
-                    << " us min= " << minTime * 1000000 << " us max= " << (maxTime * 1000000) 
-                    << " us SvrTime avg= " << serverTotalTime/repeatCount
-                    << " us SvrTime min= " << minServerTime 
-                    << " us SvrTime max= " << maxServerTime << " us"
-                    << " RtTime avg= " << rtTotalTime/repeatCount
-                    << " us RtTime min= " << minRtTime 
-                    << " us RtTime max= " << maxRtTime << " us"
+                cout << CommandTable[cmdIndex].CommandName
+                    << " "
+                    << opts.inputObjectName
+                    << " Total Time "
+                    << totalTime
+                    << " for "
+                    << repeatCount
+                    << " ops. Avg= "
+                    << (totalTime * 1000000)/repeatCount
+                    << " us min= "
+                    << minTime * 1000000
+                    << " us max= "
+                    << (maxTime * 1000000) 
+                    << " us SvrTime avg= "
+                    << CIMValue(serverTotalTime/repeatCount).toString()
+                    << " us SvrTime min= "
+                    << CIMValue(minServerTime).toString()
+                    << " us SvrTime max= "
+                    << CIMValue(maxServerTime).toString()
+                    << " us"
+                    << " RtTime avg= "
+                    << CIMValue(rtTotalTime/repeatCount).toString()
+                    << " us RtTime min= "
+                    << CIMValue(minRtTime).toString()
+                    << " us RtTime max= "
+                    << CIMValue(maxRtTime).toString()
+                    << " us"
                     << endl;
             }
         }

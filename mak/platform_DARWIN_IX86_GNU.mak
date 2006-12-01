@@ -31,4 +31,4 @@
 
 include $(ROOT)/mak/platform_DARWIN_GNU.mak
 
-ARCHITECTURE = ppc
+ARCHITECTURE = ix86

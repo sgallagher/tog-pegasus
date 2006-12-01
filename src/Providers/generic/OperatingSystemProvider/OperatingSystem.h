@@ -54,8 +54,8 @@
 #include <sys/utsname.h>
 #endif
 
-#ifdef PEGASUS_PLATFORM_DARWIN_PPC_GNU
-#include <sys/utsname.h>
+#if defined(PEGASUS_OS_DARWIN)
+#   include <sys/utsname.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -116,7 +116,7 @@ private:
     struct utsname m_uts;
 #endif
 
-#ifdef PEGASUS_PLATFORM_DARWIN_PPC_GNU
+#ifdef PEGASUS_OS_DARWIN
 private:
     struct utsname m_uts;
 #endif

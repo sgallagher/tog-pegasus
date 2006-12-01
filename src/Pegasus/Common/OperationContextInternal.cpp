@@ -276,7 +276,7 @@ NormalizerContextContainer::NormalizerContextContainer(
 NormalizerContextContainer::NormalizerContextContainer(
     const NormalizerContextContainer& container)
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    defined (PEGASUS_OS_DARWIN)
     : OperationContext::Container()
 #endif
 {

@@ -105,7 +105,7 @@ endif
 ##==============================================================================
 
 ifeq ($(COMPILER),gnu)
-  ifneq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
+  ifneq ($(OS),darwin)
    ifdef PEGASUS_USE_RELEASE_DIRS
       LINK_COMMAND = $(CXX) -shared $(LINK_MACHINE_OPTIONS)
       LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)

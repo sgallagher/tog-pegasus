@@ -79,7 +79,7 @@ static const CMPIBroker *_broker;
 static int exitNow = 0;
 static int threads = 0;
 
-CMPI_MUTEX_TYPE threadCntMutex;
+static CMPI_MUTEX_TYPE threadCntMutex;
 
 /* ---------------------------------------------------------------------------*/
 /*                              Threads 					*/

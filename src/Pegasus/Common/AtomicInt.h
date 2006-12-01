@@ -100,10 +100,12 @@ PEGASUS_NAMESPACE_END
 //==============================================================================
 //
 // PEGASUS_PLATFORM_LINUX_IX86_GNU
+// PEGASUS_PLATFORM_DARWIN_IX86_GNU
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || \
+    defined(PEGASUS_PLATFORM_DARWIN_IX86_GNU)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 // Note: this lock can be eliminated for single processor systems.

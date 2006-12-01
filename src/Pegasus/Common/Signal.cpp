@@ -160,7 +160,7 @@ void SignalHandler::ignore(unsigned signum)
     verifySignum(signum);
 
 #if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && \
-    !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    !defined(PEGASUS_OS_DARWIN)
     sigignore(signum);
 #else
     struct sigaction sig_acts;

@@ -223,7 +223,7 @@ inline void Threads::yield()
     defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
     defined(PEGASUS_OS_VMS) || \
     defined(PEGASUS_OS_ZOS) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    defined(PEGASUS_OS_DARWIN)
     sched_yield();
 #else
     pthread_yield();

@@ -34,37 +34,8 @@
 #ifndef Pegasus_Platform_DARWIN_PPC_GNU_h
 #define Pegasus_Platform_DARWIN_PPC_GNU_h
 
-#include <limits.h>
-#include <cstdio>
-#include <cstddef>
-#include <sys/param.h>    // for MAXHOSTNAMELEN
-
-#define PEGASUS_OS_TYPE_UNIX
+#include <Pegsus/Common/Platform_DARWIN_GNU.h>
 
 #define PEGASUS_ARCHITECTURE_PPC
-
-#define PEGASUS_COMPILER_GNU
-
-#define PEGASUS_UINT64 unsigned long long
-
-#define PEGASUS_SINT64 long long
-
-#define PEGASUS_HAVE_NAMESPACES
-
-#define PEGASUS_HAVE_EXPLICIT
-
-#define PEGASUS_HAVE_MUTABLE
-
-#define PEGASUS_HAVE_FOR_SCOPE
-
-#define PEGASUS_HAS_SIGNALS
-
-#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
-
-#define PEGASUS_HAVE_PTHREADS
-
-#define PEGASUS_HAVE_NANOSLEEP
 
 #endif /* Pegasus_Platform_DARWIN_PPC_GNU_h */

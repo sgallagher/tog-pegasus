@@ -75,6 +75,10 @@
 #      define CMPI_PLATFORM_DARWIN_PPC_GNU 1
 #   endif
 
+#   ifdef PEGASUS_PLATFORM_DARWIN_IX86_GNU
+#      define CMPI_PLATFORM_DARWIN_IX86_GNU 1
+#   endif
+
 #   ifdef PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
 #      define CMPI_PLATFORM_VMS_ALPHA_DECCXX 1
 #   endif

@@ -308,7 +308,7 @@ CIMListenerService::_listener_routine(void *param)
         // svc->init(); bug 1394
         while (!svc->terminated())
         {
-#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#if defined(PEGASUS_OS_DARWIN)
             pthread_testcancel();
 #endif
             svc->runForever();

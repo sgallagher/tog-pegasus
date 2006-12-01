@@ -73,6 +73,8 @@
 # include <Pegasus/Common/Platform_OS400_ISERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 # include <Pegasus/Common/Platform_DARWIN_PPC_GNU.h>
+#elif defined (PEGASUS_PLATFORM_DARWIN_IX86_GNU)
+# include <Pegasus/Common/Platform_DARWIN_IX86_GNU.h>
 #elif defined (PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
 # include <Pegasus/Common/Platform_VMS_ALPHA_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_VMS_IA64_DECCXX)

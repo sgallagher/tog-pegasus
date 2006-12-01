@@ -29,6 +29,55 @@
 #//
 #//=============================================================================
 
-include $(ROOT)/mak/platform_DARWIN_GNU.mak
+include $(ROOT)/mak/config-unix.mak
 
-ARCHITECTURE = ppc
+OS = darwin
+
+COMPILER = gnu
+
+DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) 
+DEFINES += -D_POSIX_PTHREAD_SEMANTICS 
+DEFINES += -D BSD_COMP 
+DEFINES += -D_REENTRANT
+DEFINES += -DPEGASUS_OS_DARWIN
+
+FLAGS = -W -Wall -Wno-unused -fPIC -bind_at_load
+
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+  FLAGS += -g
+else
+  FLAGS += -O2
+endif
+
+SYS_LIBS += -lpthread 
+SYS_LIBS += -ldl
+
+ifndef CXX
+  CXX = g++
+endif
+
+ifndef CC
+  CC = cc
+endif
+
+SH = sh
+
+YACC = yacc
+
+RM = rm -f
+
+DIFF = diff
+
+SORT = sort
+
+COPY = cp
+
+MOVE = mv
+
+LIB_SUFFIX = .dylib
+
+PEGASUS_SUPPORTS_DYNLIB = yes
+
+ifdef PEGASUS_USE_RELEASE_DIRS
+  PEGASUS_DEST_LIB_DIR=/usr/lib/pegasus
+endif

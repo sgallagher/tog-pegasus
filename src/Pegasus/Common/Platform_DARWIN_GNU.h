@@ -29,23 +29,40 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//         David Eger (dteger@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#   include "OperatingSystem_Windows.cpp"
-#elif defined PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#   include "OperatingSystem_Linux.cpp"
-#elif defined PEGASUS_PLATFORM_AIX_RS_IBMCXX
-#   include "OperatingSystem_AIX.cpp"
-#elif defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#   include "OperatingSystem_zOS.cpp"
-#elif defined PEGASUS_PLATFORM_DARWIN_PPC_GNU
-#   include "OperatingSystem_DARWIN.cpp"
-#elif defined PEGASUS_PLATFORM_DARWIN_IX86_GNU
-#   include "OperatingSystem_DARWIN.cpp"
-#endif
+#ifndef Pegasus_Platform_DARWIN_GNU_h
+#define Pegasus_Platform_DARWIN_GNU_h
+
+#include <limits.h>
+#include <cstdio>
+#include <cstddef>
+#include <sys/param.h>    // for MAXHOSTNAMELEN
+
+#define PEGASUS_OS_TYPE_UNIX
+
+#define PEGASUS_COMPILER_GNU
+
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 long long
+
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_EXPLICIT
+
+#define PEGASUS_HAVE_MUTABLE
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAS_SIGNALS
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
+
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAVE_NANOSLEEP
+
+#endif /* Pegasus_Platform_DARWIN_GNU_h */

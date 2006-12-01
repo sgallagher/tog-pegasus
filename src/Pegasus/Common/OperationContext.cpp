@@ -219,7 +219,7 @@ IdentityContainer::IdentityContainer(
 
 IdentityContainer::IdentityContainer(const IdentityContainer& container)
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    defined (PEGASUS_OS_DARWIN)
     : OperationContext::Container()
 #endif
 {
@@ -303,7 +303,7 @@ SubscriptionInstanceContainer::SubscriptionInstanceContainer(
 SubscriptionInstanceContainer::SubscriptionInstanceContainer(
     const SubscriptionInstanceContainer& container)
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    defined(PEGASUS_OS_DARWIN)
     : OperationContext::Container()
 #endif
 {
@@ -387,8 +387,7 @@ SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
 
 SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
     const SubscriptionInstanceNamesContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#if defined(PEGASUS_OS_DARWIN)
     : OperationContext::Container()
 #endif
 {

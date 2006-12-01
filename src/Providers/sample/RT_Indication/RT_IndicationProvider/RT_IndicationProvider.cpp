@@ -54,7 +54,7 @@ static Uint32 _numSubscriptions = 0;
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {
-	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+	#if defined(PEGASUS_OS_DARWIN)
                 _handler = 0;
                 _enabled = false;
                 _nextUID = 0;

@@ -29,23 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//         David Eger (dteger@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#   include "OperatingSystem_Windows.cpp"
-#elif defined PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#   include "OperatingSystem_Linux.cpp"
-#elif defined PEGASUS_PLATFORM_AIX_RS_IBMCXX
-#   include "OperatingSystem_AIX.cpp"
-#elif defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#   include "OperatingSystem_zOS.cpp"
-#elif defined PEGASUS_PLATFORM_DARWIN_PPC_GNU
-#   include "OperatingSystem_DARWIN.cpp"
-#elif defined PEGASUS_PLATFORM_DARWIN_IX86_GNU
-#   include "OperatingSystem_DARWIN.cpp"
-#endif
+#ifndef Pegasus_Platform_DARWIN_IX86_GNU_h
+#define Pegasus_Platform_DARWIN_IX86_GNU_h
+
+#include <Pegasus/Common/Platform_DARWIN_GNU.h>
+
+#define PEGASUS_ARCHITECTURE_IX86
+
+#endif /* Pegasus_Platform_DARWIN_IX86_GNU_h */

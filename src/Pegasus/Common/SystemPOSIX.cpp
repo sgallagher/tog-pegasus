@@ -63,7 +63,7 @@
 #if !defined(PEGASUS_OS_VMS) && \
     !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && \
     !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && \
-    !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    !defined(PEGASUS_OS_DARWIN)
 # include <crypt.h>
 #endif
 

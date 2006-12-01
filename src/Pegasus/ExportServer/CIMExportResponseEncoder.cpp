@@ -70,9 +70,6 @@ void CIMExportResponseEncoder::sendResponse(
    {
       HTTPMessage* httpMessage = new HTTPMessage(message);
 
-      Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
-         httpMessage->message.getData(), httpMessage->message.size());
-
        httpMessage->setCloseConnect(closeConnect);
 
       queue->enqueue(httpMessage);

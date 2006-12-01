@@ -368,7 +368,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             buffer.reserveCapacity(messageLength + 1);
             messageStart = (char *) buffer.getData();
             messageStart[messageLength] = 0;
-
+            Tracer::trace(
+                TRC_XML_IO,
+                Tracer::LEVEL2, "<!-- Response: queue id: %u -->\n%s",
+                getQueueId(),
+                buffer.getData());
             if (isFirst == true)
             {
                 _incomingBuffer.clear();
@@ -841,6 +845,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 // send chunk terminator, on the last chunk, it is the chunk
                 // body terminator
                 Buffer trailer;
+                Boolean traceTrailer = false;
                 trailer << chunkLineTerminator;
 
                 // on the last chunk, attach the last chunk termination
@@ -860,6 +865,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         char httpStatusP[11];
                         sprintf(httpStatusP, "%u",httpStatus);
 
+                        traceTrailer = true;
                         trailer << _mpostPrefix << headerNameCode <<
                             headerNameTerminator << httpStatusP <<
                             headerLineTerminator;
@@ -874,6 +880,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     // Add Content-Language to the trailer if requested
                     if (contentLanguages.size() != 0)
                     {
+                        traceTrailer = true;
                         trailer << _mpostPrefix
                             << headerNameContentLanguage << headerNameTerminator
                             << LanguageParser::buildContentLanguageHeader(
@@ -885,6 +892,13 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     trailer << chunkBodyTerminator;
                 } // if isLast
 
+                if (traceTrailer)
+                {
+                    Tracer::trace(TRC_XML_IO,Tracer::LEVEL2,
+                        "<!-- Trailer: queue id: %u -->\n%s \n",
+                        getQueueId(),
+                        trailer.getData());
+                }
                 sendStart = (char *) trailer.getData();
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);

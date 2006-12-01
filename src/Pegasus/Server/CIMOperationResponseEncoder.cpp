@@ -270,11 +270,6 @@ void CIMOperationResponseEncoder::sendResponse(
         httpMessage->contentLanguages = contentLanguage;
     }
 
-    Tracer::traceBuffer(
-        TRC_XML_IO,
-        Tracer::LEVEL2,
-        httpMessage->message.getData(),
-        httpMessage->message.size());
 
     PEG_LOGGER_TRACE((
         Logger::STANDARD_LOG,

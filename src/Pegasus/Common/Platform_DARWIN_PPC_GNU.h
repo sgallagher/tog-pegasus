@@ -34,7 +34,7 @@
 #ifndef Pegasus_Platform_DARWIN_PPC_GNU_h
 #define Pegasus_Platform_DARWIN_PPC_GNU_h
 
-#include <Pegsus/Common/Platform_DARWIN_GNU.h>
+#include <Pegasus/Common/Platform_DARWIN_GNU.h>
 
 #define PEGASUS_ARCHITECTURE_PPC
 

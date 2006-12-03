@@ -6115,11 +6115,11 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1getType
 {
    CIMValue *cv       = DEBUG_ConvertJavaToC (jlong, CIMValue*, jP);
    bool      fSuccess = false;
-   int       iJType   = 0;
+   jint      jiJType  = 0;
 
-   iJType = _dataType::convertCTypeToJavaType (cv->getType (), &fSuccess);
+   jiJType = _dataType::convertCTypeToJavaType (cv->getType (), &fSuccess);
 
-   return DEBUG_ConvertCToJava (int, jlong, iJType);
+   return jiJType;
 }
 
 JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMValue__1isArray

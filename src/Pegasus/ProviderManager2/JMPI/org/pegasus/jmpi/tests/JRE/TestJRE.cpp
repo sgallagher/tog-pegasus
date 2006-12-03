@@ -308,10 +308,11 @@ int testJVM ()
    {
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create String" << PEGASUS_STD (endl);
    }
-   CIMDateTime *cdt = new CIMDateTime (String ("20060227183400.000000-360"));
-   jobject jDateTime = jEnv->NewObject (JMPIjvm::jv.CIMDateTimeClassRef,
-                                        JMPIjvm::jv.CIMDateTimeNewJ,
-                                        DEBUG_ConvertJavaToC (jlong, CIMDateTime *, cdt));
+   CIMDateTime *cdt       = new CIMDateTime (String ("20060227183400.000000-360"));
+   jlong        jcdt      = DEBUG_ConvertCToJava (CIMDateTime *, jlong, cdt);
+   jobject      jDateTime = jEnv->NewObject (JMPIjvm::jv.CIMDateTimeClassRef,
+                                             JMPIjvm::jv.CIMDateTimeNewJ,
+                                             DEBUG_ConvertJavaToC (jlong, CIMDateTime *, jcdt));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -423,11 +424,12 @@ int testJVM ()
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create Double" << PEGASUS_STD (endl);
    }
    Sint8 si8CVInit = -8;
-   CIMParamValue *cpv = new CIMParamValue (String ("bob"),
-                                           CIMValue (si8CVInit));
-   jobject jCIMArgument = jEnv->NewObject (JMPIjvm::jv.CIMArgumentClassRef,
-                                           JMPIjvm::jv.CIMArgumentNewJ,
-                                           DEBUG_ConvertJavaToC (jlong, CIMParamValue *, cpv));
+   CIMParamValue *cpv          = new CIMParamValue (String ("bob"),
+                                                    CIMValue (si8CVInit));
+   jlong          jcpv         = DEBUG_ConvertCToJava (CIMParamValue *, jlong, cpv);
+   jobject        jCIMArgument = jEnv->NewObject (JMPIjvm::jv.CIMArgumentClassRef,
+                                                  JMPIjvm::jv.CIMArgumentNewJ,
+                                                  DEBUG_ConvertJavaToC (jlong, CIMParamValue *, jcpv));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -444,10 +446,11 @@ int testJVM ()
    {
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMArgument" << PEGASUS_STD (endl);
    }
-   CIMClass *cc = new CIMClass (CIMName ("bob"));
-   jobject jCIMClass = jEnv->NewObject (JMPIjvm::jv.CIMClassClassRef,
-                                        JMPIjvm::jv.CIMClassNewJ,
-                                        DEBUG_ConvertJavaToC (jlong, CIMClass *, cc));
+   CIMClass *cc        = new CIMClass (CIMName ("bob"));
+   jlong     jcc       = DEBUG_ConvertCToJava (CIMClass *, jlong, cc);
+   jobject   jCIMClass = jEnv->NewObject (JMPIjvm::jv.CIMClassClassRef,
+                                          JMPIjvm::jv.CIMClassNewJ,
+                                          DEBUG_ConvertJavaToC (jlong, CIMClass *, jcc));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -483,10 +486,11 @@ int testJVM ()
    {
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMFlavor" << PEGASUS_STD (endl);
    }
-   CIMInstance *ci = new CIMInstance (CIMName ("bob"));
-   jobject jCIMInstance = jEnv->NewObject (JMPIjvm::jv.CIMInstanceClassRef,
-                                           JMPIjvm::jv.CIMInstanceNewJ,
-                                           DEBUG_ConvertJavaToC (jlong, CIMInstance *, ci));
+   CIMInstance *ci           = new CIMInstance (CIMName ("bob"));
+   jlong        jci          = DEBUG_ConvertCToJava (CIMInstance *, jlong, ci);
+   jobject      jCIMInstance = jEnv->NewObject (JMPIjvm::jv.CIMInstanceClassRef,
+                                                JMPIjvm::jv.CIMInstanceNewJ,
+                                                DEBUG_ConvertJavaToC (jlong, CIMInstance *, jci));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -503,11 +507,13 @@ int testJVM ()
    {
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMInstance" << PEGASUS_STD (endl);
    }
-   CIMClass *cc2 = new CIMClass (CIMName ("bob"));
-   CIMObject *co = new CIMObject (*cc2);
-   jobject jCIMObject = jEnv->NewObject (JMPIjvm::jv.CIMObjectClassRef,
-                                         JMPIjvm::jv.CIMObjectNewJZ,
-                                         DEBUG_ConvertJavaToC (jlong, CIMObject *, co));
+   CIMClass  *cc2        = new CIMClass (CIMName ("bob"));
+   CIMObject *co         = new CIMObject (*cc2);
+   jlong      jco        = DEBUG_ConvertCToJava (CIMObject *, jlong, co);
+   jobject    jCIMObject = jEnv->NewObject (JMPIjvm::jv.CIMObjectClassRef,
+                                            JMPIjvm::jv.CIMObjectNewJZ,
+                                            jco,
+                                            (jboolean)true);
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -524,10 +530,11 @@ int testJVM ()
    {
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMObject" << PEGASUS_STD (endl);
    }
-   CIMObjectPath *cop = new CIMObjectPath (String ("bob"));
-   jobject jCIMObjectPath = jEnv->NewObject (JMPIjvm::jv.CIMObjectPathClassRef,
-                                             JMPIjvm::jv.CIMObjectPathNewJ,
-                                             DEBUG_ConvertJavaToC (jlong, CIMObjectPath *, cop));
+   CIMObjectPath *cop            = new CIMObjectPath (String ("bob"));
+   jlong          jcop           = DEBUG_ConvertCToJava (CIMObjectPath *, jlong, cop);
+   jobject        jCIMObjectPath = jEnv->NewObject (JMPIjvm::jv.CIMObjectPathClassRef,
+                                                    JMPIjvm::jv.CIMObjectPathNewJ,
+                                                    DEBUG_ConvertJavaToC (jlong, CIMObjectPath *, jcop));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -545,11 +552,12 @@ int testJVM ()
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMObjectPath" << PEGASUS_STD (endl);
    }
    Uint32 ui32CVInit = 77;
-   CIMProperty *cp = new CIMProperty (CIMName ("bobprop"),
-                                      CIMValue (ui32CVInit));
-   jobject jCIMProperty = jEnv->NewObject (JMPIjvm::jv.CIMPropertyClassRef,
-                                           JMPIjvm::jv.CIMPropertyNewJ,
-                                           DEBUG_ConvertJavaToC (jlong, CIMProperty *, cp));
+   CIMProperty *cp           = new CIMProperty (CIMName ("bobprop"),
+                                                CIMValue (ui32CVInit));
+   jlong        jcp          = DEBUG_ConvertCToJava (CIMProperty *, jlong, cp);
+   jobject      jCIMProperty = jEnv->NewObject (JMPIjvm::jv.CIMPropertyClassRef,
+                                                JMPIjvm::jv.CIMPropertyNewJ,
+                                                DEBUG_ConvertJavaToC (jlong, CIMProperty *, jcp));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -567,11 +575,12 @@ int testJVM ()
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMProperty" << PEGASUS_STD (endl);
    }
    Uint64 ui64CVInit = 42;
-   CIMQualifier *cq = new CIMQualifier (CIMName ("bob"),
-                                        CIMValue (ui64CVInit));
-   jobject jCIMQualifier = jEnv->NewObject (JMPIjvm::jv.CIMQualifierClassRef,
-                                            JMPIjvm::jv.CIMQualifierNewJ,
-                                            DEBUG_ConvertJavaToC (jlong, CIMQualifier *, cq));
+   CIMQualifier *cq            = new CIMQualifier (CIMName ("bob"),
+                                                   CIMValue (ui64CVInit));
+   jlong         jcq           = DEBUG_ConvertCToJava (CIMQualifier *, jlong, cq);
+   jobject       jCIMQualifier = jEnv->NewObject (JMPIjvm::jv.CIMQualifierClassRef,
+                                                  JMPIjvm::jv.CIMQualifierNewJ,
+                                                  DEBUG_ConvertJavaToC (jlong, CIMQualifier *, jcq));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());
@@ -589,10 +598,11 @@ int testJVM ()
       PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMQualifier" << PEGASUS_STD (endl);
    }
    Uint8 ui8CVInit = 0;
-   CIMValue *cv = new CIMValue (ui8CVInit);
-   jobject jCIMValue = jEnv->NewObject (JMPIjvm::jv.CIMValueClassRef,
-                                        JMPIjvm::jv.CIMValueNewJ,
-                                        DEBUG_ConvertJavaToC (jlong, CIMValue *, cv));
+   CIMValue *cv        = new CIMValue (ui8CVInit);
+   jlong     jcv       = DEBUG_ConvertCToJava (CIMValue *, jlong, cv);
+   jobject   jCIMValue = jEnv->NewObject (JMPIjvm::jv.CIMValueClassRef,
+                                          JMPIjvm::jv.CIMValueNewJ,
+                                          DEBUG_ConvertJavaToC (jlong, CIMValue *, jcv));
    if (jEnv->ExceptionOccurred ())
    {
       DDD(jEnv->ExceptionDescribe ());

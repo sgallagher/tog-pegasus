@@ -1241,7 +1241,7 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_x___), $(CIMSERVER_USR)," \
+	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(CIMSERVER_USR)," \
              "$(CIMSERVER_GRP)) $(PEGASUS_CONFIG_DIR)" \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr(1555,$(CIMSERVER_USR),$(CIMSERVER_GRP))" \

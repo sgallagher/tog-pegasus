@@ -779,6 +779,24 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
 	@$(ECHO-E) "# define CIMSERVER_LOCK_FILE"  \
              "\""$(CIMSERVER_LOCK_FILE)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PLANNED_CONFIG_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PLANNED_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_PLANNED_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CURRENT_CONFIG_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CURRENT_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_CURRENT_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CIMSERVER_START_FILE" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_FILE"  \
+             "\""$(PEGASUS_CIMSERVER_START_FILE)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_REPOSITORY_DIR"  \
+             "\""$(PEGASUS_REPOSITORY_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) " " \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "#endif /* Common_Product_Directory_Structure_h */ " \

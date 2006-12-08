@@ -438,20 +438,6 @@ PEGASUS_COMMON_LINKAGE
 // File system layout
 //
 
-#define CIMSERVER_LOCK_FILE               "cimserver_start.lock"
-#define PEGASUS_REPOSITORY_DIR            "repository"
-#define PEGASUS_CURRENT_CONFIG_FILE_PATH  "cimserver_current.conf"
-#define PEGASUS_PLANNED_CONFIG_FILE_PATH  "cimserver_planned.conf"
-#define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
-#define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"
-#define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
-#define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
-#define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
-// ATTN: Relocate this relative to PEGASUS_HOME
-#define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
-#define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
-#define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
-
 #ifdef PEGASUS_USE_RELEASE_DIRS
 #ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
 # include <Pegasus/Common/ProductDirectoryStructure.h>
@@ -625,6 +611,43 @@ PEGASUS_COMMON_LINKAGE
     "/var/cache/pegasus/cimserver_start.conf"
 # endif
 #endif
+#endif
+
+#ifndef CIMSERVER_LOCK_FILE
+#define CIMSERVER_LOCK_FILE               "cimserver_start.lock"
+#endif
+#ifndef PEGASUS_REPOSITORY_DIR
+#define PEGASUS_REPOSITORY_DIR            "repository"
+#endif
+#ifndef PEGASUS_CURRENT_CONFIG_FILE_PATH 
+#define PEGASUS_CURRENT_CONFIG_FILE_PATH  "cimserver_current.conf"
+#endif
+#ifndef PEGASUS_PLANNED_CONFIG_FILE_PATH
+#define PEGASUS_PLANNED_CONFIG_FILE_PATH  "cimserver_planned.conf"
+#endif
+#ifndef PEGASUS_CIMSERVER_START_FILE
+#define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
+#endif
+#ifndef PEGASUS_SSLCLIENT_CERTIFICATEFILE
+#define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"
+#endif
+#ifndef PEGASUS_SSLCLIENT_RANDOMFILE
+#define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
+#endif
+#ifndef PEGASUS_SSLSERVER_RANDOMFILE
+#define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
+#endif
+#ifndef PEGASUS_LOCAL_AUTH_DIR
+#define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
+#endif
+#ifndef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
+#define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
+#endif
+#ifndef PEGASUS_PAM_STANDALONE_PROC_NAME
+#define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
+#endif
+#ifndef PEGASUS_PROVIDER_AGENT_PROC_NAME
+#define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
 #endif
 
 // Use the configuration file as a semaphore for repository access

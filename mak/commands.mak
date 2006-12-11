@@ -354,7 +354,7 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
         CMPIR_STOP_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon --stop
     endif
 else
-    CMPIR_START_DAEMON = $(ECHO) "(CMPIR_STOP_DAEMON command ignored)"
+    CMPIR_START_DAEMON = $(ECHO) "(CMPIR_START_DAEMON command ignored)"
     CMPIR_STOP_DAEMON =  $(ECHO) "(CMPIR_STOP_DAEMON command ignored)"
 
 endif
@@ -470,11 +470,14 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##       cimstart command.
 ##
 runTestSuite: CMDSFORCE
-	make -f TestMakefile -i cimstop
-	make -f TestMakefile cimstart
+	-$(CIMSERVER_STOP_SERVICE) 
+	-$(CMPIR_STOP_DAEMON)		
+	$(CIMSERVER_START_SERVICE)
+	$(CMPIR_START_DAEMON)
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
-	make -f TestMakefile cimstop
+	$(CIMSERVER_STOP_SERVICE)
+	$(CMPIR_STOP_DAEMON)
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
   PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)

@@ -402,7 +402,7 @@ fi;
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus 
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus/providers 
 
-%dir %attr(750, root, pegasus) /etc/Pegasus
+%dir %attr(755, root, pegasus) /etc/Pegasus
 %dir %attr(1555,root,pegasus) /var/run/tog-pegasus/socket
 %dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
 

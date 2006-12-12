@@ -1466,7 +1466,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
             cimmsg->operationContext.insert(IdentityContainer(userName));
             cimmsg->operationContext.set(AcceptLanguageListContainer(httpAcceptLanguages));
             cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
-            if (userCert.size() != NULL)
+            if (userCert.size() != 0)
             {
                 cimmsg->operationContext.insert(
                     SSLCertificateChainContainer(userCert));

@@ -1,4 +1,3 @@
 HTTP/1.1 400 Bad Request
-CIMError: header-mismatch
-PGErrorDetail: CIMContentType%20value%20syntax%20error.
+PGErrorDetail: HTTP%20Content-Type%20header%20error.
 

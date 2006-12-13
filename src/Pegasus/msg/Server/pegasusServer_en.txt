@@ -2178,7 +2178,7 @@ not be valid."}
         * @note  PGS05404:
         *    Do not translate the word 'Content-Type' since it is an HTTP tag
         */
-        Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR:string{"PGS05404: HTTP Content-Type value syntax error detected in the CIM request."}
+        Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR:string{"PGS05404: HTTP Content-Type header error."}
 
         Server.CIMOperationRequestDecoder.INVALID_UTF8_CHARACTER:string{"PGS05405: UTF-8 character in the CIM request is not valid."}
 

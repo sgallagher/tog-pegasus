@@ -449,19 +449,17 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", cimContentType, true);
 
-    if (!contentTypeHeaderFound ||
-        !(String::equalNoCase(
-            cimContentType, "application/xml; charset=\"utf-8\"") ||
-          String::equalNoCase(
-            cimContentType, "text/xml; charset=\"utf-8\"")))
+    // ATTN: Bug 5928: Need to validate that the content type is text/xml or
+    // application/xml, and the encoding is utf-8 (or compatible)
+    if (!contentTypeHeaderFound)
     {
         MessageLoaderParms parms(
             "Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR",
-            "CIMContentType value syntax error.");
+            "HTTP Content-Type header error.");
         sendHttpError(
             queueId,
             HTTP_STATUS_BADREQUEST,
-            "header-mismatch",
+            "",
             MessageLoader::getMessage(parms),
             closeConnect);
         PEG_METHOD_EXIT();

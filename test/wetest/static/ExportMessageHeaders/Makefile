@@ -39,7 +39,6 @@ XMLSCRIPTS = \
    EMIncompatibleHTTPVersion01 \
    EMMissingMethodRequest01 \
    EMIncorrectCIMExportBatchRequest01 \
-   EMBadContentType01 \
    EMMissingContentType01 \
    EMMissingHost01 \
    EMMissingCIMExportMethod01 \
@@ -47,5 +46,9 @@ XMLSCRIPTS = \
    EMExpMethodNameMismatch01 \
    EMExpMethodNameMismatch02 \
    EMSuccess01
+
+# See Bug 5928
+DISABLED_XMLSCRIPT = \
+   EMBadContentType01
 
 include $(ROOT)/test/configend.mak

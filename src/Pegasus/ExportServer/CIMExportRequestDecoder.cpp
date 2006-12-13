@@ -452,25 +452,22 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 							      cimContentType,
 							      true);
 
-   // Validating the charset is utf-8
-   if (!contentTypeHeaderFound ||
-       !(String::equalNoCase(
-           cimContentType, "application/xml; charset=\"utf-8\"") ||
-         String::equalNoCase(
-           cimContentType, "text/xml; charset=\"utf-8\"")))
+   // ATTN: Bug 5928: Need to validate that the content type is text/xml or
+   // application/xml, and the encoding is utf-8 (or compatible)
+   if (!contentTypeHeaderFound)
    {
-	sendHttpError(
-            queueId,
-            HTTP_STATUS_BADREQUEST,
-            "header-mismatch",
-            "CIMContentType value syntax error.",
-            closeConnect);
+       sendHttpError(
+           queueId,
+           HTTP_STATUS_BADREQUEST,
+           "",
+           "HTTP Content-Type header error.",
+           closeConnect);
        return;
    }
-   // Validating content falls within UTF8
-   // (required to be complaint with section C12 of Unicode 4.0 spec, chapter 3.)
    else
    {
+       // Validating content falls within UTF8 (required to be complaint
+       // with section C12 of Unicode 4.0 spec, chapter 3.)
        Uint32 count = 0;
        while(count<contentLength)
        {

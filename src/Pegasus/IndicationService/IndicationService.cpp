@@ -6265,11 +6265,9 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
             (contentLangs));
         request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
-        AsyncOpNode * op = this->get_op ();
-
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart(
-                op,
+                0,
                 _providerManager,
                 request,
                 _queueId);
@@ -6382,11 +6380,9 @@ void IndicationService::_sendWaitModifyRequests
             (contentLangs));
         request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
-        AsyncOpNode * op = this->get_op ();
-
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart(
-                op,
+                0,
                 _providerManager,
                 request,
                 _queueId);
@@ -6623,11 +6619,9 @@ void IndicationService::_sendWaitDeleteRequests
             (contentLangs));
         request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
 
-        AsyncOpNode * op = this->get_op ();
-
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart(
-                op,
+                0,
                 _providerManager,
                 request,
                 _queueId);
@@ -7163,21 +7157,18 @@ void IndicationService::_sendSubscriptionInitComplete ()
     //
     //  Send Subscription Initialization Complete request to provider manager
     //
-    AsyncOpNode * op = this->get_op ();
-
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
-            op,
+            0,
             _providerManager,
             request,
             _queueId);
 
     AutoPtr<AsyncReply>  asyncReply (SendWait (asyncRequest));
-    op->release();
-    delete op;
     //
     //  Note: the response does not contain interesting data
     //
+    delete asyncRequest;
 
     PEG_METHOD_EXIT ();
 }

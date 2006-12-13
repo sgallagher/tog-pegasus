@@ -29,15 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
@@ -65,27 +61,29 @@ QueryExpression::QueryExpression(String queryLang, String query, QueryContext& c
    if (queryLang == cimCQL ||
      queryLang == dmtfCQL)
    {
-     CQLSelectStatement* cqlss = new CQLSelectStatement(queryLang, query, ctx);
+     AutoPtr<CQLSelectStatement> cqlss(
+         new CQLSelectStatement(queryLang, query, ctx));
 
      // Compile the statement
-     CQLParser::parse(query, *cqlss);
+     CQLParser::parse(query, *cqlss.get());
 
      // Finish checking the statement for CQL by applying the class contexts to
      // the chained identifiers.
      cqlss->applyContext();
 
-     _ss = cqlss;
+     _ss = cqlss.release();
    }
    else 
 #endif
    if (queryLang == wql)
    {
-     WQLSelectStatement* wqlss = new WQLSelectStatement(queryLang, query, ctx);
+     AutoPtr<WQLSelectStatement> wqlss(
+         new WQLSelectStatement(queryLang, query, ctx));
 
      // Compile the statement
-     WQLParser::parse(query, *wqlss);
+     WQLParser::parse(query, *wqlss.get());
 
-     _ss = wqlss;
+     _ss = wqlss.release();
    }
    else
    {

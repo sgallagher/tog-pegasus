@@ -102,7 +102,7 @@ CmpiInstance makeInstance(const char * classname,
   CmpiInstance in(op);
  
   if (filter) {
-    static const char * keys[] = {
+    static const char * filterKeys[] = {
       "CSCreationClassName",
       "CSName",
       "FSCreationClassName",
@@ -111,7 +111,7 @@ CmpiInstance makeInstance(const char * classname,
       "Name",
       NULL
     };
-    in.setPropertyFilter(filter,keys);
+    in.setPropertyFilter(filter,filterKeys);
   }
   
   in.setProperty("CSCreationClassName",CmpiData (CSCreationClassName()));

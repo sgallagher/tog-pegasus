@@ -73,9 +73,6 @@ static CMPI_COND_TYPE _cond;
 static int _thread_runs = 0;
 static int _thread_active = 0;
 
-unsigned char CMPI_true = 1;
-unsigned char CMPI_false = 0;
-
 /* ---------------------------------------------------------------------------*/
 /* private declarations                                                       */
 /* ---------------------------------------------------------------------------*/

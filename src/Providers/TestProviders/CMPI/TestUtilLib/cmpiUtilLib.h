@@ -30,7 +30,10 @@
 //==============================================================================
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
+#include <Providers/TestProviders/CMPI/TestUtilLib/Linkage.h>
 
+PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE extern const CMPIBoolean CMPI_true;
+PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE extern const CMPIBoolean CMPI_false;
 
 CMPI_EXTERN_C void
 PROV_LOG (const char *fmt, ...);

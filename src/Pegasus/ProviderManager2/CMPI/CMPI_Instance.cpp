@@ -330,10 +330,9 @@ extern "C" {
 
       for (s=0,i=0; propertyList[i]; i++,s++);
       for (i=0; keys[i]; i++,s++);
-      list = new char*[s+2];
+      list = (char**) calloc(s+1, sizeof(char*));
       for (s=0,i=0; propertyList[i]; i++,s++) list[s]=strdup(propertyList[i]);
       for (i=0; keys[i]; i++,s++) list[s]=strdup(keys[i]);
-      list[s]=NULL;
       inst->priv=(void*)list;
 
       CMReturn(CMPI_RC_OK);

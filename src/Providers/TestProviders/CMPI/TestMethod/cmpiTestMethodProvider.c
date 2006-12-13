@@ -54,9 +54,6 @@ static const CMPIBroker *_broker;
 static CMPIBroker *_broker;
 #endif
 
-unsigned char CMPI_true = 1;
-unsigned char CMPI_false = 0;
-
 /* ---------------------------------------------------------------------------*/
 /*                       CMPI Helper function                        */
 /* ---------------------------------------------------------------------------*/

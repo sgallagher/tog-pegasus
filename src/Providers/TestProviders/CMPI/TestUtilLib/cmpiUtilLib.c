@@ -56,8 +56,8 @@
 /* ---------------------------------------------------------------------------*/
 static FILE *fd = NULL;
 
-static unsigned char CMPI_true = 1;
-static unsigned char CMPI_false = 0;
+const CMPIBoolean CMPI_true = 1;
+const CMPIBoolean CMPI_false = 0;
 
 void
 PROV_LOG (const char *fmt, ...)

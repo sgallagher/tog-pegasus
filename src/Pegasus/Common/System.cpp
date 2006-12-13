@@ -594,7 +594,7 @@ Boolean System::isLocalHost(const String &hostName)
         // localhost ?
         if (String::equalNoCase(hostName,String("localhost"))) return true;
         char localHostName[PEGASUS_MAXHOSTNAMELEN];
-        CString cstringLocalHostName = System::getHostName().getCString());
+        CString cstringLocalHostName = System::getHostName().getCString();
         strcpy(localHostName, (const char*) cstringLocalHostName); 
         // given hostname equals what system returns as local hostname ?
         if (String::equalNoCase(hostName,localHostName)) return true;

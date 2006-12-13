@@ -555,7 +555,8 @@ Boolean System::isLocalHost(const String &hostName)
     // differentiate between a dotted IP address given
     // and a real hostname given
     CString csName = hostName.getCString();
-    char * cc_hostname = strdup((const char*) csName);
+    char cc_hostname[PEGASUS_MAXHOSTNAMELEN];
+    strcpy(cc_hostname, (const char*) csName);
     Uint32 tmp_addr = 0xFFFFFFFF;
     Boolean hostNameIsIPNotation;
 
@@ -592,8 +593,9 @@ Boolean System::isLocalHost(const String &hostName)
     {
         // localhost ?
         if (String::equalNoCase(hostName,String("localhost"))) return true;
-        char* localHostName =
-            strdup((const char*) System::getHostName().getCString());
+        char localHostName[PEGASUS_MAXHOSTNAMELEN];
+        CString cstringLocalHostName = System::getHostName().getCString());
+        strcpy(localHostName, (const char*) cstringLocalHostName); 
         // given hostname equals what system returns as local hostname ?
         if (String::equalNoCase(hostName,localHostName)) return true;
         Uint32 hostIP;

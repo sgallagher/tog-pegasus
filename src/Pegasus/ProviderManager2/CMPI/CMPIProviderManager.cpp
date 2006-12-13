@@ -2928,15 +2928,16 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
                 (enableProviders [i]->getModule ()->getFileName (),
                  enableProviders [i]->getName ());
             // Add remote info
+            // ATTN: bug 5951
             CString info;
-            {
-                ProviderIdContainer pidc = (ProviderIdContainer)
-                  request->operationContext.get(ProviderIdContainer::NAME);
-                if (pidc.isRemoteNameSpace() )
-                {
-                    info = pidc.getRemoteInfo().getCString();
-                }
-            }
+//          {
+//              ProviderIdContainer pidc = (ProviderIdContainer)
+//                request->operationContext.get(ProviderIdContainer::NAME);
+//              if (pidc.isRemoteNameSpace() )
+//              {
+//                  info = pidc.getRemoteInfo().getCString();
+//              }
+//          }
             _callEnableIndications (provider, _indicationCallback, ph, (const char*)info);
         }
         catch (const CIMException & e)

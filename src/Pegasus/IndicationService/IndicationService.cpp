@@ -6410,6 +6410,7 @@ void IndicationService::_sendWaitModifyRequests
                 response->cimException.getMessage ());
         }
 
+        delete response;
         delete asyncRequest;
         delete asyncReply;
     }  //  for each indication provider
@@ -6650,6 +6651,7 @@ void IndicationService::_sendWaitDeleteRequests
                 response->cimException.getMessage ());
         }
 
+        delete response;
         delete asyncRequest;
         delete asyncReply;
     }  //  for each indication provider

@@ -241,8 +241,10 @@ extern "C"
       }
     /* CIM:CQL */
 #ifndef PEGASUS_DISABLE_CQL
-    if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
-        0)
+    if ((strncmp (sx->lang.getCString(),
+                  CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
+        (strncmp (sx->lang.getCString(),
+                  "CIM:CQL", 7) == 0))
       {
         if (_check_CQL (sx, rc))
           {
@@ -317,8 +319,10 @@ extern "C"
           return false;
       }
 #ifndef PEGASUS_DISABLE_CQL
-    if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
-        0)
+    if ((strncmp (sx->lang.getCString(),
+                  CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
+        (strncmp (sx->lang.getCString(),
+                  "CIM:CQL", 7) == 0))
       {
         if (_check_CQL (sx, rc))
           {
@@ -392,8 +396,10 @@ extern "C"
         sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
       }
 #ifndef PEGASUS_DISABLE_CQL
-    if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
-        0)
+    if ((strncmp (sx->lang.getCString(),
+                  CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
+        (strncmp (sx->lang.getCString(),
+                  "CIM:CQL", 7) == 0))
       {
         if (sx->cql_dnf == NULL)
           {

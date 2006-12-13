@@ -872,7 +872,9 @@ extern "C" {
         return (CMPISelectExp *) new CMPI_SelectExp (stmt);
       }
 #ifndef PEGASUS_DISABLE_CQL
-    if ((strncmp (lang, "CIMxCQL", CALL_SIGN_CQL_SIZE) == 0) || (strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0))
+    if ((strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
+        (strncmp (lang, "CIMxCQL", 7) == 0) ||
+        (strncmp (lang, "CIM:CQL", 7) == 0))
       {
         /* IBMKR: This will have to be removed when the CMPI spec is updated
            with a clear explanation of what properties array can have as

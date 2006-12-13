@@ -66,13 +66,16 @@
 #      define CMPI_THREAD_KEY_TYPE unsigned long int
 #   endif
 
-/* Define CMPI_EXPORT */
+/* Define CMPI_EXPORT and CMPI_IMPORT */
 #   if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
 #      define CMPI_EXPORT __declspec(dllexport)
+#      define CMPI_IMPORT __declspec(dllimport)
 #   elif defined(CMPI_PLATFORM_LINUX_GENERIC_GNU) && (__GNUC__ >= 4)
 #      define CMPI_EXPORT __attribute__((visibility("default")))
+#      define CMPI_IMPORT __attribute__((visibility("default")))
 #   else
 #      define CMPI_EXPORT /* empty */
+#      define CMPI_IMPORT /* empty */
 #   endif
 
 /* Define CMPI_EXTERN_C */

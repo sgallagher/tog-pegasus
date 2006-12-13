@@ -31,11 +31,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider/CMPI/cmpios.h>
 #ifndef PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE
 #   ifdef PEGASUS_CMPI_TESTPRV_UTILLIB_INTERNAL
-#       define PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE PEGASUS_EXPORT
+#       define PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE CMPI_EXPORT
 #   else
-#       define PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE PEGASUS_IMPORT
+#       define PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE CMPI_IMPORT
 #   endif
 #endif

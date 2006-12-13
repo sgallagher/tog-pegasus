@@ -292,10 +292,10 @@ WbemExecCommand::WbemExecCommand ()
     //
     //  Construct host address
     //
-	if (((!_hostNameSet) || (!_portNumberSet))|| (_hostName == "localhost" ) || (_hostName == String(System::getHostName())))
-      {
+    if (((!_hostNameSet) || (!_portNumberSet))|| (_hostName == "localhost" ) || (_hostName == String(System::getHostName())))
+    {
         connectToLocal = true;
-      }
+    }
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     if ((_hostNameSet) || (_portNumberSet))
     {

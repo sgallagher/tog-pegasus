@@ -37,7 +37,7 @@
     {"enableAuthentication",                     "false"},
 #endif
     {"httpAuthType",                             "Basic"},
-#if !defined(PEGASUS_USE_SYSLOGS)
+#if defined(PEGASUS_USE_SYSLOGS)
     {"logdir",                                        ""},
 #endif
     {"passwordFilePath",              "cimserver.passwd"},

@@ -5909,39 +5909,6 @@ CIM server listening on HTTPS port {0}."}
 
 
         // ==========================================================
-        // Messages for JMPIProviderManager
-        //  Please use message prefix "PGS17200 - PGS17399"
-        // ==========================================================
-
-        /**
-          * @note PGS17200
-          *    Substitution {0} is the filename of the provider
-          *    Substitution {1} is the name of the provider
-          *    Substitution {2} is the operatating system message string
-          */
-        ProviderManager.JMPI.JMPIProviderModule.CANNOT_LOAD_LIBRARY:string {"PGS17200: ({0}:{1}):Cannot load library, error: {2}"}
-
-        /**
-          * @note PGS17201
-          * DO NOT TRANSLATE "JVM"
-          */
-        ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED:string {"PGS17201: Could not initialize the JVM (Java Virtual Machine) runtime environment."}
-
-        /**
-          * @note PGS17202
-          */
-        ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND:string {"PGS17202: Could not find a method for the provider based on InterfaceType."}
-        
-        /**
-        * @note PGS17203
-        *
-        */
-        ProviderManager2.JMPI.GET_CLASSPATH_FAILED.STANDARD:string {"PGS17203: Could not get CLASSPATH from environment."}
-        
-        ProviderManager2.JMPI.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS:string {"PGS17203: Could not get CLASSPATH from environment. Either CLASSPATH is longer than 255 characters or not set at all."}
-
-        
-        // ==========================================================
         // Messages for EmailListenerDestination
         //  Please use message prefix "PGS16600 - PGS16699""
         // ==========================================================
@@ -6438,6 +6405,41 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS18405
         */
         WQL.WQLSelectStatementRep.CLASS_NOT_FROM_LIST_CLASS:string {"PGS18405: Class {0} does not match the FROM class or any of its subclasses."}
+
+
+        // ==========================================================
+        // Messages for JMPIProviderManager
+        //  Please use message prefix "PGS18600 - PGS17799"
+        // ==========================================================
+
+        /**
+          * @note PGS18600
+          *    Substitution {0} is the filename of the provider
+          *    Substitution {1} is the name of the provider
+          *    Substitution {2} is the operatating system message string
+          */
+        ProviderManager.JMPI.JMPIProviderModule.CANNOT_LOAD_LIBRARY:string {"PGS18600: ({0}:{1}):Cannot load library, error: {2}"}
+
+        /**
+          * @note PGS18601
+          * DO NOT TRANSLATE "JVM"
+          */
+        ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED:string {"PGS18601: Could not initialize the JVM (Java Virtual Machine) runtime environment."}
+
+        /**
+          * @note PGS18602
+          */
+        ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND:string {"PGS18602: Could not find a method for the provider based on InterfaceType."}
+        
+        /**
+        * @note PGS18603
+        *
+        */
+        ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.STANDARD:string {"PGS18603: Could not get CLASSPATH from environment."}
+        
+        ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS:string {"PGS18603: Could not get CLASSPATH from environment. Either CLASSPATH is longer than 255 characters or not set at all."}
+
+        
 
 
 // ==============================================================================

@@ -357,7 +357,7 @@ int JMPIjvm::initJVM ()
       throw PEGASUS_CIM_EXCEPTION_L(
                  CIM_ERR_FAILED,
                  MessageLoaderParms(
-                     "ProviderManager2.JMPI.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS",
+                     "ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS",
                      "Could not get CLASSPATH from environment."
                      " Either CLASSPATH is longer than 255 characters"
                      " or not set at all.")
@@ -366,7 +366,7 @@ int JMPIjvm::initJVM ()
       throw PEGASUS_CIM_EXCEPTION_L(
                  CIM_ERR_FAILED,
                  MessageLoaderParms(
-                     "ProviderManager2.JMPI.GET_CLASSPATH_FAILED.STANDARD",
+                     "ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.STANDARD",
                      "Could not get CLASSPATH from environment.")
                  );
 #endif

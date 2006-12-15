@@ -598,6 +598,8 @@ void CIMServer::bind()
 }
 
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+// runPipe method is execueted as thread which invokes the
+// handler for requests on NamedPipe.
 int runPipe(Monitor* ptrMonitor)
 {
     ptrMonitor->handlePipe();
@@ -605,6 +607,8 @@ int runPipe(Monitor* ptrMonitor)
     return 0;
 }
 
+// runSocket method is execueted as thread which invokes the
+// handler for requests on Sockets.
 int runSocket(Monitor* ptrMonitor)
 {
     ptrMonitor->run(500000);
@@ -627,10 +631,13 @@ void CIMServer::runForever()
     int i = 0;
     DWORD milli = 50000;
 
-    HANDLE thrdHandle[2];
-
+	HANDLE thrdHandle[2] = {INVALID_HANDLE_VALUE,INVALID_HANDLE_VALUE};
+    // -11 is the initial value to indicate that the threads 
+	// is not yet be created for the first time. Successive 
+	// creations are tracked using pCount
     if ((waitRes == -11 || pCount == 0) )
     {
+		// create thread for handling local connections on named pipes
         thrdPipeHandle = (HANDLE) _beginthreadex  (NULL,
                             0,
                             (unsigned int (__stdcall *)(void *)) runPipe,
@@ -642,7 +649,7 @@ void CIMServer::runForever()
 
     if ((waitRes == -11 || pCount == 1) )
     {
-
+		// create thread for handling remote connection
         thrdSocketHandle = (HANDLE) _beginthreadex  (NULL,
                             0,
                             (unsigned int (__stdcall *)(void *)) runSocket,
@@ -654,12 +661,14 @@ void CIMServer::runForever()
     }
     thrdHandle[0] = thrdPipeHandle;
     thrdHandle[1] = thrdSocketHandle;
+	//Wait for any of the two threads to complete
     waitRes = WaitForMultipleObjects (2,thrdHandle,false,milli);
 
     if (waitRes != WAIT_TIMEOUT && waitRes != WAIT_FAILED)
-    {
+    {   // if any thread completed, determine the thread
         pCount = waitRes - WAIT_OBJECT_0;
         CloseHandle( thrdHandle[pCount] );
+		//reset the thread handle
         thrdHandle[pCount] = INVALID_HANDLE_VALUE;
 
     }

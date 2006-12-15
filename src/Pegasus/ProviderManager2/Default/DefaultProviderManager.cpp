@@ -114,37 +114,9 @@ Message* DefaultProviderManager::processMessage(Message* message)
         case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
         case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         {
-
-            ProviderIdContainer pidc = request->operationContext.get(
-                ProviderIdContainer::NAME);
-            CIMInstance provider = pidc.getProvider();
-
-            Array<Uint16> requestedOperationContextContainers;
-            Uint32 pos1 = provider.findProperty(
-               PEGASUS_PROPERTYNAME_PROVIDERCERTINFO);
-
-            if (pos1 != PEG_NOT_FOUND)
-            {
-                provider.getProperty(pos1).getValue().get(
-                    requestedOperationContextContainers);
-            }
-
-            for (Uint32 i=0; i<requestedOperationContextContainers.size(); i++)
-            {
-                if (requestedOperationContextContainers[i] != 0)
-                {
-                /**
-                    remove the SSL client certificate container unless the
-                    provider explicitly registered for it.
-                */
-                request->operationContext.remove(
-                    SSLCertificateChainContainer::NAME);
-                }
-            }
-
             // resolve provider name
-            ProviderName name = _resolveProviderName(pidc);
-                //request->operationContext.get(ProviderIdContainer::NAME));
+            ProviderName name = _resolveProviderName(
+                request->operationContext.get(ProviderIdContainer::NAME));
 
             // get cached or load new provider module
             ProviderOperationCounter poc(

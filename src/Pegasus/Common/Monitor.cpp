@@ -650,11 +650,6 @@ int  Monitor::handlePipe()
     }
     delete [] hPipeList;
 
-	//If no request received on pipe rest for 4 seconds and give chance to Socket Thread
-    if (!pipeProcessCount)
-	{
-		Sleep(4000);
-	}
     return 1;
 
 }

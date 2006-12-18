@@ -718,7 +718,7 @@ void CIMMessageDeserializer::_deserializeUserCertificate(
     while (XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue))
     {
         genericValue.get(genericString);
-        sslCertificateInfo.append((_toSSLCertificateInfo(genericString)));
+        sslCertificateInfo.append(_toSSLCertificateInfo(genericString));
     }
     XmlReader::expectEndTag(parser, "PGUSERCERT");
 }
@@ -744,7 +744,7 @@ const SSLCertificateInfo CIMMessageDeserializer:: _toSSLCertificateInfo(
                 str[i].remove(pos-1,1);
             }
 
-            //Search for first occurance of ":" and remove string till ":".
+            //Search for first occurance of ":" and remove string before ":".
             if (str[i].find(":") != PEG_NOT_FOUND)
             {
                 Uint32 pos = str[i].find(0,':');

@@ -85,11 +85,13 @@ private:
         Array<SSLCertificateInfo>& sslCertificateInfo);
 
     PEGASUS_HIDDEN_LINKAGE
-    static const SSLCertificateInfo _toSSLCertificateInfo(const String& s);
+    static const SSLCertificateInfo _toSSLCertificateInfo(
+        const String& s);
 
     PEGASUS_HIDDEN_LINKAGE
     static const Array<String> _tokenizeCert(
-        const String& input, const Char16 separator);
+        const String& input,
+        const Char16 separator);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _deserializeQueueIdStack(

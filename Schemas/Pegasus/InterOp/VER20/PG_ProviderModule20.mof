@@ -145,7 +145,7 @@ class PG_Provider : CIM_LogicalElement {
       [Description ("Indicates the OperationContext containers that "
        "are requested by the provider."),
        ValueMap {"0", "1.."},
-       Values {"SSLCertificateChainContainer", "Reserved"}]
+       Values {"SSLCertificateChain", "Reserved"}]
    uint16 RequestedOperationContextContainers[];
 };
 

@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (sedgewick_de@yahoo.de)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
-//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4422
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_HAS_SSL

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Adrian Schuur (schuur@de.ibm.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 

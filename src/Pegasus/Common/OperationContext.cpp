@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "OperationContext.h"
@@ -986,7 +978,8 @@ SSLCertificateChainContainer::SSLCertificateChainContainer(
 
 SSLCertificateChainContainer::SSLCertificateChainContainer(
     const SSLCertificateChainContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)  ||
+    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif
 {

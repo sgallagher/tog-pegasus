@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//      Carol Ann Krug Graves, Hewlett-Packard Company(carolann_graves@hp.com)
-//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -855,7 +849,7 @@ void Test11()
 
     OperationContext context;
     Array<SSLCertificateInfo> userCert;
-    for (Uint32 i =0; i<3; i++)
+    for (Uint32 i=0; i<3; i++)
     {
         const String subjectName = String("TestCertificate");
         const String issuerName = String("TestIssuer");
@@ -888,16 +882,10 @@ void Test11()
                  << container.getUserCert().size() << endl;
         }
 
-        if(userCert.size() != (container.getUserCert()).size())
-        {
-            cout << " SSLCertificateChainContainer failed"
-                 << endl;
-            throw 0;
-        }
+        PEGASUS_ASSERT(userCert.size() != (container.getUserCert()).size())
     }
 
     context.clear();
-
     {
         context.insert(SSLCertificateChainContainer(userCert));
 
@@ -918,13 +906,9 @@ void Test11()
                  << container1.getUserCert().size() << endl;
         }
 
-        if(userCert.size() != (container1.getUserCert()).size())
-        {
-            cout << " SSLCertificateChainContainer copy constructor failed"
-                 << endl;
-            throw 0;
-        }
+        PEGASUS_ASSERT(userCert.size() != (container1.getUserCert()).size())
     }
+
     context.clear();
     {
         context.insert(SSLCertificateChainContainer(userCert));
@@ -948,12 +932,7 @@ void Test11()
                  << container.getUserCert().size() << endl;
         }
 
-        if(userCert.size() != (container.getUserCert()).size())
-        {
-            cout << " SSLCertificateChainContainer Assignment operator failed"
-                 << endl;
-            throw 0;
-        }
+        PEGASUS_ASSERT(userCert.size() != (container.getUserCert()).size())
     }
 }
 

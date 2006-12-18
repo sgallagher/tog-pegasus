@@ -2141,6 +2141,16 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                     requestedOperationContextContainers);
             }
 
+            for (Uint32 i=0; i<requestedOperationContextContainers.size(); i++)
+            {
+                if (requestedOperationContextContainers[i] != 0)
+                {
+                    Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                        "Invalid value given in Provider Registration MOF for"
+                        " requestedoperationContextContainer, Value = %d ",
+                        requestedOperationContextContainers[i]);
+                }
+            }
             //
             // create the key by using providerModuleName and providerName
             //

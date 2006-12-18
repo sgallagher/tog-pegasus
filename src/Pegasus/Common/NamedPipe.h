@@ -35,10 +35,10 @@
 #ifndef Pegasus_NamedPipe_h
 #define Pegasus_NamedPipe_h
 
-#include <Pegasus\Common\Constants.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus\Common\Linkage.h>
+#include <Pegasus/Common/Linkage.h>
 
 #include <windows.h>
 
@@ -49,61 +49,83 @@ const DWORD NAMEDPIPE_MAX_BUFFER_SIZE = 8192;
 
 typedef struct
 {
-    HANDLE hpipe;
-    OVERLAPPED overlap;
-}PEGASUS_NAMEDPIPE;
+    HANDLE hpipe;      //Handle for Windows NamedPipe
+    OVERLAPPED overlap;//holds information used for asynchronous input and output 
+}NamedPipeRep;
 
 
 class PEGASUS_COMMON_LINKAGE NamedPipe
 {
 public:
-    static bool read(HANDLE pipe, String & buffer);
+    static bool read(HANDLE pipe, Buffer & buffer);
     static bool write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap = NULL);
+
+	//Returns the name of the Pipe created
     String getName(void)
     {
         return _name;
     }
-
+    
+	//Returns the handle of the Pipe
     HANDLE getPipe(void)
     {
         return _pipe.hpipe;
     }
 
-    LPOVERLAPPED getOverlap(void)
+    //Returns the pointer to the OVERLAPPED object
+	LPOVERLAPPED getOverlap(void)
     {
         return &_pipe.overlap;
     }
 
-    Boolean isConnectionPipe;
+    //Flag that indicates the type of NamedPipe
+	//TRUE indicates that it is a connection pipe
+	//FALSE indicates that the pipe is CIMOperation Pipe.
+	Boolean isConnectionPipe;
+
+	//The data read from pipe is saved in this data member.
     char raw[NAMEDPIPE_MAX_BUFFER_SIZE];
 
+	//Size in bytes - information read from pipe.
     DWORD bytesRead;
 
 	void setPipeHandle()
 	{
 		_pipe.hpipe=INVALID_HANDLE_VALUE;
 	}
+
+	//To check if the pipe is already serving a client.
 	bool _isUnderUse()
 	{
 		return _isBusy;
 	}
+
 	void resetState()
 	{
 		_isBusy = false;
 	}
-	void setBusy()
-	{
-		_isBusy = true;
-	}
 
+	//To set the state of the pipe. TRUE indicates busy state.
+	//FALSE indicates free and can be used.
+	void setBusy(Boolean state = true)
+	{
+		_isBusy = state;
+	}
+   
+	//Verify if the Pipe is connected and ready to listen.
 	bool isConnected()
 	{
 		return _isConnected;
 	}
+
+	//Once the pipe is disconnected, update the flag to indicate 
+	//that the pipe is not listening.
 	void disconnect()
 	{
 		_isConnected = false;
 	}
+	
+	//Once connected, update the flag to indicate that the pipe is listening
 	void connected()
 	{
 		_isConnected = true;
@@ -111,28 +133,35 @@ public:
 
 protected:
    String _name;
-   PEGASUS_NAMEDPIPE _pipe;
+   NamedPipeRep _pipe;
    bool _isBusy; // Flag to indicate read operation in progress
    bool _isConnected; // Flag to indicate Pipe Handle has valid data
 
 };
 
-
-class PEGASUS_COMMON_LINKAGE NamedPipeServerEndPiont : public NamedPipe
+//Logical Server end point of the NamedPipe that is used for CIMOperation
+//Referred to as OPERATION_PIPE
+class PEGASUS_COMMON_LINKAGE NamedPipeServerEndPoint : public NamedPipe
 {
 public:
-    NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct);
-    ~NamedPipeServerEndPiont(void);
+    NamedPipeServerEndPoint(String name, NamedPipeRep pipeStruct);
+    ~NamedPipeServerEndPoint(void);
 
 };
+
+//Logical Client end point of the NamedPipe that is used for CIMOperation
+//Referred to as OPERATION_PIPE
 
 class PEGASUS_COMMON_LINKAGE NamedPipeClientEndPiont : public NamedPipe
 {
 public:
-    NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct);
+    NamedPipeClientEndPiont(String name, NamedPipeRep pipeStruct);
     ~NamedPipeClientEndPiont(void);
 
 };
+
+//Logical Server end point of the NamedPipe that is used for Connection
+//establishment. Referred to as CONNECTION_PIPE
 
 class PEGASUS_COMMON_LINKAGE NamedPipeServer : public NamedPipe
 {
@@ -140,7 +169,7 @@ public:
     NamedPipeServer(const String & name);
     ~NamedPipeServer(void);
 
-    NamedPipeServerEndPiont accept(void);
+    NamedPipeServerEndPoint accept(void);
 
 private:
 

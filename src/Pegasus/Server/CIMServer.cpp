@@ -152,10 +152,11 @@ CIMServer::CIMServer(Monitor* monitor)
   : _dieNow(false), _monitor(monitor)
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     ,
-    waitRes (-11),
-    pCount (-1),
-    thrdSocketHandle (INVALID_HANDLE_VALUE),
-    thrdPipeHandle (INVALID_HANDLE_VALUE)
+    waitResult (0),
+    threadIndex (-1),
+    threadSocketHandle (INVALID_HANDLE_VALUE),
+    threadPipeHandle (INVALID_HANDLE_VALUE),
+	bThreadCreated(false)
 #endif
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
@@ -163,18 +164,6 @@ CIMServer::CIMServer(Monitor* monitor)
     _cimserver = this;
     PEG_METHOD_EXIT();
 }
-
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-CIMServer::CIMServer(Monitor* monitor, Monitor* monitorPipe)
-  : _dieNow(false), _monitor(monitor),_monitor_pipe(monitorPipe)
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
-    _init();
-    _cimserver = this;
-    PEG_METHOD_EXIT();
-}
-#endif
-
 void CIMServer::tickle_monitor(){
     _monitor->tickle();
 }
@@ -598,20 +587,18 @@ void CIMServer::bind()
 }
 
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-// runPipe method is execueted as thread which invokes the
-// handler for requests on NamedPipe.
-int runPipe(Monitor* ptrMonitor)
+int CIMServer::runPipe(Monitor* ptrMonitor)
 {
     ptrMonitor->handlePipe();
+	Threads::yield();
     _endthreadex(0);
     return 0;
 }
 
-// runSocket method is execueted as thread which invokes the
-// handler for requests on Sockets.
-int runSocket(Monitor* ptrMonitor)
+int CIMServer::runSocket(Monitor* ptrMonitor)
 {
     ptrMonitor->run(500000);
+	Threads::yield();
     _endthreadex(0);
     return 0;
 }
@@ -631,50 +618,49 @@ void CIMServer::runForever()
     int i = 0;
     DWORD milli = 50000;
 
-	HANDLE thrdHandle[2] = {INVALID_HANDLE_VALUE,INVALID_HANDLE_VALUE};
-    // -11 is the initial value to indicate that the threads 
-	// is not yet be created for the first time. Successive 
-	// creations are tracked using pCount
-    if ((waitRes == -11 || pCount == 0) )
+    HANDLE thrdHandle[2];
+
+    if ((bThreadCreated == false || threadIndex == 0) )
     {
-		// create thread for handling local connections on named pipes
-        thrdPipeHandle = (HANDLE) _beginthreadex  (NULL,
+        threadPipeHandle = (HANDLE) _beginthreadex  (NULL,
                             0,
-                            (unsigned int (__stdcall *)(void *)) runPipe,
+							(unsigned int (__stdcall *)(void *)) CIMServer::runPipe,
                             _monitor ,
                             0,
                             0);
 
     }
 
-    if ((waitRes == -11 || pCount == 1) )
+    if ((bThreadCreated == false || threadIndex == 1) )
     {
-		// create thread for handling remote connection
-        thrdSocketHandle = (HANDLE) _beginthreadex  (NULL,
+
+        threadSocketHandle = (HANDLE) _beginthreadex  (NULL,
                             0,
-                            (unsigned int (__stdcall *)(void *)) runSocket,
+							(unsigned int (__stdcall *)(void *)) CIMServer::runSocket,
                             _monitor ,
                             0,
                             0);
 
 
     }
-    thrdHandle[0] = thrdPipeHandle;
-    thrdHandle[1] = thrdSocketHandle;
-	//Wait for any of the two threads to complete
-    waitRes = WaitForMultipleObjects (2,thrdHandle,false,milli);
+	if (threadSocketHandle != INVALID_HANDLE_VALUE && threadPipeHandle != INVALID_HANDLE_VALUE)
+	{
+	    bThreadCreated = true;
+	}
+    thrdHandle[0] = threadPipeHandle;
+    thrdHandle[1] = threadSocketHandle;
+    waitResult = WaitForMultipleObjects (2,thrdHandle,false,milli);
 
-    if (waitRes != WAIT_TIMEOUT && waitRes != WAIT_FAILED)
-    {   // if any thread completed, determine the thread
-        pCount = waitRes - WAIT_OBJECT_0;
-        CloseHandle( thrdHandle[pCount] );
-		//reset the thread handle
-        thrdHandle[pCount] = INVALID_HANDLE_VALUE;
+    if (waitResult != WAIT_TIMEOUT && waitResult != WAIT_FAILED)
+    {
+        threadIndex = waitResult - WAIT_OBJECT_0;
+        CloseHandle( thrdHandle[threadIndex] );
+        thrdHandle[threadIndex] = INVALID_HANDLE_VALUE;
 
     }
     else
     {
-        pCount = -1;
+        threadIndex = -1;
     }
 
 

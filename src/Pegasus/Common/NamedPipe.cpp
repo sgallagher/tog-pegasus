@@ -40,22 +40,26 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+//Timeout for connection establishment
 const static DWORD MAX_TIMEOUT = 30000;     // 30 seconds
 
+//Used for connection establishment request by the client.
+//Server verifies the request content
 const static char* CONNECT_REQUEST = "<connect-request>";
 const static char* CONNECT_RESPONSE = "<connect-response>";
 const static char* DISCONNECT_REQUEST = "<disconnect-request>";
 const static char* DISCONNECT_RESPONSE = "<disconnect-response>";
 
-static inline String _PRIMARY_PIPE_NAME(const String & name)
+static inline String _CONNECTION_PIPE_NAME(const String & name)
 {
     return(name + "0");
 }
 
-static inline String _SECONDARY_PIPE_NAME(const String & name)
+static inline String _OPERATION_PIPE_NAME(const String & name)
 {
     return(name + "1");
 }
+
 ////////////////////////////////////////////////////////////////////////////
 // Method Name      : read
 // Input Parameter  : pipe   - type HANDLE
@@ -66,41 +70,40 @@ static inline String _SECONDARY_PIPE_NAME(const String & name)
 // into buffer. If status of read is returned as the return value
 ///////////////////////////////////////////////////////////////////////////
 
-bool NamedPipe::read(HANDLE pipe, String & buffer)
+bool NamedPipe::read(HANDLE pipe, Buffer & buffer)
 {
     // clear buffer
     buffer.clear();
-
+    Boolean readStatus = false;
+	char raw[NAMEDPIPE_MAX_BUFFER_SIZE];
+	DWORD size = 0;
     for ( ; ; )
     {
         // read all data in pipe
-        string raw(NAMEDPIPE_MAX_BUFFER_SIZE, string::value_type(0));
-        DWORD size = 0;
-
+        strcpy(raw,"");
         BOOL rc = ::ReadFile(
                 pipe,
-                (void *)raw.data(),
-                raw.size(),
+                (void *)raw,
+                NAMEDPIPE_MAX_BUFFER_SIZE,
                 &size,
                 0);
 
         // only fail is ::ReadFile returns false and some error other than more data
         if ((rc == FALSE) && (::GetLastError() != ERROR_MORE_DATA))
         {
-            return false;
+			break;
         }
 
-
-        buffer.assign(raw.data());
+        buffer.append(raw, strlen(raw));
 
         // check for message complete
         if (rc == TRUE)
         {
+			readStatus = true;
             break;
         }
     }
-
-    return true;
+    return readStatus;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -112,11 +115,9 @@ bool NamedPipe::read(HANDLE pipe, String & buffer)
 // ----------------------------------------------------------------------------
 // The method writes the data from the buffer onto the pipe
 // Once the data is written to pipe, the writer waits untill
-// data is read by the peer. If status of write is returned as the return value
+// data is read by the peer. Status of write is returned as the return value
 ///////////////////////////////////////////////////////////////////////////////
 
-// ATTN: need to update function to read data larger than MAX_BUFFER_SIZE
-//bool NamedPipe::write(HANDLE pipe, String & buffer)
 bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
 {
     DWORD size = 0;
@@ -124,57 +125,63 @@ bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
     BOOL rc =
         ::WriteFile(
             pipe,
-            /*(void *)*/buffer.getCString(),
+            buffer.getCString(),
             buffer.size(),
             &size,
             overlap);     //this should be the overlap
 
     if (!rc)
     {
-        if (GetLastError() != 232)
+		DWORD dwResult = GetLastError();
+        if (dwResult != ERROR_NO_DATA)
         {
-            const char* lpMsgBuf;
+#ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG 
+			const char* lpMsgBuf;
             LPVOID lpDisplayBuf;
-            DWORD dw = GetLastError();
-
+            
             FormatMessage(
                FORMAT_MESSAGE_ALLOCATE_BUFFER |
                FORMAT_MESSAGE_FROM_SYSTEM,
                NULL,
-               dw,
+               dwResult,
                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                (LPTSTR) &lpMsgBuf,
                0, NULL );
 
             lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT,
                            (strlen(lpMsgBuf)+90)*sizeof(TCHAR));
- #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
-            printf("WriteFile in NamedPipe::write failed with error \
-                   %d: %s", dw, lpMsgBuf);
- #endif
+			Tracer::trace(TRC_HTTP, Tracer::LEVEL2, "WriteFile in NamedPipe::write failed with error \
+                   %d: %s", dwResult, lpMsgBuf);
+ 
             LocalFree(lpDisplayBuf);
-            return false;
-        }
+#endif 
+			return false;
+		}
     }
 
-    return(true);
+    return true;
 }
 
-//
-// NamedPipeServer
-//
+//////////////////////////////////////////////////////////////////////////////
+// Method Name      : NamedPipeServer
+// Input Parameter  : pipeName    - type String
+// 
+// ----------------------------------------------------------------------------
+// The method Creates the Connection pipe. Creating pipe does not mean that it 
+// is ready to accept requests since this only creates a file. Server has to 
+// connect to the pipe and complete the initiation process
+///////////////////////////////////////////////////////////////////////////////
 
 NamedPipeServer::NamedPipeServer(const String & pipeName)
 {
     _name = pipeName;
-    Boolean ConnectFailed = false;
     isConnectionPipe = true;
     _pipe.hpipe = 0;
 
     // create a primary named pipe to listen for connection requests
     _pipe.hpipe  =
         ::CreateNamedPipe(
-            _PRIMARY_PIPE_NAME(_name).getCString(),
+            _CONNECTION_PIPE_NAME(_name).getCString(),
             PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
             MAX_PIPE_INSTANCES,
@@ -185,11 +192,8 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 
     if (_pipe.hpipe == INVALID_HANDLE_VALUE)
     {
-        throw 0;
+        throw Exception("Could not Create Pipe");
     }
-
-    // Set the isConnected flag which shall be used in Monitor::run
-    connected();
 
     _pipe.overlap.Offset = 0;
     _pipe.overlap.OffsetHigh = 0;
@@ -207,10 +211,10 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
     Boolean bIsconnected = false;
 
     bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-    if (bIsconnected)
+    if (!bIsconnected)
     {
-            //SHOULD THROW AN EXCEPTION HERE
-        throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to \
+        //SHOULD THROW AN EXCEPTION HERE
+        throw(Exception("NamedPipeServer::accept Connection - Pipe Failed to \
                          reconnect."));
 
     }
@@ -221,39 +225,54 @@ NamedPipeServer::~NamedPipeServer(void)
 {
 }
 
-NamedPipeServerEndPiont NamedPipeServer::accept(void)
+//////////////////////////////////////////////////////////////////////////////
+// Method Name      : accept
+// Input Parameter  : void
+// Return Type      : NamedPipeServerEndPoint
+// ----------------------------------------------------------------------------
+// The method reads the data written onto the Connection Pipe.
+// Server checks if it is request for establishing the connection. If yes, it 
+// creates an instance of Operation pipe. Once the Operation Pipe is created
+// server then responds to client with a challenge response by writing 
+// CONNECT-RESPONSE onto the Connection pipe indicating that the server has 
+// created the server end of the Operation pipe and client can now start 
+// placing the CIMOperation requests. The Server end point is returned to
+// HTTPAcceptor.
+///////////////////////////////////////////////////////////////////////////////
+
+NamedPipeServerEndPoint NamedPipeServer::accept(void)
 {
 
     Boolean bIsconnected = false;
     Boolean ConnectFailed = false;
 
-    // perform handshake
-    String request(CONNECT_REQUEST);
+    Buffer request(CONNECT_REQUEST, strlen(CONNECT_REQUEST));
     String response(CONNECT_RESPONSE);
     setBusy();
-    // get request
+    
+	// get request
     if (!NamedPipe::read(_pipe.hpipe, request))
     {
-        ::DisconnectNamedPipe(_pipe.hpipe);
+	    ::DisconnectNamedPipe(_pipe.hpipe);
         bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-        if (bIsconnected)
+        if (!bIsconnected)
         {
             //should throw an exception here
              throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to \
                              reconnect."));
         }
 
-        throw(Exception("NamedPipeServer::accept Primary - Pipe Failed to \
+        throw(Exception("NamedPipeServer::accept Connection - Pipe Failed to \
                         reconnect."));
     }
 
-
-    if (request != CONNECT_REQUEST)
+    //If client has requested for establishing the connection  
+    if (strcmp(request.getData(), CONNECT_REQUEST))
     {
         ::DisconnectNamedPipe(_pipe.hpipe);
         bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
 
-        if (bIsconnected)
+        if (!bIsconnected)
         {
            //should throw an exception here
             throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
@@ -265,15 +284,15 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
     }
 
 
-    PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
+    NamedPipeRep* pipe2 = new NamedPipeRep;
 
     pipe2->overlap.Offset = 0;
     pipe2->overlap.OffsetHigh = 0;
 
-    // create a secondary named pipe for processing requests
+    // create a Operation pipe for processing requests
     pipe2->hpipe =
     ::CreateNamedPipe(
-            _SECONDARY_PIPE_NAME(_name).getCString(),
+            _OPERATION_PIPE_NAME(_name).getCString(),
             PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
             PIPE_UNLIMITED_INSTANCES,
@@ -286,23 +305,24 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
     {
         ::DisconnectNamedPipe(_pipe.hpipe);
         bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-        if (bIsconnected)
+        if (!bIsconnected)
         {
            //should throw an exception here
            throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
                             to reconnect."));
         }
-        // temp debug code to detect pipe creating failures
-        throw 0;
+        // Failed to create Operation Pipe
+        throw Exception("Failed to Create Operation Pipe");
 
     }
-
+    
+	// perform handshake
     if(!NamedPipe::write(_pipe.hpipe, response))
     {
         ::DisconnectNamedPipe(_pipe.hpipe);
         ::CloseHandle(pipe2->hpipe);
         bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-        if (bIsconnected)
+        if (!bIsconnected)
         {
             //should throw an exception here
             throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
@@ -312,6 +332,7 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
                         reconnect."));
     }
 
+	//Create an event object and associate this event object
     pipe2->overlap.hEvent = CreateEvent(NULL,    // default security attribute
                                        FALSE,
                                        FALSE,
@@ -319,17 +340,20 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
 
     if (pipe2->overlap.hEvent == NULL)
     {
-        throw 0;
+        throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to\
+                        create event."));
     }
 
-
+    //Operation Pipe successfully created. Connect to this pipe
+	//to read the CIMOperation request
     bIsconnected = _connectToNamedPipe(pipe2->hpipe, &pipe2->overlap);
-    if (bIsconnected)
+
+    if (!bIsconnected)
     {
         ::DisconnectNamedPipe(_pipe.hpipe);
         ::CloseHandle(pipe2->hpipe);
         bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-        if (bIsconnected)
+        if (!bIsconnected)
         {
             //should throw an exception here
             throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed\
@@ -340,83 +364,114 @@ NamedPipeServerEndPiont NamedPipeServer::accept(void)
                         reconnect."));
     }
 
-    // disconnect primary pipe so it can respond to other requests
+    //If the pipe that is already connected to a client then disconnect 
+	//primary pipe so it can respond to other requests. Unless DisconnectNamedPipe
+	//is called, the pipe would still be associated with the previous client
     ::DisconnectNamedPipe(_pipe.hpipe);
 
     bIsconnected = _connectToNamedPipe( _pipe.hpipe, &_pipe.overlap);
-    if (bIsconnected)
+    if (!bIsconnected)
     {
         //should throw an exception here
         throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
     }
 
-    // the caller is responsible for disconnecting the pipe
+    // the caller is responsible for disconnecting the secondary pipe
     // and closing the pipe
 
-    //NOTE:: I am not sure how to give each new Pipe a new name
-    connected();
-    resetState();
-    return(NamedPipeServerEndPiont(String("Operationpipe"), *pipe2));
+    setBusy(FALSE);
+    return(NamedPipeServerEndPoint(String("Operationpipe"), *pipe2));
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// Method Name      : _connectToNamedPipe
+// Input Parameter  : pipe    - type HANDLE
+//                    overlap - type LPOVERLAPPED
+//
+// Return Type      : Boolean
+// ----------------------------------------------------------------------------
+// 
+// Server connects to the Connection pipe by invoking ConnectNamedPipe api. On
+// success returns true, false otherwise. If the server fails to connect, it
+// closes the file handle of the Connection Pipe.
+///////////////////////////////////////////////////////////////////////////////
 
 Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
 {
 
     Boolean bIsconnected = false;
-    Boolean ConnectFailed = false;
 
-    bIsconnected = ConnectNamedPipe(pipe, overlap);
-    if (bIsconnected)
+
+    if (!ConnectNamedPipe(pipe, overlap))
     {
-          ::CloseHandle(pipe);
-          return bIsconnected;
-     }
-    switch (GetLastError())
-    {
-        //ABB: If the overlapped connection in progress.
-        //ABB: Something meaningful needs to be added here
-        case ERROR_IO_PENDING:
-             break;
+  
+		switch (GetLastError())
+		{
+			//ABB: If the overlapped connection in progress.
+			case ERROR_IO_PENDING:
+				{
+					bIsconnected = true;
+					break;
+				}
+			///////////////////////////////////////////////////////////// 
+			//There are two reason for this case
+			//SCENARIO  1: If the Client is already connected at the other 
+			//end of pipe and server connects later,so signal an event. 
+			//NOTE: This is not an error condition
+			//===========================================================
+			//SCENARIO	2: If the Server executes ConnectNamedPipe without
+			//disconnecting from the server end of previous client while the
+			//client has already closed the pipe at its end.
+			//////////////////////////////////////////////////////////////
+			case ERROR_PIPE_CONNECTED:
+				{
+					bIsconnected = true;
+					if (SetEvent(overlap->hEvent))
+					{
+						break;
+					}
+				}
+	        
+			//Server has already connected to the server end of the pipe. 
+			//client has not connected at the other end while server executes
+			//ConnectNamedPipe again.
+			//NOTE: This is not an error condition
 
-        //If the Client is already connected, so signal an event.
-        case ERROR_PIPE_CONNECTED:
-        {
-            if (SetEvent(overlap->hEvent))
-            {
-                break;
-            }
-        }
+			case ERROR_PIPE_LISTENING:
+				{
+					bIsconnected = true;
+					break;
+				}
 
-        case ERROR_PIPE_LISTENING:
-        {
-            break;
-        }
-
-        //ABB: If an error occurs during the connect operation...
-        default:
-        {
-            //return -1;
-            ConnectFailed = true;
-            break;
-        }
+			//ABB: If an error occurs during the connect operation...
+			default:
+				{
+					//return -1;
+					bIsconnected = false;
+					break;
+				}
+		}
     }
 
-    if (ConnectFailed)
+	//If the server was unable to connect, close the file handle
+    if (!bIsconnected)
     {
         ::CloseHandle(pipe);
-        return ConnectFailed;
+        return bIsconnected;
     }
     connected();
     return bIsconnected;
 
 }
 
-//
-// NamedPipeClient
-//
+//Client end of the NamedPipe. We don't use any dedicated connection pipe
+//at the Client end. We use a dedicated Operation Pipe at client, we connect
+//to end point of Operation Pipe
+
 
 NamedPipeClient::NamedPipeClient(const String & name)
 {
+	// Set a flag to indicate that we are creating the Operation Pipe
     isConnectionPipe = false;
     _name = (name);
 }
@@ -427,15 +482,17 @@ NamedPipeClient::~NamedPipeClient(void)
 
 NamedPipeClientEndPiont NamedPipeClient::connect(void)
 {
-    // perform handshake
+    
     string request(CONNECT_REQUEST);
     string response(CONNECT_RESPONSE);
 
     DWORD size = 0;
-
+    //Try connecting to the Primary Pipe requesting for connection
+	//This would invoke connect and write in a single call.
+	//Perform a handshake of connection establishment.
     BOOL rc =
         ::CallNamedPipe(
-            _PRIMARY_PIPE_NAME(_name).getCString(),
+            _CONNECTION_PIPE_NAME(_name).getCString(),
             (void *)request.data(),
             request.size(),
             (void *)response.data(),
@@ -449,24 +506,27 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
                         primary pipe"));
     }
 
+    // Write the Challenge request the Server requesting the connection to
+	// be accepted
     if (strcmp (response.data(), CONNECT_RESPONSE))
     {
         throw(Exception("NamedPipeClient::connect() - Incorrect response"));
     }
 
-    PEGASUS_NAMEDPIPE* pipe2 = new PEGASUS_NAMEDPIPE;
+    NamedPipeRep* pipe2 = new NamedPipeRep;
     pipe2->overlap.Offset = 0;
     pipe2->overlap.OffsetHigh = 0;
     for ( ; ; )
     {
-        pipe2->hpipe =
+        //Create the Client end point of Operation Pipe
+		pipe2->hpipe =
             ::CreateFile(
-                _SECONDARY_PIPE_NAME(_name).getCString(),
+                _OPERATION_PIPE_NAME(_name).getCString(),
                 GENERIC_READ | GENERIC_WRITE,
                 0,
                 0,
                 OPEN_EXISTING,
-                FILE_FLAG_OVERLAPPED,
+                FILE_FLAG_OVERLAPPED, //for non blocking mode
                 0);
 
         if (pipe2->hpipe != INVALID_HANDLE_VALUE)
@@ -479,8 +539,9 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
             throw(Exception("NamedPipeClient::connect() - failed to connect \
                             to secondary pipe"));
         }
-
-        if (::WaitNamedPipe(_SECONDARY_PIPE_NAME(_name).getCString(),
+       
+		//Wait for server to connect for a maximum of MAX_TIMEOUT period.
+        if (::WaitNamedPipe(_OPERATION_PIPE_NAME(_name).getCString(),
                             MAX_TIMEOUT) == FALSE)
         {
             throw(Exception("NamedPipeClient::connect() - timed out waiting\
@@ -503,7 +564,7 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
         throw(Exception("NamedPipeClient::connect() - failed to set state for primary pipe"));
 
     }
-
+    //Create an event object to track the I/O
     pipe2->overlap.hEvent = CreateEvent(NULL,    // default security attribute
                                        FALSE,
                                        FALSE,
@@ -528,7 +589,7 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
     string response(DISCONNECT_RESPONSE);
 
     DWORD size = 0;
-
+    //Make a request for disconnect
     BOOL rc =
         ::TransactNamedPipe(
             pipe,
@@ -547,7 +608,7 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
 
 }
 
-NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
+NamedPipeServerEndPoint::NamedPipeServerEndPoint(String name, NamedPipeRep pipeStruct)
 {
     isConnectionPipe = false;
     connected();
@@ -556,7 +617,7 @@ NamedPipeServerEndPiont::NamedPipeServerEndPiont(String name, PEGASUS_NAMEDPIPE 
 
 }
 
-NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE pipeStruct)
+NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, NamedPipeRep pipeStruct)
 {
     isConnectionPipe = false;
     _isConnected = false;
@@ -565,7 +626,7 @@ NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, PEGASUS_NAMEDPIPE 
 
 }
 
-NamedPipeServerEndPiont::~NamedPipeServerEndPiont()
+NamedPipeServerEndPoint::~NamedPipeServerEndPoint()
 {
 
 }

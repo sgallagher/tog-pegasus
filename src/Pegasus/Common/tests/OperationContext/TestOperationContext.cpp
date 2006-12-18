@@ -882,7 +882,7 @@ void Test11()
                  << container.getUserCert().size() << endl;
         }
 
-        PEGASUS_ASSERT(userCert.size() != (container.getUserCert()).size())
+        PEGASUS_ASSERT(userCert.size() == (container.getUserCert()).size());
     }
 
     context.clear();
@@ -906,7 +906,7 @@ void Test11()
                  << container1.getUserCert().size() << endl;
         }
 
-        PEGASUS_ASSERT(userCert.size() != (container1.getUserCert()).size())
+        PEGASUS_ASSERT(userCert.size() == (container1.getUserCert()).size());
     }
 
     context.clear();
@@ -932,7 +932,7 @@ void Test11()
                  << container.getUserCert().size() << endl;
         }
 
-        PEGASUS_ASSERT(userCert.size() != (container.getUserCert()).size())
+        PEGASUS_ASSERT(userCert.size() == (container.getUserCert()).size());
     }
 }
 

@@ -283,6 +283,12 @@ private:
     friend class SSLSocket;
 
     friend class SSLCallback;
+
+    /**
+        Added for creation of SSLCertificateInfo object in
+        CIMMessageDeserializer for SSLCertificateChainContainer.
+    */
+    friend class CIMMessageDeserializer;
 };
 
 /** This class provides the interface that a client uses to create

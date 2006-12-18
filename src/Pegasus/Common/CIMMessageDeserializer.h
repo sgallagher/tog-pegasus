@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMMessageDeserializer_h
@@ -82,16 +77,7 @@ private:
     PEGASUS_HIDDEN_LINKAGE
     static void _deserializeUserCertificate(
         XmlParser& parser,
-        Array<SSLCertificateInfo>& sslCertificateInfo);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static const SSLCertificateInfo _toSSLCertificateInfo(
-        const String& s);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static const Array<String> _tokenizeCert(
-        const String& input,
-        const Char16 separator);
+        Array<SSLCertificateInfo>& userCert);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _deserializeQueueIdStack(

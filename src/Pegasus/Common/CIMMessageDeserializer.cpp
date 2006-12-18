@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              Jenny Yu, Hewlett-Packard company (jenny.yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/XmlReader.h>
@@ -708,87 +701,54 @@ void CIMMessageDeserializer::_deserializeOperationContext(
 //
 void CIMMessageDeserializer::_deserializeUserCertificate(
     XmlParser& parser,
-    Array<SSLCertificateInfo>& sslCertificateInfo)
+    Array<SSLCertificateInfo>& userCert)
 {
     XmlEntry entry;
     CIMValue genericValue;
-    String genericString;
+    String subjectName, issuerName, errorString;
+    Uint32 versionNumber, depth, errorCode, respCode;
+    Uint64 serialNumber;
+    CIMDateTime notBefore, notAfter;
 
-    XmlReader::expectStartTag(parser, entry, "PGUSERCERT");
-    while (XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue))
+    while(XmlReader::testStartTag(parser, entry, "PGUSERCERT"))
     {
-        genericValue.get(genericString);
-        sslCertificateInfo.append(_toSSLCertificateInfo(genericString));
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(subjectName);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(issuerName);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(versionNumber);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(serialNumber);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(notBefore);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(notAfter);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(depth);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(errorCode);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(errorString);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(respCode);
+
+        SSLCertificateInfo sslCertificate(
+            subjectName,
+            issuerName,
+            versionNumber,
+            serialNumber,
+            notBefore,
+            notAfter,
+            depth,
+            errorCode,
+            errorString,
+            respCode);
+
+        userCert.append(sslCertificate);
+
+        XmlReader::expectEndTag(parser, "PGUSERCERT");
     }
-    XmlReader::expectEndTag(parser, "PGUSERCERT");
-}
-
-const SSLCertificateInfo CIMMessageDeserializer:: _toSSLCertificateInfo(
-    const String& s)
-{
-    //Tokenize string with "\n"
-    Array<String> str = _tokenizeCert(s,'\n');
-
-    //Remove these strings from Array,since they are description of values.
-    str.remove(0);
-    str.remove(2);
-
-    for(Uint32 i = 0; i< str.size(); i++)
-    {
-        while(str[i].size() != PEG_NOT_FOUND)
-        {
-            //Search for "\t" and remove it.
-            if (str[i].find("\t") != PEG_NOT_FOUND)
-            {
-                Uint32 pos = str[i].find(0,'\t');
-                str[i].remove(pos-1,1);
-            }
-
-            //Search for first occurance of ":" and remove string before ":".
-            if (str[i].find(":") != PEG_NOT_FOUND)
-            {
-                Uint32 pos = str[i].find(0,':');
-                str[i].remove(0,pos);
-            }
-        }
-    }
-
-    //Create SSLCertificateInfo object.
-    String subjectName = str[0];
-    String issuerName = str[1];
-    const int depth = atoi(str[2].getCString());
-    const int errorCode = atoi(str[3].getCString());
-    const int respCode = atoi(str[4].getCString());
-
-    SSLCertificateInfo sslCertificateInfo(
-        subjectName, issuerName, depth, errorCode, respCode);
-
-    return sslCertificateInfo;
-}
-
-const Array<String> CIMMessageDeserializer::_tokenizeCert(
-    const String& input,
-    const Char16 separator)
-{
-    Array<String> tokens;
-    if (input.size() != 0)
-    {
-        Uint32 start = 0;
-        Uint32 length = 0;
-        Uint32 end = 0;
-
-        while (end = input.find(start, separator) != PEG_NOT_FOUND)
-        {
-            length = end - start;
-            tokens.append(input.subString(start, length));
-            start += (length + 1);
-        }
-        if(start <= input.size())
-        {
-            tokens.append(input.subString(start));
-        }
-    }
-    return tokens;
 }
 
 //

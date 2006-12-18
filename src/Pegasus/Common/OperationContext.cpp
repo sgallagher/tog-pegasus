@@ -978,7 +978,7 @@ SSLCertificateChainContainer::SSLCertificateChainContainer(
 
 SSLCertificateChainContainer::SSLCertificateChainContainer(
     const SSLCertificateChainContainer & container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)  ||
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)  || \
     defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
      : OperationContext::Container()
 #endif

@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/XmlWriter.h>
@@ -681,7 +672,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCPI>\n");
     }
 
-   if(operationContext.contains(SSLCertificateChainContainer::NAME))
+    if(operationContext.contains(SSLCertificateChainContainer::NAME))
     {
         const SSLCertificateChainContainer container =
             operationContext.get(SSLCertificateChainContainer::NAME);
@@ -713,7 +704,37 @@ void CIMMessageSerializer::_serializeUserCertificate(
     */
 
     XmlWriter::append(out, "<PGUSERCERT>\n");
-    XmlWriter::appendValueElement(out, userCert.toString());
+
+    String subjectName = userCert.getSubjectName();
+    XmlWriter::appendValueElement(out, subjectName);
+
+    String issuerName = userCert.getIssuerName();
+    XmlWriter::appendValueElement(out,issuerName);
+
+    Uint32 versionNumber = userCert.getVersionNumber();
+    XmlWriter::appendValueElement(out,versionNumber);
+
+    long serialNumber = userCert.getSerialNumber();
+    XmlWriter::appendValueElement(out,serialNumber);
+
+    CIMDateTime notBefore = userCert.getNotBefore();
+    XmlWriter::appendValueElement(out,notBefore);
+
+    CIMDateTime notAfter = userCert.getNotAfter();
+    XmlWriter::appendValueElement(out,notAfter);
+
+    Uint32 depth = userCert.getErrorDepth();
+    XmlWriter::appendValueElement(out,depth);
+
+    Uint32 errorCode = userCert.getErrorCode();
+    XmlWriter::appendValueElement(out,errorCode);
+
+    String errorString = userCert.getErrorString();
+    XmlWriter::appendValueElement(out,errorString);
+
+    Uint32 respCode = userCert.getResponseCode();
+    XmlWriter::appendValueElement(out,respCode);
+
     XmlWriter::append(out, "</PGUSERCERT>\n");
 }
 

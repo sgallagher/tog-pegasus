@@ -118,14 +118,14 @@ bool NamedPipe::read(HANDLE pipe, Buffer & buffer)
 // data is read by the peer. Status of write is returned as the return value
 ///////////////////////////////////////////////////////////////////////////////
 
-bool NamedPipe::write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap)
+bool NamedPipe::write(HANDLE pipe, Buffer & buffer, LPOVERLAPPED overlap)
 {
     DWORD size = 0;
 
     BOOL rc =
         ::WriteFile(
             pipe,
-            buffer.getCString(),
+            (char*)buffer.getData(),
             buffer.size(),
             &size,
             overlap);     //this should be the overlap
@@ -205,7 +205,7 @@ NamedPipeServer::NamedPipeServer(const String & pipeName)
 
     if (_pipe.overlap.hEvent == NULL)
     {
-        throw Exception("CreateEvet failed in NamedPipeServer constructor");
+        throw Exception("CreateEvent failed in NamedPipeServer constructor");
     }
 
     Boolean bIsconnected = false;
@@ -247,7 +247,7 @@ NamedPipeServerEndPoint NamedPipeServer::accept(void)
     Boolean ConnectFailed = false;
 
     Buffer request(CONNECT_REQUEST, strlen(CONNECT_REQUEST));
-    String response(CONNECT_RESPONSE);
+    Buffer response(CONNECT_RESPONSE, strlen(CONNECT_RESPONSE));
     setBusy();
     
 	// get request
@@ -317,7 +317,7 @@ NamedPipeServerEndPoint NamedPipeServer::accept(void)
     }
     
 	// perform handshake
-    if(!NamedPipe::write(_pipe.hpipe, response))
+    if(!NamedPipe::write(_pipe.hpipe, response ))
     {
         ::DisconnectNamedPipe(_pipe.hpipe);
         ::CloseHandle(pipe2->hpipe);
@@ -376,8 +376,8 @@ NamedPipeServerEndPoint NamedPipeServer::accept(void)
         throw(Exception("NamedPipeServer::accept() - Primary Pipe Failed to reconnect."));
     }
 
-    // the caller is responsible for disconnecting the secondary pipe
-    // and closing the pipe
+    // the caller is responsible for disconnecting and closing the 
+    // secondary pipe
 
     setBusy(FALSE);
     return(NamedPipeServerEndPoint(String("Operationpipe"), *pipe2));
@@ -480,7 +480,7 @@ NamedPipeClient::~NamedPipeClient(void)
 {
 }
 
-NamedPipeClientEndPiont NamedPipeClient::connect(void)
+NamedPipeClientEndPoint NamedPipeClient::connect(void)
 {
     
     string request(CONNECT_REQUEST);
@@ -577,7 +577,7 @@ NamedPipeClientEndPiont NamedPipeClient::connect(void)
 
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
-    NamedPipeClientEndPiont* nPCEPoint = new NamedPipeClientEndPiont(String("Operationpipe"), *pipe2);
+    NamedPipeClientEndPoint* nPCEPoint = new NamedPipeClientEndPoint(String("Operationpipe"), *pipe2);
     nPCEPoint->connected();
     return(*nPCEPoint);
 }
@@ -617,7 +617,7 @@ NamedPipeServerEndPoint::NamedPipeServerEndPoint(String name, NamedPipeRep pipeS
 
 }
 
-NamedPipeClientEndPiont::NamedPipeClientEndPiont(String name, NamedPipeRep pipeStruct)
+NamedPipeClientEndPoint::NamedPipeClientEndPoint(String name, NamedPipeRep pipeStruct)
 {
     isConnectionPipe = false;
     _isConnected = false;
@@ -631,7 +631,7 @@ NamedPipeServerEndPoint::~NamedPipeServerEndPoint()
 
 }
 
-NamedPipeClientEndPiont::~NamedPipeClientEndPiont()
+NamedPipeClientEndPoint::~NamedPipeClientEndPoint()
 {
 }
 

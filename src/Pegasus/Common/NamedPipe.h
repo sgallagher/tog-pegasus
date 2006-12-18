@@ -58,7 +58,7 @@ class PEGASUS_COMMON_LINKAGE NamedPipe
 {
 public:
     static bool read(HANDLE pipe, Buffer & buffer);
-    static bool write(HANDLE pipe, String & buffer, LPOVERLAPPED overlap = NULL);
+    static bool write(HANDLE pipe, Buffer & buffer, LPOVERLAPPED overlap = NULL);
 
 	//Returns the name of the Pipe created
     String getName(void)
@@ -95,14 +95,9 @@ public:
 	}
 
 	//To check if the pipe is already serving a client.
-	bool _isUnderUse()
+	bool isUnderUse()
 	{
 		return _isBusy;
-	}
-
-	void resetState()
-	{
-		_isBusy = false;
 	}
 
 	//To set the state of the pipe. TRUE indicates busy state.
@@ -152,11 +147,11 @@ public:
 //Logical Client end point of the NamedPipe that is used for CIMOperation
 //Referred to as OPERATION_PIPE
 
-class PEGASUS_COMMON_LINKAGE NamedPipeClientEndPiont : public NamedPipe
+class PEGASUS_COMMON_LINKAGE NamedPipeClientEndPoint : public NamedPipe
 {
 public:
-    NamedPipeClientEndPiont(String name, NamedPipeRep pipeStruct);
-    ~NamedPipeClientEndPiont(void);
+    NamedPipeClientEndPoint(String name, NamedPipeRep pipeStruct);
+    ~NamedPipeClientEndPoint(void);
 
 };
 
@@ -182,7 +177,7 @@ public:
     NamedPipeClient(const String & name);
     ~NamedPipeClient(void);
 
-    NamedPipeClientEndPiont connect(void);
+    NamedPipeClientEndPoint connect(void);
     void disconnect(HANDLE pipe) const;
 
 

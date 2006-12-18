@@ -572,7 +572,7 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
     // “<connect-request>” . If the server responds by writing “<connect-response>”, a
     // NamedPipeClientEndPoint pipe is created by the client.
 
-    NamedPipeClientEndPiont nPCEndPoint = client.connect();
+    NamedPipeClientEndPoint nPCEndPoint = client.connect();
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {

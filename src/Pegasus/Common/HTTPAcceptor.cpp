@@ -965,7 +965,7 @@ void HTTPAcceptor::_acceptNamedPipeConnection()
 #endif
 
 
-    NamedPipeServerEndPiont nPSEndPoint = _rep->namedPipeServer->accept();
+    NamedPipeServerEndPoint nPSEndPoint = _rep->namedPipeServer->accept();
     // Register to receive Messages on Connection pipe:
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {

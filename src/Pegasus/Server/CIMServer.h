@@ -83,9 +83,6 @@ public:
     */
     CIMServer(Monitor* monitor);
 
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    CIMServer(Monitor* monitor, Monitor* monitorPipe);
-#endif
     ~CIMServer();
 
     /** Adds a connection acceptor for the specified listen socket.
@@ -159,11 +156,13 @@ private:
 
     Monitor* _monitor;
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    Monitor* _monitor_pipe;
-    DWORD waitRes ;
-    int pCount;
-    HANDLE    thrdSocketHandle ;
-    HANDLE    thrdPipeHandle ;
+    DWORD waitResult ;
+    int threadIndex;
+    HANDLE threadSocketHandle ; //Thread Handle for remote connection
+    HANDLE threadPipeHandle ;   //Thread Handle for list of local connection
+	Boolean bThreadCreated;
+	static int runPipe(Monitor* ptrMonitor);
+	static int runSocket(Monitor* ptrMonitor);
 #endif
     CIMRepository* _repository;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
@@ -191,9 +190,6 @@ private:
     void _init(void);
     SSLContext* _getSSLContext();
 };
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-int runPipe(Monitor* ptrMonitor);
-#endif
 
 PEGASUS_NAMESPACE_END
 

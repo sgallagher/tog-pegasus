@@ -476,7 +476,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    String messageForNamePipe;
+    Buffer messageForNamePipe;
 #endif
     try
     {
@@ -2472,7 +2472,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 }
 // Added for NamedPipe implementation for windows
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-Boolean HTTPConnection::_writeToNamePipe(String message, Uint32 messageLength)
+Boolean HTTPConnection::_writeToNamePipe(Buffer message, Uint32 messageLength)
 {
 
     Boolean writeResult;

@@ -193,7 +193,7 @@ private:
 #if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     //This method is called from _handleWriteEvent to write to named pipes
     //ATTN Uint32 messageLength is not needed
-    Boolean _writeToNamePipe(String message, Uint32 messageLength);
+    Boolean _writeToNamePipe(Buffer message, Uint32 messageLength);
     NamedPipe _namedPipe;
     Boolean _namedPipeConnection;
 #endif

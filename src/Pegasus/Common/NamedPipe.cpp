@@ -32,10 +32,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// C++ exception handler used, but unwind semantics are not enabled
 #pragma warning(disable:4530)
 
 #include <Pegasus/Common/NamedPipe.h>
 #include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -145,14 +147,13 @@ bool NamedPipe::write(HANDLE pipe, Buffer & buffer, LPOVERLAPPED overlap)
                NULL,
                dwResult,
                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-               (LPTSTR) &lpMsgBuf,
+               (LPTSTR) &lpDisplayBuf,
                0, NULL );
 
-            lpDisplayBuf = LocalAlloc(LMEM_ZEROINIT,
-                           (strlen(lpMsgBuf)+90)*sizeof(TCHAR));
+            lpMsgBuf = (char*)lpDisplayBuf;
 			Tracer::trace(TRC_HTTP, Tracer::LEVEL2, "WriteFile in NamedPipe::write failed with error \
                    %d: %s", dwResult, lpMsgBuf);
- 
+            //Deallocate the memory allocated to lpDisplayBuf in FormatMessage method. 
             LocalFree(lpDisplayBuf);
 #endif 
 			return false;
@@ -459,7 +460,7 @@ Boolean NamedPipeServer::_connectToNamedPipe(HANDLE pipe, LPOVERLAPPED overlap)
         ::CloseHandle(pipe);
         return bIsconnected;
     }
-    connected();
+    setConnected();
     return bIsconnected;
 
 }
@@ -578,7 +579,7 @@ NamedPipeClientEndPoint NamedPipeClient::connect(void)
     // the caller is responsible for disconnecting the pipe
     // and closing the pipe
     NamedPipeClientEndPoint* nPCEPoint = new NamedPipeClientEndPoint(String("Operationpipe"), *pipe2);
-    nPCEPoint->connected();
+    nPCEPoint->setConnected();
     return(*nPCEPoint);
 }
 
@@ -611,7 +612,7 @@ void NamedPipeClient::disconnect(HANDLE pipe) const
 NamedPipeServerEndPoint::NamedPipeServerEndPoint(String name, NamedPipeRep pipeStruct)
 {
     isConnectionPipe = false;
-    connected();
+    setConnected();
     _name = name;
     _pipe = pipeStruct;
 

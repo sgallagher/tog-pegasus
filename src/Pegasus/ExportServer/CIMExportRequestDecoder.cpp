@@ -188,6 +188,11 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    {
       userName = httpMessage->authInfo->getAuthenticatedUser();
 
+      /**
+          We will be getting array of SSLCertificateInfo pointers by calling
+          getClientCertificateChain(), but we need objects and so we need to
+          get object from each pointer and use it for userCert.
+      */
       tempUserCert = httpMessage->authInfo->getClientCertificateChain();
       for (Uint32 i=0; i<tempUserCert.size(); i++)
       {

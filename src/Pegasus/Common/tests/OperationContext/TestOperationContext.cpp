@@ -264,12 +264,7 @@ void Test1(void)
 
         IdentityContainer container = context.get(IdentityContainer::NAME);
 
-        if(userName != container.getUserName())
-        {
-            cout << "----- Identity Container failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(userName == container.getUserName());
     }
 
     context.clear();
@@ -284,12 +279,7 @@ void Test1(void)
         //
         IdentityContainer container = context.get(IdentityContainer::NAME);
 
-        if(userName != container.getUserName())
-        {
-            cout << "----- Identity Container copy constructor failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(userName == container.getUserName());
     }
 
     context.clear();
@@ -306,12 +296,7 @@ void Test1(void)
 
         container = context.get(IdentityContainer::NAME);
 
-        if(userName != container.getUserName())
-        {
-            cout << "----- Identity Container assignment operator failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(userName == container.getUserName());
     }
 }
 
@@ -335,12 +320,8 @@ void Test2(void)
         SubscriptionInstanceContainer container =
             context.get(SubscriptionInstanceContainer::NAME);
 
-        if(!subscriptionInstance.identical(container.getInstance()))
-        {
-            cout << "----- Subscription Instance Container failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(subscriptionInstance.identical(
+            container.getInstance()));
     }
 
     context.clear();
@@ -355,12 +336,8 @@ void Test2(void)
         SubscriptionInstanceContainer container =
             context.get(SubscriptionInstanceContainer::NAME);
 
-        if(!subscriptionInstance.identical(container.getInstance()))
-        {
-            cout << "----- Subscription Instance Container copy constructor failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(subscriptionInstance.identical(
+            container.getInstance()));
     }
 
     context.clear();
@@ -377,12 +354,8 @@ void Test2(void)
 
         container = context.get(SubscriptionInstanceContainer::NAME);
 
-        if(!subscriptionInstance.identical(container.getInstance()))
-        {
-            cout << "----- Subscription Instance Container assignment operator failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(subscriptionInstance.identical(
+            container.getInstance()));
     }
 }
 
@@ -407,13 +380,8 @@ void Test3(void)
         SubscriptionFilterConditionContainer container =
             context.get(SubscriptionFilterConditionContainer::NAME);
 
-        if((filterCondition != container.getFilterCondition()) ||
-           (queryLanguage != container.getQueryLanguage()))
-        {
-            cout << "----- Subscription Filter Condition Container failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT((filterCondition == container.getFilterCondition()) ||
+           (queryLanguage == container.getQueryLanguage()));
     }
 
     context.clear();
@@ -432,13 +400,8 @@ void Test3(void)
         SubscriptionFilterConditionContainer container =
             context.get(SubscriptionFilterConditionContainer::NAME);
 
-        if((filterCondition != container.getFilterCondition()) ||
-           (queryLanguage != container.getQueryLanguage()))
-        {
-            cout << "----- SubscriptionFilterCondition Container copy constructor failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT((filterCondition == container.getFilterCondition()) ||
+           (queryLanguage == container.getQueryLanguage()));
     }
 
     context.clear();
@@ -459,13 +422,8 @@ void Test3(void)
 
         container = context.get(SubscriptionFilterConditionContainer::NAME);
 
-        if((filterCondition != container.getFilterCondition()) ||
-           (queryLanguage != container.getQueryLanguage()))
-        {
-            cout << "----- SubscriptionFilterCondition Container assignment operator failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT((filterCondition == container.getFilterCondition()) ||
+           (queryLanguage == container.getQueryLanguage()));
     }
 }
 
@@ -492,14 +450,9 @@ void Test4(void)
         SubscriptionFilterQueryContainer container =
             context.get(SubscriptionFilterQueryContainer::NAME);
 
-        if((filterQuery != container.getFilterQuery()) ||
-           (queryLanguage != container.getQueryLanguage()) ||
-           (!(sourceNamespace == container.getSourceNameSpace())))
-        {
-            cout << "----- Subscription Filter Query Container failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT((filterQuery == container.getFilterQuery()) ||
+           (queryLanguage == container.getQueryLanguage()) ||
+           ((sourceNamespace == container.getSourceNameSpace())));
     }
 
     context.clear();
@@ -520,14 +473,9 @@ void Test4(void)
             (SubscriptionFilterQueryContainer)context.get
             (SubscriptionFilterQueryContainer::NAME);
 
-        if((filterQuery != container.getFilterQuery()) ||
-           (queryLanguage != container.getQueryLanguage()) ||
-           (!(sourceNamespace == container.getSourceNameSpace())))
-        {
-            cout << "----- SubscriptionFilterQuery Container copy constructor failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT((filterQuery == container.getFilterQuery()) ||
+           (queryLanguage == container.getQueryLanguage()) ||
+           ((sourceNamespace == container.getSourceNameSpace())));
     }
 
     context.clear();
@@ -550,14 +498,9 @@ void Test4(void)
 
         container = context.get(SubscriptionFilterQueryContainer::NAME);
 
-        if((filterQuery != container.getFilterQuery()) ||
-           (queryLanguage != container.getQueryLanguage()) ||
-           (!(sourceNamespace == container.getSourceNameSpace())))
-        {
-            cout << "----- SubscriptionFilterQuery Container assignment operator failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT((filterQuery == container.getFilterQuery()) ||
+           (queryLanguage == container.getQueryLanguage()) ||
+           ((sourceNamespace == container.getSourceNameSpace())));
     }
 }
 
@@ -593,12 +536,8 @@ void Test5(void)
 
         for(Uint8 i = 0, n = subscriptionInstanceNames.size(); i < n; i++)
         {
-            if(!subscriptionInstanceNames[i].identical(returnedInstanceNames[i]))
-            {
-                cout << "----- Subscription Instance Names Container failed" << endl;
-
-                throw 0;
-            }
+            PEGASUS_TEST_ASSERT(subscriptionInstanceNames[i].identical(
+                returnedInstanceNames[i]));
         }
     }
 
@@ -620,12 +559,8 @@ void Test5(void)
 
         for(Uint8 i = 0, n = subscriptionInstanceNames.size(); i < n; i++)
         {
-            if(!subscriptionInstanceNames[i].identical(returnedInstanceNames[i]))
-            {
-                cout << "----- Subscription Instance Names Container copy constructor failed" << endl;
-
-                throw 0;
-            }
+            PEGASUS_TEST_ASSERT(subscriptionInstanceNames[i].identical(
+                returnedInstanceNames[i]));
         }
     }
 
@@ -650,12 +585,8 @@ void Test5(void)
 
         for(Uint8 i = 0, n = subscriptionInstanceNames.size(); i < n; i++)
         {
-            if(!subscriptionInstanceNames[i].identical(returnedInstanceNames[i]))
-            {
-                cout << "----- Subscription Instance Names Container assignment operator failed" << endl;
-
-                throw 0;
-            }
+            PEGASUS_TEST_ASSERT(subscriptionInstanceNames[i].identical(
+                returnedInstanceNames[i]));
         }
     }
 }
@@ -675,12 +606,7 @@ void Test6(void)
 
     LocaleContainer container = context.get(LocaleContainer::NAME);
 
-    if(languageId != container.getLanguageId())
-    {
-        cout << "----- Locale Container failed" << endl;
-
-        throw 0;
-    }
+    PEGASUS_TEST_ASSERT(languageId == container.getLanguageId());
 }
 
 void Test7(void)
@@ -701,15 +627,10 @@ void Test7(void)
 
     ProviderIdContainer container = context.get(ProviderIdContainer::NAME);
 
-    if(!module.identical(container.getModule()) ||
-       !provider.identical(container.getProvider()) ||
-       (isRemoteNameSpace != container.isRemoteNameSpace()) ||
-       (remoteInfo != container.getRemoteInfo()))
-    {
-        cout << "----- Provider Id Container failed" << endl;
-
-        throw 0;
-    }
+    PEGASUS_TEST_ASSERT(module.identical(container.getModule()) ||
+        provider.identical(container.getProvider()) ||
+        (isRemoteNameSpace == container.isRemoteNameSpace()) ||
+        (remoteInfo == container.getRemoteInfo()));
 }
 
 void Test8(void)
@@ -759,12 +680,7 @@ void Test9(void)
 
         SnmpTrapOidContainer container = context.get(SnmpTrapOidContainer::NAME);
 
-        if(snmpTrapOid != container.getSnmpTrapOid())
-        {
-            cout << "----- Snmp Trap Oid Container failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(snmpTrapOid == container.getSnmpTrapOid());
     }
 
     context.clear();
@@ -780,12 +696,7 @@ void Test9(void)
         //
         SnmpTrapOidContainer container = context.get(SnmpTrapOidContainer::NAME);
 
-        if(snmpTrapOid != container.getSnmpTrapOid())
-        {
-            cout << "----- SnmpTrapOid Container copy constructor failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(snmpTrapOid == container.getSnmpTrapOid());
     }
 
     context.clear();
@@ -803,12 +714,7 @@ void Test9(void)
 
         container = context.get(SnmpTrapOidContainer::NAME);
 
-        if(snmpTrapOid != container.getSnmpTrapOid())
-        {
-            cout << "----- SnmpTrapOid Container assignment operator failed" << endl;
-
-            throw 0;
-        }
+        PEGASUS_TEST_ASSERT(snmpTrapOid == container.getSnmpTrapOid());
     }
 }
 
@@ -828,12 +734,9 @@ void Test10(void)
     CachedClassDefinitionContainer container =
         context.get(CachedClassDefinitionContainer::NAME);
 
-    if(cimClass.getClassName().getString() != container.getClass().getClassName().getString())
-    {
-        cout << "----- CachedClassDefinitionContainer failed" << endl;
-
-        throw 0;
-    }
+    PEGASUS_TEST_ASSERT(
+        cimClass.getClassName().getString() ==
+        container.getClass().getClassName().getString());
 }
 
 //
@@ -882,7 +785,8 @@ void Test11()
                  << container.getUserCert().size() << endl;
         }
 
-        PEGASUS_ASSERT(userCert.size() == (container.getUserCert()).size());
+        PEGASUS_TEST_ASSERT(userCert.size() ==
+            (container.getUserCert()).size());
     }
 
     context.clear();
@@ -906,7 +810,8 @@ void Test11()
                  << container1.getUserCert().size() << endl;
         }
 
-        PEGASUS_ASSERT(userCert.size() == (container1.getUserCert()).size());
+        PEGASUS_TEST_ASSERT(userCert.size() ==
+            (container1.getUserCert()).size());
     }
 
     context.clear();
@@ -932,7 +837,8 @@ void Test11()
                  << container.getUserCert().size() << endl;
         }
 
-        PEGASUS_ASSERT(userCert.size() == (container.getUserCert()).size());
+        PEGASUS_TEST_ASSERT(userCert.size() ==
+            (container.getUserCert()).size());
     }
 }
 

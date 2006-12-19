@@ -737,7 +737,7 @@ void CIMMessageDeserializer::_deserializeUserCertificate(
             subjectName,
             issuerName,
             versionNumber,
-            serialNumber,
+            (long)serialNumber,
             notBefore,
             notAfter,
             depth,

@@ -121,7 +121,7 @@ public:
 	}
 	
 	//Once connected, update the flag to indicate that the pipe is listening
-	void connected()
+	void setConnected()
 	{
 		_isConnected = true;
 	}

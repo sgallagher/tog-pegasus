@@ -10,17 +10,22 @@ class PEGASUS_EXECUTOR_CLIENT_LINKAGE ExecutorClient
 {
 public:
 
-    ExecutorClient(int sock);
+    static int ping();
 
-    ~ExecutorClient();
+    static int openFileForRead(
+        const char* path);
 
-    int ping();
-
-    int openFileForRead(const char* path);
+    static int startProviderAgent(
+        const char* module, 
+        int gid, 
+        int uid,
+        int& pid,
+        int& readFd,
+        int& writeFd);
 
 private:
-
-    int _sock;
+    // Private to prevent instantiation.
+    ExecutorClient();
 };
 
 PEGASUS_NAMESPACE_END

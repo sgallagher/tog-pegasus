@@ -41,7 +41,7 @@ endif
 DIRS += \
 	Pegasus/DynListener/Service
 
-DIRS += Executor ExecutorClient
+DIRS += ExecutorClient Executor Executor/tests
 
 include $(ROOT)/mak/recurse.mak
 

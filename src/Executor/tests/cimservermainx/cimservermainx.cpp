@@ -3,22 +3,22 @@
 #include <cassert>
 #include <cstdio>
 
+#define EXECUTOR_SOCKET 3
+
 PEGASUS_USING_PEGASUS;
 
 int main(int argc, char** argv)
 {
-    // Get inherited socket (the parent process guarntees that the socket
-    // will be three).
+    for (int i = 0; i < argc; i++)
+    {
+        printf("[%s]\n", argv[i]);
+    }
 
-    int executor_sock = 3;
-
-    // Create ExecutorClient:
-
-    ExecutorClient* client = new ExecutorClient(executor_sock);
+    // exit(1);
 
     // Ping the exectuor.
 
-    if (client->ping() != 0)
+    if (ExecutorClient::ping() != 0)
     {
         fprintf(stderr, "cimservermainx must be started by executor\n");
         exit(1);
@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
     // Ask the executor process to open a file.
 
-    int fd = client->openFileForRead("/etc/passwd");
+    int fd = ExecutorClient::openFileForRead("/etc/passwd");
 
     if (fd == -1)
     {
@@ -41,6 +41,10 @@ int main(int argc, char** argv)
     {
         printf("%*.*s\n", int(n), int(n), buffer);
     }
+
+    fprintf(stderr, "this is standard error\n");
+
+    exit(1);
 
     for (;;)
     {

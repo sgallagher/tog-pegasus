@@ -10,29 +10,24 @@
 
 #define EXECUTOR_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
 
-/*
-**==============================================================================
-**
-** struct ExecutorRequestHeader
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// struct ExecutorRequestHeader
+//
+//==============================================================================
 
 struct ExecutorRequestHeader
 {
     unsigned int code;
 };
 
-/*
-**==============================================================================
-**
-** PING request
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// EXECUTOR_PING_REQUEST
+//
+//==============================================================================
 
-#define EXECUTOR_PING_REQUEST 2
-
+#define EXECUTOR_PING_REQUEST 1
 #define EXECUTOR_PING_MAGIC 0x9E5EACB6
 
 struct ExecutorPingResponse
@@ -40,15 +35,13 @@ struct ExecutorPingResponse
     unsigned int magic;
 };
 
-/*
-**==============================================================================
-**
-** OPEN_FILE request
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// EXECUTOR_OPEN_FILE_REQUEST
+//
+//==============================================================================
 
-#define EXECUTOR_OPEN_FILE_REQUEST 1
+#define EXECUTOR_OPEN_FILE_REQUEST 2
 
 struct ExecutorOpenFileRequest
 {
@@ -61,15 +54,34 @@ struct ExecutorOpenFileResponse
     int status;
 };
 
-/*
-**==============================================================================
-**
-** ExecutorSends()
-**
-**     Sends *size* bytes onto the given socket.
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// EXECUTOR_START_PROVIDER_AGENT_REQUEST
+//
+//==============================================================================
+
+#define EXECUTOR_START_PROVIDER_AGENT_REQUEST 3
+
+struct ExecutorStartProviderAgentRequest
+{
+    char module[EXECUTOR_MAX_PATH_LENGTH];
+    int gid;
+    int uid;
+};
+
+struct ExecutorStartProviderAgentResponse
+{
+    int status;
+    int pid;
+};
+
+//==============================================================================
+//
+// ExecutorSends()
+//
+//     Sends *size* bytes onto the given socket.
+//
+//==============================================================================
 
 static ssize_t ExecutorSend(int sock, const void* buffer, size_t size)
 {
@@ -98,15 +110,13 @@ static ssize_t ExecutorSend(int sock, const void* buffer, size_t size)
     return size - r;
 }
 
-/*
-**==============================================================================
-**
-** ExecutorRecv()
-**
-**     Receives *size* bytes from the given socket.
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// ExecutorRecv()
+//
+//     Receives *size* bytes from the given socket.
+//
+//==============================================================================
 
 static ssize_t ExecutorRecv(int sock, void* buffer, size_t size)
 {
@@ -145,21 +155,19 @@ static ssize_t ExecutorRecv(int sock, void* buffer, size_t size)
     return size - r;
 }
 
-/*
-**==============================================================================
-**
-** Strlcpy()
-**
-**     This is an original implementation of the strlcpy() function as described
-**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
-**     strlcat - consistent, safe, string copy and concatenation".
-**
-**     Note that this implementation favors readability over efficiency. More
-**     efficient implemetations are possible but would be to complicated
-**     to verify in a security audit.
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// Strlcpy()
+//
+//     This is an original implementation of the strlcpy() function as described
+//     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+//     strlcat - consistent, safe, string copy and concatenation".
+//
+//     Note that this implementation favors readability over efficiency. More
+//     efficient implemetations are possible but would be to complicated
+//     to verify in a security audit.
+//
+//==============================================================================
 
 static size_t Strlcpy(char* dest, const char* src, size_t size)
 {
@@ -177,21 +185,19 @@ static size_t Strlcpy(char* dest, const char* src, size_t size)
     return i;
 }
 
-/*
-**==============================================================================
-**
-** Strlcat()
-**
-**     This is an original implementation of the strlcat() function as described
-**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
-**     strlcat - consistent, safe, string copy and concatenation".
-**
-**     Note that this implementation favors readability over efficiency. More
-**     efficient implemetations are possible but would be to complicated
-**     to verify in a security audit.
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// Strlcat()
+//
+//     This is an original implementation of the strlcat() function as described
+//     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+//     strlcat - consistent, safe, string copy and concatenation".
+//
+//     Note that this implementation favors readability over efficiency. More
+//     efficient implemetations are possible but would be to complicated
+//     to verify in a security audit.
+//
+//==============================================================================
 
 static size_t Strlcat(char* dest, const char* src, size_t size)
 {
@@ -227,21 +233,19 @@ static size_t Strlcat(char* dest, const char* src, size_t size)
     return i;
 }
 
-/*
-**==============================================================================
-**
-** Strlncpy()
-**
-**     This is a variation of the strlcpy() function as described by Todd C. 
-**     Miller in his popular security paper entitled "strlcpy and strlcat - 
-**     consistent, safe, string copy and concatenation".
-**
-**     Note that this implementation favors readability over efficiency. More
-**     efficient implemetations are possible but would be to complicated
-**     to verify in a security audit.
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// Strlncpy()
+//
+//     This is a variation of the strlcpy() function as described by Todd C. 
+//     Miller in his popular security paper entitled "strlcpy and strlcat - 
+//     consistent, safe, string copy and concatenation".
+//
+//     Note that this implementation favors readability over efficiency. More
+//     efficient implemetations are possible but would be to complicated
+//     to verify in a security audit.
+//
+//==============================================================================
 
 static size_t Strlncpy(char* dest, const char* src, size_t size, size_t n)
 {
@@ -259,21 +263,19 @@ static size_t Strlncpy(char* dest, const char* src, size_t size, size_t n)
     return i;
 }
 
-/*
-**==============================================================================
-**
-** Strlncat()
-**
-**     This is a variation of the strlcat() function as described
-**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
-**     strlcat - consistent, safe, string copy and concatenation".
-**
-**     Note that this implementation favors readability over efficiency. More
-**     efficient implemetations are possible but would be to complicated
-**     to verify in a security audit.
-**
-**==============================================================================
-*/
+//==============================================================================
+//
+// Strlncat()
+//
+//     This is a variation of the strlcat() function as described
+//     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+//     strlcat - consistent, safe, string copy and concatenation".
+//
+//     Note that this implementation favors readability over efficiency. More
+//     efficient implemetations are possible but would be to complicated
+//     to verify in a security audit.
+//
+//==============================================================================
 
 static size_t Strlncat(char* dest, const char* src, size_t size, size_t n)
 {

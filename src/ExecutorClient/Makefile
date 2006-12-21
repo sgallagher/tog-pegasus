@@ -27,21 +27,24 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-ROOT = ..
+#//=============================================================================
+
+ROOT = ../..
+DIR = ExecutorClient/ExecutorClient
+.PHONY: tests
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS = Platforms utils Pegasus slp Clients Providers Service Server
-else
-DIRS = Platforms utils Pegasus Clients Providers Service Server
-endif
+LIBRARY = pegexecclient
 
-DIRS += \
-	Pegasus/DynListener/Service
+SOURCES = ExecutorClient.cpp
 
-DIRS += Executor ExecutorClient
+include $(ROOT)/mak/library.mak
 
-include $(ROOT)/mak/recurse.mak
+tests:
+	$(PROGRAM)
 
+poststarttests:
+
+ff:
+	flawfinder -m 3 ExecutorClient.h ExecutorClient.cpp

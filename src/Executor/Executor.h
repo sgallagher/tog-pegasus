@@ -1,0 +1,312 @@
+#ifndef _Executor_Executor_h
+#define _Executor_Executor_h
+
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <errno.h>
+
+#define EXECUTOR_MAX_PATH_LENGTH 4096
+
+#define EXECUTOR_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
+
+/*
+**==============================================================================
+**
+** struct ExecutorRequestHeader
+**
+**==============================================================================
+*/
+
+struct ExecutorRequestHeader
+{
+    unsigned int code;
+};
+
+/*
+**==============================================================================
+**
+** PING request
+**
+**==============================================================================
+*/
+
+#define EXECUTOR_PING_REQUEST 2
+
+#define EXECUTOR_PING_MAGIC 0x9E5EACB6
+
+struct ExecutorPingResponse
+{
+    unsigned int magic;
+};
+
+/*
+**==============================================================================
+**
+** OPEN_FILE request
+**
+**==============================================================================
+*/
+
+#define EXECUTOR_OPEN_FILE_REQUEST 1
+
+struct ExecutorOpenFileRequest
+{
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+    unsigned int flags;
+};
+
+struct ExecutorOpenFileResponse
+{
+    int status;
+};
+
+/*
+**==============================================================================
+**
+** ExecutorSends()
+**
+**     Sends *size* bytes onto the given socket.
+**
+**==============================================================================
+*/
+
+static ssize_t ExecutorSend(int sock, const void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    while (r)
+    {
+        ssize_t n;
+        EXECUTOR_RESTART(write(sock, p, r), n);
+
+        if (n == -1)
+        {
+            if (errno == EWOULDBLOCK)
+                return size - r;
+            else 
+                return -1;
+        }
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
+/*
+**==============================================================================
+**
+** ExecutorRecv()
+**
+**     Receives *size* bytes from the given socket.
+**
+**==============================================================================
+*/
+
+static ssize_t ExecutorRecv(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    if (size == 0)
+        return -1;
+
+    while (r)
+    {
+        ssize_t n;
+        EXECUTOR_RESTART(read(sock, p, r), n);
+
+        if (n == -1)
+        {
+            if (errno == EWOULDBLOCK)
+            {
+                size_t total = size - r;
+
+                if (total)
+                    return total;
+
+                return -1;
+            }
+            else
+                return -1;
+        }
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
+/*
+**==============================================================================
+**
+** Strlcpy()
+**
+**     This is an original implementation of the strlcpy() function as described
+**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+**     strlcat - consistent, safe, string copy and concatenation".
+**
+**     Note that this implementation favors readability over efficiency. More
+**     efficient implemetations are possible but would be to complicated
+**     to verify in a security audit.
+**
+**==============================================================================
+*/
+
+static size_t Strlcpy(char* dest, const char* src, size_t size)
+{
+    size_t i;
+
+    for (i = 0; src[i] && i + 1 < size; i++)
+        dest[i] = src[i];
+
+    if (size > 0)
+        dest[i] = '\0';
+
+    while (src[i])
+        i++;
+
+    return i;
+}
+
+/*
+**==============================================================================
+**
+** Strlcat()
+**
+**     This is an original implementation of the strlcat() function as described
+**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+**     strlcat - consistent, safe, string copy and concatenation".
+**
+**     Note that this implementation favors readability over efficiency. More
+**     efficient implemetations are possible but would be to complicated
+**     to verify in a security audit.
+**
+**==============================================================================
+*/
+
+static size_t Strlcat(char* dest, const char* src, size_t size)
+{
+    size_t i;
+    size_t j;
+
+    // Find dest null terminator.
+
+    for (i = 0; i < size && dest[i]; i++)
+        ;
+
+    // If no-null terminator found, return size.
+
+    if (i == size)
+        return size;
+
+    // Copy src characters to dest.
+
+    for (j = 0; src[j] && i + 1 < size; i++, j++)
+        dest[i] = src[j];
+
+    // Null terminate size non-zero.
+
+    if (size > 0)
+        dest[i] = '\0';
+
+    while (src[j])
+    {
+        j++;
+        i++;
+    }
+
+    return i;
+}
+
+/*
+**==============================================================================
+**
+** Strlncpy()
+**
+**     This is a variation of the strlcpy() function as described by Todd C. 
+**     Miller in his popular security paper entitled "strlcpy and strlcat - 
+**     consistent, safe, string copy and concatenation".
+**
+**     Note that this implementation favors readability over efficiency. More
+**     efficient implemetations are possible but would be to complicated
+**     to verify in a security audit.
+**
+**==============================================================================
+*/
+
+static size_t Strlncpy(char* dest, const char* src, size_t size, size_t n)
+{
+    size_t i;
+
+    for (i = 0; i < n && src[i] && i + 1 < size; i++)
+        dest[i] = src[i];
+
+    if (size > 0)
+        dest[i] = '\0';
+
+    while (i < n && src[i])
+        i++;
+
+    return i;
+}
+
+/*
+**==============================================================================
+**
+** Strlncat()
+**
+**     This is a variation of the strlcat() function as described
+**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+**     strlcat - consistent, safe, string copy and concatenation".
+**
+**     Note that this implementation favors readability over efficiency. More
+**     efficient implemetations are possible but would be to complicated
+**     to verify in a security audit.
+**
+**==============================================================================
+*/
+
+static size_t Strlncat(char* dest, const char* src, size_t size, size_t n)
+{
+    size_t i;
+    size_t j;
+
+    // Find dest null terminator.
+
+    for (i = 0; i < size && dest[i]; i++)
+        ;
+
+    // If no-null terminator found, return size.
+
+    if (i == size)
+        return size;
+
+    // Copy src characters to dest.
+
+    for (j = 0; j < n && src[j] && i + 1 < size; i++, j++)
+        dest[i] = src[j];
+
+    // Null terminate size non-zero.
+
+    if (size > 0)
+        dest[i] = '\0';
+
+    while (j < n && src[j])
+    {
+        j++;
+        i++;
+    }
+
+    return i;
+}
+
+#endif /* _Executor_Executor_h */

@@ -18,7 +18,7 @@
 #define TRACE printf("TRACE: %s(%d)\n", __FILE__, __LINE__)
 #define FL __FILE__, __LINE__
 
-#define CIMSERVERMAIN "cimserver"
+#define CIMSERVERMAIN "cimservermain"
 #define CIMPROVAGT "cimprovagt"
 
 static const char* arg0;

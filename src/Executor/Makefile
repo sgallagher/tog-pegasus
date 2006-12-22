@@ -35,7 +35,7 @@ DIR = Executor
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = executor
+PROGRAM = cimserver
 SOURCES = Executor.cpp
 
 include $(ROOT)/mak/program.mak

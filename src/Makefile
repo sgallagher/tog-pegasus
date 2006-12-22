@@ -41,7 +41,9 @@ endif
 DIRS += \
 	Pegasus/DynListener/Service
 
-DIRS += ExecutorClient Executor Executor/tests
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+  DIRS += ExecutorClient Executor Executor/tests
+endif
 
 include $(ROOT)/mak/recurse.mak
 

@@ -15,6 +15,9 @@ public:
     static int openFileForRead(
         const char* path);
 
+    static int removeFile(
+        const char* path);
+
     static int startProviderAgent(
         const char* module, 
         int gid, 

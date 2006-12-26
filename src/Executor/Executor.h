@@ -20,7 +20,7 @@
 enum RequestCode
 {
     EXECUTOR_PING_REQUEST = 1,
-    EXECUTOR_OPEN_FILE_REQUEST,
+    EXECUTOR_OPEN_FILE_FOR_READ_REQUEST,
     EXECUTOR_START_PROVIDER_AGENT_REQUEST,
     EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST,
     EXECUTOR_CHANGE_OWNER_REQUEST,
@@ -53,14 +53,13 @@ struct ExecutorPingResponse
 
 //==============================================================================
 //
-// EXECUTOR_OPEN_FILE_REQUEST
+// EXECUTOR_OPEN_FILE_FOR_READ_REQUEST
 //
 //==============================================================================
 
 struct ExecutorOpenFileRequest
 {
     char path[EXECUTOR_MAX_PATH_LENGTH];
-    unsigned int flags;
 };
 
 struct ExecutorOpenFileResponse

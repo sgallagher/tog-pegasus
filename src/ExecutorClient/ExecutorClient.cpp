@@ -189,7 +189,7 @@ int ExecutorClient::openFileForRead(const char* path)
     // Send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_OPEN_FILE_REQUEST;
+    header.code = EXECUTOR_OPEN_FILE_FOR_READ_REQUEST;
 
     if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -199,7 +199,6 @@ int ExecutorClient::openFileForRead(const char* path)
     ExecutorOpenFileRequest request;
     memset(&request, 0, sizeof(request));
     memcpy(request.path, path, n);
-    request.flags = R_OK;
 
     if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
@@ -217,6 +216,44 @@ int ExecutorClient::openFileForRead(const char* path)
         return _receiveDescriptor(_sock);
 
     return -1;
+}
+
+int ExecutorClient::removeFile(const char* path)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Reject paths longer than EXECUTOR_MAX_PATH_LENGTH.
+
+    size_t n = strlen(path);
+
+    if (n >= EXECUTOR_MAX_PATH_LENGTH)
+        return -1;
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_REMOVE_FILE_REQUEST;
+
+    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body.
+
+    ExecutorOpenFileRequest request;
+    memset(&request, 0, sizeof(request));
+    memcpy(request.path, path, n);
+
+    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorOpenFileResponse response;
+
+    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    return response.status;
 }
 
 int ExecutorClient::startProviderAgent(

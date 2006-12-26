@@ -332,7 +332,7 @@ static void HandleOpenFileRequest(int sock)
 
     // Open the file.
 
-    int fd = open(request.path, request.flags);
+    int fd = open(request.path, O_RDONLY);
 
     // Send response message.
 
@@ -681,7 +681,7 @@ static void Executor(int sock, int child_pid)
                 HandlePingRequest(sock);
                 break;
 
-            case EXECUTOR_OPEN_FILE_REQUEST:
+            case EXECUTOR_OPEN_FILE_FOR_READ_REQUEST:
                 HandleOpenFileRequest(sock);
                 break;
 

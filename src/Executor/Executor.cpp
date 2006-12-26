@@ -614,6 +614,37 @@ static void HandleChangeOwnerRequest(int sock)
 
 //==============================================================================
 //
+// HandleRemoveFileRequest()
+//
+//==============================================================================
+
+static void HandleRemoveFileRequest(int sock)
+{
+    TRACE;
+
+    // Read the request request.
+
+    struct ExecutorRemoveFileRequest request;
+
+    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Remove the file.
+
+    int status = unlink(request.path);
+
+    // Send response message.
+
+    struct ExecutorRemoveFileResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
 // Executor()
 //
 //     The monitor process.
@@ -664,6 +695,10 @@ static void Executor(int sock, int child_pid)
 
             case EXECUTOR_CHANGE_OWNER_REQUEST:
                 HandleChangeOwnerRequest(sock);
+                break;
+
+            case EXECUTOR_REMOVE_FILE_REQUEST:
+                HandleRemoveFileRequest(sock);
                 break;
 
             default:

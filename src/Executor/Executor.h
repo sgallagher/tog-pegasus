@@ -24,6 +24,7 @@ enum RequestCode
     EXECUTOR_START_PROVIDER_AGENT_REQUEST,
     EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST,
     EXECUTOR_CHANGE_OWNER_REQUEST,
+    EXECUTOR_REMOVE_FILE_REQUEST,
 };
 
 //==============================================================================
@@ -63,6 +64,22 @@ struct ExecutorOpenFileRequest
 };
 
 struct ExecutorOpenFileResponse
+{
+    int status;
+};
+
+//==============================================================================
+//
+// EXECUTOR_REMOVE_FILE_REQUEST
+//
+//==============================================================================
+
+struct ExecutorRemoveFileRequest
+{
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+};
+
+struct ExecutorRemoveFileResponse
 {
     int status;
 };

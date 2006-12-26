@@ -23,6 +23,12 @@ public:
         int& readFd,
         int& writeFd);
 
+    static int daemonizeExecutor();
+
+    static int changeOwner(
+        const char* path,
+        const char* owner);
+
 private:
     // Private to prevent instantiation.
     ExecutorClient();

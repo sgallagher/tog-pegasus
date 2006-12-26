@@ -7,8 +7,24 @@
 #include <errno.h>
 
 #define EXECUTOR_MAX_PATH_LENGTH 4096
+#define EXECUTOR_MAX_USERNAME_LENGTH 128
 
 #define EXECUTOR_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
+
+//==============================================================================
+//
+// RequestCode
+//
+//==============================================================================
+
+enum RequestCode
+{
+    EXECUTOR_PING_REQUEST = 1,
+    EXECUTOR_OPEN_FILE_REQUEST,
+    EXECUTOR_START_PROVIDER_AGENT_REQUEST,
+    EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST,
+    EXECUTOR_CHANGE_OWNER_REQUEST,
+};
 
 //==============================================================================
 //
@@ -27,7 +43,6 @@ struct ExecutorRequestHeader
 //
 //==============================================================================
 
-#define EXECUTOR_PING_REQUEST 1
 #define EXECUTOR_PING_MAGIC 0x9E5EACB6
 
 struct ExecutorPingResponse
@@ -40,8 +55,6 @@ struct ExecutorPingResponse
 // EXECUTOR_OPEN_FILE_REQUEST
 //
 //==============================================================================
-
-#define EXECUTOR_OPEN_FILE_REQUEST 2
 
 struct ExecutorOpenFileRequest
 {
@@ -60,8 +73,6 @@ struct ExecutorOpenFileResponse
 //
 //==============================================================================
 
-#define EXECUTOR_START_PROVIDER_AGENT_REQUEST 3
-
 struct ExecutorStartProviderAgentRequest
 {
     char module[EXECUTOR_MAX_PATH_LENGTH];
@@ -73,6 +84,34 @@ struct ExecutorStartProviderAgentResponse
 {
     int status;
     int pid;
+};
+
+//==============================================================================
+//
+// EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST
+//
+//==============================================================================
+
+struct ExecutorDaemonizeExecutorResponse
+{
+    int status;
+};
+
+//==============================================================================
+//
+// EXECUTOR_CHANGE_OWNER_REQUEST
+//
+//==============================================================================
+
+struct ExecutorChangeOwnerRequest
+{
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+    char owner[EXECUTOR_MAX_USERNAME_LENGTH];
+};
+
+struct ExecutorChangeOwnerResponse
+{
+    int status;
 };
 
 //==============================================================================

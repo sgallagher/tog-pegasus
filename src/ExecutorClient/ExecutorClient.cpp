@@ -288,4 +288,75 @@ int ExecutorClient::startProviderAgent(
     return result;
 }
 
+int ExecutorClient::daemonizeExecutor()
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST;
+
+    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Receive the response
+
+    ExecutorDaemonizeExecutorResponse response;
+
+    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    // Check response status and pid.
+
+    return response.status;
+}
+
+int ExecutorClient::changeOwner(
+    const char* path,
+    const char* owner)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_CHANGE_OWNER_REQUEST;
+
+    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body:
+
+    ExecutorChangeOwnerRequest request;
+
+    {
+        size_t r = Strlcpy(request.path, path, sizeof(request.path));
+
+        if (r >= sizeof(request.path))
+            return -1;
+    }
+
+    {
+        size_t r = Strlcpy(request.owner, owner, sizeof(request.owner));
+
+        if (r >= sizeof(request.owner))
+            return -1;
+    }
+
+    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorDaemonizeExecutorResponse response;
+
+    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    // Check response status and pid.
+
+    return response.status;
+}
+
 PEGASUS_NAMESPACE_END

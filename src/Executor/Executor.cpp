@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <Pegasus/Common/Constants.h>
 #include <sys/types.h>
+#include <pwd.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -13,9 +14,10 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <signal.h>
 #include "Executor.h"
 
-#define TRACE printf("TRACE: %s(%d)\n", __FILE__, __LINE__)
+#define TRACE printf("EXECUTOR: TRACE: %s(%d)\n", __FILE__, __LINE__)
 #define FL __FILE__, __LINE__
 
 #define CIMSERVERMAIN "cimservermain"
@@ -55,6 +57,17 @@ static const char* arg0;
 
 //==============================================================================
 //
+// _shutdownFlag
+//
+//     This flag indicates that the cimservermain process is in the process of 
+//     shutting down, indicating that -s was passed to this cimserver process.
+//
+//==============================================================================
+
+static bool _shutdownFlag = false;
+
+//==============================================================================
+//
 // Fatal()
 //
 //     Report fatal errors. The callar set fatal_file and fatal_line before
@@ -75,6 +88,10 @@ static void Fatal(const char* file, size_t line, const char* format, ...)
     va_end(ap);
     fputc('\n', stderr);
     exit(1);
+
+/*
+ATTN: Do we need to shut down the cimserver in some cases?
+*/
 }
 
 //==============================================================================
@@ -286,6 +303,8 @@ static void GetInternalPegasusProgramPath(
 
 static void HandlePingRequest(int sock)
 {
+    TRACE;
+
     ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
 
     if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
@@ -302,6 +321,8 @@ static void HandlePingRequest(int sock)
 
 static void HandleOpenFileRequest(int sock)
 {
+    TRACE;
+
     // Read the request request.
 
     struct ExecutorOpenFileRequest request;
@@ -343,6 +364,8 @@ static void HandleOpenFileRequest(int sock)
 
 static void HandleStartProviderAgentRequest(int sock)
 {
+    TRACE;
+
     // Read request.
 
     struct ExecutorStartProviderAgentRequest request;
@@ -458,6 +481,139 @@ static void HandleStartProviderAgentRequest(int sock)
 
 //==============================================================================
 //
+// HandleDaemonizeExecutorRequest()
+//
+//==============================================================================
+
+static void HandleDaemonizeExecutorRequest(int sock)
+{
+    TRACE;
+
+    ExecutorDaemonizeExecutorResponse response = { 0 };
+
+    // Fork:
+
+    int pid = fork();
+
+    if (pid < 0)
+    {
+        response.status = -1;
+
+        if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+            Fatal(FL, "failed to write response");
+    }
+
+    // Parent exits:
+
+    if (pid > 0)
+	exit(0);
+
+    // Ignore these signals:
+
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGTERM, SIG_IGN);
+
+    // Set current directory to root:
+
+    chdir("/");
+
+    // Close these file descriptors:
+
+    close(0);
+    close(1);
+    close(2);
+
+    // Direct standard input, output, and error to /dev/null:
+
+    open("/dev/null", O_RDONLY);
+    open("/dev/null", O_RDWR);
+    open("/dev/null", O_RDWR);
+
+    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// _getUserInfo()
+//
+//     Lookup the given user's uid and gid.
+//
+//==============================================================================
+
+static int _getUserInfo(const char* user, int& uid, int& gid)
+{
+    struct passwd pwd;
+    const unsigned int PWD_BUFF_SIZE = 1024;
+    char buffer[PWD_BUFF_SIZE];
+    struct passwd* ptr = 0;
+
+    if (getpwnam_r(user, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
+        return -1;
+
+    uid = ptr->pw_uid;
+    gid = ptr->pw_gid;
+
+    return 0;
+}
+
+//==============================================================================
+//
+// _changeOwner()
+//
+//     Change the given file's owner.
+//
+//==============================================================================
+
+static int _changeOwner(const char* path, const char* owner)
+{
+printf("_changeOwner(%s, %s)\n", path, owner);
+    int uid;
+    int gid;
+
+    if (_getUserInfo(owner, uid, gid) != 0)
+        return -1;
+
+    if (chown(path, uid, gid) != 0)
+        return -1;
+
+printf("_changeOwner(): success\n");
+    return 0;
+}
+
+//==============================================================================
+//
+// HandleChangeOwnerRequest()
+//
+//==============================================================================
+
+static void HandleChangeOwnerRequest(int sock)
+{
+    TRACE;
+
+    // Read the request request.
+
+    struct ExecutorChangeOwnerRequest request;
+
+    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Change owner.
+
+    int status = _changeOwner(request.path, request.owner);
+
+    // Send response message.
+
+    struct ExecutorChangeOwnerResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
 // Executor()
 //
 //     The monitor process.
@@ -488,7 +644,7 @@ static void Executor(int sock, int child_pid)
 
         // Dispatch request.
 
-        switch (header.code)
+        switch (RequestCode(header.code))
         {
             case EXECUTOR_PING_REQUEST:
                 HandlePingRequest(sock);
@@ -500,6 +656,14 @@ static void Executor(int sock, int child_pid)
 
             case EXECUTOR_START_PROVIDER_AGENT_REQUEST:
                 HandleStartProviderAgentRequest(sock);
+                break;
+
+            case EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST:
+                HandleDaemonizeExecutorRequest(sock);
+                break;
+
+            case EXECUTOR_CHANGE_OWNER_REQUEST:
+                HandleChangeOwnerRequest(sock);
                 break;
 
             default:
@@ -527,6 +691,45 @@ static void Child(int argc, char** argv, int sock)
 
     char path[EXECUTOR_MAX_PATH_LENGTH];
     GetInternalPegasusProgramPath(CIMSERVERMAIN, path);
+
+    // Downgrade privileges by setting the UID and GID of this process.
+
+    int uid;
+    int gid;
+
+    const char USER[] = "mbrasher";
+
+    if (_getUserInfo(USER, uid, gid) != 0)
+    {
+        Fatal(FL, "failed to get user informaiton for user \"%s\"", USER);
+    }
+
+    if (uid == 0 || gid == 0)
+    {
+        Fatal(FL, "attempted to run %s as root user", CIMSERVERMAIN);
+        exit(1);
+    }
+
+    if (setgid(gid) != 0)
+    {
+        Fatal(FL, "Failed to set gid to %d", gid);
+        exit(1);
+    }
+
+    if (setuid(uid) != 0)
+    {
+        Fatal(FL, "Failed to set uid to %d", uid);
+        exit(1);
+    }
+
+    if ((int)getuid() != uid || 
+        (int)geteuid() != gid || 
+        (int)getgid() != gid || 
+        (int)getegid() != gid)
+    {
+        Fatal(FL, "setuid/setgid verfication failed\n");
+        exit(1);
+    }
 
     // Build an argv array for child process.
 
@@ -557,6 +760,18 @@ int main(int argc, char** argv)
 
     arg0 = argv[0];
 
+    // Be sure this process is running as root (otherwise fail).
+
+    if (setuid(0) != 0 || setgid(0) != 0)
+    {
+        fprintf(stderr, "%s: this program must be run as root\n", arg0);
+        exit(0);
+    }
+
+    // Print user info.
+
+    printf("%s: uid=%d, gid=%d\n", arg0, (int)getuid(), (int)getgid());
+
     // Create a socket pair for communicating with the child process. This must
     // be the first descriptor created since the child process assumes the 
     // inherited socket descriptor is 3 (stdin=0, stdout=1, stderr=2).
@@ -573,6 +788,13 @@ int main(int argc, char** argv)
     // inherit it.
 
     CloseOnExec(pair[1]);
+
+    // Prepare for shutdown sequence.
+
+    if (argc == 2 && strcmp(argv[1], "-s") == 0)
+    {
+        _shutdownFlag = true;
+    }
 
     // Fork child process.
 

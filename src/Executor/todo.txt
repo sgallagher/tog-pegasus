@@ -10,7 +10,7 @@
 
     (A) Figure out how to deduce user used to run cimservermain.
 
-    (A) Logging via syslog.
+    (A) Logging via syslog (implement log-level option).
 
     (A) How do we handle the syslog program names (cimservermain and 
         cimserver, or cimexecutor and cimserver)?

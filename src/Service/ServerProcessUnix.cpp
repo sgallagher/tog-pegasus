@@ -57,7 +57,7 @@ extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
 #endif
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <ExecutorClient/ExecutorClient.h>
+# include <Pegasus/ExecutorClient/ExecutorClient.h>
 #endif
 
 PEGASUS_USING_PEGASUS;

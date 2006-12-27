@@ -45,7 +45,7 @@
 #endif
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <ExecutorClient/ExecutorClient.h>
+# include <Pegasus/ExecutorClient/ExecutorClient.h>
 #endif
 
 #include <Pegasus/Common/System.h>

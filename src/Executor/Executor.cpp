@@ -887,6 +887,12 @@ int main(int argc, char** argv)
     if (pair[0] != 3)
         Fatal(FL, "internal assumption failed");
 
+    // Define __PEGASAUS_EXECUTOR__ environmnent variable. The ExecutorClient
+    // uses this variable to determine whether to talk to the executor over
+    // a socket or to use loopback mode.
+
+    putenv("__PEGASAUS_EXECUTOR__=1");
+
     // Open the log.
 
     OpenLog(true, "cimexecutor");

@@ -11,6 +11,7 @@
 #include "ExecutorClient.h"
 #include <Executor/Executor.h>
 #include <Pegasus/Common/Mutex.h>
+#include "private/ExecutorClientSocketImpl.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -18,8 +19,7 @@ PEGASUS_NAMESPACE_BEGIN
 // created by the forked process (recall that stdin=0, stdout=1, stderr=2).
 static const size_t _sock = 3;
 
-// All requests to executor are serialized with this mutex.
-static Mutex _mutex;
+// ATTN: Get rid of this extra function (on both sides of connection).
 
 static int _receiveDescriptor(int sock)
 {
@@ -150,7 +150,15 @@ static int _receiveDescriptorArray(int sock, int descriptors[], size_t count)
     return 0;
 }
 
-int ExecutorClient::ping()
+ExecutorClientSocketImpl::ExecutorClientSocketImpl()
+{
+}
+
+ExecutorClientSocketImpl::~ExecutorClientSocketImpl()
+{
+}
+
+int ExecutorClientSocketImpl::ping()
 {
     AutoMutex autoMutex(_mutex);
 
@@ -161,8 +169,6 @@ int ExecutorClient::ping()
 
     if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
-
-    // Receive the response
 
     ExecutorPingResponse response;
 
@@ -175,7 +181,8 @@ int ExecutorClient::ping()
     return -1;
 }
 
-int ExecutorClient::openFileForRead(const char* path)
+FILE* ExecutorClientSocketImpl::openFileForRead(
+    const char* path)
 {
     AutoMutex autoMutex(_mutex);
 
@@ -184,7 +191,7 @@ int ExecutorClient::openFileForRead(const char* path)
     size_t n = strlen(path);
 
     if (n >= EXECUTOR_MAX_PATH_LENGTH)
-        return -1;
+        return NULL;
 
     // Send request header:
 
@@ -192,7 +199,7 @@ int ExecutorClient::openFileForRead(const char* path)
     header.code = EXECUTOR_OPEN_FILE_FOR_READ_REQUEST;
 
     if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
-        return -1;
+        return NULL;
 
     // Send request body.
 
@@ -201,24 +208,32 @@ int ExecutorClient::openFileForRead(const char* path)
     memcpy(request.path, path, n);
 
     if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
-        return -1;
+        return NULL;
 
     // Receive the response
 
     ExecutorOpenFileResponse response;
 
     if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
-        return -1;
+        return NULL;
 
     // Receive descriptor (if response successful).
 
     if (response.status == 0)
-        return _receiveDescriptor(_sock);
+    {
+        int fd = _receiveDescriptor(_sock);
 
-    return -1;
+        if (fd == -1)
+            return NULL;
+        else
+            return fdopen(fd, "rb");
+    }
+
+    return NULL;
 }
 
-int ExecutorClient::removeFile(const char* path)
+int ExecutorClientSocketImpl::removeFile(
+    const char* path)
 {
     AutoMutex autoMutex(_mutex);
 
@@ -256,7 +271,7 @@ int ExecutorClient::removeFile(const char* path)
     return response.status;
 }
 
-int ExecutorClient::startProviderAgent(
+int ExecutorClientSocketImpl::startProviderAgent(
     const char* module, 
     int gid, 
     int uid,
@@ -325,7 +340,7 @@ int ExecutorClient::startProviderAgent(
     return result;
 }
 
-int ExecutorClient::daemonizeExecutor()
+int ExecutorClientSocketImpl::daemonizeExecutor()
 {
     AutoMutex autoMutex(_mutex);
 
@@ -349,7 +364,7 @@ int ExecutorClient::daemonizeExecutor()
     return response.status;
 }
 
-int ExecutorClient::shutdownExecutor()
+int ExecutorClientSocketImpl::shutdownExecutor()
 {
     AutoMutex autoMutex(_mutex);
 
@@ -373,7 +388,7 @@ int ExecutorClient::shutdownExecutor()
     return response.status;
 }
 
-int ExecutorClient::changeOwner(
+int ExecutorClientSocketImpl::changeOwner(
     const char* path,
     const char* owner)
 {

@@ -29,7 +29,7 @@
 #//
 #//=============================================================================
 
-ROOT = ../..
+ROOT = ../../..
 DIR = ExecutorClient/ExecutorClient
 .PHONY: tests
 
@@ -37,7 +37,16 @@ include $(ROOT)/mak/config.mak
 
 LIBRARY = pegexecclient
 
-SOURCES = ExecutorClient.cpp
+LIBRARIES = pegcommon
+
+SOURCES = \
+    ExecutorClient.cpp \
+    ExecutorClientImpl.cpp \
+    ExecutorClientLoopbackImpl.cpp
+
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+    SOURCES += ExecutorClientSocketImpl.cpp
+endif
 
 include $(ROOT)/mak/library.mak
 
@@ -48,3 +57,4 @@ poststarttests:
 
 ff:
 	flawfinder -m 3 ExecutorClient.h ExecutorClient.cpp
+

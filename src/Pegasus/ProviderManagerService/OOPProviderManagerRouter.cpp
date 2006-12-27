@@ -49,7 +49,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <ExecutorClient/ExecutorClient.h>
+# include <Pegasus/ExecutorClient/ExecutorClient.h>
 #endif
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)

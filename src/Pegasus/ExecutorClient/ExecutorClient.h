@@ -2,7 +2,15 @@
 #define _ExecutorClient_ExecutorClient_h
 
 #include <Pegasus/Common/Config.h>
-#include "Linkage.h"
+#include <cstdio>
+
+#ifndef PEGASUS_EXECUTOR_CLIENT_LINKAGE
+#   ifdef PEGASUS_CLIENT_INTERNAL
+#       define PEGASUS_EXECUTOR_CLIENT_LINKAGE PEGASUS_EXPORT
+#   else
+#       define PEGASUS_EXECUTOR_CLIENT_LINKAGE PEGASUS_IMPORT
+#   endif
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -12,7 +20,7 @@ public:
 
     static int ping();
 
-    static int openFileForRead(
+    static FILE* openFileForRead(
         const char* path);
 
     static int removeFile(

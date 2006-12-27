@@ -43,9 +43,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <ExecutorClient/ExecutorClient.h>
+# include <Pegasus/ExecutorClient/ExecutorClient.h>
 #endif
 
 //
@@ -391,21 +390,12 @@ String ClientAuthenticator::_getFileContent(String filePath)
     // Open challenge file and read the challenge data
     //
 
-    int fd;
+    FILE* is;
 
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
     if (pegasusClientAuthenticatorShutdownInProgress)
-        fd = ExecutorClient::openFileForRead(filePath.getCString());
+        is = ExecutorClient::openFileForRead(filePath.getCString());
     else
-        fd = open(filePath.getCString(), O_RDONLY);
-#else
-    fd = open(filePath.getCString(), O_RDONLY);
-#endif
-
-    if (fd == -1)
-        return String();
-
-    FILE* is = fdopen(fd, "r");
+        is = fopen(filePath.getCString(), "rb");
 
     if (!is)
         return String();

@@ -42,7 +42,6 @@ STATIC=1
 LIBRARY = pegpmservice
 
 LIBRARIES = \
-    pegexecclient \
     pegprovidermanager \
     pegprovider \
     pegprm \
@@ -50,6 +49,10 @@ LIBRARIES = \
     pegconfig \
     pegclient \
     pegcommon
+
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+  LIBRARIES += pegexecclient
+endif
 
 SOURCES = \
     ProviderManagerService.cpp \

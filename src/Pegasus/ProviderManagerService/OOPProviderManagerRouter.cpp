@@ -407,8 +407,6 @@ void ProviderAgentContainer::_startAgentProcessWithExecutor()
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::_startAgentProcessWithExecutor");
 
-printf("CIMSERVERPID[%d]\n", getpid());
-
     PEGASUS_UID_T newUid = getuid();
     PEGASUS_GID_T newGid = getgid();
 

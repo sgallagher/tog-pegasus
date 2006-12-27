@@ -1,0 +1,13 @@
+
+    (B) The executor should shutdown cimserver when it exits on fatal errors.
+
+    (A) Chose special directory for local-authentication requests, allowing
+        requests against these files to be policy-checked.
+
+    (A) Implement policy checks.
+
+    (A) Revisit ownership of Unix domain socket file.
+
+    (A) Figure out how to deduce user used to run cimservermain.
+
+    (A) Logging via syslog.

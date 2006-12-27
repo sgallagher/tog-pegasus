@@ -15,6 +15,8 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include <signal.h>
+#include <cstdarg>
+#include <syslog.h>
 #include "Executor.h"
 
 #define TRACE printf("EXECUTOR: TRACE: %s(%d)\n", __FILE__, __LINE__)
@@ -68,6 +70,38 @@ static bool _shutdownFlag = false;
 
 //==============================================================================
 //
+// OpenLog()
+//
+//==============================================================================
+
+static void OpenLog(bool perror, const char* program)
+{
+    int option = LOG_PID;
+
+    if (perror)
+        option |= LOG_PERROR;
+
+    openlog(program, option, LOG_DAEMON);
+}
+
+//==============================================================================
+//
+// Log()
+//
+//     Log function.
+//
+//==============================================================================
+
+static void Log(int priority, const char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    vsyslog(priority, format, ap);
+    va_end(ap);
+}
+
+//==============================================================================
+//
 // Fatal()
 //
 //     Report fatal errors. The callar set fatal_file and fatal_line before
@@ -79,19 +113,14 @@ static bool _shutdownFlag = false;
 
 static void Fatal(const char* file, size_t line, const char* format, ...)
 {
-    // ATTN: report fatal errors with syslog.
+    Log(LOG_INFO, "trace: %s(%d)", file, int(line));
 
     va_list ap;
     va_start(ap, format);
-    fprintf(stderr, "%s: fatal: %s(%ld): ", arg0, file, (long)line);
-    vfprintf(stderr, format, ap);
+    syslog(LOG_CRIT, format, ap);
     va_end(ap);
-    fputc('\n', stderr);
-    exit(1);
 
-/*
-ATTN: Do we need to shut down the cimserver in some cases?
-*/
+    exit(1);
 }
 
 //==============================================================================
@@ -303,7 +332,7 @@ static void GetInternalPegasusProgramPath(
 
 static void HandlePingRequest(int sock)
 {
-    TRACE;
+    Log(LOG_INFO, "HandlePingRequest()");
 
     ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
 
@@ -321,8 +350,6 @@ static void HandlePingRequest(int sock)
 
 static void HandleOpenFileRequest(int sock)
 {
-    TRACE;
-
     // Read the request request.
 
     struct ExecutorOpenFileRequest request;
@@ -332,6 +359,8 @@ static void HandleOpenFileRequest(int sock)
 
     // Open the file.
 
+    Log(LOG_INFO, "HandleOpenFileRequest(): path=%s", request.path);
+
     int fd = open(request.path, O_RDONLY);
 
     // Send response message.
@@ -340,7 +369,10 @@ static void HandleOpenFileRequest(int sock)
     memset(&response, 0, sizeof(response));
 
     if (fd == -1)
+    {
+        Log(LOG_ERR, "open(%s, O_RDONLY) failed", request.path);
         response.status = -1;
+    }
     else
         response.status = 0;
 
@@ -364,14 +396,15 @@ static void HandleOpenFileRequest(int sock)
 
 static void HandleStartProviderAgentRequest(int sock)
 {
-    TRACE;
-
     // Read request.
 
     struct ExecutorStartProviderAgentRequest request;
 
     if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
+
+    Log(LOG_INFO, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
+        request.module, request.gid, request.uid);
 
     // Process request.
 
@@ -443,9 +476,15 @@ static void HandleStartProviderAgentRequest(int sock)
             char arg2[32];
             sprintf(arg1, "%d", to[0]);
             sprintf(arg2, "%d", from[1]);
+
+            Log(LOG_INFO, "execl(%s, %s, %s, %s, %s)\n",
+                path, path, arg1, arg2, request.module);
+
             execl(path, path, arg1, arg2, request.module, (char*)0);
 
-            // ATTN: log this error.
+            Log(LOG_ERR, "execl(%s, %s, %s, %s, %s): failed\n",
+                path, path, arg1, arg2, request.module);
+
             return;
         }
     }
@@ -487,7 +526,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
 static void HandleDaemonizeExecutorRequest(int sock)
 {
-    TRACE;
+    Log(LOG_INFO, "HandleDaemonizeExecutorRequest()");
 
     ExecutorDaemonizeExecutorResponse response = { 0 };
 
@@ -495,9 +534,11 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
     int pid = fork();
 
+
     if (pid < 0)
     {
         response.status = -1;
+        Log(LOG_ERR, "fork() failed");
 
         if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
             Fatal(FL, "failed to write response");
@@ -549,7 +590,10 @@ static int _getUserInfo(const char* user, int& uid, int& gid)
     struct passwd* ptr = 0;
 
     if (getpwnam_r(user, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
+    {
+        Log(LOG_ERR, "getpwnam_r(%s, ...) failed", user);
         return -1;
+    }
 
     uid = ptr->pw_uid;
     gid = ptr->pw_gid;
@@ -567,7 +611,6 @@ static int _getUserInfo(const char* user, int& uid, int& gid)
 
 static int _changeOwner(const char* path, const char* owner)
 {
-printf("_changeOwner(%s, %s)\n", path, owner);
     int uid;
     int gid;
 
@@ -575,9 +618,11 @@ printf("_changeOwner(%s, %s)\n", path, owner);
         return -1;
 
     if (chown(path, uid, gid) != 0)
+    {
+        Log(LOG_ERR, "chown(%s, %d, %d) failed", path, uid, gid);
         return -1;
+    }
 
-printf("_changeOwner(): success\n");
     return 0;
 }
 
@@ -589,8 +634,6 @@ printf("_changeOwner(): success\n");
 
 static void HandleChangeOwnerRequest(int sock)
 {
-    TRACE;
-
     // Read the request request.
 
     struct ExecutorChangeOwnerRequest request;
@@ -600,7 +643,16 @@ static void HandleChangeOwnerRequest(int sock)
 
     // Change owner.
 
+    Log(LOG_INFO, "HandleChangeOwnerRequest(): path=%s owner=%s",
+        request.path, request.owner);
+
     int status = _changeOwner(request.path, request.owner);
+
+    if (status != 0)
+    {
+        Log(LOG_ERR, "_changeOwner(%s, %s) failed",
+            request.path, request.owner);
+    }
 
     // Send response message.
 
@@ -620,8 +672,6 @@ static void HandleChangeOwnerRequest(int sock)
 
 static void HandleRemoveFileRequest(int sock)
 {
-    TRACE;
-
     // Read the request request.
 
     struct ExecutorRemoveFileRequest request;
@@ -631,7 +681,12 @@ static void HandleRemoveFileRequest(int sock)
 
     // Remove the file.
 
+    Log(LOG_INFO, "HandleRemoveFileRequest(): path=%s", request.path);
+
     int status = unlink(request.path);
+
+    if (status != 0)
+        Log(LOG_ERR, "unlink(%s) failed", request.path);
 
     // Send response message.
 
@@ -795,18 +850,6 @@ int main(int argc, char** argv)
 
     arg0 = argv[0];
 
-    // Be sure this process is running as root (otherwise fail).
-
-    if (setuid(0) != 0 || setgid(0) != 0)
-    {
-        fprintf(stderr, "%s: this program must be run as root\n", arg0);
-        exit(0);
-    }
-
-    // Print user info.
-
-    printf("%s: uid=%d, gid=%d\n", arg0, (int)getuid(), (int)getgid());
-
     // Create a socket pair for communicating with the child process. This must
     // be the first descriptor created since the child process assumes the 
     // inherited socket descriptor is 3 (stdin=0, stdout=1, stderr=2).
@@ -818,6 +861,24 @@ int main(int argc, char** argv)
 
     if (pair[0] != 3)
         Fatal(FL, "internal assumption failed");
+
+    // Open the log.
+
+    OpenLog(true, "cimserver");
+
+    // Be sure this process is running as root (otherwise fail).
+
+    if (setuid(0) != 0 || setgid(0) != 0)
+    {
+        Log(LOG_CRIT, "attempted to run program as non-root user");
+        fprintf(stderr, "%s: this program must be run as root\n", arg0);
+        exit(0);
+    }
+
+    // Print user info.
+
+    Log(LOG_INFO, "started executor with uid=%d, gid=%d\n", 
+        (int)getuid(), (int)getgid());
 
     // Close pair[1] on exec system calls so the child process does not 
     // inherit it.

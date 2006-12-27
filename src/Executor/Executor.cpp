@@ -827,21 +827,23 @@ static void Child(int argc, char** argv, int sock)
     char path[EXECUTOR_MAX_PATH_LENGTH];
     GetInternalPegasusProgramPath(CIMSERVERMAIN, path);
 
-    // Downgrade privileges by setting the UID and GID of this process.
+    // Downgrade privileges by setting the UID and GID of this process. Use
+    // the owner of the CIMSERVERMAIN program.
 
-    int uid;
-    int gid;
+    struct stat st;
 
-    const char USER[] = "mbrasher";
-
-    if (_getUserInfo(USER, uid, gid) != 0)
+    if (stat(path, &st) != 0)
     {
-        Fatal(FL, "failed to get user informaiton for user \"%s\"", USER);
+        Fatal(FL, "stat(%s) failed", path);
     }
+
+    int uid = st.st_uid;
+    int gid = st.st_gid;
 
     if (uid == 0 || gid == 0)
     {
-        Fatal(FL, "attempted to run %s as root user", CIMSERVERMAIN);
+        Fatal(FL, "cannot run %s as owner of that file since owner is root",
+            path);
         exit(1);
     }
 

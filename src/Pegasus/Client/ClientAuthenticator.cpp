@@ -389,10 +389,14 @@ String ClientAuthenticator::_getFileContent(String filePath)
 
     FILE* is;
 
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     if (pegasusClientAuthenticatorShutdownInProgress)
         is = ExecutorClient::openFileForRead(filePath.getCString());
     else
         is = fopen(filePath.getCString(), "rb");
+#else
+    is = fopen(filePath.getCString(), "rb");
+#endif
 
     if (!is)
         return String();

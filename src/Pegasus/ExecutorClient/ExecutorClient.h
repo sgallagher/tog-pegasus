@@ -2,6 +2,8 @@
 #define _ExecutorClient_ExecutorClient_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/AnonymousPipe.h>
 #include <cstdio>
 
 #ifndef PEGASUS_EXECUTOR_CLIENT_LINKAGE
@@ -31,8 +33,8 @@ public:
         int gid, 
         int uid,
         int& pid,
-        int& readFd,
-        int& writeFd);
+        AnonymousPipe*& readPipe,
+        AnonymousPipe*& writePipe);
 
     static int daemonizeExecutor();
 

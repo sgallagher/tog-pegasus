@@ -2,6 +2,7 @@
 #define _ExecutorClient_ExecutorClientLoopbackImpl_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Mutex.h>
 #include "ExecutorClientImpl.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -27,8 +28,8 @@ public:
         int gid, 
         int uid,
         int& pid,
-        int& readFd,
-        int& writeFd);
+        AnonymousPipe*& readPipe,
+        AnonymousPipe*& writePipe);
 
     virtual int daemonizeExecutor();
 
@@ -37,6 +38,9 @@ public:
     virtual int changeOwner(
         const char* path,
         const char* owner);
+
+private:
+    Mutex _mutex;
 };
 
 PEGASUS_NAMESPACE_END

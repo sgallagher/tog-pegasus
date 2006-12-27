@@ -72,8 +72,6 @@ public:
     */
     String getChallengeString();
 
-    static bool removeChallengeFile(const String& path);
-
 private:
 
 

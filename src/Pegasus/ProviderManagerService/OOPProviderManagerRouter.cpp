@@ -47,10 +47,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Config/ConfigManager.h>
-
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <Pegasus/ExecutorClient/ExecutorClient.h>
-#endif
+#include <Pegasus/ExecutorClient/ExecutorClient.h>
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>  // For CreateProcess()
@@ -166,15 +163,6 @@ private:
         Note: The caller must lock the _agentMutex.
      */
     void _startAgentProcess();
-
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-
-    /** Same as _startAgentProcess() but uses the executor process to create
-        the provider agent process.
-    */
-    void _startAgentProcessWithExecutor();
-
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 
     /**
         Send initialization data to the Provider Agent.
@@ -400,17 +388,18 @@ ProviderAgentContainer::~ProviderAgentContainer()
     PEG_METHOD_EXIT();
 }
 
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-
-void ProviderAgentContainer::_startAgentProcessWithExecutor()
+void ProviderAgentContainer::_startAgentProcess()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderAgentContainer::_startAgentProcessWithExecutor");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER, "ProviderAgentContainer::_startAgentProcess");
 
-    PEGASUS_UID_T newUid = getuid();
-    PEGASUS_GID_T newGid = getgid();
+    PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
+    PEGASUS_GID_T newGid = (PEGASUS_UID_T)-1;
 
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT
+
+    newUid = getuid();
+    newGid = getgid();
 
     // Get and save the effective user name and the uid/gid for the user
     // context of the agent process
@@ -433,16 +422,16 @@ void ProviderAgentContainer::_startAgentProcessWithExecutor()
 # endif /* PEGASUS_DISABLE_PROV_USERCTXT */
 
     int pid;
-    int readFd;
-    int writeFd;
+    AnonymousPipe* readPipe;
+    AnonymousPipe* writePipe;
 
     int status = ExecutorClient::startProviderAgent(
         (const char*)_moduleName.getCString(),
         newUid,
         newGid,
         pid,
-        readFd,
-        writeFd);
+        readPipe,
+        writePipe);
 
     if (status != 0)
     {
@@ -459,324 +448,8 @@ void ProviderAgentContainer::_startAgentProcessWithExecutor()
     _pid = pid;
 # endif
 
-    // Create to and from AnonymousPipe instances to correspond to the pipe
-    // descriptors returne by executor.
-
-    char readFdStr[32];
-    char writeFdStr[32];
-    sprintf(readFdStr, "%d", readFd);
-    sprintf(writeFdStr, "%d", writeFd);
-
-    _pipeToAgent.reset(new AnonymousPipe(0, writeFdStr));
-    _pipeFromAgent.reset(new AnonymousPipe(readFdStr, 0));
-
-    PEG_METHOD_EXIT();
-}
-
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
-
-void ProviderAgentContainer::_startAgentProcess()
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderAgentContainer::_startAgentProcess");
-
-    //
-    // Serialize the starting of agent processes.  If two agent processes are
-    // started at the same time, they may get copies of each other's pipe
-    // descriptors.  If this happens, the cimserver will not get a pipe read
-    // error when one of the agent processes exits, because the pipe will
-    // still be writable by the other process.  This locking control needs to
-    // cover the period from where the pipes are created to where the agent
-    // ends of the pipes are closed by the cimserver.
-    //
-    static Mutex agentStartupMutex;
-    AutoMutex lock(agentStartupMutex);
-
-    //BOOKMARK:1
-    AutoPtr<AnonymousPipe> pipeFromAgent(new AnonymousPipe());
-    AutoPtr<AnonymousPipe> pipeToAgent(new AnonymousPipe());
-
-    //
-    // Start a cimprovagt process for this provider module
-    //
-
-#if defined (PEGASUS_OS_TYPE_WINDOWS)
-    //
-    //  Set up members of the PROCESS_INFORMATION structure
-    //
-    PROCESS_INFORMATION piProcInfo;
-    ZeroMemory (&piProcInfo, sizeof (PROCESS_INFORMATION));
-
-    //
-    //  Set up members of the STARTUPINFO structure
-    //
-    STARTUPINFO siStartInfo;
-    ZeroMemory (&siStartInfo, sizeof (STARTUPINFO));
-    siStartInfo.cb = sizeof (STARTUPINFO);
-
-    //
-    //  Generate the command line
-    //
-    char cmdLine[2048];
-    char readHandle[32];
-    char writeHandle[32];
-    pipeToAgent->exportReadHandle(readHandle);
-    pipeFromAgent->exportWriteHandle(writeHandle);
-
-    sprintf(cmdLine, "\"%s\" %s %s \"%s\"",
-        (const char*)ConfigManager::getHomedPath(
-            PEGASUS_PROVIDER_AGENT_PROC_NAME).getCString(),
-        readHandle, writeHandle, (const char*)_moduleName.getCString());
-
-    //
-    //  Create the child process
-    //
-    if (!CreateProcess (
-        NULL,          //
-        cmdLine,       //  command line
-        NULL,          //  process security attributes
-        NULL,          //  primary thread security attributes
-        TRUE,          //  handles are inherited
-        0,             //  creation flags
-        NULL,          //  use parent's environment
-        NULL,          //  use parent's current directory
-        &siStartInfo,  //  STARTUPINFO
-        &piProcInfo))  //  PROCESS_INFORMATION
-    {
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "CreateProcess() failed.  errno = %d.", GetLastError());
-        PEG_METHOD_EXIT();
-        throw Exception(MessageLoaderParms(
-            "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
-            "Failed to start cimprovagt \"$0\".",
-            _moduleName));
-    }
-
-    CloseHandle(piProcInfo.hProcess);
-    CloseHandle(piProcInfo.hThread);
-
-#elif defined (PEGASUS_OS_VMS)
-
-    //
-    //  fork and exec the child process
-    //
-    int status;
-
-    status = vfork ();
-    switch (status)
-    {
-      case 0:
-        try
-        {
-          //
-          // Execute the cimprovagt program
-          //
-          String agentCommandPath =
-              ConfigManager::getHomedPath(PEGASUS_PROVIDER_AGENT_PROC_NAME);
-          CString agentCommandPathCString = agentCommandPath.getCString();
-
-          char readHandle[32];
-          char writeHandle[32];
-          pipeToAgent->exportReadHandle(readHandle);
-          pipeFromAgent->exportWriteHandle(writeHandle);
-
-          if ((status = execl(agentCommandPathCString, agentCommandPathCString,
-              readHandle, writeHandle,
-              (const char*)_moduleName.getCString(), (char*)0)) == -1);
-          {
-            // If we're still here, there was an error
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "execl() failed.  errno = %d.", errno);
-            _exit(1);
-          }
-        }
-        catch (...)
-        {
-          // There's not much we can do here in no man's land
-          try
-          {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "Caught exception before calling execl().");
-          }
-          catch (...)
-          {
-          }
-         _exit(1);
-        }
-        PEG_METHOD_EXIT();
-        return;
-        break;
-
-      case -1:
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "fork() failed.  errno = %d.", errno);
-        PEG_METHOD_EXIT();
-        throw Exception(MessageLoaderParms(
-            "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
-            "Failed to start cimprovagt \"$0\".",
-            _moduleName));
-        break;
-
-      default:
-        // Close our copies of the agent's ends of the pipes
-        pipeToAgent->closeReadHandle();
-        pipeFromAgent->closeWriteHandle();
-
-        _pipeToAgent.reset(pipeToAgent.release());
-        _pipeFromAgent.reset(pipeFromAgent.release());
-
-        PEG_METHOD_EXIT();
-    }
-#elif defined (PEGASUS_OS_OS400)
-
-    //Out of process provider support for OS400 goes here when needed.
-
-#else
-
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT
-    // Get and save the effective user name and the uid/gid for the user
-    // context of the agent process
-
-    String effectiveUserName = System::getEffectiveUserName();
-    PEGASUS_UID_T newUid = (PEGASUS_UID_T) -1;
-    PEGASUS_GID_T newGid = (PEGASUS_GID_T) -1;
-    if (_userName != effectiveUserName)
-    {
-        if (!System::lookupUserId(_userName.getCString(), newUid, newGid))
-        {
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.OOPProviderManagerRouter."
-                        "USER_CONTEXT_CHANGE_FAILED",
-                    "Unable to change user context to \"$0\".", _userName));
-        }
-    }
-# endif
-
-    printf("%s(%d): FORKING...\n", __FILE__, __LINE__);
-
-    pid_t pid = fork();
-    if (pid < 0)
-    {
-        printf("%s(%d): FORK FAILED...\n", __FILE__, __LINE__);
-
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "fork() failed.  errno = %d.", errno);
-        PEG_METHOD_EXIT();
-        throw Exception(MessageLoaderParms(
-            "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
-            "Failed to start cimprovagt \"$0\".",
-            _moduleName));
-    }
-    else if (pid == 0)
-    {
-        printf("%s(%d): CHILD...\n", __FILE__, __LINE__);
-
-        //
-        // Child side of the fork
-        //
-
-        try
-        {
-            // Close our copies of the parent's ends of the pipes
-            pipeToAgent->closeWriteHandle();
-            pipeFromAgent->closeReadHandle();
-
-            //
-            // Execute the cimprovagt program
-            //
-            String agentCommandPath =
-                ConfigManager::getHomedPath(PEGASUS_PROVIDER_AGENT_PROC_NAME);
-            CString agentCommandPathCString = agentCommandPath.getCString();
-
-            char readHandle[32];
-            char writeHandle[32];
-            pipeToAgent->exportReadHandle(readHandle);
-            pipeFromAgent->exportWriteHandle(writeHandle);
-
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT
-            // Set the user context of the Provider Agent process
-            if (_userName != effectiveUserName)
-            {
-                if (!System::changeUserContext(newUid, newGid))
-                {
-                    Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                        "System::changeUserContext() failed.  userName = %s.",
-                        (const char*)_userName.getCString());
-                    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
-                        Logger::WARNING,
-                        "ProviderManager.OOPProviderManagerRouter."
-                            "USER_CONTEXT_CHANGE_FAILED",
-                        "Unable to change user context to \"$0\".", _userName);
-                    _exit(1);
-                }
-            }
-# endif
-
-            // Close all file descriptors except stdin/stdout/stderr
-            // and the pipe handles needed by the Provider Agent process.
-
-            Uint32 readFd = atoi(readHandle);
-            Uint32 writeFd = atoi(writeHandle);
-            struct rlimit fileLimit;
-
-            printf("%s(%d): EXEC: %s %s %s %s\n", 
-                __FILE__, 
-                __LINE__,
-                (const char*)agentCommandPathCString, 
-                (char*)readHandle, 
-                (char*)writeHandle, 
-                (const char*)_moduleName.getCString());
-
-            if (getrlimit(RLIMIT_NOFILE, &fileLimit) == 0)
-            {
-                Uint32 maxFd = (Uint32)fileLimit.rlim_cur;
-                for (Uint32 i = 3; i < maxFd - 1; i++)
-                {
-                    if ((i != readFd) && (i != writeFd))
-                    {
-                        close(i);
-                    }
-                }
-            }
-
-            execl(agentCommandPathCString, agentCommandPathCString,
-                readHandle, writeHandle,
-                (const char*)_moduleName.getCString(), (char*)0);
-
-            // If we're still here, there was an error
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "execl() failed.  errno = %d.", errno);
-            _exit(1);
-        }
-        catch (...)
-        {
-            // There's not much we can do here in no man's land
-            try
-            {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "Caught exception before calling execl().");
-            }
-            catch (...) {}
-            _exit(1);
-        }
-    }
-# if defined(PEGASUS_HAS_SIGNALS)
-    _pid = pid;
-# endif
-#endif
-
-    //
-    // CIM Server process
-    //
-
-    // Close our copies of the agent's ends of the pipes
-    pipeToAgent->closeReadHandle();
-    pipeFromAgent->closeWriteHandle();
-
-    _pipeToAgent.reset(pipeToAgent.release());
-    _pipeFromAgent.reset(pipeFromAgent.release());
+    _pipeFromAgent.reset(readPipe);
+    _pipeToAgent.reset(writePipe);
 
     PEG_METHOD_EXIT();
 }
@@ -904,11 +577,7 @@ void ProviderAgentContainer::_initialize()
 
     try
     {
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-        _startAgentProcessWithExecutor();
-#else
         _startAgentProcess();
-#endif
 
         _isInitialized = true;
 

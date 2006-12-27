@@ -54,9 +54,7 @@ LIBRARIES = \
     peguser   \
     pegconfig
 
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-  LIBRARIES += pegexecclient
-endif
+LIBRARIES += pegexecclient
 
 PRE_DEPEND_INCLUDES = -I./depends
 

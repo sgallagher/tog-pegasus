@@ -55,10 +55,7 @@ extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
 #define PROCSIZE sizeof(struct procsinfo)
 }
 #endif
-
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <Pegasus/ExecutorClient/ExecutorClient.h>
-#endif
+#include <Pegasus/ExecutorClient/ExecutorClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -169,13 +166,8 @@ int ServerProcess::cimserver_fork(void)
   // get the pid of the cimserver process
   server_pid = getpid();
 
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-
     // Ask the executor process to daemonize.
-
     ExecutorClient::daemonizeExecutor();
-
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 
   return(0);
 }

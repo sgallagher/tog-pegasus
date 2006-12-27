@@ -96,12 +96,9 @@ LIBRARIES += \
     pegexportserver \
     pegrepository \
     pegconfig \
+    pegexecclient \
     pegcommon \
     pegservice
-
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-    LIBRARIES += pegexecclient
-endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

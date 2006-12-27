@@ -276,13 +276,13 @@ int ExecutorClientSocketImpl::startProviderAgent(
     int gid, 
     int uid,
     int& pid,
-    int& readFd,
-    int& writeFd)
+    AnonymousPipe*& readPipe,
+    AnonymousPipe*& writePipe)
 {
     AutoMutex autoMutex(_mutex);
 
-    readFd = -1;
-    writeFd = -1;
+    readPipe = 0;
+    writePipe = 0;
 
     // Reject strings longer than EXECUTOR_MAX_PATH_LENGTH.
 
@@ -333,8 +333,19 @@ int ExecutorClientSocketImpl::startProviderAgent(
 
     if (result == 0)
     {
-        readFd = descriptors[0];
-        writeFd = descriptors[1];
+        int readFd = descriptors[0];
+        int writeFd = descriptors[1];
+
+        // Create to and from AnonymousPipe instances to correspond to the pipe
+        // descriptors created above.
+
+        char readFdStr[32];
+        char writeFdStr[32];
+        sprintf(readFdStr, "%d", readFd);
+        sprintf(writeFdStr, "%d", writeFd);
+
+        readPipe = new AnonymousPipe(readFdStr, 0);
+        writePipe = new AnonymousPipe(0, writeFdStr);
     }
 
     return result;

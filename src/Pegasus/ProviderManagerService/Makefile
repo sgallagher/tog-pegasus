@@ -50,9 +50,7 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-  LIBRARIES += pegexecclient
-endif
+LIBRARIES += pegexecclient
 
 SOURCES = \
     ProviderManagerService.cpp \

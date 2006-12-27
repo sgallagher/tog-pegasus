@@ -28,8 +28,8 @@ public:
         int gid, 
         int uid,
         int& pid,
-        int& readFd,
-        int& writeFd);
+        AnonymousPipe*& readPipe,
+        AnonymousPipe*& writePipe);
 
     virtual int daemonizeExecutor();
 

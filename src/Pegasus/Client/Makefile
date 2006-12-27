@@ -47,12 +47,7 @@ LOCAL_DEFINES = -DPEGASUS_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegclient
 
-LIBRARIES = \
-    pegcommon
-
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-    LIBRARIES += pegexecclient
-endif
+LIBRARIES = pegexecclient pegcommon
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

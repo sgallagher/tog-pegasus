@@ -42,10 +42,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <Pegasus/ExecutorClient/ExecutorClient.h>
-#endif
+#include <Pegasus/ExecutorClient/ExecutorClient.h>
 
 //
 // Constants used to parse the authentication challenge header

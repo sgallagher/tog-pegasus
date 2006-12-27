@@ -44,10 +44,7 @@
 #include <sys/time.h>
 #endif
 
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <Pegasus/ExecutorClient/ExecutorClient.h>
-#endif
-
+#include <Pegasus/ExecutorClient/ExecutorClient.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
@@ -130,32 +127,6 @@ LocalAuthFile::~LocalAuthFile()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::~LocalAuthFile()");
 
     PEG_METHOD_EXIT();
-}
-
-
-static bool _changeFileOwner(
-    const String& filePath,
-    const String& userName)
-{
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-
-    return ExecutorClient::changeOwner(
-        filePath.getCString(), userName.getCString()) == 0;
-
-#else
-
-    return FileSystem::changeFileOwner(filePath, userName);
-
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
-}
-
-bool LocalAuthFile::removeChallengeFile(const String& path)
-{
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-    return ExecutorClient::removeFile(path.getCString()) == 0;
-#else
-    return FileSystem::removeFile(path);
-#endif
 }
 
 //
@@ -264,7 +235,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                removeChallengeFile(filePath);
+                ExecutorClient::removeFile(filePath.getCString());
             }
         }
 
@@ -294,7 +265,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                removeChallengeFile(filePath);
+                ExecutorClient::removeFile(filePath.getCString());
             }
         }
 
@@ -335,7 +306,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                removeChallengeFile(filePath);
+                ExecutorClient::removeFile(filePath.getCString());
             }
         }
 
@@ -347,7 +318,8 @@ String LocalAuthFile::create()
     // 5. Change the file owner to the requesting user.
     //
 
-    if (!_changeFileOwner(filePath,_userName))
+    if (ExecutorClient::changeOwner(
+        filePath.getCString(), _userName.getCString()) != 0)
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4, 
@@ -368,7 +340,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                removeChallengeFile(filePath);
+                ExecutorClient::removeFile(filePath.getCString());
             }
         }
 
@@ -418,8 +390,9 @@ Boolean LocalAuthFile::remove()
         }
 #endif
 
-        retVal = removeChallengeFile(_filePathName);
+        retVal = ExecutorClient::removeFile(_filePathName.getCString()) == 0;
     }
+    
 
     PEG_METHOD_EXIT();
 

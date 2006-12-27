@@ -53,10 +53,11 @@ int ExecutorClient::startProviderAgent(
     int gid, 
     int uid,
     int& pid,
-    int& readFd,
-    int& writeFd)
+    AnonymousPipe*& readPipe,
+    AnonymousPipe*& writePipe)
 {
-    return _impl()->startProviderAgent(module, gid, uid, pid, readFd, writeFd);
+    return _impl()->startProviderAgent(
+        module, gid, uid, pid, readPipe, writePipe);
 }
 
 int ExecutorClient::daemonizeExecutor()

@@ -255,13 +255,13 @@ int ExecutorClientLoopbackImpl::startProviderAgent(
 
             if (uid != -1 && gid != -1)
             {
-                if (getgid() != gid)
+                if ((int)getgid() != gid)
                 {
                     // ATTN: log failure!
                     setgid(gid);
                 }
 
-                if (getuid() != uid)
+                if ((int)getuid() != uid)
                 {
                     // ATTN: log failure!
                     setuid(uid);

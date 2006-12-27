@@ -476,14 +476,14 @@ static void HandleStartProviderAgentRequest(int sock)
             {
                 if (getgid() != request.gid)
                 {
-                    // ATTN: log failure!
-                    setgid(request.gid);
+                    if (setgid(request.gid) != 0)
+                        Log(LOG_ERR, "setgid(%d) failed\n", request.gid);
                 }
 
                 if (getuid() != request.uid)
                 {
-                    // ATTN: log failure!
-                    setuid(request.uid);
+                    if (setuid(request.uid) != 0)
+                        Log(LOG_ERR, "setuid(%d) failed\n", request.uid);
                 }
             }
 

@@ -349,6 +349,30 @@ int ExecutorClient::daemonizeExecutor()
     return response.status;
 }
 
+int ExecutorClient::shutdownExecutor()
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST;
+
+    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Receive the response
+
+    ExecutorDaemonizeExecutorResponse response;
+
+    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    // Check response status and pid.
+
+    return response.status;
+}
+
 int ExecutorClient::changeOwner(
     const char* path,
     const char* owner)

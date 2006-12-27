@@ -126,7 +126,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-#define PEGASUS_PROCESS_NAME "cimserver";
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+#  define PEGASUS_PROCESS_NAME "cimservermain";
+#else
+#  define PEGASUS_PROCESS_NAME "cimserver";
+#endif
 
 //Windows service variables are not defined elsewhere in the product
 //enable ability to override these

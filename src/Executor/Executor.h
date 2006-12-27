@@ -25,6 +25,7 @@ enum RequestCode
     EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST,
     EXECUTOR_CHANGE_OWNER_REQUEST,
     EXECUTOR_REMOVE_FILE_REQUEST,
+    EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST,
 };
 
 //==============================================================================
@@ -109,6 +110,17 @@ struct ExecutorStartProviderAgentResponse
 //==============================================================================
 
 struct ExecutorDaemonizeExecutorResponse
+{
+    int status;
+};
+
+//==============================================================================
+//
+// EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST
+//
+//==============================================================================
+
+struct ExecutorShutdownExecutorResponse
 {
     int status;
 };

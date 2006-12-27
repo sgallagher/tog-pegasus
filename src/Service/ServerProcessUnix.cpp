@@ -480,6 +480,7 @@ Boolean ServerProcess::isCIMServerRunning(void)
     if (aixcimsrvrunning(pid, getProcessName())!=-1)
         return true;
 #endif
+
   return false;
 }
 

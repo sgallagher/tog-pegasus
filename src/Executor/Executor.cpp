@@ -700,6 +700,25 @@ static void HandleRemoveFileRequest(int sock)
 
 //==============================================================================
 //
+// HandleShutdownExecutorRequest()
+//
+//==============================================================================
+
+static void HandleShutdownExecutorRequest(int sock)
+{
+    Log(LOG_INFO, "HandleShutdownExecutorRequest()");
+
+    ExecutorShutdownExecutorResponse response = { 0 };
+
+    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+
+    Log(LOG_NOTICE, "shutting down");
+    exit(0);
+}
+
+//==============================================================================
+//
 // Executor()
 //
 //     The monitor process.
@@ -756,6 +775,10 @@ static void Executor(int sock, int child_pid)
                 HandleRemoveFileRequest(sock);
                 break;
 
+            case EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST:
+                HandleShutdownExecutorRequest(sock);
+                break;
+
             default:
                 Fatal(FL, "invalid request code");
                 break;
@@ -763,6 +786,8 @@ static void Executor(int sock, int child_pid)
     }
 
     // Reached if read return 0, indicating that client has exited.
+
+    Log(LOG_NOTICE, "exiting...");
 
     exit(0);
 }
@@ -864,7 +889,7 @@ int main(int argc, char** argv)
 
     // Open the log.
 
-    OpenLog(true, "cimserver");
+    OpenLog(true, "cimexecutor");
 
     // Be sure this process is running as root (otherwise fail).
 

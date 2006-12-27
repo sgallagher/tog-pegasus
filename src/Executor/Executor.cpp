@@ -447,6 +447,8 @@ static void HandleStartProviderAgentRequest(int sock)
             break;
         }
 
+        // If child:
+
         if (pid == 0)
         {
             // Close unused pipe descriptors:
@@ -468,7 +470,25 @@ static void HandleStartProviderAgentRequest(int sock)
                 }
             }
 
-            // ATTN: set uid and gid here.
+# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+
+            if (request.uid != -1 && request.gid != -1)
+            {
+                if (getgid() != request.gid)
+                {
+                    // ATTN: log failure!
+                    setgid(request.gid);
+                }
+
+                if (getuid() != request.uid)
+                {
+                    // ATTN: log failure!
+                    setuid(request.uid);
+                }
+            }
+
+# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+
 
             // Exec the cimprovagt program.
 

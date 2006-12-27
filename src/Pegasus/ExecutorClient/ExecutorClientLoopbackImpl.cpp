@@ -330,7 +330,7 @@ int ExecutorClientLoopbackImpl::changeOwner(
     const char* path,
     const char* owner)
 {
-    return FileSystem::changeFileOwner(path, owner);
+    return FileSystem::changeFileOwner(path, owner) ? 0 : -1;
 }
 
 PEGASUS_NAMESPACE_END

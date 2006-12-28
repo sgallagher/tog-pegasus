@@ -1,5 +1,16 @@
+    ============================================================================
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    ============================================================================
 
-    (B) The executor should shutdown cimserver when it exits on fatal errors.
+    (A) Killing cimserver should also kill cimservermain.
+
+    (A) Move PAM into executor process.
+
+    (A) Convert uid to user name for messages.
+
+    (A) Test all authentication modes.
+
+    (A) Test all OOP execution modes.
 
     (A) During local-authenticaiton, the server program creates a temporary
         challenge file called /tmp/cimclient_<username>_<num>. Be sure to
@@ -11,12 +22,18 @@
 
     (A) Logging via syslog (implement log-level option).
 
+    (A) How do we handle the syslog program names (cimservermain and 
+        cimserver, or cimexecutor and cimserver)?
+
+    ============================================================================
+    BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+    ============================================================================
+
+    (B) Converter executor back to C program.
+
     (B) Possibly add option to specify which user cimservermain is run as
         (this is to override the default behavior, which is to run it as the
         cimservermain program owner).
-
-    (A) How do we handle the syslog program names (cimservermain and 
-        cimserver, or cimexecutor and cimserver)?
 
     (B) Examine usage of functions that may create, delete, or rename files.
 
@@ -25,3 +42,4 @@
             fopen()
             open()
 
+    (B) Should the executor shutdown cimserver when it exits on fatal errors?

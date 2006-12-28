@@ -942,11 +942,11 @@ int CIMServerProcess::cimserver_run(
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "src.Server.cimserver.SERVER_NOT_STARTED",
-            "cimserver not started:  $0", e.getMessage());
+            "MEB:T2 cimserver not started:  $0", e.getMessage());
 
 #if !defined(PEGASUS_OS_OS400)
         MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
-            "cimserver not started: $0", e.getMessage());
+            "MEB:T3 cimserver not started: $0", e.getMessage());
 
         PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
             << PEGASUS_STD(endl);

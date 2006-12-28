@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <Pegasus/Common/Constants.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <pwd.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -11,37 +12,56 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
-#include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/select.h>
 #include <signal.h>
 #include <cstdarg>
 #include <syslog.h>
-#include <sys/types.h>
 #include <dirent.h>
 #include "Executor.h"
 
-#define TRACE printf("EXECUTOR: TRACE: %s(%d)\n", __FILE__, __LINE__)
+typedef unsigned long long uint64;
+
+//==============================================================================
+//
+// TRACE
+//
+//     Macro used for debug tracing.
+//
+//==============================================================================
+
+#define TRACE printf("CIMEXECUTOR: TRACE: %s(%d)\n", __FILE__, __LINE__)
+
+//==============================================================================
+//
+// FL
+//
+//     Shorthand macro for passing __FILE__ and __LINE__ arguments to a
+//     function.
+//
+//==============================================================================
+
 #define FL __FILE__, __LINE__
 
+//==============================================================================
+//
+// CIMSERVERMAIN
+//
+//     The name of the main CIM server program.
+//
+//==============================================================================
+
 #define CIMSERVERMAIN "cimservermain"
+
+//==============================================================================
+//
+// CIMPROVAGT
+//
+//     The name of the provider agent program.
+//
+//==============================================================================
+
 #define CIMPROVAGT "cimprovagt"
-
-static const char* arg0;
-
-//==============================================================================
-//
-// struct CimServerMainInfo
-//
-//==============================================================================
-
-struct CimServerMainInfo
-{
-    char path[EXECUTOR_MAX_PATH_LENGTH];
-    int uid;
-    int gid;
-};
-
-struct CimServerMainInfo _cimServerMainInfo;
 
 //==============================================================================
 //
@@ -54,7 +74,8 @@ struct CimServerMainInfo _cimServerMainInfo;
     { \
         const size_t n = DEST_SIZE; \
         if (Strlcpy(DEST, SRC, n) >= n) \
-            Fatal(FL, "buffer overrun in STRLCPY()"); \
+            Fatal(FL, \
+                "%s(%d): buffer overrun in STRLCPY()", __FILE__, __LINE__); \
     } \
     while (0)
 
@@ -69,16 +90,65 @@ struct CimServerMainInfo _cimServerMainInfo;
     { \
         const size_t n = DEST_SIZE; \
         if (Strlcat(DEST, SRC, n) >= n) \
-            Fatal(FL, "buffer overrun in STRLCAT()"); \
+            Fatal(FL, \
+                "%s(%d): buffer overrun in STRLCAT()", __FILE__, __LINE__); \
     } \
     while (0)
 
 //==============================================================================
 //
+// arg0
+//
+//     Same as the argv[0] parameter passed to main program.
+//
+//==============================================================================
+
+static const char* arg0;
+
+
+//==============================================================================
+//
+// SigTermHandler()
+//
+//     Signal handler for SIGTERM.
+//
+//==============================================================================
+
+static bool _caughtSigTerm = false;
+
+void SigTermHandler(int signum)
+{
+    _caughtSigTerm = true;
+}
+
+//==============================================================================
+//
+// struct CimServerMainInfo
+//
+//     This structure maintains information about the cimservermain program.
+//
+//==============================================================================
+
+struct CimServerMainInfo
+{
+    // Full path of cimservermain program.
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+
+    // UID of user that owns the cimservermain program.
+    int uid;
+
+    // GID of user that owns the cimservermain program.
+    int gid;
+};
+
+struct CimServerMainInfo _cimServerMainInfo;
+
+//==============================================================================
+//
 // _shutdownFlag
 //
-//     This flag indicates that the cimservermain process is in the process of 
-//     shutting down, indicating that -s was passed to this cimserver process.
+//     This flag indicates that the cimservermain process is shutting down.
+//     This flag is set when "cimserver -s" used.
 //
 //==============================================================================
 
@@ -162,6 +232,192 @@ static void Fatal(const char* file, size_t line, const char* format, ...)
 static inline int CloseOnExec(int fd)
 {
     return fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
+}
+
+//==============================================================================
+//
+// GetCurrentTime()
+//
+//     Get microseconds (usec) ellapsed since epoch.
+//
+//==============================================================================
+
+uint64 GetCurrentTime()
+{
+    // ATTN: delete this function?
+    struct timeval  tv;
+    struct timezone ignore;
+    gettimeofday(&tv, &ignore);
+
+    return uint64(tv.tv_sec) * uint64(1000000) + uint64(tv.tv_usec);
+}
+
+//==============================================================================
+//
+// SetNonBlocking()
+//
+//     Set the given socket into non-blocking mode.
+//
+//==============================================================================
+
+int SetNonBlocking(int sock)
+{
+    return fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
+}
+
+//==============================================================================
+//
+// WaitForReadEnable()
+//
+//     Wait until the given socket is read-enabled. Returns 1 if read enabled
+//     and 0 on timed out.
+//
+//==============================================================================
+
+int WaitForReadEnable(int sock, long timeoutMsec)
+{
+    fd_set readSet;
+    FD_ZERO(&readSet);
+    FD_SET(sock, &readSet);
+
+    struct timeval timeout;
+    timeout.tv_sec = timeoutMsec / 1000;
+    timeout.tv_usec = (timeoutMsec % 1000) * 1000;
+
+    return select(sock + 1, &readSet, 0, 0, &timeout);
+}
+
+//==============================================================================
+//
+// WaitForWriteEnable()
+//
+//     Wait until the given socket is write-enabled. Returns 1 if write enabled
+//     and 0 on timed out.
+//
+//==============================================================================
+
+int WaitForWriteEnable(int sock, long timeoutMsec)
+{
+    fd_set writeSet;
+    FD_ZERO(&writeSet);
+    FD_SET(sock, &writeSet);
+
+    struct timeval timeout;
+    timeout.tv_sec = timeoutMsec / 1000;
+    timeout.tv_usec = (timeoutMsec % 1000) * 1000;
+
+    return select(sock + 1, 0, &writeSet, 0, &timeout);
+}
+
+//==============================================================================
+//
+// Recv
+//
+//==============================================================================
+
+static ssize_t Recv(int sock, void* buffer, size_t size)
+{
+    const long TIMEOUT_MSEC = 250;
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    if (size == 0)
+        return -1;
+
+    while (r)
+    {
+        int status = WaitForReadEnable(sock, TIMEOUT_MSEC);
+
+        if (_caughtSigTerm)
+        {
+            // Terminated with SIGTERM.
+            return 0;
+        }
+
+        if (status == 0)
+            continue;
+
+        ssize_t n;
+        EXECUTOR_RESTART(read(sock, p, r), n);
+
+        if (n == -1 && errno == EINTR)
+        {
+            if (_caughtSigTerm)
+            {
+                Log(LOG_INFO, "Caught sigterm");
+            }
+            continue;
+        }
+
+        if (n == -1)
+        {
+            if (errno == EWOULDBLOCK)
+            {
+                size_t total = size - r;
+
+                if (total)
+                    return total;
+
+                return -1;
+            }
+            else
+                return -1;
+        }
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
+//==============================================================================
+//
+// Send()
+//
+//     Sends *size* bytes onto the given socket.
+//
+//==============================================================================
+
+static ssize_t Send(int sock, const void* buffer, size_t size)
+{
+    const long TIMEOUT_MSEC = 250;
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    while (r)
+    {
+        int status = WaitForWriteEnable(sock, TIMEOUT_MSEC);
+
+        if (_caughtSigTerm)
+        {
+            // Terminated with SIGTERM.
+            return 0;
+        }
+
+        if (status == 0)
+            continue;
+
+        ssize_t n;
+        EXECUTOR_RESTART(write(sock, p, r), n);
+
+        if (n == -1)
+        {
+            if (errno == EWOULDBLOCK)
+                return size - r;
+            else 
+                return -1;
+        }
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
 }
 
 //==============================================================================
@@ -484,7 +740,7 @@ static void HandlePingRequest(int sock)
 
     ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -502,7 +758,7 @@ static void HandleOpenFileRequest(int sock)
 
     struct ExecutorOpenFileRequest request;
 
-    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Open the file.
@@ -542,7 +798,7 @@ static void HandleOpenFileRequest(int sock)
     else
         response.status = 0;
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 
     // Send descriptor to calling process (if any to send).
@@ -566,7 +822,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
     struct ExecutorStartProviderAgentRequest request;
 
-    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     Log(LOG_INFO, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
@@ -701,7 +957,7 @@ static void HandleStartProviderAgentRequest(int sock)
     response.status = status;
     response.pid = pid;
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 
     // Send descriptors to calling process.
@@ -734,13 +990,12 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
     int pid = fork();
 
-
     if (pid < 0)
     {
         response.status = -1;
         Log(LOG_ERR, "fork() failed");
 
-        if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+        if (Send(sock, &response, sizeof(response)) != sizeof(response))
             Fatal(FL, "failed to write response");
     }
 
@@ -749,16 +1004,19 @@ static void HandleDaemonizeExecutorRequest(int sock)
     if (pid > 0)
 	exit(0);
 
-    // Ignore these signals:
+    // Ignore SIGHUP:
 
     signal(SIGHUP, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
+
+    // Catch SIGTERM:
+
+    signal(SIGTERM, SigTermHandler);
 
     // Set current directory to root:
 
     chdir("/");
 
-    // Close these file descriptors:
+    // Close these file descriptors (stdin, stdout, stderr).
 
     close(0);
     close(1);
@@ -770,7 +1028,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
     open("/dev/null", O_RDWR);
     open("/dev/null", O_RDWR);
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -838,7 +1096,7 @@ static void HandleChangeOwnerRequest(int sock)
 
     struct ExecutorChangeOwnerRequest request;
 
-    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Change owner.
@@ -860,7 +1118,7 @@ static void HandleChangeOwnerRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -876,7 +1134,7 @@ static void HandleRenameFileRequest(int sock)
 
     struct ExecutorRenameFileRequest request;
 
-    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Rename the file.
@@ -915,7 +1173,7 @@ static void HandleRenameFileRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -931,7 +1189,7 @@ static void HandleRemoveFileRequest(int sock)
 
     struct ExecutorRemoveFileRequest request;
 
-    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Remove the file.
@@ -949,7 +1207,7 @@ static void HandleRemoveFileRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -965,7 +1223,7 @@ static void HandleChangeModeRequest(int sock)
 
     struct ExecutorChangeModeRequest request;
 
-    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Change the mode of the file.
@@ -984,7 +1242,7 @@ static void HandleChangeModeRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -1000,7 +1258,7 @@ static void HandleShutdownExecutorRequest(int sock)
 
     ExecutorShutdownExecutorResponse response = { 0 };
 
-    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 
     Log(LOG_NOTICE, "shutting down");
@@ -1015,7 +1273,7 @@ static void HandleShutdownExecutorRequest(int sock)
 //
 //==============================================================================
 
-static void Executor(int sock, int child_pid)
+static void Executor(int sock, int childPid)
 {
     // Process client requests until client exists.
 
@@ -1025,12 +1283,12 @@ static void Executor(int sock, int child_pid)
 
         ExecutorRequestHeader header;
 
-        ssize_t n = ExecutorRecv(sock, &header, sizeof(header));
+        ssize_t n = Recv(sock, &header, sizeof(header));
 
         if (n == 0)
         {
-            // Client has closed its end of the pipe, either explicitly by
-            // calling close() or explicitly by exiting (or crashing).
+            // Either client closed its end of the pipe (possibly by exiting)
+            // or we caught a SIGTERM.
             break;
         }
 
@@ -1083,9 +1341,18 @@ static void Executor(int sock, int child_pid)
         }
     }
 
-    // Reached if read return 0, indicating that client has exited.
+    // Reached due to socket EOF or SIGTERM.
 
-    Log(LOG_NOTICE, "exiting...");
+    if (_caughtSigTerm)
+    {
+        Log(LOG_INFO, "caught SIGTERM");
+
+        // Kill off cimservermain.
+        Log(LOG_INFO, "killing cimservermain");
+        kill(childPid, SIGTERM);
+    }
+
+    Log(LOG_INFO, "<<<<<<<<<< exit >>>>>>>>>>");
 
     exit(0);
 }
@@ -1227,15 +1494,17 @@ int main(int argc, char** argv)
     if (pair[0] != 3)
         Fatal(FL, "internal assumption failed");
 
+    // Open the log.
+
+    OpenLog(false, "cimexecutor");
+
+    Log(LOG_INFO, "<<<<<<<<<< start >>>>>>>>>>");
+
     // Define __PEGASAUS_EXECUTOR__ environmnent variable. The ExecutorClient
     // uses this variable to determine whether to talk to the executor over
     // a socket or to use loopback mode.
 
     putenv("__PEGASAUS_EXECUTOR__=1");
-
-    // Open the log.
-
-    OpenLog(false, "cimexecutor");
 
     // Be sure this process is running as root (otherwise fail).
 
@@ -1269,19 +1538,19 @@ int main(int argc, char** argv)
 
     // Fork child process.
 
-    int child_pid = fork();
+    int childPid = fork();
 
-    if (child_pid == 0)
+    if (childPid == 0)
     {
         // Child.
         close(pair[1]);
         Child(argc, argv, _cimServerMainInfo, pair[0]);
     }
-    else if (child_pid > 0)
+    else if (childPid > 0)
     {
         // Parent.
         close(pair[0]);
-        Executor(pair[1], child_pid);
+        Executor(pair[1], childPid);
     }
     else
         Fatal(FL, "fork() failed");

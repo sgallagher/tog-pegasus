@@ -19,6 +19,87 @@ PEGASUS_NAMESPACE_BEGIN
 // created by the forked process (recall that stdin=0, stdout=1, stderr=2).
 static const size_t _sock = 3;
 
+//==============================================================================
+//
+// _send()
+//
+//     Sends *size* bytes onto the given socket.
+//
+//==============================================================================
+
+static ssize_t _send(int sock, const void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    while (r)
+    {
+        ssize_t n;
+        EXECUTOR_RESTART(write(sock, p, r), n);
+
+        if (n == -1)
+        {
+            if (errno == EWOULDBLOCK)
+                return size - r;
+            else 
+                return -1;
+        }
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
+//==============================================================================
+//
+// _recv()
+//
+//     Receives *size* bytes from the given socket.
+//
+//==============================================================================
+
+static ssize_t _recv(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    if (size == 0)
+        return -1;
+
+    while (r)
+    {
+        ssize_t n;
+
+        EXECUTOR_RESTART(read(sock, p, r), n);
+
+        if (n == -1)
+        {
+            if (errno == EWOULDBLOCK)
+            {
+                size_t total = size - r;
+
+                if (total)
+                    return total;
+
+                return -1;
+            }
+            else
+                return -1;
+        }
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
 // ATTN: Get rid of this extra function (on both sides of connection).
 
 static int _receiveDescriptor(int sock)
@@ -167,12 +248,12 @@ int ExecutorClientSocketImpl::ping()
     ExecutorRequestHeader header;
     header.code = EXECUTOR_PING_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     ExecutorPingResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     if (response.magic == EXECUTOR_PING_MAGIC)
@@ -195,7 +276,7 @@ FILE* ExecutorClientSocketImpl::openFile(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_OPEN_FILE_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return NULL;
 
     // Send request body.
@@ -205,14 +286,14 @@ FILE* ExecutorClientSocketImpl::openFile(
     Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
     request.mode = mode;
 
-    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return NULL;
 
     // Receive the response
 
     ExecutorOpenFileResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return NULL;
 
     // Receive descriptor (if response successful).
@@ -246,7 +327,7 @@ int ExecutorClientSocketImpl::renameFile(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_RENAME_FILE_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -256,14 +337,14 @@ int ExecutorClientSocketImpl::renameFile(
     Strlcpy(request.oldPath, oldPath, EXECUTOR_MAX_PATH_LENGTH);
     Strlcpy(request.newPath, newPath, EXECUTOR_MAX_PATH_LENGTH);
 
-    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorRenameFileResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -279,7 +360,7 @@ int ExecutorClientSocketImpl::removeFile(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_REMOVE_FILE_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -288,14 +369,14 @@ int ExecutorClientSocketImpl::removeFile(
     memset(&request, 0, sizeof(request));
     Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
 
-    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorRemoveFileResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -312,7 +393,7 @@ int ExecutorClientSocketImpl::changeMode(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_CHANGE_MODE_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -322,14 +403,14 @@ int ExecutorClientSocketImpl::changeMode(
     Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
     request.mode = mode;
 
-    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorChangeModeResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -360,7 +441,7 @@ int ExecutorClientSocketImpl::startProviderAgent(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_START_PROVIDER_AGENT_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -371,14 +452,14 @@ int ExecutorClientSocketImpl::startProviderAgent(
     request.uid = uid;
     request.gid = gid;
 
-    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorStartProviderAgentResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     // Check response status and pid.
@@ -424,14 +505,14 @@ int ExecutorClientSocketImpl::daemonizeExecutor()
     ExecutorRequestHeader header;
     header.code = EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Receive the response
 
     ExecutorDaemonizeExecutorResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     // Check response status and pid.
@@ -448,14 +529,14 @@ int ExecutorClientSocketImpl::shutdownExecutor()
     ExecutorRequestHeader header;
     header.code = EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Receive the response
 
     ExecutorDaemonizeExecutorResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     // Check response status and pid.
@@ -474,7 +555,7 @@ int ExecutorClientSocketImpl::changeOwner(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_CHANGE_OWNER_REQUEST;
 
-    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body:
@@ -483,14 +564,14 @@ int ExecutorClientSocketImpl::changeOwner(
     Strlcpy(request.path, path, sizeof(request.path));
     Strlcpy(request.owner, owner, sizeof(request.owner));
 
-    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorChangeOwnerResponse response;
 
-    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
     // Check response status and pid.

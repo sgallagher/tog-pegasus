@@ -120,56 +120,84 @@ String ServerProcess::getHome(void) { return String::EMPTY; }
 
 int ServerProcess::cimserver_fork(void) 
 {
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
+    // Register to handle SIGUSR1:
     getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
     getSigHandle()->activate(PEGASUS_SIGUSR1);
+
+    // Register to handle SIGTERM:
     getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
     getSigHandle()->activate(SIGTERM);
- 
-  pid_t pid;
-  if( (pid = fork() ) < 0) 
-  {
-      getSigHandle()->deactivate(PEGASUS_SIGUSR1);
-      getSigHandle()->deactivate(SIGTERM);
-      return(-1);
-  }
-  else if (pid != 0)
-  {
-      //
-      // parent wait for child
-      // if there is a problem with signal, parent process terminates
-      // when waitTime expires
-      //
-      Uint32 waitTime = MAX_WAIT_TIME;
 
-      while(!handleSigUsr1 && waitTime > 0)
-      {
-        sleep(1);
-        waitTime--;
-      }
-      if( !handleSigUsr1 )
-        {
-        MessageLoaderParms parms("src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
-          "The cimserver command timed out waiting for the CIM server to start.");
-        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
-      }
-      exit(graveError);
-  }
+    // Set umask to use when creating files.
+    umask(S_IRWXG | S_IRWXO);
 
-  
-  setsid();
-  umask(S_IRWXG | S_IRWXO );
-
-  // spawned daemon process doesn't need the old signal handlers of its parent
-  getSigHandle()->deactivate(PEGASUS_SIGUSR1);
-  getSigHandle()->deactivate(SIGTERM);
-
-  // get the pid of the cimserver process
-  server_pid = getpid();
+    // Save process id.
+    server_pid = getpid();
 
     // Ask the executor process to daemonize.
     ExecutorClient::daemonizeExecutor();
 
-  return(0);
+    return 0;
+
+#else /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+
+    getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
+    getSigHandle()->activate(PEGASUS_SIGUSR1);
+    getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
+    getSigHandle()->activate(SIGTERM);
+
+    pid_t pid;
+
+    if ((pid = fork()) < 0)
+    {
+        getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+        getSigHandle()->deactivate(SIGTERM);
+        return (-1);
+    }
+    else if (pid != 0)
+    {
+        // 
+        // parent wait for child
+        // if there is a problem with signal, parent process terminates
+        // when waitTime expires
+        // 
+        Uint32 waitTime = MAX_WAIT_TIME;
+
+        while (!handleSigUsr1 && waitTime > 0)
+        {
+            sleep(1);
+            waitTime--;
+        }
+        if (!handleSigUsr1)
+        {
+            MessageLoaderParms parms(
+                "src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
+                "The cimserver command timed out waiting for the "
+                "CIM server to start.");
+            PEGASUS_STD(cerr) << MessageLoader::
+                getMessage(parms) << PEGASUS_STD(endl);
+        }
+        printf("EXIT GRAVE\n");
+        exit(graveError);
+    }
+
+    setsid();
+
+    umask(S_IRWXG | S_IRWXO);
+
+    // spawned daemon process doesn't need the old signal handlers of its
+    // parent
+    getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+    getSigHandle()->deactivate(SIGTERM);
+
+    // get the pid of the cimserver process
+    server_pid = getpid();
+
+    return (0);
+
+#endif /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
 long ServerProcess::get_server_pid()

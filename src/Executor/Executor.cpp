@@ -13,10 +13,11 @@
 #include <stdarg.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <unistd.h>
 #include <signal.h>
 #include <cstdarg>
 #include <syslog.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include "Executor.h"
 
 #define TRACE printf("EXECUTOR: TRACE: %s(%d)\n", __FILE__, __LINE__)
@@ -115,10 +116,21 @@ static void Fatal(const char* file, size_t line, const char* format, ...)
 {
     Log(LOG_INFO, "trace: %s(%d)", file, int(line));
 
-    va_list ap;
-    va_start(ap, format);
-    syslog(LOG_CRIT, format, ap);
-    va_end(ap);
+    {
+        va_list ap;
+        va_start(ap, format);
+        vsyslog(LOG_CRIT, format, ap);
+        va_end(ap);
+    }
+
+    {
+        fprintf(stderr, "%s: %s(%d): ", arg0, file, (int)line);
+        va_list ap;
+        va_start(ap, format);
+        vfprintf(stderr, format, ap);
+        va_end(ap);
+        fputc('\n', stderr);
+    }
 
     exit(1);
 }
@@ -250,6 +262,127 @@ static ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 
 //==============================================================================
 //
+// GetPegasusRepositoryDir()
+//
+//==============================================================================
+
+static void GetPegasusRepositoryDir(char path[EXECUTOR_MAX_PATH_LENGTH])
+{
+    if (PEGASUS_REPOSITORY_DIR[0] == '/')
+    {
+        STRLCPY(path, PEGASUS_REPOSITORY_DIR, EXECUTOR_MAX_PATH_LENGTH);
+        return;
+    }
+
+    const char* home = getenv("PEGASUS_HOME");
+
+    if (!home)
+        Fatal(FL, "Failed to locate Pegasus repository directory");
+
+    STRLCPY(path, home, EXECUTOR_MAX_PATH_LENGTH);
+    STRLCAT(path, "/", EXECUTOR_MAX_PATH_LENGTH);
+    STRLCAT(path, PEGASUS_REPOSITORY_DIR, EXECUTOR_MAX_PATH_LENGTH);
+
+    struct stat st;
+
+    if (stat(path, &st) != 0)
+        Fatal(FL, "Pegasus repository directory does not exist: \"%s\"", path);
+
+    if (!S_ISDIR(st.st_mode))
+        Fatal(FL, "not a directory \"%s\"", path);
+}
+
+//==============================================================================
+//
+// ChangeDirOwnerRecursive()
+//
+//==============================================================================
+
+static void ChangeDirOwnerRecursive(
+    const char* path,
+    int uid,
+    int gid)
+{
+    // Change permission of this direcotry.
+
+    if (chown(path, uid, gid) != 0)
+        Fatal(FL, "chown(%s, %d, %d) failed", path, uid, gid);
+
+    // Open directory:
+
+    DIR* dir = opendir(path);
+
+    if (dir == NULL)
+        Fatal(FL, "opendir(%s) failed", path);
+
+    // For each node in this directory:
+
+    dirent* ent;
+    
+    while ((ent = readdir(dir)) != NULL)
+    {
+	// Skip over "." and ".."
+
+	const char* name = ent->d_name;
+
+	if (strcmp(name, ".")  == 0 || strcmp(name, "..") == 0)
+	    continue;
+
+	// Build full path name for this file:
+
+        char buffer[EXECUTOR_MAX_PATH_LENGTH];
+        STRLCPY(buffer, path, EXECUTOR_MAX_PATH_LENGTH);
+        STRLCAT(buffer, "/", EXECUTOR_MAX_PATH_LENGTH);
+        STRLCAT(buffer, name, EXECUTOR_MAX_PATH_LENGTH);
+
+	// Determine file type (skip soft links and directories).
+
+	struct stat st;
+
+	if (lstat(buffer, &st) == -1)
+            Fatal(FL, "lstat(%s) failed", buffer);
+
+	// If it's a directory, save the name:
+
+	if (S_ISDIR(st.st_mode))
+	{
+            ChangeDirOwnerRecursive(buffer, uid, gid);
+	    continue;
+	}
+
+	// Skip soft links:
+
+	if (S_ISLNK(st.st_mode))
+	    continue;
+
+	// Process the current file.
+
+        if (chown(buffer, uid, gid) != 0)
+            Fatal(FL, "chown(%s, %d, %d) failed", buffer, uid, gid);
+    }
+
+    // Close this directory:
+
+    closedir(dir);
+}
+
+//==============================================================================
+//
+// ChangeRepositoryDirOwner()
+//
+//     Recursively change ownership of Pegasus repository directory.
+//
+//==============================================================================
+
+static void ChangeRepositoryDirOwner(int uid, int gid)
+{
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+    GetPegasusRepositoryDir(path);
+    ChangeDirOwnerRecursive(path, uid, gid);
+}
+
+//==============================================================================
+//
 // GetPegasusInternalBinDir()
 //
 //     Get the Pegasus "lbin" directory. This is the directory that contains
@@ -361,7 +494,25 @@ static void HandleOpenFileRequest(int sock)
 
     Log(LOG_INFO, "HandleOpenFileRequest(): path=%s", request.path);
 
-    int fd = open(request.path, O_RDONLY);
+    int flags = 0;
+
+    switch (request.mode)
+    {
+        case 'r':
+            flags = O_RDONLY;
+            break;
+
+        case 'w':
+            flags = O_WRONLY | O_CREAT | O_TRUNC;
+            break;
+    }
+
+    int fd;
+
+    if (flags)
+        fd = open(request.path, flags);
+    else
+        fd = -1;
 
     // Send response message.
 
@@ -370,7 +521,7 @@ static void HandleOpenFileRequest(int sock)
 
     if (fd == -1)
     {
-        Log(LOG_ERR, "open(%s, O_RDONLY) failed", request.path);
+        Log(LOG_ERR, "open(%s, %c) failed", request.path, request.mode);
         response.status = -1;
     }
     else
@@ -686,6 +837,61 @@ static void HandleChangeOwnerRequest(int sock)
 
 //==============================================================================
 //
+// HandleRenameFileRequest()
+//
+//==============================================================================
+
+static void HandleRenameFileRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorRenameFileRequest request;
+
+    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Rename the file.
+
+    Log(LOG_INFO, "HandleRenameFileRequest(): oldPath=%s newPath=%s", 
+        request.oldPath, request.newPath);
+
+    // Perform the operation:
+
+    int status = -1;
+
+    do
+    {
+        unlink(request.newPath);
+
+        if (link(request.oldPath, request.newPath) != 0)
+        {
+            Log(LOG_INFO, 
+                "link(%s, %s) failed", request.oldPath, request.newPath);
+            break;
+        }
+
+        if (unlink(request.oldPath) != 0)
+        {
+            Log(LOG_INFO, "unlink(%s) failed", request.oldPath);
+            break;
+        }
+
+        status = 0;
+    }
+    while (0);
+
+    // Send response message.
+
+    struct ExecutorRenameFileResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
 // HandleRemoveFileRequest()
 //
 //==============================================================================
@@ -711,6 +917,41 @@ static void HandleRemoveFileRequest(int sock)
     // Send response message.
 
     struct ExecutorRemoveFileResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (ExecutorSend(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandleChangeModeRequest()
+//
+//==============================================================================
+
+static void HandleChangeModeRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorChangeModeRequest request;
+
+    if (ExecutorRecv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Change the mode of the file.
+
+    Log(LOG_INFO, "HandleChangeModeRequest(): path=%s mode=%08X", 
+        request.path, request.mode);
+
+    int status = chmod(request.path, request.mode);
+
+    if (status != 0)
+        Log(LOG_ERR, "chmod(%s, %08X) failed", request.path, request.mode);
+
+    // Send response message.
+
+    struct ExecutorChangeModeResponse response;
     memset(&response, 0, sizeof(response));
     response.status = status;
 
@@ -775,7 +1016,7 @@ static void Executor(int sock, int child_pid)
                 HandlePingRequest(sock);
                 break;
 
-            case EXECUTOR_OPEN_FILE_FOR_READ_REQUEST:
+            case EXECUTOR_OPEN_FILE_REQUEST:
                 HandleOpenFileRequest(sock);
                 break;
 
@@ -791,8 +1032,16 @@ static void Executor(int sock, int child_pid)
                 HandleChangeOwnerRequest(sock);
                 break;
 
+            case EXECUTOR_RENAME_FILE_REQUEST:
+                HandleRenameFileRequest(sock);
+                break;
+
             case EXECUTOR_REMOVE_FILE_REQUEST:
                 HandleRemoveFileRequest(sock);
+                break;
+
+            case EXECUTOR_CHANGE_MODE_REQUEST:
+                HandleChangeModeRequest(sock);
                 break;
 
             case EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST:
@@ -800,7 +1049,7 @@ static void Executor(int sock, int child_pid)
                 break;
 
             default:
-                Fatal(FL, "invalid request code");
+                Fatal(FL, "invalid request code: %d", header.code);
                 break;
         }
     }
@@ -827,22 +1076,33 @@ static void Child(int argc, char** argv, int sock)
     char path[EXECUTOR_MAX_PATH_LENGTH];
     GetInternalPegasusProgramPath(CIMSERVERMAIN, path);
 
-    // Downgrade privileges by setting the UID and GID of this process. Use
-    // the owner of the CIMSERVERMAIN program.
+    // Get the owner uid-gid of the CIMSERVERMAIN program.
 
-    struct stat st;
-
-    if (stat(path, &st) != 0)
+    int uid = -1;
+    int gid = -1;
     {
-        Fatal(FL, "stat(%s) failed", path);
+        struct stat st;
+
+        if (stat(path, &st) != 0)
+        {
+            Fatal(FL, "stat(%s) failed", path);
+        }
+
+        uid = st.st_uid;
+        gid = st.st_gid;
     }
 
-    int uid = st.st_uid;
-    int gid = st.st_gid;
+    // Change ownership of Pegasus repository directory (it should be owned
+    // by same user that owns CIMSERVERMAIN.
+
+    ChangeRepositoryDirOwner(uid, gid);
+
+    // Downgrade privileges by setting the UID and GID of this process. Use
+    // the owner of the CIMSERVERMAIN program obtained above.
 
     if (uid == 0 || gid == 0)
     {
-        Fatal(FL, "cannot run %s as owner of that file since owner is root",
+        Fatal(FL, "root may not own %s since the program is run as owner",
             path);
         exit(1);
     }
@@ -860,12 +1120,30 @@ static void Child(int argc, char** argv, int sock)
     }
 
     if ((int)getuid() != uid || 
-        (int)geteuid() != gid || 
+        (int)geteuid() != uid || 
         (int)getgid() != gid || 
         (int)getegid() != gid)
     {
-        Fatal(FL, "setuid/setgid verfication failed\n");
+        Fatal(FL, "setuid/setgid verification failed\n");
         exit(1);
+    }
+
+    Log(LOG_INFO, "creating %s with uid=%d and gid=%d", CIMSERVERMAIN, uid,gid);
+
+    // Precheck that cimxml.socket is owned by cimservermain process. If not,
+    // then the bind would fail in the cimservermain process much later and
+    // the cause of the error would be difficult to determine.
+
+    if (access(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, F_OK) == 0)
+    {
+        struct stat st;
+
+        if (stat(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, &st) != 0 ||
+            (int)st.st_uid != uid || (int)st.st_gid != gid)
+        {
+            Fatal(FL, "cimservermain process cannot stat or does not own %s",
+                PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+        }
     }
 
     // Build an argv array for child process.
@@ -917,7 +1195,7 @@ int main(int argc, char** argv)
 
     // Open the log.
 
-    OpenLog(true, "cimexecutor");
+    OpenLog(false, "cimexecutor");
 
     // Be sure this process is running as root (otherwise fail).
 

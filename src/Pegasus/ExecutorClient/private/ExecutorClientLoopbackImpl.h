@@ -17,11 +17,20 @@ public:
 
     virtual int ping();
 
-    virtual FILE* openFileForRead(
-        const char* path);
+    virtual FILE* openFile(
+        const char* path,
+        int mode);
 
     virtual int removeFile(
         const char* path);
+
+    virtual int renameFile(
+        const char* oldPath,
+        const char* newPath);
+
+    virtual int changeMode(
+        const char* path,
+        int mode);
 
     virtual int startProviderAgent(
         const char* module, 

@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
     // Ask the executor process to open a file.
 
-    int fd = ExecutorClient::openFileForRead("/etc/passwd");
+    int fd = ExecutorClient::openFile("/etc/passwd", 'r');
 
     if (fd == -1)
     {

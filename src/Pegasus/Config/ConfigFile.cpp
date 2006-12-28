@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,10 +37,14 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Executor.h>
+#include <Pegasus/ExecutorClient/ExecutorClient.h>
 
 #include "ConfigExceptions.h"
 #include "ConfigFile.h"
+#if  defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
+
 
 PEGASUS_USING_STD;
 
@@ -73,18 +79,18 @@ static const char* ConfigHeader [] = {
     "##                  CIM Server configuration file                     ##",
     "##                                                                    ##",
     "########################################################################",
-    "",
+    " ",
     "########################################################################",
     "#                                                                      #",
-    "# The configuration in this file is loaded by the CIM Server at        #",
-    "# start-up.  This file is updated by the CIM Server when the           #",
-    "# configuration changes.                                               #",
+    "# This is the configuration file for the CIMOM. The configuration      #",
+    "# properties in this file are loaded in to CIMOM at startup.           #",
+    "# CIMOM updates this file with the changes in the configurations.      #",
     "#                                                                      #",
-    "# Do not edit this file directly.  Instead, use the cimconfig command  #",
-    "# to update the CIM Server configuration.                              #",
+    "# It is recommended that user do not edit this file, instead use       #",
+    "# CIMConfigCommand to make any changes to the CIMOM configurations.    #",
     "#                                                                      #",
     "########################################################################",
-    ""
+    " "
 };
 
 static const int HEADER_SIZE = sizeof(ConfigHeader) / sizeof(ConfigHeader[0]);
@@ -130,13 +136,18 @@ void ConfigFile::load(ConfigTable* confTable)
 
     if (FileSystem::exists(_configBackupFile))
     {
-        Executor::removeFile(_configBackupFile.getCString());
+        ExecutorClient::removeFile(_configBackupFile.getCString());
     }
 
     //
     // Open the config file
     //
+
+#if defined(PEGASUS_OS_OS400)
+    ifstream ifs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
+#else
     ifstream ifs(_configFile.getCString());
+#endif
 
     if (!ifs)
     {
@@ -176,7 +187,7 @@ void ConfigFile::load(ConfigTable* confTable)
         //
         // Get the property name
         //
-        String name;
+        String name = String::EMPTY;
 
         if (!(isalpha(*p) || *p == '_'))
         {
@@ -221,7 +232,7 @@ void ConfigFile::load(ConfigTable* confTable)
         //
         // Get the value
         //
-        String value;
+        String value = String::EMPTY;
 
         while (*p)
         {
@@ -237,11 +248,9 @@ void ConfigFile::load(ConfigTable* confTable)
             // Duplicate property, ignore the new property value.
             // FUTURE: Log this message in a log file.
             //
-            PEG_TRACE((TRC_CONFIG, Tracer::LEVEL2,
-                "Duplicate property '%s', value '%s' is ignored.",
-                (const char*)name.getCString(),
-                (const char*)value.getCString()));
-
+            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
+                "Duplicate property '" + name + "', value '" + value +
+                    "' is ignored.");
         }
     }
 
@@ -259,7 +268,7 @@ void ConfigFile::save(ConfigTable* confTable)
     //
     if (FileSystem::exists(_configBackupFile))
     {
-        Executor::removeFile(_configBackupFile.getCString());
+        ExecutorClient::removeFile(_configBackupFile.getCString());
     }
 
     //
@@ -268,7 +277,7 @@ void ConfigFile::save(ConfigTable* confTable)
 
     if (FileSystem::exists(_configFile))
     {
-        if (Executor::renameFile(
+        if (ExecutorClient::renameFile(
             _configFile.getCString(), _configBackupFile.getCString()) != 0)
         {
             throw CannotRenameFile(_configFile);
@@ -279,10 +288,11 @@ void ConfigFile::save(ConfigTable* confTable)
     // Open the config file for writing
     //
 
-    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
+    FILE* ofs = ExecutorClient::openFile(_configFile.getCString(), 'w');
 
     if (!ofs)
     {
+printf("1111\n");
         throw CannotOpenFile(_configFile);
     }
 
@@ -293,7 +303,6 @@ void ConfigFile::save(ConfigTable* confTable)
     for (int index = 0; index < HEADER_SIZE; index++)
     {
         fputs(ConfigHeader[index], ofs);
-        fputc('\n', ofs);
     }
 
     //
@@ -310,21 +319,19 @@ void ConfigFile::save(ConfigTable* confTable)
     fclose(ofs);
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    // Note:  The Executor process sets the permissions to 0644 when it
-    // opens the config file for writing.
-    if (Executor::detectExecutor() != 0)
+
+    //
+    // Set permissions on the config file to 0644
+    //
+    if (ExecutorClient::changeMode(_configFile.getCString(),
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) != 0)    // set 0644
     {
-        //
-        // Set permissions on the config file to 0644
-        //
-        if (!FileSystem::changeFilePermissions(
-                _configFile,
-                (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
-        {
-            throw CannotChangeFilePerm(_configFile);
-        }
+printf("2222\n");
+        throw CannotOpenFile(_configFile);
     }
+
 #endif
+
 }
 
 
@@ -338,10 +345,11 @@ void ConfigFile::replace (const String& fileName)
     // Open the given config file for reading
     //
 
-    FILE* ifs = fopen(fileName.getCString(), "r");
+    FILE* ifs = fopen(fileName.getCString(), "rb");
 
     if (!ifs)
     {
+printf("3333\n");
         throw CannotOpenFile(fileName);
     }
 
@@ -351,7 +359,7 @@ void ConfigFile::replace (const String& fileName)
 
     if (FileSystem::exists(_configBackupFile))
     {
-        Executor::removeFile(_configBackupFile.getCString());
+        FileSystem::removeFile(_configBackupFile);
     }
 
     //
@@ -360,10 +368,11 @@ void ConfigFile::replace (const String& fileName)
 
     if (FileSystem::exists(_configFile))
     {
-        if (Executor::renameFile(
+        if (ExecutorClient::renameFile(
             _configFile.getCString(), _configBackupFile.getCString()) != 0)
         {
             fclose(ifs);
+printf("4444\n");
             throw CannotRenameFile(_configFile);
         }
     }
@@ -372,11 +381,12 @@ void ConfigFile::replace (const String& fileName)
     // Open the existing config file for writing
     //
 
-    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
+    FILE* ofs = ExecutorClient::openFile(_configFile.getCString(), 'w');
 
     if (!ofs)
     {
         fclose(ifs);
+printf("7777\n");
         throw CannotOpenFile(_configFile);
     }
 
@@ -396,18 +406,20 @@ void ConfigFile::replace (const String& fileName)
     fclose(ifs);
     fclose(ofs);
 
-#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-# if !defined(PEGASUS_OS_TYPE_WINDOWS)
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+
     //
     // Set permissions on the config file to 0644
     //
-    if (!FileSystem::changeFilePermissions(_configFile,
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
+
+    if (ExecutorClient::changeMode(_configFile.getCString(),
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) != 0)    // set 0644
     {
-        throw CannotChangeFilePerm(_configFile);
+printf("8888\n");
+        throw CannotOpenFile(_configFile);
     }
-# endif
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
+
+#endif
 }
 
 PEGASUS_NAMESPACE_END

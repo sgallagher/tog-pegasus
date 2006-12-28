@@ -181,22 +181,19 @@ int ExecutorClientSocketImpl::ping()
     return -1;
 }
 
-FILE* ExecutorClientSocketImpl::openFileForRead(
-    const char* path)
+FILE* ExecutorClientSocketImpl::openFile(
+    const char* path,
+    int mode)
 {
     AutoMutex autoMutex(_mutex);
 
-    // Reject paths longer than EXECUTOR_MAX_PATH_LENGTH.
-
-    size_t n = strlen(path);
-
-    if (n >= EXECUTOR_MAX_PATH_LENGTH)
+    if (mode != 'r' && mode != 'w')
         return NULL;
 
     // Send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_OPEN_FILE_FOR_READ_REQUEST;
+    header.code = EXECUTOR_OPEN_FILE_REQUEST;
 
     if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
         return NULL;
@@ -205,7 +202,8 @@ FILE* ExecutorClientSocketImpl::openFileForRead(
 
     ExecutorOpenFileRequest request;
     memset(&request, 0, sizeof(request));
-    memcpy(request.path, path, n);
+    Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
+    request.mode = mode;
 
     if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
         return NULL;
@@ -226,23 +224,55 @@ FILE* ExecutorClientSocketImpl::openFileForRead(
         if (fd == -1)
             return NULL;
         else
-            return fdopen(fd, "rb");
+        {
+            if (mode == 'r')
+                return fdopen(fd, "rb");
+            else
+                return fdopen(fd, "wb");
+        }
     }
 
     return NULL;
+}
+
+int ExecutorClientSocketImpl::renameFile(
+    const char* oldPath,
+    const char* newPath)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_RENAME_FILE_REQUEST;
+
+    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body.
+
+    ExecutorRenameFileRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.oldPath, oldPath, EXECUTOR_MAX_PATH_LENGTH);
+    Strlcpy(request.newPath, newPath, EXECUTOR_MAX_PATH_LENGTH);
+
+    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorRenameFileResponse response;
+
+    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    return response.status;
 }
 
 int ExecutorClientSocketImpl::removeFile(
     const char* path)
 {
     AutoMutex autoMutex(_mutex);
-
-    // Reject paths longer than EXECUTOR_MAX_PATH_LENGTH.
-
-    size_t n = strlen(path);
-
-    if (n >= EXECUTOR_MAX_PATH_LENGTH)
-        return -1;
 
     // Send request header:
 
@@ -254,16 +284,50 @@ int ExecutorClientSocketImpl::removeFile(
 
     // Send request body.
 
-    ExecutorOpenFileRequest request;
+    ExecutorRemoveFileRequest request;
     memset(&request, 0, sizeof(request));
-    memcpy(request.path, path, n);
+    Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
 
     if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
-    ExecutorOpenFileResponse response;
+    ExecutorRemoveFileResponse response;
+
+    if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    return response.status;
+}
+
+int ExecutorClientSocketImpl::changeMode(
+    const char* path,
+    int mode)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_CHANGE_MODE_REQUEST;
+
+    if (ExecutorSend(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body.
+
+    ExecutorChangeModeRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
+    request.mode = mode;
+
+    if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorChangeModeResponse response;
 
     if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
@@ -416,27 +480,15 @@ int ExecutorClientSocketImpl::changeOwner(
     // Send request body:
 
     ExecutorChangeOwnerRequest request;
-
-    {
-        size_t r = Strlcpy(request.path, path, sizeof(request.path));
-
-        if (r >= sizeof(request.path))
-            return -1;
-    }
-
-    {
-        size_t r = Strlcpy(request.owner, owner, sizeof(request.owner));
-
-        if (r >= sizeof(request.owner))
-            return -1;
-    }
+    Strlcpy(request.path, path, sizeof(request.path));
+    Strlcpy(request.owner, owner, sizeof(request.owner));
 
     if (ExecutorSend(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
-    ExecutorDaemonizeExecutorResponse response;
+    ExecutorChangeOwnerResponse response;
 
     if (ExecutorRecv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;

@@ -16,3 +16,10 @@
         cimserver, or cimexecutor and cimserver)?
 
     (A) Implement setgid() and setuid() for HandleStartAgentProcess()
+
+    (B) What should we do if executor detects non-existant repository dir?
+
+    (B) Examine all "FileSystem::" prefixed calls.
+
+    (B) Examine all ofstream prefixed calls.
+

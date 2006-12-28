@@ -6,6 +6,9 @@
 # include "private/ExecutorClientSocketImpl.h"
 #endif
 
+#define EXTRACE  \
+    fprintf(stderr, "ExecutorClient:TRACE: %s(%d)\n", __FILE__, __LINE__)
+
 PEGASUS_NAMESPACE_BEGIN
 
 static ExecutorClientImpl* _impl()
@@ -38,14 +41,26 @@ int ExecutorClient::ping()
     return _impl()->ping();
 }
 
-FILE* ExecutorClient::openFileForRead(const char* path)
+FILE* ExecutorClient::openFile(const char* path, int mode)
 {
-    return _impl()->openFileForRead(path);
+    return _impl()->openFile(path, mode);
+}
+
+int ExecutorClient::renameFile(
+    const char* oldPath,
+    const char* newPath)
+{
+    return _impl()->renameFile(oldPath, newPath);
 }
 
 int ExecutorClient::removeFile(const char* path)
 {
     return _impl()->removeFile(path);
+}
+
+int ExecutorClient::changeMode(const char* path, int mode)
+{
+    return _impl()->changeMode(path, mode);
 }
 
 int ExecutorClient::startProviderAgent(

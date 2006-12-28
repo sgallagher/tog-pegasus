@@ -22,11 +22,20 @@ public:
 
     static int ping();
 
-    static FILE* openFileForRead(
-        const char* path);
+    static FILE* openFile(
+        const char* path,
+        int mode);
+
+    static int renameFile(
+        const char* oldPath,
+        const char* newPath);
 
     static int removeFile(
         const char* path);
+
+    static int changeMode(
+        const char* path,
+        int mode);
 
     static int startProviderAgent(
         const char* module, 

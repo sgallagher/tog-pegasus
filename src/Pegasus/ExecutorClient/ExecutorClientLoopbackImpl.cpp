@@ -30,16 +30,43 @@ int ExecutorClientLoopbackImpl::ping()
     return 0;
 }
 
-FILE* ExecutorClientLoopbackImpl::openFileForRead(
-    const char* path)
+FILE* ExecutorClientLoopbackImpl::openFile(
+    const char* path,
+    int mode)
 {
-    return fopen(path, "rb");
+    switch (mode)
+    {
+        case 'r':
+            return fopen(path, "rb");
+
+        case 'w':
+            return fopen(path, "wb");
+
+        default:
+            return NULL;
+    }
+}
+
+int ExecutorClientLoopbackImpl::renameFile(
+    const char* oldPath,
+    const char* newPath)
+{
+    return FileSystem::renameFile(oldPath, newPath) ? 0 : -1;
 }
 
 int ExecutorClientLoopbackImpl::removeFile(
     const char* path)
 {
     return FileSystem::removeFile(path) ? 0 : -1;
+}
+
+int ExecutorClientLoopbackImpl::changeMode(
+    const char* path,
+    int mode)
+{
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+    return chmod(path, mode);
+#endif
 }
 
 static int _getProviderAgentPath(String& path)

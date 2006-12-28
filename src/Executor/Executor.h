@@ -20,12 +20,14 @@
 enum RequestCode
 {
     EXECUTOR_PING_REQUEST = 1,
-    EXECUTOR_OPEN_FILE_FOR_READ_REQUEST,
+    EXECUTOR_OPEN_FILE_REQUEST,
     EXECUTOR_START_PROVIDER_AGENT_REQUEST,
     EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST,
     EXECUTOR_CHANGE_OWNER_REQUEST,
     EXECUTOR_REMOVE_FILE_REQUEST,
     EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST,
+    EXECUTOR_RENAME_FILE_REQUEST,
+    EXECUTOR_CHANGE_MODE_REQUEST,
 };
 
 //==============================================================================
@@ -54,13 +56,15 @@ struct ExecutorPingResponse
 
 //==============================================================================
 //
-// EXECUTOR_OPEN_FILE_FOR_READ_REQUEST
+// EXECUTOR_OPEN_FILE_REQUEST
 //
 //==============================================================================
 
 struct ExecutorOpenFileRequest
 {
     char path[EXECUTOR_MAX_PATH_LENGTH];
+    // ('r' = read, 'w' = write)
+    int mode;
 };
 
 struct ExecutorOpenFileResponse
@@ -80,6 +84,40 @@ struct ExecutorRemoveFileRequest
 };
 
 struct ExecutorRemoveFileResponse
+{
+    int status;
+};
+
+//==============================================================================
+//
+// EXECUTOR_RENAME_FILE_REQUEST
+//
+//==============================================================================
+
+struct ExecutorRenameFileRequest
+{
+    char oldPath[EXECUTOR_MAX_PATH_LENGTH];
+    char newPath[EXECUTOR_MAX_PATH_LENGTH];
+};
+
+struct ExecutorRenameFileResponse
+{
+    int status;
+};
+
+//==============================================================================
+//
+// EXECUTOR_CHANGE_MODE_REQUEST
+//
+//==============================================================================
+
+struct ExecutorChangeModeRequest
+{
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+    int mode;
+};
+
+struct ExecutorChangeModeResponse
 {
     int status;
 };

@@ -1,29 +1,34 @@
 
-
-File Ownership Notes:
-=====================
-
     1.  Cimservermain must be owned by ordinary user. For example:
 
         % chown pegasus.pegasus cimservermain
+
+        Cimservermain runs as this user.
 
     2.  Cimservermain must be able to create files directly under $PEGASUS_HOME.
 
         For example, it must create the cimserver.password file.
 
+        We solved this by having the executor access those files.
+
     3.  Cimservermain must own $PEGASUS_HOME/repository and all files beneath.
 
-Misc. Notes:
-============
+        For now, the executor automatically sets ownership for these files.
 
-    1.  Set PEGASUS_HOME to /opt/pegasus.
-
-Questions:
-==========
-
-    1.  For OOP run with same user as server, what user is that? The
+    4.  For OOP run with same user as server, what user is that? The
         cimservermain user or root? The intent was probably to run those
         providers with privilege.
 
-    2.  Executor now checks whether Pegasus repository exists and exists
+        For now, we use the same user as the executor.
+
+    5.  Executor now checks whether Pegasus repository exists and errors out
         if not. Is this okay?
+
+    6.  The configuration file has a repositoryDir key. What is that for and
+        does it mean that the executor cannot reliably locate the repository
+        with the constant in Constants.h?
+
+    7.  Cimservermain owns the local-domain socket file.
+
+    8.  For logging purposes, the executor uses "cimexecutor" as its syslog
+        identifier.

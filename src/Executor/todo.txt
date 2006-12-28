@@ -1,25 +1,27 @@
 
     (B) The executor should shutdown cimserver when it exits on fatal errors.
 
-    (A) Chose special directory for local-authentication requests, allowing
-        requests against these files to be policy-checked.
+    (A) During local-authenticaiton, the server program creates a temporary
+        challenge file called /tmp/cimclient_<username>_<num>. Be sure to
+        add a policy check for this file.
 
     (A) Implement policy checks.
 
     (A) Revisit ownership of Unix domain socket file.
 
-    (A) Figure out how to deduce user used to run cimservermain.
-
     (A) Logging via syslog (implement log-level option).
+
+    (B) Possibly add option to specify which user cimservermain is run as
+        (this is to override the default behavior, which is to run it as the
+        cimservermain program owner).
 
     (A) How do we handle the syslog program names (cimservermain and 
         cimserver, or cimexecutor and cimserver)?
 
-    (A) Implement setgid() and setuid() for HandleStartAgentProcess()
+    (B) Examine usage of functions that may create, delete, or rename files.
 
-    (B) What should we do if executor detects non-existant repository dir?
-
-    (B) Examine all "FileSystem::" prefixed calls.
-
-    (B) Examine all ofstream prefixed calls.
+            FileSystem::...
+            ofstream()
+            fopen()
+            open()
 

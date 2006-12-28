@@ -337,8 +337,8 @@ int ExecutorClientSocketImpl::changeMode(
 
 int ExecutorClientSocketImpl::startProviderAgent(
     const char* module, 
-    int gid, 
     int uid,
+    int gid, 
     int& pid,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)

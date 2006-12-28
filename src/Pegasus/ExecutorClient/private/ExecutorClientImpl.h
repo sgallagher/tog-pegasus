@@ -34,8 +34,8 @@ public:
 
     virtual int startProviderAgent(
         const char* module, 
-        int gid, 
         int uid,
+        int gid, 
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe) = 0;

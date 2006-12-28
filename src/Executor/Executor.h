@@ -131,8 +131,8 @@ struct ExecutorChangeModeResponse
 struct ExecutorStartProviderAgentRequest
 {
     char module[EXECUTOR_MAX_PATH_LENGTH];
-    int gid;
     int uid;
+    int gid;
 };
 
 struct ExecutorStartProviderAgentResponse

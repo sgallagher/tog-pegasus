@@ -65,14 +65,14 @@ int ExecutorClient::changeMode(const char* path, int mode)
 
 int ExecutorClient::startProviderAgent(
     const char* module, 
-    int gid, 
     int uid,
+    int gid, 
     int& pid,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
     return _impl()->startProviderAgent(
-        module, gid, uid, pid, readPipe, writePipe);
+        module, uid, gid, pid, readPipe, writePipe);
 }
 
 int ExecutorClient::daemonizeExecutor()

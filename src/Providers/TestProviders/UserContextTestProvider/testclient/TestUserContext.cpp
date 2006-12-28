@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,9 +47,8 @@ PEGASUS_USING_STD;
 static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/TestProvider");
 static const char* alternateUserContext = "guest";
 
-static Boolean verbose;
+static char* verbose;
 static String testUserContext;
-static String serverUserContext;
 
 void testUserContextRequestor()
 {
@@ -54,7 +60,7 @@ void testUserContextRequestor()
         // Determine whether the CIM Server has authentication enabled
 
         CIMObjectPath authConfigInstName = CIMObjectPath(
-            "PG_ConfigSetting.PropertyName=\"enableAuthentication\"");
+            "PG_ConfigSetting.PropertyName=\"enableAuthentication\""); 
         CIMInstance authConfigInst =
             client.getInstance("root/PG_Internal", authConfigInstName);
 
@@ -64,11 +70,16 @@ void testUserContextRequestor()
         Boolean authenticationEnabled =
             String::equalNoCase(authConfigValue, "true");
 
+cout << "authConfigValue=" << authConfigValue << endl;
+cout << "authenticationEnabled=" << authenticationEnabled << endl;
+
         // Test a provider running in Requestor user context
 
         CIMObjectPath instName =
             CIMObjectPath("TST_UserContextRequestor.Id=1");
         CIMInstance cimInstance = client.getInstance(NAMESPACE, instName);
+
+cout << "instName=" << instName.toString() << endl;
 
         String userContext;
         cimInstance.getProperty(cimInstance.findProperty("UserContext"))
@@ -85,7 +96,9 @@ void testUserContextRequestor()
         }
         else
         {
-            PEGASUS_TEST_ASSERT(userContext == serverUserContext);
+cout << "userContext=" << userContext << endl;
+cout << "testUserContext=" << testUserContext << endl;
+            PEGASUS_TEST_ASSERT(userContext == testUserContext);
         }
     }
     catch (Exception& e)
@@ -109,7 +122,7 @@ void testUserContextPrivileged()
 
         // ATTN: use of the localOnly flag is deprecated, but nor reliably
         // applied by the CIMOM. An explicit parameter is required for now.
-        CIMInstance cimInstance =
+        CIMInstance cimInstance = 
             client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
@@ -152,7 +165,7 @@ void testUserContextDesignated()
 
         // ATTN: use of the localOnly flag is deprecated, but nor reliably
         // applied by the CIMOM. An explicit parameter is required for now.
-        CIMInstance cimInstance =
+        CIMInstance cimInstance = 
             client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
@@ -187,7 +200,7 @@ void testUserContextCIMServer()
 
         // ATTN: use of the localOnly flag is deprecated, but nor reliably
         // applied by the CIMOM. An explicit parameter is required for now.
-        CIMInstance cimInstance =
+        CIMInstance cimInstance = 
             client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
@@ -199,7 +212,7 @@ void testUserContextCIMServer()
             cout << "CIMServer test: UserContext = " << userContext << endl;
         }
 
-        PEGASUS_TEST_ASSERT(userContext == serverUserContext);
+        PEGASUS_TEST_ASSERT(userContext == testUserContext);
     }
     catch (Exception& e)
     {
@@ -210,7 +223,7 @@ void testUserContextCIMServer()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     // Perform a pre-test to ensure the Provider User Context feature is only
     // enabled when running in a privileged user context.
@@ -230,14 +243,6 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    // Determine the user context of the CIM Server process
-
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-    serverUserContext = PEGASUS_CIMSERVERMAIN_USER;
-#else
-    serverUserContext = System::getEffectiveUserName();
-#endif
-
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
     try
     {
@@ -251,30 +256,49 @@ int main(int argc, char** argv)
             return 0;
         }
 
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
         testUserContextRequestor();
+#endif
+
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
         testUserContextPrivileged();
+#endif
+
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
         testUserContextDesignated();
+#endif
+
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
         testUserContextCIMServer();
+#endif
 
-        PEGASUS_UID_T alternateUid;
-        PEGASUS_GID_T alternateGid;
-
+// The "guest" tests are disabled.  See Bug 3043.
+#if 0
         // These tests must be run in a different user context
-        if (!System::lookupUserId(
-                 alternateUserContext, alternateUid, alternateGid) ||
-            !System::changeUserContext_SingleThreaded(
-                 alternateUserContext, alternateUid, alternateGid))
+        if (!System::changeUserContext(alternateUserContext))
         {
             cout << " Skipping tests -- Could not run as user \"" <<
                 alternateUserContext << "\"." << endl;
         }
         else
         {
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
             testUserContextRequestor();
+#endif
+
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
             testUserContextPrivileged();
+#endif
+
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
             testUserContextDesignated();
+#endif
+
+#ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
             testUserContextCIMServer();
+#endif
         }
+#endif
     }
     catch (Exception& e)
     {

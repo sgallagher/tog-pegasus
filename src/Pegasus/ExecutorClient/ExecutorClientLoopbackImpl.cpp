@@ -93,8 +93,8 @@ static int _getProviderAgentPath(String& path)
 
 int ExecutorClientLoopbackImpl::startProviderAgent(
     const char* module, 
-    int gid, 
     int uid,
+    int gid, 
     int& pid,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
@@ -186,8 +186,8 @@ int ExecutorClientLoopbackImpl::startProviderAgent(
 
 int ExecutorClientLoopbackImpl::startProviderAgent(
     const char* module, 
-    int gid, 
     int uid,
+    int gid, 
     int& pid,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
@@ -200,8 +200,8 @@ int ExecutorClientLoopbackImpl::startProviderAgent(
 
 int ExecutorClientLoopbackImpl::startProviderAgent(
     const char* module, 
-    int gid, 
     int uid,
+    int gid, 
     int& pid,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)

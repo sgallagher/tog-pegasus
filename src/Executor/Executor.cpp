@@ -30,6 +30,21 @@ static const char* arg0;
 
 //==============================================================================
 //
+// struct CimServerMainInfo
+//
+//==============================================================================
+
+struct CimServerMainInfo
+{
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+    int uid;
+    int gid;
+};
+
+struct CimServerMainInfo _cimServerMainInfo;
+
+//==============================================================================
+//
 // STRLCPY()
 //
 //==============================================================================
@@ -557,6 +572,21 @@ static void HandleStartProviderAgentRequest(int sock)
     Log(LOG_INFO, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
         request.module, request.gid, request.uid);
 
+    // Map cimservermain user to root to preserve pre-privilege-separation
+    // behavior.
+
+    if (request.uid == _cimServerMainInfo.uid)
+    {
+        Log(LOG_INFO, 
+            "using root instead of cimservermain user for cimprovagt");
+
+        request.uid = 0;
+        request.gid = 0;
+    }
+
+    if (request.uid == 0)
+        Log(LOG_INFO, "***** starting provider agent as root");
+
     // Process request.
 
     int status = 0;
@@ -639,7 +669,6 @@ static void HandleStartProviderAgentRequest(int sock)
             }
 
 # endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
-
 
             // Exec the cimprovagt program.
 
@@ -1069,66 +1098,50 @@ static void Executor(int sock, int child_pid)
 //
 //==============================================================================
 
-static void Child(int argc, char** argv, int sock)
+static void Child(
+    int argc, 
+    char** argv, 
+    CimServerMainInfo& info,
+    int sock)
 {
-    // Get program name.
-
-    char path[EXECUTOR_MAX_PATH_LENGTH];
-    GetInternalPegasusProgramPath(CIMSERVERMAIN, path);
-
-    // Get the owner uid-gid of the CIMSERVERMAIN program.
-
-    int uid = -1;
-    int gid = -1;
-    {
-        struct stat st;
-
-        if (stat(path, &st) != 0)
-        {
-            Fatal(FL, "stat(%s) failed", path);
-        }
-
-        uid = st.st_uid;
-        gid = st.st_gid;
-    }
-
     // Change ownership of Pegasus repository directory (it should be owned
     // by same user that owns CIMSERVERMAIN.
 
-    ChangeRepositoryDirOwner(uid, gid);
+    ChangeRepositoryDirOwner(info.uid, info.gid);
 
     // Downgrade privileges by setting the UID and GID of this process. Use
     // the owner of the CIMSERVERMAIN program obtained above.
 
-    if (uid == 0 || gid == 0)
+    if (info.uid == 0 || info.gid == 0)
     {
         Fatal(FL, "root may not own %s since the program is run as owner",
-            path);
+            info.path);
         exit(1);
     }
 
-    if (setgid(gid) != 0)
+    if (setgid(info.gid) != 0)
     {
-        Fatal(FL, "Failed to set gid to %d", gid);
+        Fatal(FL, "Failed to set gid to %d", info.gid);
         exit(1);
     }
 
-    if (setuid(uid) != 0)
+    if (setuid(info.uid) != 0)
     {
-        Fatal(FL, "Failed to set uid to %d", uid);
+        Fatal(FL, "Failed to set uid to %d", info.uid);
         exit(1);
     }
 
-    if ((int)getuid() != uid || 
-        (int)geteuid() != uid || 
-        (int)getgid() != gid || 
-        (int)getegid() != gid)
+    if ((int)getuid() != info.uid || 
+        (int)geteuid() != info.uid || 
+        (int)getgid() != info.gid || 
+        (int)getegid() != info.gid)
     {
         Fatal(FL, "setuid/setgid verification failed\n");
         exit(1);
     }
 
-    Log(LOG_INFO, "creating %s with uid=%d and gid=%d", CIMSERVERMAIN, uid,gid);
+    Log(LOG_INFO, "creating %s with uid=%d and gid=%d", CIMSERVERMAIN, 
+        info.uid, info.gid);
 
     // Precheck that cimxml.socket is owned by cimservermain process. If not,
     // then the bind would fail in the cimservermain process much later and
@@ -1139,7 +1152,8 @@ static void Child(int argc, char** argv, int sock)
         struct stat st;
 
         if (stat(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, &st) != 0 ||
-            (int)st.st_uid != uid || (int)st.st_gid != gid)
+            (int)st.st_uid != info.uid || 
+            (int)st.st_gid != info.gid)
         {
             Fatal(FL, "cimservermain process cannot stat or does not own %s",
                 PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
@@ -1155,12 +1169,38 @@ static void Child(int argc, char** argv, int sock)
 
     // Exec child process.
 
-    if (execv(path, childArgv) != 0)
-        Fatal(FL, "failed to exec %s", path);
+    if (execv(info.path, childArgv) != 0)
+        Fatal(FL, "failed to exec %s", info.path);
 
     // ATTN: log this failure.
 
     exit(0);
+}
+
+//==============================================================================
+//
+// GetCimServerMainInfo
+//
+//     Get information about the cimservermain program. See CimServerMainInfo
+//     structure for details.
+//
+//==============================================================================
+
+static void GetCimServerMainInfo(CimServerMainInfo& info)
+{
+    // Get program name.
+
+    GetInternalPegasusProgramPath(CIMSERVERMAIN, info.path);
+
+    // Get the owner uid-gid of the CIMSERVERMAIN program.
+
+    struct stat st;
+
+    if (stat(info.path, &st) != 0)
+        Fatal(FL, "stat(%s) failed", info.path);
+
+    info.uid = st.st_uid;
+    info.gid = st.st_gid;
 }
 
 //==============================================================================
@@ -1223,6 +1263,10 @@ int main(int argc, char** argv)
         _shutdownFlag = true;
     }
 
+    // Get information about the CIMSERVERMAIN program.
+
+    GetCimServerMainInfo(_cimServerMainInfo);
+
     // Fork child process.
 
     int child_pid = fork();
@@ -1231,7 +1275,7 @@ int main(int argc, char** argv)
     {
         // Child.
         close(pair[1]);
-        Child(argc, argv, pair[0]);
+        Child(argc, argv, _cimServerMainInfo, pair[0]);
     }
     else if (child_pid > 0)
     {

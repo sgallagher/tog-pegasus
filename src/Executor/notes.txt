@@ -17,3 +17,13 @@ Misc. Notes:
 ============
 
     1.  Set PEGASUS_HOME to /opt/pegasus.
+
+Questions:
+==========
+
+    1.  For OOP run with same user as server, what user is that? The
+        cimservermain user or root? The intent was probably to run those
+        providers with privilege.
+
+    2.  Executor now checks whether Pegasus repository exists and exists
+        if not. Is this okay?

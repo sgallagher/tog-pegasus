@@ -1,3 +1,36 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -98,76 +131,6 @@ static ssize_t _recv(int sock, void* buffer, size_t size)
     }
 
     return size - r;
-}
-
-// ATTN: Get rid of this extra function (on both sides of connection).
-
-static int _receiveDescriptor(int sock)
-{
-    // This control data begins with a cmsghdr struct followed by the data
-    // (a descriptor in this case). The union ensures that the data is aligned 
-    // suitably for the leading cmsghdr struct. The descriptor itself is
-    // properly aligned since the cmsghdr ends on a boundary that is suitably 
-    // aligned for any type (including int).
-    //
-    //     ControlData = [ cmsghdr | int ]
-
-    union ControlData
-    {
-        struct cmsghdr cmh;
-        char data[CMSG_SPACE(sizeof(int))];
-    };
-
-    // Define a msghdr that refers to the control data, which is filled in
-    // by calling recvmsg() below.
-
-    msghdr mh;
-    memset(&mh, 0, sizeof(mh));
-
-    ControlData cd;
-    memset(&cd, 0, sizeof(cd));
-
-    mh.msg_control = cd.data;
-    mh.msg_controllen = sizeof(cd.data);
-    mh.msg_name = NULL;
-    mh.msg_namelen = 0;
-
-    // The other process sends a single-byte message. This byte is not
-    // used since we only need the control data (the descriptor) but we
-    // must request at least one byte from recvmsg().
-
-    struct iovec iov[1];
-    memset(iov, 0, sizeof(iov));
-
-    char dummy;
-    iov[0].iov_base = &dummy;
-    iov[0].iov_len = 1;
-    mh.msg_iov = iov;
-    mh.msg_iovlen = 1;
-
-    // Receive the message from the other process.
-
-    ssize_t n = recvmsg(sock, &mh, 0);
-
-    if (n <= 0)
-        return -1;
-
-    // Get a pointer to control message. Return if the header is null or does
-    // not contain what we expect.
-
-    cmsghdr* cmh = CMSG_FIRSTHDR(&mh);
-
-    if (!cmh || 
-        cmh->cmsg_len != CMSG_LEN(sizeof(int)) ||
-        cmh->cmsg_level != SOL_SOCKET ||
-        cmh->cmsg_type != SCM_RIGHTS)
-    {
-        return -1;
-    }
-
-    // Return the descriptor.
-
-    return *((int*)CMSG_DATA(cmh));
 }
 
 static int _receiveDescriptorArray(int sock, int descriptors[], size_t count)
@@ -300,16 +263,19 @@ FILE* ExecutorClientSocketImpl::openFile(
 
     if (response.status == 0)
     {
-        int fd = _receiveDescriptor(_sock);
+        int fds[1];
 
-        if (fd == -1)
+        if (_receiveDescriptorArray(_sock, fds, 1) != 0)
+            return NULL;
+
+        if (fds[0] == -1)
             return NULL;
         else
         {
             if (mode == 'r')
-                return fdopen(fd, "rb");
+                return fdopen(fds[0], "rb");
             else
-                return fdopen(fd, "wb");
+                return fdopen(fds[0], "wb");
         }
     }
 

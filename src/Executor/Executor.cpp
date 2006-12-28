@@ -1,3 +1,36 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <Pegasus/Common/Constants.h>
 #include <sys/types.h>
@@ -389,12 +422,12 @@ static ssize_t Send(int sock, const void* buffer, size_t size)
 
     while (r)
     {
+        // ATTN: handle this or not?
         int status = WaitForWriteEnable(sock, TIMEOUT_MSEC);
 
         if (_caughtSigTerm)
         {
-            // Terminated with SIGTERM.
-            return 0;
+            // ATTN: ignore?
         }
 
         if (status == 0)
@@ -418,68 +451,6 @@ static ssize_t Send(int sock, const void* buffer, size_t size)
     }
 
     return size - r;
-}
-
-//==============================================================================
-//
-// SendDescriptor()
-//
-//     Send a descriptor (file, socket, pipe) to the child process.
-//
-//==============================================================================
-
-static ssize_t SendDescriptor(int sock, int desc)
-{
-    // This control data begins with a cmsghdr struct followed by the data
-    // (a descriptor in this case). The union ensures that the data is aligned 
-    // suitably for the leading cmsghdr struct. The descriptor itself is
-    // properly aligned since the cmsghdr ends on a boundary that is suitably 
-    // aligned for any type (including int).
-    //
-    // ControlData = [ cmsghdr | int ]
-
-    union ControlData
-    {
-        struct cmsghdr cmh;
-        char data[CMSG_SPACE(sizeof(int))];
-    };
-
-    // Initialize msghdr struct to refer to control data.
-
-    struct msghdr mh;
-    memset(&mh, 0, sizeof(mh));
-
-    union ControlData cd;
-    memset(&cd, 0, sizeof(cd));
-
-    mh.msg_control = cd.data;
-    mh.msg_controllen = sizeof(cd.data);
-    mh.msg_name = NULL;
-    mh.msg_namelen = 0;
-
-    // Fill in the control data struct with the descriptor and other fields.
-
-    struct cmsghdr* cmh = CMSG_FIRSTHDR(&mh);
-    cmh->cmsg_len = CMSG_LEN(sizeof(int));
-    cmh->cmsg_level = SOL_SOCKET;
-    cmh->cmsg_type = SCM_RIGHTS;
-    *((int *)CMSG_DATA(cmh)) = desc;
-
-    // Prepare to send single dummy byte. It will not be used but we must send
-    // at least one byte otherwise the call will fail on some platforms.
-
-    struct iovec iov[1];
-    memset(iov, 0, sizeof(iov));
-
-    char dummy = '\0';
-    iov[0].iov_base = &dummy;
-    iov[0].iov_len = 1;
-    mh.msg_iov = iov;
-    mh.msg_iovlen = 1;
-
-    // Send message to child.
-
-    return sendmsg(sock, &mh, 0);
 }
 
 //==============================================================================
@@ -805,7 +776,9 @@ static void HandleOpenFileRequest(int sock)
 
     if (fd != -1)
     {
-        SendDescriptor(sock, fd);
+        int descriptors[1];
+        descriptors[0] = fd;
+        SendDescriptorArray(sock, descriptors, 1);
         close(fd);
     }
 }
@@ -1275,6 +1248,10 @@ static void HandleShutdownExecutorRequest(int sock)
 
 static void Executor(int sock, int childPid)
 {
+    // Prepares socket into non-blocking I/O.
+
+    SetNonBlocking(sock);
+
     // Process client requests until client exists.
 
     for (;;)

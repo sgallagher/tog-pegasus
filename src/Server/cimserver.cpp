@@ -123,14 +123,15 @@
 # include <fcntl.h>
 #endif
 
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+# include <Pegasus/ExecutorClient/ExecutorClient.h>
+# define PEGASUS_PROCESS_NAME "cimservermain";
+#else
+# define PEGASUS_PROCESS_NAME "cimserver";
+#endif
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-#  define PEGASUS_PROCESS_NAME "cimservermain";
-#else
-#  define PEGASUS_PROCESS_NAME "cimserver";
-#endif
 
 //Windows service variables are not defined elsewhere in the product
 //enable ability to override these
@@ -621,33 +622,12 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
 static void _checkForExecutor(const char* arg0)
 {
-#if 0
-    int uid = getuid();
-    int gid = getgid();
-    printf("%s: uid=%d, gid=%d\n", arg0, uid, gid);
-#endif
-
-    // If the executor started this process, then it created and passed a
-    // socket descriptor to this process with a value of three. To test this,
-    // we open a file an check that its file descriptor is four. If not, then
-    // the executor did not create this process.
-
-    FILE* fs = tmpfile();
-
-    if (!fs)
+    if (!getenv("PEGASUS_EXECUTOR_SOCKET"))
     {
-        fprintf(stderr, "%s: tmpfile() failed()\n", arg0);
-        exit(1);
-    }
-
-    if (fileno(fs) != 4)
-    {
-        fprintf(stderr, "%s: do not be run this program directly. "
+        fprintf(stderr, "%s: do not run this program directly. "
             "It is part of the cimserver program.\n", arg0);
         exit(1);
     }
-
-    fclose(fs);
 }
 
 #endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
@@ -1218,23 +1198,18 @@ MessageLoader::_useProcessLocale = false;
     // Get the parent's PID before forking
     _cimServerProcess->set_parent_pid(System::getPID());
 
-    // do we need to run as a daemon ?
+// Do not fork when using privilege separation (executor will daemonize itself
+// later).
     if (daemonOption)
     {
         if(-1 == _cimServerProcess->cimserver_fork())
-#ifndef PEGASUS_OS_OS400
-        {
+# ifndef PEGASUS_OS_OS400
             return(-1);
-        }
-#else
-        {
+# else
             return(-1);
-        }
         else
-        {
             return(0);
-        }
-#endif
+# endif
     }
 
 // l10n
@@ -1418,8 +1393,13 @@ MessageLoader::_useProcessLocale = false;
 	}
     // notify parent process (if there is a parent process) to terminate
         // so user knows that there is cimserver ready to serve CIM requests.
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    if (daemonOption)
+        ExecutorClient::daemonizeExecutor();
+#else
     if (daemonOption)
         _cimServerProcess->notify_parent(0);
+#endif
 
     time_t last = 0;
 

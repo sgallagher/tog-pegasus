@@ -162,32 +162,56 @@ static int _childGid;
 
 //==============================================================================
 //
-// SigTermHandler()
+// SetBit()
+//
+//     Set the n-th bit the the given mask.
+//
+//==============================================================================
+
+inline void SetBit(unsigned long& mask, int n)
+{
+    mask |= (1 << n);
+}
+
+//==============================================================================
+//
+// ClrBit()
+//
+//     Clear the n-th bit the the given mask.
+//
+//==============================================================================
+
+inline void ClrBit(unsigned long& mask, int n)
+{
+    mask &= ~(1 << n);
+}
+
+//==============================================================================
+//
+// TstBit()
+//
+//     Test the n-th bit the the given mask.
+//
+//==============================================================================
+
+inline bool TstBit(unsigned long mask, int n)
+{
+    return mask & (1 << n);
+}
+
+//==============================================================================
+//
+// SigHandler()
 //
 //     Signal handler for SIGTERM.
 //
 //==============================================================================
 
-static bool _caughtSigTerm = false;
+static unsigned long _signalMask = 0;
 
-void SigTermHandler(int signum)
+void SigHandler(int signum)
 {
-    _caughtSigTerm = true;
-}
-
-//==============================================================================
-//
-// SigIntHandler()
-//
-//     Signal handler for SIGINT.
-//
-//==============================================================================
-
-static bool _caughtSigInt = false;
-
-void SigIntHandler(int signum)
-{
-    _caughtSigInt = true;
+    SetBit(_signalMask, signum);
 }
 
 //==============================================================================
@@ -386,7 +410,7 @@ static ssize_t Recv(int sock, void* buffer, size_t size)
     {
         int status = WaitForReadEnable(sock, TIMEOUT_MSEC);
 
-        if (_caughtSigTerm || _caughtSigInt)
+        if (TstBit(_signalMask, SIGTERM) || TstBit(_signalMask, SIGINT))
         {
             // Terminated with SIGTERM or SIGINT.
             return 0;
@@ -399,13 +423,7 @@ static ssize_t Recv(int sock, void* buffer, size_t size)
         EXECUTOR_RESTART(read(sock, p, r), n);
 
         if (n == -1 && errno == EINTR)
-        {
-            if (_caughtSigTerm)
-            {
-                Log(LOG_INFO, "Caught sigterm");
-            }
             continue;
-        }
 
         if (n == -1)
         {
@@ -450,9 +468,9 @@ static ssize_t Send(int sock, const void* buffer, size_t size)
         // ATTN: handle this or not?
         int status = WaitForWriteEnable(sock, TIMEOUT_MSEC);
 
-        if (_caughtSigTerm)
+        if (TstBit(_signalMask, SIGTERM) || TstBit(_signalMask, SIGINT))
         {
-            // ATTN: ignore?
+            // Ignore!
         }
 
         if (status == 0)
@@ -539,13 +557,13 @@ static ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 
 static int GetHomedPath(
     const char* name,
-    char path[EXECUTOR_MAX_PATH_LENGTH])
+    char path[EXECUTOR_BUFFER_SIZE])
 {
     // If absolute, then use the name as is.
 
     if (name[0] == '/')
     {
-        STRLCPY(path, name, EXECUTOR_MAX_PATH_LENGTH);
+        STRLCPY(path, name, EXECUTOR_BUFFER_SIZE);
         return 0;
     }
 
@@ -556,9 +574,9 @@ static int GetHomedPath(
     if (!home)
         return -1;
 
-    STRLCPY(path, home, EXECUTOR_MAX_PATH_LENGTH);
-    STRLCAT(path, "/", EXECUTOR_MAX_PATH_LENGTH);
-    STRLCAT(path, name, EXECUTOR_MAX_PATH_LENGTH);
+    STRLCPY(path, home, EXECUTOR_BUFFER_SIZE);
+    STRLCAT(path, "/", EXECUTOR_BUFFER_SIZE);
+    STRLCAT(path, name, EXECUTOR_BUFFER_SIZE);
 
     return 0;
 }
@@ -601,10 +619,10 @@ static void ChangeDirOwnerRecursive(
 
 	// Build full path name for this file:
 
-        char buffer[EXECUTOR_MAX_PATH_LENGTH];
-        STRLCPY(buffer, path, EXECUTOR_MAX_PATH_LENGTH);
-        STRLCAT(buffer, "/", EXECUTOR_MAX_PATH_LENGTH);
-        STRLCAT(buffer, name, EXECUTOR_MAX_PATH_LENGTH);
+        char buffer[EXECUTOR_BUFFER_SIZE];
+        STRLCPY(buffer, path, EXECUTOR_BUFFER_SIZE);
+        STRLCAT(buffer, "/", EXECUTOR_BUFFER_SIZE);
+        STRLCAT(buffer, name, EXECUTOR_BUFFER_SIZE);
 
 	// Determine file type (skip soft links and directories).
 
@@ -647,11 +665,11 @@ static void ChangeDirOwnerRecursive(
 //
 //==============================================================================
 
-static void GetPegasusInternalBinDir(char path[EXECUTOR_MAX_PATH_LENGTH])
+static void GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
 {
     // Make a copy of PEGASUS_PROVIDER_AGENT_PROC_NAME:
 
-    char buffer[EXECUTOR_MAX_PATH_LENGTH];
+    char buffer[EXECUTOR_BUFFER_SIZE];
     STRLCPY(buffer, PEGASUS_PROVIDER_AGENT_PROC_NAME, sizeof(buffer));
 
     // Remove "cimprovagt" suffix.
@@ -667,7 +685,7 @@ static void GetPegasusInternalBinDir(char path[EXECUTOR_MAX_PATH_LENGTH])
 
     if (buffer[0] == '/')
     {
-        STRLCAT(path, buffer, EXECUTOR_MAX_PATH_LENGTH);
+        STRLCAT(path, buffer, EXECUTOR_BUFFER_SIZE);
     }
     else
     {
@@ -678,9 +696,9 @@ static void GetPegasusInternalBinDir(char path[EXECUTOR_MAX_PATH_LENGTH])
         if (!home)
             Fatal(FL, "Failed to locate the internal Pegasus bin directory");
 
-        STRLCPY(path, home, EXECUTOR_MAX_PATH_LENGTH);
-        STRLCAT(path, "/", EXECUTOR_MAX_PATH_LENGTH);
-        STRLCAT(path, buffer, EXECUTOR_MAX_PATH_LENGTH);
+        STRLCPY(path, home, EXECUTOR_BUFFER_SIZE);
+        STRLCAT(path, "/", EXECUTOR_BUFFER_SIZE);
+        STRLCAT(path, buffer, EXECUTOR_BUFFER_SIZE);
     }
 
     // Fail if no such directory.
@@ -725,11 +743,11 @@ int AccessDir(const char* path)
 
 static void GetInternalPegasusProgramPath(
     const char* program,
-    char path[EXECUTOR_MAX_PATH_LENGTH])
+    char path[EXECUTOR_BUFFER_SIZE])
 {
     GetPegasusInternalBinDir(path);
-    STRLCAT(path, "/", EXECUTOR_MAX_PATH_LENGTH);
-    STRLCAT(path, program, EXECUTOR_MAX_PATH_LENGTH);
+    STRLCAT(path, "/", EXECUTOR_BUFFER_SIZE);
+    STRLCAT(path, program, EXECUTOR_BUFFER_SIZE);
 }
 
 //==============================================================================
@@ -767,7 +785,7 @@ static int GetUserInfo(const char* user, int& uid, int& gid)
 //
 //==============================================================================
 
-static int GetUserName(int uid, char username[EXECUTOR_MAX_PATH_LENGTH])
+static int GetUserName(int uid, char username[EXECUTOR_BUFFER_SIZE])
 {
     struct passwd pwd;
     const unsigned int PWD_BUFF_SIZE = 4096;
@@ -780,7 +798,7 @@ static int GetUserName(int uid, char username[EXECUTOR_MAX_PATH_LENGTH])
         return -1;
     }
 
-    STRLCPY(username, ptr->pw_name, EXECUTOR_MAX_PATH_LENGTH);
+    STRLCPY(username, ptr->pw_name, EXECUTOR_BUFFER_SIZE);
     return 0;
 }
 
@@ -831,7 +849,7 @@ static int FindCommandLineOption(
     int argc,
     char** argv,
     const char* name,
-    char value[EXECUTOR_MAX_PATH_LENGTH])
+    char value[EXECUTOR_BUFFER_SIZE])
 {
     size_t n = strlen(name);
 
@@ -840,7 +858,7 @@ static int FindCommandLineOption(
         if (strncmp(argv[i], name, n) == 0 && argv[i][n] == '=')
         {
             const char* p = argv[i] + n + 1;
-            STRLCPY(value, argv[i] + n + 1, EXECUTOR_MAX_PATH_LENGTH);
+            STRLCPY(value, argv[i] + n + 1, EXECUTOR_BUFFER_SIZE);
             return 0;
         }
     }
@@ -860,14 +878,14 @@ static int FindCommandLineOption(
 static int FindConfigFileOption(
     const char* path,
     const char* name,
-    char value[EXECUTOR_MAX_PATH_LENGTH])
+    char value[EXECUTOR_BUFFER_SIZE])
 {
     FILE* is = fopen(path, "r");
 
     if (!is)
         return -1;
 
-    char buffer[EXECUTOR_MAX_PATH_LENGTH];
+    char buffer[EXECUTOR_BUFFER_SIZE];
     const size_t n = strlen(name);
 
     while (fgets(buffer, sizeof(buffer), is) != 0)
@@ -896,7 +914,7 @@ static int FindConfigFileOption(
 
         if (strncmp(buffer, name, n) == 0 &&  buffer[n] == '=')
         {
-            STRLCPY(value, buffer + n + 1, EXECUTOR_MAX_PATH_LENGTH);
+            STRLCPY(value, buffer + n + 1, EXECUTOR_BUFFER_SIZE);
             fclose(is);
             return 0;
         }
@@ -920,7 +938,7 @@ static int FindConfigOption(
     int argc,
     char** argv,
     const char* name,
-    char value[EXECUTOR_MAX_PATH_LENGTH])
+    char value[EXECUTOR_BUFFER_SIZE])
 {
     // (1) First check command line.
 
@@ -931,7 +949,7 @@ static int FindConfigOption(
 
     // ATTN: Is this right. Should we check the current or the planned?
 
-    char path[EXECUTOR_MAX_PATH_LENGTH];
+    char path[EXECUTOR_BUFFER_SIZE];
 
     if (GetHomedPath(PEGASUS_PLANNED_CONFIG_FILE_PATH, path) == 0 &&
         FindConfigFileOption(path, name, value) == 0)
@@ -950,7 +968,7 @@ static int FindConfigOption(
 static int LocateRepositoryDirectory(
     int argc, 
     char** argv, 
-    char path[EXECUTOR_MAX_PATH_LENGTH])
+    char path[EXECUTOR_BUFFER_SIZE])
 {
     if (FindConfigOption(argc, argv, "repositoryDir", path) == 0)
         return 0;
@@ -973,13 +991,13 @@ static int LocateRepositoryDirectory(
 int GetServerUser(
     int argc,
     char** argv,
-    char path[EXECUTOR_MAX_PATH_LENGTH], 
+    char path[EXECUTOR_BUFFER_SIZE], 
     int& uid, 
     int& gid)
 {
     // (1) First try to find serverUser configuration option.
 
-    char user[EXECUTOR_MAX_PATH_LENGTH];
+    char user[EXECUTOR_BUFFER_SIZE];
 
     if (FindConfigOption(argc, argv, "serverUser", user) == 0)
     {
@@ -1156,7 +1174,7 @@ static void HandleStartProviderAgentRequest(int sock)
     {
         // Resolve full path of "cimprovagt".
 
-        char path[EXECUTOR_MAX_PATH_LENGTH];
+        char path[EXECUTOR_BUFFER_SIZE];
         GetInternalPegasusProgramPath(CIMPROVAGT, path);
 
         // Create "to-agent" pipe:
@@ -1226,7 +1244,7 @@ static void HandleStartProviderAgentRequest(int sock)
                 }
             }
 
-            char username[EXECUTOR_MAX_PATH_LENGTH];
+            char username[EXECUTOR_BUFFER_SIZE];
 
             if (GetUserName(getuid(), username) != 0)
                 Fatal(FL, "failed to resolve username for uid=%d", getuid());
@@ -1320,7 +1338,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
     // Catch SIGTERM:
 
-    signal(SIGTERM, SigTermHandler);
+    signal(SIGTERM, SigHandler);
 
     // Set current directory to root:
 
@@ -1481,7 +1499,8 @@ static void Executor(int sock, int childPid)
 {
     // Handle Ctrl-C.
 
-    signal(SIGINT, SigIntHandler);
+    signal(SIGINT, SigHandler);
+    signal(SIGTERM, SigHandler);
 
     // Save child PID globally; it is used by Exit() function.
 
@@ -1551,9 +1570,6 @@ static void Executor(int sock, int childPid)
 
     // Reached due to socket EOF or SIGTERM.
 
-    if (_caughtSigTerm)
-        Log(LOG_INFO, "caught SIGTERM");
-
     Exit(0);
 }
 
@@ -1568,14 +1584,14 @@ static void Executor(int sock, int childPid)
 static void Child(
     int argc, 
     char** argv, 
-    char path[EXECUTOR_MAX_PATH_LENGTH],
+    char path[EXECUTOR_BUFFER_SIZE],
     int uid,
     int gid,
     int sock)
 {
     // Locate repository directory.
 
-    char repositoryDir[EXECUTOR_MAX_PATH_LENGTH];
+    char repositoryDir[EXECUTOR_BUFFER_SIZE];
 
     if (LocateRepositoryDirectory(argc, argv, repositoryDir) != 0)
         Fatal(FL, "failed to locate repository directory");
@@ -1621,7 +1637,7 @@ static void Child(
 
     // Log user info.
 
-    char username[EXECUTOR_MAX_PATH_LENGTH];
+    char username[EXECUTOR_BUFFER_SIZE];
 
     if (GetUserName(uid, username) != 0)
         Fatal(FL, "cannot resolve user from uid=%d", uid);
@@ -1688,7 +1704,7 @@ int main(int argc, char** argv)
     // socket to child process.
 
     {
-        char buffer[EXECUTOR_MAX_PATH_LENGTH];
+        char buffer[EXECUTOR_BUFFER_SIZE];
         sprintf(buffer, "PEGASUS_EXECUTOR_SOCKET=%d", pair[0]);
         putenv(buffer);
     }
@@ -1709,7 +1725,7 @@ int main(int argc, char** argv)
 
     // Print user info.
 
-    char username[EXECUTOR_MAX_PATH_LENGTH];
+    char username[EXECUTOR_BUFFER_SIZE];
 
     if (GetUserName(getuid(), username) != 0)
         Fatal(FL, "cannot resolve user from uid=%d", getuid());
@@ -1730,7 +1746,7 @@ int main(int argc, char** argv)
 
     // Get cimservermain program name.
 
-    char cimservermainPath[EXECUTOR_MAX_PATH_LENGTH];
+    char cimservermainPath[EXECUTOR_BUFFER_SIZE];
     GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath);
 
     // Determine user for running cimservermain.

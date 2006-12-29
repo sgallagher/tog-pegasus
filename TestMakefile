@@ -170,10 +170,10 @@ doc:
 #
 repositoryServer: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
-	$(SLEEP) 10
+	$(SLEEP) 5
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
-	$(SLEEP) 10
+	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
 
@@ -224,7 +224,7 @@ tests_msg: FORCE
 
 
 shortsleep: FORCE
-	@$(SLEEP) 10
+	@$(SLEEP) 5
 
 ####################
 #
@@ -267,7 +267,7 @@ endif
 	@$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
             setupCBATestCertificates
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
-	$(SLEEP) 10
+	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile Create_SSL_Certificate
 ifeq ($(PEGASUS_TEST_SDK),true)
@@ -694,11 +694,9 @@ CIMSUB_INTEROP_TEST_CMDS = \
             $(PEGASUS_ROOT)/src/Clients/cimsub/tests/testscriptInterOp \
             -f Makefile cimsubTest_InterOp
 run_Cimsub_InterOp: FORCE
-        $(ECHO) "ATTN:MEB BEFORE"
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(CIMSUB_INTEROP_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(CIMSUB_INTEROP_TEST_CMDS)"
-        $(ECHO) "ATTN:MEB AFTER"
 
 ###############################################################################
 
@@ -768,12 +766,11 @@ TestXMLClean: FORCE
 ##
 ## TestXMLStartServer
 ##
-#ATTN:MEB:
 TestXMLStartServer: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 	- $(MKDIRHIER) $(PEGASUS_HOME)/repository_xml
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="repositoryDir=$(PEGASUS_HOME)/repository_xml"
-	$(SLEEP) 10
+	$(SLEEP) 5
 
 ####
 #### The following caused the cimserver to fail on startup
@@ -883,7 +880,7 @@ TestBinStartServer: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 	- $(MKDIRHIER) $(PEGASUS_HOME)/repository_bin
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true repositoryDir=$(PEGASUS_HOME)/repository_bin"
-	$(SLEEP) 10
+	$(SLEEP) 5
 
 ###########################
 ##
@@ -1246,9 +1243,9 @@ ConfigureAuthorizations:
 
 startcimWithoutSSL: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
-	$(SLEEP) 10
+	$(SLEEP) 5
 
 startcimWithSSL: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableHttpConnection=false enableHttpsConnection=true"
-	$(SLEEP) 10
+	$(SLEEP) 5
 

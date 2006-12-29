@@ -39,8 +39,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#define EXECUTOR_MAX_PATH_LENGTH 4096
-#define EXECUTOR_MAX_USERNAME_LENGTH 128
+#define EXECUTOR_BUFFER_SIZE 4096
 
 #define EXECUTOR_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
 
@@ -93,7 +92,7 @@ struct ExecutorPingResponse
 
 struct ExecutorOpenFileRequest
 {
-    char path[EXECUTOR_MAX_PATH_LENGTH];
+    char path[EXECUTOR_BUFFER_SIZE];
     // ('r' = read, 'w' = write)
     int mode;
 };
@@ -111,7 +110,7 @@ struct ExecutorOpenFileResponse
 
 struct ExecutorRemoveFileRequest
 {
-    char path[EXECUTOR_MAX_PATH_LENGTH];
+    char path[EXECUTOR_BUFFER_SIZE];
 };
 
 struct ExecutorRemoveFileResponse
@@ -127,8 +126,8 @@ struct ExecutorRemoveFileResponse
 
 struct ExecutorRenameFileRequest
 {
-    char oldPath[EXECUTOR_MAX_PATH_LENGTH];
-    char newPath[EXECUTOR_MAX_PATH_LENGTH];
+    char oldPath[EXECUTOR_BUFFER_SIZE];
+    char newPath[EXECUTOR_BUFFER_SIZE];
 };
 
 struct ExecutorRenameFileResponse
@@ -144,7 +143,7 @@ struct ExecutorRenameFileResponse
 
 struct ExecutorStartProviderAgentRequest
 {
-    char module[EXECUTOR_MAX_PATH_LENGTH];
+    char module[EXECUTOR_BUFFER_SIZE];
     int uid;
     int gid;
 };
@@ -174,8 +173,8 @@ struct ExecutorDaemonizeExecutorResponse
 
 struct ExecutorChangeOwnerRequest
 {
-    char path[EXECUTOR_MAX_PATH_LENGTH];
-    char owner[EXECUTOR_MAX_USERNAME_LENGTH];
+    char path[EXECUTOR_BUFFER_SIZE];
+    char owner[EXECUTOR_BUFFER_SIZE];
 };
 
 struct ExecutorChangeOwnerResponse

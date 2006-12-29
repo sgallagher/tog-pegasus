@@ -55,7 +55,6 @@ extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
 #define PROCSIZE sizeof(struct procsinfo)
 }
 #endif
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -119,25 +118,12 @@ String ServerProcess::getHome(void) { return String::EMPTY; }
 // daemon_init , RW Stevens, "Advance UNIX Programming"
 
 int ServerProcess::cimserver_fork(void) 
-{
+{ 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
 
-    // Register to handle SIGUSR1:
-    getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
-    getSigHandle()->activate(PEGASUS_SIGUSR1);
-
-    // Register to handle SIGTERM:
     getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
     getSigHandle()->activate(SIGTERM);
-
-    // Set umask to use when creating files.
-    umask(S_IRWXG | S_IRWXO);
-
-    // Save process id.
     server_pid = getpid();
-
-    // Ask the executor process to daemonize.
-    ExecutorClient::daemonizeExecutor();
 
     return 0;
 
@@ -147,54 +133,47 @@ int ServerProcess::cimserver_fork(void)
     getSigHandle()->activate(PEGASUS_SIGUSR1);
     getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
     getSigHandle()->activate(SIGTERM);
+ 
+  pid_t pid;
+  if( (pid = fork() ) < 0) 
+  {
+      getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+      getSigHandle()->deactivate(SIGTERM);
+      return(-1);
+  }
+  else if (pid != 0)
+  {
+      //
+      // parent wait for child
+      // if there is a problem with signal, parent process terminates
+      // when waitTime expires
+      //
+      Uint32 waitTime = MAX_WAIT_TIME;
 
-    pid_t pid;
-
-    if ((pid = fork()) < 0)
-    {
-        getSigHandle()->deactivate(PEGASUS_SIGUSR1);
-        getSigHandle()->deactivate(SIGTERM);
-        return (-1);
-    }
-    else if (pid != 0)
-    {
-        // 
-        // parent wait for child
-        // if there is a problem with signal, parent process terminates
-        // when waitTime expires
-        // 
-        Uint32 waitTime = MAX_WAIT_TIME;
-
-        while (!handleSigUsr1 && waitTime > 0)
+      while(!handleSigUsr1 && waitTime > 0)
+      {
+        sleep(1);
+        waitTime--;
+      }
+      if( !handleSigUsr1 )
         {
-            sleep(1);
-            waitTime--;
-        }
-        if (!handleSigUsr1)
-        {
-            MessageLoaderParms parms(
-                "src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
-                "The cimserver command timed out waiting for the "
-                "CIM server to start.");
-            PEGASUS_STD(cerr) << MessageLoader::
-                getMessage(parms) << PEGASUS_STD(endl);
-        }
-        exit(graveError);
-    }
+        MessageLoaderParms parms("src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
+          "The cimserver command timed out waiting for the CIM server to start.");
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+      }
+      exit(graveError);
+  }
+  
+  setsid();
+  umask(S_IRWXG | S_IRWXO );
 
-    setsid();
+  // spawned daemon process doesn't need the old signal handlers of its parent
+  getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+  getSigHandle()->deactivate(SIGTERM);
 
-    umask(S_IRWXG | S_IRWXO);
-
-    // spawned daemon process doesn't need the old signal handlers of its
-    // parent
-    getSigHandle()->deactivate(PEGASUS_SIGUSR1);
-    getSigHandle()->deactivate(SIGTERM);
-
-    // get the pid of the cimserver process
-    server_pid = getpid();
-
-    return (0);
+  // get the pid of the cimserver process
+  server_pid = getpid();
+  return(0);
 
 #endif /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
@@ -499,7 +478,6 @@ Boolean ServerProcess::isCIMServerRunning(void)
     if (aixcimsrvrunning(pid, getProcessName())!=-1)
         return true;
 #endif
-
   return false;
 }
 

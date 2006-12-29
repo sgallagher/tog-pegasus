@@ -242,7 +242,7 @@ FILE* ExecutorClientSocketImpl::openFile(
 
     ExecutorOpenFileRequest request;
     memset(&request, 0, sizeof(request));
-    Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
+    Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
     request.mode = mode;
 
     if (_send(_sock, &request, sizeof(request)) != sizeof(request))
@@ -296,8 +296,8 @@ int ExecutorClientSocketImpl::renameFile(
 
     ExecutorRenameFileRequest request;
     memset(&request, 0, sizeof(request));
-    Strlcpy(request.oldPath, oldPath, EXECUTOR_MAX_PATH_LENGTH);
-    Strlcpy(request.newPath, newPath, EXECUTOR_MAX_PATH_LENGTH);
+    Strlcpy(request.oldPath, oldPath, EXECUTOR_BUFFER_SIZE);
+    Strlcpy(request.newPath, newPath, EXECUTOR_BUFFER_SIZE);
 
     if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
@@ -329,7 +329,7 @@ int ExecutorClientSocketImpl::removeFile(
 
     ExecutorRemoveFileRequest request;
     memset(&request, 0, sizeof(request));
-    Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
+    Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
 
     if (_send(_sock, &request, sizeof(request)) != sizeof(request))
         return -1;
@@ -357,11 +357,11 @@ int ExecutorClientSocketImpl::startProviderAgent(
     readPipe = 0;
     writePipe = 0;
 
-    // Reject strings longer than EXECUTOR_MAX_PATH_LENGTH.
+    // Reject strings longer than EXECUTOR_BUFFER_SIZE.
 
     size_t n = strlen(module);
 
-    if (n >= EXECUTOR_MAX_PATH_LENGTH)
+    if (n >= EXECUTOR_BUFFER_SIZE)
         return -1;
 
     // Send request header:

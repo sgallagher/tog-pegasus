@@ -318,19 +318,18 @@ void ConfigFile::save(ConfigTable* confTable)
 
     fclose(ofs);
 
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+# if !defined(PEGASUS_OS_TYPE_WINDOWS)
     //
     // Set permissions on the config file to 0644
     //
-    if (ExecutorClient::changeMode(_configFile.getCString(),
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) != 0)    // set 0644
+    if (!FileSystem::changeFilePermissions(_configFile,
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
     {
         throw CannotOpenFile(_configFile);
     }
-
-#endif
-
+# endif
+#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 }
 
 
@@ -402,19 +401,18 @@ void ConfigFile::replace (const String& fileName)
     fclose(ifs);
     fclose(ofs);
 
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+# if !defined(PEGASUS_OS_TYPE_WINDOWS)
     //
     // Set permissions on the config file to 0644
     //
-
-    if (ExecutorClient::changeMode(_configFile.getCString(),
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) != 0)    // set 0644
+    if (!FileSystem::changeFilePermissions(_configFile,
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
     {
         throw CannotOpenFile(_configFile);
     }
-
-#endif
+# endif
+#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 }
 
 PEGASUS_NAMESPACE_END

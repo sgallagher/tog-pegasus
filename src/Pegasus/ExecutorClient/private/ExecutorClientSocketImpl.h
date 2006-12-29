@@ -44,7 +44,7 @@ class ExecutorClientSocketImpl : public ExecutorClientImpl
 {
 public:
 
-    ExecutorClientSocketImpl();
+    ExecutorClientSocketImpl(int sock);
 
     virtual ~ExecutorClientSocketImpl();
 
@@ -60,10 +60,6 @@ public:
     virtual int renameFile(
         const char* oldPath,
         const char* newPath);
-
-    virtual int changeMode(
-        const char* path,
-        int mode);
 
     virtual int startProviderAgent(
         const char* module, 
@@ -81,6 +77,7 @@ public:
 
 private:
     Mutex _mutex;
+    int _sock;
 };
 
 PEGASUS_NAMESPACE_END

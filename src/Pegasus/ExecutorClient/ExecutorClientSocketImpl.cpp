@@ -48,10 +48,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The exectuor socket will always be three since it is the first descriptor
-// created by the forked process (recall that stdin=0, stdout=1, stderr=2).
-static const size_t _sock = 3;
-
 //==============================================================================
 //
 // _send()
@@ -194,7 +190,7 @@ static int _receiveDescriptorArray(int sock, int descriptors[], size_t count)
     return 0;
 }
 
-ExecutorClientSocketImpl::ExecutorClientSocketImpl()
+ExecutorClientSocketImpl::ExecutorClientSocketImpl(int sock) : _sock(sock)
 {
 }
 
@@ -341,40 +337,6 @@ int ExecutorClientSocketImpl::removeFile(
     // Receive the response
 
     ExecutorRemoveFileResponse response;
-
-    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
-        return -1;
-
-    return response.status;
-}
-
-int ExecutorClientSocketImpl::changeMode(
-    const char* path,
-    int mode)
-{
-    AutoMutex autoMutex(_mutex);
-
-    // Send request header:
-
-    ExecutorRequestHeader header;
-    header.code = EXECUTOR_CHANGE_MODE_REQUEST;
-
-    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
-        return -1;
-
-    // Send request body.
-
-    ExecutorChangeModeRequest request;
-    memset(&request, 0, sizeof(request));
-    Strlcpy(request.path, path, EXECUTOR_MAX_PATH_LENGTH);
-    request.mode = mode;
-
-    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
-        return -1;
-
-    // Receive the response
-
-    ExecutorChangeModeResponse response;
 
     if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;

@@ -61,10 +61,6 @@ public:
         const char* oldPath,
         const char* newPath) = 0;
 
-    virtual int changeMode(
-        const char* path,
-        int mode) = 0;
-
     virtual int startProviderAgent(
         const char* module, 
         int uid,

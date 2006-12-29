@@ -47,23 +47,34 @@ PEGASUS_NAMESPACE_BEGIN
 static ExecutorClientImpl* _impl()
 {
     static ExecutorClientImpl* impl = 0;
-    static Mutex implMutex;
+    static Mutex mutex;
 
     if (impl == 0)
     {
-        AutoMutex autoMutex(implMutex);
+        mutex.lock();
 
         if (impl == 0)
         {
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-            if (getenv("__PEGASAUS_EXECUTOR__"))
-                impl = new ExecutorClientSocketImpl;
+
+            char* env = getenv("PEGASUS_EXECUTOR_SOCKET");
+
+            if (env)
+            {
+                char* end = 0;
+                int sock = (int)strtol(env, &end, 10);
+                PEGASUS_ASSERT(*end == '\0');
+                impl = new ExecutorClientSocketImpl(sock);
+            }
             else
                 impl = new ExecutorClientLoopbackImpl;
+
 #else
             impl = new ExecutorClientLoopbackImpl;
 #endif
         }
+
+        mutex.unlock();
     }
 
     return impl;
@@ -89,11 +100,6 @@ int ExecutorClient::renameFile(
 int ExecutorClient::removeFile(const char* path)
 {
     return _impl()->removeFile(path);
-}
-
-int ExecutorClient::changeMode(const char* path, int mode)
-{
-    return _impl()->changeMode(path, mode);
 }
 
 int ExecutorClient::startProviderAgent(

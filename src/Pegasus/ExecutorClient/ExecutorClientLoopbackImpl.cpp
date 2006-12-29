@@ -93,15 +93,6 @@ int ExecutorClientLoopbackImpl::removeFile(
     return FileSystem::removeFile(path) ? 0 : -1;
 }
 
-int ExecutorClientLoopbackImpl::changeMode(
-    const char* path,
-    int mode)
-{
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    return chmod(path, mode);
-#endif
-}
-
 static int _getProviderAgentPath(String& path)
 {
     // ATTN: is this really a sufficient replacement for getHomedPath().

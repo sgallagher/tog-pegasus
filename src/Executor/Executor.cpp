@@ -975,20 +975,32 @@ int GetServerUser(
     if (stat(path, &st) != 0)
         Fatal(FL, "stat(%s) failed", path);
 
-    if (st.st_uid == 0 || st.st_gid == 0)
+    if (st.st_uid != 0 && st.st_gid != 0)
     {
-        Fatal(FL, 
-            "cannot determine server user (used to run cimserermain). "
-            "Please specify this value in one of three ways. (1) pass "
-            "serverUser=<username> on the command line, (2) use cimconfig to "
-            "set serverUser (using -p -s options), or (3) make the desired "
-            "user the owner of %s (i.e., use chown).", path);
+        uid = st.st_uid;
+        gid = st.st_gid;
+        return 0;
     }
 
-    uid = st.st_uid;
-    gid = st.st_gid;
+    // (3) Try the "pegasus" user (the default).
 
-    return 0;
+    const char DEFAULT_SERVER_USER[] = "pegasus";
+
+    if (GetUserInfo(DEFAULT_SERVER_USER, uid, gid) == 0 && 
+        uid != 0 && 
+        gid != 0)
+    {
+        return 0;
+    }
+
+    Fatal(FL, 
+        "cannot determine server user (used to run cimserermain). "
+        "Please specify this value in one of three ways. (1) pass "
+        "serverUser=<username> on the command line, (2) use cimconfig to "
+        "set serverUser (using -p -s options), or (3) make the desired "
+        "user the owner of %s (i.e., use chown).", path);
+
+    return -1;
 }
 
 //==============================================================================
@@ -1047,7 +1059,8 @@ static void HandleOpenFileRequest(int sock)
 
     if (flags)
     {
-        int mode = S_IROTH | S_IRGRP | S_IRUSR | S_IWUSR;
+        // -rw-r--r-- (0644)
+        int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
         fd = open(request.path, flags, mode);
     }
     else
@@ -1436,41 +1449,6 @@ static void HandleRemoveFileRequest(int sock)
 
 //==============================================================================
 //
-// HandleChangeModeRequest()
-//
-//==============================================================================
-
-static void HandleChangeModeRequest(int sock)
-{
-    // Read the request request.
-
-    struct ExecutorChangeModeRequest request;
-
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    // Change the mode of the file.
-
-    Log(LOG_INFO, "HandleChangeModeRequest(): path=%s mode=%08X", 
-        request.path, request.mode);
-
-    int status = chmod(request.path, request.mode);
-
-    if (status != 0)
-        Log(LOG_ERR, "chmod(%s, %08X) failed", request.path, request.mode);
-
-    // Send response message.
-
-    struct ExecutorChangeModeResponse response;
-    memset(&response, 0, sizeof(response));
-    response.status = status;
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-}
-
-//==============================================================================
-//
 // Executor()
 //
 //     The executor process.
@@ -1537,10 +1515,6 @@ static void Executor(int sock, int childPid)
 
             case EXECUTOR_REMOVE_FILE_REQUEST:
                 HandleRemoveFileRequest(sock);
-                break;
-
-            case EXECUTOR_CHANGE_MODE_REQUEST:
-                HandleChangeModeRequest(sock);
                 break;
 
             default:
@@ -1675,30 +1649,28 @@ int main(int argc, char** argv)
 
     arg0 = argv[0];
 
-    // Create a socket pair for communicating with the child process. This must
-    // be the first descriptor created since the child process assumes the 
-    // inherited socket descriptor is 3 (stdin=0, stdout=1, stderr=2).
+    // Create a socket pair for communicating with the child process.
 
     int pair[2];
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, pair) != 0)
         Fatal(FL, "failed to create socket pair");
 
-    if (pair[0] != 3)
-        Fatal(FL, "internal assumption failed");
-
     CloseOnExec(pair[1]);
+
+    // Define PEGASUS_EXECUTOR_SOCKET environmnent variable for passing
+    // socket to child process.
+
+    {
+        char buffer[EXECUTOR_MAX_PATH_LENGTH];
+        sprintf(buffer, "PEGASUS_EXECUTOR_SOCKET=%d", pair[0]);
+        putenv(buffer);
+    }
 
     // Open the log.
 
     OpenLog(false, "cimexecutor");
     Log(LOG_INFO, "<<<<<<<<<< start >>>>>>>>>>");
-
-    // Define __PEGASAUS_EXECUTOR__ environmnent variable. The ExecutorClient
-    // uses this variable to determine whether to talk to the executor over
-    // a socket or to use loopback mode.
-
-    putenv("__PEGASAUS_EXECUTOR__=1");
 
     // Be sure this process is running as root (otherwise fail).
 

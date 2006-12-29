@@ -1,59 +1,31 @@
-    ============================================================================
+
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    ============================================================================
 
-    (A) Revisit whole forking model (setsid() and forking twice?).
-        See UNP p369.
+    (A) Consider getting rid of HandleRenameFileRequest().
 
-    (A) Think through daemonization again. Is there anyway to do away with
-        daemonization request and just read the daemonization parameter
-        ahead of time?
-
-    (A) Setsid()?
-
-    (A) Killing cimserver should also kill cimservermain.
+    (A) Consider daemonizing before forking child process. Use configuration
+        options (daemon=true).
 
     (A) Move PAM into executor process.
-
-    (A) Convert uid to user name for messages.
 
     (A) Test all authentication modes.
 
     (A) Test all OOP execution modes.
 
-    (A) During local-authenticaiton, the server program creates a temporary
-        challenge file called /tmp/cimclient_<username>_<num>. Be sure to
-        add a policy check for this file.
-
-    (A) Implement policy checks.
+    (A) Implement policy checks on all operations.
 
     (A) Logging via syslog (implement log-level option).
 
-    (A) How do we handle the syslog program names (cimservermain and 
-        cimserver, or cimexecutor and cimserver)?
+    (A) Implement provider policy file (from repository).
 
-    ============================================================================
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-    ============================================================================
-
-    (B) Prepend underscore to static function.
-
-    (B) Converter executor back to C program.
-
-    (B) Possibly add option to specify which user cimservermain is run as
-        (this is to override the default behavior, which is to run it as the
-        cimservermain program owner).
 
     (B) Examine usage of functions that may create, delete, or rename files.
+        (FileSystem::*, ofstream(), fopen(), open()).
 
-            FileSystem::...
-            ofstream()
-            fopen()
-            open()
+    (B) Convert executor to pure C program.
 
-    (B) Should the executor kill cimserver when it exits on fatal errors?
+    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-    (B) Remove backtrace calls from Exeception.cpp.
-
-    (B) Revisit ownership of Unix domain socket file.
-
+    (C) Should ExecutorClient eventually be a C program too? Perhaps it will
+        be needed by CMPI?

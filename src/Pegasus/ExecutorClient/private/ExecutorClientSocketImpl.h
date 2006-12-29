@@ -75,8 +75,6 @@ public:
 
     virtual int daemonizeExecutor();
 
-    virtual int shutdownExecutor();
-
     virtual int changeOwner(
         const char* path,
         const char* owner);

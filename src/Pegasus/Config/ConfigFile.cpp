@@ -292,7 +292,6 @@ void ConfigFile::save(ConfigTable* confTable)
 
     if (!ofs)
     {
-printf("1111\n");
         throw CannotOpenFile(_configFile);
     }
 
@@ -303,6 +302,7 @@ printf("1111\n");
     for (int index = 0; index < HEADER_SIZE; index++)
     {
         fputs(ConfigHeader[index], ofs);
+        fputc('\n', ofs);
     }
 
     //
@@ -326,7 +326,6 @@ printf("1111\n");
     if (ExecutorClient::changeMode(_configFile.getCString(),
         (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) != 0)    // set 0644
     {
-printf("2222\n");
         throw CannotOpenFile(_configFile);
     }
 
@@ -349,7 +348,6 @@ void ConfigFile::replace (const String& fileName)
 
     if (!ifs)
     {
-printf("3333\n");
         throw CannotOpenFile(fileName);
     }
 
@@ -372,7 +370,6 @@ printf("3333\n");
             _configFile.getCString(), _configBackupFile.getCString()) != 0)
         {
             fclose(ifs);
-printf("4444\n");
             throw CannotRenameFile(_configFile);
         }
     }
@@ -386,7 +383,6 @@ printf("4444\n");
     if (!ofs)
     {
         fclose(ifs);
-printf("7777\n");
         throw CannotOpenFile(_configFile);
     }
 
@@ -415,7 +411,6 @@ printf("7777\n");
     if (ExecutorClient::changeMode(_configFile.getCString(),
         (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) != 0)    // set 0644
     {
-printf("8888\n");
         throw CannotOpenFile(_configFile);
     }
 

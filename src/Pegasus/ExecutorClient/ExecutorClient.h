@@ -80,8 +80,6 @@ public:
 
     static int daemonizeExecutor();
 
-    static int shutdownExecutor();
-
     static int changeOwner(
         const char* path,
         const char* owner);

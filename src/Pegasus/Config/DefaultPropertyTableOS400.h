@@ -31,57 +31,29 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _ExecutorClient_ExecutorClientImpl_h
-#define _ExecutorClient_ExecutorClientImpl_h
+#ifndef Pegasus_DefaultPropertyTableOS400_h
+#define Pegasus_DefaultPropertyTableOS400_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/AnonymousPipe.h>
-
-PEGASUS_NAMESPACE_BEGIN
-
-class ExecutorClientImpl
-{
-public:
-
-    ExecutorClientImpl();
-
-    virtual ~ExecutorClientImpl();
-
-    virtual int ping() = 0;
-
-    virtual FILE* openFile(
-        const char* path,
-        int mode) = 0;
-
-    virtual int removeFile(
-        const char* path) = 0;
-
-    virtual int renameFile(
-        const char* oldPath,
-        const char* newPath) = 0;
-
-    virtual int changeMode(
-        const char* path,
-        int mode) = 0;
-
-    virtual int startProviderAgent(
-        const char* module, 
-        int uid,
-        int gid, 
-        int& pid,
-        AnonymousPipe*& readPipe,
-        AnonymousPipe*& writePipe) = 0;
-
-    virtual int daemonizeExecutor() = 0;
-
-    virtual int changeOwner(
-        const char* path,
-        const char* owner) = 0;
-
-private:
-};
-
-PEGASUS_NAMESPACE_END
-
-#endif /* _ExecutorClient_ExecutorClientImpl_h */
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "/QIBM/UserData/OS400/CIM", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"serverUser", "pegasus", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpAuthType","Basic",IS_STATIC, 0, 0, IS_VISIBLE},
+    {"messageDir","/QIBM/ProdData/OS400/CIM/msg",IS_STATIC, 0, 0, IS_VISIBLE},
+# ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+    {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+# endif
+# ifdef PEGASUS_DEFAULT_ENABLE_OOP
+    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# endif
+    {"maxProviderProcesses","0",IS_STATIC, 0, 0, IS_VISIBLE},
+#endif /* Pegasus_DefaultPropertyTableOS400_h */

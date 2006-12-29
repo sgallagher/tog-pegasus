@@ -38,6 +38,11 @@
 #include "Tracer.h"
 #include "Backtrace.h"
 
+#ifdef PEGASUS_BACKTRACE
+# undef PEGASUS_BACKTRACE
+# define PEGASUS_BACKTRACE /* */
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 Exception::Exception(const String& message)

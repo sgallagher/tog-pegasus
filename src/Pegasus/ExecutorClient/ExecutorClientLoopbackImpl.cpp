@@ -380,12 +380,6 @@ int ExecutorClientLoopbackImpl::daemonizeExecutor()
     return 0;
 }
 
-int ExecutorClientLoopbackImpl::shutdownExecutor()
-{
-    // Nothing to do.
-    return 0;
-}
-
 int ExecutorClientLoopbackImpl::changeOwner(
     const char* path,
     const char* owner)

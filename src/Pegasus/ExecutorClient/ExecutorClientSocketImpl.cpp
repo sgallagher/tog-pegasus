@@ -486,30 +486,6 @@ int ExecutorClientSocketImpl::daemonizeExecutor()
     return response.status;
 }
 
-int ExecutorClientSocketImpl::shutdownExecutor()
-{
-    AutoMutex autoMutex(_mutex);
-
-    // Send request header:
-
-    ExecutorRequestHeader header;
-    header.code = EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST;
-
-    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
-        return -1;
-
-    // Receive the response
-
-    ExecutorDaemonizeExecutorResponse response;
-
-    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
-        return -1;
-
-    // Check response status and pid.
-
-    return response.status;
-}
-
 int ExecutorClientSocketImpl::changeOwner(
     const char* path,
     const char* owner)

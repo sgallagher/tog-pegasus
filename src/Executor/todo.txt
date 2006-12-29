@@ -2,6 +2,8 @@
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     ============================================================================
 
+    (A) Setsid()?
+
     (A) Killing cimserver should also kill cimservermain.
 
     (A) Move PAM into executor process.
@@ -18,8 +20,6 @@
 
     (A) Implement policy checks.
 
-    (A) Revisit ownership of Unix domain socket file.
-
     (A) Logging via syslog (implement log-level option).
 
     (A) How do we handle the syslog program names (cimservermain and 
@@ -28,6 +28,8 @@
     ============================================================================
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
     ============================================================================
+
+    (B) Prepend underscore to static function.
 
     (B) Converter executor back to C program.
 
@@ -42,4 +44,9 @@
             fopen()
             open()
 
-    (B) Should the executor shutdown cimserver when it exits on fatal errors?
+    (B) Should the executor kill cimserver when it exits on fatal errors?
+
+    (B) Remove backtrace calls from Exeception.cpp.
+
+    (B) Revisit ownership of Unix domain socket file.
+

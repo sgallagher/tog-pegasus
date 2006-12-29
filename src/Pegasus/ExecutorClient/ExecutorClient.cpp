@@ -113,11 +113,6 @@ int ExecutorClient::daemonizeExecutor()
     return _impl()->daemonizeExecutor();
 }
 
-int ExecutorClient::shutdownExecutor()
-{
-    return _impl()->shutdownExecutor();
-}
-
 int ExecutorClient::changeOwner(
     const char* path,
     const char* owner)

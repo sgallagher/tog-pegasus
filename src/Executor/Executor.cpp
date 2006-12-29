@@ -105,8 +105,10 @@ typedef unsigned long long uint64;
 #define STRLCPY(DEST, SRC, DEST_SIZE) \
     do \
     { \
-        const size_t n = DEST_SIZE; \
-        if (Strlcpy(DEST, SRC, n) >= n) \
+        char* dest = (DEST); \
+        const char* src = (SRC); \
+        const size_t n = (DEST_SIZE); \
+        if (Strlcpy(dest, src, n) >= n) \
             Fatal(FL, \
                 "%s(%d): buffer overrun in STRLCPY()", __FILE__, __LINE__); \
     } \
@@ -121,8 +123,10 @@ typedef unsigned long long uint64;
 #define STRLCAT(DEST, SRC, DEST_SIZE) \
     do \
     { \
-        const size_t n = DEST_SIZE; \
-        if (Strlcat(DEST, SRC, n) >= n) \
+        char* dest = (DEST); \
+        const char* src = (SRC); \
+        const size_t n = (DEST_SIZE); \
+        if (Strlcat(dest, src, n) >= n) \
             Fatal(FL, \
                 "%s(%d): buffer overrun in STRLCAT()", __FILE__, __LINE__); \
     } \
@@ -138,6 +142,17 @@ typedef unsigned long long uint64;
 
 static const char* arg0;
 
+//==============================================================================
+//
+// _childPid
+// _childUid
+// _childGid
+//
+//==============================================================================
+
+static int _childPid;
+static int _childUid;
+static int _childGid;
 
 //==============================================================================
 //
@@ -156,28 +171,6 @@ void SigTermHandler(int signum)
 
 //==============================================================================
 //
-// struct CimServerMainInfo
-//
-//     This structure maintains information about the cimservermain program.
-//
-//==============================================================================
-
-struct CimServerMainInfo
-{
-    // Full path of cimservermain program.
-    char path[EXECUTOR_MAX_PATH_LENGTH];
-
-    // UID of user that owns the cimservermain program.
-    int uid;
-
-    // GID of user that owns the cimservermain program.
-    int gid;
-};
-
-struct CimServerMainInfo _cimServerMainInfo;
-
-//==============================================================================
-//
 // _shutdownFlag
 //
 //     This flag indicates that the cimservermain process is shutting down.
@@ -190,6 +183,8 @@ static bool _shutdownFlag = false;
 //==============================================================================
 //
 // OpenLog()
+//
+//     Opens a session with the SYSLOG facility.
 //
 //==============================================================================
 
@@ -207,7 +202,7 @@ static void OpenLog(bool perror, const char* program)
 //
 // Log()
 //
-//     Log function.
+//     Sends a log message to the SYSLOG facility.
 //
 //==============================================================================
 
@@ -217,6 +212,24 @@ static void Log(int priority, const char *format, ...)
     va_start(ap, format);
     vsyslog(priority, format, ap);
     va_end(ap);
+}
+
+//==============================================================================
+//
+// Exit()
+//
+//     The executor exit routine, which kills the cimservermain process.
+//
+//==============================================================================
+
+static void Exit(int status)
+{
+    Log(LOG_INFO, "<<<<<<<<<< exit >>>>>>>>>>");
+
+    if (_childPid > 0)
+        kill(_childPid, SIGTERM);
+
+    exit(status);
 }
 
 //==============================================================================
@@ -250,7 +263,7 @@ static void Fatal(const char* file, size_t line, const char* format, ...)
         fputc('\n', stderr);
     }
 
-    exit(1);
+    Exit(1);
 }
 
 //==============================================================================
@@ -504,34 +517,34 @@ static ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 
 //==============================================================================
 //
-// GetPegasusRepositoryDir()
+// GetHomedPath()
 //
 //==============================================================================
 
-static void GetPegasusRepositoryDir(char path[EXECUTOR_MAX_PATH_LENGTH])
+static int GetHomedPath(
+    const char* name,
+    char path[EXECUTOR_MAX_PATH_LENGTH])
 {
-    if (PEGASUS_REPOSITORY_DIR[0] == '/')
+    // If absolute, then use the name as is.
+
+    if (name[0] == '/')
     {
-        STRLCPY(path, PEGASUS_REPOSITORY_DIR, EXECUTOR_MAX_PATH_LENGTH);
-        return;
+        STRLCPY(path, name, EXECUTOR_MAX_PATH_LENGTH);
+        return 0;
     }
+
+    // Use PEGASUS_HOME to 
 
     const char* home = getenv("PEGASUS_HOME");
 
     if (!home)
-        Fatal(FL, "Failed to locate Pegasus repository directory");
+        return -1;
 
     STRLCPY(path, home, EXECUTOR_MAX_PATH_LENGTH);
     STRLCAT(path, "/", EXECUTOR_MAX_PATH_LENGTH);
-    STRLCAT(path, PEGASUS_REPOSITORY_DIR, EXECUTOR_MAX_PATH_LENGTH);
+    STRLCAT(path, name, EXECUTOR_MAX_PATH_LENGTH);
 
-    struct stat st;
-
-    if (stat(path, &st) != 0)
-        Fatal(FL, "Pegasus repository directory does not exist: \"%s\"", path);
-
-    if (!S_ISDIR(st.st_mode))
-        Fatal(FL, "not a directory \"%s\"", path);
+    return 0;
 }
 
 //==============================================================================
@@ -610,21 +623,6 @@ static void ChangeDirOwnerRecursive(
 
 //==============================================================================
 //
-// ChangeRepositoryDirOwner()
-//
-//     Recursively change ownership of Pegasus repository directory.
-//
-//==============================================================================
-
-static void ChangeRepositoryDirOwner(int uid, int gid)
-{
-    char path[EXECUTOR_MAX_PATH_LENGTH];
-    GetPegasusRepositoryDir(path);
-    ChangeDirOwnerRecursive(path, uid, gid);
-}
-
-//==============================================================================
-//
 // GetPegasusInternalBinDir()
 //
 //     Get the Pegasus "lbin" directory. This is the directory that contains
@@ -678,6 +676,27 @@ static void GetPegasusInternalBinDir(char path[EXECUTOR_MAX_PATH_LENGTH])
 
     if (!S_ISDIR(st.st_mode))
         Fatal(FL, "Not a directory \"%s\"", path);
+}
+
+//==============================================================================
+//
+// AccessDir()
+//
+//     Returns 0 if able to stat given path and it is a directory.
+//
+//==============================================================================
+
+int AccessDir(const char* path)
+{
+    struct stat st;
+
+    if (stat(path, &st) != 0)
+        return -1;
+
+    if (!S_ISDIR(st.st_mode))
+        return -1;
+
+    return 0;
 }
 
 //==============================================================================
@@ -785,6 +804,58 @@ static void HandleOpenFileRequest(int sock)
 
 //==============================================================================
 //
+// GetUserInfo()
+//
+//     Lookup the given user's uid and gid.
+//
+//==============================================================================
+
+static int GetUserInfo(const char* user, int& uid, int& gid)
+{
+    struct passwd pwd;
+    const unsigned int PWD_BUFF_SIZE = 4096;
+    char buffer[PWD_BUFF_SIZE];
+    struct passwd* ptr = 0;
+
+    if (getpwnam_r(user, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
+    {
+        Log(LOG_ERR, "getpwnam_r(%s, ...) failed", user);
+        return -1;
+    }
+
+    uid = ptr->pw_uid;
+    gid = ptr->pw_gid;
+
+    return 0;
+}
+
+//==============================================================================
+//
+// GetUserName()
+//
+//     Lookup the given user's uid and gid.
+//
+//==============================================================================
+
+static int GetUserInfo(int uid, char username[EXECUTOR_MAX_PATH_LENGTH])
+{
+    struct passwd pwd;
+    const unsigned int PWD_BUFF_SIZE = 4096;
+    char buffer[PWD_BUFF_SIZE];
+    struct passwd* ptr = 0;
+
+    if (getpwuid_r(uid, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
+    {
+        Log(LOG_ERR, "getpwuid_r(%d, ...) failed", uid);
+        return -1;
+    }
+
+    STRLCPY(username, ptr->pw_name, EXECUTOR_MAX_PATH_LENGTH);
+    return 0;
+}
+
+//==============================================================================
+//
 // HandleStartProviderAgentRequest()
 //
 //==============================================================================
@@ -804,7 +875,7 @@ static void HandleStartProviderAgentRequest(int sock)
     // Map cimservermain user to root to preserve pre-privilege-separation
     // behavior.
 
-    if (request.uid == _cimServerMainInfo.uid)
+    if (request.uid == _childUid)
     {
         Log(LOG_INFO, 
             "using root instead of cimservermain user for cimprovagt");
@@ -812,9 +883,6 @@ static void HandleStartProviderAgentRequest(int sock)
         request.uid = 0;
         request.gid = 0;
     }
-
-    if (request.uid == 0)
-        Log(LOG_INFO, "***** starting provider agent as root");
 
     // Process request.
 
@@ -896,6 +964,14 @@ static void HandleStartProviderAgentRequest(int sock)
                         Log(LOG_ERR, "setuid(%d) failed\n", request.uid);
                 }
             }
+
+            char username[EXECUTOR_MAX_PATH_LENGTH];
+
+            if (GetUserInfo(getuid(), username) != 0)
+                Fatal(FL, "failed to resolve username for uid=%d", getuid());
+
+            Log(LOG_INFO, "starting cimprovagt as %s (uid=%d, gid=%d)",
+                username, getuid(), getgid());
 
 # endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
 
@@ -1007,45 +1083,18 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
 //==============================================================================
 //
-// _getUserInfo()
-//
-//     Lookup the given user's uid and gid.
-//
-//==============================================================================
-
-static int _getUserInfo(const char* user, int& uid, int& gid)
-{
-    struct passwd pwd;
-    const unsigned int PWD_BUFF_SIZE = 1024;
-    char buffer[PWD_BUFF_SIZE];
-    struct passwd* ptr = 0;
-
-    if (getpwnam_r(user, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
-    {
-        Log(LOG_ERR, "getpwnam_r(%s, ...) failed", user);
-        return -1;
-    }
-
-    uid = ptr->pw_uid;
-    gid = ptr->pw_gid;
-
-    return 0;
-}
-
-//==============================================================================
-//
-// _changeOwner()
+// ChangeOwner()
 //
 //     Change the given file's owner.
 //
 //==============================================================================
 
-static int _changeOwner(const char* path, const char* owner)
+static int ChangeOwner(const char* path, const char* owner)
 {
     int uid;
     int gid;
 
-    if (_getUserInfo(owner, uid, gid) != 0)
+    if (GetUserInfo(owner, uid, gid) != 0)
         return -1;
 
     if (chown(path, uid, gid) != 0)
@@ -1077,11 +1126,11 @@ static void HandleChangeOwnerRequest(int sock)
     Log(LOG_INFO, "HandleChangeOwnerRequest(): path=%s owner=%s",
         request.path, request.owner);
 
-    int status = _changeOwner(request.path, request.owner);
+    int status = ChangeOwner(request.path, request.owner);
 
     if (status != 0)
     {
-        Log(LOG_ERR, "_changeOwner(%s, %s) failed",
+        Log(LOG_ERR, "ChangeOwner(%s, %s) failed",
             request.path, request.owner);
     }
 
@@ -1221,25 +1270,6 @@ static void HandleChangeModeRequest(int sock)
 
 //==============================================================================
 //
-// HandleShutdownExecutorRequest()
-//
-//==============================================================================
-
-static void HandleShutdownExecutorRequest(int sock)
-{
-    Log(LOG_INFO, "HandleShutdownExecutorRequest()");
-
-    ExecutorShutdownExecutorResponse response = { 0 };
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-
-    Log(LOG_NOTICE, "shutting down");
-    exit(0);
-}
-
-//==============================================================================
-//
 // Executor()
 //
 //     The monitor process.
@@ -1248,6 +1278,10 @@ static void HandleShutdownExecutorRequest(int sock)
 
 static void Executor(int sock, int childPid)
 {
+    // Save child PID globally; it is used by Exit() function.
+
+    _childPid = childPid;
+
     // Prepares socket into non-blocking I/O.
 
     SetNonBlocking(sock);
@@ -1308,10 +1342,6 @@ static void Executor(int sock, int childPid)
                 HandleChangeModeRequest(sock);
                 break;
 
-            case EXECUTOR_SHUTDOWN_EXECUTOR_REQUEST:
-                HandleShutdownExecutorRequest(sock);
-                break;
-
             default:
                 Fatal(FL, "invalid request code: %d", header.code);
                 break;
@@ -1321,17 +1351,195 @@ static void Executor(int sock, int childPid)
     // Reached due to socket EOF or SIGTERM.
 
     if (_caughtSigTerm)
-    {
         Log(LOG_INFO, "caught SIGTERM");
 
-        // Kill off cimservermain.
-        Log(LOG_INFO, "killing cimservermain");
-        kill(childPid, SIGTERM);
+    Exit(0);
+}
+
+//==============================================================================
+//
+// FindCommandLineOption()
+//
+//     Attempt to find a command line config option of the form name=value. 
+//     For example: cimservermain repositoryDir=/opt/pegasus/repository. 
+//     Return 0 if found.
+//
+//==============================================================================
+
+static int FindCommandLineOption(
+    int argc,
+    char** argv,
+    const char* name,
+    char value[EXECUTOR_MAX_PATH_LENGTH])
+{
+    size_t n = strlen(name);
+
+    for (int i = 1; i < argc; i++)
+    {
+        if (strncmp(argv[i], name, n) == 0 && argv[i][n] == '=')
+        {
+            const char* p = argv[i] + n + 1;
+            STRLCPY(value, argv[i] + n + 1, EXECUTOR_MAX_PATH_LENGTH);
+            return 0;
+        }
     }
 
-    Log(LOG_INFO, "<<<<<<<<<< exit >>>>>>>>>>");
+    return -1;
+}
 
-    exit(0);
+//==============================================================================
+//
+// FindConfigFileOption()
+//
+//     Attempt to find the named option in the configuration file. If found,
+//     set value and return 0.
+//
+//==============================================================================
+
+static int FindConfigFileOption(
+    const char* path,
+    const char* name,
+    char value[EXECUTOR_MAX_PATH_LENGTH])
+{
+    FILE* is = fopen(path, "r");
+
+    if (!is)
+        return -1;
+
+    char buffer[EXECUTOR_MAX_PATH_LENGTH];
+    const size_t n = strlen(name);
+
+    while (fgets(buffer, sizeof(buffer), is) != 0)
+    {
+        // Skip comments.
+
+        if (buffer[0] == '#')
+            continue;
+
+        // Remove trailing whitespace.
+
+        size_t r = strlen(buffer);
+
+        while (r--)
+        {
+            if (isspace(buffer[r]))
+                buffer[r] = '\0';
+        }
+
+        // Skip blank lines.
+
+        if (buffer[0] == '\0')
+            continue;
+
+        // Check option.
+
+        if (strncmp(buffer, name, n) == 0 &&  buffer[n] == '=')
+        {
+            STRLCPY(value, buffer + n + 1, EXECUTOR_MAX_PATH_LENGTH);
+            fclose(is);
+            return 0;
+        }
+    }
+
+    // Not found!
+    fclose(is);
+    return -1;
+}
+
+//==============================================================================
+//
+// FindConfigOption()
+//
+//     Attempt to find a configuration setting for the given name. First,
+//     search the command line and then the config file.
+//
+//==============================================================================
+
+static int FindConfigOption(
+    int argc,
+    char** argv,
+    const char* name,
+    char value[EXECUTOR_MAX_PATH_LENGTH])
+{
+    // (1) First check command line.
+
+    if (FindCommandLineOption(argc, argv, name, value) == 0)
+        return 0;
+
+    // (2) Next check config file.
+
+    // ATTN: Is this right. Should we check the current or the planned?
+
+    char path[EXECUTOR_MAX_PATH_LENGTH];
+
+    if (GetHomedPath(PEGASUS_PLANNED_CONFIG_FILE_PATH, path) == 0 &&
+        FindConfigFileOption(path, name, value) == 0)
+        return 0;
+
+    // Not found!
+    return -1;
+}
+
+//==============================================================================
+//
+// LocateRepositoryDirectory()
+//
+//==============================================================================
+
+static int LocateRepositoryDirectory(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_MAX_PATH_LENGTH])
+{
+    if (FindConfigOption(argc, argv, "repositoryDir", path) == 0)
+        return 0;
+
+    if (GetHomedPath(PEGASUS_REPOSITORY_DIR, path) == 0)
+        return 0;
+
+    // Not found!
+    return -1;
+}
+
+//==============================================================================
+//
+// GetServerUser
+//
+//     Determine which user to run cimservermain as.
+//
+//==============================================================================
+
+int GetServerUser(
+    int argc,
+    char** argv,
+    char path[EXECUTOR_MAX_PATH_LENGTH], 
+    int& uid, 
+    int& gid)
+{
+    // (1) First try to find serverUser configuration option.
+
+    char user[EXECUTOR_MAX_PATH_LENGTH];
+
+    if (FindConfigOption(argc, argv, "serverUser", user) == 0)
+    {
+        if (GetUserInfo(user, uid, gid) == 0)
+            return 0;
+
+        Fatal(FL, "serverUser option specifies unknown user: %s", user);
+        return -1;
+    }
+
+    // (2) Now just use the owner of the cimservermain program.
+
+    struct stat st;
+
+    if (stat(path, &st) != 0)
+        Fatal(FL, "stat(%s) failed", path);
+
+    uid = st.st_uid;
+    gid = st.st_gid;
+
+    return 0;
 }
 
 //==============================================================================
@@ -1345,47 +1553,66 @@ static void Executor(int sock, int childPid)
 static void Child(
     int argc, 
     char** argv, 
-    CimServerMainInfo& info,
+    char path[EXECUTOR_MAX_PATH_LENGTH],
+    int uid,
+    int gid,
     int sock)
 {
-    // Change ownership of Pegasus repository directory (it should be owned
-    // by same user that owns CIMSERVERMAIN.
+    // Locate repository directory.
 
-    ChangeRepositoryDirOwner(info.uid, info.gid);
+    char repositoryDir[EXECUTOR_MAX_PATH_LENGTH];
+
+    if (LocateRepositoryDirectory(argc, argv, repositoryDir) != 0)
+        Fatal(FL, "failed to locate repository directory");
+
+    // Check whether repository directory exists.
+
+    if (AccessDir(repositoryDir) != 0)
+        Fatal(FL, "failed to access repository directory: %s", repositoryDir);
+
+    // Change ownership of Pegasus repository directory (it should be owned
+    // by same user that owns CIMSERVERMAIN).
+
+    ChangeDirOwnerRecursive(repositoryDir, uid, gid);
+
+    Log(LOG_INFO, "Pegasus repositoryDir is \"%s\"", repositoryDir);
 
     // Downgrade privileges by setting the UID and GID of this process. Use
     // the owner of the CIMSERVERMAIN program obtained above.
 
-    if (info.uid == 0 || info.gid == 0)
+    if (uid == 0 || gid == 0)
     {
         Fatal(FL, "root may not own %s since the program is run as owner",
-            info.path);
-        exit(1);
+            path);
     }
 
-    if (setgid(info.gid) != 0)
+    if (setgid(gid) != 0)
     {
-        Fatal(FL, "Failed to set gid to %d", info.gid);
-        exit(1);
+        Fatal(FL, "Failed to set gid to %d", gid);
     }
 
-    if (setuid(info.uid) != 0)
+    if (setuid(uid) != 0)
     {
-        Fatal(FL, "Failed to set uid to %d", info.uid);
-        exit(1);
+        Fatal(FL, "Failed to set uid to %d", uid);
     }
 
-    if ((int)getuid() != info.uid || 
-        (int)geteuid() != info.uid || 
-        (int)getgid() != info.gid || 
-        (int)getegid() != info.gid)
+    if ((int)getuid() != uid || 
+        (int)geteuid() != uid || 
+        (int)getgid() != gid || 
+        (int)getegid() != gid)
     {
         Fatal(FL, "setuid/setgid verification failed\n");
-        exit(1);
     }
 
-    Log(LOG_INFO, "creating %s with uid=%d and gid=%d", CIMSERVERMAIN, 
-        info.uid, info.gid);
+    // Log user info.
+
+    char username[EXECUTOR_MAX_PATH_LENGTH];
+
+    if (GetUserInfo(uid, username) != 0)
+        Fatal(FL, "cannot resolve user from uid=%d", uid);
+
+    Log(LOG_INFO, "%s running as %s (uid=%d, gid=%d)", CIMSERVERMAIN, 
+        username, uid, gid);
 
     // Precheck that cimxml.socket is owned by cimservermain process. If not,
     // then the bind would fail in the cimservermain process much later and
@@ -1396,8 +1623,8 @@ static void Child(
         struct stat st;
 
         if (stat(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, &st) != 0 ||
-            (int)st.st_uid != info.uid || 
-            (int)st.st_gid != info.gid)
+            (int)st.st_uid != uid || 
+            (int)st.st_gid != gid)
         {
             Fatal(FL, "cimservermain process cannot stat or does not own %s",
                 PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
@@ -1413,38 +1640,12 @@ static void Child(
 
     // Exec child process.
 
-    if (execv(info.path, childArgv) != 0)
-        Fatal(FL, "failed to exec %s", info.path);
+    if (execv(path, childArgv) != 0)
+        Fatal(FL, "failed to exec %s", path);
 
     // ATTN: log this failure.
 
     exit(0);
-}
-
-//==============================================================================
-//
-// GetCimServerMainInfo
-//
-//     Get information about the cimservermain program. See CimServerMainInfo
-//     structure for details.
-//
-//==============================================================================
-
-static void GetCimServerMainInfo(CimServerMainInfo& info)
-{
-    // Get program name.
-
-    GetInternalPegasusProgramPath(CIMSERVERMAIN, info.path);
-
-    // Get the owner uid-gid of the CIMSERVERMAIN program.
-
-    struct stat st;
-
-    if (stat(info.path, &st) != 0)
-        Fatal(FL, "stat(%s) failed", info.path);
-
-    info.uid = st.st_uid;
-    info.gid = st.st_gid;
 }
 
 //==============================================================================
@@ -1471,10 +1672,11 @@ int main(int argc, char** argv)
     if (pair[0] != 3)
         Fatal(FL, "internal assumption failed");
 
+    CloseOnExec(pair[1]);
+
     // Open the log.
 
     OpenLog(false, "cimexecutor");
-
     Log(LOG_INFO, "<<<<<<<<<< start >>>>>>>>>>");
 
     // Define __PEGASAUS_EXECUTOR__ environmnent variable. The ExecutorClient
@@ -1494,13 +1696,13 @@ int main(int argc, char** argv)
 
     // Print user info.
 
-    Log(LOG_INFO, "started executor with uid=%d, gid=%d\n", 
-        (int)getuid(), (int)getgid());
+    char username[EXECUTOR_MAX_PATH_LENGTH];
 
-    // Close pair[1] on exec system calls so the child process does not 
-    // inherit it.
+    if (GetUserInfo(getuid(), username) != 0)
+        Fatal(FL, "cannot resolve user from uid=%d", getuid());
 
-    CloseOnExec(pair[1]);
+    Log(LOG_INFO, "running as %s (uid=%d, gid=%d)",
+        username, (int)getuid(), (int)getgid());
 
     // Prepare for shutdown sequence.
 
@@ -1509,9 +1711,14 @@ int main(int argc, char** argv)
         _shutdownFlag = true;
     }
 
-    // Get information about the CIMSERVERMAIN program.
+    // Get cimservermain program name.
 
-    GetCimServerMainInfo(_cimServerMainInfo);
+    char cimservermainPath[EXECUTOR_MAX_PATH_LENGTH];
+    GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath);
+
+    // Determine user to run cimservermain as.
+
+    GetServerUser(argc, argv, cimservermainPath, _childUid, _childGid);
 
     // Fork child process.
 
@@ -1521,7 +1728,7 @@ int main(int argc, char** argv)
     {
         // Child.
         close(pair[1]);
-        Child(argc, argv, _cimServerMainInfo, pair[0]);
+        Child(argc, argv, cimservermainPath, _childUid, _childGid, pair[0]);
     }
     else if (childPid > 0)
     {

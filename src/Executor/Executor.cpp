@@ -100,6 +100,8 @@ typedef unsigned long long uint64;
 //
 // STRLCPY()
 //
+//     Buffer-overrun-checked version of Strlcpy().
+//
 //==============================================================================
 
 #define STRLCPY(DEST, SRC, DEST_SIZE) \
@@ -117,6 +119,8 @@ typedef unsigned long long uint64;
 //==============================================================================
 //
 // STRLCAT()
+//
+//     Buffer-overrun-checked version of Strlcat().
 //
 //==============================================================================
 
@@ -144,9 +148,11 @@ static const char* arg0;
 
 //==============================================================================
 //
-// _childPid
-// _childUid
-// _childGid
+// Child process information (cimservermain process)
+//
+//     _childPid
+//     _childUid
+//     _childGid
 //
 //==============================================================================
 
@@ -282,24 +288,6 @@ static inline int CloseOnExec(int fd)
 
 //==============================================================================
 //
-// GetCurrentTime()
-//
-//     Get microseconds (usec) ellapsed since epoch.
-//
-//==============================================================================
-
-uint64 GetCurrentTime()
-{
-    // ATTN: delete this function?
-    struct timeval  tv;
-    struct timezone ignore;
-    gettimeofday(&tv, &ignore);
-
-    return uint64(tv.tv_sec) * uint64(1000000) + uint64(tv.tv_usec);
-}
-
-//==============================================================================
-//
 // SetNonBlocking()
 //
 //     Set the given socket into non-blocking mode.
@@ -357,7 +345,9 @@ int WaitForWriteEnable(int sock, long timeoutMsec)
 
 //==============================================================================
 //
-// Recv
+// Recv()
+//
+//     Receive at least size bytes from the given non-blocking socket.
 //
 //==============================================================================
 
@@ -423,7 +413,7 @@ static ssize_t Recv(int sock, void* buffer, size_t size)
 //
 // Send()
 //
-//     Sends *size* bytes onto the given socket.
+//     Sends at least size bytes on the given non-blocking socket.
 //
 //==============================================================================
 
@@ -518,6 +508,10 @@ static ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 //==============================================================================
 //
 // GetHomedPath()
+//
+//     Get the absolute path of the given named file or directory. If already
+//     absolute it just returns. Otherwise, it prepends the PEGASUS_HOME
+//     environment variable.
 //
 //==============================================================================
 
@@ -718,92 +712,6 @@ static void GetInternalPegasusProgramPath(
 
 //==============================================================================
 //
-// HandlePingRequest()
-//
-//     Handle ping request.
-//
-//==============================================================================
-
-static void HandlePingRequest(int sock)
-{
-    Log(LOG_INFO, "HandlePingRequest()");
-
-    ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-}
-
-//==============================================================================
-//
-// HandleOpenFileRequest()
-//
-//     Handle a request from a child to open a file.
-//
-//==============================================================================
-
-static void HandleOpenFileRequest(int sock)
-{
-    // Read the request request.
-
-    struct ExecutorOpenFileRequest request;
-
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    // Open the file.
-
-    Log(LOG_INFO, "HandleOpenFileRequest(): path=%s", request.path);
-
-    int flags = 0;
-
-    switch (request.mode)
-    {
-        case 'r':
-            flags = O_RDONLY;
-            break;
-
-        case 'w':
-            flags = O_WRONLY | O_CREAT | O_TRUNC;
-            break;
-    }
-
-    int fd;
-
-    if (flags)
-        fd = open(request.path, flags);
-    else
-        fd = -1;
-
-    // Send response message.
-
-    struct ExecutorOpenFileResponse response;
-    memset(&response, 0, sizeof(response));
-
-    if (fd == -1)
-    {
-        Log(LOG_ERR, "open(%s, %c) failed", request.path, request.mode);
-        response.status = -1;
-    }
-    else
-        response.status = 0;
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-
-    // Send descriptor to calling process (if any to send).
-
-    if (fd != -1)
-    {
-        int descriptors[1];
-        descriptors[0] = fd;
-        SendDescriptorArray(sock, descriptors, 1);
-        close(fd);
-    }
-}
-
-//==============================================================================
-//
 // GetUserInfo()
 //
 //     Lookup the given user's uid and gid.
@@ -837,7 +745,7 @@ static int GetUserInfo(const char* user, int& uid, int& gid)
 //
 //==============================================================================
 
-static int GetUserInfo(int uid, char username[EXECUTOR_MAX_PATH_LENGTH])
+static int GetUserName(int uid, char username[EXECUTOR_MAX_PATH_LENGTH])
 {
     struct passwd pwd;
     const unsigned int PWD_BUFF_SIZE = 4096;
@@ -852,233 +760,6 @@ static int GetUserInfo(int uid, char username[EXECUTOR_MAX_PATH_LENGTH])
 
     STRLCPY(username, ptr->pw_name, EXECUTOR_MAX_PATH_LENGTH);
     return 0;
-}
-
-//==============================================================================
-//
-// HandleStartProviderAgentRequest()
-//
-//==============================================================================
-
-static void HandleStartProviderAgentRequest(int sock)
-{
-    // Read request.
-
-    struct ExecutorStartProviderAgentRequest request;
-
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    Log(LOG_INFO, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
-        request.module, request.gid, request.uid);
-
-    // Map cimservermain user to root to preserve pre-privilege-separation
-    // behavior.
-
-    if (request.uid == _childUid)
-    {
-        Log(LOG_INFO, 
-            "using root instead of cimservermain user for cimprovagt");
-
-        request.uid = 0;
-        request.gid = 0;
-    }
-
-    // Process request.
-
-    int status = 0;
-    int pid = -1;
-    int to[2];
-    int from[2];
-
-    do
-    {
-        // Resolve full path of "cimprovagt".
-
-        char path[EXECUTOR_MAX_PATH_LENGTH];
-        GetInternalPegasusProgramPath(CIMPROVAGT, path);
-
-        // Create "to-agent" pipe:
-
-        if (pipe(to) != 0)
-        {
-            status = -1;
-            break;
-        }
-
-        // Create "from-agent" pipe:
-
-        if (pipe(from) != 0)
-        {
-            status = -1;
-            break;
-        }
-
-        // Fork process:
-
-        pid = fork();
-
-        if (pid < 0)
-        {
-            // ATTN: log this.
-            status = -1;
-            break;
-        }
-
-        // If child:
-
-        if (pid == 0)
-        {
-            // Close unused pipe descriptors:
-
-            close(to[1]);
-            close(from[0]);
-
-            // Close unused descriptors. Leave stdin, stdout, stderr, and the
-            // child's pipe descriptors open.
-
-            struct rlimit rlim;
-
-            if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
-            {
-                for (int i = 3; i < int(rlim.rlim_cur); i++)
-                {
-                    if (i != to[0] && i != from[1])
-                        close(i);
-                }
-            }
-
-# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
-
-            if (request.uid != -1 && request.gid != -1)
-            {
-                if ((int)getgid() != request.gid)
-                {
-                    if (setgid(request.gid) != 0)
-                        Log(LOG_ERR, "setgid(%d) failed\n", request.gid);
-                }
-
-                if ((int)getuid() != request.uid)
-                {
-                    if (setuid(request.uid) != 0)
-                        Log(LOG_ERR, "setuid(%d) failed\n", request.uid);
-                }
-            }
-
-            char username[EXECUTOR_MAX_PATH_LENGTH];
-
-            if (GetUserInfo(getuid(), username) != 0)
-                Fatal(FL, "failed to resolve username for uid=%d", getuid());
-
-            Log(LOG_INFO, "starting cimprovagt as %s (uid=%d, gid=%d)",
-                username, getuid(), getgid());
-
-# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
-
-            // Exec the cimprovagt program.
-
-            char arg1[32];
-            char arg2[32];
-            sprintf(arg1, "%d", to[0]);
-            sprintf(arg2, "%d", from[1]);
-
-            Log(LOG_INFO, "execl(%s, %s, %s, %s, %s)\n",
-                path, path, arg1, arg2, request.module);
-
-            execl(path, path, arg1, arg2, request.module, (char*)0);
-
-            Log(LOG_ERR, "execl(%s, %s, %s, %s, %s): failed\n",
-                path, path, arg1, arg2, request.module);
-
-            return;
-        }
-    }
-    while (0);
-
-    // Close unused pipe descriptors.
-
-    close(to[0]);
-    close(from[1]);
-
-    // Send response.
-
-    ExecutorStartProviderAgentResponse response;
-    response.status = status;
-    response.pid = pid;
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-
-    // Send descriptors to calling process.
-
-    if (response.status == 0)
-    {
-        int descriptors[2];
-        descriptors[0] = from[0];
-        descriptors[1] = to[1];
-
-        SendDescriptorArray(sock, descriptors, 2);
-        close(from[0]);
-        close(to[1]);
-    }
-}
-
-//==============================================================================
-//
-// HandleDaemonizeExecutorRequest()
-//
-//==============================================================================
-
-static void HandleDaemonizeExecutorRequest(int sock)
-{
-    Log(LOG_INFO, "HandleDaemonizeExecutorRequest()");
-
-    ExecutorDaemonizeExecutorResponse response = { 0 };
-
-    // Fork:
-
-    int pid = fork();
-
-    if (pid < 0)
-    {
-        response.status = -1;
-        Log(LOG_ERR, "fork() failed");
-
-        if (Send(sock, &response, sizeof(response)) != sizeof(response))
-            Fatal(FL, "failed to write response");
-    }
-
-    // Parent exits:
-
-    if (pid > 0)
-	exit(0);
-
-    // Ignore SIGHUP:
-
-    signal(SIGHUP, SIG_IGN);
-
-    // Catch SIGTERM:
-
-    signal(SIGTERM, SigTermHandler);
-
-    // Set current directory to root:
-
-    chdir("/");
-
-    // Close these file descriptors (stdin, stdout, stderr).
-
-    close(0);
-    close(1);
-    close(2);
-
-    // Direct standard input, output, and error to /dev/null:
-
-    open("/dev/null", O_RDONLY);
-    open("/dev/null", O_RDWR);
-    open("/dev/null", O_RDWR);
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
 }
 
 //==============================================================================
@@ -1106,255 +787,13 @@ static int ChangeOwner(const char* path, const char* owner)
     return 0;
 }
 
-//==============================================================================
-//
-// HandleChangeOwnerRequest()
-//
-//==============================================================================
-
-static void HandleChangeOwnerRequest(int sock)
-{
-    // Read the request request.
-
-    struct ExecutorChangeOwnerRequest request;
-
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    // Change owner.
-
-    Log(LOG_INFO, "HandleChangeOwnerRequest(): path=%s owner=%s",
-        request.path, request.owner);
-
-    int status = ChangeOwner(request.path, request.owner);
-
-    if (status != 0)
-    {
-        Log(LOG_ERR, "ChangeOwner(%s, %s) failed",
-            request.path, request.owner);
-    }
-
-    // Send response message.
-
-    struct ExecutorChangeOwnerResponse response;
-    memset(&response, 0, sizeof(response));
-    response.status = status;
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-}
-
-//==============================================================================
-//
-// HandleRenameFileRequest()
-//
-//==============================================================================
-
-static void HandleRenameFileRequest(int sock)
-{
-    // Read the request request.
-
-    struct ExecutorRenameFileRequest request;
-
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    // Rename the file.
-
-    Log(LOG_INFO, "HandleRenameFileRequest(): oldPath=%s newPath=%s", 
-        request.oldPath, request.newPath);
-
-    // Perform the operation:
-
-    int status = -1;
-
-    do
-    {
-        unlink(request.newPath);
-
-        if (link(request.oldPath, request.newPath) != 0)
-        {
-            Log(LOG_INFO, 
-                "link(%s, %s) failed", request.oldPath, request.newPath);
-            break;
-        }
-
-        if (unlink(request.oldPath) != 0)
-        {
-            Log(LOG_INFO, "unlink(%s) failed", request.oldPath);
-            break;
-        }
-
-        status = 0;
-    }
-    while (0);
-
-    // Send response message.
-
-    struct ExecutorRenameFileResponse response;
-    memset(&response, 0, sizeof(response));
-    response.status = status;
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-}
-
-//==============================================================================
-//
-// HandleRemoveFileRequest()
-//
-//==============================================================================
-
-static void HandleRemoveFileRequest(int sock)
-{
-    // Read the request request.
-
-    struct ExecutorRemoveFileRequest request;
-
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    // Remove the file.
-
-    Log(LOG_INFO, "HandleRemoveFileRequest(): path=%s", request.path);
-
-    int status = unlink(request.path);
-
-    if (status != 0)
-        Log(LOG_ERR, "unlink(%s) failed", request.path);
-
-    // Send response message.
-
-    struct ExecutorRemoveFileResponse response;
-    memset(&response, 0, sizeof(response));
-    response.status = status;
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-}
-
-//==============================================================================
-//
-// HandleChangeModeRequest()
-//
-//==============================================================================
-
-static void HandleChangeModeRequest(int sock)
-{
-    // Read the request request.
-
-    struct ExecutorChangeModeRequest request;
-
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    // Change the mode of the file.
-
-    Log(LOG_INFO, "HandleChangeModeRequest(): path=%s mode=%08X", 
-        request.path, request.mode);
-
-    int status = chmod(request.path, request.mode);
-
-    if (status != 0)
-        Log(LOG_ERR, "chmod(%s, %08X) failed", request.path, request.mode);
-
-    // Send response message.
-
-    struct ExecutorChangeModeResponse response;
-    memset(&response, 0, sizeof(response));
-    response.status = status;
-
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-}
-
-//==============================================================================
-//
-// Executor()
-//
-//     The monitor process.
-//
-//==============================================================================
-
-static void Executor(int sock, int childPid)
-{
-    // Save child PID globally; it is used by Exit() function.
-
-    _childPid = childPid;
-
-    // Prepares socket into non-blocking I/O.
-
-    SetNonBlocking(sock);
-
-    // Process client requests until client exists.
-
-    for (;;)
-    {
-        // Receive request header.
-
-        ExecutorRequestHeader header;
-
-        ssize_t n = Recv(sock, &header, sizeof(header));
-
-        if (n == 0)
-        {
-            // Either client closed its end of the pipe (possibly by exiting)
-            // or we caught a SIGTERM.
-            break;
-        }
-
-        if (n != sizeof(header))
-            Fatal(FL, "failed to read header");
-
-        // Dispatch request.
-
-        switch (RequestCode(header.code))
-        {
-            case EXECUTOR_PING_REQUEST:
-                HandlePingRequest(sock);
-                break;
-
-            case EXECUTOR_OPEN_FILE_REQUEST:
-                HandleOpenFileRequest(sock);
-                break;
-
-            case EXECUTOR_START_PROVIDER_AGENT_REQUEST:
-                HandleStartProviderAgentRequest(sock);
-                break;
-
-            case EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST:
-                HandleDaemonizeExecutorRequest(sock);
-                break;
-
-            case EXECUTOR_CHANGE_OWNER_REQUEST:
-                HandleChangeOwnerRequest(sock);
-                break;
-
-            case EXECUTOR_RENAME_FILE_REQUEST:
-                HandleRenameFileRequest(sock);
-                break;
-
-            case EXECUTOR_REMOVE_FILE_REQUEST:
-                HandleRemoveFileRequest(sock);
-                break;
-
-            case EXECUTOR_CHANGE_MODE_REQUEST:
-                HandleChangeModeRequest(sock);
-                break;
-
-            default:
-                Fatal(FL, "invalid request code: %d", header.code);
-                break;
-        }
-    }
-
-    // Reached due to socket EOF or SIGTERM.
-
-    if (_caughtSigTerm)
-        Log(LOG_INFO, "caught SIGTERM");
-
-    Exit(0);
-}
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////
+//// REQUESTS FOLLOW
+////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 //==============================================================================
 //
@@ -1536,10 +975,586 @@ int GetServerUser(
     if (stat(path, &st) != 0)
         Fatal(FL, "stat(%s) failed", path);
 
+    if (st.st_uid == 0 || st.st_gid == 0)
+    {
+        Fatal(FL, 
+            "cannot determine server user (used to run cimserermain). "
+            "Please specify this value in one of three ways. (1) pass "
+            "serverUser=<username> on the command line, (2) use cimconfig to "
+            "set serverUser (using -p -s options), or (3) make the desired "
+            "user the owner of %s (i.e., use chown).", path);
+    }
+
     uid = st.st_uid;
     gid = st.st_gid;
 
     return 0;
+}
+
+//==============================================================================
+//
+// HandlePingRequest()
+//
+//     Handle ping request.
+//
+//==============================================================================
+
+static void HandlePingRequest(int sock)
+{
+    Log(LOG_INFO, "HandlePingRequest()");
+
+    ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandleOpenFileRequest()
+//
+//     Handle a request from a child to open a file.
+//
+//==============================================================================
+
+static void HandleOpenFileRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorOpenFileRequest request;
+
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Open the file.
+
+    Log(LOG_INFO, "HandleOpenFileRequest(): path=%s", request.path);
+
+    int flags = 0;
+
+    switch (request.mode)
+    {
+        case 'r':
+            flags = O_RDONLY;
+            break;
+
+        case 'w':
+            flags = O_WRONLY | O_CREAT | O_TRUNC;
+            break;
+    }
+
+    int fd;
+
+    if (flags)
+    {
+        int mode = S_IROTH | S_IRGRP | S_IRUSR | S_IWUSR;
+        fd = open(request.path, flags, mode);
+    }
+    else
+        fd = -1;
+
+    // Send response message.
+
+    struct ExecutorOpenFileResponse response;
+    memset(&response, 0, sizeof(response));
+
+    if (fd == -1)
+    {
+        Log(LOG_ERR, "open(%s, %c) failed", request.path, request.mode);
+        response.status = -1;
+    }
+    else
+        response.status = 0;
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+
+    // Send descriptor to calling process (if any to send).
+
+    if (fd != -1)
+    {
+        int descriptors[1];
+        descriptors[0] = fd;
+        SendDescriptorArray(sock, descriptors, 1);
+        close(fd);
+    }
+}
+
+//==============================================================================
+//
+// HandleStartProviderAgentRequest()
+//
+//==============================================================================
+
+static void HandleStartProviderAgentRequest(int sock)
+{
+    // Read request.
+
+    struct ExecutorStartProviderAgentRequest request;
+
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    Log(LOG_INFO, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
+        request.module, request.gid, request.uid);
+
+    // Map cimservermain user to root to preserve pre-privilege-separation
+    // behavior.
+
+    if (request.uid == _childUid)
+    {
+        Log(LOG_INFO, 
+            "using root instead of cimservermain user for cimprovagt");
+
+        request.uid = 0;
+        request.gid = 0;
+    }
+
+    // Process request.
+
+    int status = 0;
+    int pid = -1;
+    int to[2];
+    int from[2];
+
+    do
+    {
+        // Resolve full path of "cimprovagt".
+
+        char path[EXECUTOR_MAX_PATH_LENGTH];
+        GetInternalPegasusProgramPath(CIMPROVAGT, path);
+
+        // Create "to-agent" pipe:
+
+        if (pipe(to) != 0)
+        {
+            status = -1;
+            break;
+        }
+
+        // Create "from-agent" pipe:
+
+        if (pipe(from) != 0)
+        {
+            status = -1;
+            break;
+        }
+
+        // Fork process:
+
+        pid = fork();
+
+        if (pid < 0)
+        {
+            // ATTN: log this.
+            status = -1;
+            break;
+        }
+
+        // If child:
+
+        if (pid == 0)
+        {
+            // Close unused pipe descriptors:
+
+            close(to[1]);
+            close(from[0]);
+
+            // Close unused descriptors. Leave stdin, stdout, stderr, and the
+            // child's pipe descriptors open.
+
+            struct rlimit rlim;
+
+            if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
+            {
+                for (int i = 3; i < int(rlim.rlim_cur); i++)
+                {
+                    if (i != to[0] && i != from[1])
+                        close(i);
+                }
+            }
+
+# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+
+            if (request.uid != -1 && request.gid != -1)
+            {
+                if ((int)getgid() != request.gid)
+                {
+                    if (setgid(request.gid) != 0)
+                        Log(LOG_ERR, "setgid(%d) failed\n", request.gid);
+                }
+
+                if ((int)getuid() != request.uid)
+                {
+                    if (setuid(request.uid) != 0)
+                        Log(LOG_ERR, "setuid(%d) failed\n", request.uid);
+                }
+            }
+
+            char username[EXECUTOR_MAX_PATH_LENGTH];
+
+            if (GetUserName(getuid(), username) != 0)
+                Fatal(FL, "failed to resolve username for uid=%d", getuid());
+
+            Log(LOG_INFO, "starting cimprovagt as %s (uid=%d, gid=%d)",
+                username, getuid(), getgid());
+
+# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+
+            // Exec the cimprovagt program.
+
+            char arg1[32];
+            char arg2[32];
+            sprintf(arg1, "%d", to[0]);
+            sprintf(arg2, "%d", from[1]);
+
+            Log(LOG_INFO, "execl(%s, %s, %s, %s, %s)\n",
+                path, path, arg1, arg2, request.module);
+
+            execl(path, path, arg1, arg2, request.module, (char*)0);
+
+            Log(LOG_ERR, "execl(%s, %s, %s, %s, %s): failed\n",
+                path, path, arg1, arg2, request.module);
+
+            return;
+        }
+    }
+    while (0);
+
+    // Close unused pipe descriptors.
+
+    close(to[0]);
+    close(from[1]);
+
+    // Send response.
+
+    ExecutorStartProviderAgentResponse response;
+    response.status = status;
+    response.pid = pid;
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+
+    // Send descriptors to calling process.
+
+    if (response.status == 0)
+    {
+        int descriptors[2];
+        descriptors[0] = from[0];
+        descriptors[1] = to[1];
+
+        SendDescriptorArray(sock, descriptors, 2);
+        close(from[0]);
+        close(to[1]);
+    }
+}
+
+//==============================================================================
+//
+// HandleDaemonizeExecutorRequest()
+//
+//==============================================================================
+
+static void HandleDaemonizeExecutorRequest(int sock)
+{
+    Log(LOG_INFO, "HandleDaemonizeExecutorRequest()");
+
+    ExecutorDaemonizeExecutorResponse response = { 0 };
+
+    // Fork:
+
+    int pid = fork();
+
+    if (pid < 0)
+    {
+        response.status = -1;
+        Log(LOG_ERR, "fork() failed");
+
+        if (Send(sock, &response, sizeof(response)) != sizeof(response))
+            Fatal(FL, "failed to write response");
+    }
+
+    // Parent exits:
+
+    if (pid > 0)
+	exit(0);
+
+    // Ignore SIGHUP:
+
+    signal(SIGHUP, SIG_IGN);
+
+    // Catch SIGTERM:
+
+    signal(SIGTERM, SigTermHandler);
+
+    // Set current directory to root:
+
+    chdir("/");
+
+    // Close these file descriptors (stdin, stdout, stderr).
+
+    close(0);
+    close(1);
+    close(2);
+
+    // Direct standard input, output, and error to /dev/null:
+
+    open("/dev/null", O_RDONLY);
+    open("/dev/null", O_RDWR);
+    open("/dev/null", O_RDWR);
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandleChangeOwnerRequest()
+//
+//==============================================================================
+
+static void HandleChangeOwnerRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorChangeOwnerRequest request;
+
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Change owner.
+
+    Log(LOG_INFO, "HandleChangeOwnerRequest(): path=%s owner=%s",
+        request.path, request.owner);
+
+    int status = ChangeOwner(request.path, request.owner);
+
+    if (status != 0)
+    {
+        Log(LOG_ERR, "ChangeOwner(%s, %s) failed",
+            request.path, request.owner);
+    }
+
+    // Send response message.
+
+    struct ExecutorChangeOwnerResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandleRenameFileRequest()
+//
+//==============================================================================
+
+static void HandleRenameFileRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorRenameFileRequest request;
+
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Rename the file.
+
+    Log(LOG_INFO, "HandleRenameFileRequest(): oldPath=%s newPath=%s", 
+        request.oldPath, request.newPath);
+
+    // Perform the operation:
+
+    int status = -1;
+
+    do
+    {
+        unlink(request.newPath);
+
+        if (link(request.oldPath, request.newPath) != 0)
+        {
+            Log(LOG_INFO, 
+                "link(%s, %s) failed", request.oldPath, request.newPath);
+            break;
+        }
+
+        if (unlink(request.oldPath) != 0)
+        {
+            Log(LOG_INFO, "unlink(%s) failed", request.oldPath);
+            break;
+        }
+
+        status = 0;
+    }
+    while (0);
+
+    // Send response message.
+
+    struct ExecutorRenameFileResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandleRemoveFileRequest()
+//
+//==============================================================================
+
+static void HandleRemoveFileRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorRemoveFileRequest request;
+
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Remove the file.
+
+    Log(LOG_INFO, "HandleRemoveFileRequest(): path=%s", request.path);
+
+    int status = unlink(request.path);
+
+    if (status != 0)
+        Log(LOG_ERR, "unlink(%s) failed", request.path);
+
+    // Send response message.
+
+    struct ExecutorRemoveFileResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandleChangeModeRequest()
+//
+//==============================================================================
+
+static void HandleChangeModeRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorChangeModeRequest request;
+
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Change the mode of the file.
+
+    Log(LOG_INFO, "HandleChangeModeRequest(): path=%s mode=%08X", 
+        request.path, request.mode);
+
+    int status = chmod(request.path, request.mode);
+
+    if (status != 0)
+        Log(LOG_ERR, "chmod(%s, %08X) failed", request.path, request.mode);
+
+    // Send response message.
+
+    struct ExecutorChangeModeResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// Executor()
+//
+//     The executor process.
+//
+//==============================================================================
+
+static void Executor(int sock, int childPid)
+{
+    // Save child PID globally; it is used by Exit() function.
+
+    _childPid = childPid;
+
+    // Prepares socket into non-blocking I/O.
+
+    SetNonBlocking(sock);
+
+    // Process client requests until client exists.
+
+    for (;;)
+    {
+        // Receive request header.
+
+        ExecutorRequestHeader header;
+
+        ssize_t n = Recv(sock, &header, sizeof(header));
+
+        if (n == 0)
+        {
+            // Either client closed its end of the pipe (possibly by exiting)
+            // or we caught a SIGTERM.
+            break;
+        }
+
+        if (n != sizeof(header))
+            Fatal(FL, "failed to read header");
+
+        // Dispatch request.
+
+        switch (RequestCode(header.code))
+        {
+            case EXECUTOR_PING_REQUEST:
+                HandlePingRequest(sock);
+                break;
+
+            case EXECUTOR_OPEN_FILE_REQUEST:
+                HandleOpenFileRequest(sock);
+                break;
+
+            case EXECUTOR_START_PROVIDER_AGENT_REQUEST:
+                HandleStartProviderAgentRequest(sock);
+                break;
+
+            case EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST:
+                HandleDaemonizeExecutorRequest(sock);
+                break;
+
+            case EXECUTOR_CHANGE_OWNER_REQUEST:
+                HandleChangeOwnerRequest(sock);
+                break;
+
+            case EXECUTOR_RENAME_FILE_REQUEST:
+                HandleRenameFileRequest(sock);
+                break;
+
+            case EXECUTOR_REMOVE_FILE_REQUEST:
+                HandleRemoveFileRequest(sock);
+                break;
+
+            case EXECUTOR_CHANGE_MODE_REQUEST:
+                HandleChangeModeRequest(sock);
+                break;
+
+            default:
+                Fatal(FL, "invalid request code: %d", header.code);
+                break;
+        }
+    }
+
+    // Reached due to socket EOF or SIGTERM.
+
+    if (_caughtSigTerm)
+        Log(LOG_INFO, "caught SIGTERM");
+
+    Exit(0);
 }
 
 //==============================================================================
@@ -1608,7 +1623,7 @@ static void Child(
 
     char username[EXECUTOR_MAX_PATH_LENGTH];
 
-    if (GetUserInfo(uid, username) != 0)
+    if (GetUserName(uid, username) != 0)
         Fatal(FL, "cannot resolve user from uid=%d", uid);
 
     Log(LOG_INFO, "%s running as %s (uid=%d, gid=%d)", CIMSERVERMAIN, 
@@ -1698,17 +1713,21 @@ int main(int argc, char** argv)
 
     char username[EXECUTOR_MAX_PATH_LENGTH];
 
-    if (GetUserInfo(getuid(), username) != 0)
+    if (GetUserName(getuid(), username) != 0)
         Fatal(FL, "cannot resolve user from uid=%d", getuid());
 
     Log(LOG_INFO, "running as %s (uid=%d, gid=%d)",
         username, (int)getuid(), (int)getgid());
 
-    // Prepare for shutdown sequence.
+    // Process -s option (shutdown).
 
-    if (argc == 2 && strcmp(argv[1], "-s") == 0)
+    for (int i = 0; i < argc; i++)
     {
-        _shutdownFlag = true;
+        if (strcmp(argv[i], "-s") == 0)
+        {
+            _shutdownFlag = true;
+            break;
+        }
     }
 
     // Get cimservermain program name.
@@ -1716,7 +1735,7 @@ int main(int argc, char** argv)
     char cimservermainPath[EXECUTOR_MAX_PATH_LENGTH];
     GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath);
 
-    // Determine user to run cimservermain as.
+    // Determine user for running cimservermain.
 
     GetServerUser(argc, argv, cimservermainPath, _childUid, _childGid);
 

@@ -38,7 +38,7 @@
 #include "Tracer.h"
 #include "Backtrace.h"
 
-#ifdef PEGASUS_BACKTRACE
+#ifdef XPEGASUS_BACKTRACE
 # undef PEGASUS_BACKTRACE
 # define PEGASUS_BACKTRACE /* */
 #endif

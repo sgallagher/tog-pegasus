@@ -2,6 +2,13 @@
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     ============================================================================
 
+    (A) Revisit whole forking model (setsid() and forking twice?).
+        See UNP p369.
+
+    (A) Think through daemonization again. Is there anyway to do away with
+        daemonization request and just read the daemonization parameter
+        ahead of time?
+
     (A) Setsid()?
 
     (A) Killing cimserver should also kill cimservermain.

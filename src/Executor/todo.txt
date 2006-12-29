@@ -1,10 +1,10 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Consider getting rid of HandleRenameFileRequest().
+    (A) Check whether killing the owning terminal device harms daemonized 
+        server.
 
-    (A) Consider daemonizing before forking child process. Use configuration
-        options (daemon=true).
+    (A) Test on Windows (without privsep of course).
 
     (A) Move PAM into executor process.
 
@@ -21,17 +21,21 @@
 
     (A) Logging via syslog (implement log-level option).
 
-    (A) Implement provider policy file (from repository).
+    (A) Implement provider policy file.
+
+    (A) Move PAM authentication into executor process.
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
     (B) Examine usage of functions that may create, delete, or rename files.
         (FileSystem::*, ofstream(), fopen(), open()).
 
-    (B) Convert executor to pure C program.
-
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-    (C) Should ExecutorClient eventually be a C program too? Perhaps it will
-        be needed by CMPI?
+    (C) Convert executor to pure C program.
 
+    (C) Generate provider policy file automatically from repository.
+
+    (C) Consider getting rid of HandleRenameFileRequest().
+
+    (C) Handle "cimserver -D" property (to reset PEGASUS_HOME).

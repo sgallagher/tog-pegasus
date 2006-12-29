@@ -1,34 +1,30 @@
 
-    1.  Cimservermain must be owned by ordinary user. For example:
+    1.  The user that runs cimervermain is determined as follows.
 
-        % chown pegasus.pegasus cimservermain
+        (1) Look for serverUser configuration option on command line.
 
-        Cimservermain runs as this user.
+        (2) Look for serverUser configuration option in planned configuration
+            file.
 
-    2.  Cimservermain must be able to create files directly under $PEGASUS_HOME.
+        (3) Use the owner of the cimservermain program (if not root).
 
-        For example, it must create the cimserver.password file.
+        (4) Use "pegasus" (the default user).
 
-        We solved this by having the executor access those files.
+    2.  All files but the repository are owned by root. The cimservermain
+        process may read any of the root owned files, but it must ask the
+        executor to modify the file system.
 
-    3.  Cimservermain must own $PEGASUS_HOME/repository and all files beneath.
+    3.  Cimservermain must own the repository and all files beneath.
+        The executor automatically sets ownership for these files upon
+        startup.
 
-        For now, the executor automatically sets ownership for these files.
+    4.  Provider agent is run as root, whenever the same user as server is
+        requested.
+    
+    5.  Executor checks whether Pegasus repository exists and errors out
+        if not.
 
-    4.  For OOP run with same user as server, what user is that? The
-        cimservermain user or root? The intent was probably to run those
-        providers with privilege.
-
-        For now, we use the same user as the executor.
-
-    5.  Executor now checks whether Pegasus repository exists and errors out
-        if not. Is this okay?
-
-    6.  The configuration file has a repositoryDir key. What is that for and
-        does it mean that the executor cannot reliably locate the repository
-        with the constant in Constants.h?
-
-    7.  Cimservermain owns the local-domain socket file.
+    7.  Cimservermain owns the local-domain socket file (/tmp/cimxml.socket).
 
     8.  For logging purposes, the executor uses "cimexecutor" as its syslog
         identifier.

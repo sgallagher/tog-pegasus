@@ -35,7 +35,7 @@
 ##
 ################################################################################
 
-SHELL=/root/bin/maketrace
+#SHELL=/root/bin/maketrace
 
 ifndef ROOT
     ROOT =  $(subst \,/,$(PEGASUS_ROOT))

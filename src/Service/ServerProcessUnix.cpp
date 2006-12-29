@@ -179,7 +179,6 @@ int ServerProcess::cimserver_fork(void)
             PEGASUS_STD(cerr) << MessageLoader::
                 getMessage(parms) << PEGASUS_STD(endl);
         }
-        printf("EXIT GRAVE\n");
         exit(graveError);
     }
 

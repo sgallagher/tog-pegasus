@@ -12,6 +12,11 @@
 
     (A) Test all OOP execution modes.
 
+            2 - Requestor
+            3 - Designated
+            4 - Privileged
+            5 - Server
+
     (A) Implement policy checks on all operations.
 
     (A) Logging via syslog (implement log-level option).

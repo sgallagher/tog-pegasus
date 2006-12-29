@@ -177,6 +177,21 @@ void SigTermHandler(int signum)
 
 //==============================================================================
 //
+// SigIntHandler()
+//
+//     Signal handler for SIGINT.
+//
+//==============================================================================
+
+static bool _caughtSigInt = false;
+
+void SigIntHandler(int signum)
+{
+    _caughtSigInt = true;
+}
+
+//==============================================================================
+//
 // _shutdownFlag
 //
 //     This flag indicates that the cimservermain process is shutting down.
@@ -232,8 +247,15 @@ static void Exit(int status)
 {
     Log(LOG_INFO, "<<<<<<<<<< exit >>>>>>>>>>");
 
+    // Kill cimservermain.
+
     if (_childPid > 0)
         kill(_childPid, SIGTERM);
+
+
+    // Remove local domain socket node file.
+
+    unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
 
     exit(status);
 }
@@ -364,9 +386,9 @@ static ssize_t Recv(int sock, void* buffer, size_t size)
     {
         int status = WaitForReadEnable(sock, TIMEOUT_MSEC);
 
-        if (_caughtSigTerm)
+        if (_caughtSigTerm || _caughtSigInt)
         {
-            // Terminated with SIGTERM.
+            // Terminated with SIGTERM or SIGINT.
             return 0;
         }
 
@@ -1457,6 +1479,10 @@ static void HandleRemoveFileRequest(int sock)
 
 static void Executor(int sock, int childPid)
 {
+    // Handle Ctrl-C.
+
+    signal(SIGINT, SigIntHandler);
+
     // Save child PID globally; it is used by Exit() function.
 
     _childPid = childPid;

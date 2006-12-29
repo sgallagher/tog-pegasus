@@ -472,8 +472,9 @@ mkdirhier_IgnoreError: CMDSFORCE
 runTestSuite: CMDSFORCE
 	-$(CIMSERVER_STOP_SERVICE) 
 	-$(CMPIR_STOP_DAEMON)		
-	$(SLEEP) 30
+	$(SLEEP) 21
 	$(CIMSERVER_START_SERVICE)
+	$(SLEEP) 23
 	$(CMPIR_START_DAEMON)
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))

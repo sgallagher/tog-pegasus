@@ -382,7 +382,12 @@ int ExecutorClientLoopbackImpl::changeOwner(
 int ExecutorClientLoopbackImpl::waitPid(
     int pid)
 {
-    return waitpid(pid, 0, 0);
+    int status;
+
+    while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
+        ;
+
+    return status;
 }
 
 PEGASUS_NAMESPACE_END

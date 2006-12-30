@@ -1540,7 +1540,8 @@ static void HandleWaitPidRequest(int sock)
 
     Log(LL_TRACE, "HandleWaitPidRequest(): pid=%d", request.pid);
 
-    int status = waitpid(request.pid, 0, 0);
+    int status;
+    EXECUTOR_RESTART(waitpid(request.pid, 0, 0), status);
 
     if (status == -1)
         Log(LL_WARNING, "waitpid(%d, 0, 0) failed", request.pid);

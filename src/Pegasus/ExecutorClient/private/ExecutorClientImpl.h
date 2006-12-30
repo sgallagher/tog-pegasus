@@ -75,6 +75,9 @@ public:
         const char* path,
         const char* owner) = 0;
 
+    virtual int waitPid(
+        int pid) = 0;
+
 private:
 };
 

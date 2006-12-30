@@ -622,17 +622,13 @@ void ProviderAgentContainer::_initialize()
         if (_isInitialized)
         {
             // Harvest the status of the agent process to prevent a zombie
-            pid_t status = 0;
-            do
-            {
-                status = waitpid(_pid, 0, 0);
-            } while ((status == -1) && (errno == EINTR));
+            pid_t status = ExecutorClient::waitPid(_pid);
 
             if (status == -1)
             {
                 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "ProviderAgentContainer::_initialize(): "
-                        "waitpid failed; errno = %d.", errno);
+                    "ExecutorClient::waitPid() failed");
             }
         }
 #endif
@@ -685,17 +681,13 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
 #if defined(PEGASUS_HAS_SIGNALS)
         // Harvest the status of the agent process to prevent a zombie
-        pid_t status = 0;
-        do
-        {
-            status = waitpid(_pid, 0, 0);
-        } while ((status == -1) && (errno == EINTR));
+        pid_t status = ExecutorClient::waitPid(_pid);
 
         if (status == -1)
         {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "ProviderAgentContainer::_uninitialize(): "
-                    "waitpid failed; errno = %d.", errno);
+                    "ExecutorClient::waitPid() failed.");
         }
 #endif
 

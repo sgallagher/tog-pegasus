@@ -443,8 +443,6 @@ int ExecutorClientSocketImpl::daemonizeExecutor()
     if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
-    // Check response status and pid.
-
     return response.status;
 }
 
@@ -478,7 +476,36 @@ int ExecutorClientSocketImpl::changeOwner(
     if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;
 
-    // Check response status and pid.
+    return response.status;
+}
+
+int ExecutorClientSocketImpl::waitPid(
+    int pid)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_WAIT_PID_REQUEST;
+
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body:
+
+    ExecutorWaitPidRequest request;
+    request.pid = pid;
+
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorWaitPidResponse response;
+
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
 
     return response.status;
 }

@@ -75,6 +75,9 @@ public:
         const char* path,
         const char* owner);
 
+    virtual int waitPid(
+        int pid);
+
 private:
     Mutex _mutex;
     int _sock;

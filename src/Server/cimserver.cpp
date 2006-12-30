@@ -429,22 +429,8 @@ void _waitForTerminationOrTimeout (Uint32 maxWaitTime)
     }
 }
 
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-extern bool pegasusClientAuthenticatorShutdownInProgress;
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
-
 void shutdownCIMOM(Uint32 timeoutValue)
 {
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-
-    // Let the client authenticator module know that a shutdown is in progress
-    // so that it will attempt to authenticate as root for the purposes of
-    // shutdown (with the help of the executor).
-
-    pegasusClientAuthenticatorShutdownInProgress = true;
-
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
-
     //
     // Create CIMClient object
     //
@@ -591,9 +577,9 @@ void shutdownCIMOM(Uint32 timeoutValue)
         exit(1);
 #endif
     }
-    catch(Exception&)
+    catch(Exception& e)
     {
-        cerr << "Shutdown failed" << endl;
+        cerr << "Shutdown failed: " << e.getMessage() << endl;
         //
         // This may mean that the CIM Server has terminated, causing this
         // client to get a "Empty HTTP response message" exception.  It may
@@ -620,14 +606,53 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 
-static void _checkForExecutor(const char* arg0)
+static int _extractExecutorSocket(int& argc, char**& argv)
 {
-    if (!getenv("PEGASUS_EXECUTOR_SOCKET"))
+    // Extract the "-x <sock>" option if any. This indicates that the
+    // e[x]ecutor is running. The option argument is the socket used
+    // to communicate with the executor. Remove the option from the
+    // argv list and decrease argc by two.
+
+    int sock = -1;
+
+    for (int i = 1; i < argc; i++)
     {
-        fprintf(stderr, "%s: do not run this program directly. "
-            "It is part of the cimserver program.\n", arg0);
-        exit(1);
+        if (strcmp(argv[i], "-x") == 0)
+        {
+            // Check for missing option argument.
+
+            if (i + 1 == argc)
+            {
+                fprintf(stderr, 
+                    "%s: missing option argument for -x\n", argv[0]);
+                exit(1);
+            }
+
+            // Convert argument to integer.
+
+            char* end;
+            unsigned long x = strtoul(argv[i+1], &end, 10);
+
+            // Check whether option argument will fit in integer.
+
+            if (*end != '\0' || x > 2147483647)
+            {
+                fprintf(stderr, 
+                    "%s: bad -x option argument: %s\n", argv[0], argv[i+1]);
+                exit(1);
+            }
+
+            sock = int(x);
+
+            // Remove "-x <sock>" from argv-argc.
+
+            memmove(argv + i, argv + i + 2, sizeof(char*) * (argc - i - 1));
+            argc -= 2;
+            break;
+        }
     }
+
+    return sock;
 }
 
 #endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
@@ -635,10 +660,24 @@ static void _checkForExecutor(const char* arg0)
 /////////////////////////////////////////////////////////////////////////
 //  MAIN
 //////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char** argv)
 {
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-    _checkForExecutor(argv[0]);
+
+    // If invoked with "-x <socket>" option, then use executor client.
+    ExecutorClient::setExecutorSocket(_extractExecutorSocket(argc, argv));
+
+    // Ping executor to be sure the sock was valid.
+
+    if (ExecutorClient::ping() != 0)
+    {
+        fprintf(stderr, 
+            "%s: failed to ping executor on socket given by -x option\n", 
+            argv[0]);
+        exit(1);
+    }
+
 #endif
 
     String pegasusHome  = String::EMPTY;

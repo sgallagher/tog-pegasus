@@ -44,6 +44,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+static int _executorSocket = -1;
+
 static ExecutorClientImpl* _impl()
 {
     static ExecutorClientImpl* impl = 0;
@@ -57,17 +59,10 @@ static ExecutorClientImpl* _impl()
         {
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 
-            char* env = getenv("PEGASUS_EXECUTOR_SOCKET");
-
-            if (env)
-            {
-                char* end = 0;
-                int sock = (int)strtol(env, &end, 10);
-                PEGASUS_ASSERT(*end == '\0');
-                impl = new ExecutorClientSocketImpl(sock);
-            }
-            else
+            if (_executorSocket == -1)
                 impl = new ExecutorClientLoopbackImpl;
+            else
+                impl = new ExecutorClientSocketImpl(_executorSocket);
 
 #else
             impl = new ExecutorClientLoopbackImpl;
@@ -78,6 +73,11 @@ static ExecutorClientImpl* _impl()
     }
 
     return impl;
+}
+
+void ExecutorClient::setExecutorSocket(int sock)
+{
+    _executorSocket = sock;
 }
 
 int ExecutorClient::ping()

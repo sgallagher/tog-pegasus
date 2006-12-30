@@ -1,6 +1,9 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
+    (A) Maintain a list of PIDs that were created with startProviderAgent.
+        Only allow waitPid() on these.
+
     (A) Do we need to reap provider agent processes?
 
     (A) Test authentication with cimcli.
@@ -35,6 +38,11 @@
         (FileSystem::*, ofstream(), fopen(), open()).
 
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+    (C) Does Pegasus need a distinct shutdown program other than 
+        (cimserer -s)?
+
+    (C) Should startProviderAgent() be renamed to createProcess()?
 
     (C) Convert executor to pure C program.
 

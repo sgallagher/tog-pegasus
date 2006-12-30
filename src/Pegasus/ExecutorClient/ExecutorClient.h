@@ -53,6 +53,8 @@ class PEGASUS_EXECUTOR_CLIENT_LINKAGE ExecutorClient
 {
 public:
 
+    static void setExecutorSocket(int sock);
+
     static int ping();
 
     static FILE* openFile(

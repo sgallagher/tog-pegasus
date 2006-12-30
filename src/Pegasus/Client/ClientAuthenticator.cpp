@@ -54,15 +54,6 @@
 
 PEGASUS_USING_STD;
 
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-
-// The main process sets this flag to indicate that a shutdown is in progress
-// when "cimserver -s" typed. If true, the local authenticator authenticates 
-// as root, with the help of the executor process.
-PEGASUS_CLIENT_LINKAGE bool pegasusClientAuthenticatorShutdownInProgress =false;
-
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
-
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -290,12 +281,6 @@ String ClientAuthenticator::buildRequestAuthHeader()
             else
             {
                 String userName = System::getEffectiveUserName();
-
-#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-                if (pegasusClientAuthenticatorShutdownInProgress)
-                    userName = "root";
-#endif
-
                 challengeResponse.append(userName);
             }
 
@@ -387,16 +372,7 @@ String ClientAuthenticator::_getFileContent(String filePath)
     // Open challenge file and read the challenge data
     //
 
-    FILE* is;
-
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    if (pegasusClientAuthenticatorShutdownInProgress)
-        is = ExecutorClient::openFile(filePath.getCString(), 'r');
-    else
-        is = fopen(filePath.getCString(), "rb");
-#else
-    is = fopen(filePath.getCString(), "rb");
-#endif
+    FILE* is = ExecutorClient::openFile(filePath.getCString(), 'r');
 
     if (!is)
         return String();

@@ -45,11 +45,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <stdarg.h>
 #include <sys/resource.h>
 #include <sys/select.h>
 #include <signal.h>
-#include <cstdarg>
+#include <stdarg.h>
 #include <syslog.h>
 #include <dirent.h>
 #include "Executor.h"
@@ -65,6 +64,16 @@ typedef unsigned long long uint64;
 //==============================================================================
 
 #define TRACE printf("CIMEXECUTOR: TRACE: %s(%d)\n", __FILE__, __LINE__)
+
+//==============================================================================
+//
+// LOG_TRACE
+//
+//     Macro used for debug tracing.
+//
+//==============================================================================
+
+#define LOG_TRACE Log(LL_TRACE, "TRACE: %s(%d)\n", __FILE__, __LINE__)
 
 //==============================================================================
 //
@@ -303,8 +312,7 @@ static void Log(LogLevel type, const char *format, ...)
 
 static void Exit(int status)
 {
-    if (!_shutdownFlag)
-        Log(LL_INFORMATION, "exiting");
+    Log(LL_INFORMATION, "exiting");
 
     // Kill cimservermain.
 
@@ -1662,6 +1670,20 @@ static void Child(
     int gid,
     int sock)
 {
+    // Build argument list, adding "-x <sock>" option if sock non-negative.
+
+    char** execArgv = (char**)malloc(sizeof(char*) * (argc + 3));
+    memcpy(execArgv, argv, sizeof(char*) * sizeof(argc) + 1);
+    execArgv[0] = CIMSERVERMAIN;
+
+    // Only do all this if executor will run.
+
+    char buffer[EXECUTOR_BUFFER_SIZE];
+    sprintf(buffer, "%d", sock);
+    execArgv[argc] = "-x";
+    execArgv[argc + 1] = strdup(buffer);
+    execArgv[argc + 2] = 0;
+
     // Locate repository directory.
 
     char repositoryDir[EXECUTOR_BUFFER_SIZE];
@@ -1672,7 +1694,8 @@ static void Child(
     // Check whether repository directory exists.
 
     if (AccessDir(repositoryDir) != 0)
-        Fatal(FL, "failed to access repository directory: %s", repositoryDir);
+        Fatal(FL, 
+            "failed to access repository directory: %s", repositoryDir);
 
     // Change ownership of Pegasus repository directory (it should be owned
     // by same user that owns CIMSERVERMAIN).
@@ -1718,9 +1741,9 @@ static void Child(
     Log(LL_TRACE, "%s running as %s (uid=%d, gid=%d)", CIMSERVERMAIN, 
         username, uid, gid);
 
-    // Precheck that cimxml.socket is owned by cimservermain process. If not,
-    // then the bind would fail in the cimservermain process much later and
-    // the cause of the error would be difficult to determine.
+    // Precheck that cimxml.socket is owned by cimservermain process. If 
+    // not, then the bind would fail in the cimservermain process much 
+    // later and the cause of the error would be difficult to determine.
 
     if (access(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, F_OK) == 0)
     {
@@ -1730,24 +1753,16 @@ static void Child(
             (int)st.st_uid != uid || 
             (int)st.st_gid != gid)
         {
-            Fatal(FL, "cimservermain process cannot stat or does not own %s",
+            Fatal(FL, 
+                "cimservermain process cannot stat or does not own %s",
                 PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
         }
     }
 
-    // Build an argv array for child process.
-
-    char** childArgv = (char**)malloc(sizeof(char*) * (argc + 1));
-    memcpy(childArgv, argv, sizeof(char*) * argc);
-    childArgv[0] = CIMSERVERMAIN;
-    childArgv[argc] = NULL;
-
     // Exec child process.
 
-    if (execv(path, childArgv) != 0)
+    if (execv(path, execArgv) != 0)
         Fatal(FL, "failed to exec %s", path);
-
-    // ATTN: log this failure.
 
     exit(0);
 }
@@ -1789,6 +1804,25 @@ int main(int argc, char** argv)
 
     arg0 = argv[0];
 
+    // Get absolute cimservermain program name.
+
+    char cimservermainPath[EXECUTOR_BUFFER_SIZE];
+    GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath);
+
+    // If shuting down, then just run "cimservermain -s" directly as client.
+
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-s") == 0)
+        {
+            argv[0] = CIMSERVERMAIN;
+
+            if (execv(cimservermainPath, argv) != 0)
+                Fatal(FL, "failed to exec %s", cimservermainPath);
+            _exit(0);
+        }
+    }
+
     // Create a socket pair for communicating with the child process.
 
     int pair[2];
@@ -1798,26 +1832,6 @@ int main(int argc, char** argv)
 
     CloseOnExec(pair[1]);
 
-    // Define PEGASUS_EXECUTOR_SOCKET environmnent variable for passing
-    // socket to child process.
-
-    {
-        char buffer[EXECUTOR_BUFFER_SIZE];
-        sprintf(buffer, "PEGASUS_EXECUTOR_SOCKET=%d", pair[0]);
-        putenv(buffer);
-    }
-
-    // Process -s option (shutdown).
-
-    for (int i = 0; i < argc; i++)
-    {
-        if (strcmp(argv[i], "-s") == 0)
-        {
-            _shutdownFlag = true;
-            break;
-        }
-    }
-
     // Get the log-level from the configuration parameter.
 
     GetLogLevel(argc, argv);
@@ -1826,8 +1840,7 @@ int main(int argc, char** argv)
 
     OpenLog(false, "cimexecutor");
 
-    if (!_shutdownFlag)
-        Log(LL_INFORMATION, "starting");
+    Log(LL_INFORMATION, "starting");
 
     // Be sure this process is running as root (otherwise fail).
 
@@ -1847,11 +1860,6 @@ int main(int argc, char** argv)
 
     Log(LL_TRACE, "running as %s (uid=%d, gid=%d)",
         username, (int)getuid(), (int)getgid());
-
-    // Get cimservermain program name.
-
-    char cimservermainPath[EXECUTOR_BUFFER_SIZE];
-    GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath);
 
     // Determine user for running cimservermain.
 

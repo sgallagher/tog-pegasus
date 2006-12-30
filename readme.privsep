@@ -1,4 +1,4 @@
-USING Pegasus Privilege Separation Functionality
+Using Pegasus Privilege Separation Functionality
 
 Privilege separation was added to Pegasus starting with Pegasus 2.7.  This 
 is a security feature. It allows separation of the functionality so that 

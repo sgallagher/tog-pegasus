@@ -1830,19 +1830,11 @@ int main(int argc, char** argv)
     {
         if (strcmp(argv[i], "-s") == 0)
         {
-#if 0
-            argv[0] = CIMSERVERMAIN;
-
-            if (execv(cimservermainPath, argv) != 0)
-                Fatal(FL, "failed to exec %s", cimservermainPath);
-#else
             argv[0] = CIMSHUTDOWN;
-
-printf("execv [%s]...\n", cimshutdownPath);
 
             if (execv(cimshutdownPath, argv) != 0)
                 Fatal(FL, "failed to exec %s", cimshutdownPath);
-#endif
+
             _exit(0);
         }
     }

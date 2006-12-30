@@ -41,6 +41,7 @@
 # include <windows.h>
 #else
 # include <sys/types.h>
+# include <sys/wait.h>
 # include <unistd.h>
 # include <sys/time.h>
 # include <sys/resource.h>
@@ -376,6 +377,12 @@ int ExecutorClientLoopbackImpl::changeOwner(
     const char* owner)
 {
     return FileSystem::changeFileOwner(path, owner) ? 0 : -1;
+}
+
+int ExecutorClientLoopbackImpl::waitPid(
+    int pid)
+{
+    return waitpid(pid, 0, 0);
 }
 
 PEGASUS_NAMESPACE_END

@@ -84,6 +84,9 @@ public:
         const char* path,
         const char* owner);
 
+    static int waitPid(
+        int pid);
+
 private:
     // Private to prevent instantiation.
     ExecutorClient();

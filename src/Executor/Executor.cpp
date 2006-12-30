@@ -38,6 +38,7 @@
 #include <pwd.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
@@ -245,18 +246,51 @@ static void OpenLog(bool perror, const char* program)
 
 //==============================================================================
 //
+// LogLevel
+//
+//     These tags map to the Pegasus log types (see Pegasus/Common/Logger.h).
+//
+//==============================================================================
+
+enum LogLevel
+{
+    LL_FATAL,
+    LL_SEVERE,
+    LL_WARNING,
+    LL_INFORMATION,
+    LL_TRACE,
+};
+
+//==============================================================================
+//
 // Log()
 //
 //     Sends a log message to the SYSLOG facility.
 //
 //==============================================================================
 
-static void Log(int priority, const char *format, ...)
+static LogLevel _logLevel = LL_INFORMATION;
+
+static int _logPriorities[] =
 {
-    va_list ap;
-    va_start(ap, format);
-    vsyslog(priority, format, ap);
-    va_end(ap);
+    LOG_ALERT, // LL_FATAL,
+    LOG_CRIT, // LL_SEVERE
+    LOG_WARNING, // LL_WARNING
+    LOG_NOTICE, // LL_INFORMATION
+    LOG_INFO, // LL_TRACE
+};
+
+static void Log(LogLevel type, const char *format, ...)
+{
+    // This array maps Pegasus "log levels" to syslog priorities.
+
+    if ((int)type <= (int)_logLevel)
+    {
+        va_list ap;
+        va_start(ap, format);
+        vsyslog(_logPriorities[(int)type], format, ap);
+        va_end(ap);
+    }
 }
 
 //==============================================================================
@@ -269,13 +303,13 @@ static void Log(int priority, const char *format, ...)
 
 static void Exit(int status)
 {
-    Log(LOG_INFO, "<<<<<<<<<< exit >>>>>>>>>>");
+    if (!_shutdownFlag)
+        Log(LL_INFORMATION, "exiting");
 
     // Kill cimservermain.
 
     if (_childPid > 0)
         kill(_childPid, SIGTERM);
-
 
     // Remove local domain socket node file.
 
@@ -297,7 +331,7 @@ static void Exit(int status)
 
 static void Fatal(const char* file, size_t line, const char* format, ...)
 {
-    Log(LOG_INFO, "trace: %s(%d)", file, int(line));
+    Log(LL_FATAL, "%s(%d): Fatal() called", file, int(line));
 
     {
         va_list ap;
@@ -767,7 +801,7 @@ static int GetUserInfo(const char* user, int& uid, int& gid)
 
     if (getpwnam_r(user, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
     {
-        Log(LOG_ERR, "getpwnam_r(%s, ...) failed", user);
+        Log(LL_TRACE, "getpwnam_r(%s, ...) failed", user);
         return -1;
     }
 
@@ -794,7 +828,7 @@ static int GetUserName(int uid, char username[EXECUTOR_BUFFER_SIZE])
 
     if (getpwuid_r(uid, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
     {
-        Log(LOG_ERR, "getpwuid_r(%d, ...) failed", uid);
+        Log(LL_TRACE, "getpwuid_r(%d, ...) failed", uid);
         return -1;
     }
 
@@ -820,7 +854,7 @@ static int ChangeOwner(const char* path, const char* owner)
 
     if (chown(path, uid, gid) != 0)
     {
-        Log(LOG_ERR, "chown(%s, %d, %d) failed", path, uid, gid);
+        Log(LL_TRACE, "chown(%s, %d, %d) failed", path, uid, gid);
         return -1;
     }
 
@@ -1053,7 +1087,7 @@ int GetServerUser(
 
 static void HandlePingRequest(int sock)
 {
-    Log(LOG_INFO, "HandlePingRequest()");
+    Log(LL_TRACE, "HandlePingRequest()");
 
     ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
 
@@ -1080,7 +1114,7 @@ static void HandleOpenFileRequest(int sock)
 
     // Open the file.
 
-    Log(LOG_INFO, "HandleOpenFileRequest(): path=%s", request.path);
+    Log(LL_TRACE, "HandleOpenFileRequest(): path=%s", request.path);
 
     int flags = 0;
 
@@ -1113,7 +1147,7 @@ static void HandleOpenFileRequest(int sock)
 
     if (fd == -1)
     {
-        Log(LOG_ERR, "open(%s, %c) failed", request.path, request.mode);
+        Log(LL_WARNING, "open(%s, %c) failed", request.path, request.mode);
         response.status = -1;
     }
     else
@@ -1148,7 +1182,7 @@ static void HandleStartProviderAgentRequest(int sock)
     if (Recv(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
-    Log(LOG_INFO, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
+    Log(LL_TRACE, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
         request.module, request.gid, request.uid);
 
     // Map cimservermain user to root to preserve pre-privilege-separation
@@ -1156,7 +1190,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
     if (request.uid == _childUid)
     {
-        Log(LOG_INFO, 
+        Log(LL_TRACE, 
             "using root instead of cimservermain user for cimprovagt");
 
         request.uid = 0;
@@ -1234,13 +1268,13 @@ static void HandleStartProviderAgentRequest(int sock)
                 if ((int)getgid() != request.gid)
                 {
                     if (setgid(request.gid) != 0)
-                        Log(LOG_ERR, "setgid(%d) failed\n", request.gid);
+                        Log(LL_SEVERE, "setgid(%d) failed\n", request.gid);
                 }
 
                 if ((int)getuid() != request.uid)
                 {
                     if (setuid(request.uid) != 0)
-                        Log(LOG_ERR, "setuid(%d) failed\n", request.uid);
+                        Log(LL_SEVERE, "setuid(%d) failed\n", request.uid);
                 }
             }
 
@@ -1249,8 +1283,8 @@ static void HandleStartProviderAgentRequest(int sock)
             if (GetUserName(getuid(), username) != 0)
                 Fatal(FL, "failed to resolve username for uid=%d", getuid());
 
-            Log(LOG_INFO, "starting cimprovagt as %s (uid=%d, gid=%d)",
-                username, getuid(), getgid());
+            Log(LL_INFORMATION, "starting %s on module %s as user %s",
+                path, request.module, username);
 
 # endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
 
@@ -1261,12 +1295,12 @@ static void HandleStartProviderAgentRequest(int sock)
             sprintf(arg1, "%d", to[0]);
             sprintf(arg2, "%d", from[1]);
 
-            Log(LOG_INFO, "execl(%s, %s, %s, %s, %s)\n",
+            Log(LL_TRACE, "execl(%s, %s, %s, %s, %s)\n",
                 path, path, arg1, arg2, request.module);
 
             execl(path, path, arg1, arg2, request.module, (char*)0);
 
-            Log(LOG_ERR, "execl(%s, %s, %s, %s, %s): failed\n",
+            Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s): failed\n",
                 path, path, arg1, arg2, request.module);
 
             return;
@@ -1310,7 +1344,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
 static void HandleDaemonizeExecutorRequest(int sock)
 {
-    Log(LOG_INFO, "HandleDaemonizeExecutorRequest()");
+    Log(LL_TRACE, "HandleDaemonizeExecutorRequest()");
 
     ExecutorDaemonizeExecutorResponse response = { 0 };
 
@@ -1321,7 +1355,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
     if (pid < 0)
     {
         response.status = -1;
-        Log(LOG_ERR, "fork() failed");
+        Fatal(FL, "fork() failed");
 
         if (Send(sock, &response, sizeof(response)) != sizeof(response))
             Fatal(FL, "failed to write response");
@@ -1377,14 +1411,14 @@ static void HandleChangeOwnerRequest(int sock)
 
     // Change owner.
 
-    Log(LOG_INFO, "HandleChangeOwnerRequest(): path=%s owner=%s",
+    Log(LL_TRACE, "HandleChangeOwnerRequest(): path=%s owner=%s",
         request.path, request.owner);
 
     int status = ChangeOwner(request.path, request.owner);
 
     if (status != 0)
     {
-        Log(LOG_ERR, "ChangeOwner(%s, %s) failed",
+        Log(LL_WARNING, "ChangeOwner(%s, %s) failed",
             request.path, request.owner);
     }
 
@@ -1415,7 +1449,7 @@ static void HandleRenameFileRequest(int sock)
 
     // Rename the file.
 
-    Log(LOG_INFO, "HandleRenameFileRequest(): oldPath=%s newPath=%s", 
+    Log(LL_TRACE, "HandleRenameFileRequest(): oldPath=%s newPath=%s", 
         request.oldPath, request.newPath);
 
     // Perform the operation:
@@ -1428,14 +1462,14 @@ static void HandleRenameFileRequest(int sock)
 
         if (link(request.oldPath, request.newPath) != 0)
         {
-            Log(LOG_INFO, 
+            Log(LL_WARNING, 
                 "link(%s, %s) failed", request.oldPath, request.newPath);
             break;
         }
 
         if (unlink(request.oldPath) != 0)
         {
-            Log(LOG_INFO, "unlink(%s) failed", request.oldPath);
+            Log(LL_WARNING, "unlink(%s) failed", request.oldPath);
             break;
         }
 
@@ -1470,16 +1504,50 @@ static void HandleRemoveFileRequest(int sock)
 
     // Remove the file.
 
-    Log(LOG_INFO, "HandleRemoveFileRequest(): path=%s", request.path);
+    Log(LL_TRACE, "HandleRemoveFileRequest(): path=%s", request.path);
 
     int status = unlink(request.path);
 
     if (status != 0)
-        Log(LOG_ERR, "unlink(%s) failed", request.path);
+        Log(LL_WARNING, "unlink(%s) failed", request.path);
 
     // Send response message.
 
     struct ExecutorRemoveFileResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandleWaitPidRequest()
+//
+//==============================================================================
+
+static void HandleWaitPidRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorWaitPidRequest request;
+
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Wait on the PID:
+
+    Log(LL_TRACE, "HandleWaitPidRequest(): pid=%d", request.pid);
+
+    int status = waitpid(request.pid, 0, 0);
+
+    if (status == -1)
+        Log(LL_WARNING, "waitpid(%d, 0, 0) failed", request.pid);
+
+    // Send response message.
+
+    struct ExecutorWaitPidResponse response;
     memset(&response, 0, sizeof(response));
     response.status = status;
 
@@ -1562,6 +1630,10 @@ static void Executor(int sock, int childPid)
                 HandleRemoveFileRequest(sock);
                 break;
 
+            case EXECUTOR_WAIT_PID_REQUEST:
+                HandleWaitPidRequest(sock);
+                break;
+
             default:
                 Fatal(FL, "invalid request code: %d", header.code);
                 break;
@@ -1606,7 +1678,7 @@ static void Child(
 
     ChangeDirOwnerRecursive(repositoryDir, uid, gid);
 
-    Log(LOG_INFO, "Pegasus repositoryDir is \"%s\"", repositoryDir);
+    Log(LL_TRACE, "Pegasus repositoryDir is \"%s\"", repositoryDir);
 
     // Downgrade privileges by setting the UID and GID of this process. Use
     // the owner of the CIMSERVERMAIN program obtained above.
@@ -1642,7 +1714,7 @@ static void Child(
     if (GetUserName(uid, username) != 0)
         Fatal(FL, "cannot resolve user from uid=%d", uid);
 
-    Log(LOG_INFO, "%s running as %s (uid=%d, gid=%d)", CIMSERVERMAIN, 
+    Log(LL_TRACE, "%s running as %s (uid=%d, gid=%d)", CIMSERVERMAIN, 
         username, uid, gid);
 
     // Precheck that cimxml.socket is owned by cimservermain process. If not,
@@ -1681,6 +1753,31 @@ static void Child(
 
 //==============================================================================
 //
+// GetLogLevel()
+//
+//==============================================================================
+
+void GetLogLevel(int argc, char** argv)
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (FindConfigOption(argc, argv, "logLevel", buffer) == 0)
+    {
+        if (strcasecmp(buffer, "TRACE") == 0)
+            _logLevel = LL_TRACE;
+        else if (strcasecmp(buffer, "INFORMATION") == 0)
+            _logLevel = LL_INFORMATION;
+        else if (strcasecmp(buffer, "WARNING") == 0)
+            _logLevel = LL_WARNING;
+        else if (strcasecmp(buffer, "SEVERE") == 0)
+            _logLevel = LL_SEVERE;
+        else if (strcasecmp(buffer, "FATAL") == 0)
+            _logLevel = LL_FATAL;
+    }
+}
+
+//==============================================================================
+//
 // main()
 //
 //==============================================================================
@@ -1709,16 +1806,33 @@ int main(int argc, char** argv)
         putenv(buffer);
     }
 
+    // Process -s option (shutdown).
+
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-s") == 0)
+        {
+            _shutdownFlag = true;
+            break;
+        }
+    }
+
+    // Get the log-level from the configuration parameter.
+
+    GetLogLevel(argc, argv);
+
     // Open the log.
 
     OpenLog(false, "cimexecutor");
-    Log(LOG_INFO, "<<<<<<<<<< start >>>>>>>>>>");
+
+    if (!_shutdownFlag)
+        Log(LL_INFORMATION, "starting");
 
     // Be sure this process is running as root (otherwise fail).
 
     if (setuid(0) != 0 || setgid(0) != 0)
     {
-        Log(LOG_CRIT, "attempted to run program as non-root user");
+        Log(LL_FATAL, "attempted to run program as non-root user");
         fprintf(stderr, "%s: this program must be run as root\n", arg0);
         exit(0);
     }
@@ -1730,19 +1844,8 @@ int main(int argc, char** argv)
     if (GetUserName(getuid(), username) != 0)
         Fatal(FL, "cannot resolve user from uid=%d", getuid());
 
-    Log(LOG_INFO, "running as %s (uid=%d, gid=%d)",
+    Log(LL_TRACE, "running as %s (uid=%d, gid=%d)",
         username, (int)getuid(), (int)getgid());
-
-    // Process -s option (shutdown).
-
-    for (int i = 0; i < argc; i++)
-    {
-        if (strcmp(argv[i], "-s") == 0)
-        {
-            _shutdownFlag = true;
-            break;
-        }
-    }
 
     // Get cimservermain program name.
 

@@ -1,6 +1,10 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
+    (A) Do we need to reap provider agent processes?
+
+    (A) Test authentication with cimcli.
+
     (A) Check whether killing the owning terminal device harms daemonized 
         server.
 

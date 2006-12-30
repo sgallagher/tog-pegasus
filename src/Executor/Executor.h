@@ -58,6 +58,7 @@ enum RequestCode
     EXECUTOR_CHANGE_OWNER_REQUEST,
     EXECUTOR_REMOVE_FILE_REQUEST,
     EXECUTOR_RENAME_FILE_REQUEST,
+    EXECUTOR_WAIT_PID_REQUEST,
 };
 
 //==============================================================================
@@ -178,6 +179,22 @@ struct ExecutorChangeOwnerRequest
 };
 
 struct ExecutorChangeOwnerResponse
+{
+    int status;
+};
+
+//==============================================================================
+//
+// EXECUTOR_WAIT_PID_REQUEST
+//
+//==============================================================================
+
+struct ExecutorWaitPidRequest
+{
+    int pid;
+};
+
+struct ExecutorWaitPidResponse
 {
     int status;
 };

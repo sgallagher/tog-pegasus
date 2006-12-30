@@ -126,4 +126,10 @@ int ExecutorClient::changeOwner(
     return _impl()->changeOwner(path, owner);
 }
 
+int ExecutorClient::waitPid(
+    int pid)
+{
+    return _impl()->waitPid(pid);
+}
+
 PEGASUS_NAMESPACE_END

@@ -37,6 +37,8 @@
     (B) Examine usage of functions that may create, delete, or rename files.
         (FileSystem::*, ofstream(), fopen(), open()).
 
+    (B) Add shutdownTimeout option hanlding to cimshutdown program.
+
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
     (C) Does Pegasus need a distinct shutdown program other than 

@@ -98,6 +98,16 @@ typedef unsigned long long uint64;
 
 //==============================================================================
 //
+// CIMSHUTDOWN
+//
+//     The name of the main CIM shutdown program.
+//
+//==============================================================================
+
+#define CIMSHUTDOWN "cimshutdown"
+
+//==============================================================================
+//
 // CIMPROVAGT
 //
 //     The name of the provider agent program.
@@ -1809,16 +1819,30 @@ int main(int argc, char** argv)
     char cimservermainPath[EXECUTOR_BUFFER_SIZE];
     GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath);
 
+    // Get absolute cimshutdown program name.
+
+    char cimshutdownPath[EXECUTOR_BUFFER_SIZE];
+    GetInternalPegasusProgramPath(CIMSHUTDOWN, cimshutdownPath);
+
     // If shuting down, then just run "cimservermain -s" directly as client.
 
     for (int i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "-s") == 0)
         {
+#if 0
             argv[0] = CIMSERVERMAIN;
 
             if (execv(cimservermainPath, argv) != 0)
                 Fatal(FL, "failed to exec %s", cimservermainPath);
+#else
+            argv[0] = CIMSHUTDOWN;
+
+printf("execv [%s]...\n", cimshutdownPath);
+
+            if (execv(cimshutdownPath, argv) != 0)
+                Fatal(FL, "failed to exec %s", cimshutdownPath);
+#endif
             _exit(0);
         }
     }

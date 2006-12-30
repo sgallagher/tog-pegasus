@@ -125,9 +125,9 @@
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 # include <Pegasus/ExecutorClient/ExecutorClient.h>
-# define PEGASUS_PROCESS_NAME "cimservermain";
+# define PEGASUS_PROCESS_NAME "cimservermain"
 #else
-# define PEGASUS_PROCESS_NAME "cimserver";
+# define PEGASUS_PROCESS_NAME "cimserver"
 #endif
 
 PEGASUS_USING_PEGASUS;

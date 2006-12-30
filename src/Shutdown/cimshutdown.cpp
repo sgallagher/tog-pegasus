@@ -183,7 +183,7 @@ int _killCimServer()
 
 //==============================================================================
 //
-// _waitForTerminationOrTimeout()
+// _killCimServer()
 //
 //     Kill the CIM server. Obtain the PID of the server from the PID file.
 //
@@ -231,11 +231,11 @@ static void _waitForTerminationOrTimeout(Uint32 timeout)
 
 //==============================================================================
 //
-// _shutdownCimServer()
+// _shutdown()
 //
 //==============================================================================
 
-static void _shutdownCimServer(Uint32 timeout)
+static void _shutdown(Uint32 timeout)
 {
     // Connect locally to CIM server.
 
@@ -305,5 +305,5 @@ int main(int argc, char** argv)
     arg0 = argv[0];
 
     // Seconds.
-    _shutdownCimServer(5);
+    _shutdown(5);
 }

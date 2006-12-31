@@ -31,38 +31,37 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_PAMBasicAuthenticator_h
-#define Pegasus_PAMBasicAuthenticator_h
+#ifndef _Cimservera_Strlcpy_h
+#define _Cimservera_Strlcpy_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Mutex.h>
-#include "BasicAuthenticator.h"
+//==============================================================================
+//
+// Strlcpy()
+//
+//     This is an original implementation of the strlcpy() function as described
+//     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+//     strlcat - consistent, safe, string copy and concatenation".
+//
+//     Note that this implementation favors readability over efficiency. More
+//     efficient implemetations are possible but would be to complicated
+//     to verify in a security audit.
+//
+//==============================================================================
 
-#include <Pegasus/Security/Authentication/Linkage.h>
-
-PEGASUS_NAMESPACE_BEGIN
-
-/** This class implements basic PAM authentication.
-*/
-class PEGASUS_SECURITY_LINKAGE PAMBasicAuthenticator : public BasicAuthenticator
+static size_t Strlcpy(char* dest, const char* src, size_t size)
 {
-public:
+    size_t i;
 
-    PAMBasicAuthenticator();
+    for (i = 0; src[i] && i + 1 < size; i++)
+        dest[i] = src[i];
 
-    ~PAMBasicAuthenticator();
+    if (size > 0)
+        dest[i] = '\0';
 
-    Boolean authenticate(const String& userName, const String& password);
+    while (src[i])
+        i++;
 
-    Boolean validateUser(const String& userName);
+    return i;
+}
 
-    String getAuthResponseHeader();
-
-private:
-
-    String _realm;
-};
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_PAMBasicAuthenticator_h */
+#endif /* _Cimservera_Strlcpy_h */

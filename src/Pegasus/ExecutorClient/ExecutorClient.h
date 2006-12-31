@@ -89,6 +89,13 @@ public:
     static int waitPid(
         int pid);
 
+    static int pamAuthenticate(
+        const char* username,
+        const char* password);
+
+    static int pamValidateUser(
+        const char* username);
+
 private:
     // Private to prevent instantiation.
     ExecutorClient();

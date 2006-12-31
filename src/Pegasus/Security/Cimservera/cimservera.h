@@ -40,8 +40,9 @@
 #include <cstdio>
 #include <errno.h>
 #include <Pegasus/Common/Constants.h>
-#include <Executor/Strlcpy.h>
-#include <Executor/Strlcat.h>
+#include "Strlcpy.h"
+#include "Strlcat.h"
+#include <security/pam_appl.h>
 
 #define CIMSERVERA "cimservera"
 #define CIMSERVERA_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
@@ -77,11 +78,11 @@
 
 //==============================================================================
 //
-// CimserveraSend()
+// Send()
 //
 //==============================================================================
 
-static ssize_t CimserveraSend(int sock, void* buffer, size_t size)
+static ssize_t Send(int sock, void* buffer, size_t size)
 {
     size_t r = size;
     char* p = (char*)buffer;
@@ -110,13 +111,13 @@ static ssize_t CimserveraSend(int sock, void* buffer, size_t size)
 
 //==============================================================================
 //
-// CimserveraRecv()
+// Recv()
 //
 //     Receives *size* bytes from the given socket.
 //
 //==============================================================================
 
-static ssize_t CimserveraRecv(int sock, void* buffer, size_t size)
+static ssize_t Recv(int sock, void* buffer, size_t size)
 {
     size_t r = size;
     char* p = (char*)buffer;
@@ -264,7 +265,7 @@ static int CimserveraAuthenticate(const char* username, const char* password)
     Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
     Strlcpy(request.arg2, password, CIMSERVERA_MAX_BUFFER);
 
-    if (CimserveraSend(sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(sock, &request, sizeof(request)) != sizeof(request))
     {
         close(sock);
         return -1;
@@ -274,7 +275,7 @@ static int CimserveraAuthenticate(const char* username, const char* password)
 
     int status;
 
-    if (CimserveraRecv(sock, &status, sizeof(status)) != sizeof(status))
+    if (Recv(sock, &status, sizeof(status)) != sizeof(status))
     {
         close(sock);
         return -1;
@@ -305,7 +306,7 @@ static int CimserveraValidateUser(const char* username)
     Strlcpy(request.arg0, "validateUser", CIMSERVERA_MAX_BUFFER);
     Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
 
-    if (CimserveraSend(sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(sock, &request, sizeof(request)) != sizeof(request))
     {
         close(sock);
         return -1;
@@ -315,13 +316,184 @@ static int CimserveraValidateUser(const char* username)
 
     int status;
 
-    if (CimserveraRecv(sock, &status, sizeof(status)) != sizeof(status))
+    if (Recv(sock, &status, sizeof(status)) != sizeof(status))
     {
         close(sock);
         return -1;
     }
 
     return status;
+}
+
+//==============================================================================
+//
+// struct PAMData
+//
+//     Client data passed to PAM routines.
+//
+//==============================================================================
+
+struct PAMData
+{
+    const char* password;
+};
+
+//==============================================================================
+//
+// PAMAuthenticateCallback()
+//
+//     Callback used by PAMAuthenticate().
+//
+//==============================================================================
+
+static int PAMAuthenticateCallback(
+    int num_msg, 
+    const pam_message** msg,
+    pam_response** resp, 
+    void* appdata_ptr)
+{
+    PAMData* data = (PAMData*)appdata_ptr;
+
+    if (num_msg > 0)
+    {
+        *resp = (pam_response*)calloc(num_msg, sizeof(pam_response));
+
+        if (*resp == NULL) 
+            return PAM_BUF_ERR;
+    }
+    else 
+        return PAM_CONV_ERR;
+
+    for (int i = 0; i < num_msg; i++) 
+    {
+        switch (msg[i]->msg_style) 
+        {
+            case PAM_PROMPT_ECHO_OFF:
+            {
+                resp[i]->resp = (char*)malloc(PAM_MAX_MSG_SIZE);
+                strcpy(resp[i]->resp, data->password);
+                resp[i]->resp_retcode = 0;
+                break;
+            }
+
+            default:
+                return PAM_CONV_ERR;
+        }
+    }
+
+    return PAM_SUCCESS;
+}
+
+//==============================================================================
+//
+// PAMValidateUserCallback()
+//
+//     Callback used by PAMValidateUser().
+//
+//==============================================================================
+
+static int PAMValidateUserCallback(
+    int num_msg, 
+    const pam_message** msg,
+    pam_response** resp, 
+    void* appdata_ptr)
+{
+    if (num_msg > 0)
+    {
+        *resp = (pam_response*)calloc(num_msg, sizeof(struct pam_response));
+
+        if (*resp == NULL)
+            return PAM_BUF_ERR;
+    }
+    else
+        return PAM_CONV_ERR;
+
+    return PAM_SUCCESS;
+}
+
+//==============================================================================
+//
+// PAMAuthenticate()
+//
+//     Peforms basic PAM authentication on the given username and password.
+//
+//==============================================================================
+
+static int PAMAuthenticate(const char* username, const char* password)
+{
+#ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+
+    return CimserveraAuthenticate(username, password);
+
+#else /* !PEGASUS_USE_PAM_STANDALONE_PROC */
+
+    PAMData data;
+    data.password = password;
+
+    pam_conv pconv;
+    pconv.conv = PAMAuthenticateCallback;
+    pconv.appdata_ptr = &data;
+
+    pam_handle_t* handle;
+
+    if (pam_start("wbem", username, &pconv, &handle) != PAM_SUCCESS)
+        return -1;
+
+    if (pam_authenticate(handle, 0) != PAM_SUCCESS) 
+    {
+        pam_end(handle, 0);
+        return -1;
+    }
+
+    if (pam_acct_mgmt(handle, 0) != PAM_SUCCESS) 
+    {
+        pam_end(handle, 0);
+        return -1;
+    }
+
+    pam_end(handle, 0);
+
+    return 0;
+#endif /* !PEGASUS_USE_PAM_STANDALONE_PROC */
+}
+
+//==============================================================================
+//
+// PAMValidateUser()
+//
+//     Validate that the *username* refers to a valid PAM user.
+//
+//==============================================================================
+
+static int PAMValidateUser(const char* username)
+{
+#ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+
+    return CimserveraValidateUser(username);
+
+#else /* !PEGASUS_USE_PAM_STANDALONE_PROC */
+
+    PAMData data;
+
+    struct pam_conv pconv;
+    pconv.conv = PAMValidateUserCallback;
+    pconv.appdata_ptr = &data;
+
+    pam_handle_t* phandle;
+
+    if (pam_start("wbem", username, &pconv, &phandle) != PAM_SUCCESS)
+        return -1;
+
+    if (pam_acct_mgmt(phandle, 0) != PAM_SUCCESS)
+    {
+        pam_end(phandle, 0);
+        return -1;
+    }
+
+    pam_end(phandle, 0);
+
+    return 0;
+#endif /* !PEGASUS_USE_PAM_STANDALONE_PROC */
 }
 
 #endif /* Pegasus_cimservera_h */

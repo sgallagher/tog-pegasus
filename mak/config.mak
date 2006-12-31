@@ -885,6 +885,18 @@ ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
   endif
 endif
 
+##==============================================================================
+##
+## PEGASUS_USE_PAM_STANDALONE_PROC
+##
+##==============================================================================
+
+ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+  DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
+endif
+
+##==============================================================================
+
 ifndef PEGASUS_JAVA_CLASSPATH_DELIMITER
     PEGASUS_JAVA_CLASSPATH_DELIMITER = :
 endif

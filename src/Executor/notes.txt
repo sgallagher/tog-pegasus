@@ -28,3 +28,18 @@
 
     8.  For logging purposes, the executor uses "cimexecutor" as its syslog
         identifier.
+
+    9.  Setting up PAM authentiction (non-standalone).
+
+        First compile with PEGASUS_PAM_AUTHENTICATION. 
+        
+        Next install the PAM configuration file.
+
+            % cd $PEGASUS_ROOT
+            % cp rpm/wbem /etc/pam.d
+            % chmod 0644 /etc/pam.d/wbem
+
+    10. Setting up standalone PAM authentication.
+
+        First compile with PEGASUS_USE_PAM_STANDALONE_PROC flag.
+

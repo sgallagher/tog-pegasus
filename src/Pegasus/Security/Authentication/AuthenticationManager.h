@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +46,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class implements the HTTP authentication and Pegasus Local
+/** This class implements the HTTP authentication and Pegasus Local 
     authentication mecahnism. It provides methods to perform authentication
     and to generate authentication challenge headers.
 */
@@ -63,9 +65,9 @@ public:
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful authentication, false otherwise
     */
-    AuthenticationStatus performHttpAuthentication(
+    Boolean performHttpAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
@@ -73,22 +75,18 @@ public:
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object that holds the
         authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful authentication, false otherwise
     */
-    AuthenticationStatus performPegasusAuthentication(
+    Boolean performPegasusAuthentication(
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
     /** Validates whether the user is a valid user for requests
         from HTTP connections.
         @param  userName  name of the user
-        @param authInfo Reference to AuthenticationInfo object that holds the
-        authentication information for the given connection.
-        @return AuthenticationStatus holding http status code and error detail
+        @return true on successful validation, false otherwise
     */
-    AuthenticationStatus validateUserForHttpAuth(
-        const String& userName,
-        AuthenticationInfo* authInfo);
+    Boolean validateUserForHttpAuth (const String& userName);
 
     /** Constructs the Pegasus Local authentication challenge header.
         @param authHeader String containing the Authorization header
@@ -105,14 +103,26 @@ public:
     */
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     String AuthenticationManager::getHttpAuthResponseHeader(
-        AuthenticationInfo* authInfo = 0);
+	AuthenticationInfo* authInfo = 0);
 #else
     String getHttpAuthResponseHeader();
 #endif
 
-    static Boolean isRemotePrivilegedUserAccessAllowed( String & userName);
+    static Boolean isRemotePrivilegedUserAccessAllowed(
+        String & userName);
 
 private:
+
+    Boolean _parseLocalAuthHeader(
+        const String& authHeader, 
+        String& authType, 
+        String& userName, 
+        String& cookie);
+
+    Boolean _parseHttpAuthHeader(
+        const String& authHeader, 
+        String& authType, 
+        String& cookie);
 
     Authenticator* _getLocalAuthHandler();
 
@@ -127,4 +137,3 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_AuthenticationManager_h */
-

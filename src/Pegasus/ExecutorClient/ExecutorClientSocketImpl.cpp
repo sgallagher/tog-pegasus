@@ -44,6 +44,8 @@
 #include "ExecutorClient.h"
 #include <Executor/Executor.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Security/Cimservera/Strlcpy.h>
+#include <Pegasus/Security/Cimservera/Strlcat.h>
 #include "private/ExecutorClientSocketImpl.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -503,6 +505,72 @@ int ExecutorClientSocketImpl::waitPid(
     // Receive the response
 
     ExecutorWaitPidResponse response;
+
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    return response.status;
+}
+
+int ExecutorClientSocketImpl::pamAuthenticate(
+    const char* username,
+    const char* password)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_PAM_AUTHENTICATE_REQUEST;
+
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body.
+
+    ExecutorPAMAuthenticateRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
+    Strlcpy(request.password, password, EXECUTOR_BUFFER_SIZE);
+
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorPAMAuthenticateResponse response;
+
+    if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    return response.status;
+}
+
+int ExecutorClientSocketImpl::pamValidateUser(
+    const char* username)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_PAM_VALIDATE_USER_REQUEST;
+
+    if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body.
+
+    ExecutorPAMValidateUserRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
+
+    if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorPAMValidateUserResponse response;
 
     if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
         return -1;

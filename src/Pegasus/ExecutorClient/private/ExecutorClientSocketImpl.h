@@ -78,6 +78,13 @@ public:
     virtual int waitPid(
         int pid);
 
+    virtual int pamAuthenticate(
+        const char* username,
+        const char* password);
+
+    virtual int pamValidateUser(
+        const char* username);
+
 private:
     Mutex _mutex;
     int _sock;

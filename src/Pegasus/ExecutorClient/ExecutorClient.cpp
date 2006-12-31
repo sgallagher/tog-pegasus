@@ -132,4 +132,17 @@ int ExecutorClient::waitPid(
     return _impl()->waitPid(pid);
 }
 
+int ExecutorClient::pamAuthenticate(
+    const char* username,
+    const char* password)
+{
+    return _impl()->pamAuthenticate(username, password);
+}
+
+int ExecutorClient::pamValidateUser(
+    const char* username)
+{
+    return _impl()->pamValidateUser(username);
+}
+
 PEGASUS_NAMESPACE_END

@@ -15,9 +15,16 @@ CIMSERVER_OPTIONS = \
 
 SECONDS=2
 
+ifndef PASSWORD
+  $(error "Usage: make PASSWORD=<password>")
+endif
+
+CIMSERVER_OPTIONS=enableAuthentication=true logLevel=TRACE
+
 poststarttests:
 	$(MAKE) stop
 	$(MAKE) start
+	$(MAKE) test1
 	$(MAKE) stop
 
 stop:
@@ -29,6 +36,12 @@ stop:
 start:
 	@ $(ECHO) ""
 	@ $(ECHO) "########## Starting cimserver..."
-	@ cimserver daemon=true enableAuthentication=true
+	cimserver $(CIMSERVER_OPTIONS)
 
+
+test1:
+	@ $(SLEEP) $(SECONDS)
+	cimcli -l 192.168.1.20 -u pegasus -p $(PASSWORD) ei CIM_ManagedElement
+	
 depend:
+

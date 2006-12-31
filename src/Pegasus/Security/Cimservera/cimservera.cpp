@@ -33,7 +33,6 @@
 
 #include "cimservera.h"
 #include <cstdio>
-#include <Executor/Executor.h>
 
 int main(int argc, char* argv[])
 {
@@ -66,7 +65,7 @@ int main(int argc, char* argv[])
     CimserveraRequest request;
 
     // Wait on request.
-    if (CimserveraRecv(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
     {
         close(sock);
         return -1;
@@ -75,12 +74,12 @@ int main(int argc, char* argv[])
     if (strcmp(request.arg0, "authenticate") == 0)
     {
         int status = PAMAuthenticate(request.arg1, request.arg2);
-        CimserveraSend(sock, &status, sizeof(status));
+        Send(sock, &status, sizeof(status));
     }
     else if (strcmp(request.arg0, "validateUser") == 0)
     {
         int status = PAMValidateUser(request.arg1);
-        CimserveraSend(sock, &status, sizeof(status));
+        Send(sock, &status, sizeof(status));
     }
     else
     {

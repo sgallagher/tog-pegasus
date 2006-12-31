@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #define _XOPEN_SOURCE_EXTENDED 1
+#include "Executor.h"
 #include <Pegasus/Common/Constants.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -51,10 +52,15 @@
 #include <stdarg.h>
 #include <syslog.h>
 #include <dirent.h>
-#include "Executor.h"
+#include <Pegasus/Security/Cimservera/Strlcpy.h>
+#include <Pegasus/Security/Cimservera/Strlcat.h>
 
 #if defined(PEGASUS_OS_HPUX)
 # include <sys/pstat.h>
+#endif
+
+#ifdef PEGASUS_PAM_AUTHENTICATION
+#include <Pegasus/Security/Cimservera/cimservera.h>
 #endif
 
 //==============================================================================
@@ -450,13 +456,13 @@ int WaitForWriteEnable(int sock, long timeoutMsec)
 
 //==============================================================================
 //
-// Recv()
+// RecvNonBlock()
 //
 //     Receive at least size bytes from the given non-blocking socket.
 //
 //==============================================================================
 
-static ssize_t Recv(int sock, void* buffer, size_t size)
+static ssize_t RecvNonBlock(int sock, void* buffer, size_t size)
 {
     const long TIMEOUT_MSEC = 250;
     size_t r = size;
@@ -510,13 +516,13 @@ static ssize_t Recv(int sock, void* buffer, size_t size)
 
 //==============================================================================
 //
-// Send()
+// SendNonBlock()
 //
 //     Sends at least size bytes on the given non-blocking socket.
 //
 //==============================================================================
 
-static ssize_t Send(int sock, const void* buffer, size_t size)
+static ssize_t SendNonBlock(int sock, const void* buffer, size_t size)
 {
     const long TIMEOUT_MSEC = 250;
     size_t r = size;
@@ -669,41 +675,41 @@ static void ChangeDirOwnerRecursive(
     
     while ((ent = readdir(dir)) != NULL)
     {
-	// Skip over "." and ".."
+        // Skip over "." and ".."
 
-	const char* name = ent->d_name;
+        const char* name = ent->d_name;
 
-	if (strcmp(name, ".")  == 0 || strcmp(name, "..") == 0)
-	    continue;
+        if (strcmp(name, ".")  == 0 || strcmp(name, "..") == 0)
+            continue;
 
-	// Build full path name for this file:
+        // Build full path name for this file:
 
         char buffer[EXECUTOR_BUFFER_SIZE];
         STRLCPY(buffer, path, EXECUTOR_BUFFER_SIZE);
         STRLCAT(buffer, "/", EXECUTOR_BUFFER_SIZE);
         STRLCAT(buffer, name, EXECUTOR_BUFFER_SIZE);
 
-	// Determine file type (skip soft links and directories).
+        // Determine file type (skip soft links and directories).
 
-	struct stat st;
+        struct stat st;
 
-	if (lstat(buffer, &st) == -1)
+        if (lstat(buffer, &st) == -1)
             Fatal(FL, "lstat(%s) failed", buffer);
 
-	// If it's a directory, save the name:
+        // If it's a directory, save the name:
 
-	if (S_ISDIR(st.st_mode))
-	{
+        if (S_ISDIR(st.st_mode))
+        {
             ChangeDirOwnerRecursive(buffer, uid, gid);
-	    continue;
-	}
+            continue;
+        }
 
-	// Skip soft links:
+        // Skip soft links:
 
-	if (S_ISLNK(st.st_mode))
-	    continue;
+        if (S_ISLNK(st.st_mode))
+            continue;
 
-	// Process the current file.
+        // Process the current file.
 
         if (chown(buffer, uid, gid) != 0)
             Fatal(FL, "chown(%s, %d, %d) failed", buffer, uid, gid);
@@ -1116,7 +1122,7 @@ static void HandlePingRequest(int sock)
 
     ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -1134,7 +1140,7 @@ static void HandleOpenFileRequest(int sock)
 
     struct ExecutorOpenFileRequest request;
 
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Open the file.
@@ -1178,7 +1184,7 @@ static void HandleOpenFileRequest(int sock)
     else
         response.status = 0;
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 
     // Send descriptor to calling process (if any to send).
@@ -1204,7 +1210,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
     struct ExecutorStartProviderAgentRequest request;
 
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     Log(LL_TRACE, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
@@ -1344,7 +1350,7 @@ static void HandleStartProviderAgentRequest(int sock)
     response.status = status;
     response.pid = pid;
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 
     // Send descriptors to calling process.
@@ -1382,14 +1388,14 @@ static void HandleDaemonizeExecutorRequest(int sock)
         response.status = -1;
         Fatal(FL, "fork() failed");
 
-        if (Send(sock, &response, sizeof(response)) != sizeof(response))
+        if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
             Fatal(FL, "failed to write response");
     }
 
     // Parent exits:
 
     if (pid > 0)
-	exit(0);
+        exit(0);
 
     // Ignore SIGHUP:
 
@@ -1415,7 +1421,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
     open("/dev/null", O_RDWR);
     open("/dev/null", O_RDWR);
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -1431,7 +1437,7 @@ static void HandleChangeOwnerRequest(int sock)
 
     struct ExecutorChangeOwnerRequest request;
 
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Change owner.
@@ -1453,7 +1459,7 @@ static void HandleChangeOwnerRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -1469,7 +1475,7 @@ static void HandleRenameFileRequest(int sock)
 
     struct ExecutorRenameFileRequest request;
 
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Rename the file.
@@ -1508,7 +1514,7 @@ static void HandleRenameFileRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -1524,7 +1530,7 @@ static void HandleRemoveFileRequest(int sock)
 
     struct ExecutorRemoveFileRequest request;
 
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Remove the file.
@@ -1542,7 +1548,7 @@ static void HandleRemoveFileRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -1558,7 +1564,7 @@ static void HandleWaitPidRequest(int sock)
 
     struct ExecutorWaitPidRequest request;
 
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     // Wait on the PID:
@@ -1577,7 +1583,95 @@ static void HandleWaitPidRequest(int sock)
     memset(&response, 0, sizeof(response));
     response.status = status;
 
-    if (Send(sock, &response, sizeof(response)) != sizeof(response))
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandlePAMAuthenticateRequest()
+//
+//==============================================================================
+
+static void HandlePAMAuthenticateRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorPAMAuthenticateRequest request;
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Rename the file.
+
+    Log(LL_TRACE, "HandlePAMAuthenticateRequest(): username=%s",
+        request.username);
+
+    // Perform the operation:
+
+#if defined(PEGASUS_PAM_AUTHENTICATION)
+    int status = PAMAuthenticate(request.username, request.password);
+#else
+    int status = -1;
+#endif
+
+    if (status != 0)
+    {
+        Log(LL_WARNING, "PAM authentication failed for username %s", 
+            request.username);
+    }
+    else
+    {
+        Log(LL_INFORMATION, "PAM authentication succeeded for username %s", 
+            request.username);
+    }
+
+    // Send response message.
+
+    struct ExecutorPAMAuthenticateResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+//==============================================================================
+//
+// HandlePAMValidateUserRequest()
+//
+//==============================================================================
+
+static void HandlePAMValidateUserRequest(int sock)
+{
+    // Read the request request.
+
+    struct ExecutorPAMValidateUserRequest request;
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    // Validate the user with PAM.
+
+    Log(LL_TRACE, 
+        "HandlePAMValidateUserRequest(): username=%s", request.username);
+
+#if defined(PEGASUS_PAM_AUTHENTICATION)
+    int status = PAMValidateUser(request.username);
+#else
+    int status = -1;
+#endif
+
+    if (status != 0)
+        Log(LL_WARNING, "PAM user validation failed on %s", request.username);
+
+    // Send response message.
+
+    struct ExecutorPAMValidateUserResponse response;
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
 
@@ -1612,7 +1706,7 @@ static void Executor(int sock, int childPid)
 
         ExecutorRequestHeader header;
 
-        ssize_t n = Recv(sock, &header, sizeof(header));
+        ssize_t n = RecvNonBlock(sock, &header, sizeof(header));
 
         if (n == 0)
         {
@@ -1658,6 +1752,14 @@ static void Executor(int sock, int childPid)
 
             case EXECUTOR_WAIT_PID_REQUEST:
                 HandleWaitPidRequest(sock);
+                break;
+
+            case EXECUTOR_PAM_AUTHENTICATE_REQUEST:
+                HandlePAMAuthenticateRequest(sock);
+                break;
+
+            case EXECUTOR_PAM_VALIDATE_USER_REQUEST:
+                HandlePAMValidateUserRequest(sock);
                 break;
 
             default:

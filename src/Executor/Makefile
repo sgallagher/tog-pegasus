@@ -46,6 +46,3 @@ poststarttests:
 
 ff:
 	flawfinder -m 3 Executor.h Executor.cpp
-
-run:
-	$(PROGRAM)

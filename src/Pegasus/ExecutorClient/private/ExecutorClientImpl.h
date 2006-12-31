@@ -78,6 +78,13 @@ public:
     virtual int waitPid(
         int pid) = 0;
 
+    virtual int pamAuthenticate(
+        const char* username,
+        const char* password) = 0;
+
+    virtual int pamValidateUser(
+        const char* username) = 0;
+
 private:
 };
 

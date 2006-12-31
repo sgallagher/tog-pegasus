@@ -1,10 +1,11 @@
 
+    NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+
+    (N) Move PAM validate-user code to executor.
+
+    (N) Implement standalone PAM program.
+
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-    (A) Use the EXECUTOR_FINGERPRINT in cimservermain.
-
-    (A) Maintain a list of PIDs that were created with startProviderAgent.
-        Only allow waitPid() on these.
 
     (A) Do we need to reap provider agent processes?
 

@@ -37,6 +37,10 @@
 #include <Pegasus/Common/Constants.h>
 #include "private/ExecutorClientLoopbackImpl.h"
 
+#if defined(PEGASUS_PAM_AUTHENTICATION)
+#include <Pegasus/Security/Cimservera/cimservera.h>
+#endif
+
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>
 #else
@@ -388,6 +392,27 @@ int ExecutorClientLoopbackImpl::waitPid(
         ;
 
     return status;
+}
+
+int ExecutorClientLoopbackImpl::pamAuthenticate(
+    const char* username,
+    const char* password)
+{
+#if defined(PEGASUS_PAM_AUTHENTICATION)
+    return PAMAuthenticate(username, password);
+#else
+    return -1;
+#endif
+}
+
+int ExecutorClientLoopbackImpl::pamValidateUser(
+    const char* username)
+{
+#if defined(PEGASUS_PAM_AUTHENTICATION)
+    return PAMValidateUser(username);
+#else
+    return -1;
+#endif
 }
 
 PEGASUS_NAMESPACE_END

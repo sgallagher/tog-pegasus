@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Executor/Executor.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/signal.h>
@@ -307,6 +308,14 @@ static void _shutdownCimServer(Uint32 timeout)
 int main(int argc, char** argv)
 {
     arg0 = argv[0];
+
+    if (argc != 2 || strcmp(argv[1], EXECUTOR_FINGERPRINT) != 0)
+    {
+        cerr << arg0;
+        cerr << ": This is an internal Pegasus program; ";
+        cerr << "please do not execute it directly. " << endl;
+        exit(1);
+    }
 
     // Seconds.
     _shutdownCimServer(5);

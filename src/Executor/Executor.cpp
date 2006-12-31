@@ -57,8 +57,6 @@
 # include <sys/pstat.h>
 #endif
 
-typedef unsigned long long uint64;
-
 //==============================================================================
 //
 // TRACE
@@ -1691,17 +1689,16 @@ static void Child(
 {
     // Build argument list, adding "-x <sock>" option if sock non-negative.
 
-    char** execArgv = (char**)malloc(sizeof(char*) * (argc + 3));
-    memcpy(execArgv, argv, sizeof(char*) * sizeof(argc) + 1);
+    char** execArgv = (char**)malloc(sizeof(char*) * (argc + 4));
+    memcpy(execArgv + 4, argv + 1, sizeof(char*) * argc);
+
+    char sockStr[EXECUTOR_BUFFER_SIZE];
+    sprintf(sockStr, "%d", sock);
+
     execArgv[0] = CIMSERVERMAIN;
-
-    // Only do all this if executor will run.
-
-    char buffer[EXECUTOR_BUFFER_SIZE];
-    sprintf(buffer, "%d", sock);
-    execArgv[argc] = "-x";
-    execArgv[argc + 1] = strdup(buffer);
-    execArgv[argc + 2] = 0;
+    execArgv[1] = EXECUTOR_FINGERPRINT;
+    execArgv[2] = "-x";
+    execArgv[3] = sockStr;
 
     // Locate repository directory.
 
@@ -1957,12 +1954,13 @@ int main(int argc, char** argv)
     {
         if (strcmp(argv[i], "-s") == 0)
         {
-            argv[0] = CIMSHUTDOWN;
+            char* tmpArgv[3];
+            tmpArgv[0] = CIMSHUTDOWN;
+            tmpArgv[1] = EXECUTOR_FINGERPRINT;
+            tmpArgv[2] = 0;
 
-            if (execv(cimshutdownPath, argv) != 0)
-                Fatal(FL, "failed to exec %s", cimshutdownPath);
-
-            _exit(0);
+            execv(cimshutdownPath, tmpArgv);
+            Fatal(FL, "failed to exec %s", cimshutdownPath);
         }
     }
 

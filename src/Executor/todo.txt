@@ -1,6 +1,8 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
+    (A) Use the EXECUTOR_FINGERPRINT in cimservermain.
+
     (A) Maintain a list of PIDs that were created with startProviderAgent.
         Only allow waitPid() on these.
 

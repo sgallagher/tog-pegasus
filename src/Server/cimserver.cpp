@@ -125,6 +125,7 @@
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 # include <Pegasus/ExecutorClient/ExecutorClient.h>
+# include <Executor/Executor.h>
 # define PEGASUS_PROCESS_NAME "cimservermain"
 #else
 # define PEGASUS_PROCESS_NAME "cimserver"
@@ -665,7 +666,23 @@ int main(int argc, char** argv)
 {
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 
+    // Check for fingerprint (passed only by the executor).
+
+    if (argc < 2 || strcmp(argv[1], EXECUTOR_FINGERPRINT) != 0)
+    {
+        cerr << argv[0];
+        cerr << ": This is an internal Pegasus program; ";
+        cerr << "please do not execute it directly. " << endl;
+        exit(1);
+    }
+
+    // Remove argv[1] (the fingerprint).
+
+    memcpy(argv + 1, argv + 2, sizeof(char*) * (argc - 1));
+    argc--;
+
     // If invoked with "-x <socket>" option, then use executor client.
+
     ExecutorClient::setExecutorSocket(_extractExecutorSocket(argc, argv));
 
     // Ping executor to be sure the sock was valid.

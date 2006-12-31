@@ -33,11 +33,15 @@ ROOT = ../..
 DIR = Server
 include $(ROOT)/mak/config.mak
 
-LIBRARIES = pegclient pegcommon
-EXTRA_INCLUDES = $(SYS_INCLUDES)
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 PROGRAM = cimshutdown
+
 SOURCES = cimshutdown.cpp
+
+LIBRARIES = pegclient pegcommon
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 include $(ROOT)/mak/program.mak
 

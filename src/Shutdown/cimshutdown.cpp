@@ -40,6 +40,10 @@
 #include <sys/signal.h>
 #include <unistd.h>
 
+#if defined(PEGASUS_OS_HPUX)
+# include <sys/pstat.h>
+#endif
+
 #define PEGASUS_BUFFER_SIZE 1024
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
@@ -183,7 +187,7 @@ int _killCimServer()
 
 //==============================================================================
 //
-// _killCimServer()
+// _waitForTerminationOrTimeout()
 //
 //     Kill the CIM server. Obtain the PID of the server from the PID file.
 //
@@ -231,11 +235,11 @@ static void _waitForTerminationOrTimeout(Uint32 timeout)
 
 //==============================================================================
 //
-// _shutdown()
+// _shutdownCimServer()
 //
 //==============================================================================
 
-static void _shutdown(Uint32 timeout)
+static void _shutdownCimServer(Uint32 timeout)
 {
     // Connect locally to CIM server.
 
@@ -305,5 +309,5 @@ int main(int argc, char** argv)
     arg0 = argv[0];
 
     // Seconds.
-    _shutdown(5);
+    _shutdownCimServer(5);
 }

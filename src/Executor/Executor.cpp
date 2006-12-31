@@ -53,6 +53,10 @@
 #include <dirent.h>
 #include "Executor.h"
 
+#if defined(PEGASUS_OS_HPUX)
+# include <sys/pstat.h>
+#endif
+
 typedef unsigned long long uint64;
 
 //==============================================================================
@@ -329,9 +333,14 @@ static void Exit(int status)
     if (_childPid > 0)
         kill(_childPid, SIGTERM);
 
+#if 0
+
+// ATTN: this cannot be called in case in which cimserver is already running.
+
     // Remove local domain socket node file.
 
     unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+#endif
 
     exit(status);
 }
@@ -1804,6 +1813,124 @@ void GetLogLevel(int argc, char** argv)
 
 //==============================================================================
 //
+// ReadPidFile()
+//
+//==============================================================================
+
+static int ReadPidFile(const char* path, int& pid)
+{
+    FILE* is = fopen(path, "r");
+
+    if (!is) 
+        return -1;
+
+    pid = 0;
+
+    fscanf(is, "%d\n", &pid);
+    fclose(is);
+
+    if (pid == 0)
+        return -1;
+
+    return 0;
+}
+
+//==============================================================================
+//
+// GetProcessName()
+//
+//==============================================================================
+
+#if defined(PEGASUS_OS_HPUX)
+
+static int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
+{
+    struct pst_status psts;
+
+    if (pstat_getproc(&psts, sizeof(psts), 0, pid) == -1)
+        return -1;
+
+    STRLCPY(name, pstru.pst_ucomm, EXECUTOR_BUFFER_SIZE);
+
+    return 0;
+}
+
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+
+static int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
+{
+    // Read the process name from the file.
+
+    static char buffer[1024];
+    sprintf(buffer, "/proc/%d/stat", pid);
+    FILE* is = fopen(buffer, "r");
+
+    if (!is)
+        return -1;
+
+    // Read the first line of the file.
+
+    if (fgets(buffer, sizeof(buffer), is) == NULL)
+    {
+        fclose(is);
+        return -1;
+    }
+
+    fclose(is);
+
+    // Extract the PID enclosed in parentheses.
+
+    char* start = strchr(buffer, '(');
+
+    if (!start)
+        return -1;
+
+    start++;
+
+    char* end = strchr(start, ')');
+
+    if (!end)
+        return -1;
+
+    if (start == end)
+        return -1;
+
+    *end = '\0';
+
+    STRLCPY(name, start, EXECUTOR_BUFFER_SIZE);
+
+    return 0;
+}
+
+#else
+# error "not implemented on this platform."
+#endif /* PEGASUS_PLATFORM_LINUX_GENERIC_GNU */
+
+//==============================================================================
+//
+// TestCimServerProcess()
+//
+//     Returns 0 if cimserver process is running.
+//
+//==============================================================================
+
+int TestCimServerProcess()
+{
+    int pid;
+
+    if (ReadPidFile(PEGASUS_CIMSERVER_START_FILE, pid) != 0)
+        return -1;
+
+    char name[EXECUTOR_BUFFER_SIZE];
+
+    if (GetProcessName(pid, name) != 0 || strcmp(name, CIMSERVERMAIN) != 0)
+        return -1;
+
+    return 0;
+}
+
+//==============================================================================
+//
 // main()
 //
 //==============================================================================
@@ -1824,7 +1951,7 @@ int main(int argc, char** argv)
     char cimshutdownPath[EXECUTOR_BUFFER_SIZE];
     GetInternalPegasusProgramPath(CIMSHUTDOWN, cimshutdownPath);
 
-    // If shuting down, then just run "cimservermain -s" directly as client.
+    // If shuting down, then run "cimshutdown" client.
 
     for (int i = 0; i < argc; i++)
     {
@@ -1837,6 +1964,18 @@ int main(int argc, char** argv)
 
             _exit(0);
         }
+    }
+
+    // If CIMSERVERMAIN is already running, warn and exit now.
+
+    if (TestCimServerProcess() == 0)
+    {
+        fprintf(stderr,
+            "%s: cimserver is already running (the PID found in the file "
+            "\"%s\" corresponds to an existing process named \"%s\").\n\n",
+            arg0, PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);
+
+        exit(1);
     }
 
     // Create a socket pair for communicating with the child process.

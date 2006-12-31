@@ -33,13 +33,17 @@ ROOT = ..
 include $(ROOT)/mak/config.mak
 
 ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-  DIRS += Executor Executor/tests
+  DIRS += Executor
 endif
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 DIRS += Platforms utils Pegasus slp Clients Providers Service Server
 else
 DIRS += Platforms utils Pegasus Clients Providers Service Server
+endif
+
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+  DIRS += Shutdown
 endif
 
 DIRS += \

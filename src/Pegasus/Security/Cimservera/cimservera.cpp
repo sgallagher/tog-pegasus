@@ -33,15 +33,34 @@
 
 #include "cimservera.h"
 #include <cstdio>
+#include <syslog.h>
+
+static void Exit(int status)
+{
+    if (status == 0)
+        syslog(LOG_INFO, "exiting with status=%d", status);
+    else
+        syslog(LOG_WARNING, "exiting with status=%d", status);
+
+    exit(status);
+}
 
 int main(int argc, char* argv[])
 {
+    // Open syslog:
+
+    openlog("cimservera", 0, LOG_AUTH);
+    syslog(LOG_INFO, "started");
+
+    // ATTN: Insert fingerprint logic to detect running of this program as
+    // non-child of executor.
+
     // Check argumnents.
 
     if (argc != 2)
     {
         fprintf(stderr, "Usage: %s <socket-number>\n", argv[0]);
-        exit(1);
+        Exit(1);
     }
 
     // Open socket stream.
@@ -54,7 +73,7 @@ int main(int argc, char* argv[])
         if (*end != '\0')
         {
             fprintf(stderr, "%s : bad socket argument: %s\n", argv[0], argv[1]);
-            exit(1);
+            Exit(1);
         }
         
         sock = int(x);
@@ -68,28 +87,41 @@ int main(int argc, char* argv[])
     if (Recv(sock, &request, sizeof(request)) != sizeof(request))
     {
         close(sock);
-        return -1;
+        Exit(1);
     }
 
     if (strcmp(request.arg0, "authenticate") == 0)
     {
-        int status = PAMAuthenticate(request.arg1, request.arg2);
+        int status = PAMAuthenticateInProcess(request.arg1, request.arg2);
+
+        if (status != 0)
+        {
+            syslog(LOG_WARNING, "PAM authentication failed on user \"%s\"",
+                request.arg1);
+        }
+
         Send(sock, &status, sizeof(status));
     }
     else if (strcmp(request.arg0, "validateUser") == 0)
     {
-        int status = PAMValidateUser(request.arg1);
+        int status = PAMValidateUserInProcess(request.arg1);
+
+        if (status != 0)
+        {
+            syslog(LOG_WARNING, "PAM user validation failed on user \"%s\"",
+                request.arg1);
+        }
+
         Send(sock, &status, sizeof(status));
     }
     else
     {
-        fprintf(stderr, "%s: bad request\n", argv[0]);
+        syslog(LOG_WARNING, "invalid request");
         close(sock);
-        exit(1);
+        Exit(1);
     }
 
     close(sock);
 
-    exit(0);
-    return 0;
+    Exit(0);
 }

@@ -34,6 +34,10 @@
 #ifndef Pegasus_cimservera_h
 #define Pegasus_cimservera_h
 
+#if !defined(PEGASUS_PAM_AUTHENTICATION)
+# error "Do not include this file without defining PEGASUS_PAM_AUTHENTICATION"
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -413,20 +417,14 @@ static int PAMValidateUserCallback(
 
 //==============================================================================
 //
-// PAMAuthenticate()
+// PAMAuthenticateInProcess()
 //
 //     Peforms basic PAM authentication on the given username and password.
 //
 //==============================================================================
 
-static int PAMAuthenticate(const char* username, const char* password)
+static int PAMAuthenticateInProcess(const char* username, const char* password)
 {
-#ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-
-    return CimserveraAuthenticate(username, password);
-
-#else /* !PEGASUS_USE_PAM_STANDALONE_PROC */
-
     PAMData data;
     data.password = password;
 
@@ -454,25 +452,18 @@ static int PAMAuthenticate(const char* username, const char* password)
     pam_end(handle, 0);
 
     return 0;
-#endif /* !PEGASUS_USE_PAM_STANDALONE_PROC */
 }
 
 //==============================================================================
 //
-// PAMValidateUser()
+// PAMValidateUserInProcess()
 //
 //     Validate that the *username* refers to a valid PAM user.
 //
 //==============================================================================
 
-static int PAMValidateUser(const char* username)
+static int PAMValidateUserInProcess(const char* username)
 {
-#ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-
-    return CimserveraValidateUser(username);
-
-#else /* !PEGASUS_USE_PAM_STANDALONE_PROC */
-
     PAMData data;
 
     struct pam_conv pconv;
@@ -493,7 +484,40 @@ static int PAMValidateUser(const char* username)
     pam_end(phandle, 0);
 
     return 0;
-#endif /* !PEGASUS_USE_PAM_STANDALONE_PROC */
+}
+
+//==============================================================================
+//
+// PAMAuthenticate()
+//
+//     Peforms basic PAM authentication on the given username and password.
+//
+//==============================================================================
+
+static int PAMAuthenticate(const char* username, const char* password)
+{
+#ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+    return CimserveraAuthenticate(username, password);
+#else
+    return PAMAuthenticateInProcess(username, password);
+#endif
+}
+
+//==============================================================================
+//
+// PAMValidateUser()
+//
+//     Validate that the *username* refers to a valid PAM user.
+//
+//==============================================================================
+
+static int PAMValidateUser(const char* username)
+{
+#ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+    return CimserveraValidateUser(username);
+#else
+    return PAMValidateUserInProcess(username);
+#endif
 }
 
 #endif /* Pegasus_cimservera_h */

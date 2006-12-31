@@ -41,5 +41,6 @@
 
     10. Setting up standalone PAM authentication.
 
-        First compile with PEGASUS_USE_PAM_STANDALONE_PROC flag.
+        Compile with PEGASUS_PAM_AUTHENTICATION and 
+        PEGASUS_USE_PAM_STANDALONE_PROC.
 

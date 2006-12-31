@@ -38,12 +38,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstdio>
+#include <errno.h>
 #include <Pegasus/Common/Constants.h>
-#include <Executor/Executor.h>
 #include <Executor/Strlcpy.h>
 #include <Executor/Strlcat.h>
 
 #define CIMSERVERA "cimservera"
+#define CIMSERVERA_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
 
 //==============================================================================
 //
@@ -88,7 +89,7 @@ static ssize_t CimserveraSend(int sock, void* buffer, size_t size)
     while (r)
     {
         ssize_t n;
-        EXECUTOR_RESTART(write(sock, p, r), n);
+        CIMSERVERA_RESTART(write(sock, p, r), n);
 
         if (n == -1)
         {
@@ -127,7 +128,7 @@ static ssize_t CimserveraRecv(int sock, void* buffer, size_t size)
     {
         ssize_t n;
 
-        EXECUTOR_RESTART(read(sock, p, r), n);
+        CIMSERVERA_RESTART(read(sock, p, r), n);
 
         if (n == -1)
         {

@@ -98,58 +98,7 @@ static ssize_t Send(int sock, void* buffer, size_t size)
         CIMSERVERA_RESTART(write(sock, p, r), n);
 
         if (n == -1)
-        {
-            if (errno == EWOULDBLOCK)
-                return size - r;
-            else 
-                return -1;
-        }
-        else if (n == 0)
-            return size - r;
-
-        r -= n;
-        p += n;
-    }
-
-    return size - r;
-}
-
-//==============================================================================
-//
-// Recv()
-//
-//     Receives *size* bytes from the given socket.
-//
-//==============================================================================
-
-static ssize_t Recv(int sock, void* buffer, size_t size)
-{
-    size_t r = size;
-    char* p = (char*)buffer;
-
-    if (size == 0)
-        return -1;
-
-    while (r)
-    {
-        ssize_t n;
-
-        CIMSERVERA_RESTART(read(sock, p, r), n);
-
-        if (n == -1)
-        {
-            if (errno == EWOULDBLOCK)
-            {
-                size_t total = size - r;
-
-                if (total)
-                    return total;
-
-                return -1;
-            }
-            else
-                return -1;
-        }
+            return -1;
         else if (n == 0)
             return size - r;
 

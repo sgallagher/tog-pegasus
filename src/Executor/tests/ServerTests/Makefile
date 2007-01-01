@@ -19,7 +19,7 @@ ifndef PASSWORD
   $(error "Usage: make PASSWORD=<password>")
 endif
 
-CIMSERVER_OPTIONS=enableAuthentication=true logLevel=TRACE
+CIMSERVER_OPTIONS=enableAuthentication=true logLevel=INFORMATION
 
 poststarttests:
 	$(MAKE) stop

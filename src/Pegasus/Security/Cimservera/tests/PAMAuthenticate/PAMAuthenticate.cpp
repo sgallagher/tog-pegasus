@@ -1,7 +1,10 @@
 #include "Pegasus/Security/Cimservera/cimservera.h"
+#include <sys/wait.h>
 
 int main(int argc, char** argv)
 {
+    signal(SIGPIPE, SIG_IGN);
+
     if (argc != 3)
     {
         fprintf(stderr, "Usage: %s username password\n", argv[0]);

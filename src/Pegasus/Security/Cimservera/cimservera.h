@@ -40,6 +40,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <cstdio>
 #include <errno.h>
@@ -57,7 +58,7 @@
 //
 //     This program is used to authenticate users with the "Basic PAM 
 //     Authentication" scheme. It was originally written to isolate memory
-//     errors in old PAM modules to an external process.
+//     PAM module errors to an external process.
 //
 //     This header defines two functions that may be called by clients of this
 //     process (the parent process).
@@ -168,15 +169,8 @@ static ssize_t Recv(int sock, void* buffer, size_t size)
 //
 //==============================================================================
 
-static int CimserveraStart()
+static int CimserveraStart(int& sock)
 {
-    // Create socket pair for communicating with child process.
-
-    int pair[2];
-
-    if (socketpair(AF_UNIX, SOCK_STREAM, 0, pair) != 0)
-        return -1;
-
     // Get absolute path of "cimservera" program.
 
     char path[CIMSERVERA_MAX_BUFFER];
@@ -194,6 +188,13 @@ static int CimserveraStart()
         Strlcat(path, "/", CIMSERVERA_MAX_BUFFER);
         Strlcat(path, PEGASUS_PAM_STANDALONE_PROC_NAME, CIMSERVERA_MAX_BUFFER);
     }
+
+    // Create socket pair for communicating with child process.
+
+    int pair[2];
+
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, pair) != 0)
+        return -1;
 
     // Fork child:
 
@@ -223,6 +224,7 @@ static int CimserveraStart()
         // Execute child:
 
         execv(path, argv);
+        close(pair[0]);
         _exit(0);
     }
 
@@ -230,7 +232,8 @@ static int CimserveraStart()
 
     close(pair[0]);
 
-    return pair[1];
+    sock = pair[1];
+    return pid;
 }
 
 //==============================================================================
@@ -256,34 +259,46 @@ static int CimserveraAuthenticate(const char* username, const char* password)
 {
     // Create the CIMSERVERA process.
 
-    int sock = CimserveraStart();
+    int sock;
+    int pid = CimserveraStart(sock);
 
-    if (sock == -1)
+    if (pid == -1)
         return -1;
 
-    // Send request to CIMSERVERA process.
+    // Send request, get response.
 
-    CimserveraRequest request;
-    memset(&request, 0, sizeof(request));
-    Strlcpy(request.arg0, "authenticate", CIMSERVERA_MAX_BUFFER);
-    Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
-    Strlcpy(request.arg2, password, CIMSERVERA_MAX_BUFFER);
+    int status = 0;
 
-    if (Send(sock, &request, sizeof(request)) != sizeof(request))
+    do
     {
-        close(sock);
-        return -1;
-    } 
+        // Send request to CIMSERVERA process.
 
-    // Receive response back from child process.
+        CimserveraRequest request;
+        memset(&request, 0, sizeof(request));
+        Strlcpy(request.arg0, "authenticate", CIMSERVERA_MAX_BUFFER);
+        Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
+        Strlcpy(request.arg2, password, CIMSERVERA_MAX_BUFFER);
 
-    int status;
+        if (Send(sock, &request, sizeof(request)) != sizeof(request))
+        {
+            status = -1;
+            break;
+        } 
 
-    if (Recv(sock, &status, sizeof(status)) != sizeof(status))
-    {
-        close(sock);
-        return -1;
+        // Get exist status from CIMSERVERA program.
+
+        int childStatus;
+        waitpid(pid, &childStatus, 0);
+
+        if (!WIFEXITED(childStatus) || WEXITSTATUS(childStatus) != 0)
+        {
+            status = -1;
+            break;
+        }
     }
+    while (0);
+
+    close(sock);
 
     return status;
 }
@@ -298,33 +313,45 @@ static int CimserveraValidateUser(const char* username)
 {
     // Create the CIMSERVERA process.
 
-    int sock = CimserveraStart();
+    int sock;
+    int pid = CimserveraStart(sock);
 
-    if (sock == -1)
+    if (pid == -1)
         return -1;
 
-    // Send request to CIMSERVERA process.
+    // Send request, get response.
 
-    CimserveraRequest request;
-    memset(&request, 0, sizeof(request));
-    Strlcpy(request.arg0, "validateUser", CIMSERVERA_MAX_BUFFER);
-    Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
+    int status = 0;
 
-    if (Send(sock, &request, sizeof(request)) != sizeof(request))
+    do
     {
-        close(sock);
-        return -1;
+        // Send request to CIMSERVERA process.
+
+        CimserveraRequest request;
+        memset(&request, 0, sizeof(request));
+        Strlcpy(request.arg0, "validateUser", CIMSERVERA_MAX_BUFFER);
+        Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
+
+        if (Send(sock, &request, sizeof(request)) != sizeof(request))
+        {
+            status = -1;
+            break;
+        }
+
+        // Get exist status from CIMSERVERA program.
+
+        int childStatus;
+        waitpid(pid, &childStatus, 0);
+
+        if (!WIFEXITED(childStatus) || WEXITSTATUS(childStatus) != 0)
+        {
+            status = -1;
+            break;
+        }
     }
+    while (0);
 
-    // Receive response back from child process.
-
-    int status;
-
-    if (Recv(sock, &status, sizeof(status)) != sizeof(status))
-    {
-        close(sock);
-        return -1;
-    }
+    close(sock);
 
     return status;
 }

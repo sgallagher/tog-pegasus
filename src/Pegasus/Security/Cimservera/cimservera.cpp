@@ -37,11 +37,7 @@
 
 static void Exit(int status)
 {
-    if (status == 0)
-        syslog(LOG_INFO, "exiting with status=%d", status);
-    else
-        syslog(LOG_WARNING, "exiting with status=%d", status);
-
+    syslog(LOG_INFO, "exit(%d)", status);
     exit(status);
 }
 
@@ -49,7 +45,7 @@ int main(int argc, char* argv[])
 {
     // Open syslog:
 
-    openlog("cimservera", 0, LOG_AUTH);
+    openlog("cimservera", LOG_PID, LOG_AUTH);
     syslog(LOG_INFO, "started");
 
     // ATTN: Insert fingerprint logic to detect running of this program as
@@ -100,7 +96,7 @@ int main(int argc, char* argv[])
                 request.arg1);
         }
 
-        Send(sock, &status, sizeof(status));
+        Exit(status == 0 ? 0 : 1);
     }
     else if (strcmp(request.arg0, "validateUser") == 0)
     {
@@ -112,7 +108,7 @@ int main(int argc, char* argv[])
                 request.arg1);
         }
 
-        Send(sock, &status, sizeof(status));
+        Exit(status == 0 ? 0 : 1);
     }
     else
     {
@@ -122,6 +118,5 @@ int main(int argc, char* argv[])
     }
 
     close(sock);
-
     Exit(0);
 }

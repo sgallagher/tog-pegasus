@@ -59,7 +59,7 @@
 # include <sys/pstat.h>
 #endif
 
-#ifdef PEGASUS_PAM_AUTHENTICATION
+#if defined(PEGASUS_PAM_AUTHENTICATION)
 #include <Pegasus/Security/Cimservera/cimservera.h>
 #endif
 
@@ -337,15 +337,6 @@ static void Exit(int status)
     if (_childPid > 0)
         kill(_childPid, SIGTERM);
 
-#if 0
-
-// ATTN: this cannot be called in case in which cimserver is already running.
-
-    // Remove local domain socket node file.
-
-    unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
-#endif
-
     exit(status);
 }
 
@@ -477,8 +468,8 @@ static ssize_t RecvNonBlock(int sock, void* buffer, size_t size)
 
         if (TstBit(_signalMask, SIGTERM) || TstBit(_signalMask, SIGINT))
         {
-            // Terminated with SIGTERM or SIGINT.
-            return 0;
+            // Exit on either of these signals.
+            Exit(0);
         }
 
         if (status == 0)
@@ -535,7 +526,8 @@ static ssize_t SendNonBlock(int sock, const void* buffer, size_t size)
 
         if (TstBit(_signalMask, SIGTERM) || TstBit(_signalMask, SIGINT))
         {
-            // Ignore!
+            // Exit on either of these signals.
+            Exit(0);
         }
 
         if (status == 0)
@@ -1688,7 +1680,17 @@ static void Executor(int sock, int childPid)
     // Handle Ctrl-C.
 
     signal(SIGINT, SigHandler);
+
+    // Catch SIGTERM, sent by kill program.
+
     signal(SIGTERM, SigHandler);
+
+    // Ignore SIGPIPE, which occurs if a child with whom the executor shares
+    // a local domain socket unexpectedly dies. In such a case, the socket
+    // read/write functions will return an error. There are two child processes
+    // the executor talks to over sockets: cimservera and cimservermain.
+
+    signal(SIGPIPE, SIG_IGN);
 
     // Save child PID globally; it is used by Exit() function.
 

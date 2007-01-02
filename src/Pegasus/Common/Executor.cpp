@@ -470,7 +470,7 @@ static ssize_t _recv(int sock, void* buffer, size_t size)
     {
         ssize_t n;
 
-        CIMSERVERA_RESTART(read(sock, p, r), n);
+        EXECUTOR_RESTART(read(sock, p, r), n);
 
         if (n == -1)
             return -1;
@@ -500,7 +500,7 @@ static ssize_t _send(int sock, void* buffer, size_t size)
     while (r)
     {
         ssize_t n;
-        CIMSERVERA_RESTART(write(sock, p, r), n);
+        EXECUTOR_RESTART(write(sock, p, r), n);
 
         if (n == -1)
             return -1;

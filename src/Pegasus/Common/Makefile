@@ -52,6 +52,7 @@ LIBRARY = pegcommon
 ##
 
 SOURCES1 = \
+    Executor.cpp \
     Backtrace.cpp \
     CIMError.cpp \
     PropertyAccessor.cpp \

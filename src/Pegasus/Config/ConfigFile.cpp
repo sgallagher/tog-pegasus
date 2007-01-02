@@ -37,7 +37,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 
 #include "ConfigExceptions.h"
 #include "ConfigFile.h"
@@ -136,7 +136,7 @@ void ConfigFile::load(ConfigTable* confTable)
 
     if (FileSystem::exists(_configBackupFile))
     {
-        ExecutorClient::removeFile(_configBackupFile.getCString());
+        Executor::removeFile(_configBackupFile.getCString());
     }
 
     //
@@ -268,7 +268,7 @@ void ConfigFile::save(ConfigTable* confTable)
     //
     if (FileSystem::exists(_configBackupFile))
     {
-        ExecutorClient::removeFile(_configBackupFile.getCString());
+        Executor::removeFile(_configBackupFile.getCString());
     }
 
     //
@@ -277,7 +277,7 @@ void ConfigFile::save(ConfigTable* confTable)
 
     if (FileSystem::exists(_configFile))
     {
-        if (ExecutorClient::renameFile(
+        if (Executor::renameFile(
             _configFile.getCString(), _configBackupFile.getCString()) != 0)
         {
             throw CannotRenameFile(_configFile);
@@ -288,7 +288,7 @@ void ConfigFile::save(ConfigTable* confTable)
     // Open the config file for writing
     //
 
-    FILE* ofs = ExecutorClient::openFile(_configFile.getCString(), 'w');
+    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
 
     if (!ofs)
     {
@@ -365,7 +365,7 @@ void ConfigFile::replace (const String& fileName)
 
     if (FileSystem::exists(_configFile))
     {
-        if (ExecutorClient::renameFile(
+        if (Executor::renameFile(
             _configFile.getCString(), _configBackupFile.getCString()) != 0)
         {
             fclose(ifs);
@@ -377,7 +377,7 @@ void ConfigFile::replace (const String& fileName)
     // Open the existing config file for writing
     //
 
-    FILE* ofs = ExecutorClient::openFile(_configFile.getCString(), 'w');
+    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
 
     if (!ofs)
     {

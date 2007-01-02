@@ -124,7 +124,7 @@
 #endif
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <Pegasus/ExecutorClient/ExecutorClient.h>
+# include <Pegasus/Common/Executor.h>
 # include <Executor/Executor.h>
 # define PEGASUS_PROCESS_NAME "cimservermain"
 #else
@@ -683,11 +683,11 @@ int main(int argc, char** argv)
 
     // If invoked with "-x <socket>" option, then use executor client.
 
-    ExecutorClient::setExecutorSocket(_extractExecutorSocket(argc, argv));
+    Executor::setExecutorSocket(_extractExecutorSocket(argc, argv));
 
     // Ping executor to be sure the sock was valid.
 
-    if (ExecutorClient::ping() != 0)
+    if (Executor::ping() != 0)
     {
         fprintf(stderr, 
             "%s: failed to ping executor on socket given by -x option\n", 
@@ -1451,7 +1451,7 @@ MessageLoader::_useProcessLocale = false;
         // so user knows that there is cimserver ready to serve CIM requests.
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     if (daemonOption)
-        ExecutorClient::daemonizeExecutor();
+        Executor::daemonizeExecutor();
 #else
     if (daemonOption)
         _cimServerProcess->notify_parent(0);

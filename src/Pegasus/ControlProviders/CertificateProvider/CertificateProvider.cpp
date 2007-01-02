@@ -66,7 +66,7 @@ ATTN-MEB: remove this!
 
 #include <stdlib.h>
 
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -1158,7 +1158,7 @@ void CertificateProvider::deleteInstance(
         String crlFileName = _getCRLFileName(_crlStore, X509_NAME_hash(name));
         if (FileSystem::exists(crlFileName)) 
         {
-            if (ExecutorClient::removeFile(crlFileName.getCString()) == 0) 
+            if (Executor::removeFile(crlFileName.getCString()) == 0) 
             {
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Successfully deleted CRL file " + crlFileName);
 
@@ -1274,7 +1274,7 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
                 "WARNING: Certificate file does not exist," 
                  "remove entry from repository anyway.");
         }
-        else if (ExecutorClient::removeFile(
+        else if (Executor::removeFile(
             certificateFileName.getCString()) != 0) 
         {
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
@@ -1509,11 +1509,9 @@ String CertificateProvider::_getNewCertificateFileName(String trustStore, unsign
 
 static BIO* _openBIOForWrite(const char* path)
 {
-    ExecutorClient::ping();
-
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
 
-    FILE* is = ExecutorClient::openFile(path, 'w');
+    FILE* is = Executor::openFile(path, 'w');
 
     if (!is)
         return 0;

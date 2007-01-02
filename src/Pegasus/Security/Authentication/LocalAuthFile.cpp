@@ -44,7 +44,7 @@
 #include <sys/time.h>
 #endif
 
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
@@ -235,7 +235,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                ExecutorClient::removeFile(filePath.getCString());
+                Executor::removeFile(filePath.getCString());
             }
         }
 
@@ -265,7 +265,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                ExecutorClient::removeFile(filePath.getCString());
+                Executor::removeFile(filePath.getCString());
             }
         }
 
@@ -306,7 +306,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                ExecutorClient::removeFile(filePath.getCString());
+                Executor::removeFile(filePath.getCString());
             }
         }
 
@@ -318,7 +318,7 @@ String LocalAuthFile::create()
     // 5. Change the file owner to the requesting user.
     //
 
-    if (ExecutorClient::changeOwner(
+    if (Executor::changeOwner(
         filePath.getCString(), _userName.getCString()) != 0)
     {
         String errorMsg = strerror(errno);
@@ -340,7 +340,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                ExecutorClient::removeFile(filePath.getCString());
+                Executor::removeFile(filePath.getCString());
             }
         }
 
@@ -390,7 +390,7 @@ Boolean LocalAuthFile::remove()
         }
 #endif
 
-        retVal = ExecutorClient::removeFile(_filePathName.getCString()) == 0;
+        retVal = Executor::removeFile(_filePathName.getCString()) == 0;
     }
     
 

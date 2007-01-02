@@ -40,7 +40,6 @@ STATIC=0
 LIBRARY = pegconfig
 
 LIBRARIES = \
-        pegexecclient \
 	pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)

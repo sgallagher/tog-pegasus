@@ -48,8 +48,6 @@ LIBRARIES = \
     peguser   \
     pegconfig
 
-LIBRARIES += pegexecclient
-
 PRE_DEPEND_INCLUDES = -I./depends
 
 ifeq ($(OS),HPUX)

@@ -44,7 +44,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 #if defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"
 #endif
@@ -134,7 +134,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
     {
 	if (FileSystem::exists(_passwordFile))
 	{
-	    if (ExecutorClient::removeFile(_passwordFile.getCString()) != 0)
+	    if (Executor::removeFile(_passwordFile.getCString()) != 0)
 	    {
 		throw CannotRemoveFile(_passwordFile);
             }
@@ -145,7 +145,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Security.UserManager.PasswordFile.TRYING_TO_BACKUP_FILE",
             "Trying to use the backup file : $0.", _passwordBackupFile);
-	if (ExecutorClient::renameFile(
+	if (Executor::renameFile(
             _passwordBackupFile.getCString(),  _passwordFile.getCString()) != 0)
 	{
 			//l10n
@@ -302,7 +302,7 @@ void PasswordFile::save (const PasswordTable& passwordTable)
     {
 	if ( FileSystem::exists(_passwordFile))
 	{
-            if (ExecutorClient::removeFile(_passwordFile.getCString()) != 0)
+            if (Executor::removeFile(_passwordFile.getCString()) != 0)
 	    {
 	    		//l10n
                 //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -318,7 +318,7 @@ void PasswordFile::save (const PasswordTable& passwordTable)
     {
 	if ( FileSystem::exists(_passwordFile))
 	{
-            if (ExecutorClient::renameFile(_passwordFile.getCString(), 
+            if (Executor::renameFile(_passwordFile.getCString(), 
                 _passwordBackupFile.getCString()) != 0)
 	    {
 	    		//l10n
@@ -336,7 +336,7 @@ void PasswordFile::save (const PasswordTable& passwordTable)
     // Open the password file for writing
     //
 
-    FILE* ofs = ExecutorClient::openFile(_passwordFile.getCString(), 'w');
+    FILE* ofs = Executor::openFile(_passwordFile.getCString(), 'w');
 
     if (!ofs)
     {
@@ -358,7 +358,7 @@ void PasswordFile::save (const PasswordTable& passwordTable)
 
     if ( FileSystem::exists(_passwordBackupFile))
     {
-	if (ExecutorClient::removeFile(_passwordBackupFile.getCString()) != 0)
+	if (Executor::removeFile(_passwordBackupFile.getCString()) != 0)
 	{
 		//l10n
             //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 

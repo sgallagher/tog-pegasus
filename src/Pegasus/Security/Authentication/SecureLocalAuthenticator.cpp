@@ -38,7 +38,7 @@
 
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 
 #include "LocalAuthFile.h"
 #include "SecureLocalAuthenticator.h"
@@ -106,7 +106,7 @@ Boolean SecureLocalAuthenticator::authenticate
     {
         if (FileSystem::exists(filePath))
         {
-            ExecutorClient::removeFile(filePath.getCString());
+            Executor::removeFile(filePath.getCString());
         }
     }
 

@@ -50,8 +50,6 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
-LIBRARIES += pegexecclient
-
 SOURCES = \
     ProviderManagerService.cpp \
     ProviderManagerRouter.cpp \

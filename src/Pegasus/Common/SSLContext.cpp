@@ -34,7 +34,7 @@
 #ifdef PEGASUS_HAS_SSL
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 
 #include "Network.h"
 
@@ -1120,7 +1120,7 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
 
     // Open the private key file.
 
-    FILE* is = ExecutorClient::openFile(keyPath.getCString(), 'r');
+    FILE* is = Executor::openFile(keyPath.getCString(), 'r');
 
     if (!is)
     {
@@ -1132,7 +1132,7 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
     // Read the private key from the input stream.
 
     EVP_PKEY* pkey;
-    pkey = PEM_read_PrivateKey(is, &pkey, NULL, NULL);
+    pkey = PEM_read_PrivateKey(is, NULL, NULL, NULL);
 
     if (!pkey)
     {

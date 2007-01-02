@@ -35,7 +35,6 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     Common \
     Common/tests \
-    ExecutorClient \
     Query/QueryCommon \
     Client \
     Client/tests \

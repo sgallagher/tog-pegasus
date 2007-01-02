@@ -42,7 +42,7 @@ LIBRARY = peguser
 
 include ./libraries.mak
 
-LIBRARIES += pegexecclient
+LIBRARIES +=
 
 
 SOURCES = \

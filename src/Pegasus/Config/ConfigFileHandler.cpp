@@ -37,7 +37,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 #include "ConfigFileHandler.h"
 #include "ConfigManager.h"
 #if  defined(PEGASUS_OS_OS400)
@@ -130,7 +130,7 @@ ConfigFileHandler::ConfigFileHandler(
         // can be copied over.
         //
 
-        FILE* is = ExecutorClient::openFile(cFile.getCString(), 'w');
+        FILE* is = Executor::openFile(cFile.getCString(), 'w');
 
         if (!is)
         {
@@ -189,7 +189,7 @@ void ConfigFileHandler::copyPlannedFileOverCurrentFile()
         //
 
         // ATTN:MEB: removed no-case option.
-        ExecutorClient::removeFile(
+        Executor::removeFile(
             _currentConfFile->getFileName().getCString());
     }
 }
@@ -333,7 +333,7 @@ Boolean ConfigFileHandler::updatePlannedValue(
         {
             String pFile = _plannedConfFile->getFileName();
 
-            FILE* fs = ExecutorClient::openFile(pFile.getCString(), 'w');
+            FILE* fs = Executor::openFile(pFile.getCString(), 'w');
 
             if (!fs)
             {

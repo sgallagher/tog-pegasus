@@ -45,7 +45,6 @@ LOCAL_DEFINES = -DPEGASUS_CERTIFICATEPROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = CertificateProvider
 
 LIBRARIES = \
-	pegexecclient \
 	pegcommon \
 	pegconfig \
 	pegprovider

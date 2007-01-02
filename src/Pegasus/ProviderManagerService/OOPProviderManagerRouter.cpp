@@ -47,7 +47,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>  // For CreateProcess()
@@ -425,7 +425,7 @@ void ProviderAgentContainer::_startAgentProcess()
     AnonymousPipe* readPipe;
     AnonymousPipe* writePipe;
 
-    int status = ExecutorClient::startProviderAgent(
+    int status = Executor::startProviderAgent(
         (const char*)_moduleName.getCString(),
         newUid,
         newGid,
@@ -436,7 +436,7 @@ void ProviderAgentContainer::_startAgentProcess()
     if (status != 0)
     {
         Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "ExecutorClient::createProviderAgent() failed");
+            "Executor::createProviderAgent() failed");
         PEG_METHOD_EXIT();
         throw Exception(MessageLoaderParms(
             "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
@@ -622,13 +622,13 @@ void ProviderAgentContainer::_initialize()
         if (_isInitialized)
         {
             // Harvest the status of the agent process to prevent a zombie
-            pid_t status = ExecutorClient::waitPid(_pid);
+            pid_t status = Executor::waitPid(_pid);
 
             if (status == -1)
             {
                 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "ProviderAgentContainer::_initialize(): "
-                    "ExecutorClient::waitPid() failed");
+                    "Executor::waitPid() failed");
             }
         }
 #endif
@@ -681,13 +681,13 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
 #if defined(PEGASUS_HAS_SIGNALS)
         // Harvest the status of the agent process to prevent a zombie
-        pid_t status = ExecutorClient::waitPid(_pid);
+        pid_t status = Executor::waitPid(_pid);
 
         if (status == -1)
         {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "ProviderAgentContainer::_uninitialize(): "
-                    "ExecutorClient::waitPid() failed.");
+                    "Executor::waitPid() failed.");
         }
 #endif
 

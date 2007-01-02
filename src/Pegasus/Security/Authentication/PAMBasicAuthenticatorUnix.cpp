@@ -31,7 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/ExecutorClient/ExecutorClient.h>
+#include <Pegasus/Common/Executor.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/Tracer.h>
 #include "PAMBasicAuthenticator.h"
@@ -78,7 +78,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
 
-    if (ExecutorClient::pamAuthenticate(
+    if (Executor::pamAuthenticate(
         userName.getCString(), password.getCString()) != 0)
     {
         return false;
@@ -93,7 +93,7 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::validateUser()");
 
-    if (ExecutorClient::pamValidateUser(userName.getCString()) != 0)
+    if (Executor::pamValidateUser(userName.getCString()) != 0)
         return false;
 
     PEG_METHOD_EXIT();

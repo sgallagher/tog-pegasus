@@ -1104,7 +1104,10 @@ int String::compareNoCase(const String& str1, const String& str2)
     if (InitializeICU::initICUSuccessful())
     {
         return  u_strcasecmp(
-            str1._rep->data, str2._rep->data, U_FOLD_CASE_DEFAULT);
+            (const UChar*)str1._rep->data,
+            (const UChar*)str2._rep->data,
+            U_FOLD_CASE_DEFAULT
+            );
     }
 
 #endif /* PEGASUS_HAS_ICU */

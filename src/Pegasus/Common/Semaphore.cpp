@@ -101,7 +101,7 @@ Semaphore::~Semaphore()
 static void semaphore_cleanup(void *arg)
 {
     // cast back to proper type and unlock mutex
-    PEGASUS_SEM_HANDLE *s = (PEGASUS_SEM_HANDLE *) arg;
+    SemaphoreRep *s = (SemaphoreRep *) arg;
     pthread_mutex_unlock(&s->mutex);
 }
 #endif
@@ -160,7 +160,7 @@ void Semaphore::time_wait(Uint32 milliseconds)
 #if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
     // Push cleanup function onto cleanup stack
     // The mutex will unlock if the thread is killed early
-    Thread::cleanup_push(&semaphore_cleanup, &_rep);
+    Threads::cleanup_push(&semaphore_cleanup, &_rep);
 #endif
 
     // Keep track of the number of waiters so that <sema_post> works correctly.

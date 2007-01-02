@@ -607,7 +607,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 
-static int _extractExecutorSocket(int& argc, char**& argv)
+static int _extractExecutorSockOpt(int& argc, char**& argv)
 {
     // Extract the "-x <sock>" option if any. This indicates that the
     // e[x]ecutor is running. The option argument is the socket used
@@ -683,7 +683,7 @@ int main(int argc, char** argv)
 
     // If invoked with "-x <socket>" option, then use executor client.
 
-    Executor::setExecutorSocket(_extractExecutorSocket(argc, argv));
+    Executor::setSock(_extractExecutorSockOpt(argc, argv));
 
     // Ping executor to be sure the sock was valid.
 

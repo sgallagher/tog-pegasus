@@ -46,7 +46,7 @@ class PEGASUS_COMMON_LINKAGE Executor
 {
 public:
 
-    static void setExecutorSocket(int sock);
+    static void setSock(int sock);
 
     static int ping();
 

@@ -70,6 +70,15 @@ PEGASUS_NAMESPACE_BEGIN
 static int _sock = -1;
 static Mutex _mutex;
 
+static int _getSock()
+{
+    int sock;
+    _mutex.lock();
+    sock = _sock;
+    _mutex.unlock();
+    return sock;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////
@@ -511,12 +520,12 @@ static int OutOfProcess_ping()
     ExecutorRequestHeader header;
     header.code = EXECUTOR_PING_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     ExecutorPingResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     if (response.magic == EXECUTOR_PING_MAGIC)
@@ -539,7 +548,7 @@ FILE* OutOfProcess_openFile(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_OPEN_FILE_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return NULL;
 
     // Send request body.
@@ -549,14 +558,14 @@ FILE* OutOfProcess_openFile(
     Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
     request.mode = mode;
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return NULL;
 
     // Receive the response
 
     ExecutorOpenFileResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return NULL;
 
     // Receive descriptor (if response successful).
@@ -565,7 +574,7 @@ FILE* OutOfProcess_openFile(
     {
         int fds[1];
 
-        if (_receiveDescriptorArray(_sock, fds, 1) != 0)
+        if (_receiveDescriptorArray(_getSock(), fds, 1) != 0)
             return NULL;
 
         if (fds[0] == -1)
@@ -593,7 +602,7 @@ static int OutOfProcess_renameFile(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_RENAME_FILE_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -603,14 +612,14 @@ static int OutOfProcess_renameFile(
     Strlcpy(request.oldPath, oldPath, EXECUTOR_BUFFER_SIZE);
     Strlcpy(request.newPath, newPath, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorRenameFileResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -626,7 +635,7 @@ static int OutOfProcess_removeFile(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_REMOVE_FILE_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -635,14 +644,14 @@ static int OutOfProcess_removeFile(
     memset(&request, 0, sizeof(request));
     Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorRemoveFileResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -673,7 +682,7 @@ static int OutOfProcess_startProviderAgent(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_START_PROVIDER_AGENT_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -684,14 +693,14 @@ static int OutOfProcess_startProviderAgent(
     request.uid = uid;
     request.gid = gid;
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorStartProviderAgentResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     // Check response status and pid.
@@ -706,7 +715,7 @@ static int OutOfProcess_startProviderAgent(
     // Receive descriptors.
 
     int descriptors[2];
-    int result = _receiveDescriptorArray(_sock, descriptors, 2);
+    int result = _receiveDescriptorArray(_getSock(), descriptors, 2);
 
     if (result == 0)
     {
@@ -737,14 +746,14 @@ static int OutOfProcess_daemonizeExecutor()
     ExecutorRequestHeader header;
     header.code = EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Receive the response
 
     ExecutorDaemonizeExecutorResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -761,7 +770,7 @@ static int OutOfProcess_changeOwner(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_CHANGE_OWNER_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body:
@@ -770,14 +779,14 @@ static int OutOfProcess_changeOwner(
     Strlcpy(request.path, path, sizeof(request.path));
     Strlcpy(request.owner, owner, sizeof(request.owner));
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorChangeOwnerResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -793,7 +802,7 @@ static int OutOfProcess_waitPid(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_WAIT_PID_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body:
@@ -801,14 +810,14 @@ static int OutOfProcess_waitPid(
     ExecutorWaitPidRequest request;
     request.pid = pid;
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorWaitPidResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -825,7 +834,7 @@ static int OutOfProcess_pamAuthenticate(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_PAM_AUTHENTICATE_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -835,14 +844,14 @@ static int OutOfProcess_pamAuthenticate(
     Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
     Strlcpy(request.password, password, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorPAMAuthenticateResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -858,7 +867,7 @@ static int OutOfProcess_pamValidateUser(
     ExecutorRequestHeader header;
     header.code = EXECUTOR_PAM_VALIDATE_USER_REQUEST;
 
-    if (Send(_sock, &header, sizeof(header)) != sizeof(header))
+    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Send request body.
@@ -867,14 +876,14 @@ static int OutOfProcess_pamValidateUser(
     memset(&request, 0, sizeof(request));
     Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_sock, &request, sizeof(request)) != sizeof(request))
+    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorPAMValidateUserResponse response;
 
-    if (Recv(_sock, &response, sizeof(response)) != sizeof(response))
+    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -890,14 +899,16 @@ static int OutOfProcess_pamValidateUser(
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void Executor::setExecutorSocket(int sock)
+void Executor::setSock(int sock)
 {
+    _mutex.lock();
     _sock = sock;
+    _mutex.unlock();
 }
 
 int Executor::ping()
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_ping();
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -911,7 +922,7 @@ FILE* Executor::openFile(
     const char* path,
     int mode)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_openFile(path, mode);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -925,7 +936,7 @@ int Executor::renameFile(
     const char* oldPath,
     const char* newPath)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_renameFile(oldPath, newPath);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -938,7 +949,7 @@ int Executor::renameFile(
 int Executor::removeFile(
     const char* path)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_removeFile(path);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -956,7 +967,7 @@ int Executor::startProviderAgent(
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_startProviderAgent(
             module, uid, gid, pid, readPipe, writePipe);
 
@@ -970,7 +981,7 @@ int Executor::startProviderAgent(
 
 int Executor::daemonizeExecutor()
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_daemonizeExecutor();
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -984,7 +995,7 @@ int Executor::changeOwner(
     const char* path,
     const char* owner)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_changeOwner(path, owner);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -997,7 +1008,7 @@ int Executor::changeOwner(
 int Executor::waitPid(
     int pid)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_waitPid(pid);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -1011,7 +1022,7 @@ int Executor::pamAuthenticate(
     const char* username,
     const char* password)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_pamAuthenticate(username, password);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -1024,7 +1035,7 @@ int Executor::pamAuthenticate(
 int Executor::pamValidateUser(
     const char* username)
 {
-    if (_sock == -1)
+    if (_getSock() == -1)
         return InProcess_pamValidateUser(username);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)

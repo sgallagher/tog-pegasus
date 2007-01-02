@@ -44,3 +44,25 @@
         Compile with PEGASUS_PAM_AUTHENTICATION and 
         PEGASUS_USE_PAM_STANDALONE_PROC.
 
+    11. Running the SSL tests.
+
+        Run server like this:
+
+            % cimserver enableHttpsConnection=true enableAuthentication=true sslClientVerificationMode=optional sslTrustStoreUserName=root
+
+        Run test like this:
+
+        % make -f TestMakefile run_SSL_TS1
+        % chown pegasus.pegasus /opt/pegasus/cimserver_trust
+        % chown pegasus.pegasus /opt/pegasus/crl
+
+
+    12. Interesting functions.
+
+        SSL_CTX_use_PrivateKey_file()
+
+        EVP_PKEY *PEM_read_PrivateKey(
+            FILE *fp, EVP_PKEY **x, pem_password_cb *cb, void *u);
+
+        int SSL_CTX_use_PrivateKey(SSL_CTX *ctx, EVP_PKEY *pkey);
+

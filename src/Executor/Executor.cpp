@@ -1139,29 +1139,21 @@ static void HandleOpenFileRequest(int sock)
 
     Log(LL_TRACE, "HandleOpenFileRequest(): path=%s", request.path);
 
-    int flags = 0;
+    int fd = -1;
 
     switch (request.mode)
     {
         case 'r':
-            flags = O_RDONLY;
+            fd = open(request.path, O_RDONLY);
             break;
 
         case 'w':
-            flags = O_WRONLY | O_CREAT | O_TRUNC;
+            fd = open(
+                request.path, 
+                O_WRONLY | O_CREAT | O_TRUNC,
+                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
             break;
     }
-
-    int fd;
-
-    if (flags)
-    {
-        // -rw-r--r-- (0644)
-        int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-        fd = open(request.path, flags, mode);
-    }
-    else
-        fd = -1;
 
     // Send response message.
 

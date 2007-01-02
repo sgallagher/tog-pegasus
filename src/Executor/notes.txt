@@ -12,24 +12,20 @@
 
     2.  All files but the repository are owned by root. The cimservermain
         process may read any of the root owned files, but it must ask the
-        executor to modify the file system.
+        executor to modify them.
 
-    3.  Cimservermain must own the repository and all files beneath.
-        The executor automatically sets ownership for these files upon
-        startup.
+    3.  The executor gives ownership of the repository to the server user
+        upon startup.
 
-    4.  Provider agent is run as root, whenever the same user as server is
-        requested.
-    
-    5.  Executor checks whether Pegasus repository exists and errors out
+    4.  Executor checks whether Pegasus repository exists and errors out
         if not.
 
-    7.  Cimservermain owns the local-domain socket file (/tmp/cimxml.socket).
+    5.  Cimservermain owns the local-domain socket file (/tmp/cimxml.socket).
 
-    8.  For logging purposes, the executor uses "cimexecutor" as its syslog
+    6.  For logging purposes, the executor uses "cimexecutor" as its syslog
         identifier.
 
-    9.  Setting up PAM authentiction (non-standalone).
+    7.  Setting up PAM authentiction (non-standalone).
 
         First compile with PEGASUS_PAM_AUTHENTICATION. 
         
@@ -39,30 +35,46 @@
             % cp rpm/wbem /etc/pam.d
             % chmod 0644 /etc/pam.d/wbem
 
-    10. Setting up standalone PAM authentication.
+    8.  To build for standalone PAM authentication, compile with these:
 
-        Compile with PEGASUS_PAM_AUTHENTICATION and 
-        PEGASUS_USE_PAM_STANDALONE_PROC.
+            PEGASUS_PAM_AUTHENTICATION
+            PEGASUS_USE_PAM_STANDALONE_PROC
 
-    11. Running the SSL tests.
+    9.  To run cimserver to use PAM, use these configuration parameters.
 
-        Run server like this:
+            enableAuthentication=true 
 
-            % cimserver enableHttpsConnection=true enableAuthentication=true sslClientVerificationMode=optional sslTrustStoreUserName=root
+    10. To build SSL support, compile with these.
+    
+            OPENSSL_HOME=/usr
+            PEGASUS_HAS_SSL=true
 
-        Run test like this:
+    11. To run cimerver to use SSL, use these configuration parameters.
 
-        % make -f TestMakefile run_SSL_TS1
-        % chown pegasus.pegasus /opt/pegasus/cimserver_trust
-        % chown pegasus.pegasus /opt/pegasus/crl
+            enableHttpsConnection=true 
+            enableAuthentication=true 
+            sslClientVerificationMode=optional 
+            sslTrustStoreUserName=root
 
+    12. To add a user to cimserver.passwd, use the following format (the given
+        user must be a real system user).
 
-    12. Interesting functions.
+            jsmith:AB5bZ.JX9fQzA
 
-        SSL_CTX_use_PrivateKey_file()
+        Use the following program to generate the password (at least on
+        Linux).
 
-        EVP_PKEY *PEM_read_PrivateKey(
-            FILE *fp, EVP_PKEY **x, pem_password_cb *cb, void *u);
+            #define _XOPEN_SOURCE
+            #include <unistd.h>
+            #include <stdio.h>
 
-        int SSL_CTX_use_PrivateKey(SSL_CTX *ctx, EVP_PKEY *pkey);
+            int main()
+            {
+                printf("%s\n", crypt("changeme", "AB"));
+                return 0;
+            }
+
+        Compile and link the program as follows.
+
+            % gcc -o mkpasswd mkpasswd.cpp -lcrypt
 

@@ -1,49 +1,28 @@
 
-    (N) Move ExecutorClient into Common?
-
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Do we need to reap provider agent processes?
+    (A) Consider moving secure-local authentication into executor.
 
-    (A) Test authentication with cimcli.
+    (A) Test SSL client certificate authentication.
 
-    (A) Check whether killing the owning terminal device harms daemonized 
-        server.
+    (A) Should PG_ProviderModule.userContext=5 (CIM server) run as server user
+        or executor user?
 
-    (A) Test on Windows (without privsep of course).
-
-    (A) Move PAM into executor process.
-
-    (A) Test all authentication modes.
-
-    (A) Test all OOP execution modes.
-
-            2 - Requestor
-            3 - Designated
-            4 - Privileged
-            5 - Server
-
-    (A) Implement policy checks on all operations.
-
-    (A) Logging via syslog (implement log-level option).
-
-    (A) Implement provider policy file.
-
-    (A) Move PAM authentication into executor process.
+    (A) Implement policy.
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
-    (B) Examine usage of functions that may create, delete, or rename files.
-        (FileSystem::*, ofstream(), fopen(), open()).
+    (B) Test on Windows.
 
     (B) Add shutdownTimeout option hanlding to cimshutdown program.
 
+    (B) Test without privilege separation.
+
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-    (C) Does Pegasus need a distinct shutdown program other than 
-        (cimserer -s)?
+    (C) Add executor fingerprint checking to cimservera program.
 
-    (C) Should startProviderAgent() be renamed to createProcess()?
+    (C) Should startProviderAgent() be renamed to something more generic?
 
     (C) Convert executor to pure C program.
 
@@ -51,4 +30,3 @@
 
     (C) Consider getting rid of HandleRenameFileRequest().
 
-    (C) Handle "cimserver -D" property (to reset PEGASUS_HOME).

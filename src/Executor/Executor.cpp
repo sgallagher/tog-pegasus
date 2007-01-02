@@ -203,19 +203,6 @@ inline void SetBit(unsigned long& mask, int n)
 
 //==============================================================================
 //
-// ClrBit()
-//
-//     Clear the n-th bit the the given mask.
-//
-//==============================================================================
-
-inline void ClrBit(unsigned long& mask, int n)
-{
-    mask &= ~(1 << n);
-}
-
-//==============================================================================
-//
 // TstBit()
 //
 //     Test the n-th bit the the given mask.
@@ -240,35 +227,6 @@ static unsigned long _signalMask = 0;
 void SigHandler(int signum)
 {
     SetBit(_signalMask, signum);
-}
-
-//==============================================================================
-//
-// _shutdownFlag
-//
-//     This flag indicates that the cimservermain process is shutting down.
-//     This flag is set when "cimserver -s" used.
-//
-//==============================================================================
-
-static bool _shutdownFlag = false;
-
-//==============================================================================
-//
-// OpenLog()
-//
-//     Opens a session with the SYSLOG facility.
-//
-//==============================================================================
-
-static void OpenLog(bool perror, const char* program)
-{
-    int option = LOG_PID;
-
-    if (perror)
-        option |= LOG_PERROR;
-
-    openlog(program, option, LOG_DAEMON);
 }
 
 //==============================================================================
@@ -330,7 +288,7 @@ static void Log(LogLevel type, const char *format, ...)
 
 static void Exit(int status)
 {
-    Log(LL_INFORMATION, "exiting");
+    Log(LL_INFORMATION, "exit(%d)", status);
 
     // Kill cimservermain.
 
@@ -355,6 +313,7 @@ static void Fatal(const char* file, size_t line, const char* format, ...)
 {
     Log(LL_FATAL, "%s(%d): Fatal() called", file, int(line));
 
+    // Print to syslog.
     {
         va_list ap;
         va_start(ap, format);
@@ -362,10 +321,12 @@ static void Fatal(const char* file, size_t line, const char* format, ...)
         va_end(ap);
     }
 
+    // Print to stderr.
     {
         fprintf(stderr, "%s: %s(%d): ", arg0, file, (int)line);
         va_list ap;
         va_start(ap, format);
+        /* Flawfinder: ignore */
         vfprintf(stderr, format, ap);
         va_end(ap);
         fputc('\n', stderr);
@@ -626,6 +587,7 @@ static int GetHomedPath(
 
     // Use PEGASUS_HOME to 
 
+    /* Flawfinder: ignore */
     const char* home = getenv("PEGASUS_HOME");
 
     if (!home)
@@ -651,6 +613,7 @@ static void ChangeDirOwnerRecursive(
 {
     // Change permission of this direcotry.
 
+    /* Flawfinder: ignore */
     if (chown(path, uid, gid) != 0)
         Fatal(FL, "chown(%s, %d, %d) failed", path, uid, gid);
 
@@ -703,6 +666,7 @@ static void ChangeDirOwnerRecursive(
 
         // Process the current file.
 
+        /* Flawfinder: ignore */
         if (chown(buffer, uid, gid) != 0)
             Fatal(FL, "chown(%s, %d, %d) failed", buffer, uid, gid);
     }
@@ -748,6 +712,7 @@ static void GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
     {
         // Prefix with PEGASUS_HOME environment variable.
 
+        /* Flawfinder: ignore */
         const char* home = getenv("PEGASUS_HOME");
 
         if (!home)
@@ -781,10 +746,7 @@ int AccessDir(const char* path)
 {
     struct stat st;
 
-    if (stat(path, &st) != 0)
-        return -1;
-
-    if (!S_ISDIR(st.st_mode))
+    if (stat(path, &st) != 0 || !S_ISDIR(st.st_mode))
         return -1;
 
     return 0;
@@ -875,6 +837,7 @@ static int ChangeOwner(const char* path, const char* owner)
     if (GetUserInfo(owner, uid, gid) != 0)
         return -1;
 
+    /* Flawfinder: ignore */
     if (chown(path, uid, gid) != 0)
     {
         Log(LL_TRACE, "chown(%s, %d, %d) failed", path, uid, gid);
@@ -883,14 +846,6 @@ static int ChangeOwner(const char* path, const char* owner)
 
     return 0;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////
-//// REQUESTS FOLLOW
-////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 
 //==============================================================================
 //
@@ -984,14 +939,14 @@ static int FindConfigFileOption(
 
 //==============================================================================
 //
-// FindConfigOption()
+// FindConfigParam()
 //
 //     Attempt to find a configuration setting for the given name. First,
 //     search the command line and then the config file.
 //
 //==============================================================================
 
-static int FindConfigOption(
+static int FindConfigParam(
     int argc,
     char** argv,
     const char* name,
@@ -1003,8 +958,6 @@ static int FindConfigOption(
         return 0;
 
     // (2) Next check config file.
-
-    // ATTN: Is this right. Should we check the current or the planned?
 
     char path[EXECUTOR_BUFFER_SIZE];
 
@@ -1027,7 +980,7 @@ static int LocateRepositoryDirectory(
     char** argv, 
     char path[EXECUTOR_BUFFER_SIZE])
 {
-    if (FindConfigOption(argc, argv, "repositoryDir", path) == 0)
+    if (FindConfigParam(argc, argv, "repositoryDir", path) == 0)
         return 0;
 
     if (GetHomedPath(PEGASUS_REPOSITORY_DIR, path) == 0)
@@ -1052,11 +1005,11 @@ int GetServerUser(
     int& uid, 
     int& gid)
 {
-    // (1) First try to find serverUser configuration option.
+    // (1) Try to find serverUser as configuration parameter.
 
     char user[EXECUTOR_BUFFER_SIZE];
 
-    if (FindConfigOption(argc, argv, "serverUser", user) == 0)
+    if (FindConfigParam(argc, argv, "serverUser", user) == 0)
     {
         if (GetUserInfo(user, uid, gid) == 0)
             return 0;
@@ -1065,7 +1018,7 @@ int GetServerUser(
         return -1;
     }
 
-    // (2) Now just use the owner of the cimservermain program.
+    // (2) Use owner of the cimservermain program if not root.
 
     struct stat st;
 
@@ -1092,10 +1045,11 @@ int GetServerUser(
 
     Fatal(FL, 
         "cannot determine server user (used to run cimserermain). "
-        "Please specify this value in one of three ways. (1) pass "
+        "Please specify this value in one of four ways. (1) pass "
         "serverUser=<username> on the command line, (2) use cimconfig to "
-        "set serverUser (using -p -s options), or (3) make the desired "
-        "user the owner of %s (i.e., use chown).", path);
+        "set serverUser (using -p -s options), (3) make the desired "
+        "user the owner of %s (i.e., use chown), or (4) create a system "
+        "user whose user whose name is \"pegasus\".", path);
 
     return -1;
 }
@@ -1313,6 +1267,7 @@ static void HandleStartProviderAgentRequest(int sock)
             Log(LL_TRACE, "execl(%s, %s, %s, %s, %s)\n",
                 path, path, arg1, arg2, request.module);
 
+            /* Flawfinder: ignore */
             execl(path, path, arg1, arg2, request.module, (char*)0);
 
             Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s): failed\n",
@@ -1359,6 +1314,10 @@ static void HandleStartProviderAgentRequest(int sock)
 
 static void HandleDaemonizeExecutorRequest(int sock)
 {
+    // ATTN: do we need to call setsid()?
+    // ATTN: do we need to fork twice?
+    // ATTN: compare with Stevens daemonization example.
+
     Log(LL_TRACE, "HandleDaemonizeExecutorRequest()");
 
     ExecutorDaemonizeExecutorResponse response = { 0 };
@@ -1661,6 +1620,176 @@ static void HandlePAMValidateUserRequest(int sock)
 
 //==============================================================================
 //
+// GetLogLevel()
+//
+//==============================================================================
+
+void GetLogLevel(int argc, char** argv)
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (FindConfigParam(argc, argv, "logLevel", buffer) == 0)
+    {
+        if (strcasecmp(buffer, "TRACE") == 0)
+            _logLevel = LL_TRACE;
+        else if (strcasecmp(buffer, "INFORMATION") == 0)
+            _logLevel = LL_INFORMATION;
+        else if (strcasecmp(buffer, "WARNING") == 0)
+            _logLevel = LL_WARNING;
+        else if (strcasecmp(buffer, "SEVERE") == 0)
+            _logLevel = LL_SEVERE;
+        else if (strcasecmp(buffer, "FATAL") == 0)
+            _logLevel = LL_FATAL;
+    }
+}
+
+//==============================================================================
+//
+// ReadPidFile()
+//
+//==============================================================================
+
+static int ReadPidFile(const char* path, int& pid)
+{
+    FILE* is = fopen(path, "r");
+
+    if (!is) 
+        return -1;
+
+    pid = 0;
+
+    fscanf(is, "%d\n", &pid);
+    fclose(is);
+
+    if (pid == 0)
+        return -1;
+
+    return 0;
+}
+
+//==============================================================================
+//
+// GetProcessName()
+//
+//==============================================================================
+
+#if defined(PEGASUS_OS_HPUX)
+
+static int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
+{
+    struct pst_status psts;
+
+    if (pstat_getproc(&psts, sizeof(psts), 0, pid) == -1)
+        return -1;
+
+    STRLCPY(name, pstru.pst_ucomm, EXECUTOR_BUFFER_SIZE);
+
+    return 0;
+}
+
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+
+static int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
+{
+    // Read the process name from the file.
+
+    static char buffer[1024];
+    sprintf(buffer, "/proc/%d/stat", pid);
+    FILE* is = fopen(buffer, "r");
+
+    if (!is)
+        return -1;
+
+    // Read the first line of the file.
+
+    if (fgets(buffer, sizeof(buffer), is) == NULL)
+    {
+        fclose(is);
+        return -1;
+    }
+
+    fclose(is);
+
+    // Extract the PID enclosed in parentheses.
+
+    char* start = strchr(buffer, '(');
+
+    if (!start)
+        return -1;
+
+    start++;
+
+    char* end = strchr(start, ')');
+
+    if (!end)
+        return -1;
+
+    if (start == end)
+        return -1;
+
+    *end = '\0';
+
+    STRLCPY(name, start, EXECUTOR_BUFFER_SIZE);
+
+    return 0;
+}
+
+#else
+# error "not implemented on this platform."
+#endif /* PEGASUS_PLATFORM_LINUX_GENERIC_GNU */
+
+//==============================================================================
+//
+// TestCimServerProcess()
+//
+//     Returns 0 if cimserver process is running.
+//
+//==============================================================================
+
+int TestCimServerProcess()
+{
+    int pid;
+
+    if (ReadPidFile(PEGASUS_CIMSERVER_START_FILE, pid) != 0)
+        return -1;
+
+    char name[EXECUTOR_BUFFER_SIZE];
+
+    if (GetProcessName(pid, name) != 0 || strcmp(name, CIMSERVERMAIN) != 0)
+        return -1;
+
+    return 0;
+}
+
+//==============================================================================
+//
+// ExecShutdown()
+//
+//==============================================================================
+
+void ExecShutdown()
+{
+    // Get absolute cimshutdown program name.
+
+    char cimshutdownPath[EXECUTOR_BUFFER_SIZE];
+    GetInternalPegasusProgramPath(CIMSHUTDOWN, cimshutdownPath);
+
+    // Create argument list.
+
+    char* tmpArgv[3];
+    tmpArgv[0] = CIMSHUTDOWN;
+    tmpArgv[1] = EXECUTOR_FINGERPRINT;
+    tmpArgv[2] = 0;
+
+    // Exec CIMSHUTDOWN program.
+
+    /* Flawfinder: ignore */
+    execv(cimshutdownPath, tmpArgv);
+    Fatal(FL, "failed to exec %s", cimshutdownPath);
+}
+
+//==============================================================================
+//
 // Executor()
 //
 //     The executor process.
@@ -1857,6 +1986,7 @@ static void Child(
     // not, then the bind would fail in the cimservermain process much 
     // later and the cause of the error would be difficult to determine.
 
+    /* Flawfinder: ignore */
     if (access(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, F_OK) == 0)
     {
         struct stat st;
@@ -1873,153 +2003,11 @@ static void Child(
 
     // Exec child process.
 
+    /* Flawfinder: ignore */
     if (execv(path, execArgv) != 0)
         Fatal(FL, "failed to exec %s", path);
 
     exit(0);
-}
-
-//==============================================================================
-//
-// GetLogLevel()
-//
-//==============================================================================
-
-void GetLogLevel(int argc, char** argv)
-{
-    char buffer[EXECUTOR_BUFFER_SIZE];
-
-    if (FindConfigOption(argc, argv, "logLevel", buffer) == 0)
-    {
-        if (strcasecmp(buffer, "TRACE") == 0)
-            _logLevel = LL_TRACE;
-        else if (strcasecmp(buffer, "INFORMATION") == 0)
-            _logLevel = LL_INFORMATION;
-        else if (strcasecmp(buffer, "WARNING") == 0)
-            _logLevel = LL_WARNING;
-        else if (strcasecmp(buffer, "SEVERE") == 0)
-            _logLevel = LL_SEVERE;
-        else if (strcasecmp(buffer, "FATAL") == 0)
-            _logLevel = LL_FATAL;
-    }
-}
-
-//==============================================================================
-//
-// ReadPidFile()
-//
-//==============================================================================
-
-static int ReadPidFile(const char* path, int& pid)
-{
-    FILE* is = fopen(path, "r");
-
-    if (!is) 
-        return -1;
-
-    pid = 0;
-
-    fscanf(is, "%d\n", &pid);
-    fclose(is);
-
-    if (pid == 0)
-        return -1;
-
-    return 0;
-}
-
-//==============================================================================
-//
-// GetProcessName()
-//
-//==============================================================================
-
-#if defined(PEGASUS_OS_HPUX)
-
-static int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
-{
-    struct pst_status psts;
-
-    if (pstat_getproc(&psts, sizeof(psts), 0, pid) == -1)
-        return -1;
-
-    STRLCPY(name, pstru.pst_ucomm, EXECUTOR_BUFFER_SIZE);
-
-    return 0;
-}
-
-#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-
-static int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
-{
-    // Read the process name from the file.
-
-    static char buffer[1024];
-    sprintf(buffer, "/proc/%d/stat", pid);
-    FILE* is = fopen(buffer, "r");
-
-    if (!is)
-        return -1;
-
-    // Read the first line of the file.
-
-    if (fgets(buffer, sizeof(buffer), is) == NULL)
-    {
-        fclose(is);
-        return -1;
-    }
-
-    fclose(is);
-
-    // Extract the PID enclosed in parentheses.
-
-    char* start = strchr(buffer, '(');
-
-    if (!start)
-        return -1;
-
-    start++;
-
-    char* end = strchr(start, ')');
-
-    if (!end)
-        return -1;
-
-    if (start == end)
-        return -1;
-
-    *end = '\0';
-
-    STRLCPY(name, start, EXECUTOR_BUFFER_SIZE);
-
-    return 0;
-}
-
-#else
-# error "not implemented on this platform."
-#endif /* PEGASUS_PLATFORM_LINUX_GENERIC_GNU */
-
-//==============================================================================
-//
-// TestCimServerProcess()
-//
-//     Returns 0 if cimserver process is running.
-//
-//==============================================================================
-
-int TestCimServerProcess()
-{
-    int pid;
-
-    if (ReadPidFile(PEGASUS_CIMSERVER_START_FILE, pid) != 0)
-        return -1;
-
-    char name[EXECUTOR_BUFFER_SIZE];
-
-    if (GetProcessName(pid, name) != 0 || strcmp(name, CIMSERVERMAIN) != 0)
-        return -1;
-
-    return 0;
 }
 
 //==============================================================================
@@ -2039,25 +2027,12 @@ int main(int argc, char** argv)
     char cimservermainPath[EXECUTOR_BUFFER_SIZE];
     GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath);
 
-    // Get absolute cimshutdown program name.
-
-    char cimshutdownPath[EXECUTOR_BUFFER_SIZE];
-    GetInternalPegasusProgramPath(CIMSHUTDOWN, cimshutdownPath);
-
     // If shuting down, then run "cimshutdown" client.
 
     for (int i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "-s") == 0)
-        {
-            char* tmpArgv[3];
-            tmpArgv[0] = CIMSHUTDOWN;
-            tmpArgv[1] = EXECUTOR_FINGERPRINT;
-            tmpArgv[2] = 0;
-
-            execv(cimshutdownPath, tmpArgv);
-            Fatal(FL, "failed to exec %s", cimshutdownPath);
-        }
+            ExecShutdown();
     }
 
     // If CIMSERVERMAIN is already running, warn and exit now.
@@ -2087,7 +2062,7 @@ int main(int argc, char** argv)
 
     // Open the log.
 
-    OpenLog(false, "cimexecutor");
+    openlog("cimexecutor", LOG_PID, LOG_DAEMON);
 
     Log(LL_INFORMATION, "starting");
 

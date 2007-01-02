@@ -61,3 +61,6 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
+
+ff:
+	flawfinder -m 3 cimservera.h cimservera.cpp

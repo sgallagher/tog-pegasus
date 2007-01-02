@@ -14,7 +14,7 @@
 
     (B) Test on Windows.
 
-    (B) Add shutdownTimeout option hanlding to cimshutdown program.
+    (B) Handle shutdownTimeout option in cimshutdown.
 
     (B) Test without privilege separation.
 

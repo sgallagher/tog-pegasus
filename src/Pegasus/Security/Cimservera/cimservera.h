@@ -164,6 +164,7 @@ static int CimserveraStart(int& sock)
         Strlcpy(path, PEGASUS_PAM_STANDALONE_PROC_NAME, CIMSERVERA_MAX_BUFFER);
     else
     {
+        /* Flawfinder: ignore */
         const char* home = getenv("PEGASUS_HOME");
 
         if (!home)
@@ -208,6 +209,7 @@ static int CimserveraStart(int& sock)
 
         // Execute child:
 
+        /* Flawfinder: ignore */
         execv(path, argv);
         close(pair[0]);
         _exit(0);
@@ -387,7 +389,7 @@ static int PAMAuthenticateCallback(
             case PAM_PROMPT_ECHO_OFF:
             {
                 resp[i]->resp = (char*)malloc(PAM_MAX_MSG_SIZE);
-                strcpy(resp[i]->resp, data->password);
+                Strlcpy(resp[i]->resp, data->password, PAM_MAX_MSG_SIZE);
                 resp[i]->resp_retcode = 0;
                 break;
             }

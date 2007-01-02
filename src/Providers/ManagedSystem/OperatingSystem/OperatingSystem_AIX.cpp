@@ -29,18 +29,9 @@
 //
 //==============================================================================
 //
-// Author: Al Stone <ahs3@fc.hp.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              k. v. le            <ikhanh@us.ibm.com>
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include "OperatingSystem.h"
@@ -207,7 +198,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
 
    dt = NULLTIME;
    localtime_r(time_to_represent, &broken_time);
-   Time::gettimeofday(&tv,&tz);
+   gettimeofday(&tv,&tz);
    if (strftime(date_ascii_rep, CIM_DATE_TIME_ASCII_LEN,
                 "%Y%m%d%H%M%S.000000", &broken_time))
    {
@@ -239,7 +230,7 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
     struct timezone  tz;
 
     // Get the time from the system.
-    Time::gettimeofday(&tv,&tz);
+    gettimeofday(&tv,&tz);
     currentTimeZone = -tz.tz_minuteswest;
     return true;
 }

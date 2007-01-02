@@ -295,7 +295,7 @@ ifeq ($(OS),aix)
     STRIPCRS =
     DIFF = diff
     SORT = sort
-    REDIRECTERROR =
+    REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
     SLEEP = sleep

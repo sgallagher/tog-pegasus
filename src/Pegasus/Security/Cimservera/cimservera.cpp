@@ -41,6 +41,32 @@ static void Exit(int status)
     exit(status);
 }
 
+static ssize_t Recv(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    if (size == 0)
+        return -1;
+
+    while (r)
+    {
+        ssize_t n;
+
+        CIMSERVERA_RESTART(read(sock, p, r), n);
+
+        if (n == -1)
+            return -1;
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
 int main(int argc, char* argv[])
 {
     // Open syslog:

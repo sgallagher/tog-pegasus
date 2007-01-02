@@ -31,8 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_cimservera_h
-#define Pegasus_cimservera_h
+#ifndef Pegasus_Security_Cimservera_cimservera_h_h
+#define Pegasus_Security_Cimservera_cimservera_h_h
 
 #if !defined(PEGASUS_PAM_AUTHENTICATION)
 # error "Do not include this file without defining PEGASUS_PAM_AUTHENTICATION"
@@ -83,47 +83,13 @@
 
 //==============================================================================
 //
-// Recv()
-//
-//     Receives *size* bytes from the given socket.
-//
-//==============================================================================
-
-static ssize_t Recv(int sock, void* buffer, size_t size)
-{
-    size_t r = size;
-    char* p = (char*)buffer;
-
-    if (size == 0)
-        return -1;
-
-    while (r)
-    {
-        ssize_t n;
-
-        CIMSERVERA_RESTART(read(sock, p, r), n);
-
-        if (n == -1)
-            return -1;
-        else if (n == 0)
-            return size - r;
-
-        r -= n;
-        p += n;
-    }
-
-    return size - r;
-}
-
-//==============================================================================
-//
-// Send()
+// CimserveaSend()
 //
 //     Sends *size* bytes on the given socket.
 //
 //==============================================================================
 
-static ssize_t Send(int sock, void* buffer, size_t size)
+static ssize_t CimserveaSend(int sock, void* buffer, size_t size)
 {
     size_t r = size;
     char* p = (char*)buffer;
@@ -266,7 +232,7 @@ static int CimserveraAuthenticate(const char* username, const char* password)
         Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
         Strlcpy(request.arg2, password, CIMSERVERA_MAX_BUFFER);
 
-        if (Send(sock, &request, sizeof(request)) != sizeof(request))
+        if (CimserveaSend(sock, &request, sizeof(request)) != sizeof(request))
         {
             status = -1;
             break;
@@ -319,7 +285,7 @@ static int CimserveraValidateUser(const char* username)
         Strlcpy(request.arg0, "validateUser", CIMSERVERA_MAX_BUFFER);
         Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
 
-        if (Send(sock, &request, sizeof(request)) != sizeof(request))
+        if (CimserveaSend(sock, &request, sizeof(request)) != sizeof(request))
         {
             status = -1;
             break;
@@ -534,4 +500,4 @@ static int PAMValidateUser(const char* username)
 #endif
 }
 
-#endif /* Pegasus_cimservera_h */
+#endif /* Pegasus_Security_Cimservera_cimservera_h_h */

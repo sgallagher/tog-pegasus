@@ -450,6 +450,70 @@ static int InProcess_pamValidateUser(
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
 
+//==============================================================================
+//
+// _recv()
+//
+//     Receives *size* bytes from the given socket.
+//
+//==============================================================================
+
+static ssize_t _recv(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    if (size == 0)
+        return -1;
+
+    while (r)
+    {
+        ssize_t n;
+
+        CIMSERVERA_RESTART(read(sock, p, r), n);
+
+        if (n == -1)
+            return -1;
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
+//==============================================================================
+//
+// _send()
+//
+//     Sends *size* bytes on the given socket.
+//
+//==============================================================================
+
+static ssize_t _send(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    while (r)
+    {
+        ssize_t n;
+        CIMSERVERA_RESTART(write(sock, p, r), n);
+
+        if (n == -1)
+            return -1;
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
 static int _receiveDescriptorArray(int sock, int descriptors[], size_t count)
 {
     // This control data begins with a cmsghdr struct followed by the data
@@ -515,17 +579,17 @@ static int OutOfProcess_ping()
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_PING_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     ExecutorPingResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     if (response.magic == EXECUTOR_PING_MAGIC)
@@ -543,29 +607,29 @@ FILE* OutOfProcess_openFile(
     if (mode != 'r' && mode != 'w')
         return NULL;
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_OPEN_FILE_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return NULL;
 
-    // Send request body.
+    // _send request body.
 
     ExecutorOpenFileRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
     request.mode = mode;
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return NULL;
 
     // Receive the response
 
     ExecutorOpenFileResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return NULL;
 
     // Receive descriptor (if response successful).
@@ -597,29 +661,29 @@ static int OutOfProcess_renameFile(
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_RENAME_FILE_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
-    // Send request body.
+    // _send request body.
 
     ExecutorRenameFileRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.oldPath, oldPath, EXECUTOR_BUFFER_SIZE);
     Strlcpy(request.newPath, newPath, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorRenameFileResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -630,28 +694,28 @@ static int OutOfProcess_removeFile(
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_REMOVE_FILE_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
-    // Send request body.
+    // _send request body.
 
     ExecutorRemoveFileRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorRemoveFileResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -677,15 +741,15 @@ static int OutOfProcess_startProviderAgent(
     if (n >= EXECUTOR_BUFFER_SIZE)
         return -1;
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_START_PROVIDER_AGENT_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
-    // Send request body.
+    // _send request body.
 
     ExecutorStartProviderAgentRequest request;
     memset(&request, 0, sizeof(request));
@@ -693,14 +757,14 @@ static int OutOfProcess_startProviderAgent(
     request.uid = uid;
     request.gid = gid;
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorStartProviderAgentResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     // Check response status and pid.
@@ -741,19 +805,19 @@ static int OutOfProcess_daemonizeExecutor()
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // Receive the response
 
     ExecutorDaemonizeExecutorResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -765,28 +829,28 @@ static int OutOfProcess_changeOwner(
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_CHANGE_OWNER_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
-    // Send request body:
+    // _send request body:
 
     ExecutorChangeOwnerRequest request;
     Strlcpy(request.path, path, sizeof(request.path));
     Strlcpy(request.owner, owner, sizeof(request.owner));
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorChangeOwnerResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -797,27 +861,27 @@ static int OutOfProcess_waitPid(
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_WAIT_PID_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
-    // Send request body:
+    // _send request body:
 
     ExecutorWaitPidRequest request;
     request.pid = pid;
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorWaitPidResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -829,29 +893,29 @@ static int OutOfProcess_pamAuthenticate(
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_PAM_AUTHENTICATE_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
-    // Send request body.
+    // _send request body.
 
     ExecutorPAMAuthenticateRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
     Strlcpy(request.password, password, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorPAMAuthenticateResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;
@@ -862,28 +926,28 @@ static int OutOfProcess_pamValidateUser(
 {
     AutoMutex autoMutex(_mutex);
 
-    // Send request header:
+    // _send request header:
 
     ExecutorRequestHeader header;
     header.code = EXECUTOR_PAM_VALIDATE_USER_REQUEST;
 
-    if (Send(_getSock(), &header, sizeof(header)) != sizeof(header))
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
-    // Send request body.
+    // _send request body.
 
     ExecutorPAMValidateUserRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
 
-    if (Send(_getSock(), &request, sizeof(request)) != sizeof(request))
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
         return -1;
 
     // Receive the response
 
     ExecutorPAMValidateUserResponse response;
 
-    if (Recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     return response.status;

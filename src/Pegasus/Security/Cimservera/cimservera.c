@@ -33,9 +33,13 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#include "cimservera.h"
+#include <Executor/PAMAuth.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <syslog.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
 
 static void Exit(int status)
 {
@@ -55,7 +59,7 @@ static ssize_t Recv(int sock, void* buffer, size_t size)
     {
         ssize_t n;
 
-        CIMSERVERA_RESTART(read(sock, p, r), n);
+        EXECUTOR_RESTART(read(sock, p, r), n);
 
         if (n == -1)
             return -1;

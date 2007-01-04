@@ -54,6 +54,7 @@ SOURCES = \
     Fatal.c \
     Parent.c \
     Globals.c \
+    PAMAuth.c
 
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
     FLAGS += -pedantic -ansi -Werror
@@ -68,3 +69,6 @@ poststarttests:
 
 ff:
 	flawfinder -m 3 Executor.h Executor.c
+
+kloc:
+	kloc -d -f

@@ -62,7 +62,7 @@
 #endif
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
-# include <Pegasus/Security/Cimservera/cimservera.h>
+# include <Executor/PAMAuth.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

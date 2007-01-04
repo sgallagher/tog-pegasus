@@ -31,9 +31,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Executor_Exit_h
-#define _Executor_Exit_h
+#ifndef _Executor_Time_h
+#define _Executor_Time_h
 
-void Exit(int status);
+typedef unsigned long long TimeStamp;
 
-#endif /* _Executor_Exit_h */
+TimeStamp GetTimeStamp();
+
+#endif /* _Executor_Time_h */

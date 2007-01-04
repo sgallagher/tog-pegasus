@@ -36,7 +36,24 @@ DIR = Executor
 include $(ROOT)/mak/config.mak
 
 PROGRAM = cimserver
-SOURCES = Executor.cpp
+SOURCES = \
+    main.cpp \
+    SessionKey.cpp \
+    Time.cpp \
+    Random.cpp \
+    LocalAuth.cpp \
+    User.cpp \
+    Log.cpp \
+    Socket.cpp \
+    Exit.cpp \
+    File.cpp \
+    Config.cpp \
+    Path.cpp \
+    Process.cpp \
+    Child.cpp \
+    Fatal.cpp \
+    Parent.cpp \
+    Globals.cpp \
 
 include $(ROOT)/mak/program.mak
 

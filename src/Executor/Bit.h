@@ -31,9 +31,33 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Executor_Exit_h
-#define _Executor_Exit_h
+#ifndef _Executor_Bit_h
+#define _Executor_Bit_h
 
-void Exit(int status);
+//==============================================================================
+//
+// SetBit()
+//
+//     Set the n-th bit the the given mask.
+//
+//==============================================================================
 
-#endif /* _Executor_Exit_h */
+inline void SetBit(unsigned long& mask, int n)
+{
+    mask |= (1 << n);
+}
+
+//==============================================================================
+//
+// TstBit()
+//
+//     Test the n-th bit the the given mask.
+//
+//==============================================================================
+
+inline bool TstBit(unsigned long mask, int n)
+{
+    return mask & (1 << n);
+}
+
+#endif /* _Executor_Bit_h */

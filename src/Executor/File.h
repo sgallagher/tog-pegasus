@@ -31,9 +31,21 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Executor_Exit_h
-#define _Executor_Exit_h
+#ifndef _Executor_File_h
+#define _Executor_File_h
 
-void Exit(int status);
+#include "Defines.h"
 
-#endif /* _Executor_Exit_h */
+int ChangeOwner(
+    const char* path, 
+    const char* owner);
+
+int ChangeDirOwnerRecursive(
+    const char* path,
+    int uid,
+    int gid);
+
+int AccessDir(
+    const char* path);
+
+#endif /* _Executor_File_h */

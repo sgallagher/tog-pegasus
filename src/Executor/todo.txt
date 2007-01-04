@@ -1,7 +1,7 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Consider moving secure-local authentication into executor.
+    (A) Warn if Executor::openFile() called on non-root owned files.
 
     (A) Test SSL client certificate authentication.
 
@@ -18,6 +18,8 @@
 
     (B) Test without privilege separation.
 
+    (B) Use char session keys instead of SessionKey structure?
+
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
     (C) Add executor fingerprint checking to cimservera program.
@@ -29,4 +31,6 @@
     (C) Generate provider policy file automatically from repository.
 
     (C) Consider getting rid of HandleRenameFileRequest().
+
+    (C) Replace LocalAuthFile class with new implementation in LocalAuth.cpp.
 

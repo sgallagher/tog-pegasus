@@ -1,0 +1,38 @@
+
+Pegasus/Common/SSLContext.cpp:
+    Executor::openFile() : read
+
+Pegasus/ControlProviders/CertificateProvider/CertificateProvider.cpp:
+    Executor::removeFile()
+    Executor::openFile(): write
+
+Pegasus/Config/ConfigFileHandler.cpp:
+    Executor::openFile(): write
+    Executor::removeFile()
+
+Pegasus/Config/ConfigFile.cpp:
+    Executor::removeFile()
+    Executor::renameFile()
+    Executor::openFile() : write
+
+Pegasus/Security/Authentication/PAMBasicAuthenticatorUnix.cpp:
+    Executor::pamAuthenticate()
+    Executor::pamValidateUser()
+
+Pegasus/Security/Authentication/SecureLocalAuthenticator.cpp:
+    Executor::startLocalAuth()
+    Executor::finishLocalAuth()
+
+Pegasus/Security/UserManager/PasswordFile.cpp:
+    Executor::removeFile()
+    Executor::renameFile()
+    Executor::openFile() : write
+
+Pegasus/ProviderManagerService/OOPProviderManagerRouter.cpp:
+    Executor::startProviderAgent()
+    Executor::waitPid()
+
+Server/cimserver.cpp:
+    Executor::ping()
+    Executor::daemonizeExecutor()
+

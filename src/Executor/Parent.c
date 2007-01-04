@@ -54,7 +54,7 @@
 #include "LocalAuth.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
-#include <Pegasus/Security/Cimservera/cimservera.h>
+# include "PAMAuth.h"
 #endif
 
 /*
@@ -707,10 +707,28 @@ static void HandleFinishLocalAuthRequest(int sock)
 
     status = FinishLocalAuthentication(&key, request.token, &newKey);
 
-    /* ATTN: add user to message. */
+    /* Log result. */
 
-    if (status != 0)
-        Log(LL_WARNING, "Local user authentication failed on %s", key.data);
+    {
+        int uid;
+        char username[EXECUTOR_BUFFER_SIZE] = { '\0' };
+
+        GetSessionKeyUid(&newKey, &uid);
+        GetSessionKeyUsername(&newKey, username);
+
+        if (status != 0)
+        {
+            Log(LL_WARNING, "Local authentication failed for user \"%s\" (%d)", 
+                username, uid);
+        }
+        else
+        {
+            Log(LL_TRACE, "Local authentication suceeded for user \"%s\" (%d)", 
+                username, uid);
+        }
+    }
+
+    /* Send response. */
 
     memset(&response, 0, sizeof(response));
     response.status = status;

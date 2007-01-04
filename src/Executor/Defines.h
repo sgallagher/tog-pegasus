@@ -36,7 +36,7 @@
 
 #include <Pegasus/Common/Constants.h>
 
-//#define TRACE printf("TRACE: %s(%d)\n", __FILE__, __LINE__)
+/*#define TRACE printf("TRACE: %s(%d)\n", __FILE__, __LINE__)*/
 
 /*
 **==============================================================================

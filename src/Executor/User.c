@@ -85,6 +85,7 @@ int GetUserName(int uid, char username[EXECUTOR_BUFFER_SIZE])
     if (getpwuid_r(uid, &pwd, buffer, PWD_BUFF_SIZE, &ptr) != 0 || !ptr)
     {
         Log(LL_TRACE, "getpwuid_r(%d, ...) failed", uid);
+        username[0] = '\0';
         return -1;
     }
 

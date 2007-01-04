@@ -216,17 +216,14 @@ int GetSessionKeyUid(const SessionKey* key, int* uid)
 {
     SessionKeyEntry* p;
 
-    if (uid)
-        *uid = -1;
+    *uid = -1;
 
     p = _lookup(key);
 
     if (!p)
         return -1;
 
-    if (uid)
-        *uid = p->uid;
-
+    *uid = p->uid;
     return 0;
 }
 
@@ -246,12 +243,13 @@ int GetSessionKeyUsername(
 {
     int uid;
 
-    username[0] = '\0';
-
     /* Lookup uid */
 
     if (GetSessionKeyUid(key, &uid) != 0)
+    {
+        username[0] = '\0';
         return -1;
+    }
 
     /* Lookup username */
 

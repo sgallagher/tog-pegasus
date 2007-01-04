@@ -34,6 +34,8 @@
 #ifndef _Executor_SessionKey_h
 #define _Executor_SessionKey_h
 
+#include "Defines.h"
+
 #define EXECUTOR_SESSION_KEY_SIZE 40
 
 /* 
@@ -53,5 +55,9 @@ int GetSessionKeyData(const SessionKey* key, void** data);
 int GetSessionKeyUid(const SessionKey* key, int* uid);
 
 int DeleteSessionKey(const SessionKey* key);
+
+int GetSessionKeyUsername(
+    const SessionKey* key,
+    char username[EXECUTOR_BUFFER_SIZE]);
 
 #endif /* _Executor_SessionKey_h */

@@ -1,62 +1,85 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
 /*
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#include <Executor/PAMAuth.h>
-#include <Executor/Socket.h>
-#include <Pegasus/Common/PegasusVersion.h>
+#include "cimservera.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <syslog.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
 
 static void Exit(int status)
 {
+    syslog(LOG_INFO, "exit(%d)", status);
     exit(status);
+}
+
+static ssize_t Recv(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    if (size == 0)
+        return -1;
+
+    while (r)
+    {
+        ssize_t n;
+
+        CIMSERVERA_RESTART(read(sock, p, r), n);
+
+        if (n == -1)
+            return -1;
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
 }
 
 int main(int argc, char* argv[])
 {
     int sock;
     CimserveraRequest request;
-    CimserveraResponse response;
 
     /* Open syslog: */
 
     openlog("cimservera", LOG_PID, LOG_AUTH);
+    syslog(LOG_INFO, "started");
 
-    /* Check arguments. */
+    /* Check argumnents. */
 
     if (argc != 2)
     {
@@ -75,53 +98,50 @@ int main(int argc, char* argv[])
             fprintf(stderr, "%s : bad socket argument: %s\n", argv[0], argv[1]);
             Exit(1);
         }
-
+        
         sock = (int)x;
     }
 
     /* Wait on request. */
 
-    if (RecvBlock(sock, &request, sizeof(request)) != sizeof(request))
+    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
     {
         close(sock);
         Exit(1);
     }
 
-    /* Handle request (authenticate or validateUser) */
-
     if (strcmp(request.arg0, "authenticate") == 0)
     {
         int status = PAMAuthenticateInProcess(request.arg1, request.arg2);
 
-        response.status = status;
-
-        if (SendBlock(sock, &response, sizeof(response)) != sizeof(response))
+        if (status != 0)
         {
-            close(sock);
-            Exit(1);
+            syslog(LOG_WARNING, "PAM authentication failed on user \"%s\"",
+                request.arg1);
         }
 
-        close(sock);
         Exit(status == 0 ? 0 : 1);
     }
     else if (strcmp(request.arg0, "validateUser") == 0)
     {
         int status = PAMValidateUserInProcess(request.arg1);
 
-        response.status = status;
-
-        if (SendBlock(sock, &response, sizeof(response)) != sizeof(response))
+        if (status != 0)
         {
-            close(sock);
-            Exit(1);
+            syslog(LOG_WARNING, "PAM user validation failed on user \"%s\"",
+                request.arg1);
         }
 
-        close(sock);
         Exit(status == 0 ? 0 : 1);
     }
+    else
+    {
+        syslog(LOG_WARNING, "invalid request");
+        close(sock);
+        Exit(1);
+    }
 
-    syslog(LOG_WARNING, "invalid request");
     close(sock);
-    Exit(1);
-    return 1;
+    Exit(0);
+    return 0;
 }

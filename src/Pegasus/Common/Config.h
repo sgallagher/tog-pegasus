@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -30,6 +31,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
@@ -87,7 +89,7 @@
 
 
 
-
+/*
 //<<< Sun Apr  6 19:28:00 2003 mdd >>>
 //
 // COMPILER Checks
@@ -95,14 +97,17 @@
 // This is to allow a check for GCC > 3.2
 // It needs to be the first thing we check because the next lines load
 // further source files
+*/
 
 #if defined(__GNUC__)
 #define GCC_VERSION (__GNUC__ * 10000 \
                                + __GNUC_MINOR__ * 100 \
                                + __GNUC_PATCHLEVEL__)
 
+/*
 // To test for GCC > 3.2.0:
 //     #if GCC_VERSION > 30200
+*/
 
 #endif
 
@@ -211,7 +216,7 @@
 #define PEGASUS_UINT64_LITERAL(X) (Uint64 (X##ULL))
 #endif
 
-// Used in printf and scanf conversion strings for Uint64 and Sint64 arguments
+/* Used in printf and scanf conversion strings for Uint64 and Sint64 args */
 #ifndef PEGASUS_64BIT_CONVERSION_WIDTH
 #define PEGASUS_64BIT_CONVERSION_WIDTH "ll"
 #endif

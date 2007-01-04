@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -30,6 +31,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef Pegasus_Security_Cimservera_cimservera_h_h
 #define Pegasus_Security_Cimservera_cimservera_h_h
@@ -42,8 +44,9 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <cstdio>
+#include <stdio.h>
 #include <errno.h>
+#include <string.h>
 #include <Pegasus/Common/Constants.h>
 #include <Executor/Strlcpy.h>
 #include <Executor/Strlcat.h>
@@ -52,42 +55,46 @@
 #define CIMSERVERA "cimservera"
 #define CIMSERVERA_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
 
-//==============================================================================
-//
-// cimservera
-//
-//     This program is used to authenticate users with the "Basic PAM 
-//     Authentication" scheme. It was originally written to isolate memory
-//     PAM module errors to an external process.
-//
-//     This header defines two functions that may be called by clients of this
-//     process (the parent process).
-//
-//         CimserveraAuthenticate()
-//         CimserveraValidateUser()
-//
-//     Each functions forks and executes a child process that carries out
-//     the request and then exits immediately. The parent and child proceses
-//     communicate over a local domain socket, created by the parent just
-//     before executing the client program.
-//
-//     Both of the functions above are defined in the header to avoid the need
-//     to link a separate client library.
-//
-//     CAUTION: This program must not depend on any Pegasus libraries since
-//     it is used by the executor process.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** cimservera
+**
+**     This program is used to authenticate users with the "Basic PAM 
+**     Authentication" scheme. It was originally written to isolate memory
+**     PAM module errors to an external process.
+**
+**     This header defines two functions that may be called by clients of this
+**     process (the parent process).
+**
+**         CimserveraAuthenticate()
+**         CimserveraValidateUser()
+**
+**     Each functions forks and executes a child process that carries out
+**     the request and then exits immediately. The parent and child proceses
+**     communicate over a local domain socket, created by the parent just
+**     before executing the client program.
+**
+**     Both of the functions above are defined in the header to avoid the need
+**     to link a separate client library.
+**
+**     CAUTION: This program must not depend on any Pegasus libraries since
+**     it is used by the executor process.
+**
+**==============================================================================
+*/
 
 #define CIMSERVERA_MAX_BUFFER 1024
 
-//==============================================================================
-//
-// CimserveaSend()
-//
-//     Sends *size* bytes on the given socket.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** CimserveaSend()
+**
+**     Sends *size* bytes on the given socket.
+**
+**==============================================================================
+*/
 
 static ssize_t CimserveaSend(int sock, void* buffer, size_t size)
 {
@@ -111,18 +118,23 @@ static ssize_t CimserveaSend(int sock, void* buffer, size_t size)
     return size - r;
 }
 
-//==============================================================================
-//
-// CimserveraStart()
-//
-//     Starts the cimservera program, returning a socket used to communicate
-//     with it.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** CimserveraStart()
+**
+**     Starts the cimservera program, returning a socket used to communicate
+**     with it.
+**
+**==============================================================================
+*/
 
-static int CimserveraStart(int& sock)
+static int CimserveraStart(int* sock)
 {
-    // Get absolute path of "cimservera" program.
+    int pair[2];
+    int pid;
+
+    /* Get absolute path of "cimservera" program. */
 
     char path[CIMSERVERA_MAX_BUFFER];
 
@@ -141,39 +153,38 @@ static int CimserveraStart(int& sock)
         Strlcat(path, PEGASUS_PAM_STANDALONE_PROC_NAME, CIMSERVERA_MAX_BUFFER);
     }
 
-    // Create socket pair for communicating with child process.
-
-    int pair[2];
+    /* Create socket pair for communicating with child process. */
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, pair) != 0)
         return -1;
 
-    // Fork child:
+    /* Fork child: */
 
-    int pid = fork();
+    pid = fork();
 
     if (pid < 0)
         return -1;
 
-    // Child process:
+    /* Child process: */
 
     if (pid == 0)
     {
+        char sockStr[32];
+        char* argv[3];
+
         close(pair[1]);
 
-        // Convert socket number to string.
+        /* Convert socket number to string. */
 
-        char sockStr[32];
         sprintf(sockStr, "%d", pair[0]);
 
-        // Build arguments for execv().
+        /* Build arguments for execv(). */
 
-        char* argv[3];
         argv[0] = CIMSERVERA;
         argv[1] = sockStr;
         argv[2] = 0;
 
-        // Execute child:
+        /* Execute child: */
 
         /* Flawfinder: ignore */
         execv(path, argv);
@@ -181,52 +192,62 @@ static int CimserveraStart(int& sock)
         _exit(0);
     }
 
-    // Parent process:
+    /* Parent process: */
 
     close(pair[0]);
 
-    sock = pair[1];
+    *sock = pair[1];
     return pid;
 }
 
-//==============================================================================
-//
-// CimserveraRequest
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** CimserveraRequest
+**
+**==============================================================================
+*/
 
-struct CimserveraRequest
+typedef struct CimserveraRequestStruct
 {
     char arg0[CIMSERVERA_MAX_BUFFER];
     char arg1[CIMSERVERA_MAX_BUFFER];
     char arg2[CIMSERVERA_MAX_BUFFER];
-};
+}
+CimserveraRequest;
 
-//==============================================================================
-//
-// CimserveraAuthenticate()
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** CimserveraAuthenticate()
+**
+**==============================================================================
+*/
 
 static int CimserveraAuthenticate(const char* username, const char* password)
 {
-    // Create the CIMSERVERA process.
-
     int sock;
-    int pid = CimserveraStart(sock);
+    int pid;
+    int status;
+
+    /* Create the CIMSERVERA process. */
+
+    pid = CimserveraStart(&sock);
 
     if (pid == -1)
         return -1;
 
-    // Send request, get response.
+    /* Send request, get response. */
 
-    int status = 0;
+    status = 0;
 
     do
     {
-        // Send request to CIMSERVERA process.
-
         CimserveraRequest request;
+        int childStatus;
+
+        /* Send request to CIMSERVERA process. */
+
         memset(&request, 0, sizeof(request));
         Strlcpy(request.arg0, "authenticate", CIMSERVERA_MAX_BUFFER);
         Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
@@ -238,9 +259,8 @@ static int CimserveraAuthenticate(const char* username, const char* password)
             break;
         } 
 
-        // Get exist status from CIMSERVERA program.
+        /* Get exist status from CIMSERVERA program. */
 
-        int childStatus;
         waitpid(pid, &childStatus, 0);
 
         if (!WIFEXITED(childStatus) || WEXITSTATUS(childStatus) != 0)
@@ -256,31 +276,38 @@ static int CimserveraAuthenticate(const char* username, const char* password)
     return status;
 }
 
-//==============================================================================
-//
-// CimserveraAuthenticate()
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** CimserveraAuthenticate()
+**
+**==============================================================================
+*/
 
 static int CimserveraValidateUser(const char* username)
 {
-    // Create the CIMSERVERA process.
-
     int sock;
-    int pid = CimserveraStart(sock);
+    int pid;
+    int status;
+
+    /* Create the CIMSERVERA process. */
+
+    pid = CimserveraStart(&sock);
 
     if (pid == -1)
         return -1;
 
-    // Send request, get response.
+    /* Send request, get response. */
 
-    int status = 0;
+    status = 0;
 
     do
     {
-        // Send request to CIMSERVERA process.
-
         CimserveraRequest request;
+        int childStatus;
+
+        /* Send request to CIMSERVERA process. */
+
         memset(&request, 0, sizeof(request));
         Strlcpy(request.arg0, "validateUser", CIMSERVERA_MAX_BUFFER);
         Strlcpy(request.arg1, username, CIMSERVERA_MAX_BUFFER);
@@ -291,9 +318,8 @@ static int CimserveraValidateUser(const char* username)
             break;
         }
 
-        // Get exist status from CIMSERVERA program.
+        /* Get exist status from CIMSERVERA program. */
 
-        int childStatus;
         waitpid(pid, &childStatus, 0);
 
         if (!WIFEXITED(childStatus) || WEXITSTATUS(childStatus) != 0)
@@ -309,38 +335,45 @@ static int CimserveraValidateUser(const char* username)
     return status;
 }
 
-//==============================================================================
-//
-// struct PAMData
-//
-//     Client data passed to PAM routines.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** struct PAMData
+**
+**     Client data passed to PAM routines.
+**
+**==============================================================================
+*/
 
-struct PAMData
+typedef struct PAMDataStruct
 {
     const char* password;
-};
+}
+PAMData;
 
-//==============================================================================
-//
-// PAMAuthenticateCallback()
-//
-//     Callback used by PAMAuthenticate().
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** PAMAuthenticateCallback()
+**
+**     Callback used by PAMAuthenticate().
+**
+**==============================================================================
+*/
 
 static int PAMAuthenticateCallback(
     int num_msg, 
-    const pam_message** msg,
-    pam_response** resp, 
+    const struct pam_message** msg,
+    struct pam_response** resp, 
     void* appdata_ptr)
 {
     PAMData* data = (PAMData*)appdata_ptr;
+    int i;
 
     if (num_msg > 0)
     {
-        *resp = (pam_response*)calloc(num_msg, sizeof(pam_response));
+        *resp = (struct pam_response*)calloc(
+            num_msg, sizeof(struct pam_response));
 
         if (*resp == NULL) 
             return PAM_BUF_ERR;
@@ -348,7 +381,7 @@ static int PAMAuthenticateCallback(
     else 
         return PAM_CONV_ERR;
 
-    for (int i = 0; i < num_msg; i++) 
+    for (i = 0; i < num_msg; i++) 
     {
         switch (msg[i]->msg_style) 
         {
@@ -368,23 +401,26 @@ static int PAMAuthenticateCallback(
     return PAM_SUCCESS;
 }
 
-//==============================================================================
-//
-// PAMValidateUserCallback()
-//
-//     Callback used by PAMValidateUser().
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** PAMValidateUserCallback()
+**
+**     Callback used by PAMValidateUser().
+**
+**==============================================================================
+*/
 
 static int PAMValidateUserCallback(
     int num_msg, 
-    const pam_message** msg,
-    pam_response** resp, 
+    const struct pam_message** msg,
+    struct pam_response** resp, 
     void* appdata_ptr)
 {
     if (num_msg > 0)
     {
-        *resp = (pam_response*)calloc(num_msg, sizeof(struct pam_response));
+        *resp = (struct pam_response*)calloc(
+            num_msg, sizeof(struct pam_response));
 
         if (*resp == NULL)
             return PAM_BUF_ERR;
@@ -395,24 +431,26 @@ static int PAMValidateUserCallback(
     return PAM_SUCCESS;
 }
 
-//==============================================================================
-//
-// PAMAuthenticateInProcess()
-//
-//     Peforms basic PAM authentication on the given username and password.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** PAMAuthenticateInProcess()
+**
+**     Peforms basic PAM authentication on the given username and password.
+**
+**==============================================================================
+*/
 
 static int PAMAuthenticateInProcess(const char* username, const char* password)
 {
     PAMData data;
-    data.password = password;
+    struct pam_conv pconv;
+    pam_handle_t* handle;
 
-    pam_conv pconv;
+    data.password = password;
     pconv.conv = PAMAuthenticateCallback;
     pconv.appdata_ptr = &data;
 
-    pam_handle_t* handle;
 
     if (pam_start("wbem", username, &pconv, &handle) != PAM_SUCCESS)
         return -1;
@@ -434,23 +472,24 @@ static int PAMAuthenticateInProcess(const char* username, const char* password)
     return 0;
 }
 
-//==============================================================================
-//
-// PAMValidateUserInProcess()
-//
-//     Validate that the *username* refers to a valid PAM user.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** PAMValidateUserInProcess()
+**
+**     Validate that the *username* refers to a valid PAM user.
+**
+**==============================================================================
+*/
 
 static int PAMValidateUserInProcess(const char* username)
 {
     PAMData data;
-
     struct pam_conv pconv;
+    pam_handle_t* phandle;
+
     pconv.conv = PAMValidateUserCallback;
     pconv.appdata_ptr = &data;
-
-    pam_handle_t* phandle;
 
     if (pam_start("wbem", username, &pconv, &phandle) != PAM_SUCCESS)
         return -1;
@@ -466,13 +505,15 @@ static int PAMValidateUserInProcess(const char* username)
     return 0;
 }
 
-//==============================================================================
-//
-// PAMAuthenticate()
-//
-//     Peforms basic PAM authentication on the given username and password.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** PAMAuthenticate()
+**
+**     Peforms basic PAM authentication on the given username and password.
+**
+**==============================================================================
+*/
 
 static int PAMAuthenticate(const char* username, const char* password)
 {
@@ -483,13 +524,15 @@ static int PAMAuthenticate(const char* username, const char* password)
 #endif
 }
 
-//==============================================================================
-//
-// PAMValidateUser()
-//
-//     Validate that the *username* refers to a valid PAM user.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** PAMValidateUser()
+**
+**     Validate that the *username* refers to a valid PAM user.
+**
+**==============================================================================
+*/
 
 static int PAMValidateUser(const char* username)
 {

@@ -30,10 +30,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
+
 #include <string.h>
 #include "SessionKey.h"
 #include "Random.h"
 #include "Fatal.h"
+#include "User.h"
 
 typedef struct SessionKeyEntryStruct
 {
@@ -175,7 +177,7 @@ int DeleteSessionKey(const SessionKey* key)
 /*
 **==============================================================================
 **
-** GetSessionKeyData
+** GetSessionKeyData()
 **
 **     Get the data field for the given SessionKey.
 **
@@ -203,7 +205,7 @@ int GetSessionKeyData(const SessionKey* key, void** data)
 /*
 **==============================================================================
 **
-** GetSessionKeyUid:
+** GetSessionKeyUid()
 **
 **     Get the UID for the session key.
 **
@@ -215,7 +217,7 @@ int GetSessionKeyUid(const SessionKey* key, int* uid)
     SessionKeyEntry* p;
 
     if (uid)
-        *uid = 0;
+        *uid = -1;
 
     p = _lookup(key);
 
@@ -226,4 +228,32 @@ int GetSessionKeyUid(const SessionKey* key, int* uid)
         *uid = p->uid;
 
     return 0;
+}
+
+/*
+**==============================================================================
+**
+** GetSessionKeyUsername()
+**
+**     Get the username from the SessionKey.
+**
+**==============================================================================
+*/
+
+int GetSessionKeyUsername(
+    const SessionKey* key,
+    char username[EXECUTOR_BUFFER_SIZE])
+{
+    int uid;
+
+    username[0] = '\0';
+
+    /* Lookup uid */
+
+    if (GetSessionKeyUid(key, &uid) != 0)
+        return -1;
+
+    /* Lookup username */
+
+    return GetUserName(uid, username);
 }

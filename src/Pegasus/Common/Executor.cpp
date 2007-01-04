@@ -959,8 +959,7 @@ int OutOfProcess_startLocalAuth(
 
 int OutOfProcess_finishLocalAuth(
     const SessionKey* key,
-    const char* token,
-    SessionKey* newKey)
+    const char* token)
 {
     AutoMutex autoMutex(_mutex);
 
@@ -988,8 +987,6 @@ int OutOfProcess_finishLocalAuth(
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
-
-    Strlcpy(newKey->data, response.key, sizeof(newKey->data));
 
     return response.status;
 }
@@ -1161,14 +1158,13 @@ int Executor::startLocalAuth(
 
 int Executor::finishLocalAuth(
     const SessionKey* key,
-    const char* token,
-    SessionKey* newKey)
+    const char* token)
 {
     if (_getSock() == -1)
         return -1;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_finishLocalAuth(key, token, newKey);
+    return OutOfProcess_finishLocalAuth(key, token);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */

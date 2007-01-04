@@ -98,10 +98,8 @@ Boolean SecureLocalAuthenticator::authenticate
         Strlcpy(
             key.data, (const char*)secretKept.getCString(), sizeof(key.data));
 
-        SessionKey newKey;
-
         if (Executor::finishLocalAuth(
-            &key, (const char*)secretReceived.getCString(), &newKey) == 0)
+            &key, (const char*)secretReceived.getCString()) == 0)
         {
             authenticated = true;
         }

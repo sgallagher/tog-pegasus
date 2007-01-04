@@ -38,15 +38,11 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/SessionKey.h>
 #include <Executor/Defines.h>
 #include <cstdio>
 
 PEGASUS_NAMESPACE_BEGIN
-
-struct SessionKey
-{
-    char data[33];
-};
 
 class PEGASUS_COMMON_LINKAGE Executor
 {

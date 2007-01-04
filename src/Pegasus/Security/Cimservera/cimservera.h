@@ -45,8 +45,8 @@
 #include <cstdio>
 #include <errno.h>
 #include <Pegasus/Common/Constants.h>
-#include "Strlcpy.h"
-#include "Strlcat.h"
+#include <Executor/Strlcpy.h>
+#include <Executor/Strlcat.h>
 #include <security/pam_appl.h>
 
 #define CIMSERVERA "cimservera"

@@ -44,7 +44,6 @@
 #include <sys/time.h>
 #endif
 
-#include <Pegasus/Common/Executor.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
@@ -188,7 +187,6 @@ String LocalAuthFile::create()
 #else
     ofstream outfs(filePathCString);
 #endif
-
     if (!outfs)
     {
         // unable to create file
@@ -208,13 +206,13 @@ String LocalAuthFile::create()
     // 2. Set file permission to read/write by the owner only.
     //
     
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    #if defined(PEGASUS_OS_TYPE_WINDOWS)
       Boolean success = 
           FileSystem::changeFilePermissions(filePath, _S_IREAD | _S_IWRITE);
-#else
+    #else
       Boolean success = 
           FileSystem::changeFilePermissions(filePath, S_IRUSR | S_IWUSR);
-#endif
+    #endif
 
     if ( !success )
     {
@@ -235,7 +233,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                Executor::removeFile(filePath.getCString());
+                FileSystem::removeFile(filePath);
             }
         }
 
@@ -265,7 +263,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                Executor::removeFile(filePath.getCString());
+                FileSystem::removeFile(filePath);
             }
         }
 
@@ -306,7 +304,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                Executor::removeFile(filePath.getCString());
+                FileSystem::removeFile(filePath);
             }
         }
 
@@ -318,8 +316,7 @@ String LocalAuthFile::create()
     // 5. Change the file owner to the requesting user.
     //
 
-    if (Executor::changeOwner(
-        filePath.getCString(), _userName.getCString()) != 0)
+    if (!FileSystem::changeFileOwner(filePath,_userName))
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4, 
@@ -340,7 +337,7 @@ String LocalAuthFile::create()
         {
             if (FileSystem::exists(filePath))
             {
-                Executor::removeFile(filePath.getCString());
+                FileSystem::removeFile(filePath);
             }
         }
 
@@ -371,6 +368,7 @@ Boolean LocalAuthFile::remove()
     //
     if (FileSystem::exists(_filePathName))
     {
+    
 #ifndef PEGASUS_OS_WIN32
         // change ownership back to the CIMOM
 #if defined(PEGASUS_OS_OS400)
@@ -390,9 +388,8 @@ Boolean LocalAuthFile::remove()
         }
 #endif
 
-        retVal = Executor::removeFile(_filePathName.getCString()) == 0;
+        retVal = FileSystem::removeFile(_filePathName);
     }
-    
 
     PEG_METHOD_EXIT();
 

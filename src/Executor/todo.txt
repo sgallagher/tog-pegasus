@@ -1,8 +1,6 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Warn if Executor::openFile() called on non-root owned files.
-
     (A) Test SSL client certificate authentication.
 
     (A) Should PG_ProviderModule.userContext=5 (CIM server) run as server user
@@ -18,8 +16,6 @@
 
     (B) Test without privilege separation.
 
-    (B) Use char session keys instead of SessionKey structure?
-
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
     (C) Add executor fingerprint checking to cimservera program.
@@ -33,4 +29,8 @@
     (C) Consider getting rid of HandleRenameFileRequest().
 
     (C) Replace LocalAuthFile class with new implementation in LocalAuth.cpp.
+
+    (C) Propose precheck program that verifies proper file ownership (e.g.,
+        private key must be owned by root, all other files must be owned
+        by root).
 

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Executor/Executor.h>
+#include <Executor/Defines.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/signal.h>

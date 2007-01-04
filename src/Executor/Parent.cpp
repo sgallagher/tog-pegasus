@@ -356,44 +356,6 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
 //==============================================================================
 //
-// HandleChangeOwnerRequest()
-//
-//==============================================================================
-
-static void HandleChangeOwnerRequest(int sock)
-{
-    // Read the request request.
-
-    struct ExecutorChangeOwnerRequest request;
-
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
-
-    // Change owner.
-
-    Log(LL_TRACE, "HandleChangeOwnerRequest(): path=%s owner=%s",
-        request.path, request.owner);
-
-    int status = ChangeOwner(request.path, request.owner);
-
-    if (status != 0)
-    {
-        Log(LL_WARNING, "ChangeOwner(%s, %s) failed",
-            request.path, request.owner);
-    }
-
-    // Send response message.
-
-    struct ExecutorChangeOwnerResponse response;
-    memset(&response, 0, sizeof(response));
-    response.status = status;
-
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
-}
-
-//==============================================================================
-//
 // HandleRenameFileRequest()
 //
 //==============================================================================
@@ -754,10 +716,6 @@ void Parent(int sock, int childPid)
 
             case EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE:
                 HandleDaemonizeExecutorRequest(sock);
-                break;
-
-            case EXECUTOR_CHANGE_OWNER_MESSAGE:
-                HandleChangeOwnerRequest(sock);
                 break;
 
             case EXECUTOR_RENAME_FILE_MESSAGE:

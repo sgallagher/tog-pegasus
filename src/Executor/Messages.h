@@ -57,7 +57,6 @@ enum ExecutorMessageCode
     EXECUTOR_OPEN_FILE_MESSAGE,
     EXECUTOR_START_PROVIDER_AGENT_MESSAGE,
     EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE,
-    EXECUTOR_CHANGE_OWNER_MESSAGE,
     EXECUTOR_REMOVE_FILE_MESSAGE,
     EXECUTOR_RENAME_FILE_MESSAGE,
     EXECUTOR_WAIT_PID_MESSAGE,
@@ -168,23 +167,6 @@ struct ExecutorStartProviderAgentResponse
 //==============================================================================
 
 struct ExecutorDaemonizeExecutorResponse
-{
-    int status;
-};
-
-//==============================================================================
-//
-// EXECUTOR_CHANGE_OWNER_MESSAGE
-//
-//==============================================================================
-
-struct ExecutorChangeOwnerRequest
-{
-    char path[EXECUTOR_BUFFER_SIZE];
-    char owner[EXECUTOR_BUFFER_SIZE];
-};
-
-struct ExecutorChangeOwnerResponse
 {
     int status;
 };

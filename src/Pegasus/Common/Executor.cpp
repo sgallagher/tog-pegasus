@@ -54,11 +54,11 @@
 #include "Mutex.h"
 #include "FileSystem.h"
 #include "String.h"
-#include <Pegasus/Security/Cimservera/Strlcpy.h>
-#include <Pegasus/Security/Cimservera/Strlcat.h>
+#include <Executor/Strlcpy.h>
+#include <Executor/Strlcat.h>
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-# include <Executor/Executor.h>
+# include <Executor/Messages.h>
 #endif
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
@@ -582,7 +582,7 @@ static int OutOfProcess_ping()
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_PING_REQUEST;
+    header.code = EXECUTOR_PING_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -610,7 +610,7 @@ FILE* OutOfProcess_openFile(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_OPEN_FILE_REQUEST;
+    header.code = EXECUTOR_OPEN_FILE_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return NULL;
@@ -664,7 +664,7 @@ static int OutOfProcess_renameFile(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_RENAME_FILE_REQUEST;
+    header.code = EXECUTOR_RENAME_FILE_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -697,7 +697,7 @@ static int OutOfProcess_removeFile(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_REMOVE_FILE_REQUEST;
+    header.code = EXECUTOR_REMOVE_FILE_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -744,7 +744,7 @@ static int OutOfProcess_startProviderAgent(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_START_PROVIDER_AGENT_REQUEST;
+    header.code = EXECUTOR_START_PROVIDER_AGENT_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -808,7 +808,7 @@ static int OutOfProcess_daemonizeExecutor()
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_DAEMONIZE_EXECUTOR_REQUEST;
+    header.code = EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -816,39 +816,6 @@ static int OutOfProcess_daemonizeExecutor()
     // Receive the response
 
     ExecutorDaemonizeExecutorResponse response;
-
-    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
-        return -1;
-
-    return response.status;
-}
-
-static int OutOfProcess_changeOwner(
-    const char* path,
-    const char* owner)
-{
-    AutoMutex autoMutex(_mutex);
-
-    // _send request header:
-
-    ExecutorRequestHeader header;
-    header.code = EXECUTOR_CHANGE_OWNER_REQUEST;
-
-    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
-        return -1;
-
-    // _send request body:
-
-    ExecutorChangeOwnerRequest request;
-    Strlcpy(request.path, path, sizeof(request.path));
-    Strlcpy(request.owner, owner, sizeof(request.owner));
-
-    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
-        return -1;
-
-    // Receive the response
-
-    ExecutorChangeOwnerResponse response;
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
@@ -864,7 +831,7 @@ static int OutOfProcess_waitPid(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_WAIT_PID_REQUEST;
+    header.code = EXECUTOR_WAIT_PID_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -896,7 +863,7 @@ static int OutOfProcess_pamAuthenticate(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_PAM_AUTHENTICATE_REQUEST;
+    header.code = EXECUTOR_PAM_AUTHENTICATE_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -929,7 +896,7 @@ static int OutOfProcess_pamValidateUser(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_PAM_VALIDATE_USER_REQUEST;
+    header.code = EXECUTOR_PAM_VALIDATE_USER_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
@@ -953,6 +920,80 @@ static int OutOfProcess_pamValidateUser(
     return response.status;
 }
 
+int OutOfProcess_startLocalAuth(
+    const char* user,
+    char path[EXECUTOR_BUFFER_SIZE],
+    SessionKey* key)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // _send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_START_LOCAL_AUTH_MESSAGE;
+
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // _send request body.
+
+    ExecutorStartLocalAuthRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.user, user, EXECUTOR_BUFFER_SIZE);
+
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorStartLocalAuthResponse response;
+
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    Strlcpy(key->data, response.key, sizeof(key->data));
+    Strlcpy(path, response.path, EXECUTOR_BUFFER_SIZE);
+
+    return response.status;
+}
+
+int OutOfProcess_finishLocalAuth(
+    const SessionKey* key,
+    const char* token,
+    SessionKey* newKey)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // _send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_FINISH_LOCAL_AUTH_MESSAGE;
+
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // _send request body.
+
+    ExecutorFinishLocalAuthRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.key, key->data, EXECUTOR_BUFFER_SIZE);
+    Strlcpy(request.token, token, EXECUTOR_BUFFER_SIZE);
+
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorFinishLocalAuthResponse response;
+
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    Strlcpy(newKey->data, response.key, sizeof(newKey->data));
+
+    return response.status;
+}
+
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -968,6 +1009,14 @@ void Executor::setSock(int sock)
     _mutex.lock();
     _sock = sock;
     _mutex.unlock();
+}
+
+int Executor::detectExecutor()
+{
+    if (_getSock() == -1)
+        return -1;
+    else
+        return 0;
 }
 
 int Executor::ping()
@@ -1055,20 +1104,6 @@ int Executor::daemonizeExecutor()
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
-int Executor::changeOwner(
-    const char* path,
-    const char* owner)
-{
-    if (_getSock() == -1)
-        return InProcess_changeOwner(path, owner);
-
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_changeOwner(path, owner);
-#else
-    return -1;
-#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
-}
-
 int Executor::waitPid(
     int pid)
 {
@@ -1104,6 +1139,36 @@ int Executor::pamValidateUser(
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     return OutOfProcess_pamValidateUser(username);
+#else
+    return -1;
+#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+}
+
+int Executor::startLocalAuth(
+    const char* user,
+    char path[EXECUTOR_BUFFER_SIZE],
+    SessionKey* key)
+{
+    if (_getSock() == -1)
+        return -1;
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    return OutOfProcess_startLocalAuth(user, path, key);
+#else
+    return -1;
+#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+}
+
+int Executor::finishLocalAuth(
+    const SessionKey* key,
+    const char* token,
+    SessionKey* newKey)
+{
+    if (_getSock() == -1)
+        return -1;
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    return OutOfProcess_finishLocalAuth(key, token, newKey);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */

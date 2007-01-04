@@ -137,3 +137,4 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_AuthenticationManager_h */
+

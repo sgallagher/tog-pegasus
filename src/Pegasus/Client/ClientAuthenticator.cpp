@@ -42,7 +42,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <Pegasus/Common/Executor.h>
 
 //
 // Constants used to parse the authentication challenge header
@@ -372,7 +371,7 @@ String ClientAuthenticator::_getFileContent(String filePath)
     // Open challenge file and read the challenge data
     //
 
-    FILE* is = Executor::openFile(filePath.getCString(), 'r');
+    FILE* is = fopen(filePath.getCString(), "r");
 
     if (!is)
         return String();

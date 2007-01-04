@@ -38,15 +38,25 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Executor/Defines.h>
 #include <cstdio>
 
 PEGASUS_NAMESPACE_BEGIN
+
+struct SessionKey
+{
+    char data[33];
+};
 
 class PEGASUS_COMMON_LINKAGE Executor
 {
 public:
 
     static void setSock(int sock);
+
+    /** Return zero if the executor is present.
+    */
+    static int detectExecutor();
 
     static int ping();
 
@@ -71,10 +81,6 @@ public:
 
     static int daemonizeExecutor();
 
-    static int changeOwner(
-        const char* path,
-        const char* owner);
-
     static int waitPid(
         int pid);
 
@@ -84,6 +90,16 @@ public:
 
     static int pamValidateUser(
         const char* username);
+
+    static int startLocalAuth(
+        const char* user,
+        char path[EXECUTOR_BUFFER_SIZE],
+        SessionKey* key);
+
+    static int finishLocalAuth(
+        const SessionKey* key,
+        const char* token,
+        SessionKey* newKey);
 
 private:
     // Private to prevent instantiation.

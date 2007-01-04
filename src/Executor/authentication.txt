@@ -1,0 +1,23 @@
+
+Authentication mechanisms in Pegasus:
+
+    Local - uses secrets file (e.g., /tmp/cimclient_jsmith_99_1235).
+
+        Implemented by SecureLocalAuthenticator.h
+
+    PAM - uses PAM module authentication (in-process and out-of-process).
+
+        Implemented by PAMBasicAuthenticator.h
+
+    Basic - uses cimserver.passwd file.
+
+        Implemented by SecureBasicAuthenticator.h
+
+    Kerberos - not available to Pegasus (implementation is proprietary).
+
+        Implemented by KerberosAuthenticationHandler.h (unavailable).
+
+    SSL certificate - uses client certificates stored in trust store.
+
+        Implemented in Common library.
+

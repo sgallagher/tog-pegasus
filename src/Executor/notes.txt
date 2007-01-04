@@ -78,3 +78,5 @@
 
             % gcc -o mkpasswd mkpasswd.cpp -lcrypt
 
+    13. The KerberosAuthenticationHandler.h and all Kerberos authentication
+        logic is not part of the Pegasus repository.

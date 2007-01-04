@@ -281,7 +281,6 @@ struct ExecutorFinishLocalAuthRequest
 struct ExecutorFinishLocalAuthResponse
 {
     int status;
-    char key[EXECUTOR_BUFFER_SIZE];
 };
 
 #endif /* _Executor_Messages_h */

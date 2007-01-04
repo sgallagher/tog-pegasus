@@ -50,14 +50,12 @@ SessionKey;
 
 SessionKey NewSessionKey(int uid, void* data, void (*destructor)(void*));
 
-int GetSessionKeyData(const SessionKey* key, void** data);
+int DeleteSessionKey(const SessionKey* key);
 
 int GetSessionKeyUid(const SessionKey* key, int* uid);
 
-int DeleteSessionKey(const SessionKey* key);
+int GetSessionKeyData(const SessionKey* key, void** data);
 
-int GetSessionKeyUsername(
-    const SessionKey* key,
-    char username[EXECUTOR_BUFFER_SIZE]);
+int DeleteSessionKeyData(const SessionKey* key);
 
 #endif /* _Executor_SessionKey_h */

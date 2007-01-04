@@ -53,8 +53,7 @@ SOURCES = \
     Child.c \
     Fatal.c \
     Parent.c \
-    Globals.c \
-    PAMAuth.c
+    Globals.c
 
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
     FLAGS += -pedantic -ansi -Werror

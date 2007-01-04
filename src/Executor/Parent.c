@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -663,7 +664,10 @@ static void HandleStartLocalAuthRequest(int sock)
     status = StartLocalAuthentication(request.user, path, &key);
 
     if (status != 0)
-        Log(LL_WARNING, "Local user authentication failed on %s", request.user);
+    {
+        Log(LL_WARNING, "Local authentication failed for user \"%s\"", 
+            request.user);
+    }
 
     /* Send response message. */
 
@@ -687,7 +691,6 @@ static void HandleStartLocalAuthRequest(int sock)
 static void HandleFinishLocalAuthRequest(int sock)
 {
     SessionKey key;
-    SessionKey newKey;
     int status;
     struct ExecutorFinishLocalAuthResponse response;
 
@@ -705,34 +708,22 @@ static void HandleFinishLocalAuthRequest(int sock)
 
     Strlcpy(key.data, request.key, sizeof(key.data));
 
-    status = FinishLocalAuthentication(&key, request.token, &newKey);
+    status = FinishLocalAuthentication(&key, request.token);
 
     /* Log result. */
 
+    if (status != 0)
     {
         int uid;
-        char username[EXECUTOR_BUFFER_SIZE] = { '\0' };
+        GetSessionKeyUid(&key, &uid);
 
-        GetSessionKeyUid(&newKey, &uid);
-        GetSessionKeyUsername(&newKey, username);
-
-        if (status != 0)
-        {
-            Log(LL_WARNING, "Local authentication failed for user \"%s\" (%d)", 
-                username, uid);
-        }
-        else
-        {
-            Log(LL_TRACE, "Local authentication suceeded for user \"%s\" (%d)", 
-                username, uid);
-        }
+        Log(LL_WARNING, "Local authentication failed for uid=%d", uid);
     }
 
     /* Send response. */
 
     memset(&response, 0, sizeof(response));
     response.status = status;
-    Strlcpy(response.key, newKey.data, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");

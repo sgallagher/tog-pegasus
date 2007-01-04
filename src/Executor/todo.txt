@@ -8,10 +8,9 @@
 
     (A) Implement policy.
 
-    BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+    (A) Check SessionKey in HandleStartAgenProvider().
 
-    (B) Log username when HandleStartLocalAuth() or HandleFinishLocalAuth()
-        fail.
+    BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
     (B) Test on Windows.
 
@@ -38,3 +37,4 @@
 
     (C) Consider disabling delay in PAM module so that it can be moved into
         the server.
+

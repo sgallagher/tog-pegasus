@@ -269,19 +269,13 @@ int StartLocalAuthentication(
 
 int FinishLocalAuthentication(
     const SessionKey* key,
-    const char* token,
-    SessionKey* newKey)
+    const char* token)
 {
     void* data = 0;
-    int uid;
 
     /* Get session key data (the path). */
 
     if (GetSessionKeyData(key, &data) != 0)
-        return -1;
-
-
-    if (GetSessionKeyUid(key, &uid) != 0)
         return -1;
 
     /* Check token against the one in the file. */
@@ -292,14 +286,10 @@ int FinishLocalAuthentication(
         return -1;
     }
 
-    /* Delete session key (and file). */
+    /* Delete session key data. */
 
-    if (DeleteSessionKey(key) != 0)
+    if (DeleteSessionKeyData(key) != 0)
         return -1;
-
-    /* Create new session key. */
-
-    *newKey = NewSessionKey(uid, 0, 0);
 
     return 0;
 }

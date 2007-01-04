@@ -44,7 +44,6 @@ int StartLocalAuthentication(
 
 int FinishLocalAuthentication(
     const SessionKey* key,
-    const char* token,
-    SessionKey* newKey);
+    const char* token);
 
 #endif /* _Executor_LocalAuth_h */

@@ -230,28 +230,29 @@ int GetSessionKeyUid(const SessionKey* key, int* uid)
 /*
 **==============================================================================
 **
-** GetSessionKeyUsername()
+** DeleteSessionKeyData()
 **
-**     Get the username from the SessionKey.
+**     Find and delete the given session key's data and nullify the data and
+**     and destructor pointers.
 **
 **==============================================================================
 */
 
-int GetSessionKeyUsername(
-    const SessionKey* key,
-    char username[EXECUTOR_BUFFER_SIZE])
+int DeleteSessionKeyData(const SessionKey* key)
 {
-    int uid;
+    SessionKeyEntry* p = _lookup(key);
 
-    /* Lookup uid */
-
-    if (GetSessionKeyUid(key, &uid) != 0)
+    if (p)
     {
-        username[0] = '\0';
-        return -1;
+        if (p->destructor)
+            (*p->destructor)(p->data);
+
+        p->data = NULL;
+        p->destructor = NULL;
+
+        return 0;
     }
 
-    /* Lookup username */
-
-    return GetUserName(uid, username);
+    /* Not found. */
+    return -1;
 }

@@ -35,7 +35,7 @@ DIR = Executor
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = zzz_cimserver
+PROGRAM = cimserver
 
 SOURCES = \
     main.cpp \

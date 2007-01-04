@@ -13,6 +13,7 @@
 #include "Time.h"
 #include "SessionKey.h"
 #include "Log.h"
+#include "User.h"
 
 static const int TOKEN_LENGTH = 40;
 
@@ -191,6 +192,14 @@ int StartLocalAuthentication(
     char path[EXECUTOR_BUFFER_SIZE],
     SessionKey* key)
 {
+    // Get uid:
+
+    int uid;
+    int gid;
+
+    if (GetUserInfo(user, uid, gid) != 0)
+        return -1;
+
     // Create the local authentication file.
 
     if (CreateLocalAuthFile(user, path) != 0)
@@ -200,7 +209,7 @@ int StartLocalAuthentication(
 
     // Create the session key (associated with path).
 
-    *key = NewSessionKey(strdup(path), _destructor);
+    *key = NewSessionKey(uid, strdup(path), _destructor);
 
     return 0;
 }
@@ -225,6 +234,11 @@ int FinishLocalAuthentication(
     if (GetSessionKeyData(key, &data) != 0)
         return -1;
 
+    int uid;
+
+    if (GetSessionKeyUid(key, &uid) != 0)
+        return -1;
+
     // Check token against the one in the file.
 
     if (CheckLocalAuthToken((const char*)data, token) != 0)
@@ -240,7 +254,7 @@ int FinishLocalAuthentication(
 
     // Create new session key.
 
-    *newKey = NewSessionKey(0, 0);
+    *newKey = NewSessionKey(uid, 0, 0);
 
     return 0;
 }

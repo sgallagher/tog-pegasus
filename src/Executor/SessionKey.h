@@ -58,4 +58,8 @@ int GetSessionKeyData(const SessionKey* key, void** data);
 
 int DeleteSessionKeyData(const SessionKey* key);
 
+int SetSessionKeyAuthenticated(const SessionKey* key);
+
+int GetSessionKeyAuthenticated(const SessionKey* key, int* authenticated);
+
 #endif /* _Executor_SessionKey_h */

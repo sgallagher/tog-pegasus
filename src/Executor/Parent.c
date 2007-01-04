@@ -701,18 +701,18 @@ static void HandleFinishLocalAuthRequest(int sock)
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
-    Log(LL_TRACE, "HandleFinishLocalAuthRequest(): key=%s token=%s",
-        request.key, request.token);
+    Log(LL_TRACE, "HandleFinishLocalAuthRequest(): key=%s", request.key);
 
     /* Peform operation. */
 
     Strlcpy(key.data, request.key, sizeof(key.data));
-
     status = FinishLocalAuthentication(&key, request.token);
 
     /* Log result. */
 
-    if (status != 0)
+    if (status == 0)
+        SetSessionKeyAuthenticated(&key);
+    else
     {
         int uid;
         GetSessionKeyUid(&key, &uid);
@@ -843,7 +843,7 @@ void Parent(int sock, int childPid)
         }
     }
 
-    /* Reached due to socket EOF or SIGTERM. */
+    /* Reached due to socket EOF, SIGTERM, or SIGINT. */
 
     Exit(0);
 }

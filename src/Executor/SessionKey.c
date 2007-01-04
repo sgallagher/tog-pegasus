@@ -32,15 +32,16 @@
 */
 
 #include <string.h>
-#include "SessionKey.h"
 #include "Random.h"
 #include "Fatal.h"
 #include "User.h"
+#include "SessionKey.h"
 
 typedef struct SessionKeyEntryStruct
 {
     SessionKey key;
     int uid;
+    int authenticated;
     void* data;
     void (*destructor)(void*);
     struct SessionKeyEntryStruct* next;
@@ -118,8 +119,9 @@ SessionKey NewSessionKey(
 
     entry = (SessionKeyEntry*)malloc(sizeof(SessionKeyEntry));
     entry->key = key;
-    entry->data = data;
     entry->uid = uid;
+    entry->authenticated = 0;
+    entry->data = data;
     entry->destructor = destructor;
 
     /* Prepend entry to list. */
@@ -256,3 +258,52 @@ int DeleteSessionKeyData(const SessionKey* key)
     /* Not found. */
     return -1;
 }
+
+/*
+**==============================================================================
+**
+** SetSessionKeyAuthenticated()
+**
+**     Set the authenticated flag in the session key.
+**
+**==============================================================================
+*/
+
+int SetSessionKeyAuthenticated(const SessionKey* key)
+{
+    SessionKeyEntry* p = _lookup(key);
+
+    if (p)
+    {
+        p->authenticated = 1;
+        return 0;
+    }
+
+    /* Not found. */
+    return -1;
+}
+
+/*
+**==============================================================================
+**
+** GetSessionKeyAuthenticated()
+**
+**     Get the authenticated flag for the given session key.
+**
+**==============================================================================
+*/
+
+int GetSessionKeyAuthenticated(const SessionKey* key, int* authenticated)
+{
+    SessionKeyEntry* p = _lookup(key);
+
+    if (p)
+    {
+        *authenticated = p->authenticated;
+        return 0;
+    }
+
+    /* Not found. */
+    return -1;
+}
+

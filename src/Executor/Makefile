@@ -72,3 +72,5 @@ ff:
 kloc:
 	kloc -d -f
 
+auth:
+	cimserver enableAuthentication=true daemon=false logLevel=TRACE

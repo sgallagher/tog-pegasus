@@ -3,14 +3,12 @@
 
     (A) Test SSL client certificate authentication.
 
-    (A) Rework to that PG_ProviderModule.userContext=5 (CIM server) causes
-        provider agent to run as server user.
+    (A) Rework so that PG_ProviderModule.userContext=5 (CIM server) causes
+        provider agent to run as server user (fix related tests).
 
     (A) Implement policy.
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-
-    (B) Add username to session key cache.
 
     (B) Log username when HandleStartLocalAuth() or HandleFinishLocalAuth()
         fail.

@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -27,35 +28,38 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef _Executor_Bit_h
 #define _Executor_Bit_h
 
-//==============================================================================
-//
-// SetBit()
-//
-//     Set the n-th bit the the given mask.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** SetBit()
+**
+**     Set the n-th bit the the given mask.
+**
+**==============================================================================
+*/
 
-inline void SetBit(unsigned long& mask, int n)
+static void SetBit(unsigned long* mask, int n)
 {
-    mask |= (1 << n);
+    *mask |= (1 << n);
 }
 
-//==============================================================================
-//
-// TstBit()
-//
-//     Test the n-th bit the the given mask.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** TstBit()
+**
+**     Test the n-th bit the the given mask.
+**
+**==============================================================================
+*/
 
-inline bool TstBit(unsigned long mask, int n)
+static int TstBit(unsigned long mask, int n)
 {
     return mask & (1 << n);
 }

@@ -30,103 +30,142 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
-
-#ifndef _Executor_Defines_h
-#define _Executor_Defines_h
-
-#include <Pegasus/Common/Constants.h>
-
-#define TRACE printf("TRACE: %s(%d)\n", __FILE__, __LINE__)
-
-/*
-**==============================================================================
-**
-** EXECUTOR_RESTART()
-**
-**     Macro used to repeatedly restart (retry) a system call as long as the
-**     errno is EINTR.
-**
-**==============================================================================
-*/
-
-#define EXECUTOR_RESTART(F, X) while (((X = (F)) == -1) && (errno == EINTR))
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <string.h>
+#include "File.h"
+#include "User.h"
+#include "Log.h"
+#include "Strlcpy.h"
+#include "Strlcat.h"
 
 /*
 **==============================================================================
 **
-** EXECUTOR_BUFFER_SIZE
+** ChangeOwner()
 **
-**     General purpose buffer size (large enough for any file path or user
-**     name).
+**     Change the given file's owner.
 **
 **==============================================================================
 */
 
-#define EXECUTOR_BUFFER_SIZE 4096
+int ChangeOwner(const char* path, const char* owner)
+{
+    int uid;
+    int gid;
+
+    if (GetUserInfo(owner, &uid, &gid) != 0)
+        return -1;
+
+    /* Flawfinder: ignore */
+    if (chown(path, uid, gid) != 0)
+    {
+        Log(LL_TRACE, "chown(%s, %d, %d) failed", path, uid, gid);
+        return -1;
+    }
+
+    return 0;
+}
 
 /*
 **==============================================================================
 **
-** FL
-**
-**     Shorthand macro for passing __FILE__ and __LINE__ arguments to a
-**     function.
+** ChangeDirOwnerRecursive()
 **
 **==============================================================================
 */
 
-#define FL __FILE__, __LINE__
+int ChangeDirOwnerRecursive(
+    const char* path,
+    int uid,
+    int gid)
+{
+    struct dirent* ent;
+    DIR* dir;
+
+    /* Change permission of this direcotry. */
+
+    /* Flawfinder: ignore */
+    if (chown(path, uid, gid) != 0)
+        return -1;
+
+    /* Open directory: */
+
+    dir = opendir(path);
+
+    if (dir == NULL)
+        return -1;
+
+    /* For each node in this directory: */
+
+    while ((ent = readdir(dir)) != NULL)
+    {
+        struct stat st;
+        char buffer[EXECUTOR_BUFFER_SIZE];
+
+        /* Skip over "." and ".." */
+
+        const char* name = ent->d_name;
+
+        if (strcmp(name, ".")  == 0 || strcmp(name, "..") == 0)
+            continue;
+
+        /* Build full path name for this file. */
+
+        Strlcpy(buffer, path, EXECUTOR_BUFFER_SIZE);
+        Strlcat(buffer, "/", EXECUTOR_BUFFER_SIZE);
+        Strlcat(buffer, name, EXECUTOR_BUFFER_SIZE);
+
+        /* Determine file type (skip soft links and directories). */
+
+        if (lstat(buffer, &st) == -1)
+            return -1;
+
+        /* If it's a directory, save the name. */
+
+        if (S_ISDIR(st.st_mode))
+        {
+            ChangeDirOwnerRecursive(buffer, uid, gid);
+            continue;
+        }
+
+        /* Skip soft links. */
+
+        if (S_ISLNK(st.st_mode))
+            continue;
+
+        /* Process the current file. */
+
+        /* Flawfinder: ignore */
+        if (chown(buffer, uid, gid) != 0)
+            return -1;
+    }
+
+    /* Close this directory. */
+
+    closedir(dir);
+
+    return 0;
+}
 
 /*
 **==============================================================================
 **
-** CIMSERVERMAIN
+** AccessDir()
 **
-**     The name of the main CIM server program.
-**
-**==============================================================================
-*/
-
-#define CIMSERVERMAIN "cimservermain"
-
-/*
-**==============================================================================
-**
-** CIMSHUTDOWN
-**
-**     The name of the main CIM shutdown program.
+**     Returns 0 if able to stat given path and it is a directory.
 **
 **==============================================================================
 */
 
-#define CIMSHUTDOWN "cimshutdown"
+int AccessDir(const char* path)
+{
+    struct stat st;
 
-/*
-**==============================================================================
-**
-** CIMPROVAGT
-**
-**     The name of the provider agent program.
-**
-**==============================================================================
-*/
+    if (stat(path, &st) != 0 || !S_ISDIR(st.st_mode))
+        return -1;
 
-#define CIMPROVAGT "cimprovagt"
-
-/*
-**==============================================================================
-**
-** EXECUTOR_FINGERPRINT
-**
-**     The executor passes this "fingerprint" as the first command line 
-**     argument when executing internal Pegasus programs such as cimservermain
-**     and cimshutdown. This is to prevent inadvertant execution of these
-**     programs by end users. Note that this is not a security measure. It is
-**     only a way to make it inconvenient to execute internal programs.
-**
-**==============================================================================
-*/
-
-#define EXECUTOR_FINGERPRINT "E97B2271E0E94DA8A2533FF9A9AA9443"
-
-#endif /* _Executor_Defines_h */
+    return 0;
+}

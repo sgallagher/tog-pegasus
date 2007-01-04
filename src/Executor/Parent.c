@@ -1,40 +1,40 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
-
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <string.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -47,20 +47,14 @@
 #include "Globals.h"
 #include "Path.h"
 #include "User.h"
+#include "Bit.h"
+#include "File.h"
 #include "Exit.h"
 #include "Strlcpy.h"
 #include "LocalAuth.h"
-#include "Strlcat.h"
-#include "PasswordFile.h"
-#include "Policy.h"
-#include "Macro.h"
-#include "FileHandle.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
-# include "PAMAuth.h"
-#else
-/* PAM_SUCCESS is defined to 0 by PAM */
-#define PAM_SUCCESS 0
+#include <Pegasus/Security/Cimservera/cimservera.h>
 #endif
 
 /*
@@ -75,45 +69,7 @@
 
 static void _sigHandler(int signum)
 {
-    globals.signalMask |= (1UL << signum);
-}
-
-/*
-**==============================================================================
-**
-** ReadExecutorRequest()
-**
-**     Read a request of the specified size from the specified socket into the
-**     buffer provided.
-**
-**==============================================================================
-*/
-
-static void ReadExecutorRequest(int sock, void* buffer, size_t size)
-{
-    if (RecvNonBlock(sock, buffer, size) != (ssize_t)size)
-    {
-        Fatal(FL, "Failed to read request");
-    }
-}
-
-/*
-**==============================================================================
-**
-** WriteExecutorResponse()
-**
-**     Write a response of the specified size from the given buffer onto the
-**     specified socket.
-**
-**==============================================================================
-*/
-
-static void WriteExecutorResponse(int sock, const void* buffer, size_t size)
-{
-    if (SendNonBlock(sock, buffer, size) != (ssize_t)size)
-    {
-        Fatal(FL, "Failed to write response");
-    }
+    SetBit(&globalSignalMask, signum);
 }
 
 /*
@@ -128,14 +84,12 @@ static void WriteExecutorResponse(int sock, const void* buffer, size_t size)
 
 static void HandlePingRequest(int sock)
 {
-    struct ExecutorPingResponse response;
-
-    memset(&response, 0, sizeof(response));
-    response.magic = EXECUTOR_PING_MAGIC;
+    struct ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
 
     Log(LL_TRACE, "HandlePingRequest()");
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
@@ -150,101 +104,54 @@ static void HandlePingRequest(int sock)
 
 static void HandleOpenFileRequest(int sock)
 {
-    struct ExecutorOpenFileRequest request;
-    struct ExecutorOpenFileResponse response;
     int fd;
+    struct ExecutorOpenFileResponse response;
+
+    /* Read the request request. */
+
+    struct ExecutorOpenFileRequest request;
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    /* Open the file. */
+
+    Log(LL_TRACE, "HandleOpenFileRequest(): path=%s", request.path);
+
+    fd = -1;
+
+    switch (request.mode)
+    {
+        case 'r':
+            fd = open(request.path, O_RDONLY);
+            break;
+
+        case 'w':
+            fd = open(
+                request.path, 
+                O_WRONLY | O_CREAT | O_TRUNC,
+                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+            break;
+    }
+
+    /* Send response message. */
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request message. */
-
-    ReadExecutorRequest(sock, &request, sizeof(request));
-
-    /* Log the request. */
-
-    Log(LL_TRACE, "HandleOpenFileRequest(): path=\"%s\", mode='%c'",
-        request.path, request.mode);
-
-    /* Perform the operation. */
-
-    response.status = 0;
-    fd = -1;
-
-    do
+    if (fd == -1)
     {
-        /* Check the policy. */
-
-        unsigned long permissions = 0;
-
-        if (CheckOpenFilePolicy(request.path, request.mode, &permissions) != 0)
-        {
-            response.status = -1;
-            break;
-        }
-
-        /* Open file. */
-
-        switch (request.mode)
-        {
-            case 'r':
-                fd = open(request.path, O_RDONLY);
-                break;
-
-            case 'w':
-                fd = open(
-                    request.path,
-                    O_WRONLY | O_TRUNC,
-                    permissions);
-                break;
-
-            case 'a':
-            {
-                fd = open(
-                    request.path,
-                    O_WRONLY | O_APPEND,
-                    permissions);
-                break;
-            }
-        }
-        /* If the open call fails with ENOENT errno,then create the file.
-        If the umask is set to a non default value,then the file will not
-        get created with permissions specified in the open system call.
-        So set the permissions for the file explicitly using fchmod.
-        */
-        if (fd == -1)
-        {
-            if (errno == ENOENT && (request.mode == 'w' || request.mode == 'a'))
-            {
-                fd = open(request.path,O_CREAT | O_WRONLY,permissions);
-                if (fchmod(fd,permissions) != 0)
-                {
-                    response.status = -1;
-                    close(fd);
-                }
-            }
-            else
-            {
-                response.status = -1;
-            }
-        }
+        Log(LL_WARNING, "open(%s, %c) failed", request.path, request.mode);
+        response.status = -1;
     }
-    while (0);
+    else
+        response.status = 0;
 
-    /* Log failure. */
-
-    if (response.status != 0)
-    {
-        Log(LL_WARNING, "open(\"%s\", '%c') failed",
-            request.path, request.mode);
-    }
-
-    /* Send response. */
-
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 
     /* Send descriptor to calling process (if any to send). */
 
-    if (response.status == 0)
+    if (fd != -1)
     {
         int descriptors[1];
         descriptors[0] = fd;
@@ -268,18 +175,30 @@ static void HandleStartProviderAgentRequest(int sock)
     int to[2];
     int from[2];
     struct ExecutorStartProviderAgentResponse response;
-    struct ExecutorStartProviderAgentRequest request;
-
-    memset(&response, 0, sizeof(response));
 
     /* Read request. */
 
-    ReadExecutorRequest(sock, &request, sizeof(request));
+    struct ExecutorStartProviderAgentRequest request;
 
-    /* Log request. */
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
 
-    Log(LL_TRACE, "HandleStartProviderAgentRequest(): "
-        "module=%s userName=%s", request.module, request.userName);
+    Log(LL_TRACE, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
+        request.module, request.gid, request.uid);
+
+    /*
+     * Map cimservermain user to root to preserve pre-privilege-separation
+     * behavior.
+     */
+
+    if (request.uid == globalChildUid)
+    {
+        Log(LL_TRACE, 
+            "using root instead of cimservermain user for cimprovagt");
+
+        request.uid = 0;
+        request.gid = 0;
+    }
 
     /* Process request. */
 
@@ -288,44 +207,12 @@ static void HandleStartProviderAgentRequest(int sock)
 
     do
     {
-        /* Resolve full path of CIMPROVAGT. */
+        /* Resolve full path of "cimprovagt". */
 
-        const char* path;
+        char path[EXECUTOR_BUFFER_SIZE];
 
-        if (request.moduleBitness == BITNESS_DEFAULT)
-        {
-            if ((path = FindMacro("cimprovagtPath")) == NULL)
-                Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
-        }
-        else if (request.moduleBitness == BITNESS_32)
-        {
-            if ((path = FindMacro("cimprovagt32Path")) == NULL)
-                Fatal(FL, "Failed to locate %s program", CIMPROVAGT32);
-        }
-        else
-        {
-            status = -1;
-            break;
-        }
-#if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
-
-        /* Look up the user ID and group ID of the specified user. */
-
-        int uid;
-        int gid;
-        if (GetUserInfo(request.userName, &uid, &gid) != 0)
-        {
-            Log(LL_WARNING, "User %s does not exist on this system, " 
-                "hence cannot start the provider agent %s", 
-                request.userName, request.module);
-            status = -1;
-            break;
-        }
-
-        Log(LL_TRACE, "cimprovagt user context: "
-            "userName=%s uid=%d gid=%d", request.userName, uid, gid);
-
-#endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+        if (GetInternalPegasusProgramPath(CIMPROVAGT, path) != 0)
+            Fatal(FL, "Failed to locate Pegasus program: %s", CIMPROVAGT);
 
         /* Create "to-agent" pipe: */
 
@@ -339,8 +226,6 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pipe(from) != 0)
         {
-            close(to[0]);
-            close(to[1]);
             status = -1;
             break;
         }
@@ -351,11 +236,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pid < 0)
         {
-            Log(LL_SEVERE, "fork failed");
-            close(to[0]);
-            close(to[1]);
-            close(from[0]);
-            close(from[1]);
+            /* ATTN: log this. */
             status = -1;
             break;
         }
@@ -364,88 +245,89 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pid == 0)
         {
-            char toPipeArg[32];
-            char fromPipeArg[32];
-            /* The user context is set here; no need to do it in cimprovagt. */
-            const char* setUserContextFlag = "0";
+            char username[EXECUTOR_BUFFER_SIZE];
+            struct rlimit rlim;
+            char arg1[32];
+            char arg2[32];
 
             /* Close unused pipe descriptors: */
 
             close(to[1]);
             close(from[0]);
 
-            /* Redirect terminal I/O if required and not yet daemonized. */
-
-            if (globals.initCompletePipe != -1 && !globals.bindVerbose)
-            {
-                RedirectTerminalIO();
-            }
-
-            /*
+            /* 
              * Close unused descriptors. Leave stdin, stdout, stderr, and the
-             * child's pipe descriptors open.
+             * child's pipe descriptors open. 
              */
 
-            CloseUnusedDescriptors(to[0], from[1]);
 
-#if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+            if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
+            {
+                int i;
 
-            SetUserContext(request.userName, uid, gid);
+                for (i = 3; i < (int)rlim.rlim_cur; i++)
+                {
+                    if (i != to[0] && i != from[1])
+                        close(i);
+                }
+            }
 
-            Log(LL_TRACE, "starting %s on module %s as user %s",
-                path, request.module, request.userName);
+# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
-#endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+            if (request.uid != -1 && request.gid != -1)
+            {
+                if ((int)getgid() != request.gid)
+                {
+                    if (setgid(request.gid) != 0)
+                        Log(LL_SEVERE, "setgid(%d) failed\n", request.gid);
+                }
 
-            /* Exec the CIMPROVAGT program. */
+                if ((int)getuid() != request.uid)
+                {
+                    if (setuid(request.uid) != 0)
+                        Log(LL_SEVERE, "setuid(%d) failed\n", request.uid);
+                }
+            }
 
-            sprintf(toPipeArg, "%d", to[0]);
-            sprintf(fromPipeArg, "%d", from[1]);
+            if (GetUserName(getuid(), username) != 0)
+                Fatal(FL, "failed to resolve username for uid=%d", getuid());
 
-            Log(LL_TRACE, "execl(%s, %s, %s, %s, %s, %s, %s)\n",
-                path,
-                path,
-                setUserContextFlag,
-                toPipeArg,
-                fromPipeArg,
-                request.userName,
-                request.module);
+            Log(LL_INFORMATION, "starting %s on module %s as user %s",
+                path, request.module, username);
+
+# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+
+            /* Exec the cimprovagt program. */
+
+            sprintf(arg1, "%d", to[0]);
+            sprintf(arg2, "%d", from[1]);
+
+            Log(LL_TRACE, "execl(%s, %s, %s, %s, %s)\n",
+                path, path, arg1, arg2, request.module);
 
             /* Flawfinder: ignore */
-            execl(
-                path,
-                path,
-                setUserContextFlag,
-                toPipeArg,
-                fromPipeArg,
-                request.userName,
-                request.module,
-                (char*)0);
+            execl(path, path, arg1, arg2, request.module, (char*)0);
 
-            Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s, %s, %s): failed\n",
-                path,
-                path,
-                setUserContextFlag,
-                toPipeArg,
-                fromPipeArg,
-                request.userName,
-                request.module);
-            _exit(1);
+            Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s): failed\n",
+                path, path, arg1, arg2, request.module);
+
+            return;
         }
-
-        /* We are the parent process.  Close the child's ends of the pipes. */
-
-        close(to[0]);
-        close(from[1]);
     }
     while (0);
+
+    /* Close unused pipe descriptors. */
+
+    close(to[0]);
+    close(from[1]);
 
     /* Send response. */
 
     response.status = status;
     response.pid = pid;
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 
     /* Send descriptors to calling process. */
 
@@ -471,29 +353,59 @@ static void HandleStartProviderAgentRequest(int sock)
 
 static void HandleDaemonizeExecutorRequest(int sock)
 {
-    struct ExecutorDaemonizeExecutorResponse response;
+    struct ExecutorDaemonizeExecutorResponse response = { 0 };
+    int pid;
 
-    memset(&response, 0, sizeof(response));
+    /* ATTN: do we need to call setsid()? */
+    /* ATTN: do we need to fork twice? */
+    /* ATTN: compare with Stevens daemonization example. */
 
     Log(LL_TRACE, "HandleDaemonizeExecutorRequest()");
 
-    if (!globals.bindVerbose)
+    /* Fork: */
+
+    pid = fork();
+
+    if (pid < 0)
     {
-        RedirectTerminalIO();
+        response.status = -1;
+        Fatal(FL, "fork() failed");
+
+        if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+            Fatal(FL, "failed to write response");
     }
 
-    if (globals.initCompletePipe != -1)
-    {
-        ssize_t result;
+    /* Parent exits: */
 
-        EXECUTOR_RESTART(write(globals.initCompletePipe, "\0", 1), result);
-        close(globals.initCompletePipe);
-        globals.initCompletePipe = -1;
-    }
+    if (pid > 0)
+        exit(0);
 
-    response.status = 0;
+    /* Ignore SIGHUP: */
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    signal(SIGHUP, SIG_IGN);
+
+    /* Catch SIGTERM: */
+
+    signal(SIGTERM, _sigHandler);
+
+    /* Set current directory to root: */
+
+    chdir("/");
+
+    /* Close these file descriptors (stdin, stdout, stderr). */
+
+    close(0);
+    close(1);
+    close(2);
+
+    /* Direct standard input, output, and error to /dev/null: */
+
+    open("/dev/null", O_RDONLY);
+    open("/dev/null", O_RDWR);
+    open("/dev/null", O_RDWR);
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
@@ -506,47 +418,52 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
 static void HandleRenameFileRequest(int sock)
 {
+    int status;
     struct ExecutorRenameFileResponse response;
     struct ExecutorRenameFileRequest request;
 
-    memset(&response, 0, sizeof(response));
+    /* Read the request request. */
 
-    /* Read the request message. */
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
 
-    ReadExecutorRequest(sock, &request, sizeof(request));
+    /* Rename the file. */
 
-    /* Log request. */
-
-    Log(LL_TRACE, "HandleRenameFileRequest(): oldPath=%s newPath=%s",
+    Log(LL_TRACE, "HandleRenameFileRequest(): oldPath=%s newPath=%s", 
         request.oldPath, request.newPath);
 
     /* Perform the operation: */
 
-    response.status = 0;
+    status = -1;
 
     do
     {
-        /* Check the policy. */
+        unlink(request.newPath);
 
-        if (CheckRenameFilePolicy(request.oldPath, request.newPath) != 0)
+        if (link(request.oldPath, request.newPath) != 0)
         {
-            response.status = -1;
+            Log(LL_WARNING, 
+                "link(%s, %s) failed", request.oldPath, request.newPath);
             break;
         }
 
-        /* Rename the file. */
-
-        if (rename(request.oldPath, request.newPath) != 0)
+        if (unlink(request.oldPath) != 0)
         {
-            response.status = -1;
+            Log(LL_WARNING, "unlink(%s) failed", request.oldPath);
             break;
         }
+
+        status = 0;
     }
     while (0);
 
     /* Send response message. */
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
@@ -559,309 +476,248 @@ static void HandleRenameFileRequest(int sock)
 
 static void HandleRemoveFileRequest(int sock)
 {
+    int status;
     struct ExecutorRemoveFileRequest request;
     struct ExecutorRemoveFileResponse response;
 
-    memset(&response, 0, sizeof(response));
+    /* Read the request request. */
 
-    /* Read the request message. */
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
 
-    ReadExecutorRequest(sock, &request, sizeof(request));
-
-    /* Log request. */
+    /* Remove the file. */
 
     Log(LL_TRACE, "HandleRemoveFileRequest(): path=%s", request.path);
 
-    response.status = 0;
+    status = unlink(request.path);
 
-    do
-    {
-        /* Check the policy. */
-
-        if (CheckRemoveFilePolicy(request.path) != 0)
-        {
-            response.status = -1;
-            break;
-        }
-
-        /* Remove the file. */
-
-        if (unlink(request.path) != 0)
-        {
-            response.status = -1;
-            Log(LL_WARNING, "unlink(%s) failed", request.path);
-            break;
-        }
-    }
-    while (0);
+    if (status != 0)
+        Log(LL_WARNING, "unlink(%s) failed", request.path);
 
     /* Send response message. */
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
 **==============================================================================
 **
-** HandleAuthenticatePasswordRequest()
+** HandleWaitPidRequest()
 **
 **==============================================================================
 */
 
-static void HandleAuthenticatePasswordRequest(int sock)
+static void HandleWaitPidRequest(int sock)
 {
     int status;
-    struct ExecutorAuthenticatePasswordRequest request;
-    struct ExecutorAuthenticatePasswordResponse response;
+    struct ExecutorWaitPidRequest request;
+    struct ExecutorWaitPidResponse response;
+
+    /* Read the request request. */
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    /* Wait on the PID: */
+
+    Log(LL_TRACE, "HandleWaitPidRequest(): pid=%d", request.pid);
+
+    EXECUTOR_RESTART(waitpid(request.pid, 0, 0), status);
+
+    if (status == -1)
+        Log(LL_WARNING, "waitpid(%d, 0, 0) failed", request.pid);
+
+    /* Send response message. */
 
     memset(&response, 0, sizeof(response));
+    response.status = status;
 
-    /* Read the request message. */
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
 
-    ReadExecutorRequest(sock, &request, sizeof(request));
+/*
+**==============================================================================
+**
+** HandlePAMAuthenticateRequest()
+**
+**==============================================================================
+*/
 
-    /* Log request. */
+static void HandlePAMAuthenticateRequest(int sock)
+{
+    int status;
+    struct ExecutorPAMAuthenticateResponse response;
 
-    Log(LL_TRACE, "HandleAuthenticatePasswordRequest(): username=%s",
+    /* Read the request request. */
+
+    struct ExecutorPAMAuthenticateRequest request;
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    /* Rename the file. */
+
+    Log(LL_TRACE, "HandlePAMAuthenticateRequest(): username=%s",
         request.username);
 
     /* Perform the operation: */
 
-    status = 0;
-
-    do
-    {
-
 #if defined(PEGASUS_PAM_AUTHENTICATION)
+    status = PAMAuthenticate(request.username, request.password);
+#else
+    status = -1;
+#endif
 
-        status = PAMAuthenticate(request.username, request.password);
-
-        if (status == PAM_SUCCESS)
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, successful.",
-                request.username);
-        }
-        else
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, failed with PAM return code= %d.",
-                request.username,
-                status);
-        }
-        
-#else /* !PEGASUS_PAM_AUTHENTICATION */
-
-        {
-            int gid;
-            int uid;
-            if (GetUserInfo(request.username, &uid, &gid) != 0)
-            {
-                status = -1;
-                break;
-            }
-
-            const char* path = FindMacro("passwordFilePath");
-
-            if (!path)
-            {
-                status = -1;
-                break;
-            }
-
-            if (CheckPasswordFile(
-                path, request.username, request.password) != 0)
-            {
-                status = -1;
-                break;
-            }
-        }
-
-        Log(LL_TRACE, "Basic authentication attempt: username = %s, "
-            "successful = %s",
-            request.username, status == PAM_SUCCESS ? "TRUE" : "FALSE" );
-
-#endif /* !PEGASUS_PAM_AUTHENTICATION */
+    if (status != 0)
+    {
+        Log(LL_WARNING, "PAM authentication failed for username %s", 
+            request.username);
     }
-    while (0);
+    else
+    {
+        Log(LL_INFORMATION, "PAM authentication succeeded for username %s", 
+            request.username);
+    }
 
     /* Send response message. */
 
+    memset(&response, 0, sizeof(response));
     response.status = status;
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
 **==============================================================================
 **
-** HandleValidateUserRequest()
+** HandlePAMValidateUserRequest()
 **
 **==============================================================================
 */
 
-static void HandleValidateUserRequest(int sock)
+static void HandlePAMValidateUserRequest(int sock)
 {
     int status;
-    struct ExecutorValidateUserResponse response;
-    struct ExecutorValidateUserRequest request;
+    struct ExecutorPAMValidateUserResponse response;
+    struct ExecutorPAMValidateUserRequest request;
 
-    memset(&response, 0, sizeof(response));
+    /* Read the request request. */
 
-    /* Read the request message. */
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
 
-    ReadExecutorRequest(sock, &request, sizeof(request));
+    /* Validate the user with PAM. */
 
-    /* Validate the user. */
-
-    Log(LL_TRACE,
-        "HandleValidateUserRequest(): username=%s", request.username);
-
-    /* Get the uid for the username. */
-
-    status = 0;
+    Log(LL_TRACE, 
+        "HandlePAMValidateUserRequest(): username=%s", request.username);
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
-
     status = PAMValidateUser(request.username);
+#else
+    status = -1;
+#endif
 
-#else /* !PEGASUS_PAM_AUTHENTICATION */
-
-    do
-    {
-        const char* path = FindMacro("passwordFilePath");
-
-        if (!path)
-        {
-            status = -1;
-            break;
-        }
-
-        if (CheckPasswordFile(path, request.username, NULL) != 0)
-        {
-            status = -1;
-            break;
-        }
-    }
-    while (0);
-
-#endif /* !PEGASUS_PAM_AUTHENTICATION */
+    if (status != 0)
+        Log(LL_WARNING, "PAM user validation failed on %s", request.username);
 
     /* Send response message. */
-
-    response.status = status;
-
-    WriteExecutorResponse(sock, &response, sizeof(response));
-}
-
-/*
-**==============================================================================
-**
-** HandleChallengeLocalRequest()
-**
-**==============================================================================
-*/
-
-static void HandleChallengeLocalRequest(int sock)
-{
-    char challenge[EXECUTOR_BUFFER_SIZE];
-    struct ExecutorChallengeLocalRequest request;
-    struct ExecutorChallengeLocalResponse response;
 
     memset(&response, 0, sizeof(response));
+    response.status = status;
 
-    /* Read the request message. */
-
-    ReadExecutorRequest(sock, &request, sizeof(request));
-
-    Log(LL_TRACE, "HandleChallengeLocalRequest(): user=%s", request.user);
-
-    /* Perform operation. */
-
-    response.status = StartLocalAuthentication(request.user, challenge);
-
-    /* Send response message. */
-
-    if (response.status == 0)
-    {
-        Strlcpy(response.challenge, challenge, sizeof(response.challenge));
-    }
-
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
 **==============================================================================
 **
-** HandleAuthenticateLocalRequest()
+** HandleStartLocalAuthRequest()
 **
 **==============================================================================
 */
 
-static void HandleAuthenticateLocalRequest(int sock)
+static void HandleStartLocalAuthRequest(int sock)
 {
+    char path[EXECUTOR_BUFFER_SIZE];
+    SessionKey key;
     int status;
-    struct ExecutorAuthenticateLocalRequest request;
-    struct ExecutorAuthenticateLocalResponse response;
+    struct ExecutorStartLocalAuthRequest request;
+    struct ExecutorStartLocalAuthResponse response;
+
+    /* Read the request request. */
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    Log(LL_TRACE, "HandleStartLocalAuthRequest(): user=%s", request.user);
+
+    /* Peform operation. */
+
+    status = StartLocalAuthentication(request.user, path, &key);
+
+    if (status != 0)
+        Log(LL_WARNING, "Local user authentication failed on %s", request.user);
+
+    /* Send response message. */
 
     memset(&response, 0, sizeof(response));
-
-    /* Read the request message. */
-
-    ReadExecutorRequest(sock, &request, sizeof(request));
-
-    Log(LL_TRACE, "HandleAuthenticateLocalRequest()");
-
-    /* Perform operation. */
-
-    status = FinishLocalAuthentication(request.challenge, request.response);
-
-    /* Send response. */
-
     response.status = status;
+    Strlcpy(response.path, path, sizeof(response.path));
+    Strlcpy(response.key, key.data, sizeof(response.key));
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
 **==============================================================================
 **
-** HandleUpdateLogLevelRequest()
+** HandleFinishLocalAuthRequest()
 **
 **==============================================================================
 */
 
-static void HandleUpdateLogLevelRequest(int sock)
+static void HandleFinishLocalAuthRequest(int sock)
 {
+    SessionKey key;
+    SessionKey newKey;
     int status;
-    struct ExecutorUpdateLogLevelRequest request;
-    struct ExecutorUpdateLogLevelResponse response;
+    struct ExecutorFinishLocalAuthResponse response;
+
+    /* Read the request request. */
+
+    struct ExecutorFinishLocalAuthRequest request;
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    Log(LL_TRACE, "HandleFinishLocalAuthRequest(): key=%s token=%s",
+        request.key, request.token);
+
+    /* Peform operation. */
+
+    Strlcpy(key.data, request.key, sizeof(key.data));
+
+    status = FinishLocalAuthentication(&key, request.token, &newKey);
+
+    /* ATTN: add user to message. */
+
+    if (status != 0)
+        Log(LL_WARNING, "Local user authentication failed on %s", key.data);
 
     memset(&response, 0, sizeof(response));
-
-    /* Read the request message. */
-
-    ReadExecutorRequest(sock, &request, sizeof(request));
-
-    /* Log request. */
-
-    Log(LL_TRACE, "HandleUpdateLogLevelRequest(): logLevel=%s",
-        request.logLevel);
-
-    /* Perform operation. */
-
-    status = SetLogLevel(request.logLevel);
-
-    if (status == -1)
-        Log(LL_WARNING, "SetLogLevel(%d) failed", request.logLevel);
-
-    /* Send response message. */
-
     response.status = status;
+    Strlcpy(response.key, newKey.data, sizeof(response.key));
 
-    WriteExecutorResponse(sock, &response, sizeof(response));
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
 }
 
 /*
@@ -874,7 +730,7 @@ static void HandleUpdateLogLevelRequest(int sock)
 **==============================================================================
 */
 
-void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
+void Parent(int sock, int childPid)
 {
     /* Handle Ctrl-C. */
 
@@ -888,22 +744,14 @@ void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
      * Ignore SIGPIPE, which occurs if a child with whom the executor shares
      * a local domain socket unexpectedly dies. In such a case, the socket
      * read/write functions will return an error. There are two child processes
-     * the executor talks to over sockets: CIMSERVERA and CIMSERVERMAIN.
+     * the executor talks to over sockets: cimservera and cimservermain.
      */
 
     signal(SIGPIPE, SIG_IGN);
 
     /* Save child PID globally; it is used by Exit() function. */
 
-    globals.childPid = childPid;
-
-    /* Save initCompletePipe; it is used at daemonization. */
-
-    globals.initCompletePipe = initCompletePipe;
-
-    /* Save bindVerbose; it is used at daemonization and cimprovagt start. */
-
-    globals.bindVerbose = bindVerbose;
+    globalChildPid = childPid;
 
     /* Prepares socket into non-blocking I/O. */
 
@@ -930,7 +778,7 @@ void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
         }
 
         if (n != sizeof(header))
-            Fatal(FL, "Failed to read header");
+            Fatal(FL, "failed to read header");
 
         /* Dispatch request. */
 
@@ -960,33 +808,33 @@ void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
                 HandleRemoveFileRequest(sock);
                 break;
 
-            case EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE:
-                HandleAuthenticatePasswordRequest(sock);
+            case EXECUTOR_WAIT_PID_MESSAGE:
+                HandleWaitPidRequest(sock);
                 break;
 
-            case EXECUTOR_VALIDATE_USER_MESSAGE:
-                HandleValidateUserRequest(sock);
+            case EXECUTOR_PAM_AUTHENTICATE_MESSAGE:
+                HandlePAMAuthenticateRequest(sock);
                 break;
 
-            case EXECUTOR_CHALLENGE_LOCAL_MESSAGE:
-                HandleChallengeLocalRequest(sock);
+            case EXECUTOR_PAM_VALIDATE_USER_MESSAGE:
+                HandlePAMValidateUserRequest(sock);
                 break;
 
-            case EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE:
-                HandleAuthenticateLocalRequest(sock);
+            case EXECUTOR_START_LOCAL_AUTH_MESSAGE:
+                HandleStartLocalAuthRequest(sock);
                 break;
 
-            case EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE:
-                HandleUpdateLogLevelRequest(sock);
+            case EXECUTOR_FINISH_LOCAL_AUTH_MESSAGE:
+                HandleFinishLocalAuthRequest(sock);
                 break;
 
             default:
-                Fatal(FL, "Invalid request code: %d", header.code);
+                Fatal(FL, "invalid request code: %d", header.code);
                 break;
         }
     }
 
-    /* Reached due to socket EOF, SIGTERM, or SIGINT. */
+    /* Reached due to socket EOF or SIGTERM. */
 
     Exit(0);
 }

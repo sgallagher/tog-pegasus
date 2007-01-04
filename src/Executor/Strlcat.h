@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -27,48 +28,49 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef _Executor_Strlcat_h
 #define _Executor_Strlcat_h
 
-//==============================================================================
-//
-// Strlcat()
-//
-//     This is an original implementation of the strlcat() function as described
-//     by Todd C. Miller in his popular security paper entitled "strlcpy and 
-//     strlcat - consistent, safe, string copy and concatenation".
-//
-//     Note that this implementation favors readability over efficiency. More
-//     efficient implemetations are possible but would be to complicated
-//     to verify in a security audit.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** Strlcat()
+**
+**     This is an original implementation of the strlcat() function as described
+**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+**     strlcat - consistent, safe, string copy and concatenation".
+**
+**     Note that this implementation favors readability over efficiency. More
+**     efficient implemetations are possible but would be to complicated
+**     to verify in a security audit.
+**
+**==============================================================================
+*/
 
 static size_t Strlcat(char* dest, const char* src, size_t size)
 {
     size_t i;
     size_t j;
 
-    // Find dest null terminator.
+    /* Find dest null terminator. */
 
     for (i = 0; i < size && dest[i]; i++)
         ;
 
-    // If no-null terminator found, return size.
+    /* If no-null terminator found, return size. */
 
     if (i == size)
         return size;
 
-    // Copy src characters to dest.
+    /* Copy src characters to dest. */
 
     for (j = 0; src[j] && i + 1 < size; i++, j++)
         dest[i] = src[j];
 
-    // Null terminate size non-zero.
+    /* Null terminate size non-zero. */
 
     if (size > 0)
         dest[i] = '\0';

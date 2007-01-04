@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -27,28 +28,29 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef _Executor_Strlcpy_h
 #define _Executor_Strlcpy_h
 
 #include <stddef.h>
 
-//==============================================================================
-//
-// Strlcpy()
-//
-//     This is an original implementation of the strlcpy() function as described
-//     by Todd C. Miller in his popular security paper entitled "strlcpy and 
-//     strlcat - consistent, safe, string copy and concatenation".
-//
-//     Note that this implementation favors readability over efficiency. More
-//     efficient implemetations are possible but would be to complicated
-//     to verify in a security audit.
-//
-//==============================================================================
+/*
+**==============================================================================
+**
+** Strlcpy()
+**
+**     This is an original implementation of the strlcpy() function as described
+**     by Todd C. Miller in his popular security paper entitled "strlcpy and 
+**     strlcat - consistent, safe, string copy and concatenation".
+**
+**     Note that this implementation favors readability over efficiency. More
+**     efficient implemetations are possible but would be to complicated
+**     to verify in a security audit.
+**
+**==============================================================================
+*/
 
 static size_t Strlcpy(char* dest, const char* src, size_t size)
 {

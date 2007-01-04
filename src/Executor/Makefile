@@ -38,23 +38,27 @@ include $(ROOT)/mak/config.mak
 PROGRAM = cimserver
 
 SOURCES = \
-    main.cpp \
-    SessionKey.cpp \
-    Time.cpp \
-    Random.cpp \
-    LocalAuth.cpp \
-    User.cpp \
-    Log.cpp \
-    Socket.cpp \
-    Exit.cpp \
-    File.cpp \
-    Config.cpp \
-    Path.cpp \
-    Process.cpp \
-    Child.cpp \
-    Fatal.cpp \
-    Parent.cpp \
-    Globals.cpp \
+    main.c \
+    SessionKey.c \
+    Random.c \
+    LocalAuth.c \
+    User.c \
+    Log.c \
+    Socket.c \
+    Exit.c \
+    File.c \
+    Config.c \
+    Path.c \
+    Process.c \
+    Child.c \
+    Fatal.c \
+    Parent.c \
+    Globals.c \
+
+ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
+    FLAGS += -pedantic -ansi -Werror
+    CXX=gcc
+endif
 
 include $(ROOT)/mak/program.mak
 
@@ -63,4 +67,4 @@ tests:
 poststarttests:
 
 ff:
-	flawfinder -m 3 Executor.h Executor.cpp
+	flawfinder -m 3 Executor.h Executor.c

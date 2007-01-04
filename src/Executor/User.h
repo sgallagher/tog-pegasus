@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -27,9 +28,8 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef _Executor_User_h
 #define _Executor_User_h
@@ -38,6 +38,6 @@
 
 int GetUserName(int uid, char username[EXECUTOR_BUFFER_SIZE]);
 
-int GetUserInfo(const char* user, int& uid, int& gid);
+int GetUserInfo(const char* user, int* uid, int* gid);
 
 #endif /* _Executor_User_h */

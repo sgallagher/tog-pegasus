@@ -1,34 +1,35 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
-
 #include <stdio.h>
 #include <string.h>
 #include "Process.h"
@@ -55,7 +56,7 @@ int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
     if (pstat_getproc(&psts, sizeof(psts), 0, pid) == -1)
         return -1;
 
-    Strlcpy(name, psts.pst_ucomm, EXECUTOR_BUFFER_SIZE);
+    Strlcpy(name, pstru.pst_ucomm, EXECUTOR_BUFFER_SIZE);
 
     return 0;
 }
@@ -113,58 +114,3 @@ int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
 #else
 # error "not implemented on this platform."
 #endif /* PEGASUS_PLATFORM_LINUX_GENERIC_GNU */
-
-/*
-**==============================================================================
-**
-** ReadPidFile()
-**
-**==============================================================================
-*/
-
-int ReadPidFile(const char* pidFilePath, int* pid)
-{
-    FILE* is = fopen(pidFilePath, "r");
-
-    if (!is)
-        return -1;
-
-    if (fscanf(is, "%d\n", pid) != 1)
-    {
-        *pid = 0;
-    }
-
-    fclose(is);
-
-    if (*pid == 0)
-        return -1;
-
-    return 0;
-}
-
-/*
-**==============================================================================
-**
-** TestProcessRunning()
-**
-**     Returns 0 if a process is running with the ID in the specified PID file
-**     and with the specified process name.
-**
-**==============================================================================
-*/
-
-int TestProcessRunning(
-    const char* pidFilePath,
-    const char* processName)
-{
-    int pid;
-    char name[EXECUTOR_BUFFER_SIZE];
-
-    if (ReadPidFile(pidFilePath, &pid) != 0)
-        return -1;
-
-    if (GetProcessName(pid, name) != 0 || strcmp(name, processName) != 0)
-        return -1;
-
-    return 0;
-}

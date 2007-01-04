@@ -1,34 +1,35 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
-
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,66 +40,6 @@
 #include "Strlcat.h"
 #include "Config.h"
 #include "Defines.h"
-
-/*
-**==============================================================================
-**
-** DirName()
-**
-**     Remove the trailing component from the path (like the Unix dirname
-**     command).
-**
-**         /a => /
-**         /a/ => /
-**         /a/b => /a
-**         /a/b/foo.conf => /a/b
-**
-**==============================================================================
-*/
-
-void DirName(const char* path1, char path2[EXECUTOR_BUFFER_SIZE])
-{
-    char* p;
-
-    /* Copy path1 to path2. */
-
-    Strlcpy(path2, path1, EXECUTOR_BUFFER_SIZE);
-
-    /* Find last slash. */
-
-    p = strrchr(path2, '/');
-
-    /* Handle "." case (empty string or no slashes). */
-
-    if (*path2 == '\0' || p == NULL)
-    {
-        Strlcpy(path2, ".", EXECUTOR_BUFFER_SIZE);
-        return;
-    }
-
-    /* Remove trailing slashes. */
-
-    if (p[1] == '\0')
-    {
-        while (p != path2 && *p == '/')
-            *p-- = '\0';
-    }
-
-    /* Remove trailing component. */
-
-    p = strrchr(path2, '/');
-
-    if (p)
-    {
-        if (p == path2)
-            p[1] = '\0';
-
-        while (p != path2 && *p == '/')
-            *p-- = '\0';
-    }
-    else
-        Strlcpy(path2, ".", EXECUTOR_BUFFER_SIZE);
-}
 
 /*
 **==============================================================================
@@ -120,7 +61,7 @@ int GetHomedPath(
 
     /* If absolute, then use the name as is. */
 
-    if (name && name[0] == '/')
+    if (name[0] == '/')
     {
         Strlcpy(path, name, EXECUTOR_BUFFER_SIZE);
         return 0;
@@ -133,12 +74,8 @@ int GetHomedPath(
         return -1;
 
     Strlcpy(path, home, EXECUTOR_BUFFER_SIZE);
-
-    if (name)
-    {
-        Strlcat(path, "/", EXECUTOR_BUFFER_SIZE);
-        Strlcat(path, name, EXECUTOR_BUFFER_SIZE);
-    }
+    Strlcat(path, "/", EXECUTOR_BUFFER_SIZE);
+    Strlcat(path, name, EXECUTOR_BUFFER_SIZE);
 
     return 0;
 }
@@ -165,7 +102,7 @@ int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
     char buffer[EXECUTOR_BUFFER_SIZE];
     Strlcpy(buffer, PEGASUS_PROVIDER_AGENT_PROC_NAME, sizeof(buffer));
 
-    /* Remove CIMPROVAGT suffix. */
+    /* Remove "cimprovagt" suffix. */
 
     p = strrchr(buffer, '/');
 
@@ -178,7 +115,7 @@ int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
 
     if (buffer[0] == '/')
     {
-        Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
+        Strlcat(path, buffer, EXECUTOR_BUFFER_SIZE);
     }
     else
     {
@@ -204,4 +141,50 @@ int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
         return -1;
 
     return 0;
+}
+
+/*
+**==============================================================================
+**
+** GetInternalPegasusProgramPath()
+**
+**     Get the full path name of the given program.
+**
+**==============================================================================
+*/
+
+int GetInternalPegasusProgramPath(
+    const char* program,
+    char path[EXECUTOR_BUFFER_SIZE])
+{
+    if (GetPegasusInternalBinDir(path) != 0)
+        return -1;
+
+    Strlcat(path, "/", EXECUTOR_BUFFER_SIZE);
+    Strlcat(path, program, EXECUTOR_BUFFER_SIZE);
+
+    return 0;
+}
+
+/*
+**==============================================================================
+**
+** LocateRepositoryDirectory()
+**
+**==============================================================================
+*/
+
+int LocateRepositoryDirectory(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE])
+{
+    if (GetConfigParam(argc, argv, "repositoryDir", path) == 0)
+        return 0;
+
+    if (GetHomedPath(PEGASUS_REPOSITORY_DIR, path) == 0)
+        return 0;
+
+    /* Not found! */
+    return -1;
 }

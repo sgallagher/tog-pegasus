@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -27,9 +28,8 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef _Executor_Log_h
 #define _Executor_Log_h
@@ -42,15 +42,15 @@ enum LogLevel
     LL_SEVERE,
     LL_WARNING,
     LL_INFORMATION,
-    LL_TRACE,
+    LL_TRACE
 };
 
 void GetLogLevel(int argc, char** argv);
 
-void OpenLog(const char* ident);
+void OpenLog(const char* ident, int perror);
 
-void SetLogLevel(LogLevel level);
+void SetLogLevel(enum LogLevel level);
 
-void Log(LogLevel type, const char *format, ...);
+void Log(enum LogLevel type, const char *format, ...);
 
 #endif /* _Executor_Log_h */

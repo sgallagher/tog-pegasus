@@ -3,16 +3,22 @@
 
     (A) Test SSL client certificate authentication.
 
-    (A) Should PG_ProviderModule.userContext=5 (CIM server) run as server user
-        or executor user?
+    (A) Rework to that PG_ProviderModule.userContext=5 (CIM server) causes
+        provider agent to run as server user.
 
     (A) Implement policy.
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
+    (B) Add username to session key cache.
+
+    (B) Log username when HandleStartLocalAuth() or HandleFinishLocalAuth()
+        fail.
+
     (B) Test on Windows.
 
-    (B) Handle shutdownTimeout option in cimshutdown.
+    (B) Handle shutdownTimeout option in cimshutdown (pass it as command line
+        argument).
 
     (B) Test without privilege separation.
 
@@ -20,17 +26,17 @@
 
     (C) Add executor fingerprint checking to cimservera program.
 
-    (C) Should startProviderAgent() be renamed to something more generic?
-
     (C) Convert executor to pure C program.
 
     (C) Generate provider policy file automatically from repository.
 
-    (C) Consider getting rid of HandleRenameFileRequest().
+    (C) Consider moving configuration file manipulation into executor.
 
     (C) Replace LocalAuthFile class with new implementation in LocalAuth.cpp.
 
     (C) Propose precheck program that verifies proper file ownership (e.g.,
         private key must be owned by root, all other files must be owned
-        by root).
+        by root but not writable by anyone else.
 
+    (C) Consider disabling delay in PAM module so that it can be moved into
+        the server.

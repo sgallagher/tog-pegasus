@@ -35,7 +35,8 @@ DIR = Executor
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = cimserver
+PROGRAM = zzz_cimserver
+
 SOURCES = \
     main.cpp \
     SessionKey.cpp \

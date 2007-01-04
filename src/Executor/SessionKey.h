@@ -44,9 +44,11 @@ struct SessionKey
     char data[33];
 };
 
-SessionKey NewSessionKey(void* data, void (*destructor)(void*));
+SessionKey NewSessionKey(int uid, void* data, void (*destructor)(void*));
 
 int GetSessionKeyData(const SessionKey* key, void** data);
+
+int GetSessionKeyUid(const SessionKey* key, int* uid);
 
 int DeleteSessionKey(const SessionKey* key);
 

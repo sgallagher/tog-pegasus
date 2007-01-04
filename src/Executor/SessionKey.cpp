@@ -6,6 +6,7 @@
 struct SessionKeyEntry
 {
     SessionKey key;
+    int uid;
     void* data;
     void (*destructor)(void*);
     SessionKeyEntry* next;
@@ -43,6 +44,7 @@ static SessionKeyEntry* _lookup(const SessionKey* key)
 //==============================================================================
 
 SessionKey NewSessionKey(
+    int uid,
     void* data, 
     void (*destructor)(void*))
 {
@@ -73,6 +75,7 @@ SessionKey NewSessionKey(
     SessionKeyEntry* entry = (SessionKeyEntry*)malloc(sizeof(SessionKeyEntry));
     entry->key = key;
     entry->data = data;
+    entry->uid = uid;
     entry->destructor = destructor;
 
     // Prepend entry to list.
@@ -144,6 +147,30 @@ int GetSessionKeyData(const SessionKey* key, void** data)
 
     if (data)
         *data = p->data;
+
+    return 0;
+}
+
+//==============================================================================
+//
+// GetSessionKeyUid:
+//
+//     Get the UID for the session key.
+//
+//==============================================================================
+
+int GetSessionKeyUid(const SessionKey* key, int* uid)
+{
+    if (uid)
+        *uid = 0;
+
+    SessionKeyEntry* p = _lookup(key);
+
+    if (!p)
+        return -1;
+
+    if (uid)
+        *uid = p->uid;
 
     return 0;
 }

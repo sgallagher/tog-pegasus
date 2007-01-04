@@ -7,17 +7,23 @@ Authentication mechanisms in Pegasus:
 
         Present always.
 
+        HTTP AuthType is "Local"
+
     PAMBasic - uses PAM module authentication (in-process and out-of-process).
 
         Implemented by PAMBasicAuthenticator.h
 
         Present with defined(PEGASUS_PAM_AUTHENTICATION)
 
+        HTTP AuthType is "Basic"
+
     SecureBasic - uses cimserver.passwd file.
 
         Implemented by SecureBasicAuthenticator.h
 
         Present with !defined(PEGASUS_PAM_AUTHENTICATION)
+
+        HTTP AuthType is "Basic"
 
     Kerberos - not available to Pegasus (implementation is proprietary).
 
@@ -29,6 +35,11 @@ Authentication mechanisms in Pegasus:
 
         Implemented in Common library.
 
-        Pegasus has no client-side support for this authenticaiton type so
-        there is no way to test it.
+        Never present (since code is not part of Pegasus).
+
+        HTTP AuthType is "SSL"
+
+        Pegasus has no client-side support for this authentication type.
+
+        The server-side support is only enabled on zOS.
 

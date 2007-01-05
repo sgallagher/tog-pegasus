@@ -109,7 +109,7 @@ struct ExecutorPingResponse
 struct ExecutorOpenFileRequest
 {
     char path[EXECUTOR_BUFFER_SIZE];
-    /* ('r' = read, 'w' = write) */
+    /* ('r' = read, 'w' = write, 'a' = append) */
     int mode;
 };
 
@@ -210,7 +210,7 @@ struct ExecutorWaitPidResponse
 /*
 **==============================================================================
 **
-** EXECUTOR_PAM_AUTHENTICATE_FILE_MESSAGE
+** EXECUTOR_PAM_AUTHENTICATE_MESSAGE
 **
 **==============================================================================
 */
@@ -224,6 +224,7 @@ struct ExecutorPAMAuthenticateRequest
 struct ExecutorPAMAuthenticateResponse
 {
     int status;
+    char key[EXECUTOR_BUFFER_SIZE];
 };
 
 /*

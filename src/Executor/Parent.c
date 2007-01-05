@@ -133,6 +133,15 @@ static void HandleOpenFileRequest(int sock)
                 O_WRONLY | O_CREAT | O_TRUNC,
                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
             break;
+
+        case 'a':
+        {
+            fd = open(
+                request.path, 
+                O_WRONLY | O_CREAT | O_APPEND,
+                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+            break;
+        }
     }
 
     /* Send response message. */
@@ -553,6 +562,9 @@ static void HandlePAMAuthenticateRequest(int sock)
 {
     int status;
     struct ExecutorPAMAuthenticateResponse response;
+    int gid;
+    int uid;
+    SessionKey key;
 
     /* Read the request request. */
 
@@ -568,11 +580,35 @@ static void HandlePAMAuthenticateRequest(int sock)
 
     /* Perform the operation: */
 
+    status = 0;
+    do
+    {
 #if defined(PEGASUS_PAM_AUTHENTICATION)
-    status = PAMAuthenticate(request.username, request.password);
-#else
-    status = -1;
-#endif
+
+        if (GetUserInfo(request.username, &uid, &gid) != 0)
+        {
+            status = -1;
+            break;
+        }
+
+        if (PAMAuthenticate(request.username, request.password) != 0)
+        {
+            status = -1;
+            break;
+        }
+
+        /* Generate session key */
+
+        key = NewSessionKey(uid, 0, 0);
+    
+#else /* !PEGASUS_PAM_AUTHENTICATION */
+
+        status = -1;
+        break;
+
+#endif /* !PEGASUS_PAM_AUTHENTICATION */
+    }
+    while (0);
 
     if (status != 0)
     {
@@ -589,6 +625,7 @@ static void HandlePAMAuthenticateRequest(int sock)
 
     memset(&response, 0, sizeof(response));
     response.status = status;
+    Strlcpy(response.key, key.data, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
@@ -618,11 +655,20 @@ static void HandlePAMValidateUserRequest(int sock)
     Log(LL_TRACE, 
         "HandlePAMValidateUserRequest(): username=%s", request.username);
 
+    /* Get the uid for the username. */
+
+    status = 0;
+
 #if defined(PEGASUS_PAM_AUTHENTICATION)
-    status = PAMValidateUser(request.username);
-#else
+
+    if (PAMValidateUser(request.username) != 0)
+        status = -1;
+
+#else /* !PEGASUS_PAM_AUTHENTICATION */
+
     status = -1;
-#endif
+
+#endif /* !PEGASUS_PAM_AUTHENTICATION */
 
     if (status != 0)
         Log(LL_WARNING, "PAM user validation failed on %s", request.username);

@@ -31,11 +31,6 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-/*
-ATTN-MEB: remove this!
-*/
-#include <syslog.h>
-
 #include "CertificateProvider.h"
 
 #define OPENSSL_NO_KRB5 1

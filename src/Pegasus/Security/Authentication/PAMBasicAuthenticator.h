@@ -52,7 +52,10 @@ public:
 
     ~PAMBasicAuthenticator();
 
-    Boolean authenticate(const String& userName, const String& password);
+    Boolean authenticate(
+        const String& userName, 
+        const String& password,
+        SessionKey& sessionKey); 
 
     Boolean validateUser(const String& userName);
 

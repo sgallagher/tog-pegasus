@@ -105,6 +105,9 @@ FILE* InProcess_openFile(
         case 'w':
             return fopen(path, "wb");
 
+        case 'a':
+            return fopen(path, "a+");
+
         default:
             return NULL;
     }
@@ -421,8 +424,11 @@ static int InProcess_waitPid(
 
 static int InProcess_pamAuthenticate(
     const char* username,
-    const char* password)
+    const char* password,
+    SessionKey& sessionKey)
 {
+    sessionKey.clear();
+
 #if defined(PEGASUS_PAM_AUTHENTICATION)
     return PAMAuthenticate(username, password);
 #else
@@ -604,7 +610,7 @@ FILE* OutOfProcess_openFile(
 {
     AutoMutex autoMutex(_mutex);
 
-    if (mode != 'r' && mode != 'w')
+    if (mode != 'r' && mode != 'w' && mode != 'a')
         return NULL;
 
     // _send request header:
@@ -856,9 +862,12 @@ static int OutOfProcess_waitPid(
 
 static int OutOfProcess_pamAuthenticate(
     const char* username,
-    const char* password)
+    const char* password,
+    SessionKey& sessionKey)
 {
     AutoMutex autoMutex(_mutex);
+
+    sessionKey.clear();
 
     // _send request header:
 
@@ -884,6 +893,8 @@ static int OutOfProcess_pamAuthenticate(
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
+
+    Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
 
     return response.status;
 }
@@ -923,7 +934,7 @@ static int OutOfProcess_pamValidateUser(
 int OutOfProcess_startLocalAuth(
     const char* user,
     char path[EXECUTOR_BUFFER_SIZE],
-    SessionKey* key)
+    SessionKey& sessionKey)
 {
     AutoMutex autoMutex(_mutex);
 
@@ -951,14 +962,14 @@ int OutOfProcess_startLocalAuth(
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
-    Strlcpy(key->data, response.key, sizeof(key->data));
+    Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
     Strlcpy(path, response.path, EXECUTOR_BUFFER_SIZE);
 
     return response.status;
 }
 
 int OutOfProcess_finishLocalAuth(
-    const SessionKey* key,
+    const SessionKey& sessionKey,
     const char* token)
 {
     AutoMutex autoMutex(_mutex);
@@ -975,7 +986,7 @@ int OutOfProcess_finishLocalAuth(
 
     ExecutorFinishLocalAuthRequest request;
     memset(&request, 0, sizeof(request));
-    Strlcpy(request.key, key->data, EXECUTOR_BUFFER_SIZE);
+    Strlcpy(request.key, (char*)sessionKey.data(), EXECUTOR_BUFFER_SIZE);
     Strlcpy(request.token, token, EXECUTOR_BUFFER_SIZE);
 
     if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
@@ -1116,13 +1127,14 @@ int Executor::waitPid(
 
 int Executor::pamAuthenticate(
     const char* username,
-    const char* password)
+    const char* password,
+    SessionKey& sessionKey)
 {
     if (_getSock() == -1)
-        return InProcess_pamAuthenticate(username, password);
+        return InProcess_pamAuthenticate(username, password, sessionKey);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_pamAuthenticate(username, password);
+    return OutOfProcess_pamAuthenticate(username, password, sessionKey);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1144,27 +1156,27 @@ int Executor::pamValidateUser(
 int Executor::startLocalAuth(
     const char* user,
     char path[EXECUTOR_BUFFER_SIZE],
-    SessionKey* key)
+    SessionKey& sessionKey)
 {
     if (_getSock() == -1)
         return -1;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_startLocalAuth(user, path, key);
+    return OutOfProcess_startLocalAuth(user, path, sessionKey);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
 int Executor::finishLocalAuth(
-    const SessionKey* key,
+    const SessionKey& sessionKey,
     const char* token)
 {
     if (_getSock() == -1)
         return -1;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_finishLocalAuth(key, token);
+    return OutOfProcess_finishLocalAuth(sessionKey, token);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */

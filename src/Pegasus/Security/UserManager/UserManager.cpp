@@ -276,7 +276,7 @@ Boolean UserManager::verifyCIMUserPassword (
 {
 
 /*
-ATTN:MEB:
+MEB: password file check logic probably for namespace authorization.
 */
 
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUserPassword");

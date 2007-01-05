@@ -74,8 +74,7 @@ CIMInstance UserContextTestProvider::_buildInstance(const CIMName& className)
         CIMProperty(CIMName("UserContext"), System::getEffectiveUserName()));
 
 /*
-ATTN:MEB: UserContext will unexpectedly refer to "pegasus" rather than
-"root" as before.
+MEB: UserContext will unexpectedly refer to "pegasus" rather than "root".
 */
 
     Array<CIMKeyBinding> kb;

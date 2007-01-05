@@ -35,6 +35,7 @@
 #define _Pegasus_Common_SessionKey_h
 
 #include <Pegasus/Common/Config.h>
+#include <string.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,9 +48,45 @@ PEGASUS_NAMESPACE_BEGIN
     When running without privilege separation (that is without an executor),
     this key is zero-filled.
 */
-struct SessionKey
+class SessionKey
 {
-    char data[33];
+public:
+
+    SessionKey()
+    {
+        memset(_data, sizeof(_data), 0);
+    }
+
+    SessionKey(const SessionKey& x)
+    {
+        memcpy(_data, x._data, sizeof(_data));
+    }
+
+    SessionKey& operator=(const SessionKey& x)
+    {
+        if (&x != this)
+            memcpy(_data, x._data, sizeof(_data));
+        return *this;
+    }
+
+    void clear()
+    {
+        memset(_data, sizeof(_data), 0);
+    }
+
+    const char* data() const 
+    { 
+        return _data; 
+    }
+
+    size_t size() const 
+    {
+        return sizeof(_data);
+    }
+
+private:
+
+    char _data[33];
 };
 
 PEGASUS_NAMESPACE_END

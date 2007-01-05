@@ -214,7 +214,7 @@ void testUserContextCIMServer()
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 /*
-ATTN:MEB:
+MEB:
 
     We must skip this test for now since run-as-cim-server no longer means
     run-as-root, the way it did before. In this test, the following variables

@@ -1,14 +1,9 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Test SSL client certificate authentication.
-
-    (A) Rework so that PG_ProviderModule.userContext=5 (CIM server) causes
-        provider agent to run as server user (fix related tests).
+    (A) Check SessionKey in HandleStartAgenProvider().
 
     (A) Implement policy.
-
-    (A) Check SessionKey in HandleStartAgenProvider().
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
@@ -18,6 +13,9 @@
         argument).
 
     (B) Test without privilege separation.
+
+    (B) Rework so that PG_ProviderModule.userContext=5 (CIM server) causes
+        provider agent to run as server user (fix related tests).
 
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 

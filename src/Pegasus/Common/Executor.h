@@ -82,7 +82,8 @@ public:
 
     static int pamAuthenticate(
         const char* username,
-        const char* password);
+        const char* password,
+        SessionKey& sessionKey);
 
     static int pamValidateUser(
         const char* username);
@@ -98,7 +99,7 @@ public:
     static int startLocalAuth(
         const char* user,
         char path[EXECUTOR_BUFFER_SIZE],
-        SessionKey* key);
+        SessionKey& sessionKey);
 
     /** Start authenticating the given *user* using the "local authentication"
         algorithm. The secret token is read from the file created by 
@@ -106,7 +107,7 @@ public:
         authentication is successful (returns zero).
     */
     static int finishLocalAuth(
-        const SessionKey* key,
+        const SessionKey& sessionKey,
         const char* token);
 
 private:

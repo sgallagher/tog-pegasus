@@ -353,6 +353,22 @@ public:
         return _rep->getRemotePrivilegedUserAccessChecked();
     }
 
+    /** Set the session key.
+    */
+    void setSessionKey(const SessionKey& sessionKey)
+    {
+        _checkRep();
+        return _rep->setSessionKey(sessionKey);
+    }
+
+    /** Get the session key.
+    */
+    const SessionKey& getSessionKey() const
+    {
+        _checkRep();
+        return _rep->getSessionKey();
+    }
+
 private:
 
     AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)

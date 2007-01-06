@@ -28,22 +28,9 @@ Options :
     -a              - Adds the specified certificate to the trust store
     -r              - Removes the specified certificate from the trust store
     -l              - Displays the certificates in the trust store
-    -f certfile     - Specifies the PEM format file containing an X509
-                      certificate
-    -U certuser     - Specifies the user name to be associated with the
-                      certificate
-    -T (a|e|s)      - Specifies the certificate type as follows:
-                      -a (authority): root/intermediate authority
-                         certificates. This type added to trusted
-                         certificate store. certuser optional. If
-                         no certUser specified certificate may not 
-                         be used to authenticate user.
-                      -e (authority issued end-entity): Certificates
-                         of this type are not added to trusted
-                         certificate store. certuser is required.
-                      -s (Self-signed identity certificate): Added
-                         to trusted certificate store. certuser is
-                         required.
+    -f certfile     - Specifies the PEM format file containing an X509 certificate
+    -U certuser     - Specifies the user name to be associated with the certificate
+    -T type         - Specifies the certificate type
     -i issuer       - Specifies the certificate issuer name
     -n serialnumber - Specifies the certificate serial number
     -S subject      - Specifies the certificate subject
@@ -132,12 +119,12 @@ Use '--help' to obtain command syntax.
 Invalid remove option, incorrect serial number.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The certificate does not exist.
+CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
 
 Invalid remove option, incorrect subject.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The certificate does not exist.
+CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
 
 Required option missing, issuer not specified.
 cimtrust: the "-i" option is required
@@ -212,7 +199,7 @@ Certificate removed successfully.
 +++++++++ Functional tests - Add operation testing +++++++++
 Add a certificate file that contains more than one certificate, this should error out.
 Failed to add certificate.
-CIM_ERR_FAILED: Specified certificate file contains more than one certificate.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "Specified certificate file contains more than one certificate."
 
 Add the self-signed certificate to the truststore.
 Certificate added successfully.
@@ -265,8 +252,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Jan 10, 2005  0:00:00 (+0000)
-    NotAfter : Jan 8, 2015  0:00:00 (+0000)
+    NotBefore: Jan 10, 2005  0:00:00 (00000)
+    NotAfter : Jan 8, 2015  0:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Feb
 Serial Number: 0
@@ -274,8 +261,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Feb 2, 2005  20:00:00 (+0000)
-    NotAfter : Jan 31, 2015  20:00:00 (+0000)
+    NotBefore: Feb 2, 2005  20:00:00 (00000)
+    NotAfter : Jan 31, 2015  20:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Mar
 Serial Number: 0
@@ -283,8 +270,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Mar 3, 2005  0:00:00 (+0000)
-    NotAfter : Mar 1, 2015  0:00:00 (+0000)
+    NotBefore: Mar 3, 2005  0:00:00 (00000)
+    NotAfter : Mar 1, 2015  0:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Apr
 Serial Number: 0
@@ -292,8 +279,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Apr 4, 2005  0:00:00 (+0000)
-    NotAfter : Dec 27, 2017  0:00:00 (+0000)
+    NotBefore: Apr 4, 2005  0:00:00 (00000)
+    NotAfter : Dec 27, 2017  0:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-May
 Serial Number: 0
@@ -301,8 +288,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: May 5, 2005  0:00:00 (+0000)
-    NotAfter : Jan 27, 2018  0:00:00 (+0000)
+    NotBefore: May 5, 2005  0:00:00 (00000)
+    NotAfter : Jan 27, 2018  0:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun
 Serial Number: 0
@@ -310,8 +297,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Jun 6, 2005  0:00:00 (+0000)
-    NotAfter : Feb 28, 2018  0:00:00 (+0000)
+    NotBefore: Jun 6, 2005  0:00:00 (00000)
+    NotAfter : Feb 28, 2018  0:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jul
 Serial Number: 0
@@ -319,8 +306,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Jul 7, 2005  0:00:00 (+0000)
-    NotAfter : Mar 31, 2018  0:00:00 (+0000)
+    NotBefore: Jul 7, 2005  0:00:00 (00000)
+    NotAfter : Mar 31, 2018  0:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Aug
 Serial Number: 0
@@ -328,8 +315,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Aug 8, 2005  20:00:00 (+0000)
-    NotAfter : May 2, 2018  20:00:00 (+0000)
+    NotBefore: Aug 8, 2005  20:00:00 (00000)
+    NotAfter : May 2, 2018  20:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Sept
 Serial Number: 0
@@ -337,8 +324,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Sep 9, 2005  20:00:00 (+0000)
-    NotAfter : Jun 3, 2018  20:00:00 (+0000)
+    NotBefore: Sep 9, 2005  20:00:00 (00000)
+    NotAfter : Jun 3, 2018  20:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Oct
 Serial Number: 0
@@ -346,8 +333,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Oct 9, 2005  20:00:00 (+0000)
-    NotAfter : Jul 3, 2018  20:00:00 (+0000)
+    NotBefore: Oct 9, 2005  20:00:00 (00000)
+    NotAfter : Jul 3, 2018  20:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Nov
 Serial Number: 0
@@ -355,8 +342,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Nov 9, 2005  20:00:00 (+0000)
-    NotAfter : Aug 3, 2018  20:00:00 (+0000)
+    NotBefore: Nov 9, 2005  20:00:00 (00000)
+    NotAfter : Aug 3, 2018  20:00:00 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Dec
 Serial Number: 0
@@ -364,8 +351,8 @@ Subject: /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigne
 Registered User Name: root
 Type: Self-signed identity
 Validity:
-    NotBefore: Dec 9, 2005  0:00:00 (+0000)
-    NotAfter : Sep 2, 2018  0:00:00 (+0000)
+    NotBefore: Dec 9, 2005  0:00:00 (00000)
+    NotAfter : Sep 2, 2018  0:00:00 (00000)
 ---------------------------------------------
 
 Remove the Certificates, should all succeed.
@@ -393,7 +380,7 @@ Exception: HTTP Error (401 Unauthorized).
 Attempt to delete the certificate we just deleted, this should get a DNE error.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The certificate does not exist.
+CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
 
 Add the self-signed certificate to the truststore.
 Certificate added successfully.
@@ -408,7 +395,7 @@ Exception: HTTP Error (401 Unauthorized).
 Attempt to delete the certificate we just deleted, this should get a DNE error.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The certificate does not exist.
+CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
 
 Add the deleted self-signed certificate to the truststore. This should succeed
 Certificate added successfully.
@@ -458,8 +445,8 @@ Subject: /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChai
 Registered User Name: root
 Type: Authority
 Validity:
-    NotBefore: Jan 4, 2007  9:31:07 (+0000)
-    NotAfter : Dec 31, 2021  9:31:07 (+0000)
+    NotBefore: Jan 4, 2007  9:31:07 (00000)
+    NotAfter : Dec 31, 2021  9:31:07 (00000)
 ---------------------------------------------
 Issuer: /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChainCA
 Serial Number: 2
@@ -467,8 +454,8 @@ Subject: /C=US/ST=Nevada/L=LasVegas/O=OpenGroup/OU=OpenPegasus/CN=TestInterCA
 Registered User Name: root
 Type: Authority
 Validity:
-    NotBefore: Jan 4, 2007  9:31:07 (+0000)
-    NotAfter : Dec 31, 2021  9:31:07 (+0000)
+    NotBefore: Jan 4, 2007  9:31:07 (00000)
+    NotAfter : Dec 31, 2021  9:31:07 (00000)
 ---------------------------------------------
 
 List certificates, specify the issuername & subject.
@@ -478,8 +465,8 @@ Subject: /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChai
 Registered User Name: root
 Type: Authority
 Validity:
-    NotBefore: Jan 4, 2007  9:31:07 (+0000)
-    NotAfter : Dec 31, 2021  9:31:07 (+0000)
+    NotBefore: Jan 4, 2007  9:31:07 (00000)
+    NotAfter : Dec 31, 2021  9:31:07 (00000)
 ---------------------------------------------
 
 List certificates, specify the issuername & serial number.
@@ -489,8 +476,8 @@ Subject: /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChai
 Registered User Name: root
 Type: Authority
 Validity:
-    NotBefore: Jan 4, 2007  9:31:07 (+0000)
-    NotAfter : Dec 31, 2021  9:31:07 (+0000)
+    NotBefore: Jan 4, 2007  9:31:07 (00000)
+    NotAfter : Dec 31, 2021  9:31:07 (00000)
 ---------------------------------------------
 
 Remove the CA certificate from the truststore, this should succeed.
@@ -569,7 +556,7 @@ Certificate removed successfully.
 Add the testdup certificate to the truststore, this should fail with duplicate subject error.
 Failed to add certificate.
 Specified certificate already exists.
-CIM_ERR_ALREADY_EXISTS: Another certificate with the same subject name already exists.
+CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "Another certificate with the same subject name already exists."
 
 Delete the self-signed certificate from the truststore by subject & issuer. This should succeed
 Certificate removed successfully.
@@ -581,7 +568,7 @@ Certificate added successfully.
 
 Try to connect, this should fail since the root CA does not have an associated username.
 TestCertClient::Connecting to 127.0.0.1:5989
-Exception: HTTP Error (401 Unauthorized): Detail = "No username is registered to this certificate.".
+Exception: HTTP Error (401 Unauthorized): Detail = "The username registered to this certificate is not a valid user.".
 
 Add the intermediate CA signed certificate to the truststore without an associated username.
 NOTE: No user name will be associated with the certificate in the truststore.
@@ -589,7 +576,7 @@ Certificate added successfully.
 
 Try to connect, this should fail since the root CA does not have an associated username.
 TestCertClient::Connecting to 127.0.0.1:5989
-Exception: HTTP Error (401 Unauthorized): Detail = "No username is registered to this certificate.".
+Exception: HTTP Error (401 Unauthorized): Detail = "The username registered to this certificate is not a valid user.".
 
 Add the leaf CA signed certificate to the truststore with an associated username.
 Certificate added successfully.
@@ -601,8 +588,8 @@ Subject: /C=US/ST=SouthDakota/L=SeouxFalls/O=OpenGroup/OU=OpenPegasus/CN=TestLea
 Registered User Name: root
 Type: Authority issued end-entity
 Validity:
-    NotBefore: Jan 4, 2007  9:31:07 (+0000)
-    NotAfter : Dec 31, 2021  9:31:07 (+0000)
+    NotBefore: Jan 4, 2007  9:31:07 (00000)
+    NotAfter : Dec 31, 2021  9:31:07 (00000)
 ---------------------------------------------
 
 Try to connect, this should succeed since the leaf has an associated username.
@@ -659,7 +646,7 @@ Certificate removed successfully.
 +++++++++ Funtional tests - Tests for special cases +++++++++
 Invalid X509 certificate.
 Failed to add certificate.
-CIM_ERR_FAILED: Could not read x509 PEM format.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "Could not read x509 PEM format."
 
 Connect with an expired certificate -- should fail.
 TestCertClient::Connecting to 127.0.0.1:5989
@@ -667,7 +654,7 @@ Exception: HTTP Error (401 Unauthorized).
 
 Add the expired certificate to the truststore -- should get an expiration error.
 Failed to add certificate.
-CIM_ERR_FAILED: The certificate has expired.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate has expired."
 
 Connect with a not yet valid certificate -- should fail.
 TestCertClient::Connecting to 127.0.0.1:5989
@@ -675,7 +662,7 @@ Exception: HTTP Error (401 Unauthorized).
 
 Add the not yet valid certificate to the truststore -- should get a not yet valid error.
 Failed to add certificate.
-CIM_ERR_FAILED: The certificate is not valid yet.  Check the timestamps on your machine.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate is not valid yet.  Check the timestamps on your machine."
 
 Connect with an untrusted certificate -- should fail.
 TestCertClient::Connecting to 127.0.0.1:5989

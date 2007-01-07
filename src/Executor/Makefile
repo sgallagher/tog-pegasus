@@ -67,12 +67,12 @@ tests:
 poststarttests:
 
 ff:
-	flawfinder -m 3 Executor.h Executor.c
+	flawfinder -m 3 Bit.h Child.c Child.h Config.c Config.h Defines.h Exit.c Exit.h Fatal.c Fatal.h File.c File.h Globals.c Globals.h LocalAuth.c LocalAuth.h Log.c Log.h main.c Messages.h PAMAuth.h Parent.c Parent.h Path.c Path.h Process.c Process.h Random.c Random.h SessionKey.c SessionKey.h Socket.c Socket.h Strlcat.h Strlcpy.h User.c User.h
 
 kloc:
 	kloc -d -f
 
-authcimsever:
+authcimserver:
 	cimserver enableAuthentication=true daemon=false logLevel=TRACE
 
 sslcimserver:

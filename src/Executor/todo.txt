@@ -1,6 +1,8 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
+    (A) Check for ATTN's.
+
     [EASY]
     (A) Add PEGASUS_SERVER_USER (default "pegasus") to Constants.h and remove
         serverUser configuration parameter. Also remove logic which deduces
@@ -59,4 +61,7 @@
     (C) Propose precheck program that verifies proper file ownership (e.g.,
         private key must be owned by root, all other files must be owned
         by root but not writable by anyone else.
+
+    (A) Consider implementing standard Unix password file checking for
+        AUTHENTICATE_PASSOWRD and VALIDATE_USER commands.
 

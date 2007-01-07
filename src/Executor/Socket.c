@@ -150,8 +150,8 @@ ssize_t RecvNonBlock(
         int status = _waitForReadEnable(sock, TIMEOUT_MSEC);
         ssize_t n;
 
-        if (TstBit(globalSignalMask, SIGTERM) || 
-            TstBit(globalSignalMask, SIGINT))
+        if (TstBit(globals.signalMask, SIGTERM) || 
+            TstBit(globals.signalMask, SIGINT))
         {
             /* Exit on either of these signals. */
             Exit(0);
@@ -214,8 +214,8 @@ ssize_t SendNonBlock(
         int status = _waitForWriteEnable(sock, TIMEOUT_MSEC);
         ssize_t n;
 
-        if (TstBit(globalSignalMask, SIGTERM) || 
-            TstBit(globalSignalMask, SIGINT))
+        if (TstBit(globals.signalMask, SIGTERM) || 
+            TstBit(globals.signalMask, SIGINT))
         {
             /* Exit on either of these signals. */
             Exit(0);

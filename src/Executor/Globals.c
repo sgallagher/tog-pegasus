@@ -30,10 +30,15 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
+#include <stddef.h>
 #include "Globals.h"
 
-const char* globalArg0;
-int globalChildPid;
-int globalChildUid;
-int globalChildGid;
-unsigned long globalSignalMask;
+struct Globals globals =
+{
+    NULL, /* arg0 */
+    0, /* childPid */
+    0, /* childUid */
+    0, /* childGid */
+    0, /* signalMask */
+    0, /* enableAuthentication */
+};

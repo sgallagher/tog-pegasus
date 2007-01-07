@@ -36,6 +36,8 @@
 #include <syslog.h>
 #include <string.h>
 #include <stdarg.h>
+#include "Strlcpy.h"
+#include "Strlcat.h"
 
 static enum LogLevel _level = LL_INFORMATION;
 
@@ -64,6 +66,21 @@ void Log(enum LogLevel type, const char *format, ...)
         LOG_NOTICE, /* LL_INFORMATION */
         LOG_INFO, /* LL_TRACE */
     };
+    static const char* _prefix[] =
+    {
+        "fatal",
+        "severe",
+        "warning",
+        "information",
+        "trace"
+    };
+    char prefixedFormat[EXECUTOR_BUFFER_SIZE];
+
+    /* Prefix the format with the log level. */
+
+    Strlcpy(prefixedFormat, _prefix[(int)type], sizeof(prefixedFormat));
+    Strlcat(prefixedFormat, ": ", sizeof(prefixedFormat));
+    Strlcat(prefixedFormat, format, sizeof(prefixedFormat));
 
     /* This array maps Pegasus "log levels" to syslog priorities. */
 
@@ -71,7 +88,7 @@ void Log(enum LogLevel type, const char *format, ...)
     {
         va_list ap;
         va_start(ap, format);
-        vsyslog(_priorities[(int)type], format, ap);
+        vsyslog(_priorities[(int)type], prefixedFormat, ap);
         va_end(ap);
     }
 }

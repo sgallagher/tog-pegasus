@@ -129,6 +129,7 @@ class ProviderAgentContainer
 {
 public:
     ProviderAgentContainer(
+        const SessionKey& sessionKey,
         const String & moduleName,
         const String & userName,
         Uint16 userContext,
@@ -218,6 +219,11 @@ private:
         the Provider Agent state.
      */
     Mutex _agentMutex;
+
+    /**
+        Session key of the user on whose behalf this provider agent was loaded.
+    */
+    SessionKey _sessionKey;
 
     /**
         Name of the provider module served by this Provider Agent.
@@ -340,6 +346,7 @@ CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
     reinterpret_cast<CIMResponseMessage*>(&_REQUEST_NOT_PROCESSED);
 
 ProviderAgentContainer::ProviderAgentContainer(
+    const SessionKey& sessionKey,
     const String & moduleName,
     const String & userName,
     Uint16 userContext,
@@ -347,7 +354,9 @@ ProviderAgentContainer::ProviderAgentContainer(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback,
     Boolean subscriptionInitComplete)
-    : _moduleName(moduleName),
+    : 
+      _sessionKey(sessionKey),
+      _moduleName(moduleName),
       _userName(userName),
       _userContext(userContext),
       _indicationCallback(indicationCallback),
@@ -426,6 +435,7 @@ void ProviderAgentContainer::_startAgentProcess()
     AnonymousPipe* writePipe;
 
     int status = Executor::startProviderAgent(
+        _sessionKey,
         (const char*)_moduleName.getCString(),
         newUid,
         newGid,
@@ -1499,9 +1509,6 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
 
     if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
     {
-/*
-MEB: POI: getting username to use in creating provider (from IdentityContainer).
-*/
         if (request->operationContext.contains(IdentityContainer::NAME))
         {
             // User Name is in the OperationContext
@@ -1552,7 +1559,7 @@ MEB: POI: getting username to use in creating provider (from IdentityContainer).
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
-            moduleName, userName, userContext,
+            request->sessionKey, moduleName, userName, userContext,
             _indicationCallback, _responseChunkCallback,
             _providerModuleFailCallback,
             _subscriptionInitComplete);

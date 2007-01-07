@@ -79,7 +79,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
 
-    if (Executor::pamAuthenticate(
+    if (Executor::authenticatePassword(
         userName.getCString(), password.getCString(), sessionKey) != 0)
     {
         return false;
@@ -94,7 +94,7 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::validateUser()");
 
-    if (Executor::pamValidateUser(userName.getCString()) != 0)
+    if (Executor::validateUser(userName.getCString()) != 0)
         return false;
 
     PEG_METHOD_EXIT();

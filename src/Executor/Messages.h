@@ -64,10 +64,10 @@ enum ExecutorMessageCode
     EXECUTOR_REMOVE_FILE_MESSAGE,
     EXECUTOR_RENAME_FILE_MESSAGE,
     EXECUTOR_WAIT_PID_MESSAGE,
-    EXECUTOR_PAM_AUTHENTICATE_MESSAGE,
-    EXECUTOR_PAM_VALIDATE_USER_MESSAGE,
-    EXECUTOR_START_LOCAL_AUTH_MESSAGE,
-    EXECUTOR_FINISH_LOCAL_AUTH_MESSAGE
+    EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE,
+    EXECUTOR_VALIDATE_USER_MESSAGE,
+    EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
+    EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE
 };
 
 /*
@@ -165,6 +165,7 @@ struct ExecutorRenameFileResponse
 
 struct ExecutorStartProviderAgentRequest
 {
+    char key[EXECUTOR_BUFFER_SIZE];
     char module[EXECUTOR_BUFFER_SIZE];
     int uid;
     int gid;
@@ -210,18 +211,18 @@ struct ExecutorWaitPidResponse
 /*
 **==============================================================================
 **
-** EXECUTOR_PAM_AUTHENTICATE_MESSAGE
+** EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE
 **
 **==============================================================================
 */
 
-struct ExecutorPAMAuthenticateRequest
+struct ExecutorAuthenticatePasswordRequest
 {
     char username[EXECUTOR_BUFFER_SIZE];
     char password[EXECUTOR_BUFFER_SIZE];
 };
 
-struct ExecutorPAMAuthenticateResponse
+struct ExecutorAuthenticatePasswordResponse
 {
     int status;
     char key[EXECUTOR_BUFFER_SIZE];
@@ -235,12 +236,12 @@ struct ExecutorPAMAuthenticateResponse
 **==============================================================================
 */
 
-struct ExecutorPAMValidateUserRequest
+struct ExecutorValidateUserRequest
 {
     char username[EXECUTOR_BUFFER_SIZE];
 };
 
-struct ExecutorPAMValidateUserResponse
+struct ExecutorValidateUserResponse
 {
     int status;
 };
@@ -248,38 +249,38 @@ struct ExecutorPAMValidateUserResponse
 /*
 **==============================================================================
 **
-** EXECUTOR_START_LOCAL_AUTH_MESSAGE
+** EXECUTOR_CHALLENGE_LOCAL_MESSAGE
 **
 **==============================================================================
 */
 
-struct ExecutorStartLocalAuthRequest
+struct ExecutorChallengeLocalRequest
 {
     char user[EXECUTOR_BUFFER_SIZE];
 };
 
-struct ExecutorStartLocalAuthResponse
+struct ExecutorChallengeLocalResponse
 {
     int status;
-    char path[EXECUTOR_BUFFER_SIZE];
+    char challenge[EXECUTOR_BUFFER_SIZE];
     char key[EXECUTOR_BUFFER_SIZE];
 };
 
 /*
 **==============================================================================
 **
-** EXECUTOR_FINISH_LOCAL_AUTH_MESSAGE
+** EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE
 **
 **==============================================================================
 */
 
-struct ExecutorFinishLocalAuthRequest
+struct ExecutorAuthenticateLocalRequest
 {
     char key[EXECUTOR_BUFFER_SIZE];
     char token[EXECUTOR_BUFFER_SIZE];
 };
 
-struct ExecutorFinishLocalAuthResponse
+struct ExecutorAuthenticateLocalResponse
 {
     int status;
 };

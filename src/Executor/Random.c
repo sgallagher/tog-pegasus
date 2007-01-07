@@ -88,6 +88,9 @@ static int _fillRandomBytes1(unsigned char* data, size_t size)
 ** FillRandomBytes2()
 **
 **     Fills *data* with *size* random bytes using the standard rand() function.
+**     Note: this function uses srand(), which is generally not considered
+**     "random" enough for security purposes but it is only used if
+**     FillRandomBytes1() fails.
 **
 **==============================================================================
 */
@@ -99,6 +102,8 @@ static void _fillRandomBytes2(unsigned char* data, size_t size)
     /* Seed the random number generator. */
 
     gettimeofday(&tv, 0);
+
+    /* Flawfinder: ignore */
     srand(tv.tv_usec);
 
     /* Fill data with random bytes. */

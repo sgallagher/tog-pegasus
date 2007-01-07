@@ -70,7 +70,7 @@
 
 static void _sigHandler(int signum)
 {
-    SetBit(&globalSignalMask, signum);
+    SetBit(&globals.signalMask, signum);
 }
 
 /*
@@ -185,10 +185,9 @@ static void HandleStartProviderAgentRequest(int sock)
     int to[2];
     int from[2];
     struct ExecutorStartProviderAgentResponse response;
+    struct ExecutorStartProviderAgentRequest request;
 
     /* Read request. */
-
-    struct ExecutorStartProviderAgentRequest request;
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
@@ -196,12 +195,32 @@ static void HandleStartProviderAgentRequest(int sock)
     Log(LL_TRACE, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
         request.module, request.gid, request.uid);
 
+    /* Check for a valid session key. */
+
+    if (globals.enableAuthentication)
+    {
+        SessionKey key;
+        int uid;
+
+        Strlcpy(key.data, request.key, sizeof(key.data));
+
+        if (GetSessionKeyUid(&key, &uid) != 0)
+        {
+            Log(LL_WARNING, 
+                "Unknown session key in START_PROVIDER_AGENT operation");
+        }
+    }
+
+/*
+MEB: remove following logic.
+*/
+
     /*
      * Map cimservermain user to root to preserve pre-privilege-separation
      * behavior.
      */
 
-    if (request.uid == globalChildUid)
+    if (request.uid == globals.childUid)
     {
         Log(LL_TRACE, 
             "using root instead of cimservermain user for cimprovagt");
@@ -553,29 +572,29 @@ static void HandleWaitPidRequest(int sock)
 /*
 **==============================================================================
 **
-** HandlePAMAuthenticateRequest()
+** HandleAuthenticatePasswordRequest()
 **
 **==============================================================================
 */
 
-static void HandlePAMAuthenticateRequest(int sock)
+static void HandleAuthenticatePasswordRequest(int sock)
 {
     int status;
-    struct ExecutorPAMAuthenticateResponse response;
+    struct ExecutorAuthenticatePasswordResponse response;
     int gid;
     int uid;
     SessionKey key;
 
     /* Read the request request. */
 
-    struct ExecutorPAMAuthenticateRequest request;
+    struct ExecutorAuthenticatePasswordRequest request;
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
     /* Rename the file. */
 
-    Log(LL_TRACE, "HandlePAMAuthenticateRequest(): username=%s",
+    Log(LL_TRACE, "HandleAuthenticatePasswordRequest(): username=%s",
         request.username);
 
     /* Perform the operation: */
@@ -634,16 +653,16 @@ static void HandlePAMAuthenticateRequest(int sock)
 /*
 **==============================================================================
 **
-** HandlePAMValidateUserRequest()
+** HandleValidateUserRequest()
 **
 **==============================================================================
 */
 
-static void HandlePAMValidateUserRequest(int sock)
+static void HandleValidateUserRequest(int sock)
 {
     int status;
-    struct ExecutorPAMValidateUserResponse response;
-    struct ExecutorPAMValidateUserRequest request;
+    struct ExecutorValidateUserResponse response;
+    struct ExecutorValidateUserRequest request;
 
     /* Read the request request. */
 
@@ -653,7 +672,7 @@ static void HandlePAMValidateUserRequest(int sock)
     /* Validate the user with PAM. */
 
     Log(LL_TRACE, 
-        "HandlePAMValidateUserRequest(): username=%s", request.username);
+        "HandleValidateUserRequest(): username=%s", request.username);
 
     /* Get the uid for the username. */
 
@@ -685,25 +704,25 @@ static void HandlePAMValidateUserRequest(int sock)
 /*
 **==============================================================================
 **
-** HandleStartLocalAuthRequest()
+** HandleChallengeLocalRequest()
 **
 **==============================================================================
 */
 
-static void HandleStartLocalAuthRequest(int sock)
+static void HandleChallengeLocalRequest(int sock)
 {
     char path[EXECUTOR_BUFFER_SIZE];
     SessionKey key;
     int status;
-    struct ExecutorStartLocalAuthRequest request;
-    struct ExecutorStartLocalAuthResponse response;
+    struct ExecutorChallengeLocalRequest request;
+    struct ExecutorChallengeLocalResponse response;
 
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
-    Log(LL_TRACE, "HandleStartLocalAuthRequest(): user=%s", request.user);
+    Log(LL_TRACE, "HandleChallengeLocalRequest(): user=%s", request.user);
 
     /* Peform operation. */
 
@@ -719,7 +738,7 @@ static void HandleStartLocalAuthRequest(int sock)
 
     memset(&response, 0, sizeof(response));
     response.status = status;
-    Strlcpy(response.path, path, sizeof(response.path));
+    Strlcpy(response.challenge, path, sizeof(response.challenge));
     Strlcpy(response.key, key.data, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
@@ -729,25 +748,25 @@ static void HandleStartLocalAuthRequest(int sock)
 /*
 **==============================================================================
 **
-** HandleFinishLocalAuthRequest()
+** HandleAuthenticateLocalRequest()
 **
 **==============================================================================
 */
 
-static void HandleFinishLocalAuthRequest(int sock)
+static void HandleAuthenticateLocalRequest(int sock)
 {
     SessionKey key;
     int status;
-    struct ExecutorFinishLocalAuthResponse response;
+    struct ExecutorAuthenticateLocalResponse response;
 
     /* Read the request request. */
 
-    struct ExecutorFinishLocalAuthRequest request;
+    struct ExecutorAuthenticateLocalRequest request;
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
-    Log(LL_TRACE, "HandleFinishLocalAuthRequest(): key=%s", request.key);
+    Log(LL_TRACE, "HandleAuthenticateLocalRequest()");
 
     /* Peform operation. */
 
@@ -806,7 +825,7 @@ void Parent(int sock, int childPid)
 
     /* Save child PID globally; it is used by Exit() function. */
 
-    globalChildPid = childPid;
+    globals.childPid = childPid;
 
     /* Prepares socket into non-blocking I/O. */
 
@@ -867,20 +886,20 @@ void Parent(int sock, int childPid)
                 HandleWaitPidRequest(sock);
                 break;
 
-            case EXECUTOR_PAM_AUTHENTICATE_MESSAGE:
-                HandlePAMAuthenticateRequest(sock);
+            case EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE:
+                HandleAuthenticatePasswordRequest(sock);
                 break;
 
-            case EXECUTOR_PAM_VALIDATE_USER_MESSAGE:
-                HandlePAMValidateUserRequest(sock);
+            case EXECUTOR_VALIDATE_USER_MESSAGE:
+                HandleValidateUserRequest(sock);
                 break;
 
-            case EXECUTOR_START_LOCAL_AUTH_MESSAGE:
-                HandleStartLocalAuthRequest(sock);
+            case EXECUTOR_CHALLENGE_LOCAL_MESSAGE:
+                HandleChallengeLocalRequest(sock);
                 break;
 
-            case EXECUTOR_FINISH_LOCAL_AUTH_MESSAGE:
-                HandleFinishLocalAuthRequest(sock);
+            case EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE:
+                HandleAuthenticateLocalRequest(sock);
                 break;
 
             default:

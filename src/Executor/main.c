@@ -214,7 +214,7 @@ int main(int argc, char** argv)
 
     /* Save as global so it can be used in error and log messages. */
 
-    globalArg0 = argv[0];
+    globals.arg0 = argv[0];
 
     /* Get absolute cimservermain program name. */
 
@@ -231,15 +231,26 @@ int main(int argc, char** argv)
 
     /* If CIMSERVERMAIN is already running, warn and exit now. */
 
-
     if (TestCimServerProcess() == 0)
     {
         fprintf(stderr,
             "%s: cimserver is already running (the PID found in the file "
             "\"%s\" corresponds to an existing process named \"%s\").\n\n",
-            globalArg0, PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);
+            globals.arg0, PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);
 
         exit(1);
+    }
+
+    /* Get enableAuthentication configuration option. */
+
+    {
+        char buffer[EXECUTOR_BUFFER_SIZE];
+
+        if (GetConfigParam(argc, argv, "enableAuthentication", buffer) == 0 &&
+            strcasecmp(buffer, "true") == 0)
+        {
+            globals.enableAuthentication = 1;
+        }
     }
 
     /* Create a socket pair for communicating with the child process. */
@@ -279,9 +290,16 @@ int main(int argc, char** argv)
     if (setuid(0) != 0 || setgid(0) != 0)
     {
         Log(LL_FATAL, "attempted to run program as non-root user");
-        fprintf(stderr, "%s: this program must be run as root\n", globalArg0);
+        fprintf(stderr, "%s: this program must be run as root\n", globals.arg0);
         exit(0);
     }
+
+    /* Warn if authentication not enabled (strange use of executor if not). */
+
+    if (!globals.enableAuthentication)
+        Log(LL_WARNING, "authentication is NOT enabled");
+    else
+        Log(LL_INFORMATION, "authentication is enabled");
 
     /* Print user info. */
 
@@ -294,7 +312,7 @@ int main(int argc, char** argv)
     /* Determine user for running cimservermain. */
 
     GetServerUser(
-        argc, argv, cimservermainPath, &globalChildUid, &globalChildGid);
+        argc, argv, cimservermainPath, &globals.childUid, &globals.childGid);
 
     /* Fork child process. */
 
@@ -305,7 +323,7 @@ int main(int argc, char** argv)
         /* Child. */
         close(pair[1]);
         Child(argc, argv, 
-            cimservermainPath, globalChildUid, globalChildGid, pair[0]);
+            cimservermainPath, globals.childUid, globals.childGid, pair[0]);
     }
     else if (childPid > 0)
     {

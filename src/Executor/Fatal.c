@@ -36,8 +36,7 @@
 #include "Fatal.h"
 #include "Log.h"
 #include "Exit.h"
-
-extern const char* globalArg0;
+#include "Globals.h"
 
 /*
 **==============================================================================
@@ -68,7 +67,7 @@ void Fatal(const char* file, size_t line, const char* format, ...)
     {
         va_list ap;
 
-        fprintf(stderr, "%s: %s(%d): ", globalArg0, file, (int)line);
+        fprintf(stderr, "%s: %s(%d): ", globals.arg0, file, (int)line);
         va_start(ap, format);
         /* Flawfinder: ignore */
         vfprintf(stderr, format, ap);

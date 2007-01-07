@@ -52,8 +52,8 @@ void Exit(int status)
 
     /* Kill cimservermain. */
 
-    if (globalChildPid > 0)
-        kill(globalChildPid, SIGTERM);
+    if (globals.childPid > 0)
+        kill(globals.childPid, SIGTERM);
 
     exit(status);
 }

@@ -100,7 +100,7 @@ Boolean SecureLocalAuthenticator::authenticate(
             (const char*)secretKept.getCString(), 
             sessionKey.size());
 
-        if (Executor::finishLocalAuth(
+        if (Executor::authenticateLocal(
             sessionKey, (const char*)secretReceived.getCString()) == 0)
         {
             authenticated = true;
@@ -173,7 +173,7 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
         char path[EXECUTOR_BUFFER_SIZE];
         SessionKey sessionKey;
 
-        if (Executor::startLocalAuth(
+        if (Executor::challengeLocal(
             userName.getCString(), path, sessionKey) != 0)
         {
             throw CannotOpenFile(path);

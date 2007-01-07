@@ -256,6 +256,7 @@ static int InProcess_startProviderAgent(
 #else /* POSIX CASE FOLLOWS */
 
 static int InProcess_startProviderAgent(
+    const SessionKey& sessionKey,
     const char* module, 
     int uid,
     int gid, 
@@ -422,7 +423,7 @@ static int InProcess_waitPid(
     return status;
 }
 
-static int InProcess_pamAuthenticate(
+static int InProcess_authenticatePassword(
     const char* username,
     const char* password,
     SessionKey& sessionKey)
@@ -436,7 +437,7 @@ static int InProcess_pamAuthenticate(
 #endif
 }
 
-static int InProcess_pamValidateUser(
+static int InProcess_validateUser(
     const char* username)
 {
 #if defined(PEGASUS_PAM_AUTHENTICATION)
@@ -728,6 +729,7 @@ static int OutOfProcess_removeFile(
 }
 
 static int OutOfProcess_startProviderAgent(
+    const SessionKey& sessionKey,
     const char* module, 
     int uid,
     int gid, 
@@ -759,6 +761,7 @@ static int OutOfProcess_startProviderAgent(
 
     ExecutorStartProviderAgentRequest request;
     memset(&request, 0, sizeof(request));
+    Strlcpy(request.key, sessionKey.data(), sizeof(request.key));
     memcpy(request.module, module, n);
     request.uid = uid;
     request.gid = gid;
@@ -860,7 +863,7 @@ static int OutOfProcess_waitPid(
     return response.status;
 }
 
-static int OutOfProcess_pamAuthenticate(
+static int OutOfProcess_authenticatePassword(
     const char* username,
     const char* password,
     SessionKey& sessionKey)
@@ -872,14 +875,14 @@ static int OutOfProcess_pamAuthenticate(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_PAM_AUTHENTICATE_MESSAGE;
+    header.code = EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // _send request body.
 
-    ExecutorPAMAuthenticateRequest request;
+    ExecutorAuthenticatePasswordRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
     Strlcpy(request.password, password, EXECUTOR_BUFFER_SIZE);
@@ -889,7 +892,7 @@ static int OutOfProcess_pamAuthenticate(
 
     // Receive the response
 
-    ExecutorPAMAuthenticateResponse response;
+    ExecutorAuthenticatePasswordResponse response;
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
@@ -899,7 +902,7 @@ static int OutOfProcess_pamAuthenticate(
     return response.status;
 }
 
-static int OutOfProcess_pamValidateUser(
+static int OutOfProcess_validateUser(
     const char* username)
 {
     AutoMutex autoMutex(_mutex);
@@ -907,14 +910,14 @@ static int OutOfProcess_pamValidateUser(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_PAM_VALIDATE_USER_MESSAGE;
+    header.code = EXECUTOR_VALIDATE_USER_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // _send request body.
 
-    ExecutorPAMValidateUserRequest request;
+    ExecutorValidateUserRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
 
@@ -923,7 +926,7 @@ static int OutOfProcess_pamValidateUser(
 
     // Receive the response
 
-    ExecutorPAMValidateUserResponse response;
+    ExecutorValidateUserResponse response;
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
@@ -931,9 +934,9 @@ static int OutOfProcess_pamValidateUser(
     return response.status;
 }
 
-int OutOfProcess_startLocalAuth(
+int OutOfProcess_challengeLocal(
     const char* user,
-    char path[EXECUTOR_BUFFER_SIZE],
+    char challenge[EXECUTOR_BUFFER_SIZE],
     SessionKey& sessionKey)
 {
     AutoMutex autoMutex(_mutex);
@@ -941,14 +944,14 @@ int OutOfProcess_startLocalAuth(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_START_LOCAL_AUTH_MESSAGE;
+    header.code = EXECUTOR_CHALLENGE_LOCAL_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // _send request body.
 
-    ExecutorStartLocalAuthRequest request;
+    ExecutorChallengeLocalRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.user, user, EXECUTOR_BUFFER_SIZE);
 
@@ -957,18 +960,18 @@ int OutOfProcess_startLocalAuth(
 
     // Receive the response
 
-    ExecutorStartLocalAuthResponse response;
+    ExecutorChallengeLocalResponse response;
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
 
     Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
-    Strlcpy(path, response.path, EXECUTOR_BUFFER_SIZE);
+    Strlcpy(challenge, response.challenge, EXECUTOR_BUFFER_SIZE);
 
     return response.status;
 }
 
-int OutOfProcess_finishLocalAuth(
+int OutOfProcess_authenticateLocal(
     const SessionKey& sessionKey,
     const char* token)
 {
@@ -977,14 +980,14 @@ int OutOfProcess_finishLocalAuth(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_FINISH_LOCAL_AUTH_MESSAGE;
+    header.code = EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // _send request body.
 
-    ExecutorFinishLocalAuthRequest request;
+    ExecutorAuthenticateLocalRequest request;
     memset(&request, 0, sizeof(request));
     Strlcpy(request.key, (char*)sessionKey.data(), EXECUTOR_BUFFER_SIZE);
     Strlcpy(request.token, token, EXECUTOR_BUFFER_SIZE);
@@ -994,7 +997,7 @@ int OutOfProcess_finishLocalAuth(
 
     // Receive the response
 
-    ExecutorFinishLocalAuthResponse response;
+    ExecutorAuthenticateLocalResponse response;
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
@@ -1049,7 +1052,7 @@ FILE* Executor::openFile(
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     return OutOfProcess_openFile(path, mode);
 #else
-    return -1;
+    return NULL;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
@@ -1081,6 +1084,7 @@ int Executor::removeFile(
 }
 
 int Executor::startProviderAgent(
+    const SessionKey& sessionKey,
     const char* module, 
     int uid,
     int gid, 
@@ -1090,11 +1094,11 @@ int Executor::startProviderAgent(
 {
     if (_getSock() == -1)
         return InProcess_startProviderAgent(
-            module, uid, gid, pid, readPipe, writePipe);
+            sessionKey, module, uid, gid, pid, readPipe, writePipe);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     return OutOfProcess_startProviderAgent(
-        module, uid, gid, pid, readPipe, writePipe);
+        sessionKey, module, uid, gid, pid, readPipe, writePipe);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1125,35 +1129,35 @@ int Executor::waitPid(
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
-int Executor::pamAuthenticate(
+int Executor::authenticatePassword(
     const char* username,
     const char* password,
     SessionKey& sessionKey)
 {
     if (_getSock() == -1)
-        return InProcess_pamAuthenticate(username, password, sessionKey);
+        return InProcess_authenticatePassword(username, password, sessionKey);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_pamAuthenticate(username, password, sessionKey);
+    return OutOfProcess_authenticatePassword(username, password, sessionKey);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
-int Executor::pamValidateUser(
+int Executor::validateUser(
     const char* username)
 {
     if (_getSock() == -1)
-        return InProcess_pamValidateUser(username);
+        return InProcess_validateUser(username);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_pamValidateUser(username);
+    return OutOfProcess_validateUser(username);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
-int Executor::startLocalAuth(
+int Executor::challengeLocal(
     const char* user,
     char path[EXECUTOR_BUFFER_SIZE],
     SessionKey& sessionKey)
@@ -1162,21 +1166,21 @@ int Executor::startLocalAuth(
         return -1;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_startLocalAuth(user, path, sessionKey);
+    return OutOfProcess_challengeLocal(user, path, sessionKey);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
-int Executor::finishLocalAuth(
+int Executor::authenticateLocal(
     const SessionKey& sessionKey,
-    const char* token)
+    const char* challengeResponse)
 {
     if (_getSock() == -1)
         return -1;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_finishLocalAuth(sessionKey, token);
+    return OutOfProcess_authenticateLocal(sessionKey, challengeResponse);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */

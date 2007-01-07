@@ -34,10 +34,39 @@
 #ifndef _Executor_Globals_h
 #define _Executor_Globals_h
 
-extern const char* globalArg0;
-extern int globalChildPid;
-extern int globalChildUid;
-extern int globalChildGid;
-extern unsigned long globalSignalMask;
+/*
+**==============================================================================
+**
+** struct Globals
+**
+**     This structure contains all globally visible data.
+**
+**==============================================================================
+*/
+
+struct Globals
+{
+    /* Same as argv[0] passed to main(). */
+    const char* arg0;
+
+    /* PID of child process (cimservermain). */
+    int childPid;
+
+    /* UID of child process (cimservermain). */
+    int childUid;
+
+    /* UID of child process (cimservermain). */
+    int childGid;
+
+    /* Mask of signals encountered by executor process. */
+    unsigned long signalMask;
+
+    /* Same as the Pegasus enableAuthentication configuration option, either
+     * passed to the command line or found in the planned configuration file.
+     */
+    int enableAuthentication;
+};
+
+extern struct Globals globals;
 
 #endif /* _Executor_Globals_h */

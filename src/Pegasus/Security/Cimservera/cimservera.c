@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
         if (status != 0)
         {
-            syslog(LOG_WARNING, "PAM authentication failed on user \"%s\"",
+            syslog(LOG_WARNING, "user \"%s\" failed to authenticate",
                 request.arg1);
         }
 
@@ -131,10 +131,7 @@ int main(int argc, char* argv[])
         int status = PAMValidateUserInProcess(request.arg1);
 
         if (status != 0)
-        {
-            syslog(LOG_WARNING, "PAM user validation failed on user \"%s\"",
-                request.arg1);
-        }
+            syslog(LOG_WARNING, "failed to validate user \"%s\"", request.arg1);
 
         Exit(status == 0 ? 0 : 1);
     }

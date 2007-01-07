@@ -499,6 +499,8 @@ MEB: POI: pass sessionKey to handleMethodCall() below.
 */
     SessionKey sessionKey = httpMessage->authInfo->getSessionKey();
 
+    SessionKey erp;
+
     handleMethodCall(
         queueId,
         httpMethod,

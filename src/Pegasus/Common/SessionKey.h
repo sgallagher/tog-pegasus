@@ -45,16 +45,19 @@ PEGASUS_NAMESPACE_BEGIN
 
         62DC257868A5453C874B4C6873F050DD
 
-    When running without privilege separation (that is without an executor),
-    this key is zero-filled.
+    When running without privilege separation or without authentication,
+    the SessionKey is inapplicable. By default, the session key is null
+    (i.e., FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).
 */
 class SessionKey
 {
 public:
 
+    enum { SESSION_KEY_LENGTH = 32 };
+
     SessionKey()
     {
-        memset(_data, sizeof(_data), 0);
+        clear();
     }
 
     SessionKey(const SessionKey& x)
@@ -66,12 +69,14 @@ public:
     {
         if (&x != this)
             memcpy(_data, x._data, sizeof(_data));
+
         return *this;
     }
 
     void clear()
     {
-        memset(_data, sizeof(_data), 0);
+        memset(_data, 'F', SESSION_KEY_LENGTH);
+        _data[SESSION_KEY_LENGTH] = '\0';
     }
 
     const char* data() const 
@@ -84,9 +89,15 @@ public:
         return sizeof(_data);
     }
 
+    bool null() const
+    {
+        return memcmp(
+            _data, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", sizeof(_data)) == 0;
+    }
+
 private:
 
-    char _data[33];
+    char _data[SESSION_KEY_LENGTH+1];
 };
 
 PEGASUS_NAMESPACE_END

@@ -1,27 +1,54 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Check SessionKey in HandleStartAgenProvider().
+    [EASY]
+    (A) Add PEGASUS_SERVER_USER (default "pegasus") to Constants.h and remove
+        serverUser configuration parameter. Also remove logic which deduces
+        the user from the cimservermain program owner.
 
+    [HARD]
+    (A) Finish SessionKey checking (don't forget to delete session key when
+        user is finished).
+
+    [HARD]
     (A) Implement policy.
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
-    (B) Test on Windows.
+    [EASY]
+    (B) Remove fingerprint checking from child programs.
 
-    (B) Handle shutdownTimeout option in cimshutdown (pass it as command line
-        argument).
+    [EASY]
+    (B) Handle shutdownTimeout option in cimshutdown (pass it as command 
+        line argument).
 
-    (B) Test without privilege separation.
-
+    [MODERATE]
     (B) Rework so that PG_ProviderModule.userContext=5 (CIM server) causes
         provider agent to run as server user (fix related tests).
 
+    [MODERATE]
+    (B) Test without privilege separation.
+
+    [MODERATE]
+    (B) Test on Windows.
+
+    [EASY]
+    (B) Rename these:
+
+            PAM_VALIDATE_USER ==> VALIDATE_USER
+            PAM_AUTHENTICATE ==> AUTHENTICATE_PASSWORD
+
+            START_LOCAL_AUTH ==> CHALLENGE_LOCAL
+            FINISH_LOCAL_AUTH ==> AUTHENTICATE_LOCAL
+
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-    (C) Add executor fingerprint checking to cimservera program.
+    (C) Consider implementing rotating session key.
 
-    (C) Convert executor to pure C program.
+    (C) Consider creating cimexecutor.conf file with serverUser option.
+
+    (C) Consider adding a VERIFY_USER message. This operation should cache
+        the verified user for the ensuing authentication operation.
 
     (C) Generate provider policy file automatically from repository.
 
@@ -32,7 +59,4 @@
     (C) Propose precheck program that verifies proper file ownership (e.g.,
         private key must be owned by root, all other files must be owned
         by root but not writable by anyone else.
-
-    (C) Consider disabling delay in PAM module so that it can be moved into
-        the server.
 

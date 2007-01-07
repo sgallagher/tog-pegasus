@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +35,7 @@
 #define Pegasus_CIMOperationRequestDecoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
@@ -46,13 +48,13 @@ class XmlParser;
 
 /** This class decodes CIM operation requests and passes them down-stream.
  */
-class CIMOperationRequestDecoder : public MessageQueue
+class CIMOperationRequestDecoder : public MessageQueueService
 {
 public:
-    typedef MessageQueue Base;
+    typedef MessageQueueService Base;
 
     CIMOperationRequestDecoder(
-        MessageQueue* outputQueue,
+        MessageQueueService* outputQueue,
         Uint32 returnQueueId);
 
    ~CIMOperationRequestDecoder();
@@ -78,15 +80,6 @@ public:
         const CIMException& cimException,
         Boolean closeConnect = false);
 
-    void sendUserAccountExpired(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        const String& methodName,
-        Boolean closeConnect,
-        Boolean isIMethod);
-
-
     void sendHttpError(
         Uint32 queueId,
         const String& status,
@@ -105,21 +98,16 @@ public:
         HttpMethod httpMethod,
         char* content,
         Uint32 contentLength,
-        const char* cimProtocolVersionInHeader,
+        const String& cimProtocolVersionInHeader,
         const String& cimMethodInHeader,
         const String& cimObjectInHeader,
         const String& authType,
         const String& userName,
-        const String& userRole,
-        const String& userPass,
-        Boolean isExpiredPassword,
-        Boolean updateExpiredPassword,
         const String& ipAddress,
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages,
         Boolean closeConnect,
-        Boolean binaryRequest,
-        Boolean binaryResponse);
+        const SessionKey& sessionKey);
 
     CIMCreateClassRequestMessage* decodeCreateClassRequest(
         Uint32 queueId,
@@ -274,21 +262,8 @@ public:
 
 private:
 
-#ifdef PEGASUS_PAM_SESSION_SECURITY
-    void _updateExpiredPassword(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        Boolean closeConnect,
-        const ContentLanguageList& httpContentLanguages,
-        CIMMessage* request,
-        const String& userName,
-        const String& oldPass,
-        const String& ipAddress);
-#endif
-
     // Do not make _outputQueue an AutoPtr.
-    MessageQueue* _outputQueue;
+    MessageQueueService* _outputQueue;
 
     // Queue where responses should be enqueued.
     Uint32 _returnQueueId;

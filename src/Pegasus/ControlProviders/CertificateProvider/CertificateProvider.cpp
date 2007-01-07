@@ -1695,6 +1695,7 @@ void CertificateProvider::invokeMethod(
                                              "The certificate is not valid yet.  Check the timestamps on your machine.");
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
+
                 if (CIMDateTime::getDifference(notAfter, CIMDateTime::getCurrentDateTime()) > 0) 
                 {
                     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL is expired.");
@@ -1702,7 +1703,6 @@ void CertificateProvider::invokeMethod(
                                              "The certificate has expired.");
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
-
             } catch (DateTimeOutOfRangeException& ex)
             {
                     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Certificate or CRL dates are out of range.");

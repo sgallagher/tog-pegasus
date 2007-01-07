@@ -72,5 +72,11 @@ ff:
 kloc:
 	kloc -d -f
 
-auth:
+authcimsever:
 	cimserver enableAuthentication=true daemon=false logLevel=TRACE
+
+sslcimserver:
+	cimserver enableHttpsConnection=true enableAuthentication=true sslClientVerificationMode=optional sslTrustStoreUserName=root
+
+testssl:
+	$(MAKE) -C ../.. -f TestMakefile run_SSL_TS1

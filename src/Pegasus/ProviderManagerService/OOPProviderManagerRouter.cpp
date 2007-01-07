@@ -1499,6 +1499,9 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
 
     if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
     {
+/*
+MEB: POI: getting username to use in creating provider (from IdentityContainer).
+*/
         if (request->operationContext.contains(IdentityContainer::NAME))
         {
             // User Name is in the OperationContext

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,189 +46,13 @@
 #include "CIMOperationRequestDecoder.h"
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/BinaryCodec.h>
-#include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/General/CIMError.h>
-
-#ifdef PEGASUS_PAM_SESSION_SECURITY
-#include <Pegasus/Security/Authentication/PAMSessionBasicAuthenticator.h>
-#include <Pegasus/Security/Authentication/AuthenticationStatus.h>
-#endif
-
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// throw CIM_ERR_NOT_SUPPORTED with no additional text
-void _throwCIMExceptionCIMErrNotSupported(const String& param = String::EMPTY)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, param);
-}
-
-// Throw CIM_ERR_INVALID_PARAMETER with optional parameter name(s)
-void _throwCIMExceptionInvalidParameter(const String& param = String::EMPTY)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, param);
-}
-
-// Common call for all cases where duplicate IparameterValues recieved
-// in a single operation. Throw InvalidParameter exception with optional
-// additional data.
-void _throwCIMExceptionDuplicateParameter(const String& name = String::EMPTY)
-{
-    _throwCIMExceptionInvalidParameter(name);
-}
-
-// Common call for cases where Invalid IParameterValue names recived
-void _throwCIMExceptionInvalidIParamName(const String& param = String::EMPTY)
-{
-    _throwCIMExceptionCIMErrNotSupported(param);
-}
-
-/******************************************************************************
-**
-**            CIMOperationRequestDecoder Class
-**
-******************************************************************************/
-
-#ifdef PEGASUS_PAM_SESSION_SECURITY
-void CIMOperationRequestDecoder::_updateExpiredPassword(
-    Uint32 queueId,
-    HttpMethod httpMethod,
-    const String& messageId,
-    Boolean closeConnect,
-    const ContentLanguageList& httpContentLanguages,
-    CIMMessage * request,
-    const String& userName,
-    const String& oldPass,
-    const String& ipAddress)
-{
-    static CIMName meth = CIMName("UpdateExpiredPassword");
-    static CIMName clName = CIMName("PG_Account");
-
-
-    // this has to be an invokeMethod and
-    if (CIM_INVOKE_METHOD_REQUEST_MESSAGE != request->getType())
-    {
-        sendHttpError(
-            queueId,
-            HTTP_STATUS_BADREQUEST,
-            "invalid header",
-            "Header \'Pragma: UpdateExpiredPassword\' not valid for this "
-                "CIMMethod.",
-            closeConnect);
-
-        return;
-    }
-
-    CIMInvokeMethodRequestMessage* msg =
-        dynamic_cast<CIMInvokeMethodRequestMessage*>(request);
-
-    // class PG_Account
-    // method UpdateExpiredPassword
-    // InterOp namespace
-    if ((!clName.equal(msg->className)) ||
-        (!(meth.equal(msg->methodName))) ||
-        (!msg->nameSpace.equal(PEGASUS_NAMESPACENAME_INTEROP.getString())))
-    {
-        // not of interest for us, chicken out
-        sendHttpError(
-            queueId,
-            HTTP_STATUS_BADREQUEST,
-            "invalid header",
-            "Header \'Pragma: UpdateExpiredPassword\' not valid for this "
-                "class, method or namespace.",
-            closeConnect);
-        return;
-    }
-
-    String newPass;
-    Boolean found = false;
-
-    try
-    {
-        // Get new password from request - String-type Parameter UserPassword
-        Array<CIMParamValue> inParm = msg->inParameters;
-        for (Uint32 i=0; i < inParm.size(); i++)
-        {
-            CIMParamValue x = inParm[i];
-            if (String::equalNoCase(x.getParameterName(),"UserPassword"))
-            {
-                CIMValue passValue = x.getValue();
-                passValue.get(newPass);
-                found = true;
-                break;
-            }
-        }
-    } catch(Exception &e)
-    {
-        // already know it is an invokeMethod, see checks above
-        sendMethodError(
-            queueId,
-            httpMethod,
-            messageId,
-            meth.getString(),
-            PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_INVALID_PARAMETER, e.getMessage()),
-            closeConnect);
-        return;
-    }
-    if (!found)
-    {
-        sendMethodError(
-            queueId,
-            httpMethod,
-            messageId,
-            meth.getString(),
-            PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_INVALID_PARAMETER, "Missing Parameter UserPassword"),
-            closeConnect);
-        return;
-    }
-    // Call password update function from PAMSession.h
-    AuthenticationStatus authStat =
-        PAMSessionBasicAuthenticator::updateExpiredPassword(
-            userName,
-            oldPass,
-            newPass,
-            ipAddress);
-
-    if (authStat.isSuccess())
-    {
-        // Send success message
-        Buffer message;
-        Buffer emptyBody;
-
-        message = XmlWriter::formatSimpleMethodRspMessage(
-            meth,
-            messageId,
-            httpMethod,
-            httpContentLanguages,
-            emptyBody,
-            0,
-            true,
-            true);
-
-        sendResponse(queueId, message,closeConnect);
-    }
-    else
-    {
-        sendHttpError(
-            queueId,
-            authStat.getHttpStatus(),
-            String::EMPTY,
-            authStat.getErrorDetail(),
-            closeConnect);
-    }
-}
-#endif
-
-
-
-
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
-    MessageQueue* outputQueue,
+    MessageQueueService* outputQueue,
     Uint32 returnQueueId)
     : Base(PEGASUS_QUEUENAME_OPREQDECODER),
       _outputQueue(outputQueue),
@@ -290,46 +116,6 @@ void CIMOperationRequestDecoder::sendMethodError(
     sendResponse(queueId, message,closeConnect);
 }
 
-void CIMOperationRequestDecoder::sendUserAccountExpired(
-    Uint32 queueId,
-    HttpMethod httpMethod,
-    const String& messageId,
-    const String& methodName,
-    Boolean closeConnect,
-    Boolean isIMethod)
-{
-    Buffer message;
-
-    CIMError errorInst;
-    errorInst.setErrorType(CIMError::ERROR_TYPE_OTHER);
-    errorInst.setOtherErrorType("Expired Password");
-    errorInst.setProbableCause(CIMError::PROBABLE_CAUSE_AUTHENTICATION_FAILURE);
-
-    CIMException myExc(
-        CIM_ERR_ACCESS_DENIED,
-        "User Account Expired",
-        errorInst.getInstance());
-
-    if (isIMethod)
-    {
-        message = XmlWriter::formatSimpleIMethodErrorRspMessage(
-            methodName,
-            messageId,
-            httpMethod,
-            myExc);
-    }
-    else
-    {
-        message = XmlWriter::formatSimpleMethodErrorRspMessage(
-            methodName,
-            messageId,
-            httpMethod,
-            myExc);
-    }
-
-    sendResponse(queueId, message,closeConnect);
-}
-
 void CIMOperationRequestDecoder::sendHttpError(
     Uint32 queueId,
     const String& status,
@@ -356,11 +142,6 @@ void CIMOperationRequestDecoder::handleEnqueue(Message* message)
         case HTTP_MESSAGE:
              handleHTTPMessage((HTTPMessage*)message);
              break;
-
-        default:
-            // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
-            break;
     }
 
     delete message;
@@ -387,7 +168,7 @@ void CIMOperationRequestDecoder::handleEnqueue()
 //
 //     M-POST /cimom HTTP/1.1
 //     HOST: www.erewhon.com
-//     Content-Type: application/xml; charset=utf-8
+//     Content-Type: application/xml; charset="utf-8"
 //     Content-Length: xxxx
 //     Man: http://www.dmtf.org/cim/operation ; ns=73
 //     73-CIMOperation: MethodCall
@@ -404,37 +185,30 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     // Set the Accept-Language into the thread for this service.
     // This will allow all code in this thread to get
     // the languages for the messages returned to the client.
-    Thread::setLanguages(httpMessage->acceptLanguages);
+    Thread::setLanguages(new AcceptLanguageList(httpMessage->acceptLanguages));
 
     // Save queueId:
 
     Uint32 queueId = httpMessage->queueId;
 
-    // Save userName, userRole, userPass and authType:
+    // Save userName and authType:
 
     String userName;
-    String userRole;
-    String userPass;
-    Boolean isExpiredPassword = false;
-    Boolean updateExpiredPassword;
     String authType;
     Boolean closeConnect = httpMessage->getCloseConnect();
 
     PEG_TRACE((
         TRC_HTTP,
-        Tracer::LEVEL4,
+        Tracer::LEVEL3,
         "CIMOperationRequestDecoder::handleHTTPMessage()- "
         "httpMessage->getCloseConnect() returned %d",
         closeConnect));
 
-    userName = httpMessage->authInfo->getAuthenticatedUser();
-    authType = httpMessage->authInfo->getAuthType();
-    userRole = httpMessage->authInfo->getUserRole();
-    userPass = httpMessage->authInfo->getAuthenticatedPassword();
-
-#ifdef PEGASUS_PAM_SESSION_SECURITY
-    isExpiredPassword = httpMessage->authInfo->isExpiredPassword();
-#endif
+    if (httpMessage->authInfo->isAuthenticated())
+    {
+        userName = httpMessage->authInfo->getAuthenticatedUser();
+        authType = httpMessage->authInfo->getAuthType();
+    }
 
     // Parse the HTTP message:
 
@@ -451,6 +225,9 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     String requestUri;
     String httpVersion;
     HttpMethod httpMethod = HTTP_METHOD__POST;
+
+    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
+        httpMessage->message.getData());
 
     HTTPMessage::parseRequestLine(
         startLine, methodName, requestUri, httpVersion);
@@ -474,6 +251,14 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Process M-POST and POST messages:
 
+    String cimContentType;
+    String cimOperation;
+    String cimBatch;
+    Boolean cimBatchFlag;
+    String cimProtocolVersion;
+    String cimMethod;
+    String cimObject;
+
     if (httpVersion == "HTTP/1.1")
     {
         // Validate the presence of a "Host" header.  The HTTP/1.1 specification
@@ -485,7 +270,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         //
         // Note:  The Host header value is not validated.
 
-        const char* hostHeader;
+        String hostHeader;
         Boolean hostHeaderFound = HTTPMessage::lookupHeader(
             headers, "Host", hostHeader, false);
 
@@ -507,15 +292,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMOperation" header:
 
-    const char* cimOperation;
-
+    Boolean operationHeaderFound = HTTPMessage::lookupHeader(
+        headers, "CIMOperation", cimOperation, true);
     // If the CIMOperation header was missing, the HTTPAuthenticatorDelegator
     // would not have passed the message to us.
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        HTTPMessage::lookupHeader(headers, "CIMOperation", cimOperation, true));
+    PEGASUS_ASSERT(operationHeaderFound);
 
-    if (System::strcasecmp(cimOperation, "MethodCall") != 0)
+    if (!String::equalNoCase(cimOperation, "MethodCall"))
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.4. CIMOperation
@@ -541,8 +324,9 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMBatch" header:
 
-    const char* cimBatch;
-    if (HTTPMessage::lookupHeader(headers, "CIMBatch", cimBatch, true))
+    cimBatchFlag = HTTPMessage::lookupHeader(
+        headers, "CIMBatch", cimBatch, true);
+    if (cimBatchFlag)
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.9. CIMBatch
@@ -562,25 +346,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Save these headers for later checking
 
-    const char* cimProtocolVersion;
     if (!HTTPMessage::lookupHeader(
         headers, "CIMProtocolVersion", cimProtocolVersion, true))
     {
         // Mandated by the Specification for CIM Operations over HTTP
-        cimProtocolVersion = "1.0";
+        cimProtocolVersion.assign("1.0");
     }
 
-    // Validate if Pragma: UpdateExpiredPassword is set
-    updateExpiredPassword = false;
-
-    String pragmaValue;
-    if(HTTPMessage::lookupHeader(headers,"Pragma",pragmaValue))
-    {
-        updateExpiredPassword =
-            (PEG_NOT_FOUND != pragmaValue.find("UpdateExpiredPassword"));
-    }
-
-    String cimMethod;
     if (HTTPMessage::lookupHeader(headers, "CIMMethod", cimMethod, true))
     {
         if (cimMethod == String::EMPTY)
@@ -621,7 +393,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         }
     }
 
-    String cimObject;
     if (HTTPMessage::lookupHeader(headers, "CIMObject", cimObject, true))
     {
         if (cimObject == String::EMPTY)
@@ -662,23 +433,25 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         }
     }
 
+    // Zero-terminate the message:
+
+    httpMessage->message.append('\0');
+
+    // Calculate the beginning of the content from the message size and
+    // the content length.  Subtract 1 to take into account the null
+    // character we just added to the end of the message.
+
+    content = (char*) httpMessage->message.getData() +
+    httpMessage->message.size() - contentLength - 1;
+
     // Validate the "Content-Type" header:
 
-    const char* cimContentType;
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", cimContentType, true);
-    String type;
-    String charset;
-    Boolean binaryRequest = false;
 
-    if (!contentTypeHeaderFound ||
-        !HTTPMessage::parseContentTypeHeader(cimContentType, type, charset) ||
-        (((!String::equalNoCase(type, "application/xml") &&
-         !String::equalNoCase(type, "text/xml")) ||
-        !String::equalNoCase(charset, "utf-8"))
-        && !(binaryRequest = String::equalNoCase(type,
-            "application/x-openpegasus"))
-        ))
+    // ATTN: Bug 5928: Need to validate that the content type is text/xml or
+    // application/xml, and the encoding is utf-8 (or compatible)
+    if (!contentTypeHeaderFound)
     {
         MessageLoaderParms parms(
             "Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR",
@@ -692,29 +465,10 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         PEG_METHOD_EXIT();
         return;
     }
-    // Calculate the beginning of the content from the message size and
-    // the content length.
-    if (binaryRequest)
-    {
-        // binary the "Content" also contains a few padding '\0' to align
-        // data structures to 8byte boundary
-        // the padding '\0' are also part of the counted contentLength
-        Uint32 headerEnd = httpMessage->message.size() - contentLength;
-        Uint32 binContentStart = CIMBuffer::round(headerEnd);
-
-        contentLength = contentLength - (binContentStart - headerEnd);
-        content = (char*) httpMessage->message.getData() + binContentStart;
-    }
-    else
-    {
-        content = (char*) httpMessage->message.getData() +
-            httpMessage->message.size() - contentLength;
-    }
-
     // Validating content falls within UTF8
     // (required to be complaint with section C12 of Unicode 4.0 spec,
     // chapter 3.)
-    if (!binaryRequest)
+    else
     {
         Uint32 count = 0;
         while(count<contentLength)
@@ -732,29 +486,18 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
                     closeConnect);
 
                 PEG_METHOD_EXIT();
-                return;
+                    return;
             }
             UTF8_NEXT(content,count);
         }
     }
 
-    // Check for "Accept: application/x-openpegasus" HTTP header to see if
-    // client can accept binary responses.
-
-    bool binaryResponse;
-
-    if (HTTPMessage::lookupHeader(headers, "Accept", type, true) &&
-        String::equalNoCase(type, "application/x-openpegasus"))
-    {
-        binaryResponse = true;
-    }
-    else
-    {
-        binaryResponse = false;
-    }
-    httpMessage->binaryResponse=binaryResponse;
-
     // If it is a method call, then dispatch it to be handled:
+
+/*
+MEB: POI: pass sessionKey to handleMethodCall() below.
+*/
+    SessionKey sessionKey = httpMessage->authInfo->getSessionKey();
 
     handleMethodCall(
         queueId,
@@ -766,16 +509,11 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         cimObject,
         authType,
         userName,
-        userRole,
-        userPass,
-        isExpiredPassword,
-        updateExpiredPassword,
         httpMessage->ipAddress,
         httpMessage->acceptLanguages,
         httpMessage->contentLanguages,
         closeConnect,
-        binaryRequest,
-        binaryResponse);
+        sessionKey);
 
     PEG_METHOD_EXIT();
 }
@@ -785,21 +523,16 @@ void CIMOperationRequestDecoder::handleMethodCall(
     HttpMethod httpMethod,
     char* content,
     Uint32 contentLength,    // used for statistics only
-    const char* cimProtocolVersionInHeader,
+    const String& cimProtocolVersionInHeader,
     const String& cimMethodInHeader,
     const String& cimObjectInHeader,
     const String& authType,
     const String& userName,
-    const String& userRole,
-    const String& userPass,
-    Boolean isExpiredPassword,
-    Boolean updateExpiredPassword,
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
     Boolean closeConnect,
-    Boolean binaryRequest,
-    Boolean binaryResponse)
+    const SessionKey& sessionKey)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDecoder::handleMethodCall()");
@@ -822,43 +555,19 @@ void CIMOperationRequestDecoder::handleMethodCall(
         return;
     }
 
-    PEG_TRACE((TRC_XML,Tracer::LEVEL4,
-        "CIMOperationRequestdecoder - XML content: %s",
-        content));
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestdecoder - XML content: $0", content));
 
-    //
-    // Handle binary messages:
-    //
+    // Create a parser:
 
-    AutoPtr<CIMOperationRequestMessage> request;
+    XmlParser parser(content);
+    XmlEntry entry;
     String messageId;
-    Boolean isIMethodCall = true;
+    const char* cimMethodName = "";
+    AutoPtr<CIMOperationRequestMessage> request;
 
-    if (binaryRequest)
+    try
     {
-        CIMBuffer buf(content, contentLength);
-        CIMBufferReleaser buf_(buf);
-
-        request.reset(BinaryCodec::decodeRequest(buf, queueId, _returnQueueId));
-
-        if (!request.get())
-        {
-            sendHttpError(
-                queueId,
-                HTTP_STATUS_BADREQUEST,
-                "Corrupt binary request message",
-                String::EMPTY,
-                closeConnect);
-            PEG_METHOD_EXIT();
-            return;
-        }
-    }
-    else try
-    {
-        XmlParser parser(content);
-        XmlEntry entry;
-        const char* cimMethodName = "";
-
         //
         // Process <?xml ... >
         //
@@ -876,7 +585,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
         XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
-        if (!XmlReader::isSupportedCIMVersion(cimVersion))
+        if (strcmp(cimVersion, "2.0") != 0)
         {
             MessageLoaderParms parms(
                 "Server.CIMOperationRequestDecoder.CIM_VERSION_NOT_SUPPORTED",
@@ -892,7 +601,28 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
         }
 
-        if (!XmlReader::isSupportedDTDVersion(dtdVersion))
+        // We accept DTD version 2.x (see Bugzilla 1556)
+
+        Boolean dtdVersionAccepted = false;
+
+        if ((dtdVersion[0] == '2') &&
+            (dtdVersion[1] == '.') &&
+            (dtdVersion[2] != 0))
+        {
+            // Verify that all characters after the '.' are digits
+            Uint32 index = 2;
+            while (isdigit(dtdVersion[index]))
+            {
+                index++;
+            }
+
+            if (dtdVersion[index] == 0)
+            {
+               dtdVersionAccepted = true;
+            }
+        }
+
+        if (!dtdVersionAccepted)
         {
             MessageLoaderParms parms(
                 "Server.CIMOperationRequestDecoder.DTD_VERSION_NOT_SUPPORTED",
@@ -923,6 +653,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
         }
 
         // Validate that the protocol version in the header matches the XML
+
         if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
         {
             MessageLoaderParms parms(
@@ -942,8 +673,30 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
         }
 
-        // Accept protocol version 1.x (see Bugzilla 1556)
-        if (!XmlReader::isSupportedProtocolVersion(protocolVersion))
+        // We accept protocol version 1.x (see Bugzilla 1556)
+
+        Boolean protocolVersionAccepted = false;
+
+        if ((protocolVersion.size() >= 3) &&
+            (protocolVersion[0] == '1') &&
+            (protocolVersion[1] == '.'))
+        {
+            // Verify that all characters after the '.' are digits
+            Uint32 index = 2;
+            while ((index < protocolVersion.size()) &&
+                   (protocolVersion[index] >= '0') &&
+                   (protocolVersion[index] <= '9'))
+            {
+                index++;
+            }
+
+            if (index == protocolVersion.size())
+            {
+                protocolVersionAccepted = true;
+            }
+        }
+
+        if (!protocolVersionAccepted)
         {
             // See Specification for CIM Operations over HTTP section 4.3
             MessageLoaderParms parms(
@@ -989,7 +742,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
         if (XmlReader::getIMethodCallStartTag(parser, cimMethodName))
         {
-            isIMethodCall = true;
             // The Specification for CIM Operations over HTTP reads:
             //     3.3.6. CIMMethod
             //
@@ -1124,7 +876,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                 {
                     MessageLoaderParms parms(
                         "Server.CIMOperationRequestDecoder."
-                            "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT",
+                            "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
                         "CIMObject value \"$0\" does not match CIM request "
                             "object \"$1\".",
                         cimObjectInHeader,
@@ -1281,7 +1033,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
         else if (XmlReader::getMethodCallStartTag(parser, cimMethodName))
         {
             CIMObjectPath reference;
-            isIMethodCall = false;
 
             // The Specification for CIM Operations over HTTP reads:
             //     3.3.6. CIMMethod
@@ -1445,11 +1196,11 @@ void CIMOperationRequestDecoder::handleMethodCall(
             {
                 MessageLoaderParms parms(
                     "Server.CIMOperationRequestDecoder."
-                        "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT",
+                        "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
                     "CIMObject value \"$0\" does not match CIM request "
                         "object \"$1\".",
                     cimObjectInHeader,
-                    reference.toString());
+                       reference.toString());
                 sendHttpError(
                     queueId,
                     HTTP_STATUS_BADREQUEST,
@@ -1536,10 +1287,10 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
     catch (XmlValidationError& e)
     {
-        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
             "CIMOperationRequestDecoder::handleMethodCall - "
-                "XmlValidationError exception has occurred. Message: %s",
-            (const char*) e.getMessage().getCString()));
+                "XmlValidationError exception has occurred. Message: $0",
+            e.getMessage());
 
         sendHttpError(
             queueId,
@@ -1552,10 +1303,10 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
     catch (XmlSemanticError& e)
     {
-        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
             "CIMOperationRequestDecoder::handleMethodCall - "
-                "XmlSemanticError exception has occurred. Message: %s",
-            (const char*) e.getMessage().getCString()));
+                "XmlSemanticError exception has occurred. Message: $0",
+            e.getMessage());
 
         // ATTN-RK-P2-20020404: Is this the correct response for these errors?
         sendHttpError(
@@ -1569,31 +1320,15 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
     catch (XmlException& e)
     {
-        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
             "CIMOperationRequestDecoder::handleMethodCall - "
-                "XmlException has occurred. Message: %s",
-            (const char*) e.getMessage().getCString()));
+                "XmlException has occurred. Message: $0",
+            e.getMessage());
 
         sendHttpError(
             queueId,
             HTTP_STATUS_BADREQUEST,
             "request-not-well-formed",
-            e.getMessage(),
-            closeConnect);
-        PEG_METHOD_EXIT();
-        return;
-    }
-    catch (TooManyElementsException& e)
-    {
-        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
-            "CIMOperationRequestDecoder::handleMethodCall - "
-                "TooManyElementsException has occurred. Message: %s",
-            (const char*) e.getMessage().getCString()));
-
-        sendHttpError(
-            queueId,
-            HTTP_STATUS_BADREQUEST,
-            "request-with-too-many-elements",
             e.getMessage(),
             closeConnect);
         PEG_METHOD_EXIT();
@@ -1632,9 +1367,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
     request->authType = authType;
     request->userName = userName;
+    request->sessionKey = sessionKey;
     request->ipAddress = ipAddress;
     request->setHttpMethod (httpMethod);
-    request->binaryResponse = binaryResponse;
 
 //l10n start
 // l10n TODO - might want to move A-L and C-L to Message
@@ -1644,7 +1379,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
     if (cimmsg != NULL)
     {
         cimmsg->operationContext.insert(IdentityContainer(userName));
-        cimmsg->operationContext.insert(UserRoleContainer(userRole));
         cimmsg->operationContext.set(
             AcceptLanguageListContainer(httpAcceptLanguages));
         cimmsg->operationContext.set(
@@ -1656,432 +1390,11 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
 // l10n end
 
-#ifdef PEGASUS_PAM_SESSION_SECURITY
-
-    // Whatever happens on the authentication, we need to check for
-    // a change of an expired password
-    // Since the definition for password updates is not completely
-    // defined in DMTF yet, keep this feature PAM_SESSION only
-    // This also only works with CIM-XML right now.
-    if (isExpiredPassword)
-    {
-        // only try password update if req. Pragma is set
-        if (updateExpiredPassword)
-        {
-            // update expired password
-            // fct. _updateExpiredPassword returns false
-            //        if the request was NOT for PG_Account etc.
-            _updateExpiredPassword(
-                queueId,
-                httpMethod,
-                messageId,
-                closeConnect,
-                httpContentLanguages,
-                cimmsg,
-                userName,
-                userPass,
-                ipAddress);
-        }
-        else
-        {
-            sendUserAccountExpired(
-                queueId,
-                httpMethod,
-                messageId,
-                cimMethodInHeader,
-                closeConnect,
-                isIMethodCall);
-        }
-        PEG_METHOD_EXIT();
-        return;
-    }
-#endif
-
     request->setCloseConnect(closeConnect);
     _outputQueue->enqueue(request.release());
 
     PEG_METHOD_EXIT();
 }
-/**************************************************************************
-**
-**  Decode CIM Operation Type Common IParameter types.
-**  Each class defines processing for a particular IPARAM type
-**  (ex. boolean)or parameter name (i.e. propertyListIParam)
-**  Each struct defines:
-**      got - Boolean defines whether this parameter has been found
-**      value - The value container for this type
-**      iParamFound(...) - function sets the duplicate flag and the got flag
-**      get - Function to get the defined parameter from the
-**            parser
-**      NOTE: at least one has multiple get.. functions.
-** NOTE: Some of these are defined for a particular attribute (ex.
-**      propertyListIparam) so the attribute name is integrated into the
-**      methods and others for a whole class of attributes (Boolean,
-**      String,ClassName etc.) so the attribute name is defined as part
-**      of the constructor.
-***************************************************************************/
-// Common xml attribute accessor for all boolean attributes.   The
-// attribute name is defined in the constructor.
-// The usage pattern is:
-//    Boolean duplicate;     // Flag to indicate multiple calls
-//
-//    booleanIParam xyz("xyz"); default is false for attribute xyz
-//
-//    if(xyz.get(parser, name, emptyTag)   // parses to test if name == xyz
-//        iParamFound(duplicate);          // set flag to indicate exists etc.
-class booleanIParam
-{
-public:
-    Boolean got;
-    Boolean value;
-
-    // constructor with default value = false
-    booleanIParam(const char* name): got(false),value(false),iParamName(name){}
-
-    // constructor with initial value specifically set from the input
-    booleanIParam(const char* name, Boolean _value):
-        got(false),value(_value),iParamName(name){}
-
-    ~booleanIParam(){}
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
-
-    // get the value of the parameter if the parameter if it exists.
-    // Note that the attribute name is defined in the constructor
-    // Value is required.
-    // @param parser
-    // @param testName attribute name from parse.
-    // @emptyTag returns true if emptyTag returned true from parser
-    Boolean get(XmlParser& parser, const char * testName,  Boolean& emptyTag)
-    {
-        if (System::strcasecmp(iParamName.getCString(), testName) == 0)
-        {
-            XmlReader::rejectNullIParamValue(parser, emptyTag,
-                                             iParamName.getCString());
-            XmlReader::getBooleanValueElement(parser, value, true);
-            return true;
-        }
-        return false;
-    }
-    private:
-    String iParamName;
-    // hide unused default constructor and assign, copy constructors
-    booleanIParam();
-    booleanIParam(const booleanIParam&);
-    booleanIParam& operator = (const booleanIParam&);
-};
-
-// decode Iparam to CIMName representing class names.  This struct
-// has two get functions:
-//     get - parse where the parameter value is required
-//     getOptional - parse where the parameter value is optional
-
-class classNameIParam
-{
-public:
-    Boolean got;
-    CIMName value;
-
-    // Set the flag to inidcate that this IParam has been gotten and also
-    // set the flag defined by the duplicate parameter
-    // @param duplicate Boolean that is set to previous value of the got
-    // variable indicating whether this is second call to this IParam
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
-
-    // construct an IParam definition with name.
-    // @param name const char* defining name of IParam to match
-    // @return true if IParam found with _attrName
-    classNameIParam(const char* name): got(false), iParamName(name){}
-
-    ~classNameIParam(){}
-
-    // Get Required value element.Test for name parameter as IParam with
-    // name and if found, if value not NULL, parse the className and
-    // set into value
-    Boolean get(XmlParser& parser, const char* name, Boolean& emptyTag)
-    {
-        if (System::strcasecmp(name,iParamName.getCString()) == 0)
-        {
-            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getClassNameElement(parser, value, true);
-            return true;
-        }
-        return false;
-    }
-    // Get Iparam with optional value.
-    Boolean getOptional(XmlParser& parser, const char* name,
-                        Boolean& emptyTag)
-    {
-        if (System::strcasecmp(name, iParamName.getCString()) == 0)
-        {
-            //  value may be NULL
-            if (!emptyTag)
-            {
-                XmlReader::getClassNameElement(parser, value, false);
-            }
-            return true;
-        }
-        return false;
-    }
-private:
-    String iParamName;
-    // hide unused default constructor and assign, copy constructors
-    classNameIParam();
-    classNameIParam(const classNameIParam&);
-    classNameIParam& operator = (const classNameIParam&);
-};
-
-// test for "InstanceName" iParam and if found, return CIMObjectPath
-// in value
-class instanceNameIParam
-{
-public:
-    Boolean got;
-    CIMObjectPath value;
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
-    instanceNameIParam(): got(false){}
-
-    ~instanceNameIParam(){}
-
-    Boolean get(XmlParser& parser, const char * name, Boolean& emptyTag)
-    {
-        if (System::strcasecmp(name, "InstanceName") == 0)
-        {
-            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getInstanceNameElement(parser, value);
-            return true;
-        }
-        return false;
-    }
-private:
-    // hide unused assign, copy constructors
-    instanceNameIParam(const instanceNameIParam&);
-    instanceNameIParam& operator = (const instanceNameIParam&);
-};
-
-// test for "ObjectName" attribute and if found, return CIMObjectPath
-// This struct has an extra attribute, the flag isClassNameElement which
-// returns true if the objectName was a classPath and not an instance
-// path.
-// If Xmlreader returns true, this is class only element, no
-//  key bindings. That state must be set into the request
-//  message (ex. objectName.isClassElement)
-class objectNameIParam
-{
-public:
-    Boolean got;
-    CIMObjectPath value;
-    Boolean isClassNameElement;
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
-
-    objectNameIParam(): got(false), isClassNameElement(false){}
-
-    ~objectNameIParam(){}
-
-    Boolean get(XmlParser& parser, const char * name, Boolean& emptyTag)
-    {
-        if (System::strcasecmp(name, "ObjectName") == 0)
-        {
-            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            isClassNameElement =
-                XmlReader::getObjectNameElement(parser, value);
-            return true;
-        }
-        return false;
-    }
-private:
-    // hide unused assign, copy constructors
-    objectNameIParam(const objectNameIParam&);
-    objectNameIParam& operator = (const objectNameIParam&);
-};
-
-// test for "PropertyList" attribute and, if found, return property list
-// in the value element.
-class propertyListIParam
-{
-public:
-    Boolean got;
-    CIMPropertyList value;
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
-
-    // construct a propertyListIParam object
-    propertyListIParam(): got(false){}
-
-    ~propertyListIParam(){}
-
-    Boolean get(XmlParser& parser, const char* name, Boolean& emptyTag)
-    {
-        if (System::strcasecmp(name, "PropertyList") == 0)
-        {
-            if (!emptyTag)
-            {
-                CIMValue pl;
-                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-                {
-                    Array<String> propertyListArray;
-                    pl.get(propertyListArray);
-                    // NOTE: Cannot use the propertyList.set(...) method
-                    // here because set does not create propertyList tags
-                    value.append(propertyListArray);
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    // This version of the get function usees the propertyList set function
-    // to set the property list array into the propertyList object.  It
-    // can only be used for those Operations where the propertylist is NOT
-    // used by the Server in the response (i.e. getClass and modifyInstance).
-    //
-    Boolean getSpecial(XmlParser& parser, const char* name, Boolean& emptyTag)
-    {
-        if (System::strcasecmp(name, "PropertyList") == 0)
-        {
-            if (!emptyTag)
-            {
-                CIMValue pl;
-                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-                {
-                    Array<String> propertyListArray;
-                    pl.get(propertyListArray);
-                    Array<CIMName> cimNameArray;
-                    // Map the strings to CIMNames.
-                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
-                    {
-                        cimNameArray.append(propertyListArray[i]);
-                    }
-                    // use set to put list into property list without
-                    // setting propertyList tags.
-                    value.set(cimNameArray);
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-private:
-    // hide unused default assign, copy constructors
-    propertyListIParam(const propertyListIParam&);
-    propertyListIParam& operator = (const propertyListIParam&);
-};
-
-// Attribute decoder for String Parameters
-// The constructor MUST include the attribute name.
-// The second defines whether a value is required.
-// If true and there is no value, the XmlReader does an exception.
-class stringIParam
-{
-public:
-    Boolean got;
-    String value;
-
-    // constructor with definition of attribute and default for the
-    // required flag.
-    // @param name const char* with name of IParam to match
-    // @param valueRequired Boolean that defines whether value is required
-    stringIParam(const char* name, Boolean _valueRequired):
-        got(false), iParamName(name), valueRequired(_valueRequired){}
-
-    ~stringIParam(){}
-
-    void iParamFound(Boolean& duplicate)
-    {
-        duplicate = got;
-        got = true;
-    }
-
-    // get the attribute if it exists. The attribute name is defined in
-    // the constructor
-    // @param parser
-    // @param testName attribute name from parse.
-    // @emptyTag returns true if emptyTag returned true from parser
-    // @return Returns true if testName matches the IParam defined by current
-    // position in the parser
-    Boolean get(XmlParser& parser, const char * testName,  Boolean& emptyTag)
-    {
-        if (System::strcasecmp(iParamName.getCString(), testName) == 0)
-        {
-            if (!emptyTag)
-            {
-                XmlReader::getStringValueElement(parser, value, valueRequired);
-            }
-            return true;
-        }
-        return false;
-    }
-private:
-    String iParamName;
-    Boolean valueRequired;
-    stringIParam();
-    stringIParam(const stringIParam&);
-    stringIParam& operator = (const stringIParam&);
-};
-
-
-/************************************************************************
-**
-**      Common functions used by the decoders to avoid duplicate code.
-**
-**************************************************************************/
-// test for valid end of XML and duplicate parameters on input
-// This function returns if OK or executes appropriate exceptions if there
-// is either a duplicate (duplicateParameter == true) or the
-// end tag IPARAMVALUE is not found.
-void _checkMissingEndTagOrDuplicateParamValue(
-    XmlParser& parser, Boolean duplicateParameter, Boolean emptyTag)
-{
-    if (!emptyTag)
-    {
-        XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    if (duplicateParameter)
-    {
-        _throwCIMExceptionDuplicateParameter();
-    }
-}
-
-// test if Required paramters exist (i.e. the got variable is
-// true. Generates exception if exist == false
-void _testRequiredParametersExist(Boolean exist)
-{
-    if (!exist)
-    {
-        _throwCIMExceptionInvalidParameter();
-    }
-}
-/**************************************************************************
-**
-**  Decode each CIMOperation type, processing the parameters for that type
-**  and producing either a CIMMessage of the appropriate type or
-**  an exception.
-**
-***************************************************************************/
 
 CIMCreateClassRequestMessage*
     CIMOperationRequestDecoder::decodeCreateClassRequest(
@@ -2090,13 +1403,15 @@ CIMCreateClassRequestMessage*
         const String& messageId,
         const CIMNamespaceName& nameSpace)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDecoder::decodeCreateClassRequest()");
+
     STAT_GETSTARTTIME
 
     CIMClass newClass;
-    Boolean gotNewClass = false;
-
-    Boolean emptyTag;
     Boolean duplicateParameter = false;
+    Boolean gotClass = false;
+    Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
@@ -2104,24 +1419,34 @@ CIMCreateClassRequestMessage*
         if (System::strcasecmp(name, "NewClass") == 0)
         {
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            if (!XmlReader::getClassElement(parser, newClass))
-            {
-                _throwCIMExceptionInvalidParameter("NewClass");
-            }
-            duplicateParameter = gotNewClass;
-            gotNewClass = true;
+            XmlReader::getClassElement(parser, newClass);
+            duplicateParameter = gotClass;
+            gotClass = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotNewClass);
+    if (!gotClass)
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMCreateClassRequestMessage> request(
         new CIMCreateClassRequestMessage(
@@ -2132,6 +1457,7 @@ CIMCreateClassRequestMessage*
 
     STAT_SERVERSTART
 
+    PEG_METHOD_EXIT();
     return request.release();
 }
 
@@ -2141,66 +1467,113 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     const String& messageId,
     const CIMNamespaceName& nameSpace)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDecoder::decodeGetClassRequest()");
+
     STAT_GETSTARTTIME
 
-    // GetClass Parameters
-    classNameIParam className("ClassName");
-    booleanIParam localOnly("localOnly",true);
-    booleanIParam includeQualifiers("IncludeQualifiers", true);
-    booleanIParam includeClassOrigin("IncludeClassOrigin");
-    propertyListIParam propertyList;
-
+    CIMName className;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+    CIMPropertyList propertyList;
     Boolean duplicateParameter = false;
+    Boolean gotClassName = false;
+    Boolean gotLocalOnly = false;
+    Boolean gotIncludeQualifiers = false;
+    Boolean gotIncludeClassOrigin = false;
+    Boolean gotPropertyList = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(className.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ClassName") == 0)
         {
-            className.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getClassNameElement(parser, className, true);
+            duplicateParameter = gotClassName;
+            gotClassName = true;
         }
-        else if(localOnly.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "LocalOnly") == 0)
         {
-            localOnly.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, localOnly, true);
+            duplicateParameter = gotLocalOnly;
+            gotLocalOnly = true;
         }
-        else if(includeQualifiers.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+            duplicateParameter = gotIncludeQualifiers;
+            gotIncludeQualifiers = true;
         }
-        else if(includeClassOrigin.get(parser, name,  emptyTag))
+        else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+            duplicateParameter = gotIncludeClassOrigin;
+            gotIncludeClassOrigin = true;
         }
-        else if(propertyList.getSpecial(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "PropertyList") == 0)
         {
-            propertyList.iParamFound(duplicateParameter);
+            if (!emptyTag)
+            {
+                CIMValue pl;
+                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
+                {
+                    Array<String> propertyListArray;
+                    pl.get(propertyListArray);
+                    Array<CIMName> cimNameArray;
+                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
+                    {
+                        cimNameArray.append(propertyListArray[i]);
+                    }
+                    propertyList.set(cimNameArray);
+                }
+            }
+            duplicateParameter = gotPropertyList;
+            gotPropertyList = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    // test for required parameters
-    _testRequiredParametersExist(className.got);
+    if (!gotClassName)
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
-    // Build message
     AutoPtr<CIMGetClassRequestMessage> request(new CIMGetClassRequestMessage(
         messageId,
         nameSpace,
-        className.value,
-        localOnly.value,
-        includeQualifiers.value,
-        includeClassOrigin.value,
-        propertyList.value,
+        className,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
         QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
 
+    PEG_METHOD_EXIT();
     return request.release();
 }
 
@@ -2214,10 +1587,9 @@ CIMModifyClassRequestMessage*
     STAT_GETSTARTTIME
 
     CIMClass modifiedClass;
-    Boolean gotClass = false;
-
-    Boolean emptyTag;
     Boolean duplicateParameter = false;
+    Boolean gotClass = false;
+    Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
@@ -2225,24 +1597,31 @@ CIMModifyClassRequestMessage*
         if (System::strcasecmp(name, "ModifiedClass") == 0)
         {
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            if (!XmlReader::getClassElement(parser, modifiedClass))
-            {
-                _throwCIMExceptionInvalidParameter("ModifiedClass");
-            }
+            XmlReader::getClassElement(parser, modifiedClass);
             duplicateParameter = gotClass;
             gotClass = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotClass);
+    if (!gotClass)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMModifyClassRequestMessage> request(
         new CIMModifyClassRequestMessage(
@@ -2265,41 +1644,58 @@ CIMEnumerateClassNamesRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    classNameIParam className("ClassName");
-    booleanIParam deepInheritance("DeepInheritance");
-
+    CIMName className;
+    Boolean deepInheritance = false;
     Boolean duplicateParameter = false;
+    Boolean gotClassName = false;
+    Boolean gotDeepInheritance = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(className.getOptional(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ClassName") == 0)
         {
-            className.iParamFound(duplicateParameter);
+            //
+            //  ClassName may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, className, false);
+            }
+            duplicateParameter = gotClassName;
+            gotClassName = true;
         }
-        else if(deepInheritance.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "DeepInheritance") == 0)
         {
-            deepInheritance.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+            duplicateParameter = gotDeepInheritance;
+            gotDeepInheritance = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
-    }
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
 
-    // NOTE: className not required for this operation
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
+    }
 
     AutoPtr<CIMEnumerateClassNamesRequestMessage> request(
         new CIMEnumerateClassNamesRequestMessage(
             messageId,
             nameSpace,
-            className.value,
-            deepInheritance.value,
+            className,
+            deepInheritance,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
@@ -2316,60 +1712,88 @@ CIMEnumerateClassesRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    // EnumerateClasses Parameters
-    classNameIParam className("ClassName");
-    booleanIParam deepInheritance("deepInheritance");
-    booleanIParam localOnly("localOnly",true);
-    booleanIParam includeQualifiers("IncludeQualifiers", true);
-    booleanIParam includeClassOrigin("IncludeClassOrigin");
-
+    CIMName className;
+    Boolean deepInheritance = false;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
     Boolean duplicateParameter = false;
+    Boolean gotClassName = false;
+    Boolean gotDeepInheritance = false;
+    Boolean gotLocalOnly = false;
+    Boolean gotIncludeQualifiers = false;
+    Boolean gotIncludeClassOrigin = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(className.getOptional(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ClassName") == 0)
         {
-            className.iParamFound(duplicateParameter);
+            //
+            //  ClassName may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, className, false);
+            }
+            duplicateParameter = gotClassName;
+            gotClassName = true;
         }
-        else if(deepInheritance.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "DeepInheritance") == 0)
         {
-            deepInheritance.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+            duplicateParameter = gotDeepInheritance;
+            gotDeepInheritance = true;
         }
-        else if(localOnly.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "LocalOnly") == 0)
         {
-            localOnly.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, localOnly, true);
+            duplicateParameter = gotLocalOnly;
+            gotLocalOnly = true;
         }
-        else if(includeQualifiers.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+            duplicateParameter = gotIncludeQualifiers;
+            gotIncludeQualifiers = true;
         }
-        else if(includeClassOrigin.get(parser, name,  emptyTag))
+        else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+            duplicateParameter = gotIncludeClassOrigin;
+            gotIncludeClassOrigin = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
-    }
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
 
-    // NOTE: Class name not required for this enumerate.
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
+    }
 
     AutoPtr<CIMEnumerateClassesRequestMessage> request(
         new CIMEnumerateClassesRequestMessage(
             messageId,
             nameSpace,
-            className.value,
-            deepInheritance.value,
-            localOnly.value,
-            includeQualifiers.value,
-            includeClassOrigin.value,
+            className,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
@@ -2386,35 +1810,48 @@ CIMDeleteClassRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    classNameIParam className("ClassName");
-
+    CIMName className;
     Boolean duplicateParameter = false;
+    Boolean gotClassName = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(className.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ClassName") == 0)
         {
-            className.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getClassNameElement(parser, className);
+            duplicateParameter = gotClassName;
+            gotClassName = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(className.got);
+    if (!gotClassName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMDeleteClassRequestMessage> request(
         new CIMDeleteClassRequestMessage(
             messageId,
             nameSpace,
-            className.value,
+            className,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
@@ -2432,10 +1869,9 @@ CIMCreateInstanceRequestMessage*
     STAT_GETSTARTTIME
 
     CIMInstance newInstance;
-    Boolean gotInstance = false;
-
-    Boolean emptyTag;
     Boolean duplicateParameter = false;
+    Boolean gotInstance = false;
+    Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
@@ -2449,16 +1885,25 @@ CIMCreateInstanceRequestMessage*
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-
-    _testRequiredParametersExist(gotInstance);
+    if (!gotInstance)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMCreateInstanceRequestMessage> request(
         new CIMCreateInstanceRequestMessage(
@@ -2481,73 +1926,111 @@ CIMGetInstanceRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    instanceNameIParam instanceName;
-    // This attribute is accepted for compatibility reasons, but is
-    // not honored because it is deprecated.
-    booleanIParam localOnly("localOnly",true);
-    booleanIParam includeQualifiers("IncludeQualifiers");
-    booleanIParam includeClassOrigin("IncludeClassOrigin");
-    propertyListIParam propertyList;
-
+    CIMObjectPath instanceName;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    CIMPropertyList propertyList;
     Boolean duplicateParameter = false;
+    Boolean gotInstanceName = false;
+    Boolean gotLocalOnly = false;
+    Boolean gotIncludeQualifiers = false;
+    Boolean gotIncludeClassOrigin = false;
+    Boolean gotPropertyList = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(instanceName.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "InstanceName") == 0)
         {
-            instanceName.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getInstanceNameElement(parser, instanceName);
+            duplicateParameter = gotInstanceName;
+            gotInstanceName = true;
         }
-        // localOnly is accepted for compatibility reasons, but is
-        // not honored because it is deprecated.
-        else if(localOnly.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "LocalOnly") == 0)
         {
-            localOnly.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, localOnly, true);
+            duplicateParameter = gotLocalOnly;
+            gotLocalOnly = true;
         }
-        else if(includeQualifiers.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+            duplicateParameter = gotIncludeQualifiers;
+            gotIncludeQualifiers = true;
         }
-        else if(includeClassOrigin.get(parser, name,  emptyTag))
+        else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+            duplicateParameter = gotIncludeClassOrigin;
+            gotIncludeClassOrigin = true;
         }
-        else if(propertyList.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "PropertyList") == 0)
         {
-            propertyList.iParamFound(duplicateParameter);
+            if (!emptyTag)
+            {
+                CIMValue pl;
+                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
+                {
+                    Array<String> propertyListArray;
+                    pl.get(propertyListArray);
+                    Array<CIMName> cimNameArray;
+                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
+                    {
+                        cimNameArray.append(propertyListArray[i]);
+                    }
+                    propertyList.set(cimNameArray);
+                }
+            }
+            duplicateParameter = gotPropertyList;
+            gotPropertyList = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(instanceName.got);
+    if (!gotInstanceName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMGetInstanceRequestMessage> request(
         new CIMGetInstanceRequestMessage(
             messageId,
             nameSpace,
-            instanceName.value,
+            instanceName,
+            false,    // Bug 1985 localOnly is deprecated
 #ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
             false,
 #else
-            includeQualifiers.value,
+            includeQualifiers,
 #endif
-            includeClassOrigin.value,
-            propertyList.value,
+            includeClassOrigin,
+            propertyList,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
 
     return request.release();
 }
-
 
 CIMModifyInstanceRequestMessage*
     CIMOperationRequestDecoder::decodeModifyInstanceRequest(
@@ -2559,13 +2042,13 @@ CIMModifyInstanceRequestMessage*
     STAT_GETSTARTTIME
 
     CIMInstance modifiedInstance;
-    Boolean gotInstance = false;
-
-    booleanIParam includeQualifiers("IncludeQualifiers", true);
-    propertyListIParam propertyList;
-
-    Boolean emptyTag;
+    Boolean includeQualifiers = true;
+    CIMPropertyList propertyList;
     Boolean duplicateParameter = false;
+    Boolean gotInstance = false;
+    Boolean gotIncludeQualifiers = false;
+    Boolean gotPropertyList = false;
+    Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
@@ -2577,32 +2060,62 @@ CIMModifyInstanceRequestMessage*
             duplicateParameter = gotInstance;
             gotInstance = true;
         }
-        else if(includeQualifiers.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+            duplicateParameter = gotIncludeQualifiers;
+            gotIncludeQualifiers = true;
         }
-        else if(propertyList.getSpecial(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "PropertyList") == 0)
         {
-            propertyList.iParamFound(duplicateParameter);
+            if (!emptyTag)
+            {
+                CIMValue pl;
+                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
+                {
+                    Array<String> propertyListArray;
+                    pl.get(propertyListArray);
+                    Array<CIMName> cimNameArray;
+                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
+                    {
+                        cimNameArray.append(propertyListArray[i]);
+                    }
+                    propertyList.set(cimNameArray);
+                }
+            }
+            duplicateParameter = gotPropertyList;
+            gotPropertyList = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotInstance);
+    if (!gotInstance)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMModifyInstanceRequestMessage> request(
         new CIMModifyInstanceRequestMessage(
             messageId,
             nameSpace,
             modifiedInstance,
-            includeQualifiers.value,
-            propertyList.value,
+            includeQualifiers,
+            propertyList,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
@@ -2619,73 +2132,115 @@ CIMEnumerateInstancesRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    // EnumerateInstance Parameters
-    classNameIParam className("ClassName");
-    booleanIParam deepInheritance("DeepInheritance", true);
-    // localOnly is accepted for compatibility reasons, but is
-    // not honored because it is deprecated.
-    booleanIParam localOnly("localOnly", true);
-    booleanIParam includeQualifiers("IncludeQualifiers");
-    booleanIParam includeClassOrigin("IncludeClassOrigin");
-    propertyListIParam propertyList;
-
+    CIMName className;
+    Boolean deepInheritance = true;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    CIMPropertyList propertyList;
     Boolean duplicateParameter = false;
+    Boolean gotClassName = false;
+    Boolean gotDeepInheritance = false;
+    Boolean gotLocalOnly = false;
+    Boolean gotIncludeQualifiers = false;
+    Boolean gotIncludeClassOrigin = false;
+    Boolean gotPropertyList = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(className.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ClassName") == 0)
         {
-            className.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getClassNameElement(parser, className, true);
+            duplicateParameter = gotClassName;
+            gotClassName = true;
         }
-        else if(deepInheritance.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "DeepInheritance") == 0)
         {
-            deepInheritance.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+            duplicateParameter = gotDeepInheritance;
+            gotDeepInheritance = true;
         }
-        // This attribute is accepted for compatibility reasons, but is
-        // not honored because it is deprecated.
-        else if(localOnly.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "LocalOnly") == 0)
         {
-            localOnly.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, localOnly, true);
+            duplicateParameter = gotLocalOnly;
+            gotLocalOnly = true;
         }
-        else if(includeQualifiers.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+            duplicateParameter = gotIncludeQualifiers;
+            gotIncludeQualifiers = true;
         }
-        else if(includeClassOrigin.get(parser, name,  emptyTag))
+        else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+            duplicateParameter = gotIncludeClassOrigin;
+            gotIncludeClassOrigin = true;
         }
-        else if(propertyList.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "PropertyList") == 0)
         {
-            propertyList.iParamFound(duplicateParameter);
+            if (!emptyTag)
+            {
+                CIMValue pl;
+                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
+                {
+                    Array<String> propertyListArray;
+                    pl.get(propertyListArray);
+                    Array<CIMName> cimNameArray;
+                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
+                    {
+                        cimNameArray.append(propertyListArray[i]);
+                    }
+                    propertyList.set(cimNameArray);
+                }
+            }
+            duplicateParameter = gotPropertyList;
+            gotPropertyList = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(className.got);
+    if (!gotClassName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMEnumerateInstancesRequestMessage> request(
         new CIMEnumerateInstancesRequestMessage(
             messageId,
             nameSpace,
-            className.value,
-            deepInheritance.value,
+            className,
+            deepInheritance,
+            false,    // Bug 1985 localOnly is deprecated
 #ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
             false,
 #else
-            includeQualifiers.value,
+            includeQualifiers,
 #endif
-            includeClassOrigin.value,
-            propertyList.value,
+            includeClassOrigin,
+            propertyList,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
@@ -2702,35 +2257,48 @@ CIMEnumerateInstanceNamesRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    classNameIParam className("ClassName");
-
+    CIMName className;
     Boolean duplicateParameter = false;
+    Boolean gotClassName = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(className.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ClassName") == 0)
         {
-            className.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getClassNameElement(parser, className, true);
+            duplicateParameter = gotClassName;
+            gotClassName = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(className.got);
+    if (!gotClassName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMEnumerateInstanceNamesRequestMessage> request(
         new CIMEnumerateInstanceNamesRequestMessage(
             messageId,
             nameSpace,
-            className.value,
+            className,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
@@ -2747,35 +2315,48 @@ CIMDeleteInstanceRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    instanceNameIParam instanceName;
-
+    CIMObjectPath instanceName;
     Boolean duplicateParameter = false;
+    Boolean gotInstanceName = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(instanceName.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "InstanceName") == 0)
         {
-            instanceName.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getInstanceNameElement(parser, instanceName);
+            duplicateParameter = gotInstanceName;
+            gotInstanceName = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(instanceName.got);
+    if (!gotInstanceName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMDeleteInstanceRequestMessage> request(
         new CIMDeleteInstanceRequestMessage(
             messageId,
             nameSpace,
-            instanceName.value,
+            instanceName,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
@@ -2809,15 +2390,25 @@ CIMSetQualifierRequestMessage*
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotQualifierDeclaration);
+    if (!gotQualifierDeclaration)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMSetQualifierRequestMessage> request(
         new CIMSetQualifierRequestMessage(
@@ -2859,15 +2450,25 @@ CIMGetQualifierRequestMessage*
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotQualifierName);
+    if (!gotQualifierName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMGetQualifierRequestMessage> request(
         new CIMGetQualifierRequestMessage(
@@ -2895,7 +2496,7 @@ CIMEnumerateQualifiersRequestMessage*
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
         // No IPARAMVALUEs are defined for this operation
-        _throwCIMExceptionInvalidIParamName();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
     }
 
     AutoPtr<CIMEnumerateQualifiersRequestMessage> request(
@@ -2920,10 +2521,9 @@ CIMDeleteQualifierRequestMessage*
 
     String qualifierNameString;
     CIMName qualifierName;
-    Boolean gotQualifierName = false;
-
-    Boolean emptyTag;
     Boolean duplicateParameter = false;
+    Boolean gotQualifierName = false;
+    Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
@@ -2938,16 +2538,25 @@ CIMDeleteQualifierRequestMessage*
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotQualifierName);
+    if (!gotQualifierName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMDeleteQualifierRequestMessage> request(
         new CIMDeleteQualifierRequestMessage(
@@ -2969,49 +2578,80 @@ CIMReferenceNamesRequestMessage*
         const CIMNamespaceName& nameSpace)
 {
     STAT_GETSTARTTIME
-    objectNameIParam objectName;
-    classNameIParam resultClass("ResultClass");
-    stringIParam role("role", false);
 
+    CIMObjectPath objectName;
+    CIMName resultClass;
+    String role;
     Boolean duplicateParameter = false;
+    Boolean gotObjectName = false;
+    Boolean gotResultClass = false;
+    Boolean gotRole = false;
     Boolean emptyTag;
 
     for (const char* name;
-        XmlReader::getIParamValueTag(parser, name, emptyTag); )
+         XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(objectName.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ObjectName") == 0)
         {
-            objectName.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getObjectNameElement(parser, objectName);
+            duplicateParameter = gotObjectName;
+            gotObjectName = true;
         }
-        else if (resultClass.getOptional(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "ResultClass") == 0)
         {
-            resultClass.iParamFound(duplicateParameter);
+            //
+            //  ResultClass may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, resultClass, false);
+            }
+            duplicateParameter = gotResultClass;
+            gotResultClass = true;
         }
-        else if(role.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "Role") == 0)
         {
-            role.iParamFound(duplicateParameter);
+            //
+            //  Role may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getStringValueElement(parser, role, false);
+            }
+            duplicateParameter = gotRole;
+            gotRole = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+           XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(objectName.got);
+    if (!gotObjectName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMReferenceNamesRequestMessage> request(
         new CIMReferenceNamesRequestMessage(
             messageId,
             nameSpace,
-            objectName.value,
-            resultClass.value,
-            role.value,
-            QueueIdStack(queueId, _returnQueueId),
-            objectName.isClassNameElement));
+            objectName,
+            resultClass,
+            role,
+            QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
 
@@ -3027,67 +2667,122 @@ CIMReferencesRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    objectNameIParam objectName;
-    classNameIParam resultClass("ResultClass");
-    stringIParam role("role", false);
-    booleanIParam includeQualifiers("IncludeQualifiers");
-    booleanIParam includeClassOrigin("IncludeClassOrigin");
-    propertyListIParam propertyList;
-
+    CIMObjectPath objectName;
+    CIMName resultClass;
+    String role;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    CIMPropertyList propertyList;
     Boolean duplicateParameter = false;
+    Boolean gotObjectName = false;
+    Boolean gotResultClass = false;
+    Boolean gotRole = false;
+    Boolean gotIncludeQualifiers = false;
+    Boolean gotIncludeClassOrigin = false;
+    Boolean gotPropertyList = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(objectName.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ObjectName") == 0)
         {
-            objectName.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getObjectNameElement(parser, objectName);
+            duplicateParameter = gotObjectName;
+            gotObjectName = true;
         }
-        else if(role.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "ResultClass") == 0)
         {
-            role.iParamFound(duplicateParameter);
+            //
+            //  ResultClass may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, resultClass, false);
+            }
+            duplicateParameter = gotResultClass;
+            gotResultClass = true;
         }
-        else if (resultClass.getOptional(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "Role") == 0)
         {
-            resultClass.iParamFound(duplicateParameter);
+            //
+            //  Role may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getStringValueElement(parser, role, false);
+            }
+            duplicateParameter = gotRole;
+            gotRole = true;
         }
-        else if(includeQualifiers.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+            duplicateParameter = gotIncludeQualifiers;
+            gotIncludeQualifiers = true;
         }
-        else if(includeClassOrigin.get(parser, name,  emptyTag))
+        else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+            duplicateParameter = gotIncludeClassOrigin;
+            gotIncludeClassOrigin = true;
         }
-        else if(propertyList.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "PropertyList") == 0)
         {
-            propertyList.iParamFound(duplicateParameter);
+            if (!emptyTag)
+            {
+                CIMValue pl;
+                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
+                {
+                    Array<String> propertyListArray;
+                    pl.get(propertyListArray);
+                    Array<CIMName> cimNameArray;
+                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
+                    {
+                        cimNameArray.append(propertyListArray[i]);
+                    }
+                    propertyList.set(cimNameArray);
+                }
+            }
+            duplicateParameter = gotPropertyList;
+            gotPropertyList = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+       if (!emptyTag)
+       {
+           XmlReader::expectEndTag(parser, "IPARAMVALUE");
+       }
+
+       if (duplicateParameter)
+       {
+           throw PEGASUS_CIM_EXCEPTION(
+               CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+       }
     }
 
-    _testRequiredParametersExist(objectName.got);
+    if (!gotObjectName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMReferencesRequestMessage> request(
         new CIMReferencesRequestMessage(
             messageId,
             nameSpace,
-            objectName.value,
-            resultClass.value,
-            role.value,
-            includeQualifiers.value,
-            includeClassOrigin.value,
-            propertyList.value,
-            QueueIdStack(queueId, _returnQueueId),
-            objectName.isClassNameElement));
+            objectName,
+            resultClass,
+            role,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList,
+            QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
 
@@ -3103,62 +2798,109 @@ CIMAssociatorNamesRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    objectNameIParam objectName;
-    classNameIParam assocClass("AssocClass");
-    classNameIParam resultClass("ResultClass");
-    stringIParam role("role", false);
-    stringIParam resultRole("Resultrole", false);
-
-    Boolean emptyTag;
+    CIMObjectPath objectName;
+    CIMName assocClass;
+    CIMName resultClass;
+    String role;
+    String resultRole;
     Boolean duplicateParameter = false;
+    Boolean gotObjectName = false;
+    Boolean gotAssocClass = false;
+    Boolean gotResultClass = false;
+    Boolean gotRole = false;
+    Boolean gotResultRole = false;
+    Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(objectName.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ObjectName") == 0)
         {
-            objectName.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getObjectNameElement(parser, objectName);
+            duplicateParameter = gotObjectName;
+            gotObjectName = true;
         }
-        else if (assocClass.getOptional(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "AssocClass") == 0)
         {
-            assocClass.iParamFound(duplicateParameter);
+            //
+            //  AssocClass may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, assocClass, false);
+            }
+            duplicateParameter = gotAssocClass;
+            gotAssocClass = true;
         }
-        else if (resultClass.getOptional(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "ResultClass") == 0)
         {
-            resultClass.iParamFound(duplicateParameter);
+            //
+            //  ResultClass may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, resultClass, false);
+            }
+            duplicateParameter = gotResultClass;
+            gotResultClass = true;
         }
-        else if(role.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "Role") == 0)
         {
-            role.iParamFound(duplicateParameter);
+            //
+            //  Role may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getStringValueElement(parser, role, false);
+            }
+            duplicateParameter = gotRole;
+            gotRole = true;
         }
-        else if(resultRole.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "ResultRole") == 0)
         {
-            resultRole.iParamFound(duplicateParameter);
+            //
+            //  ResultRole may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getStringValueElement(parser, resultRole, false);
+            }
+            duplicateParameter = gotResultRole;
+            gotResultRole = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
-
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(objectName.got);
+    if (!gotObjectName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMAssociatorNamesRequestMessage> request(
         new CIMAssociatorNamesRequestMessage(
             messageId,
             nameSpace,
-            objectName.value,
-            assocClass.value,
-            resultClass.value,
-            role.value,
-            resultRole.value,
-            QueueIdStack(queueId, _returnQueueId),
-            objectName.isClassNameElement));
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
 
@@ -3174,80 +2916,152 @@ CIMAssociatorsRequestMessage*
 {
     STAT_GETSTARTTIME
 
-    // Associator Operation Parameters
-    objectNameIParam objectName;
-    classNameIParam assocClass("AssocClass");
-    classNameIParam resultClass("ResultClass");
-    stringIParam resultRole("Resultrole", false);
-    stringIParam role("role", false);
-    booleanIParam includeQualifiers("IncludeQualifiers");
-    booleanIParam includeClassOrigin("IncludeClassOrigin");
-    propertyListIParam propertyList;
-
+    CIMObjectPath objectName;
+    CIMName assocClass;
+    CIMName resultClass;
+    String role;
+    String resultRole;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    CIMPropertyList propertyList;
     Boolean duplicateParameter = false;
+    Boolean gotObjectName = false;
+    Boolean gotAssocClass = false;
+    Boolean gotResultClass = false;
+    Boolean gotRole = false;
+    Boolean gotResultRole = false;
+    Boolean gotIncludeQualifiers = false;
+    Boolean gotIncludeClassOrigin = false;
+    Boolean gotPropertyList = false;
     Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(objectName.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "ObjectName") == 0)
         {
-            objectName.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getObjectNameElement(parser, objectName);
+            duplicateParameter = gotObjectName;
+            gotObjectName = true;
         }
-        else if (assocClass.getOptional(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "AssocClass") == 0)
         {
-            assocClass.iParamFound(duplicateParameter);
+            //
+            //  AssocClass may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, assocClass, false);
+            }
+            duplicateParameter = gotAssocClass;
+            gotAssocClass = true;
         }
-        else if (resultClass.getOptional(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "ResultClass") == 0)
         {
-            resultClass.iParamFound(duplicateParameter);
+            //
+            //  ResultClass may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getClassNameElement(parser, resultClass, false);
+            }
+            duplicateParameter = gotResultClass;
+            gotResultClass = true;
         }
-        else if(role.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "Role") == 0)
         {
-            role.iParamFound(duplicateParameter);
+            //
+            //  Role may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getStringValueElement(parser, role, false);
+            }
+            duplicateParameter = gotRole;
+            gotRole = true;
         }
-        else if(resultRole.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "ResultRole") == 0)
         {
-            resultRole.iParamFound(duplicateParameter);
+            //
+            //  ResultRole may be NULL
+            //
+            if (!emptyTag)
+            {
+                XmlReader::getStringValueElement(parser, resultRole, false);
+            }
+            duplicateParameter = gotResultRole;
+            gotResultRole = true;
         }
-        else if(includeQualifiers.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
         {
-            includeQualifiers.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+            duplicateParameter = gotIncludeQualifiers;
+            gotIncludeQualifiers = true;
         }
-        else if(includeClassOrigin.get(parser, name,  emptyTag))
+        else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
         {
-            includeClassOrigin.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+            duplicateParameter = gotIncludeClassOrigin;
+            gotIncludeClassOrigin = true;
         }
-        else if(propertyList.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "PropertyList") == 0)
         {
-            propertyList.iParamFound(duplicateParameter);
+            if (!emptyTag)
+            {
+                CIMValue pl;
+                if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
+                {
+                    Array<String> propertyListArray;
+                    pl.get(propertyListArray);
+                    Array<CIMName> cimNameArray;
+                    for (Uint32 i = 0; i < propertyListArray.size(); i++)
+                    {
+                        cimNameArray.append(propertyListArray[i]);
+                    }
+                    propertyList.set(cimNameArray);
+                }
+            }
+            duplicateParameter = gotPropertyList;
+            gotPropertyList = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(objectName.got);
+    if (!gotObjectName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMAssociatorsRequestMessage> request(
         new CIMAssociatorsRequestMessage(
             messageId,
             nameSpace,
-            objectName.value,
-            assocClass.value,
-            resultClass.value,
-            role.value,
-            resultRole.value,
-            includeQualifiers.value,
-            includeClassOrigin.value,
-            propertyList.value,
-            QueueIdStack(queueId, _returnQueueId),
-            objectName.isClassNameElement));
+            objectName,
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList,
+            QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART
 
@@ -3289,15 +3103,25 @@ CIMGetPropertyRequestMessage*
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotInstanceName && gotPropertyName);
+    if (!gotInstanceName || !gotPropertyName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMGetPropertyRequestMessage> request(
         new CIMGetPropertyRequestMessage(
@@ -3358,15 +3182,25 @@ CIMSetPropertyRequestMessage*
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(
-            parser, duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(gotInstanceName && gotPropertyName);
+    if (!gotInstanceName || !gotPropertyName)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMSetPropertyRequestMessage> request(
         new CIMSetPropertyRequestMessage(
@@ -3390,42 +3224,58 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
 {
     STAT_GETSTARTTIME
 
-    // define execQuery parameters.  Values are required parameters exist.
-    stringIParam queryLanguage("QueryLanguage", true);
-    stringIParam query("Query", true);
-
-    Boolean emptyTag;
+    String queryLanguage;
+    String query;
     Boolean duplicateParameter = false;
+    Boolean gotQueryLanguage = false;
+    Boolean gotQuery = false;
+    Boolean emptyTag;
 
     for (const char* name;
          XmlReader::getIParamValueTag(parser, name, emptyTag); )
     {
-        if(queryLanguage.get(parser, name, emptyTag))
+        if (System::strcasecmp(name, "QueryLanguage") == 0)
         {
-            queryLanguage.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getStringValueElement(parser, queryLanguage, true);
+            duplicateParameter = gotQueryLanguage;
+            gotQueryLanguage = true;
         }
-        else if(query.get(parser, name, emptyTag))
+        else if (System::strcasecmp(name, "Query") == 0)
         {
-            query.iParamFound(duplicateParameter);
+            XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+            XmlReader::getStringValueElement(parser, query, true);
+            duplicateParameter = gotQuery;
+            gotQuery = true;
         }
         else
         {
-            _throwCIMExceptionInvalidIParamName();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
         }
 
-        // generate exception if endtag error or duplicate attributes
-        _checkMissingEndTagOrDuplicateParamValue(parser,
-            duplicateParameter, emptyTag);
+        if (!emptyTag)
+        {
+            XmlReader::expectEndTag(parser, "IPARAMVALUE");
+        }
+
+        if (duplicateParameter)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+        }
     }
 
-    _testRequiredParametersExist(queryLanguage.got && query.got);
+    if (!gotQueryLanguage || !gotQuery)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
+    }
 
     AutoPtr<CIMExecQueryRequestMessage> request(
         new CIMExecQueryRequestMessage(
             messageId,
             nameSpace,
-            queryLanguage.value,
-            query.value,
+            queryLanguage,
+            query,
             QueueIdStack(queueId, _returnQueueId)));
 
     STAT_SERVERSTART

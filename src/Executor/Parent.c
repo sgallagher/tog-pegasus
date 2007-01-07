@@ -206,7 +206,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (GetSessionKeyUid(&key, &uid) != 0)
         {
-            Log(LL_WARNING, 
+            Log(LL_SEVERE, 
                 "Unknown session key in START_PROVIDER_AGENT operation");
         }
     }

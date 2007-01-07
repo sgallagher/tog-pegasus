@@ -68,11 +68,11 @@ void Log(enum LogLevel type, const char *format, ...)
     };
     static const char* _prefix[] =
     {
-        "fatal",
-        "severe",
-        "warning",
-        "information",
-        "trace"
+        "FATAL",
+        "SEVERE",
+        "WARNING",
+        "INFORMATIOn",
+        "TRACE"
     };
     char prefixedFormat[EXECUTOR_BUFFER_SIZE];
 

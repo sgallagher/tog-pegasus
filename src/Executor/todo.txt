@@ -1,9 +1,6 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Generate and use "indication service session key". What user should
-        the key be created for?
-
     (A) Implement policy.
 
     (A) Add NEW_SESSION_KEY logic to basic password file authenticator.

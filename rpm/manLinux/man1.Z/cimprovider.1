@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimprovider.1,v 1.4.24.1 2006/05/09 18:27:11 mateus.baur Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimprovider.1,v 1.4.24.2 2007/01/09 18:56:26 carolann.graves Exp $
 .\" .TA c \" lowercase initial letter of .TH name
 .TH "cimprovider" "1" "" "" ""
 .SH "NAME"
@@ -76,6 +76,23 @@ a
 command, followed by 
 .B cimprovider \-l \-m 
 for each listed module.
+.PP
+The following provider module status values are defined:
+.TP 15
+.B OK
+The provider module is enabled.
+.TP
+.B Stopping
+The provider module is in the process of being disabled.
+.TP
+.B Stopped
+The provider module is disabled.
+.TP
+.B Degraded
+A failure was detected in an out-of-process provider module.  Disable and re-enable the provider module to ensure any active indication subscriptions are being served.
+.TP
+.B Error
+An invalid registration instance was encountered upon CIM Server initialization.
 .PP 
 Specifying no options with the 
 .B cimprovider 

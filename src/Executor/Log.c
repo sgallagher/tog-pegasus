@@ -84,12 +84,7 @@ void Log(enum LogLevel type, const char *format, ...)
 
     /* This array maps Pegasus "log levels" to syslog priorities. */
 
-/*
-MEB: fix
-*/
-#if 0
     if ((int)type <= (int)_level)
-#endif
     {
         va_list ap;
         va_start(ap, format);

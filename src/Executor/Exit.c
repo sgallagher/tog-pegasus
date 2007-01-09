@@ -48,7 +48,10 @@
 
 void Exit(int status)
 {
-    Log(LL_INFORMATION, "exit(%d)", status);
+    if (status == 0)
+        Log(LL_INFORMATION, "exited normally", status);
+    else
+        Log(LL_WARNING, "exited with status of %d", status);
 
     /* Kill cimservermain. */
 

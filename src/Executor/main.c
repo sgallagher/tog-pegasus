@@ -299,7 +299,7 @@ int main(int argc, char** argv)
     if (!globals.enableAuthentication)
         Log(LL_WARNING, "authentication is NOT enabled");
     else
-        Log(LL_INFORMATION, "authentication is enabled");
+        Log(LL_TRACE, "authentication is enabled");
 
     /* Print user info. */
 

@@ -68,7 +68,8 @@ enum ExecutorMessageCode
     EXECUTOR_VALIDATE_USER_MESSAGE,
     EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
     EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE,
-    EXECUTOR_NEW_SESSION_KEY_MESSAGE
+    EXECUTOR_NEW_SESSION_KEY_MESSAGE,
+    EXECUTOR_DELETE_SESSION_KEY_MESSAGE
 };
 
 /*
@@ -176,6 +177,7 @@ struct ExecutorStartProviderAgentResponse
 {
     int status;
     int pid;
+    char key[EXECUTOR_BUFFER_SIZE];
 };
 
 /*
@@ -303,6 +305,24 @@ struct ExecutorNewSessionKeyResponse
 {
     int status;
     char key[EXECUTOR_BUFFER_SIZE];
+};
+
+/*
+**==============================================================================
+**
+** EXECUTOR_DELETE_SESSION_KEY_MESSAGE
+**
+**==============================================================================
+*/
+
+struct ExecutorDeleteSessionKeyRequest
+{
+    char key[EXECUTOR_BUFFER_SIZE];
+};
+
+struct ExecutorDeleteSessionKeyResponse
+{
+    int status;
 };
 
 #endif /* _Executor_Messages_h */

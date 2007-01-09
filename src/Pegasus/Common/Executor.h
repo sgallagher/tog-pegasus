@@ -73,6 +73,7 @@ public:
         int uid,
         int gid, 
         int& pid,
+        SessionKey& providerAgentSessionKey,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe);
 
@@ -118,6 +119,11 @@ public:
     static int newSessionKey(
         const char username[EXECUTOR_BUFFER_SIZE],
         SessionKey& sessionKey);
+
+    /** Delete an existing session key.
+    */
+    static int deleteSessionKey(
+        const SessionKey& sessionKey);
 
 private:
     // Private to prevent instantiation.

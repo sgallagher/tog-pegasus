@@ -85,7 +85,10 @@ static void _sigHandler(int signum)
 
 static void HandlePingRequest(int sock)
 {
-    struct ExecutorPingResponse response = { EXECUTOR_PING_MAGIC };
+    struct ExecutorPingResponse response;
+
+    memset(&response, 0, sizeof(response));
+    response.magic = EXECUTOR_PING_MAGIC;
 
     Log(LL_TRACE, "HandlePingRequest()");
 
@@ -106,11 +109,12 @@ static void HandlePingRequest(int sock)
 static void HandleOpenFileRequest(int sock)
 {
     int fd;
+    struct ExecutorOpenFileRequest request;
     struct ExecutorOpenFileResponse response;
 
-    /* Read the request request. */
+    memset(&response, 0, sizeof(response));
 
-    struct ExecutorOpenFileRequest request;
+    /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
@@ -145,8 +149,6 @@ static void HandleOpenFileRequest(int sock)
     }
 
     /* Send response message. */
-
-    memset(&response, 0, sizeof(response));
 
     if (fd == -1)
     {
@@ -187,6 +189,8 @@ static void HandleStartProviderAgentRequest(int sock)
     struct ExecutorStartProviderAgentResponse response;
     struct ExecutorStartProviderAgentRequest request;
 
+    memset(&response, 0, sizeof(response));
+
     /* Read request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
@@ -218,7 +222,7 @@ static void HandleStartProviderAgentRequest(int sock)
         }
         else if (GetSessionKeyUid(&key, &uid) != 0)
         {
-            Log(LL_WARNING, 
+            Log(LL_SEVERE, 
                 "Unknown session key in HandleStartProviderAgentRequest(): %s",
                 key.data);
         }
@@ -334,7 +338,7 @@ MEB: remove following logic.
             if (GetUserName(getuid(), username) != 0)
                 Fatal(FL, "failed to resolve username for uid=%d", getuid());
 
-            Log(LL_INFORMATION, "starting %s on module %s as user %s",
+            Log(LL_TRACE, "starting %s on module %s as user %s",
                 path, request.module, username);
 
 # endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
@@ -362,6 +366,14 @@ MEB: remove following logic.
 
     close(to[0]);
     close(from[1]);
+
+    /* Assign session key to this connection. */
+
+    {
+        SessionKey key;
+        key = NewSessionKey(request.uid, 0, 0, 1);
+        Strlcat(response.key, key.data, sizeof(response.key));
+    }
 
     /* Send response. */
 
@@ -395,8 +407,10 @@ MEB: remove following logic.
 
 static void HandleDaemonizeExecutorRequest(int sock)
 {
-    struct ExecutorDaemonizeExecutorResponse response = { 0 };
+    struct ExecutorDaemonizeExecutorResponse response;
     int pid;
+
+    memset(&response, 0, sizeof(response));
 
     /* ATTN: do we need to call setsid()? */
     /* ATTN: do we need to fork twice? */
@@ -446,6 +460,8 @@ static void HandleDaemonizeExecutorRequest(int sock)
     open("/dev/null", O_RDWR);
     open("/dev/null", O_RDWR);
 
+    response.status = 0;
+
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
 }
@@ -463,6 +479,8 @@ static void HandleRenameFileRequest(int sock)
     int status;
     struct ExecutorRenameFileResponse response;
     struct ExecutorRenameFileRequest request;
+
+    memset(&response, 0, sizeof(response));
 
     /* Read the request request. */
 
@@ -501,7 +519,6 @@ static void HandleRenameFileRequest(int sock)
 
     /* Send response message. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
@@ -522,6 +539,8 @@ static void HandleRemoveFileRequest(int sock)
     struct ExecutorRemoveFileRequest request;
     struct ExecutorRemoveFileResponse response;
 
+    memset(&response, 0, sizeof(response));
+
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
@@ -538,7 +557,6 @@ static void HandleRemoveFileRequest(int sock)
 
     /* Send response message. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
@@ -559,6 +577,8 @@ static void HandleWaitPidRequest(int sock)
     struct ExecutorWaitPidRequest request;
     struct ExecutorWaitPidResponse response;
 
+    memset(&response, 0, sizeof(response));
+
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
@@ -575,7 +595,6 @@ static void HandleWaitPidRequest(int sock)
 
     /* Send response message. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
@@ -593,14 +612,15 @@ static void HandleWaitPidRequest(int sock)
 static void HandleAuthenticatePasswordRequest(int sock)
 {
     int status;
+    struct ExecutorAuthenticatePasswordRequest request;
     struct ExecutorAuthenticatePasswordResponse response;
     int gid;
     int uid;
     SessionKey key;
 
-    /* Read the request request. */
+    memset(&response, 0, sizeof(response));
 
-    struct ExecutorAuthenticatePasswordRequest request;
+    /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
@@ -629,10 +649,10 @@ static void HandleAuthenticatePasswordRequest(int sock)
             break;
         }
 
-        /* Generate session key */
+        /* Generate session key (set authenticated flag to true). */
 
-        key = NewSessionKey(uid, 0, 0);
-    
+        key = NewSessionKey(uid, 0, 0, 1);
+
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
         status = -1;
@@ -649,15 +669,18 @@ static void HandleAuthenticatePasswordRequest(int sock)
     }
     else
     {
-        Log(LL_INFORMATION, "PAM authentication succeeded for username %s", 
+        Log(LL_TRACE, "PAM authentication succeeded for username %s", 
             request.username);
     }
 
     /* Send response message. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
-    Strlcpy(response.key, key.data, sizeof(response.key));
+
+    if (status == 0)
+        Strlcpy(response.key, key.data, sizeof(response.key));
+    else
+        Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
@@ -676,6 +699,8 @@ static void HandleValidateUserRequest(int sock)
     int status;
     struct ExecutorValidateUserResponse response;
     struct ExecutorValidateUserRequest request;
+
+    memset(&response, 0, sizeof(response));
 
     /* Read the request request. */
 
@@ -707,7 +732,6 @@ static void HandleValidateUserRequest(int sock)
 
     /* Send response message. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
@@ -730,6 +754,8 @@ static void HandleChallengeLocalRequest(int sock)
     struct ExecutorChallengeLocalRequest request;
     struct ExecutorChallengeLocalResponse response;
 
+    memset(&response, 0, sizeof(response));
+
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
@@ -749,10 +775,15 @@ static void HandleChallengeLocalRequest(int sock)
 
     /* Send response message. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
-    Strlcpy(response.challenge, path, sizeof(response.challenge));
-    Strlcpy(response.key, key.data, sizeof(response.key));
+
+    if (status == 0)
+    {
+        Strlcpy(response.challenge, path, sizeof(response.challenge));
+        Strlcpy(response.key, key.data, sizeof(response.key));
+    }
+    else
+        Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
@@ -770,11 +801,12 @@ static void HandleAuthenticateLocalRequest(int sock)
 {
     SessionKey key;
     int status;
+    struct ExecutorAuthenticateLocalRequest request;
     struct ExecutorAuthenticateLocalResponse response;
 
-    /* Read the request request. */
+    memset(&response, 0, sizeof(response));
 
-    struct ExecutorAuthenticateLocalRequest request;
+    /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
@@ -800,7 +832,6 @@ static void HandleAuthenticateLocalRequest(int sock)
 
     /* Send response. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
@@ -821,6 +852,8 @@ static void HandleNewSessionKeyRequest(int sock)
     struct ExecutorNewSessionKeyResponse response;
     SessionKey key;
     int status;
+
+    memset(&response, 0, sizeof(response));
 
     /* Read the request. */
 
@@ -845,7 +878,7 @@ static void HandleNewSessionKeyRequest(int sock)
             break;
         }
 
-        key = NewSessionKey(uid, 0, 0);
+        key = NewSessionKey(uid, 0, 0, 1);
         status = 0;
 
         Log(LL_TRACE, 
@@ -855,9 +888,58 @@ static void HandleNewSessionKeyRequest(int sock)
 
     /* Send response. */
 
-    memset(&response, 0, sizeof(response));
     response.status = status;
-    Strlcpy(response.key, key.data, sizeof(response.key));
+
+    if (status == 0)
+        Strlcpy(response.key, key.data, sizeof(response.key));
+    else
+        Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+/*
+**==============================================================================
+**
+** HandleDeleteSessionKeyRequest()
+**
+**==============================================================================
+*/
+
+static void HandleDeleteSessionKeyRequest(int sock)
+{
+    struct ExecutorDeleteSessionKeyRequest request;
+    struct ExecutorDeleteSessionKeyResponse response;
+    int status;
+
+    memset(&response, 0, sizeof(response));
+
+    /* Read the request. */
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    /* Log request. */
+
+    Log(LL_TRACE, "HandleDeleteSessionKeyRequest()");
+
+    /* Perform operation. */
+
+    {
+        SessionKey key;
+        Strlcpy(key.data, request.key, sizeof(key.data));
+        status = DeleteSessionKey(&key);
+    }
+
+    /* Log failure. */
+
+    if (status != 0)
+        Log(LL_WARNING, "failed to delete session key");
+
+    /* Send response. */
+
+    response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "failed to write response");
@@ -975,10 +1057,18 @@ void Parent(int sock, int childPid)
                 HandleNewSessionKeyRequest(sock);
                 break;
 
+            case EXECUTOR_DELETE_SESSION_KEY_MESSAGE:
+                HandleDeleteSessionKeyRequest(sock);
+                break;
+
             default:
                 Fatal(FL, "invalid request code: %d", header.code);
                 break;
         }
+
+        /* ATTN: consider timing out SessionKeys for which authentication 
+         * started but never finished.
+         */
     }
 
     /* Reached due to socket EOF, SIGTERM, or SIGINT. */

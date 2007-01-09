@@ -261,6 +261,7 @@ static int InProcess_startProviderAgent(
     int uid,
     int gid, 
     int& pid,
+    SessionKey& providerAgentSessionKey,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
@@ -268,6 +269,7 @@ static int InProcess_startProviderAgent(
 
     // Initialize output parameters in case of error.
 
+    providerAgentSessionKey.clear();
     pid = -1;
     readPipe = 0;
     writePipe = 0;
@@ -734,11 +736,13 @@ static int OutOfProcess_startProviderAgent(
     int uid,
     int gid, 
     int& pid,
+    SessionKey& providerAgentSessionKey,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
     AutoMutex autoMutex(_mutex);
 
+    providerAgentSessionKey.clear();
     readPipe = 0;
     writePipe = 0;
 
@@ -775,6 +779,11 @@ static int OutOfProcess_startProviderAgent(
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
+
+    // Get the session key.
+
+    Strlcpy((char*)providerAgentSessionKey.data(), 
+        response.key, providerAgentSessionKey.size());
 
     // Check response status and pid.
 
@@ -941,6 +950,8 @@ int OutOfProcess_challengeLocal(
 {
     AutoMutex autoMutex(_mutex);
 
+    sessionKey.clear();
+
     // _send request header:
 
     ExecutorRequestHeader header;
@@ -1011,6 +1022,8 @@ int OutOfProcess_newSessionKey(
 {
     AutoMutex autoMutex(_mutex);
 
+    sessionKey.clear();
+
     // _send request header:
 
     ExecutorRequestHeader header;
@@ -1036,6 +1049,38 @@ int OutOfProcess_newSessionKey(
         return -1;
 
     Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
+
+    return response.status;
+}
+
+int OutOfProcess_deleteSessionKey(
+    const SessionKey& sessionKey)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // Send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_DELETE_SESSION_KEY_MESSAGE;
+
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // Send request body.
+
+    ExecutorDeleteSessionKeyRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.key, sessionKey.data(), sizeof(request.key));
+
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorDeleteSessionKeyResponse response;
+
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+        return -1;
 
     return response.status;
 }
@@ -1124,17 +1169,19 @@ int Executor::startProviderAgent(
     int uid,
     int gid, 
     int& pid,
+    SessionKey& providerAgentSessionKey,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
     if (_getSock() == -1)
-        return InProcess_startProviderAgent(
-            sessionKey, module, uid, gid, pid, readPipe, writePipe);
+        return InProcess_startProviderAgent(sessionKey, module, 
+            uid, gid, pid, providerAgentSessionKey, readPipe, writePipe);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_startProviderAgent(
-        sessionKey, module, uid, gid, pid, readPipe, writePipe);
+    return OutOfProcess_startProviderAgent(sessionKey, module, 
+        uid, gid, pid, providerAgentSessionKey, readPipe, writePipe);
 #else
+    providerAgentSessionKey.clear();
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
@@ -1175,6 +1222,7 @@ int Executor::authenticatePassword(
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     return OutOfProcess_authenticatePassword(username, password, sessionKey);
 #else
+    sessionKey.clear();
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
@@ -1203,6 +1251,7 @@ int Executor::challengeLocal(
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     return OutOfProcess_challengeLocal(user, path, sessionKey);
 #else
+    sessionKey.clear();
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
@@ -1232,6 +1281,19 @@ int Executor::newSessionKey(
     return OutOfProcess_newSessionKey(username, sessionKey);
 #else
     sessionKey.clear();
+    return 0;
+#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+}
+
+int Executor::deleteSessionKey(
+    const SessionKey& sessionKey)
+{
+    if (_getSock() == -1)
+        return -1;
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    return OutOfProcess_deleteSessionKey(sessionKey);
+#else
     return 0;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }

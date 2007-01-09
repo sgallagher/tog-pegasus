@@ -37,6 +37,7 @@
 #include "Fatal.h"
 #include "User.h"
 #include "SessionKey.h"
+#include "Log.h"
 
 typedef struct SessionKeyEntryStruct
 {
@@ -89,14 +90,15 @@ static SessionKeyEntry* _lookup(const SessionKey* key)
 SessionKey NewSessionKey(
     int uid,
     void* data, 
-    void (*destructor)(void*))
+    void (*destructor)(void*),
+    int authenticated)
 {
     size_t i;
     SessionKeyEntry* entry;
 
     /* Loop until a unique key can be generated. */
 
-    const size_t MAX_RETRIES = 16;
+    const size_t MAX_RETRIES = 256;
     int okay = 0;
     SessionKey key;
 
@@ -118,10 +120,10 @@ SessionKey NewSessionKey(
 
     /* Create entry. */
 
-    entry = (SessionKeyEntry*)malloc(sizeof(SessionKeyEntry));
+    entry = (SessionKeyEntry*)calloc(1, sizeof(SessionKeyEntry));
     entry->key = key;
     entry->uid = uid;
-    entry->authenticated = 0;
+    entry->authenticated = 1;
     entry->data = data;
     entry->destructor = destructor;
 
@@ -131,6 +133,8 @@ SessionKey NewSessionKey(
     _head = entry;
 
     /* Return key part. */
+
+Log(LL_INFORMATION, "********** NEW: %s", entry->key.data);
 
     return entry->key;
 }
@@ -151,6 +155,8 @@ int DeleteSessionKey(const SessionKey* key)
     SessionKeyEntry* prev = 0;
     SessionKeyEntry* p;
 
+Log(LL_INFORMATION, "********** DELETE: %s", key->data);
+
     /* Remove entry with this key value from the list. */
 
     for (p = _head; p; p = p->next)
@@ -166,6 +172,8 @@ int DeleteSessionKey(const SessionKey* key)
 
             if (p->destructor)
                 (*p->destructor)(p->data);
+
+            free(p);
 
             return 0;
         }

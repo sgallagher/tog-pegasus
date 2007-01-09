@@ -403,6 +403,9 @@ MEB: SSL certificate auhtentication begins:
                     // to the key bindings and set it to cimserver truststore.
                     //
 
+/*
+MEB: Consider adding executor call here to check client certificate.
+*/
                     //construct the corresponding PG_SSLCertificate instance
                     Array<CIMKeyBinding> keyBindings;
                     keyBindings.append(CIMKeyBinding(

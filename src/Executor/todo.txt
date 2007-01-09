@@ -1,67 +1,47 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Check for ATTN's.
+    (A) Generate and use "indication service session key". What user should
+        the key be created for?
 
-    [EASY]
-    (A) Add PEGASUS_SERVER_USER (default "pegasus") to Constants.h and remove
-        serverUser configuration parameter. Also remove logic which deduces
-        the user from the cimservermain program owner.
+    (A) Delete unused session keys.
 
-    [HARD]
-    (A) Finish SessionKey checking (don't forget to delete session key when
-        user is finished).
-
-    [HARD]
     (A) Implement policy.
+
+    (A) Rework so that PG_ProviderModule.userContext=5 (CIM server) causes
+        provider agent to run as server user (fix related tests).
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
-    [EASY]
-    (B) Remove fingerprint checking from child programs.
+    (B) Add PEGASUS_SERVER_USER (default "pegasus") to Constants.h and remove
+        serverUser configuration parameter. Also remove logic which deduces
+        the user from the cimservermain program owner.
 
-    [EASY]
+    (B) Rename WAIT_PID request to REAP_PROVIDER_AGENT. Use session key to
+        wait on it.
+
     (B) Handle shutdownTimeout option in cimshutdown (pass it as command 
         line argument).
 
-    [MODERATE]
-    (B) Rework so that PG_ProviderModule.userContext=5 (CIM server) causes
-        provider agent to run as server user (fix related tests).
-
-    [MODERATE]
     (B) Test without privilege separation.
 
-    [MODERATE]
     (B) Test on Windows.
 
-    [EASY]
-    (B) Rename these:
-
-            PAM_VALIDATE_USER ==> VALIDATE_USER
-            PAM_AUTHENTICATE ==> AUTHENTICATE_PASSWORD
-
-            START_LOCAL_AUTH ==> CHALLENGE_LOCAL
-            FINISH_LOCAL_AUTH ==> AUTHENTICATE_LOCAL
+    (B) Demote most INFORMATION log messages to TRACE.
 
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-    (C) Consider implementing rotating session key.
-
-    (C) Consider creating cimexecutor.conf file with serverUser option.
-
-    (C) Consider adding a VERIFY_USER message. This operation should cache
-        the verified user for the ensuing authentication operation.
-
     (C) Generate provider policy file automatically from repository.
 
-    (C) Consider moving configuration file manipulation into executor.
-
-    (C) Replace LocalAuthFile class with new implementation in LocalAuth.cpp.
+    (C) Consider implementing rotating one-shot session keys.
 
     (C) Propose precheck program that verifies proper file ownership (e.g.,
         private key must be owned by root, all other files must be owned
-        by root but not writable by anyone else.
+        by root but not writable by anyone else).
 
-    (A) Consider implementing standard Unix password file checking for
+    (C) Consider implementing standard Unix password file checking for
         AUTHENTICATE_PASSOWRD and VALIDATE_USER commands.
 
+    (C) Estimate effort of moving SSL certificate authentication to executor.
+
+    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF

@@ -252,7 +252,7 @@ int StartLocalAuthentication(
 
     /* Create the session key (associated with path). */
 
-    *key = NewSessionKey(uid, strdup(path), _destructor);
+    *key = NewSessionKey(uid, strdup(path), _destructor, 0);
 
     return 0;
 }
@@ -289,6 +289,11 @@ int FinishLocalAuthentication(
     /* Delete session key data. */
 
     if (DeleteSessionKeyData(key) != 0)
+        return -1;
+
+    /* Set authentication flag. */
+
+    if (SetSessionKeyAuthenticated(key) != 0)
         return -1;
 
     return 0;

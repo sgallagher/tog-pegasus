@@ -431,7 +431,10 @@ void ProviderAgentContainer::_startAgentProcess()
 
 # endif /* PEGASUS_DISABLE_PROV_USERCTXT */
 
+    // Start the provider agent.
+
     int pid;
+    SessionKey providerAgentSessionKey;
     AnonymousPipe* readPipe;
     AnonymousPipe* writePipe;
 
@@ -441,6 +444,7 @@ void ProviderAgentContainer::_startAgentProcess()
         newUid,
         newGid,
         pid,
+        providerAgentSessionKey,
         readPipe,
         writePipe);
 
@@ -455,11 +459,9 @@ void ProviderAgentContainer::_startAgentProcess()
             _moduleName));
     }
 
-/*
-MEB: fix
-*/
-SessionKey providerAgentSessionKey;
-memset((char*)providerAgentSessionKey.data(), 'E', 32);
+    // Set the session key to be used for requests emanating from this read
+    // pipe (i.e., the provider agent). Examples include requests made by the
+    // provider with the CIMOMHandle or indications delivered by the provider.
 
     readPipe->setSessionKey(providerAgentSessionKey);
 
@@ -607,9 +609,7 @@ void ProviderAgentContainer::_initialize()
     try
     {
         _startAgentProcess();
-
         _isInitialized = true;
-
         _sendInitializationData();
 
         // Start a thread to read and process responses from the Provider Agent
@@ -643,6 +643,16 @@ void ProviderAgentContainer::_initialize()
     }
     catch (...)
     {
+        // Delete the providerAgentSessionKey.
+
+        if (Executor::deleteSessionKey(_pipeFromAgent->getSessionKey()) != 0)
+        {
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "Executor::deleteSessionKey(): failed to delete provider "
+                "agent session key");
+        }
+
         // Closing the connection causes the agent process to exit
         _pipeToAgent.reset();
         _pipeFromAgent.reset();

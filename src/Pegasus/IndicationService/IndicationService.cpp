@@ -64,6 +64,11 @@
 #include "SubscriptionTable.h"
 #include "IndicationService.h"
 
+/*
+MEB: remove
+*/
+#include <syslog.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -73,7 +78,7 @@ MEB: fix.
 */
 static void _setSessionKey(CIMRequestMessage* request, char digit)
 {
-    memset((char*)request->sessionKey.data(), 'D', 32);
+    memset((char*)request->sessionKey.data(), 'D', 31);
     ((char*)request->sessionKey.data())[31] = digit;
 }
 
@@ -2305,7 +2310,11 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         QueueIdStack(_handlerService, getQueueId()),
                         String::EMPTY,
                         String::EMPTY);
-_setSessionKey(handler_request, '0');
+
+                if (request->sessionKey.null())
+                    _setSessionKey(handler_request, '0');
+                else
+                    handler_request->sessionKey = request->sessionKey;
 
                 handler_request->operationContext = request->operationContext;
 
@@ -6088,7 +6097,10 @@ void IndicationService::_sendAsyncCreateRequests
                     (CIMCreateInstanceRequestMessage *) origRequest;
                 CIMCreateInstanceRequestMessage * requestCopy =
                     new CIMCreateInstanceRequestMessage (* request);
-_setSessionKey(request, '1');
+
+                if (requestCopy->sessionKey.null())
+                    _setSessionKey(requestCopy, '1');
+
                 aggRequest = requestCopy;
                 break;
             }
@@ -6099,7 +6111,10 @@ _setSessionKey(request, '1');
                     (CIMModifyInstanceRequestMessage *) origRequest;
                 CIMModifyInstanceRequestMessage * requestCopy =
                     new CIMModifyInstanceRequestMessage (* request);
-_setSessionKey(requestCopy, '2');
+
+                if (requestCopy->sessionKey.null())
+                    _setSessionKey(requestCopy, '2');
+
                 aggRequest = requestCopy;
                 break;
             }
@@ -6144,14 +6159,18 @@ _setSessionKey(requestCopy, '2');
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName);
-_setSessionKey(request, '3');
+
+/*
+MEB: where do we get this?
+*/
+        _setSessionKey(request, '3');
 
         //
         //  Store a copy of the request in the operation aggregate instance
         //
         CIMCreateSubscriptionRequestMessage * requestCopy =
             new CIMCreateSubscriptionRequestMessage (* request);
-_setSessionKey(requestCopy, '4');
+
         requestCopy->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule
             ,indicationProviders [i].provider
@@ -6244,9 +6263,7 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
         //
         //  Create the create subscription request
         //
-/*
-MEB: sending subscription request message from indication service.
-*/
+
         CIMCreateSubscriptionRequestMessage * request =
             new CIMCreateSubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
@@ -6259,7 +6276,11 @@ MEB: sending subscription request message from indication service.
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName);
-_setSessionKey(request, '5');
+
+/*
+MEB: where do we get this?
+*/
+        _setSessionKey(request, '4');
 
         //
         //  Set operation context
@@ -6375,7 +6396,11 @@ void IndicationService::_sendWaitModifyRequests
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName);
-_setSessionKey(request, '6');
+
+/*
+MEB: where do we get this?
+*/
+        _setSessionKey(request, '5');
 
         //
         //  Set operation context
@@ -6487,7 +6512,10 @@ void IndicationService::_sendAsyncDeleteRequests
                     (CIMDeleteInstanceRequestMessage *) origRequest;
                 CIMDeleteInstanceRequestMessage * requestCopy =
                     new CIMDeleteInstanceRequestMessage (* request);
-_setSessionKey(requestCopy, '7');
+
+                if (requestCopy->sessionKey.null())
+                    _setSessionKey(requestCopy, '6');
+
                 aggRequest = requestCopy;
                 break;
             }
@@ -6498,7 +6526,10 @@ _setSessionKey(requestCopy, '7');
                     (CIMModifyInstanceRequestMessage *) origRequest;
                 CIMModifyInstanceRequestMessage * requestCopy =
                     new CIMModifyInstanceRequestMessage (* request);
-_setSessionKey(requestCopy, '8');
+
+                if (requestCopy->sessionKey.null())
+                    _setSessionKey(requestCopy, '7');
+
                 aggRequest = requestCopy;
                 break;
             }
@@ -6537,14 +6568,18 @@ _setSessionKey(requestCopy, '8');
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName);
-_setSessionKey(request, '9');
+
+/* 
+MEB: where do we get this?
+*/
+        _setSessionKey(request, '8');
 
         //
         //  Store a copy of the request in the operation aggregate instance
         //
         CIMDeleteSubscriptionRequestMessage * requestCopy =
             new CIMDeleteSubscriptionRequestMessage (* request);
-_setSessionKey(requestCopy, 'A');
+
         requestCopy->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule
             ,indicationProviders [i].provider
@@ -6623,7 +6658,11 @@ void IndicationService::_sendWaitDeleteRequests
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName);
-_setSessionKey(request, 'B');
+
+/*
+MEB: where do we get this?
+*/
+        _setSessionKey(request, '9');
 
         //
         //  Set operation context
@@ -7178,7 +7217,7 @@ void IndicationService::_sendSubscriptionInitComplete ()
             (XmlWriter::getNextMessageId (),
             QueueIdStack (_providerManager, getQueueId ()));
 
-_setSessionKey(request, 'C');
+_setSessionKey(request, 'A');
 
     //
     //  Send Subscription Initialization Complete request to provider manager

@@ -26,6 +26,8 @@
         user will most likely break existing providers, which were probably
         written with the expectation of running as root.
 
+        Should we consider deprecating this option?
+
     (C) Consider implementing rotating one-shot session keys.
 
     (C) Propose pre-check utility that verifies proper file ownership (e.g.,
@@ -37,6 +39,4 @@
         AUTHENTICATE_PASSOWRD and VALIDATE_USER commands.
 
     (C) Estimate effort of moving SSL certificate authentication to executor.
-
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 

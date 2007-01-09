@@ -1,14 +1,7 @@
 
-    1.  The user that runs cimervermain is determined as follows.
-
-        (1) Look for serverUser configuration option on command line.
-
-        (2) Look for serverUser configuration option in planned configuration
-            file.
-
-        (3) Use the owner of the cimservermain program (if not root).
-
-        (4) Use "pegasus" (the default user).
+    1.  The user that runs cimervermain is determined by the 
+        PEGASUS_CIMSERVERMAIN_USER constant defined in 
+        <Pegasus/Common/Constants.h>
 
     2.  All files but the repository are owned by root. The cimservermain
         process may read any of the root owned files, but it must ask the

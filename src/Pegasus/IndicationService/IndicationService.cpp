@@ -49,6 +49,7 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/Executor.h>
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/String.h>
@@ -64,22 +65,25 @@
 #include "SubscriptionTable.h"
 #include "IndicationService.h"
 
-/*
-MEB: remove
-*/
-#include <syslog.h>
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-/*
-MEB: fix.
-*/
-static void _setSessionKey(CIMRequestMessage* request, char digit)
+int IndicationService::_assignSessionKey(
+    const String& userName, 
+    SessionKey& sessionKey)
 {
-    memset((char*)request->sessionKey.data(), 'D', 31);
-    ((char*)request->sessionKey.data())[31] = digit;
+    sessionKey.clear();
+
+    if (_authenticationEnabled)
+    {
+        if (_sessionKeyMap.find(userName, sessionKey))
+            return 0;
+
+        return Executor::newSessionKey(userName.getCString(), sessionKey);
+    }
+
+    return 0;
 }
 
 // ATTN-RK-20020730: Temporary hack to fix Windows build
@@ -2311,10 +2315,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         String::EMPTY,
                         String::EMPTY);
 
-                if (request->sessionKey.null())
-                    _setSessionKey(handler_request, '0');
-                else
-                    handler_request->sessionKey = request->sessionKey;
+                handler_request->sessionKey = request->sessionKey;
 
                 handler_request->operationContext = request->operationContext;
 
@@ -6098,9 +6099,6 @@ void IndicationService::_sendAsyncCreateRequests
                 CIMCreateInstanceRequestMessage * requestCopy =
                     new CIMCreateInstanceRequestMessage (* request);
 
-                if (requestCopy->sessionKey.null())
-                    _setSessionKey(requestCopy, '1');
-
                 aggRequest = requestCopy;
                 break;
             }
@@ -6111,9 +6109,6 @@ void IndicationService::_sendAsyncCreateRequests
                     (CIMModifyInstanceRequestMessage *) origRequest;
                 CIMModifyInstanceRequestMessage * requestCopy =
                     new CIMModifyInstanceRequestMessage (* request);
-
-                if (requestCopy->sessionKey.null())
-                    _setSessionKey(requestCopy, '2');
 
                 aggRequest = requestCopy;
                 break;
@@ -6160,10 +6155,7 @@ void IndicationService::_sendAsyncCreateRequests
                 authType,
                 userName);
 
-/*
-MEB: where do we get this?
-*/
-        _setSessionKey(request, '3');
+        _assignSessionKey(userName, request->sessionKey);
 
         //
         //  Store a copy of the request in the operation aggregate instance
@@ -6277,10 +6269,7 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
                 authType,
                 userName);
 
-/*
-MEB: where do we get this?
-*/
-        _setSessionKey(request, '4');
+        _assignSessionKey(userName, request->sessionKey);
 
         //
         //  Set operation context
@@ -6397,10 +6386,7 @@ void IndicationService::_sendWaitModifyRequests
                 authType,
                 userName);
 
-/*
-MEB: where do we get this?
-*/
-        _setSessionKey(request, '5');
+        _assignSessionKey(userName, request->sessionKey);
 
         //
         //  Set operation context
@@ -6513,9 +6499,6 @@ void IndicationService::_sendAsyncDeleteRequests
                 CIMDeleteInstanceRequestMessage * requestCopy =
                     new CIMDeleteInstanceRequestMessage (* request);
 
-                if (requestCopy->sessionKey.null())
-                    _setSessionKey(requestCopy, '6');
-
                 aggRequest = requestCopy;
                 break;
             }
@@ -6526,9 +6509,6 @@ void IndicationService::_sendAsyncDeleteRequests
                     (CIMModifyInstanceRequestMessage *) origRequest;
                 CIMModifyInstanceRequestMessage * requestCopy =
                     new CIMModifyInstanceRequestMessage (* request);
-
-                if (requestCopy->sessionKey.null())
-                    _setSessionKey(requestCopy, '7');
 
                 aggRequest = requestCopy;
                 break;
@@ -6569,10 +6549,7 @@ void IndicationService::_sendAsyncDeleteRequests
                 authType,
                 userName);
 
-/* 
-MEB: where do we get this?
-*/
-        _setSessionKey(request, '8');
+        _assignSessionKey(userName, request->sessionKey);
 
         //
         //  Store a copy of the request in the operation aggregate instance
@@ -6659,10 +6636,7 @@ void IndicationService::_sendWaitDeleteRequests
                 authType,
                 userName);
 
-/*
-MEB: where do we get this?
-*/
-        _setSessionKey(request, '9');
+        _assignSessionKey(userName, request->sessionKey);
 
         //
         //  Set operation context
@@ -7216,8 +7190,6 @@ void IndicationService::_sendSubscriptionInitComplete ()
         new CIMSubscriptionInitCompleteRequestMessage
             (XmlWriter::getNextMessageId (),
             QueueIdStack (_providerManager, getQueueId ()));
-
-_setSessionKey(request, 'A');
 
     //
     //  Send Subscription Initialization Complete request to provider manager

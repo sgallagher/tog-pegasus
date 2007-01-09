@@ -35,6 +35,7 @@
 #define _Pegasus_Common_SessionKey_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 #include "Linkage.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -86,6 +87,48 @@ public:
 private:
 
     char _data[SESSION_KEY_LENGTH+1];
+};
+
+/** The SessionKeyMap maintains a mapping between userNames and sessionKeys
+    It provides methods for adding, finding, and removing userName-sessionKey
+    pairs.
+*/
+class PEGASUS_COMMON_LINKAGE SessionKeyMap
+{
+public:
+
+    SessionKeyMap();
+
+    SessionKeyMap(const SessionKeyMap& x);
+
+    ~SessionKeyMap();
+
+    void clear();
+
+    SessionKeyMap& operator=(const SessionKeyMap& x);
+
+    bool insert(const String& userName, const SessionKey& sessionKey);
+
+    bool find(const String& userName, SessionKey& sessionKey);
+
+    bool remove(const String& userName);
+
+private:
+
+    void _copy(const SessionKeyMap& x);
+
+    struct Pair
+    {
+        const String userName;
+        SessionKey sessionKey;
+
+        Pair(const String& u, const SessionKey& s) : userName(u), sessionKey(s)
+        {
+        }
+    };
+
+    Pair* _data;
+    Uint32 _size;
 };
 
 PEGASUS_NAMESPACE_END

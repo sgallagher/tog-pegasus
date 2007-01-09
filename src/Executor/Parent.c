@@ -228,10 +228,6 @@ static void HandleStartProviderAgentRequest(int sock)
         }
     }
 
-/*
-MEB: remove following logic.
-*/
-
     /*
      * Map cimservermain user to root to preserve pre-privilege-separation
      * behavior.

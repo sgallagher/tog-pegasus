@@ -31,11 +31,19 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <new>
 #include <cctype>
 #include <cstring>
+#include <cstdlib>
 #include "SessionKey.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+//==============================================================================
+//
+// class SessionKey
+//
+//==============================================================================
 
 SessionKey& SessionKey::operator=(const SessionKey& x)
 {
@@ -66,6 +74,113 @@ bool SessionKey::valid() const
     }
 
     return _data[SESSION_KEY_LENGTH] == '\0';
+}
+
+//==============================================================================
+//
+// class SessionKeyMap
+//
+//==============================================================================
+
+SessionKeyMap::SessionKeyMap() : _data(0), _size(0)
+{
+}
+
+SessionKeyMap::SessionKeyMap(const SessionKeyMap& x)
+{
+    _copy(x);
+}
+
+SessionKeyMap::~SessionKeyMap()
+{
+    clear();
+}
+
+void SessionKeyMap::clear()
+{
+    for (Uint32 i = 0; i < _size; i++)
+        _data[i].~Pair();
+
+    free(_data);
+
+    _data = 0;
+    _size = 0;
+}
+
+SessionKeyMap& SessionKeyMap::operator=(const SessionKeyMap& x)
+{
+    if (&x != this)
+    {
+        clear();
+        _copy(x);
+    }
+
+    return *this;
+}
+
+bool SessionKeyMap::insert(const String& userName, const SessionKey& sessionKey)
+{
+    for (Uint32 i = 0; i < _size; i++)
+    {
+        if (_data[i].userName == userName)
+            return false;
+    }
+
+    _data = (Pair*)realloc(_data, sizeof(Pair) * (_size + 1));
+    new(&_data[_size]) Pair(userName, sessionKey);
+    _size++;
+
+    return true;
+}
+
+bool SessionKeyMap::find(const String& userName, SessionKey& sessionKey)
+{
+    for (Uint32 i = 0; i < _size; i++)
+    {
+        if (_data[i].userName == userName)
+        {
+            sessionKey = _data[i].sessionKey;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool SessionKeyMap::remove(const String& userName)
+{
+    for (Uint32 i = 0; i < _size; i++)
+    {
+        if (_data[i].userName == userName)
+        {
+            _data[i].~Pair();
+            size_t r = _size - i - 1;
+
+            if (r)
+                memcpy(&_data[i], &_data[i+1], sizeof(Pair) * r);
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void SessionKeyMap::_copy(const SessionKeyMap& x)
+{
+    if (x._size)
+    {
+        _data = (Pair*)malloc(sizeof(Pair) * x._size);
+        _size = x._size;
+
+        for (Uint32 i = 0; i < x._size; i++)
+            new(&_data[i]) Pair(x._data[i]);
+    }
+    else
+    {
+        _data = 0;
+        _size = 0;
+    }
 }
 
 PEGASUS_NAMESPACE_END

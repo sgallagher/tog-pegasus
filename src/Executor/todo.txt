@@ -6,6 +6,8 @@
 
     (A) Implement policy.
 
+    (A) Add NEW_SESSION_KEY logic to basic password file authenticator.
+
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
     (B) Handle shutdownTimeout option in cimshutdown (pass it as command 
@@ -15,13 +17,17 @@
 
     (B) Test on Windows.
 
+    (B) Code walk-through of all diffs to cimservermain.
+
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
     (C) Generate provider policy file automatically from repository.
 
     (C) Rethink "run as CIM server" policy when starting provider agents.
         Currently, this means run as the same user as the executor (this
-        preserves the old behavior).
+        preserves the old behavior). Changing it to use the cimservermain
+        user will most likely break existing providers, which were probably
+        written with the expectation of running as root.
 
     (C) Consider implementing rotating one-shot session keys.
 

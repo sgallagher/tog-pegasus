@@ -371,7 +371,7 @@ MEB: remove following logic.
 
     {
         SessionKey key;
-        key = NewSessionKey(request.uid, 0, 0, 1);
+        key = NewSessionKey(request.uid, (long)pid, 0, 1);
         Strlcat(response.key, key.data, sizeof(response.key));
     }
 
@@ -566,16 +566,16 @@ static void HandleRemoveFileRequest(int sock)
 /*
 **==============================================================================
 **
-** HandleWaitPidRequest()
+** HandleReapProviderAgentRequest()
 **
 **==============================================================================
 */
 
-static void HandleWaitPidRequest(int sock)
+static void HandleReapProviderAgentRequest(int sock)
 {
     int status;
-    struct ExecutorWaitPidRequest request;
-    struct ExecutorWaitPidResponse response;
+    struct ExecutorReapProviderAgentRequest request;
+    struct ExecutorReapProviderAgentResponse response;
 
     memset(&response, 0, sizeof(response));
 
@@ -584,14 +584,57 @@ static void HandleWaitPidRequest(int sock)
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "failed to read request");
 
-    /* Wait on the PID: */
+    /* Log request. */
 
-    Log(LL_TRACE, "HandleWaitPidRequest(): pid=%d", request.pid);
+    Log(LL_TRACE, "HandleReapProviderAgentRequest(): pid=%d", request.pid);
 
-    EXECUTOR_RESTART(waitpid(request.pid, 0, 0), status);
+    /* Perform operation. */
 
-    if (status == -1)
-        Log(LL_WARNING, "waitpid(%d, 0, 0) failed", request.pid);
+    status = 0;
+
+    do
+    {
+        SessionKey key;
+        long data = 0;
+
+        /* Check session key. */
+
+        Strlcpy(key.data, request.key, sizeof(key.data));
+
+        if (GetSessionKeyData(&key, &data) != 0)
+        {
+            status = -1;
+            Log(LL_WARNING, "HandleReapProviderAgentRequest(): "
+                "unknown session key");
+            break;
+        }
+
+        /* Verify that the PID. */
+
+        if ((int)data != request.pid)
+        {
+            status = -1;
+            Log(LL_WARNING, "HandleReapProviderAgentRequest(): "
+                "request PID does not match PID cached with session key");
+            break;
+        } 
+
+        /* Delete the session key. */
+
+        if (DeleteSessionKey(&key) != 0)
+        {
+            Log(LL_WARNING, "HandleReapProviderAgentRequest(): "
+                "failed to delete session key");
+        }
+
+        /* Wait on the PID. */
+
+        EXECUTOR_RESTART(waitpid(request.pid, 0, 0), status);
+
+        if (status == -1)
+            Log(LL_WARNING, "waitpid(%d, 0, 0) failed", request.pid);
+    }
+    while (0);
 
     /* Send response message. */
 
@@ -1033,8 +1076,8 @@ void Parent(int sock, int childPid)
                 HandleRemoveFileRequest(sock);
                 break;
 
-            case EXECUTOR_WAIT_PID_MESSAGE:
-                HandleWaitPidRequest(sock);
+            case EXECUTOR_REAP_PROVIDER_AGENT:
+                HandleReapProviderAgentRequest(sock);
                 break;
 
             case EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE:

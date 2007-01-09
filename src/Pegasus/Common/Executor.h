@@ -79,7 +79,8 @@ public:
 
     static int daemonizeExecutor();
 
-    static int waitPid(
+    static int reapProviderAgent(
+        const SessionKey& sessionKey,
         int pid);
 
     static int authenticatePassword(

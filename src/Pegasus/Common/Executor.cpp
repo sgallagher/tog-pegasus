@@ -82,18 +82,18 @@ static int _getSock()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////
-//// InProcess stubs:
+//// Loopback stubs:
 ////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-static int InProcess_ping()
+static int Loopback_ping()
 {
     // Nothing to do.
     return 0;
 }
 
-FILE* InProcess_openFile(
+FILE* Loopback_openFile(
     const char* path,
     int mode)
 {
@@ -113,14 +113,14 @@ FILE* InProcess_openFile(
     }
 }
 
-static int InProcess_renameFile(
+static int Loopback_renameFile(
     const char* oldPath,
     const char* newPath)
 {
     return FileSystem::renameFile(oldPath, newPath) ? 0 : -1;
 }
 
-static int InProcess_removeFile(
+static int Loopback_removeFile(
     const char* path)
 {
     return FileSystem::removeFile(path) ? 0 : -1;
@@ -148,7 +148,7 @@ static int _getProviderAgentPath(String& path)
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 
-static int InProcess_startProviderAgent(
+static int Loopback_startProviderAgent(
     const char* module, 
     int uid,
     int gid, 
@@ -241,7 +241,7 @@ static int InProcess_startProviderAgent(
 
 #elif defined(PEGASUS_OS_OS400)
 
-static int InProcess_startProviderAgent(
+static int Loopback_startProviderAgent(
     const char* module, 
     int uid,
     int gid, 
@@ -255,7 +255,7 @@ static int InProcess_startProviderAgent(
 
 #else /* POSIX CASE FOLLOWS */
 
-static int InProcess_startProviderAgent(
+static int Loopback_startProviderAgent(
     const SessionKey& sessionKey,
     const char* module, 
     int uid,
@@ -401,20 +401,21 @@ static int InProcess_startProviderAgent(
 
 #endif /* !defined(START_PROVIDER_AGENT) */
 
-static int InProcess_daemonizeExecutor()
+static int Loopback_daemonizeExecutor()
 {
     // Nothing to do.
     return 0;
 }
 
-static int InProcess_changeOwner(
+static int Loopback_changeOwner(
     const char* path,
     const char* owner)
 {
     return FileSystem::changeFileOwner(path, owner) ? 0 : -1;
 }
 
-static int InProcess_waitPid(
+static int Loopback_reapProviderAgent(
+    const SessionKey& sessionKey,
     int pid)
 {
     int status;
@@ -425,7 +426,7 @@ static int InProcess_waitPid(
     return status;
 }
 
-static int InProcess_authenticatePassword(
+static int Loopback_authenticatePassword(
     const char* username,
     const char* password,
     SessionKey& sessionKey)
@@ -439,7 +440,7 @@ static int InProcess_authenticatePassword(
 #endif
 }
 
-static int InProcess_validateUser(
+static int Loopback_validateUser(
     const char* username)
 {
 #if defined(PEGASUS_PAM_AUTHENTICATION)
@@ -584,7 +585,7 @@ static int _receiveDescriptorArray(int sock, int descriptors[], size_t count)
     return 0;
 }
 
-static int OutOfProcess_ping()
+static int Socket_ping()
 {
     AutoMutex autoMutex(_mutex);
 
@@ -607,7 +608,7 @@ static int OutOfProcess_ping()
     return -1;
 }
 
-FILE* OutOfProcess_openFile(
+FILE* Socket_openFile(
     const char* path,
     int mode)
 {
@@ -664,7 +665,7 @@ FILE* OutOfProcess_openFile(
     return NULL;
 }
 
-static int OutOfProcess_renameFile(
+static int Socket_renameFile(
     const char* oldPath,
     const char* newPath)
 {
@@ -698,7 +699,7 @@ static int OutOfProcess_renameFile(
     return response.status;
 }
 
-static int OutOfProcess_removeFile(
+static int Socket_removeFile(
     const char* path)
 {
     AutoMutex autoMutex(_mutex);
@@ -730,7 +731,7 @@ static int OutOfProcess_removeFile(
     return response.status;
 }
 
-static int OutOfProcess_startProviderAgent(
+static int Socket_startProviderAgent(
     const SessionKey& sessionKey,
     const char* module, 
     int uid,
@@ -819,7 +820,7 @@ static int OutOfProcess_startProviderAgent(
     return result;
 }
 
-static int OutOfProcess_daemonizeExecutor()
+static int Socket_daemonizeExecutor()
 {
     AutoMutex autoMutex(_mutex);
 
@@ -841,7 +842,8 @@ static int OutOfProcess_daemonizeExecutor()
     return response.status;
 }
 
-static int OutOfProcess_waitPid(
+static int Socket_reapProviderAgent(
+    const SessionKey& sessionKey,
     int pid)
 {
     AutoMutex autoMutex(_mutex);
@@ -849,14 +851,16 @@ static int OutOfProcess_waitPid(
     // _send request header:
 
     ExecutorRequestHeader header;
-    header.code = EXECUTOR_WAIT_PID_MESSAGE;
+    header.code = EXECUTOR_REAP_PROVIDER_AGENT;
 
     if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
         return -1;
 
     // _send request body:
 
-    ExecutorWaitPidRequest request;
+    ExecutorReapProviderAgentRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.key, sessionKey.data(), sizeof(request.key));
     request.pid = pid;
 
     if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
@@ -864,7 +868,7 @@ static int OutOfProcess_waitPid(
 
     // Receive the response
 
-    ExecutorWaitPidResponse response;
+    ExecutorReapProviderAgentResponse response;
 
     if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
         return -1;
@@ -872,7 +876,7 @@ static int OutOfProcess_waitPid(
     return response.status;
 }
 
-static int OutOfProcess_authenticatePassword(
+static int Socket_authenticatePassword(
     const char* username,
     const char* password,
     SessionKey& sessionKey)
@@ -911,7 +915,7 @@ static int OutOfProcess_authenticatePassword(
     return response.status;
 }
 
-static int OutOfProcess_validateUser(
+static int Socket_validateUser(
     const char* username)
 {
     AutoMutex autoMutex(_mutex);
@@ -943,7 +947,7 @@ static int OutOfProcess_validateUser(
     return response.status;
 }
 
-int OutOfProcess_challengeLocal(
+int Socket_challengeLocal(
     const char* user,
     char challenge[EXECUTOR_BUFFER_SIZE],
     SessionKey& sessionKey)
@@ -982,7 +986,7 @@ int OutOfProcess_challengeLocal(
     return response.status;
 }
 
-int OutOfProcess_authenticateLocal(
+int Socket_authenticateLocal(
     const SessionKey& sessionKey,
     const char* token)
 {
@@ -1016,7 +1020,7 @@ int OutOfProcess_authenticateLocal(
     return response.status;
 }
 
-int OutOfProcess_newSessionKey(
+int Socket_newSessionKey(
     const char username[EXECUTOR_BUFFER_SIZE],
     SessionKey& sessionKey)
 {
@@ -1053,7 +1057,7 @@ int OutOfProcess_newSessionKey(
     return response.status;
 }
 
-int OutOfProcess_deleteSessionKey(
+int Socket_deleteSessionKey(
     const SessionKey& sessionKey)
 {
     AutoMutex autoMutex(_mutex);
@@ -1113,10 +1117,10 @@ int Executor::detectExecutor()
 int Executor::ping()
 {
     if (_getSock() == -1)
-        return InProcess_ping();
+        return Loopback_ping();
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_ping();
+    return Socket_ping();
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1127,10 +1131,10 @@ FILE* Executor::openFile(
     int mode)
 {
     if (_getSock() == -1)
-        return InProcess_openFile(path, mode);
+        return Loopback_openFile(path, mode);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_openFile(path, mode);
+    return Socket_openFile(path, mode);
 #else
     return NULL;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1141,10 +1145,10 @@ int Executor::renameFile(
     const char* newPath)
 {
     if (_getSock() == -1)
-        return InProcess_renameFile(oldPath, newPath);
+        return Loopback_renameFile(oldPath, newPath);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_renameFile(oldPath, newPath);
+    return Socket_renameFile(oldPath, newPath);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1154,10 +1158,10 @@ int Executor::removeFile(
     const char* path)
 {
     if (_getSock() == -1)
-        return InProcess_removeFile(path);
+        return Loopback_removeFile(path);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_removeFile(path);
+    return Socket_removeFile(path);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1174,11 +1178,11 @@ int Executor::startProviderAgent(
     AnonymousPipe*& writePipe)
 {
     if (_getSock() == -1)
-        return InProcess_startProviderAgent(sessionKey, module, 
+        return Loopback_startProviderAgent(sessionKey, module, 
             uid, gid, pid, providerAgentSessionKey, readPipe, writePipe);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_startProviderAgent(sessionKey, module, 
+    return Socket_startProviderAgent(sessionKey, module, 
         uid, gid, pid, providerAgentSessionKey, readPipe, writePipe);
 #else
     providerAgentSessionKey.clear();
@@ -1189,23 +1193,24 @@ int Executor::startProviderAgent(
 int Executor::daemonizeExecutor()
 {
     if (_getSock() == -1)
-        return InProcess_daemonizeExecutor();
+        return Loopback_daemonizeExecutor();
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_daemonizeExecutor();
+    return Socket_daemonizeExecutor();
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
-int Executor::waitPid(
+int Executor::reapProviderAgent(
+    const SessionKey& sessionKey,
     int pid)
 {
     if (_getSock() == -1)
-        return InProcess_waitPid(pid);
+        return Loopback_reapProviderAgent(sessionKey, pid);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_waitPid(pid);
+    return Socket_reapProviderAgent(sessionKey, pid);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1217,10 +1222,10 @@ int Executor::authenticatePassword(
     SessionKey& sessionKey)
 {
     if (_getSock() == -1)
-        return InProcess_authenticatePassword(username, password, sessionKey);
+        return Loopback_authenticatePassword(username, password, sessionKey);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_authenticatePassword(username, password, sessionKey);
+    return Socket_authenticatePassword(username, password, sessionKey);
 #else
     sessionKey.clear();
     return -1;
@@ -1231,10 +1236,10 @@ int Executor::validateUser(
     const char* username)
 {
     if (_getSock() == -1)
-        return InProcess_validateUser(username);
+        return Loopback_validateUser(username);
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_validateUser(username);
+    return Socket_validateUser(username);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1249,7 +1254,7 @@ int Executor::challengeLocal(
         return -1;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_challengeLocal(user, path, sessionKey);
+    return Socket_challengeLocal(user, path, sessionKey);
 #else
     sessionKey.clear();
     return -1;
@@ -1264,7 +1269,7 @@ int Executor::authenticateLocal(
         return -1;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_authenticateLocal(sessionKey, challengeResponse);
+    return Socket_authenticateLocal(sessionKey, challengeResponse);
 #else
     return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
@@ -1275,13 +1280,15 @@ int Executor::newSessionKey(
     SessionKey& sessionKey)
 {
     if (_getSock() == -1)
-        return -1;
+    {
+        sessionKey.clear();
+        return 0;
+    }
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_newSessionKey(username, sessionKey);
+    return Socket_newSessionKey(username, sessionKey);
 #else
-    sessionKey.clear();
-    return 0;
+    return -1;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
@@ -1289,10 +1296,10 @@ int Executor::deleteSessionKey(
     const SessionKey& sessionKey)
 {
     if (_getSock() == -1)
-        return -1;
+        return 0;
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    return OutOfProcess_deleteSessionKey(sessionKey);
+    return Socket_deleteSessionKey(sessionKey);
 #else
     return 0;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */

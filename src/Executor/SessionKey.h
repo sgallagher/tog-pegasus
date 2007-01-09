@@ -52,15 +52,15 @@ SessionKey;
 
 SessionKey NewSessionKey(
     int uid, 
-    void* data, 
-    void (*destructor)(void*),
+    long data, 
+    void (*destructor)(long),
     int authenticated);
 
 int DeleteSessionKey(const SessionKey* key);
 
 int GetSessionKeyUid(const SessionKey* key, int* uid);
 
-int GetSessionKeyData(const SessionKey* key, void** data);
+int GetSessionKeyData(const SessionKey* key, long* data);
 
 int DeleteSessionKeyData(const SessionKey* key);
 

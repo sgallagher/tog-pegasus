@@ -44,8 +44,8 @@ typedef struct SessionKeyEntryStruct
     SessionKey key;
     int uid;
     int authenticated;
-    void* data;
-    void (*destructor)(void*);
+    long data;
+    void (*destructor)(long);
     struct SessionKeyEntryStruct* next;
 }
 SessionKeyEntry;
@@ -89,8 +89,8 @@ static SessionKeyEntry* _lookup(const SessionKey* key)
 
 SessionKey NewSessionKey(
     int uid,
-    void* data, 
-    void (*destructor)(void*),
+    long data, 
+    void (*destructor)(long),
     int authenticated)
 {
     size_t i;
@@ -104,9 +104,9 @@ SessionKey NewSessionKey(
 
     for (i = 0; i < MAX_RETRIES; i++)
     {
-        unsigned char data[16];
-        FillRandomBytes(data, sizeof(data));
-        RandBytesToHexASCII(data, sizeof(data), key.data);
+        unsigned char buffer[16];
+        FillRandomBytes(buffer, sizeof(buffer));
+        RandBytesToHexASCII(buffer, sizeof(buffer), key.data);
 
         if (!_lookup(&key))
         {
@@ -134,8 +134,6 @@ SessionKey NewSessionKey(
 
     /* Return key part. */
 
-Log(LL_INFORMATION, "********** NEW: %s", entry->key.data);
-
     return entry->key;
 }
 
@@ -154,8 +152,6 @@ int DeleteSessionKey(const SessionKey* key)
 {
     SessionKeyEntry* prev = 0;
     SessionKeyEntry* p;
-
-Log(LL_INFORMATION, "********** DELETE: %s", key->data);
 
     /* Remove entry with this key value from the list. */
 
@@ -195,7 +191,7 @@ Log(LL_INFORMATION, "********** DELETE: %s", key->data);
 **==============================================================================
 */
 
-int GetSessionKeyData(const SessionKey* key, void** data)
+int GetSessionKeyData(const SessionKey* key, long* data)
 {
     SessionKeyEntry* p;
 
@@ -258,7 +254,7 @@ int DeleteSessionKeyData(const SessionKey* key)
         if (p->destructor)
             (*p->destructor)(p->data);
 
-        p->data = NULL;
+        p->data = 0;
         p->destructor = NULL;
 
         return 0;

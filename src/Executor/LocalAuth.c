@@ -211,7 +211,7 @@ static int CheckLocalAuthToken(
 **==============================================================================
 */
 
-static void _destructor(void* data)
+static void _destructor(long data)
 {
     if (!data)
         return;
@@ -252,7 +252,7 @@ int StartLocalAuthentication(
 
     /* Create the session key (associated with path). */
 
-    *key = NewSessionKey(uid, strdup(path), _destructor, 0);
+    *key = NewSessionKey(uid, (long)strdup(path), _destructor, 0);
 
     return 0;
 }
@@ -271,7 +271,7 @@ int FinishLocalAuthentication(
     const SessionKey* key,
     const char* token)
 {
-    void* data = 0;
+    long data = 0;
 
     /* Get session key data (the path). */
 

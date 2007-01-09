@@ -4,21 +4,9 @@
     (A) Generate and use "indication service session key". What user should
         the key be created for?
 
-    (A) Delete unused session keys.
-
     (A) Implement policy.
 
-    (A) Rework so that PG_ProviderModule.userContext=5 (CIM server) causes
-        provider agent to run as server user (fix related tests).
-
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-
-    (B) Add PEGASUS_SERVER_USER (default "pegasus") to Constants.h and remove
-        serverUser configuration parameter. Also remove logic which deduces
-        the user from the cimservermain program owner.
-
-    (B) Rename WAIT_PID request to REAP_PROVIDER_AGENT. Use session key to
-        wait on it.
 
     (B) Handle shutdownTimeout option in cimshutdown (pass it as command 
         line argument).
@@ -27,17 +15,20 @@
 
     (B) Test on Windows.
 
-    (B) Demote most INFORMATION log messages to TRACE.
-
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
     (C) Generate provider policy file automatically from repository.
 
+    (C) Rethink "run as CIM server" policy when starting provider agents.
+        Currently, this means run as the same user as the executor (this
+        preserves the old behavior).
+
     (C) Consider implementing rotating one-shot session keys.
 
-    (C) Propose precheck program that verifies proper file ownership (e.g.,
+    (C) Propose pre-check utility that verifies proper file ownership (e.g.,
         private key must be owned by root, all other files must be owned
-        by root but not writable by anyone else).
+        by root but not writable by anyone else). Perhaps the executor could
+        perform these checks and print warnings.
 
     (C) Consider implementing standard Unix password file checking for
         AUTHENTICATE_PASSOWRD and VALIDATE_USER commands.
@@ -45,3 +36,4 @@
     (C) Estimate effort of moving SSL certificate authentication to executor.
 
     FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+

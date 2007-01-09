@@ -48,11 +48,13 @@
 #include "Tracer.h"
 #include "Buffer.h"
 #include "LanguageParser.h"
+#include "Executor.h"
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
 #endif
 #include <Pegasus/Common/XmlWriter.h>
+
 
 PEGASUS_USING_STD;
 
@@ -277,7 +279,14 @@ HTTPConnection::~HTTPConnection()
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
 
-     _socket->close();
+    _socket->close();
+
+    // Delete the session key associated with this connection.
+
+    SessionKey sessionKey = _authInfo->getSessionKey();
+
+    if (!sessionKey.null())
+        Executor::deleteSessionKey(sessionKey);
 
     PEG_METHOD_EXIT();
 }

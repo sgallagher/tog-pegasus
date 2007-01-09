@@ -63,7 +63,7 @@ enum ExecutorMessageCode
     EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE,
     EXECUTOR_REMOVE_FILE_MESSAGE,
     EXECUTOR_RENAME_FILE_MESSAGE,
-    EXECUTOR_WAIT_PID_MESSAGE,
+    EXECUTOR_REAP_PROVIDER_AGENT,
     EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE,
     EXECUTOR_VALIDATE_USER_MESSAGE,
     EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
@@ -196,17 +196,18 @@ struct ExecutorDaemonizeExecutorResponse
 /*
 **==============================================================================
 **
-** EXECUTOR_WAIT_PID_MESSAGE
+** EXECUTOR_REAP_PROVIDER_AGENT
 **
 **==============================================================================
 */
 
-struct ExecutorWaitPidRequest
+struct ExecutorReapProviderAgentRequest
 {
+    char key[EXECUTOR_BUFFER_SIZE];
     int pid;
 };
 
-struct ExecutorWaitPidResponse
+struct ExecutorReapProviderAgentResponse
 {
     int status;
 };

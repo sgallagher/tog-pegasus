@@ -451,6 +451,13 @@
 */
 #define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
 
+/* 
+ * PEGASUS_CIMSERVERMAIN_USER - cimservermain runs as this user. This constant 
+ * only applies when PEGASUS_ENABLE_PRIVELEGE_SEPARATION is defined, that is 
+ * when the the executor process is present.
+ */
+#define PEGASUS_CIMSERVERMAIN_USER "pegasus"
+
 /*
 **==============================================================================
 **

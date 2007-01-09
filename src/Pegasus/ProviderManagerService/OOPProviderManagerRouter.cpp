@@ -643,15 +643,7 @@ void ProviderAgentContainer::_initialize()
     }
     catch (...)
     {
-        // Delete the providerAgentSessionKey.
-
-        if (Executor::deleteSessionKey(_pipeFromAgent->getSessionKey()) != 0)
-        {
-            Logger::put(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "Executor::deleteSessionKey(): failed to delete provider "
-                "agent session key");
-        }
+        SessionKey sessionKey = _pipeFromAgent->getSessionKey();
 
         // Closing the connection causes the agent process to exit
         _pipeToAgent.reset();
@@ -661,7 +653,7 @@ void ProviderAgentContainer::_initialize()
         if (_isInitialized)
         {
             // Harvest the status of the agent process to prevent a zombie
-            pid_t status = Executor::waitPid(_pid);
+            pid_t status = Executor::reapProviderAgent(sessionKey, _pid);
 
             if (status == -1)
             {
@@ -707,6 +699,8 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
     try
     {
+        SessionKey sessionKey = _pipeFromAgent->getSessionKey();
+
         // Close the connection with the Provider Agent
         _pipeFromAgent.reset();
         _pipeToAgent.reset();
@@ -720,7 +714,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
 #if defined(PEGASUS_HAS_SIGNALS)
         // Harvest the status of the agent process to prevent a zombie
-        pid_t status = Executor::waitPid(_pid);
+        pid_t status = Executor::reapProviderAgent(sessionKey, _pid);
 
         if (status == -1)
         {

@@ -35,6 +35,7 @@
 #define Pegasus_SpinLock_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 
 //==============================================================================
 //
@@ -265,14 +266,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 // This array defines spin locks shared across the system. These are
 // initialized by calling SpinLockCreatePool().
-extern SpinLock spinLockPool[PEGASUS_NUM_SHARED_SPIN_LOCKS];
+PEGASUS_COMMON_LINKAGE
+    extern SpinLock spinLockPool[PEGASUS_NUM_SHARED_SPIN_LOCKS];
 
 // This flag is 0 until SpinLockCreatePool() is called, which sets it
 // to 1.
-extern int spinLockPoolInitialized;
+PEGASUS_COMMON_LINKAGE extern int spinLockPoolInitialized;
 
 // Initializes the global pool of mutexes.
-void SpinLockCreatePool();
+PEGASUS_COMMON_LINKAGE void SpinLockCreatePool();
 
 // Maps an address into the spinLockPool[] array defined above. This is used
 // to assign objects (by their addresses) to a shared lock. Collisions are

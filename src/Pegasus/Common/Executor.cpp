@@ -1005,6 +1005,41 @@ int OutOfProcess_authenticateLocal(
     return response.status;
 }
 
+int OutOfProcess_newSessionKey(
+    const char username[EXECUTOR_BUFFER_SIZE],
+    SessionKey& sessionKey)
+{
+    AutoMutex autoMutex(_mutex);
+
+    // _send request header:
+
+    ExecutorRequestHeader header;
+    header.code = EXECUTOR_NEW_SESSION_KEY_MESSAGE;
+
+    if (_send(_getSock(), &header, sizeof(header)) != sizeof(header))
+        return -1;
+
+    // _send request body.
+
+    ExecutorNewSessionKeyRequest request;
+    memset(&request, 0, sizeof(request));
+    Strlcpy(request.username, username, sizeof(request.username));
+
+    if (_send(_getSock(), &request, sizeof(request)) != sizeof(request))
+        return -1;
+
+    // Receive the response
+
+    ExecutorNewSessionKeyResponse response;
+
+    if (_recv(_getSock(), &response, sizeof(response)) != sizeof(response))
+        return -1;
+
+    Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
+
+    return response.status;
+}
+
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1183,6 +1218,21 @@ int Executor::authenticateLocal(
     return OutOfProcess_authenticateLocal(sessionKey, challengeResponse);
 #else
     return -1;
+#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+}
+
+int Executor::newSessionKey(
+    const char username[EXECUTOR_BUFFER_SIZE],
+    SessionKey& sessionKey)
+{
+    if (_getSock() == -1)
+        return -1;
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    return OutOfProcess_newSessionKey(username, sessionKey);
+#else
+    sessionKey.clear();
+    return 0;
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 

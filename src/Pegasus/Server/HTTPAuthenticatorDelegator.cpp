@@ -42,6 +42,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Common/Executor.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 # include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -335,7 +336,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // certificate chain, if necessary).
 
 /*
-MEB: SSL certificate authentcation begin
+MEB: SSL certificate auhtentication begins:
 */
         String certUserName;
         if (authenticated &&
@@ -544,10 +545,15 @@ MEB: SSL certificate authentcation begin
             }
 
             //
-            // Validate user information
+            // Validate user information and assign a new session key for
+            // this connection.
             //
 
-            if (!_authenticationManager->validateUserForHttpAuth(certUserName))
+            SessionKey key;
+
+            if (!_authenticationManager->validateUserForHttpAuth(certUserName)
+                ||
+                Executor::newSessionKey(certUserName.getCString(), key) != 0)
             {
                 MessageLoaderParms msgParms(
                     "Pegasus.Server.HTTPAuthenticatorDelegator."
@@ -563,6 +569,8 @@ MEB: SSL certificate authentcation begin
                 PEG_METHOD_EXIT();
                 return;
             }
+
+            httpMessage->authInfo->setSessionKey(key);
 
             httpMessage->authInfo->setAuthenticatedUser(certUserName);
 

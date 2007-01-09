@@ -111,6 +111,14 @@ public:
         const SessionKey& sessionKey,
         const char* challengeResponse);
 
+    /** Generate a new sesion key for the given user. This method will be
+        eliminated as soon as the SSL certificate authentication scheme is
+        moved into the executor.
+    */
+    static int newSessionKey(
+        const char username[EXECUTOR_BUFFER_SIZE],
+        SessionKey& sessionKey);
+
 private:
     // Private to prevent instantiation.
     Executor();

@@ -204,10 +204,23 @@ static void HandleStartProviderAgentRequest(int sock)
 
         Strlcpy(key.data, request.key, sizeof(key.data));
 
-        if (GetSessionKeyUid(&key, &uid) != 0)
+        if (TestValidSessionKey(&key) != 0)
         {
             Log(LL_SEVERE, 
-                "Unknown session key in START_PROVIDER_AGENT operation");
+                "Invalid session key in HandleStartProviderAgentRequest(): %s",
+                key.data);
+        }
+        else if (TestNullSessionKey(&key) == 0)
+        {
+            Log(LL_SEVERE, 
+                "Null session key in HandleStartProviderAgentRequest(): %s",
+                key.data);
+        }
+        else if (GetSessionKeyUid(&key, &uid) != 0)
+        {
+            Log(LL_WARNING, 
+                "Unknown session key in HandleStartProviderAgentRequest(): %s",
+                key.data);
         }
     }
 
@@ -797,6 +810,62 @@ static void HandleAuthenticateLocalRequest(int sock)
 /*
 **==============================================================================
 **
+** HandleNewSessionKeyRequest()
+**
+**==============================================================================
+*/
+
+static void HandleNewSessionKeyRequest(int sock)
+{
+    struct ExecutorNewSessionKeyRequest request;
+    struct ExecutorNewSessionKeyResponse response;
+    SessionKey key;
+    int status;
+
+    /* Read the request. */
+
+    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
+        Fatal(FL, "failed to read request");
+
+    /* Log request. */
+
+    Log(LL_TRACE, "HandleNewSessionKeyRequest(): username=%s",request.username);
+
+    /* Perform operation. */
+
+    do
+    {
+        int uid;
+        int gid;
+
+        if (GetUserInfo(request.username, &uid, &gid) != 0)
+        {
+            Log(LL_WARNING, "GetUserInfo(%s, ...) failed", request.username);
+            status = -1;
+            break;
+        }
+
+        key = NewSessionKey(uid, 0, 0);
+        status = 0;
+
+        Log(LL_TRACE, 
+            "create new session key for usr \"%s\"\n", request.username);
+    }
+    while (0);
+
+    /* Send response. */
+
+    memset(&response, 0, sizeof(response));
+    response.status = status;
+    Strlcpy(response.key, key.data, sizeof(response.key));
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "failed to write response");
+}
+
+/*
+**==============================================================================
+**
 ** Parent()
 **
 **     The parent process (cimserver).
@@ -900,6 +969,10 @@ void Parent(int sock, int childPid)
 
             case EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE:
                 HandleAuthenticateLocalRequest(sock);
+                break;
+
+            case EXECUTOR_NEW_SESSION_KEY_MESSAGE:
+                HandleNewSessionKeyRequest(sock);
                 break;
 
             default:

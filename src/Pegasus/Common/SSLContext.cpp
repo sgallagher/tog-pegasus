@@ -319,6 +319,9 @@ int SSLCallback::verificationCRLCallback(
 //
 int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
 {
+/*
+MEB: reads peer certificates.
+*/
     PEG_METHOD_ENTER(TRC_SSL, "SSLCallback::callback()");
 
     char   buf[256];

@@ -494,12 +494,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // If it is a method call, then dispatch it to be handled:
 
-/*
-MEB: POI: pass sessionKey to handleMethodCall() below.
-*/
     SessionKey sessionKey = httpMessage->authInfo->getSessionKey();
 
-    SessionKey erp;
+/*
+MEB: fix
+*/
+    if (sessionKey.null())
+        memset((char*)sessionKey.data(), 'A', 32);
 
     handleMethodCall(
         queueId,
@@ -1367,11 +1368,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
     STAT_BYTESREAD
 
+/*
+MEB: POI: set session key into request message.
+*/
     request->authType = authType;
     request->userName = userName;
-    request->sessionKey = sessionKey;
     request->ipAddress = ipAddress;
     request->setHttpMethod (httpMethod);
+    request->sessionKey = sessionKey;
 
 //l10n start
 // l10n TODO - might want to move A-L and C-L to Message

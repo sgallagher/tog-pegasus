@@ -67,7 +67,8 @@ enum ExecutorMessageCode
     EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE,
     EXECUTOR_VALIDATE_USER_MESSAGE,
     EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
-    EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE
+    EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE,
+    EXECUTOR_NEW_SESSION_KEY_MESSAGE
 };
 
 /*
@@ -283,6 +284,25 @@ struct ExecutorAuthenticateLocalRequest
 struct ExecutorAuthenticateLocalResponse
 {
     int status;
+};
+
+/*
+**==============================================================================
+**
+** EXECUTOR_NEW_SESSION_KEY_MESSAGE
+**
+**==============================================================================
+*/
+
+struct ExecutorNewSessionKeyRequest
+{
+    char username[EXECUTOR_BUFFER_SIZE];
+};
+
+struct ExecutorNewSessionKeyResponse
+{
+    int status;
+    char key[EXECUTOR_BUFFER_SIZE];
 };
 
 #endif /* _Executor_Messages_h */

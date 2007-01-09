@@ -9,9 +9,6 @@ static pthread_mutex_t _mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void __PegasusBacktrace(const char* file, size_t line)
 {
-    if (!getenv("__PEGASAUS_EXECUTOR__"))
-        return;
-
     pthread_mutex_lock(&_mutex);
 
     static const char BACKTRACE_FILE[] = "/tmp/cimbacktrace";

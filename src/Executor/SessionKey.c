@@ -32,6 +32,7 @@
 */
 
 #include <string.h>
+#include <ctype.h>
 #include "Random.h"
 #include "Fatal.h"
 #include "User.h"
@@ -307,3 +308,47 @@ int GetSessionKeyAuthenticated(const SessionKey* key, int* authenticated)
     return -1;
 }
 
+/*
+**==============================================================================
+**
+** TestNullSessionKey()
+**
+**     Tests to see if session key is null.
+**
+**==============================================================================
+*/
+
+int TestNullSessionKey(const SessionKey* key)
+{
+    if (memcmp(key->data, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 33) == 0)
+        return 0;
+    else
+        return -1;
+}
+
+/*
+**==============================================================================
+**
+** TestValidSessionKey()
+**
+**     Tests to see if session key is a valid key (first 32 bytes hex digits 
+**     and final byte a null terminator).
+**
+**==============================================================================
+*/
+
+int TestValidSessionKey(const SessionKey* key)
+{
+    size_t i;
+
+    for (i = 0; i < EXECUTOR_SESSION_KEY_LENGTH; i++)
+    {
+        if (!isxdigit(key->data[i]))
+            return -1;
+    }
+
+    if (key->data[i] != '\0')
+        return -1;
+
+    return 0;
+}

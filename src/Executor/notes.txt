@@ -80,3 +80,8 @@
 
     13. The KerberosAuthenticationHandler.h and all Kerberos authentication
         logic is not part of the Pegasus repository.
+
+    14.  The CIMExportIndicationRequestMessage comes back into the server
+         and is delivered to an indication consumer (which must be loaded).
+
+

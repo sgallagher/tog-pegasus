@@ -35,7 +35,7 @@
 #define _Pegasus_Common_SessionKey_h
 
 #include <Pegasus/Common/Config.h>
-#include <string.h>
+#include "Linkage.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
     the SessionKey is inapplicable. By default, the session key is null
     (i.e., FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF).
 */
-class SessionKey
+class PEGASUS_COMMON_LINKAGE SessionKey
 {
 public:
 
@@ -65,19 +65,9 @@ public:
         memcpy(_data, x._data, sizeof(_data));
     }
 
-    SessionKey& operator=(const SessionKey& x)
-    {
-        if (&x != this)
-            memcpy(_data, x._data, sizeof(_data));
+    SessionKey& operator=(const SessionKey& x);
 
-        return *this;
-    }
-
-    void clear()
-    {
-        memset(_data, 'F', SESSION_KEY_LENGTH);
-        _data[SESSION_KEY_LENGTH] = '\0';
-    }
+    void clear();
 
     const char* data() const 
     { 
@@ -89,11 +79,9 @@ public:
         return sizeof(_data);
     }
 
-    bool null() const
-    {
-        return memcmp(
-            _data, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", sizeof(_data)) == 0;
-    }
+    bool null() const;
+
+    bool valid() const;
 
 private:
 

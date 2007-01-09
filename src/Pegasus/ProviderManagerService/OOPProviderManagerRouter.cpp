@@ -365,6 +365,7 @@ ProviderAgentContainer::ProviderAgentContainer(
       _isInitialized(false),
       _subscriptionInitComplete(subscriptionInitComplete)
 {
+
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::ProviderAgentContainer");
     PEG_METHOD_EXIT();
@@ -454,12 +455,21 @@ void ProviderAgentContainer::_startAgentProcess()
             _moduleName));
     }
 
+/*
+MEB: fix
+*/
+SessionKey providerAgentSessionKey;
+memset((char*)providerAgentSessionKey.data(), 'E', 32);
+
+    readPipe->setSessionKey(providerAgentSessionKey);
+
 # if defined(PEGASUS_HAS_SIGNALS)
     _pid = pid;
 # endif
 
     _pipeFromAgent.reset(readPipe);
     _pipeToAgent.reset(writePipe);
+
 
     PEG_METHOD_EXIT();
 }
@@ -527,6 +537,7 @@ void ProviderAgentContainer::_sendInitializationData()
     do
     {
         readStatus = _pipeFromAgent->readMessage(message);
+
     } while (readStatus == AnonymousPipe::STATUS_INTERRUPT);
 
     if (readStatus != AnonymousPipe::STATUS_SUCCESS)
@@ -540,6 +551,14 @@ void ProviderAgentContainer::_sendInitializationData()
     }
 
     PEGASUS_ASSERT(message == 0);
+
+    // Request messages must bear the session key of the originating pipe.
+    {
+        CIMRequestMessage* m = dynamic_cast<CIMRequestMessage*>(message);
+
+        if (m)
+            m->sessionKey = _pipeFromAgent->getSessionKey();
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -1104,6 +1123,18 @@ void ProviderAgentContainer::_processResponses()
                 _uninitialize(true);
                 return;
             }
+
+            // Request messages must bear the session key of the 
+            // originating pipe.
+            {
+                CIMRequestMessage* m = 
+                    dynamic_cast<CIMRequestMessage*>(message);
+
+                if (m)
+                    m->sessionKey = _pipeFromAgent->getSessionKey();
+            }
+
+            // It is a CIM_PROCESS_INDICATION_REQUEST_MESSAGE?
 
             if (message->getType() == CIM_PROCESS_INDICATION_REQUEST_MESSAGE)
             {

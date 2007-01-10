@@ -43,7 +43,6 @@
     {"install",             "false"},
     {"remove",              "false"},
     {"slp",                 "false"},
-    {"serverUser",          "pegasus"},
     {"enableAuthentication", "true"},
     {"httpAuthType",        "Basic"},
     {"enableBinaryRepository", "false"},
@@ -103,5 +102,5 @@
 #endif
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
     !defined(PEGASUS_USE_RELEASE_DIRS)
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+    {"bogus", "MyBogusValue"} /* Remove this line if others are added */
 #endif

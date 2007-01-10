@@ -41,7 +41,6 @@
     {"home", "/usr/lpp/wbem", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"serverUser", "pegasus", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_DEFAULT_ENABLE_OOP

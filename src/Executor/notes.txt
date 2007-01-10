@@ -91,3 +91,8 @@
             - SSL certificate authentication
             - Secure Basic (uses cimserver.passwd file).
 
+    17. Places that NEW_SESSION_KEY request is used.
+
+            - SSL certificate authentication.
+            - Indication service.
+

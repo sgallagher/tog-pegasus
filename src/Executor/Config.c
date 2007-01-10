@@ -42,6 +42,31 @@
 /*
 **==============================================================================
 **
+** ConfigParameter
+**
+**     The _config[] array below defines default values for the
+**     various configuration items.
+**
+**==============================================================================
+*/
+
+struct ConfigParameter
+{
+    const char* name;
+    const char* value;
+};
+
+static struct ConfigParameter _config[] =
+{
+#include <Pegasus/Config/FixedPropertyTable.h>
+};
+
+static size_t _configSize = 
+    sizeof(_config) / sizeof(_config[0]);
+
+/*
+**==============================================================================
+**
 ** GetConfigParamFromCommandLine()
 **
 **     Attempt to find a command line configuratin parameter of the form 
@@ -156,18 +181,29 @@ int GetConfigParam(
     char value[EXECUTOR_BUFFER_SIZE])
 {
     char path[EXECUTOR_BUFFER_SIZE];
+    size_t i;
 
     /* (1) First check command line. */
 
     if (GetConfigParamFromCommandLine(argc, argv, name, value) == 0)
         return 0;
 
-    /* (2) Next check config file. */
-
+    /* (2) Next check planned config file. */
 
     if (GetHomedPath(PEGASUS_PLANNED_CONFIG_FILE_PATH, path) == 0 &&
         GetConfigParamFromFile(path, name, value) == 0)
         return 0;
+
+    /* (3) Finally check the default configuration table. */
+
+    for (i = 0; i < _configSize; i++)
+    {
+        if (strcmp(_config[i].name, name) == 0)
+        {
+            Strlcpy(value, _config[i].value, EXECUTOR_BUFFER_SIZE);
+            return 0;
+        }
+    }
 
     /* Not found! */
     return -1;

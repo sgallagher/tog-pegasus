@@ -41,4 +41,5 @@ struct Globals globals =
     0, /* childGid */
     0, /* signalMask */
     0, /* enableAuthentication */
+    { '\0' }, /* passwordFilePath */
 };

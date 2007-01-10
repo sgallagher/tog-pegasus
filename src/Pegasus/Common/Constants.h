@@ -456,7 +456,9 @@
  * only applies when PEGASUS_ENABLE_PRIVELEGE_SEPARATION is defined, that is 
  * when the the executor process is present.
  */
-#define PEGASUS_CIMSERVERMAIN_USER "pegasus"
+#if !defined(PEGASUS_CIMSERVERMAIN_USER)
+# define PEGASUS_CIMSERVERMAIN_USER "pegasus"
+#endif
 
 /*
 **==============================================================================

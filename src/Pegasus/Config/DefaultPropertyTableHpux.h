@@ -42,7 +42,6 @@
     {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"serverUser", "pegasus", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},

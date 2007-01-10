@@ -53,6 +53,8 @@
 #include "Exit.h"
 #include "Strlcpy.h"
 #include "LocalAuth.h"
+#include "Strlcat.h"
+#include "PasswordFile.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
@@ -672,17 +674,28 @@ static void HandleAuthenticatePasswordRequest(int sock)
     /* Perform the operation: */
 
     status = 0;
+
     do
     {
-#if defined(PEGASUS_PAM_AUTHENTICATION)
-
         if (GetUserInfo(request.username, &uid, &gid) != 0)
         {
             status = -1;
             break;
         }
 
+#if defined(PEGASUS_PAM_AUTHENTICATION)
+
         if (PAMAuthenticate(request.username, request.password) != 0)
+        {
+            status = -1;
+            break;
+        }
+
+
+#else /* !PEGASUS_PAM_AUTHENTICATION */
+
+        if (CheckPasswordFile(
+            globals.passwordFilePath, request.username, request.password) != 0)
         {
             status = -1;
             break;
@@ -692,23 +705,18 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
         key = NewSessionKey(uid, 0, 0, 1);
 
-#else /* !PEGASUS_PAM_AUTHENTICATION */
-
-        status = -1;
-        break;
-
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
     }
     while (0);
 
     if (status != 0)
     {
-        Log(LL_WARNING, "PAM authentication failed for username %s", 
+        Log(LL_WARNING, "Basic authentication failed for username %s", 
             request.username);
     }
     else
     {
-        Log(LL_TRACE, "PAM authentication succeeded for username %s", 
+        Log(LL_TRACE, "Basic authentication succeeded for username %s", 
             request.username);
     }
 
@@ -762,7 +770,11 @@ static void HandleValidateUserRequest(int sock)
 
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
-    status = -1;
+    if (CheckPasswordFile(
+        globals.passwordFilePath, request.username, NULL) != 0)
+    {
+        status = -1;
+    }
 
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
 

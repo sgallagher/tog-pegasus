@@ -114,8 +114,6 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)ConfigManager::defaultOwner},
     {"slp",
          (ConfigPropertyOwner*)ConfigManager::defaultOwner},
-    {"serverUser",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
     {"enableAssociationTraversal",
          (ConfigPropertyOwner*)ConfigManager::defaultOwner},
     {"enableIndicationService",

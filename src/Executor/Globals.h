@@ -34,6 +34,8 @@
 #ifndef _Executor_Globals_h
 #define _Executor_Globals_h
 
+#include "Defines.h"
+
 /*
 **==============================================================================
 **
@@ -65,6 +67,11 @@ struct Globals
      * passed to the command line or found in the planned configuration file.
      */
     int enableAuthentication;
+
+    /* The path of the basic password file (cimserver.passwd). Only applicable
+     * when using "secure basic" authentication.
+     */
+    char passwordFilePath[EXECUTOR_BUFFER_SIZE];
 };
 
 extern struct Globals globals;

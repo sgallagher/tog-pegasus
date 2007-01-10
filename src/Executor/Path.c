@@ -179,10 +179,53 @@ int LocateRepositoryDirectory(
     char** argv, 
     char path[EXECUTOR_BUFFER_SIZE])
 {
-    if (GetConfigParam(argc, argv, "repositoryDir", path) == 0)
-        return 0;
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (GetConfigParam(argc, argv, "repositoryDir", buffer) == 0)
+    {
+        if (buffer[0] == '/')
+        {
+            Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
+            return 0;
+        }
+
+        return GetHomedPath(buffer, path);
+    }
 
     if (GetHomedPath(PEGASUS_REPOSITORY_DIR, path) == 0)
+        return 0;
+
+    /* Not found! */
+    return -1;
+}
+
+/*
+**==============================================================================
+**
+** LocatePasswordFile()
+**
+**==============================================================================
+*/
+
+int LocatePasswordFile(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE])
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (GetConfigParam(argc, argv, "passwordFilePath", buffer) == 0)
+    {
+        if (buffer[0] == '/')
+        {
+            Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
+            return 0;
+        }
+
+        return GetHomedPath(buffer, path);
+    }
+
+    if (GetHomedPath("cimserver.passwd", path) == 0)
         return 0;
 
     /* Not found! */

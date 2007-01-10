@@ -41,7 +41,6 @@
     {"home",                ""},
     {"daemon",              "true"},
     {"slp",                 "false"},
-    {"serverUser",          "pegasus"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "true"},
     {"enableIndicationService", "true"},

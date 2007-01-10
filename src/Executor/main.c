@@ -215,10 +215,15 @@ int main(int argc, char** argv)
         }
     }
 
+    /* Get enableAuthentication configuration option. */
+
+    if (LocatePasswordFile(argc, argv, globals.passwordFilePath) != 0)
+        Fatal(FL, "Failed to locate password file");
+
     /* Create a socket pair for communicating with the child process. */
 
     if (CreateSocketPair(pair) != 0)
-        Fatal(FL, "failed to create socket pair");
+        Fatal(FL, "Failed to create socket pair");
 
     CloseOnExec(pair[1]);
 

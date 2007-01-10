@@ -40,7 +40,6 @@
     {"home",                ""},
     {"daemon",              "false"},
     {"slp",                 "false"},
-    {"serverUser",             "pegasus"},
     {"enableIndicationService", "true"},
     {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},

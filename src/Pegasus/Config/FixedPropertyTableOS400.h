@@ -55,7 +55,6 @@
 //    {"httpsPort",                                "5989"},
 //    {"enableHttpsConnection",                    "false"},
     {"slp",                                      "false"},
-    {"serverUser", "pegasus"},
     {"authorizedUserGroups",                          ""},
     {"home",                  "/QIBM/UserData/OS400/CIM"},
     {"forceProviderProcesses",                   "false"},

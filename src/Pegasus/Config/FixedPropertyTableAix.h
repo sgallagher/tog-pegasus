@@ -41,7 +41,6 @@
     {"install",             "false"},
     {"remove",              "false"},
     {"slp",                 "false"},
-    {"serverUser",          "pegasus"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "true"},
     {"enableIndicationService", "true"},

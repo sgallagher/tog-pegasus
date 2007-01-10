@@ -52,4 +52,9 @@ int LocateRepositoryDirectory(
     char** argv, 
     char path[EXECUTOR_BUFFER_SIZE]);
 
+int LocatePasswordFile(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE]);
+
 #endif /* _Executor_Path_h */

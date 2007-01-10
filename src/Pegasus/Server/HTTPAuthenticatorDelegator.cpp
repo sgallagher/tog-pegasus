@@ -554,15 +554,29 @@ MEB: Consider adding executor call here to check client certificate.
 
             SessionKey key;
 
-            if (!_authenticationManager->validateUserForHttpAuth(certUserName)
-                ||
-                Executor::newSessionKey(certUserName.getCString(), key) != 0)
+            if (!_authenticationManager->validateUserForHttpAuth(certUserName))
             {
                 MessageLoaderParms msgParms(
                     "Pegasus.Server.HTTPAuthenticatorDelegator."
                         "BAD_CERTIFICATE_USERNAME",
                     "The username registered to this certificate is not a "
                         "valid user.");
+                _sendHttpError(
+                    queueId,
+                    HTTP_STATUS_UNAUTHORIZED,
+                    String::EMPTY,
+                    MessageLoader::getMessage(msgParms),
+                    closeConnect);
+                PEG_METHOD_EXIT();
+                return;
+            }
+
+            if (Executor::newSessionKey(certUserName.getCString(), key) != 0)
+            {
+                MessageLoaderParms msgParms(
+                    "Pegasus.Server.HTTPAuthenticatorDelegator."
+                        "BAD_CERTIFICATE_USERNAME",
+                    "Failed to create new session key for user.");
                 _sendHttpError(
                     queueId,
                     HTTP_STATUS_UNAUTHORIZED,

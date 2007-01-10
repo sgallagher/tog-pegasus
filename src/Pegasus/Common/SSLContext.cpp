@@ -871,6 +871,9 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: certificate verification callback specified");
+/*
+MEB: look at SSL_CTX_set_verify() man page.
+*/
             SSL_CTX_set_verify(sslContext,
                 SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
         }

@@ -96,3 +96,8 @@
             - SSL certificate authentication.
             - Indication service.
 
+    18. Note that "secure basic" authentication and "SSL peer authentication"
+        cannot be used together since the validate user (performed by
+        SSL peer authentication) fails since the username is not in the
+        cimserver.passwd file.
+

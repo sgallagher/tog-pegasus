@@ -113,20 +113,4 @@
 
 #define CIMPROVAGT "cimprovagt"
 
-/*
-**==============================================================================
-**
-** EXECUTOR_FINGERPRINT
-**
-**     The executor passes this "fingerprint" as the first command line 
-**     argument when executing internal Pegasus programs such as cimservermain
-**     and cimshutdown. This is to prevent inadvertant execution of these
-**     programs by end users. Note that this is not a security measure. It is
-**     only a way to make it inconvenient to execute internal programs.
-**
-**==============================================================================
-*/
-
-#define EXECUTOR_FINGERPRINT "E97B2271E0E94DA8A2533FF9A9AA9443"
-
 #endif /* _Executor_Defines_h */

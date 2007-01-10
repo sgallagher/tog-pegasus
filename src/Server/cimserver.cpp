@@ -665,24 +665,16 @@ int main(int argc, char** argv)
 {
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 
-    // Check for fingerprint (passed only by the executor).
+    // If invoked with "-x <socket>" option, then use executor.
 
-    if (argc < 2 || strcmp(argv[1], EXECUTOR_FINGERPRINT) != 0)
     {
-        cerr << argv[0];
-        cerr << ": This is an internal Pegasus program; ";
-        cerr << "please do not execute it directly. " << endl;
-        exit(1);
+        int sock = _extractExecutorSockOpt(argc, argv);
+
+        if (sock != -1)
+            Executor::setSock(sock);
     }
 
-    // Remove argv[1] (the fingerprint).
-
-    memcpy(argv + 1, argv + 2, sizeof(char*) * (argc - 1));
-    argc--;
-
-    // If invoked with "-x <socket>" option, then use executor client.
-
-    Executor::setSock(_extractExecutorSockOpt(argc, argv));
+#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 
     // Ping executor to be sure the sock was valid.
 
@@ -693,8 +685,6 @@ int main(int argc, char** argv)
             argv[0]);
         exit(1);
     }
-
-#endif
 
     String pegasusHome  = String::EMPTY;
     Boolean shutdownOption = false;

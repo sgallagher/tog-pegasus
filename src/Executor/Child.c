@@ -68,15 +68,14 @@ void Child(
 
     /* Build argument list, adding "-x <sock>" option if sock non-negative. */
 
-    execArgv = (char**)malloc(sizeof(char*) * (argc + 4));
-    memcpy(execArgv + 4, argv + 1, sizeof(char*) * argc);
+    execArgv = (char**)malloc(sizeof(char*) * (argc + 3));
+    memcpy(execArgv + 3, argv + 1, sizeof(char*) * argc);
 
     sprintf(sockStr, "%d", sock);
 
     execArgv[0] = CIMSERVERMAIN;
-    execArgv[1] = EXECUTOR_FINGERPRINT;
-    execArgv[2] = "-x";
-    execArgv[3] = strdup(sockStr);
+    execArgv[1] = "-x";
+    execArgv[2] = strdup(sockStr);
 
     /* Locate repository directory. */
 

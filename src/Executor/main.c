@@ -44,6 +44,7 @@
 #include "Path.h"
 #include "Globals.h"
 #include "Socket.h"
+#include "Strlcpy.h"
 #include "Log.h"
 
 /*
@@ -131,13 +132,18 @@ int TestCimServerProcess()
 **==============================================================================
 */
 
-void ExecShutdown()
+void ExecShutdown(int argc, char** argv)
 {
     char* tmpArgv[3];
+    char cimshutdownPath[EXECUTOR_BUFFER_SIZE];
+    char shutdownTimeout[EXECUTOR_BUFFER_SIZE];
+
+    /* Get shutdownTimeout configuration parameter. */
+
+    if (GetConfigParam(argc, argv, "shutdownTimeout", shutdownTimeout) != 0)
+        Strlcpy(shutdownTimeout, "5", sizeof(shutdownTimeout));
 
     /* Get absolute cimshutdown program name. */
-
-    char cimshutdownPath[EXECUTOR_BUFFER_SIZE];
 
     if (GetInternalPegasusProgramPath(CIMSHUTDOWN, cimshutdownPath) != 0)
         Fatal(FL, "Failed to locate Pegasus program: %s", CIMSHUTDOWN);
@@ -145,7 +151,7 @@ void ExecShutdown()
     /* Create argument list. */
 
     tmpArgv[0] = CIMSHUTDOWN;
-    tmpArgv[1] = EXECUTOR_FINGERPRINT;
+    tmpArgv[1] = shutdownTimeout;
     tmpArgv[2] = 0;
 
     /* Exec CIMSHUTDOWN program. */
@@ -173,23 +179,24 @@ int main(int argc, char** argv)
     char username[EXECUTOR_BUFFER_SIZE];
     int childPid;
     int perror;
+    long shutdownTimeout;
 
     /* Save as global so it can be used in error and log messages. */
 
     globals.arg0 = argv[0];
-
-    /* Get absolute cimservermain program name. */
-
-    if (GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath) != 0)
-        Fatal(FL, "Failed to locate Pegasus program: %s", CIMSERVERMAIN);
 
     /* If shuting down, then run "cimshutdown" client. */
 
     for (i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "-s") == 0)
-            ExecShutdown();
+            ExecShutdown(argc, argv);
     }
+
+    /* Get absolute cimservermain program name. */
+
+    if (GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath) != 0)
+        Fatal(FL, "Failed to locate Pegasus program: %s", CIMSERVERMAIN);
 
     /* If CIMSERVERMAIN is already running, warn and exit now. */
 

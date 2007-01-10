@@ -309,14 +309,34 @@ int main(int argc, char** argv)
 {
     arg0 = argv[0];
 
-    if (argc != 2 || strcmp(argv[1], EXECUTOR_FINGERPRINT) != 0)
+    // Check arguments.
+
+    if (argc != 1 && argc != 2)
     {
-        cerr << arg0;
-        cerr << ": This is an internal Pegasus program; ";
-        cerr << "please do not execute it directly. " << endl;
+        fprintf(stderr, "Usage: %s [shutdown-timeout-in-seconds]\n", argv[0]);
+        fprintf(stderr, "%s is an internal OpenPegasus program. "
+            "Please do not invoke directly.\n", argv[0]);
         exit(1);
     }
 
-    // Seconds.
-    _shutdownCimServer(5);
+    // Extract timeout argument.
+
+    Uint32 timeout = 5;
+    
+    if (argc == 2)
+    {
+        char* end;
+        timeout = (Uint32)strtoul(argv[1], &end, 0);
+
+        if (*end != '\0' || timeout == 0)
+        {
+            fprintf(stderr, 
+                "%s: bad timeout argument: \"%s\"\n", argv[0], argv[1]);
+            exit(1);
+        }
+    }
+
+    // Shutdown.
+
+    _shutdownCimServer(timeout);
 }

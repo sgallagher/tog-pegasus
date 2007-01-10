@@ -3,20 +3,15 @@
 
     (A) Implement policy.
 
-    (A) Add NEW_SESSION_KEY logic to basic password file authenticator.
-
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
-    (B) Handle shutdownTimeout option in cimshutdown (pass it as command 
-        line argument).
-
-    (B) Test without privilege separation.
-
-    (B) Test on Windows.
+    (B) Revalidation (all configurations and all platforms).
 
     (B) Code walk-through of all diffs to cimservermain.
 
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+    (C) Clean up log messages.
 
     (C) Generate provider policy file automatically from repository.
 

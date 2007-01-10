@@ -95,7 +95,7 @@ static void HandlePingRequest(int sock)
     Log(LL_TRACE, "HandlePingRequest()");
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -119,7 +119,7 @@ static void HandleOpenFileRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     /* Open the file. */
 
@@ -161,7 +161,7 @@ static void HandleOpenFileRequest(int sock)
         response.status = 0;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 
     /* Send descriptor to calling process (if any to send). */
 
@@ -196,7 +196,7 @@ static void HandleStartProviderAgentRequest(int sock)
     /* Read request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     Log(LL_TRACE, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
         request.module, request.gid, request.uid);
@@ -334,7 +334,7 @@ static void HandleStartProviderAgentRequest(int sock)
             }
 
             if (GetUserName(getuid(), username) != 0)
-                Fatal(FL, "failed to resolve username for uid=%d", getuid());
+                Fatal(FL, "Failed to resolve username for uid=%d", getuid());
 
             Log(LL_TRACE, "starting %s on module %s as user %s",
                 path, request.module, username);
@@ -379,7 +379,7 @@ static void HandleStartProviderAgentRequest(int sock)
     response.pid = pid;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 
     /* Send descriptors to calling process. */
 
@@ -426,7 +426,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
         Fatal(FL, "fork() failed");
 
         if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-            Fatal(FL, "failed to write response");
+            Fatal(FL, "Failed to write response");
     }
 
     /* Parent exits: */
@@ -461,7 +461,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
     response.status = 0;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -483,7 +483,7 @@ static void HandleRenameFileRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     /* Rename the file. */
 
@@ -520,7 +520,7 @@ static void HandleRenameFileRequest(int sock)
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -542,7 +542,7 @@ static void HandleRemoveFileRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     /* Remove the file. */
 
@@ -558,7 +558,7 @@ static void HandleRemoveFileRequest(int sock)
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -580,7 +580,7 @@ static void HandleReapProviderAgentRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     /* Log request. */
 
@@ -639,7 +639,7 @@ static void HandleReapProviderAgentRequest(int sock)
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -664,7 +664,7 @@ static void HandleAuthenticatePasswordRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     /* Rename the file. */
 
@@ -730,7 +730,7 @@ static void HandleAuthenticatePasswordRequest(int sock)
         Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -752,9 +752,9 @@ static void HandleValidateUserRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
-    /* Validate the user with PAM. */
+    /* Validate the user. */
 
     Log(LL_TRACE, 
         "HandleValidateUserRequest(): username=%s", request.username);
@@ -779,14 +779,14 @@ static void HandleValidateUserRequest(int sock)
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
 
     if (status != 0)
-        Log(LL_WARNING, "PAM user validation failed on %s", request.username);
+        Log(LL_WARNING, "User validation failed on %s", request.username);
 
     /* Send response message. */
 
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -810,7 +810,7 @@ static void HandleChallengeLocalRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     Log(LL_TRACE, "HandleChallengeLocalRequest(): user=%s", request.user);
 
@@ -837,7 +837,7 @@ static void HandleChallengeLocalRequest(int sock)
         Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -860,7 +860,7 @@ static void HandleAuthenticateLocalRequest(int sock)
     /* Read the request request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     Log(LL_TRACE, "HandleAuthenticateLocalRequest()");
 
@@ -886,7 +886,7 @@ static void HandleAuthenticateLocalRequest(int sock)
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -909,7 +909,7 @@ static void HandleNewSessionKeyRequest(int sock)
     /* Read the request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     /* Log request. */
 
@@ -947,7 +947,7 @@ static void HandleNewSessionKeyRequest(int sock)
         Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -969,7 +969,7 @@ static void HandleDeleteSessionKeyRequest(int sock)
     /* Read the request. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "failed to read request");
+        Fatal(FL, "Failed to read request");
 
     /* Log request. */
 
@@ -986,14 +986,14 @@ static void HandleDeleteSessionKeyRequest(int sock)
     /* Log failure. */
 
     if (status != 0)
-        Log(LL_WARNING, "failed to delete session key");
+        Log(LL_WARNING, "Failed to delete session key");
 
     /* Send response. */
 
     response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "failed to write response");
+        Fatal(FL, "Failed to write response");
 }
 
 /*
@@ -1054,7 +1054,7 @@ void Parent(int sock, int childPid)
         }
 
         if (n != sizeof(header))
-            Fatal(FL, "failed to read header");
+            Fatal(FL, "Failed to read header");
 
         /* Dispatch request. */
 
@@ -1113,7 +1113,7 @@ void Parent(int sock, int childPid)
                 break;
 
             default:
-                Fatal(FL, "invalid request code: %d", header.code);
+                Fatal(FL, "Invalid request code: %d", header.code);
                 break;
         }
 

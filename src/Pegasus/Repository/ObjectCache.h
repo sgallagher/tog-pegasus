@@ -133,7 +133,7 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
     if (_maxEntries == 0)
         return;
 
-    _mutex.lock();
+    AutoMutex lock(_mutex);
 
     //// Update object if it is already in cache:
 
@@ -146,7 +146,6 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
         {
             // Update the repository.
             p->object = object.clone();
-            _mutex.unlock();
             return;
         }
     }
@@ -215,9 +214,6 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
     _cacheRemoveLRU++;
 #endif
     }
-
-    _mutex.unlock();
-    return;
 }
 
 template<class OBJECT>
@@ -226,7 +222,7 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
     if (_maxEntries == 0)
         return false;
 
-    _mutex.lock();
+    AutoMutex lock(_mutex);
 
     //// Search cache for object.
 
@@ -241,7 +237,6 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
 #ifdef PEGASUS_DEBUG
         _cacheReadHit++;
 #endif
-            _mutex.unlock();
             return true;
         }
     }
@@ -251,7 +246,6 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
 #ifdef PEGASUS_DEBUG
     _cacheReadMiss++;
 #endif
-    _mutex.unlock();
     return false;
 }
 
@@ -261,7 +255,7 @@ bool ObjectCache<OBJECT>::evict(const String& path)
     if (_maxEntries == 0)
         return false;
 
-    _mutex.lock();
+    AutoMutex lock(_mutex);
 
     //// Find and remove the given element.
 
@@ -297,7 +291,6 @@ bool ObjectCache<OBJECT>::evict(const String& path)
             delete p;
             _numEntries--;
 
-            _mutex.unlock();
             return true;
         }
 
@@ -306,7 +299,6 @@ bool ObjectCache<OBJECT>::evict(const String& path)
 
     //// Not found!
 
-    _mutex.unlock();
     return false;
 }
 

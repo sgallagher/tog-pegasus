@@ -55,6 +55,7 @@
 #include "LocalAuth.h"
 #include "Strlcat.h"
 #include "PasswordFile.h"
+#include "Policy.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
@@ -110,9 +111,9 @@ static void HandlePingRequest(int sock)
 
 static void HandleOpenFileRequest(int sock)
 {
-    int fd;
     struct ExecutorOpenFileRequest request;
     struct ExecutorOpenFileResponse response;
+    int fd;
 
     memset(&response, 0, sizeof(response));
 
@@ -121,51 +122,72 @@ static void HandleOpenFileRequest(int sock)
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
 
-    /* Open the file. */
+    /* Log the request. */
 
-    Log(LL_TRACE, "HandleOpenFileRequest(): path=%s", request.path);
+    Log(LL_TRACE, "HandleOpenFileRequest(): path=\"%s\", mode='%c'", 
+        request.path, request.mode);
 
+    /* Perform the operation. */
+
+    response.status = 0;
     fd = -1;
 
-    switch (request.mode)
+    do
     {
-        case 'r':
-            fd = open(request.path, O_RDONLY);
-            break;
+        /* Check the policy. */
 
-        case 'w':
-            fd = open(
-                request.path, 
-                O_WRONLY | O_CREAT | O_TRUNC,
-                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-            break;
-
-        case 'a':
+        if (CheckOpenFilePolicy(request.path, request.mode) != 0)
         {
-            fd = open(
-                request.path, 
-                O_WRONLY | O_CREAT | O_APPEND,
-                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+            response.status = -1;
             break;
         }
+
+        /* Open file. */
+
+        switch (request.mode)
+        {
+            case 'r':
+                fd = open(request.path, O_RDONLY);
+                break;
+
+            case 'w':
+                fd = open(
+                    request.path, 
+                    O_WRONLY | O_CREAT | O_TRUNC,
+                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                break;
+
+            case 'a':
+            {
+                fd = open(
+                    request.path, 
+                    O_WRONLY | O_CREAT | O_APPEND,
+                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                break;
+            }
+        }
+
+        if (fd == -1)
+            response.status = -1;
     }
+    while (0);
 
-    /* Send response message. */
+    /* Log failure. */
 
-    if (fd == -1)
+    if (response.status != 0)
     {
-        Log(LL_WARNING, "open(%s, %c) failed", request.path, request.mode);
-        response.status = -1;
+        Log(LL_WARNING, "open(\"%s\", '%c') failed", 
+            request.path, request.mode);
     }
-    else
-        response.status = 0;
+
+    /* Send response. */
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "Failed to write response");
 
     /* Send descriptor to calling process (if any to send). */
 
-    if (fd != -1)
+    if (response.status == 0)
     {
         int descriptors[1];
         descriptors[0] = fd;
@@ -474,7 +496,6 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
 static void HandleRenameFileRequest(int sock)
 {
-    int status;
     struct ExecutorRenameFileResponse response;
     struct ExecutorRenameFileRequest request;
 
@@ -492,32 +513,29 @@ static void HandleRenameFileRequest(int sock)
 
     /* Perform the operation: */
 
-    status = -1;
+    response.status = 0;
 
     do
     {
-        unlink(request.newPath);
+        // Check the policy.
 
-        if (link(request.oldPath, request.newPath) != 0)
+        if (CheckRenameFilePolicy(request.oldPath, request.newPath) != 0)
         {
-            Log(LL_WARNING, 
-                "link(%s, %s) failed", request.oldPath, request.newPath);
+            response.status = -1;
             break;
         }
 
-        if (unlink(request.oldPath) != 0)
+        // Rename the file.
+
+        if (rename(request.oldPath, request.newPath) != 0)
         {
-            Log(LL_WARNING, "unlink(%s) failed", request.oldPath);
+            response.status = -1;
             break;
         }
-
-        status = 0;
     }
     while (0);
 
     /* Send response message. */
-
-    response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "Failed to write response");
@@ -533,7 +551,6 @@ static void HandleRenameFileRequest(int sock)
 
 static void HandleRemoveFileRequest(int sock)
 {
-    int status;
     struct ExecutorRemoveFileRequest request;
     struct ExecutorRemoveFileResponse response;
 
@@ -548,14 +565,30 @@ static void HandleRemoveFileRequest(int sock)
 
     Log(LL_TRACE, "HandleRemoveFileRequest(): path=%s", request.path);
 
-    status = unlink(request.path);
+    response.status = 0;
 
-    if (status != 0)
-        Log(LL_WARNING, "unlink(%s) failed", request.path);
+    do
+    {
+        // Check the policy.
+
+        if (CheckRemoveFilePolicy(request.path) != 0)
+        {
+            response.status = -1;
+            break;
+        }
+
+        // Remove the file.
+
+        if (unlink(request.path) != 0)
+        {
+            response.status = -1;
+            Log(LL_WARNING, "unlink(%s) failed", request.path);
+            break;
+        }
+    }
+    while (0);
 
     /* Send response message. */
-
-    response.status = status;
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "Failed to write response");

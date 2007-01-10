@@ -136,9 +136,7 @@ ConfigFileHandler::ConfigFileHandler(
         {
             // unable to create file
             PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
-                "Failed to create config file: " + cFile + ", " +
-                    strerror(errno));
-            fclose(is);
+                "Failed to create config file: " + cFile);
             throw NoSuchFile(cFile);
         }
 
@@ -340,7 +338,6 @@ Boolean ConfigFileHandler::updatePlannedValue(
                 PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
                     "Failed to create config file: " + pFile + ", " +
                         strerror(errno));
-                fclose(fs);
                 throw NoSuchFile(pFile);
             }
 

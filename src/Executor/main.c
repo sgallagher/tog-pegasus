@@ -46,6 +46,7 @@
 #include "Socket.h"
 #include "Strlcpy.h"
 #include "Log.h"
+#include "Policy.h"
 
 /*
 **==============================================================================
@@ -222,10 +223,34 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Get enableAuthentication configuration option. */
+    /* Locate password file. */
 
     if (LocatePasswordFile(argc, argv, globals.passwordFilePath) != 0)
         Fatal(FL, "Failed to locate password file");
+
+    /* Locate key file. */
+
+    if (LocateKeyFile(argc, argv, globals.sslKeyFilePath) != 0)
+        Fatal(FL, "Failed to locate key file");
+
+    /* Locate the path of directory to contain trace files. */
+
+    if (LocateTraceFilePath(argc, argv, globals.traceFilePath) != 0)
+        Fatal(FL, "Failed to locate trace file path");
+
+    /* Locate the sslTrustStore. */
+
+    if (LocateSslTrustStore(argc, argv, globals.sslTrustStore) != 0)
+        Fatal(FL, "Failed to locate SSL trust store");
+
+    /* Locate the crlStore . */
+
+    if (LocateCrlStore(argc, argv, globals.crlStore) != 0)
+        Fatal(FL, "Failed to locate crl store");
+
+    /* Define macros needed by policy facility. */
+
+    DefinePolicyMacros();
 
     /* Create a socket pair for communicating with the child process. */
 

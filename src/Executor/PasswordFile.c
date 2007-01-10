@@ -85,6 +85,7 @@ int CheckPasswordFile(
 
         /* Check password. */
 
+        /* Flawfinder: ignore */
         Strlcpy(buffer, crypt(password, salt), sizeof(buffer));
 
         if (strcmp(buffer, encryptedPassword) == 0)

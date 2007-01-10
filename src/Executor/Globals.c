@@ -42,4 +42,9 @@ struct Globals globals =
     0, /* signalMask */
     0, /* enableAuthentication */
     { '\0' }, /* passwordFilePath */
+    { '\0' }, /* traceFilePath */
+    { '\0' }, /* sslKeyFilePath */
+    { '\0' }, /* sslTrustStore */
+    { '\0' }, /* crlStore */
 };
+

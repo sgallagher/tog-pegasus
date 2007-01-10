@@ -72,6 +72,22 @@ struct Globals
      * when using "secure basic" authentication.
      */
     char passwordFilePath[EXECUTOR_BUFFER_SIZE];
+
+    /* The path of the directory containing trace files.
+     */
+    char traceFilePath[EXECUTOR_BUFFER_SIZE];
+
+    /* The path of the key file.
+     */
+    char sslKeyFilePath[EXECUTOR_BUFFER_SIZE];
+
+    /* The path of the SSL trust store.
+     */
+    char sslTrustStore[EXECUTOR_BUFFER_SIZE];
+
+    /* The path of the CRL store.
+     */
+    char crlStore[EXECUTOR_BUFFER_SIZE];
 };
 
 extern struct Globals globals;

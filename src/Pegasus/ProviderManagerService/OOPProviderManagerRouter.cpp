@@ -659,7 +659,7 @@ void ProviderAgentContainer::_initialize()
             {
                 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "ProviderAgentContainer::_initialize(): "
-                    "Executor::waitPid() failed");
+                    "Executor::reapProviderAgent() failed");
             }
         }
 #endif
@@ -720,7 +720,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "ProviderAgentContainer::_uninitialize(): "
-                    "Executor::waitPid() failed.");
+                    "Executor::reapProviderAgent() failed.");
         }
 #endif
 

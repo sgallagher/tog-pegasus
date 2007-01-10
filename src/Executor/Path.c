@@ -231,3 +231,143 @@ int LocatePasswordFile(
     /* Not found! */
     return -1;
 }
+
+/*
+**==============================================================================
+**
+** LocateTraceFilePath()
+**
+**==============================================================================
+*/
+
+int LocateTraceFilePath(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE])
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (GetConfigParam(argc, argv, "traceFilePath", buffer) == 0)
+    {
+        if (buffer[0] == '/')
+        {
+            Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
+            return 0;
+        }
+
+        return GetHomedPath(buffer, path);
+    }
+
+    {
+        const char* home = getenv("PEGASUS_HOME");
+
+        if (home)
+            Strlcpy(path, home, EXECUTOR_BUFFER_SIZE);
+
+        return 0;
+    }
+
+    /* Not found! */
+    return -1;
+}
+
+/*
+**==============================================================================
+**
+** LocateKeyFile()
+**
+**==============================================================================
+*/
+
+int LocateKeyFile(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE])
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (GetConfigParam(argc, argv, "sslKeyFilePath", buffer) == 0)
+    {
+        if (buffer[0] == '/')
+        {
+            Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
+            return 0;
+        }
+
+        return GetHomedPath(buffer, path);
+    }
+
+    if (GetHomedPath("file.pem", path) == 0)
+        return 0;
+
+    /* Not found! */
+    return -1;
+}
+
+/*
+**==============================================================================
+**
+** LocateSslTrustStore()
+**
+**==============================================================================
+*/
+
+int LocateSslTrustStore(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE])
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (GetConfigParam(argc, argv, "sslTrustStore", buffer) == 0)
+    {
+        if (buffer[0] == '/')
+        {
+            Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
+            return 0;
+        }
+
+        return GetHomedPath(buffer, path);
+    }
+
+    if (GetHomedPath("cimserver_trust", path) == 0)
+        return 0;
+
+    /* Not found! */
+    return -1;
+}
+
+/*
+**==============================================================================
+**
+** LocateCrlStore()
+**
+**==============================================================================
+*/
+
+int LocateCrlStore(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE])
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (GetConfigParam(argc, argv, "crlStore", buffer) == 0)
+    {
+        if (buffer[0] == '/')
+        {
+            Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
+            return 0;
+        }
+
+        return GetHomedPath(buffer, path);
+    }
+
+    if (GetHomedPath("crl", path) == 0)
+        return 0;
+
+    /* Not found! */
+    return -1;
+}
+
+/* ATTN: try to consolidate all these locate functions into one. */

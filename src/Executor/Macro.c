@@ -1,32 +1,34 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
 
 #include <string.h>
@@ -35,9 +37,6 @@
 #include "Strlcpy.h"
 #include "Strlcat.h"
 #include "Log.h"
-#include "Config.h"
-#include "Globals.h"
-#include "Path.h"
 #include <assert.h>
 
 /*
@@ -87,9 +86,7 @@ const char* FindMacro(const char* name)
     for (p = _macros; p; p = p->next)
     {
         if (strcmp(p->name, name) == 0)
-        {
             return p->value;
-        }
     }
 
     /* Not found. */
@@ -113,84 +110,20 @@ int DefineMacro(const char* name, const char* value)
     /* Reject if the macro is already defined. */
 
     if (FindMacro(name) != NULL)
-    {
         return -1;
-    }
 
     /* Create new macro. */
 
-    if ((macro = (struct Macro*)malloc(sizeof(struct Macro))) == NULL)
-    {
-        return -1;
-    }
+    macro = (struct Macro*)malloc(sizeof(struct Macro));
     macro->name = strdup(name);
     macro->value = strdup(value);
 
-    /* Add to end of list. */
+    /* Add to front of list. */
 
-    {
-        struct Macro* p;
-        struct Macro* prev = NULL;
-
-        for (p = _macros; p; p = p->next)
-        {
-            prev = p;
-        }
-
-        if (prev)
-        {
-            prev->next = macro;
-        }
-        else
-        {
-            _macros = macro;
-        }
-
-        macro->next = NULL;
-    }
+    macro->next = _macros;
+    _macros = macro;
 
     return 0;
-}
-
-/*
-**==============================================================================
-**
-** UndefineMacro()
-**
-**     Remove the given macro from the macro table.
-**
-**==============================================================================
-*/
-
-int UndefineMacro(const char* name)
-{
-    struct Macro* p;
-    struct Macro* prev;
-
-    for (p = _macros, prev = 0; p; p = p->next)
-    {
-        if (strcmp(p->name, name) == 0)
-        {
-            if (prev)
-            {
-                prev->next = p->next;
-            }
-            else
-            {
-                _macros = p->next;
-            }
-
-            free(p->name);
-            free(p->value);
-            free(p);
-            return 0;
-        }
-
-        prev = p;
-    }
-
-    /* Not found. */
-    return -1;
 }
 
 /*
@@ -207,6 +140,7 @@ int ExpandMacros(const char* input, char output[EXECUTOR_BUFFER_SIZE])
 {
     char buffer[EXECUTOR_BUFFER_SIZE];
     char* p;
+    size_t n = 0;
 
     /* Make copy of input since we'll need to destroy it. */
 
@@ -278,89 +212,4 @@ int ExpandMacros(const char* input, char output[EXECUTOR_BUFFER_SIZE])
     }
 
     return 0;
-}
-
-/*
-**==============================================================================
-**
-** DefineConfigPathMacro()
-**
-**     Define a new path macro whose value is taken from the given
-**     configuration parameter. If no such configuration parameter is defined,
-**     use the defaultPath.
-**
-**==============================================================================
-*/
-
-int DefineConfigPathMacro(const char* configParam, const char* defaultPath)
-{
-    char path[EXECUTOR_BUFFER_SIZE];
-    int status;
-
-    status = 0;
-
-    do
-    {
-        char buffer[EXECUTOR_BUFFER_SIZE];
-
-        /* First try to get value from configuration. */
-
-        if (GetConfigParam(configParam, buffer) == 0)
-        {
-            if (buffer[0] == '/')
-            {
-                Strlcpy(path, buffer, sizeof(path));
-                break;
-            }
-            else if (GetHomedPath(buffer, buffer) == 0)
-            {
-                Strlcpy(path, buffer, sizeof(path));
-                break;
-            }
-        }
-
-        /* Just use the default value. */
-
-        if (GetHomedPath(defaultPath, buffer) == 0)
-        {
-            Strlcpy(path, buffer, sizeof(path));
-            break;
-        }
-
-        /* Failed. */
-
-        status = -1;
-    }
-    while (0);
-
-    if (status == 0)
-    {
-        DefineMacro(configParam, path);
-    }
-
-    return status;
-}
-
-/*
-**==============================================================================
-**
-** DumpMacros()
-**
-**     Dump all macros to standard output.
-**
-**==============================================================================
-*/
-
-void DumpMacros(FILE* outputStream)
-{
-    const struct Macro* p;
-
-    fprintf(outputStream, "===== Macros:\n");
-
-    for (p = _macros; p; p = p->next)
-    {
-        fprintf(outputStream, "%s=%s\n", p->name, p->value);
-    }
-
-    putc('\n', outputStream);
 }

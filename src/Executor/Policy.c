@@ -1,38 +1,36 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
 
-#include <string.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <fcntl.h>
 #include "Policy.h"
 #include "Defines.h"
 #include "Macro.h"
@@ -48,161 +46,117 @@
 /*
 **==============================================================================
 **
-** ARG()
+** Policy
 **
-**     Expands function arguments to "name, value" for use in formatted
-**     output statements.
-**
-**     For example, this,
-**
-**         printf("%s=\"%s\"", ARG(count));
-**
-**     is expanded to this:
-**
-**         printf("%s=\"%s\"", "count", count);
+**     This structure defines a policy rule.
 **
 **==============================================================================
 */
 
-#define ARG(X) #X, X
+struct Policy
+{
+    enum ExecutorMessageCode messageCode;
+    const char* arg1;
+    const char* arg2;
+};
 
 /*
 **==============================================================================
 **
-** _staticPolicyTable[]
+** _policyTable[]
 **
 **     This array defines the static policy table for the executor.
 **
 **==============================================================================
 */
 
-static struct Policy _staticPolicyTable[] =
+static struct Policy _policyTable[] =
 {
     /* cimserver_current.conf policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${currentConfigFilePath}",
-        "w",
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
+        "${CIMSERVER_CURRENT_CONF}",
+        "w"
     },
-    {
+    { 
         EXECUTOR_RENAME_FILE_MESSAGE,
-        "${currentConfigFilePath}",
-        "${currentConfigFilePath}.bak",
-        0, /* flags */
+        "${CIMSERVER_CURRENT_CONF}",
+        "${CIMSERVER_CURRENT_CONF_BAK}",
     },
-    {
+    { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${currentConfigFilePath}",
+        "${CIMSERVER_CURRENT_CONF}",
         NULL,
-        0, /* flags */
     },
-    {
+    { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${currentConfigFilePath}.bak",
+        "${CIMSERVER_CURRENT_CONF_BAK}",
         NULL,
-        0, /* flags */
-    },
-    /* cimserver_planned.conf policies */
-    {
-        EXECUTOR_OPEN_FILE_MESSAGE,
-        "${plannedConfigFilePath}",
-        "w",
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
-    },
-    {
-        EXECUTOR_RENAME_FILE_MESSAGE,
-        "${plannedConfigFilePath}",
-        "${plannedConfigFilePath}.bak",
-        0, /* flags */
-    },
-    {
-        EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${plannedConfigFilePath}",
-        NULL,
-        0, /* flags */
-    },
-    {
-        EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${plannedConfigFilePath}.bak",
-        NULL,
-        0, /* flags */
     },
     /* cimserver.passwd policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${passwordFilePath}",
-        "w",
-        (S_IRUSR | S_IWUSR) /* 0600 */
+        "${CIMSERVER_PASSWD}",
+        "w"
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
-        "${passwordFilePath}.bak",
-        "${passwordFilePath}",
-        0, /* flags */
+        "${CIMSERVER_PASSWD_BAK}",
+        "${CIMSERVER_PASSWD}",
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
-        "${passwordFilePath}",
-        "${passwordFilePath}.bak",
-        0, /* flags */
+        "${CIMSERVER_PASSWD}",
+        "${CIMSERVER_PASSWD_BAK}",
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${passwordFilePath}.bak",
+        "${CIMSERVER_PASSWD_BAK}",
         NULL,
-        0, /* flags */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${passwordFilePath}",
+        "${CIMSERVER_PASSWD}",
         NULL,
-        0, /* flags */
+    },
+    /* cimserver.trc policies */
+    {
+        EXECUTOR_OPEN_FILE_MESSAGE,
+        "${TRACE_FILE_PATH}/cimserver.trc*",
+        "a",
     },
     /* SSL key file policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${sslKeyFilePath}",
+        "${SSL_KEY_FILE_PATH}",
         "r",
-        0, /* flags not used when opening a file for read access */
     },
     /* SSL trust store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${sslTrustStore}/*",
+        "${SSL_TRUST_STORE}/*",
         "w",
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${sslTrustStore}/*",
+        "${SSL_TRUST_STORE}/*",
         NULL,
-        0, /* flags */
     },
     /* CRL store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${crlStore}/*",
+        "${CRL_STORE}/*",
         "w",
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${crlStore}/*",
+        "${CRL_STORE}/*",
         NULL,
-        0, /* flags */
     },
-    {
-        EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${localAuthDir}/*",
-        NULL,
-        0, /* flags */
-    },
-
 };
 
-static const size_t _staticPolicyTableSize =
-    sizeof(_staticPolicyTable) / sizeof(_staticPolicyTable[0]);
+static const size_t _policyTableSize = 
+    sizeof(_policyTable) / sizeof(_policyTable[0]);
 
 /*
 **==============================================================================
@@ -212,26 +166,18 @@ static const size_t _staticPolicyTableSize =
 **==============================================================================
 */
 
-int CheckPolicy(
-    const struct Policy* policyTable,
-    size_t policyTableSize,
+static int CheckPolicy(
     enum ExecutorMessageCode messageCode,
     const char* arg1,
-    const char* arg2,
-    unsigned long* flags)
+    const char* arg2)
 {
     size_t i;
 
-    /* Clear the flags. */
-
-    if (flags)
-        *flags = 0;
-
-    for (i = 0; i < policyTableSize; i++)
+    for (i = 0; i < _policyTableSize; i++)
     {
         const struct Policy* p;
 
-        p = &policyTable[i];
+        p = &_policyTable[i];
 
         /* Check message code */
 
@@ -245,7 +191,9 @@ int CheckPolicy(
             char pat[EXECUTOR_BUFFER_SIZE];
 
             if (ExpandMacros(p->arg1, pat) != 0 || Match(pat, arg1) != 0)
+            {
                 continue;
+            }
         }
 
         /* Check arg2. */
@@ -258,17 +206,11 @@ int CheckPolicy(
                 continue;
         }
 
-        /* Set the output flags argument. */
-
-        if (flags)
-            *flags = p->flags;
-
-        /* Found a matching policy! */
-
+        // Found a matching policy!
         return 0;
     }
 
-    /* Failed to find any matching policy. */
+    // Failed to find any matching policy.
 
     return -1;
 }
@@ -281,23 +223,20 @@ int CheckPolicy(
 **==============================================================================
 */
 
-int CheckOpenFilePolicy(const char* path, int mode, unsigned long* flags)
+int CheckOpenFilePolicy(const char* path, int mode)
 {
     char arg2[2];
 
     arg2[0] = mode;
     arg2[1] = '\0';
 
-    if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
-        EXECUTOR_OPEN_FILE_MESSAGE, path, arg2, flags) == 0)
+    if (CheckPolicy(EXECUTOR_OPEN_FILE_MESSAGE, path, arg2) == 0)
     {
-        Log(LL_TRACE, "CheckOpenFilePolicy(%s=\"%s\", %s='%c') passed",
-            ARG(path), ARG(mode));
+        Log(LL_TRACE, "CheckOpenFilePolicy(\"%s\", '%c') passed", path, mode);
         return 0;
     }
 
-    Log(LL_SEVERE, "CheckOpenFilePolicy(%s=\"%s\", %s='%c') failed",
-        ARG(path), ARG(mode));
+    Log(LL_SEVERE, "CheckOpenFilePolicy(\"%s\", '%c') failed", path, mode);
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");
@@ -316,14 +255,13 @@ int CheckOpenFilePolicy(const char* path, int mode, unsigned long* flags)
 
 int CheckRemoveFilePolicy(const char* path)
 {
-    if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
-        EXECUTOR_REMOVE_FILE_MESSAGE, path, NULL, NULL) == 0)
+    if (CheckPolicy(EXECUTOR_REMOVE_FILE_MESSAGE, path, NULL) == 0)
     {
-        Log(LL_TRACE, "CheckRemoveFilePolicy(%s=\"%s\") passed", ARG(path));
+        Log(LL_TRACE, "CheckRemoveFilePolicy(\"%s\") passed", path);
         return 0;
     }
 
-    Log(LL_SEVERE, "CheckRemoveFilePolicy(%s=\"%s\") failed", ARG(path));
+    Log(LL_SEVERE, "CheckRemoveFilePolicy(\"%s\") failed", path);
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");
@@ -342,16 +280,15 @@ int CheckRemoveFilePolicy(const char* path)
 
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 {
-    if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
-        EXECUTOR_RENAME_FILE_MESSAGE, oldPath, newPath, NULL) == 0)
+    if (CheckPolicy(EXECUTOR_RENAME_FILE_MESSAGE, oldPath, newPath) == 0)
     {
-        Log(LL_TRACE, "CheckRenameFilePolicy(%s=\"%s\", %s=\"%s\") passed",
-            ARG(oldPath), ARG(newPath));
+        Log(LL_TRACE, "CheckRenameFilePolicy(\"%s\", \"%s\") passed",
+            oldPath, newPath);
         return 0;
     }
 
-    Log(LL_SEVERE, "CheckRenameFilePolicy(%s=\"%s\", %s=\"%s\") failed",
-        ARG(oldPath), ARG(newPath));
+    Log(LL_SEVERE, "CheckRenameFilePolicy(\"%s\", \"%s\") failed",
+        oldPath, newPath);
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");
@@ -363,71 +300,71 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 /*
 **==============================================================================
 **
-** DumpPolicyHelper()
+** DefinePolicyMacros()
 **
-**     Dump the policy table given by *policyTable* and *policyTableSize*.
-**     Expand any macros in the entries, if requested.
+**     Define macros used by the policies.
 **
 **==============================================================================
 */
 
-void DumpPolicyHelper(
-    FILE* outputStream,
-    const struct Policy* policyTable,
-    size_t policyTableSize,
-    int expandMacros)
+void DefinePolicyMacros()
 {
-    size_t i;
+    /* Define ${CIMSERVER_CURRENT_CONF} */
 
-    for (i = 0; i < policyTableSize; i++)
     {
-        const struct Policy* p = &policyTable[i];
-        const char* codeStr = MessageCodeToString(p->messageCode);
-        char arg1[EXECUTOR_BUFFER_SIZE];
-        char arg2[EXECUTOR_BUFFER_SIZE];
+        char path[EXECUTOR_BUFFER_SIZE];
 
-        if (expandMacros)
+        if (GetHomedPath(PEGASUS_CURRENT_CONFIG_FILE_PATH, path) != 0)
         {
-            if (p->arg1)
-                ExpandMacros(p->arg1, arg1);
-
-            if (p->arg2)
-                ExpandMacros(p->arg2, arg2);
-        }
-        else
-        {
-            if (p->arg1)
-                Strlcpy(arg1, p->arg1, sizeof(arg1));
-
-            if (p->arg2)
-                Strlcpy(arg2, p->arg2, sizeof(arg2));
+            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
+                PEGASUS_CURRENT_CONFIG_FILE_PATH);
         }
 
-        fprintf(outputStream, "%s(", codeStr);
-        if (p->arg1)
-            fprintf(outputStream, "\"%s\"", arg1);
-        if (p->arg2)
-            fprintf(outputStream, ", \"%s\"", arg2);
-        fprintf(outputStream, ")\n");
+        DefineMacro("CIMSERVER_CURRENT_CONF", path);
     }
-}
 
-/*
-**==============================================================================
-**
-** DumpPolicy()
-**
-**     Dump the static policy table.
-**
-**==============================================================================
-*/
+    /* Define ${CIMSERVER_CURRENT_CONF_BAK} */
 
-void DumpPolicy(FILE* outputStream, int expandMacros)
-{
-    fprintf(outputStream, "===== Policy:\n");
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
 
-    DumpPolicyHelper(
-        outputStream, _staticPolicyTable, _staticPolicyTableSize, expandMacros);
+        if (GetHomedPath(PEGASUS_CURRENT_CONFIG_FILE_PATH, path) != 0)
+        {
+            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
+                PEGASUS_CURRENT_CONFIG_FILE_PATH);
+        }
 
-    putc('\n', outputStream);
+        Strlcat(path, ".bak", sizeof(path));
+        DefineMacro("CIMSERVER_CURRENT_CONF_BAK", path);
+    }
+
+    /* Define ${CIMSERVER_PASSWD} */
+
+    DefineMacro("CIMSERVER_PASSWD", globals.passwordFilePath);
+
+    /* Define ${CIMSERVER_PASSWD_BAK} */
+
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+        Strlcpy(path, globals.passwordFilePath, sizeof(path));
+        Strlcat(path, ".bak", sizeof(path));
+
+        DefineMacro("CIMSERVER_PASSWD_BAK", path);
+    }
+
+    /* Define ${TRACE_FILE_PATH} */
+
+    DefineMacro("TRACE_FILE_PATH", globals.traceFilePath);
+
+    /* Define ${SSL_KEY_FILE_PATH} */
+
+    DefineMacro("SSL_KEY_FILE_PATH", globals.sslKeyFilePath);
+
+    /* Define ${SSL_TRUST_STORE} */
+
+    DefineMacro("SSL_TRUST_STORE", globals.sslTrustStore);
+
+    /* Define ${SSL_TRUST_STORE} */
+
+    DefineMacro("CRL_STORE", globals.crlStore);
 }

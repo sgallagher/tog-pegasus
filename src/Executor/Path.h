@@ -57,4 +57,24 @@ int LocatePasswordFile(
     char** argv, 
     char path[EXECUTOR_BUFFER_SIZE]);
 
+int LocateTraceFilePath(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE]);
+
+int LocateKeyFile(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE]);
+
+int LocateSslTrustStore(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE]);
+
+int LocateCrlStore(
+    int argc, 
+    char** argv, 
+    char path[EXECUTOR_BUFFER_SIZE]);
+
 #endif /* _Executor_Path_h */

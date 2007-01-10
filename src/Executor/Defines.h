@@ -113,4 +113,16 @@
 
 #define CIMPROVAGT "cimprovagt"
 
+/*
+**==============================================================================
+**
+** EXIT_ON_POLICY_FAILURE
+**
+**     If this is defined, the executor exits on any policy failure.
+**
+**==============================================================================
+*/
+
+#define EXIT_ON_POLICY_FAILURE
+
 #endif /* _Executor_Defines_h */

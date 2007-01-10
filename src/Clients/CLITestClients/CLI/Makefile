@@ -32,7 +32,7 @@ ROOT = $(PEGASUS_ROOT)
 
 PROGRAM_NAME = cimcli
 
-DIR = Clients/CLITestClients/$(PROGRAM_NAME)
+DIR = Clients/CLITestClients/CLI
 include $(ROOT)/mak/config.mak
 
 ifdef PEGASUS_HAS_SSL

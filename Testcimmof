@@ -15,7 +15,7 @@ poststarttests:
 	$(MAKE) repository
 	@$(MOVE) $(REPOSITORY_DIR)/repository $(REPOSITORY_DIR)/repository.old
 	$(MAKE) -f $(ROOT)/Testcimmof cimstart
-	@$(SLEEP) 10
+	@$(SLEEP) 5
 	@$(ECHO) $(CIM_SCHEMA_DIR)
 	$(MAKE) repositoryServer
 	@ ./diffscript $(REPOSITORY_DIR) root#cimv2/classes

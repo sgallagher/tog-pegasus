@@ -73,10 +73,6 @@ CIMInstance UserContextTestProvider::_buildInstance(const CIMName& className)
     instance.addProperty(
         CIMProperty(CIMName("UserContext"), System::getEffectiveUserName()));
 
-/*
-MEB: UserContext will unexpectedly refer to "pegasus" rather than "root".
-*/
-
     Array<CIMKeyBinding> kb;
     kb.append(CIMKeyBinding(CIMName("Id"), "1", CIMKeyBinding::NUMERIC));
     CIMObjectPath path(String::EMPTY, CIMNamespaceName(), className, kb);

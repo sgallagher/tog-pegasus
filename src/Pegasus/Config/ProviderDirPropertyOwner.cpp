@@ -298,6 +298,7 @@ Boolean ProviderDirPropertyOwner::isValid(
     const String& name,
     const String& value) const
 {
+
     if (!isProviderDirValid( value ))
     {
         throw InvalidPropertyValue(name, value);

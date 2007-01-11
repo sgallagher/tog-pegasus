@@ -70,16 +70,11 @@ void testUserContextRequestor()
         Boolean authenticationEnabled =
             String::equalNoCase(authConfigValue, "true");
 
-cout << "authConfigValue=" << authConfigValue << endl;
-cout << "authenticationEnabled=" << authenticationEnabled << endl;
-
         // Test a provider running in Requestor user context
 
         CIMObjectPath instName =
             CIMObjectPath("TST_UserContextRequestor.Id=1");
         CIMInstance cimInstance = client.getInstance(NAMESPACE, instName);
-
-cout << "instName=" << instName.toString() << endl;
 
         String userContext;
         cimInstance.getProperty(cimInstance.findProperty("UserContext"))

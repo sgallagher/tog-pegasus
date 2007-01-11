@@ -204,9 +204,7 @@ int main(int argc, char** argv)
         // verify result
         numObjects  = resultObjects.size();
         if (_verifyResult(numObjects, 3) != 0)
-        {
             return -1;
-        }
 
         // display result
         // cout << "Number of associator objects = " << numObjects << endl;

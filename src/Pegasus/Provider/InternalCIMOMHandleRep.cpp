@@ -287,16 +287,6 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::do_request");
 
-/*
-MEB: POI: this is where the CIMOMHandleRep sends a request object.
-*/
-
-/*
-MEB: remove.
-*/
-    memset((char*)request->sessionKey.data(), 32, 'B');
-
-
 #ifdef PEGASUS_OS_OS400
     // On OS/400, this code runs in a system state thread.  Swap the
     // thread profile to be able to access server resources.

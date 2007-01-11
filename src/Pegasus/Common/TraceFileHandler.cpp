@@ -137,6 +137,9 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
         return 0;
     }
 
+    // We are done if the executor was used to perform this. Otherwise, we
+    // must proceed to fix file ownership and permissions.
+
     if (Executor::detectExecutor() == 0)
         return fileHandle;
 

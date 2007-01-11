@@ -274,11 +274,6 @@ Boolean UserManager::verifyCIMUserPassword (
 			   const String& userName, 
 			   const String& password)
 {
-
-/*
-MEB: password file check logic probably for namespace authorization.
-*/
-
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUserPassword");
 
 #ifndef PEGASUS_NO_PASSWORDFILE

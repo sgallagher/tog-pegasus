@@ -53,10 +53,9 @@ PAMBasicAuthenticator::PAMBasicAuthenticator()
     ConfigManager* configManager = ConfigManager::getInstance();
     String port = configManager->getCurrentValue("httpPort");
 
-    // ATTN-MEB: this port is often empty. Is this what was intended by the
-    // original implementers? The realm becomes "<hostname>:".
-
+    //
     // Create realm that will be used for Basic challenges
+    //
     _realm.append(":");
     _realm.append(port);
 
@@ -107,10 +106,7 @@ String PAMBasicAuthenticator::getAuthResponseHeader()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::getAuthResponseHeader()");
 
-    // Build response header: 
-    //
-    //     WWW-Authenticate: Basic "<hostname>:<port>"
-    //
+    // Build response header: WWW-Authenticate: Basic "<hostname>:<port>"
 
     String responseHeader = "WWW-Authenticate: Basic \"";
     responseHeader.append(_realm);

@@ -1,15 +1,33 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Implement policy.
+    (A) Implement static policy.
+
+    (A) Implement provider policy.
+
 
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+    (B) Update readme.privsep
 
     (B) Revalidation (all configurations and all platforms).
 
     (B) Code walk-through of all diffs to cimservermain.
 
+    (B) Take out CLI.cpp changes.
+
+    (B) Deal with ATTN's and MEB's.
+
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+    (C) Change Executor class to use String rather than char*.
+
+    (C) Remove Backtrace.* files.
+
+    (C) Eliminate AnonymousPipe::setSessionKey() and getSessionKey(). Put 
+        session key into ProviderAgentContainer.
+
+    (C) Add Strlcat and Strlcpy unit tests to Pegasus build.
 
     (C) Clean up log messages.
 

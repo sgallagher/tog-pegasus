@@ -496,12 +496,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     SessionKey sessionKey = httpMessage->authInfo->getSessionKey();
 
-/*
-MEB: fix
-*/
-    if (sessionKey.null())
-        memset((char*)sessionKey.data(), 'A', 32);
-
     handleMethodCall(
         queueId,
         httpMethod,

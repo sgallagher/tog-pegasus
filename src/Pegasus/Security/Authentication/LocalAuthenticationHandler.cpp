@@ -139,7 +139,9 @@ Boolean LocalAuthenticationHandler::authenticate(
     authenticated = _localAuthenticator->authenticate(filePath, 
         secretReceived, authInfo->getAuthChallenge(), sessionKey);
 
-    PEG_AUDIT_LOG(logLocalAuthentication(userName, authenticated));
+    PEG_AUDIT_LOG(logLocalAuthentication(
+                     userName, 
+                     authenticated));
 
     if (authenticated)
     {

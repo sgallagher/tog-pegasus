@@ -335,9 +335,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // Get the user name associated with the certificate (using the
         // certificate chain, if necessary).
 
-/*
-MEB: SSL certificate auhtentication begins:
-*/
         String certUserName;
         if (authenticated &&
             (String::equal(httpMessage->authInfo->getAuthType(),
@@ -403,9 +400,6 @@ MEB: SSL certificate auhtentication begins:
                     // to the key bindings and set it to cimserver truststore.
                     //
 
-/*
-MEB: Consider adding executor call here to check client certificate.
-*/
                     //construct the corresponding PG_SSLCertificate instance
                     Array<CIMKeyBinding> keyBindings;
                     keyBindings.append(CIMKeyBinding(

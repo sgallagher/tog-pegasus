@@ -36,18 +36,11 @@
 #include <Pegasus/Common/ExceptionRep.h>
 #include <Pegasus/Common/CIMExceptionRep.h>
 #include "Tracer.h"
-#include "Backtrace.h"
-
-#ifdef PEGASUS_BACKTRACE
-# undef PEGASUS_BACKTRACE
-# define PEGASUS_BACKTRACE /* */
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
 Exception::Exception(const String& message)
 {
-    PEGASUS_BACKTRACE;
     _rep = new ExceptionRep();
     _rep->message = message;
     _rep->contentLanguages.clear();
@@ -55,7 +48,6 @@ Exception::Exception(const String& message)
 
 Exception::Exception(const Exception& exception)
 {
-    PEGASUS_BACKTRACE;
     _rep = new ExceptionRep();
     _rep->message = exception._rep->message;
     _rep->contentLanguages = exception._rep->contentLanguages;
@@ -63,7 +55,6 @@ Exception::Exception(const Exception& exception)
 
 Exception::Exception(const MessageLoaderParms& msgParms)
 {
-    PEGASUS_BACKTRACE;
     _rep = new ExceptionRep();
     _rep->message = MessageLoader::getMessage(
         const_cast<MessageLoaderParms &>(msgParms));
@@ -73,7 +64,6 @@ Exception::Exception(const MessageLoaderParms& msgParms)
 
 Exception::Exception()
 {
-    PEGASUS_BACKTRACE;
     _rep = NULL;
 }
 

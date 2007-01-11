@@ -42,7 +42,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class implements basic PAM authentication.
+/** This class provides PAM basic authentication implementation by extending
+    the BasicAuthenticator.
 */
 class PEGASUS_SECURITY_LINKAGE PAMBasicAuthenticator : public BasicAuthenticator
 {

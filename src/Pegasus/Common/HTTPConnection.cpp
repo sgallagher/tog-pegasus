@@ -246,10 +246,6 @@ HTTPConnection::HTTPConnection(
         {
             _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
             _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
-
-/*
-MEB: SSL authentication part I: getPeerCertificateChain().
-*/
             _authInfo->setClientCertificateChain(
                 _socket->getPeerCertificateChain());
         }
@@ -279,7 +275,7 @@ HTTPConnection::~HTTPConnection()
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
 
-    _socket->close();
+     _socket->close();
 
     // Delete the session key associated with this connection.
 

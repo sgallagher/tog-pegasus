@@ -986,9 +986,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
         propertyList,
         request->queueIds);
 
-/*
-MEB: propagate SessionKey here?
-*/
     getInstanceRequest.operationContext = request->operationContext;
 
     AutoPtr<CIMGetInstanceResponseMessage> getInstanceResponse(
@@ -1063,9 +1060,6 @@ MEB: propagate SessionKey here?
         }
     }
 
-/*
-MEB: propagate SessionKey here?
-*/
     response->operationContext = getInstanceResponse->operationContext;
 
     PEG_METHOD_EXIT();
@@ -1114,9 +1108,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
         propertyList,
         request->queueIds);
 
-/*
-MEB: propagate SessionKey here?
-*/
     modifyInstanceRequest.operationContext = request->operationContext;
 
     AutoPtr<CIMModifyInstanceResponseMessage> modifyInstanceResponse(
@@ -1165,9 +1156,6 @@ MEB: propagate SessionKey here?
     //
 
     response->cimException = modifyInstanceResponse->cimException;
-/*
-MEB: propagate SessionKey here?
-*/
     response->operationContext = modifyInstanceResponse->operationContext;
 
     PEG_METHOD_EXIT();

@@ -127,7 +127,7 @@ Boolean SecureBasicAuthenticator::authenticate(
     // Use OS400 APIs to do user name and password verification
     // (note - need to convert to EBCDIC before calling ycm)
     CString userCStr = userName.getCString();
-    const char *user = (const char *) userCStr;
+    const char * user = (const char *) userCStr;
     AtoE((char *) user);
     CString pwCStr = password.getCString();
     const char *pw = (const char *) pwCStr;

@@ -85,3 +85,6 @@ sslcimserver:
 testssl:
 	$(MAKE) -C ../.. -f TestMakefile run_SSL_TS1
 
+diffs:
+	(cd ../..; cvs diff -r PEP286_PRIVILEGE_SEPARATION_ROOT -u -N > privsep.diff)
+

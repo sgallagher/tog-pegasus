@@ -34,6 +34,8 @@
 #ifndef _Executor_Strlcat_h
 #define _Executor_Strlcat_h
 
+#include <stdlib.h>
+
 /*
 **==============================================================================
 **

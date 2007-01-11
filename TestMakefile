@@ -285,33 +285,19 @@ servertests: servertestsclean servertestssetup serversuite
 	@ $(ECHO) "+++++ TestMakefile servertests suites complete"
 
 serversuite: FORCE
-	$(ECHO) "========== poststarttests"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
-	$(ECHO) "========== TestBinRepository"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
-	$(ECHO) "========== run_Cimsub_InterOp"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cimsub_InterOp
-	$(ECHO) "========== run_OOP_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
-	$(ECHO) "========== run_IndInit_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
-	$(ECHO) "========== run_OOPProvFail_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS1
-	$(ECHO) "========== run_OOPProvFail_TS2"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS2
-	$(ECHO) "========== run_OOPProvFail_TS3"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS3
-	$(ECHO) "========== run_INDSSL_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
-	$(ECHO) "========== run_SSL_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
-	$(ECHO) "========== run_G11N_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
-	$(ECHO) "========== runCBATestSuites"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
-	$(ECHO) "========== run_SDK_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SDK_TS1
-	$(ECHO) "========== run_ExportClientSSL_TS1"
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_ExportClientSSL_TS1
 
 #####################
@@ -540,8 +526,6 @@ endif
 
 ###############################################################################
  
-#ATTN-MEB:
-
 ###############################################################################
 ##  SSL Test Suite 1: SSL Tests
 ##
@@ -699,7 +683,6 @@ run_Cimsub_InterOp: FORCE
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(CIMSUB_INTEROP_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(CIMSUB_INTEROP_TEST_CMDS)"
-
 ###############################################################################
 
 ###############################################################################

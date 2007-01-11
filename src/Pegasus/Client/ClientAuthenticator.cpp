@@ -39,9 +39,6 @@
 #include <Pegasus/Common/Constants.h>
 #include "ClientAuthenticator.h"
 #include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 //
 // Constants used to parse the authentication challenge header
@@ -279,8 +276,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
             }
             else
             {
-                String userName = System::getEffectiveUserName();
-                challengeResponse.append(userName);
+                challengeResponse.append(System::getEffectiveUserName());
             }
 
             challengeResponse.append(_buildLocalAuthResponse());
@@ -368,7 +364,7 @@ String ClientAuthenticator::_getFileContent(String filePath)
     }
 
     //
-    // Open challenge file and read the challenge data
+    // Open the challenge file and read the challenge data
     //
 
     FILE* is = fopen(filePath.getCString(), "r");

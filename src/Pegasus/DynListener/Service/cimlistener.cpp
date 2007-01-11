@@ -592,7 +592,7 @@ int CIMListenerProcess::cimserver_run(
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
             "src.Server.cimserver.SERVER_NOT_STARTED",
-            "MEB:T1 cimserver not started:  $0", e.getMessage());
+            "cimserver not started:  $0", e.getMessage());
 
 #if !defined(PEGASUS_OS_OS400)
         MessageLoaderParms parms("DynListener.cimlistener.LISTENER_NOT_STARTED",

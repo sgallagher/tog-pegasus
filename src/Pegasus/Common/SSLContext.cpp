@@ -319,9 +319,6 @@ int SSLCallback::verificationCRLCallback(
 //
 int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
 {
-/*
-MEB: reads peer certificates.
-*/
     PEG_METHOD_ENTER(TRC_SSL, "SSLCallback::callback()");
 
     char   buf[256];
@@ -871,9 +868,6 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: certificate verification callback specified");
-/*
-MEB: look at SSL_CTX_set_verify() man page.
-*/
             SSL_CTX_set_verify(sslContext,
                 SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, prepareForCallback);
         }

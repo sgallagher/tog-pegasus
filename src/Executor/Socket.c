@@ -37,7 +37,6 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include "Socket.h"
-#include "Bit.h"
 #include "Exit.h"
 #include "Globals.h"
 #include "Defines.h"
@@ -150,8 +149,8 @@ ssize_t RecvNonBlock(
         int status = _waitForReadEnable(sock, TIMEOUT_MSEC);
         ssize_t n;
 
-        if (TstBit(globals.signalMask, SIGTERM) || 
-            TstBit(globals.signalMask, SIGINT))
+        if ((globals.signalMask & (1 << SIGTERM)) || 
+            (globals.signalMask & (1 << SIGINT)))
         {
             /* Exit on either of these signals. */
             Exit(0);
@@ -214,8 +213,8 @@ ssize_t SendNonBlock(
         int status = _waitForWriteEnable(sock, TIMEOUT_MSEC);
         ssize_t n;
 
-        if (TstBit(globals.signalMask, SIGTERM) || 
-            TstBit(globals.signalMask, SIGINT))
+        if ((globals.signalMask & (1 << SIGTERM)) || 
+            (globals.signalMask & (1 << SIGINT)))
         {
             /* Exit on either of these signals. */
             Exit(0);

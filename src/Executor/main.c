@@ -48,13 +48,14 @@
 #include "Log.h"
 #include "Policy.h"
 #include "Macro.h"
+#include "Assert.h"
 
 /*
 **==============================================================================
 **
 ** GetServerUser
 **
-**     Determine which user to run cimservermain as.
+**     Determine which user to run CIMSERVERMAIN as.
 **
 **     Note: this algorithm is no longer in use.
 **
@@ -68,9 +69,9 @@ int GetServerUser(int* uid, int* gid)
     if (GetUserInfo(username, uid, gid) != 0)
     {
         Fatal(FL, 
-            "The cimservermain user does not exist: \"%s\". Please create "
+            "The %s user does not exist: \"%s\". Please create "
             "a system user with that name or use an OpenPegasus build that "
-            "disables privilege separation.", username);
+            "disables privilege separation.", CIMSERVERMAIN, username);
     }
 
     return -1;
@@ -134,26 +135,26 @@ int TestCimServerProcess()
 **==============================================================================
 */
 
-void ExecShutdown(int argc, char** argv)
+void ExecShutdown()
 {
     char* tmpArgv[3];
-    char cimshutdownPath[EXECUTOR_BUFFER_SIZE];
-    char shutdownTimeout[EXECUTOR_BUFFER_SIZE];
+    const char* cimshutdownPath;
+    const char* shutdownTimeout;
 
     /* Get shutdownTimeout configuration parameter. */
 
-    if (GetConfigParam(argc, argv, "shutdownTimeout", shutdownTimeout) != 0)
-        Strlcpy(shutdownTimeout, "5", sizeof(shutdownTimeout));
+    if ((shutdownTimeout = FindMacro("shutdownTimeout")) == NULL)
+        Fatal(FL, "failed to resolve shutdownTimeout");
 
-    /* Get absolute cimshutdown program name. */
+    /* Get absolute CIMSHUTDOWN program name. */
 
-    if (GetInternalPegasusProgramPath(CIMSHUTDOWN, cimshutdownPath) != 0)
-        Fatal(FL, "Failed to locate Pegasus program: %s", CIMSHUTDOWN);
+    if ((cimshutdownPath = FindMacro("cimshutdownPath")) == NULL)
+        Fatal(FL, "failed to resolve cimshutdownPath");
 
     /* Create argument list. */
 
     tmpArgv[0] = CIMSHUTDOWN;
-    tmpArgv[1] = shutdownTimeout;
+    tmpArgv[1] = (char*)shutdownTimeout;
     tmpArgv[2] = 0;
 
     /* Exec CIMSHUTDOWN program. */
@@ -185,12 +186,28 @@ void DefineExecutorMacros()
         DefineMacro("internalBinDir", path);
     }
 
+    /* Define ${cimservermain} */
+
+    DefineMacro("cimservermain", CIMSERVERMAIN);
+
+    /* Define ${cimprovagt} */
+
+    DefineMacro("cimprovagt", CIMPROVAGT);
+
+    /* Define ${cimshutdown} */
+
+    DefineMacro("cimshutdown", CIMSHUTDOWN);
+
+    /* Define ${cimservera} */
+
+    DefineMacro("cimservera", CIMSERVERA);
+
     /* Define ${cimservermainPath} */
     {
         char path[EXECUTOR_BUFFER_SIZE];
 
-        if (ExpandMacros("${internalBinDir}/cimservermain", path) != 0)
-            Fatal(FL, "failed to resolve cimserver main path");
+        if (ExpandMacros("${internalBinDir}/${cimservermain}", path) != 0)
+            Fatal(FL, "failed to resolve cimservermainPath");
 
         DefineMacro("cimservermainPath", path);
     }
@@ -199,20 +216,41 @@ void DefineExecutorMacros()
     {
         char path[EXECUTOR_BUFFER_SIZE];
 
-        if (ExpandMacros("${internalBinDir}/cimprovagt", path) != 0)
-            Fatal(FL, "failed to resolve cimserver main path");
+        if (ExpandMacros("${internalBinDir}/${cimprovagt}", path) != 0)
+            Fatal(FL, "failed to resolve cimprovagtPath");
 
         DefineMacro("cimprovagtPath", path);
+    }
+
+    /* Define ${cimshutdownPath} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (ExpandMacros("${internalBinDir}/${cimshutdown}", path) != 0)
+            Fatal(FL, "failed to resolve cimshutdownPath");
+
+        DefineMacro("cimshutdownPath", path);
     }
 
     /* Define ${cimserveraPath} */
     {
         char path[EXECUTOR_BUFFER_SIZE];
 
-        if (ExpandMacros("${internalBinDir}/cimservera", path) != 0)
-            Fatal(FL, "failed to resolve cimserver main path");
+        if (ExpandMacros("${internalBinDir}/${cimservera}", path) != 0)
+            Fatal(FL, "failed to resolve cimserveraPath");
 
         DefineMacro("cimserveraPath", path);
+    }
+
+    /* Define ${shutdownTimeout} */
+
+    {
+        char buffer[EXECUTOR_BUFFER_SIZE];
+
+        if (GetConfigParam("shutdownTimeout", buffer) != 0)
+            Strlcpy(buffer, "5", sizeof(buffer));
+
+        DefineMacro("shutdownTimeout", buffer);
     }
 
     /* Define ${currentConfigFilePath} */
@@ -313,13 +351,11 @@ void doit();
 
 int main(int argc, char** argv)
 {
-    int i;
-    char cimservermainPath[EXECUTOR_BUFFER_SIZE];
+    const char* cimservermainPath;
     int pair[2];
     char username[EXECUTOR_BUFFER_SIZE];
     int childPid;
     int perror;
-    long shutdownTimeout;
     const char* repositoryDir;
 
     /* Save as global so it can be used in error and log messages. */
@@ -327,14 +363,14 @@ int main(int argc, char** argv)
     globals.argc = argc;
     globals.argv = argv;
 
-    /* If shuting down, then run "cimshutdown" client. */
-
-    if (TestFlagOption(&argc, &argv, "-s", 0) == 0)
-        ExecShutdown(argc, argv);
-
     /* Define macros needed by the executor. */
 
     DefineExecutorMacros();
+
+    /* If shuting down, then run CIMSHUTDOWN client. */
+
+    if (TestFlagOption(&argc, &argv, "-s", 0) == 0)
+        ExecShutdown();
 
     /* Check for --dump-policy option. */
 
@@ -354,10 +390,10 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    /* Get absolute cimservermain program name. */
+    /* Get absolute CIMSERVERMAIN program name. */
 
-    if (GetInternalPegasusProgramPath(CIMSERVERMAIN, cimservermainPath) != 0)
-        Fatal(FL, "Failed to locate Pegasus program: %s", CIMSERVERMAIN);
+    if ((cimservermainPath = FindMacro("cimservermainPath")) == NULL)
+        Fatal(FL, "Failed to locate %s program", CIMSERVERMAIN);
 
     /* If CIMSERVERMAIN is already running, warn and exit now. */
 
@@ -376,7 +412,7 @@ int main(int argc, char** argv)
     {
         char buffer[EXECUTOR_BUFFER_SIZE];
 
-        if (GetConfigParam(argc, argv, "enableAuthentication", buffer) == 0 &&
+        if (GetConfigParam("enableAuthentication", buffer) == 0 &&
             strcasecmp(buffer, "true") == 0)
         {
             globals.enableAuthentication = 1;
@@ -432,7 +468,7 @@ int main(int argc, char** argv)
     Log(LL_TRACE, "running as %s (uid=%d, gid=%d)",
         username, (int)getuid(), (int)getgid());
 
-    /* Determine user for running cimservermain. */
+    /* Determine user for running CIMSERVERMAIN. */
 
     GetServerUser(&globals.childUid, &globals.childGid);
 

@@ -54,13 +54,13 @@ struct Globals
     /* Same as argv passed to main(). */
     char** argv;
 
-    /* PID of child process (cimservermain). */
+    /* PID of child process (CIMSERVERMAIN). */
     int childPid;
 
-    /* UID of child process (cimservermain). */
+    /* UID of child process (CIMSERVERMAIN). */
     int childUid;
 
-    /* UID of child process (cimservermain). */
+    /* UID of child process (CIMSERVERMAIN). */
     int childGid;
 
     /* Mask of signals encountered by executor process. */

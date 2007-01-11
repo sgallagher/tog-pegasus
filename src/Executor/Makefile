@@ -58,10 +58,11 @@ SOURCES = \
     Policy.c \
     Macro.c \
     Match.c \
-    Messages.c
+    Messages.c \
+    Assert.c
 
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
-    FLAGS += -pedantic -ansi -Werror
+    FLAGS += -pedantic -ansi -Werror -Wunused -Wno-unused-function
     CXX=gcc
 endif
 

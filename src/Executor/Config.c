@@ -38,6 +38,8 @@
 #include "Strlcat.h"
 #include "Path.h"
 #include "Defines.h"
+#include "Globals.h"
+#include "Assert.h"
 
 /*
 **==============================================================================
@@ -78,20 +80,19 @@ static size_t _configSize =
 */
 
 int GetConfigParamFromCommandLine(
-    int argc,
-    char** argv,
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE])
 {
     size_t n = strlen(name);
     int i;
 
-    for (i = 1; i < argc; i++)
+    EXECUTOR_ASSERT(globals.argv != NULL);
+
+    for (i = 1; i < globals.argc; i++)
     {
-        if (strncmp(argv[i], name, n) == 0 && argv[i][n] == '=')
+        if (strncmp(globals.argv[i], name, n) == 0 && globals.argv[i][n] == '=')
         {
-            const char* p = argv[i] + n + 1;
-            Strlcpy(value, argv[i] + n + 1, EXECUTOR_BUFFER_SIZE);
+            Strlcpy(value, globals.argv[i] + n + 1, EXECUTOR_BUFFER_SIZE);
             return 0;
         }
     }
@@ -175,8 +176,6 @@ int GetConfigParamFromFile(
 */
 
 int GetConfigParam(
-    int argc,
-    char** argv,
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE])
 {
@@ -185,7 +184,7 @@ int GetConfigParam(
 
     /* (1) First check command line. */
 
-    if (GetConfigParamFromCommandLine(argc, argv, name, value) == 0)
+    if (GetConfigParamFromCommandLine(name, value) == 0)
         return 0;
 
     /* (2) Next check planned config file. */

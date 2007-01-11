@@ -101,11 +101,11 @@ void Log(enum LogLevel type, const char *format, ...)
 **==============================================================================
 */
 
-void GetLogLevel(int argc, char** argv)
+void GetLogLevel()
 {
     char buffer[EXECUTOR_BUFFER_SIZE];
 
-    if (GetConfigParam(argc, argv, "logLevel", buffer) == 0)
+    if (GetConfigParam("logLevel", buffer) == 0)
     {
         if (strcasecmp(buffer, "TRACE") == 0)
             SetLogLevel(LL_TRACE);

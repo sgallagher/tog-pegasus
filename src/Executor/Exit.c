@@ -41,7 +41,7 @@
 **
 ** Exit()
 **
-**     The executor exit routine, which kills the cimservermain process.
+**     The executor exit routine, which kills the CIMSERVERMAIN process.
 **
 **==============================================================================
 */
@@ -53,7 +53,7 @@ void Exit(int status)
     else
         Log(LL_WARNING, "exited with status of %d", status);
 
-    /* Kill cimservermain. */
+    /* Kill CIMSERVERMAIN. */
 
     if (globals.childPid > 0)
         kill(globals.childPid, SIGTERM);

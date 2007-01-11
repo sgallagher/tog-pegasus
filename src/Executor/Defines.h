@@ -35,6 +35,7 @@
 #define _Executor_Defines_h
 
 #include <Pegasus/Common/Constants.h>
+#include <assert.h>
 
 #define EXECUTOR_TRACE printf("TRACE: %s(%d)\n", __FILE__, __LINE__)
 
@@ -112,6 +113,18 @@
 */
 
 #define CIMPROVAGT "cimprovagt"
+
+/*
+**==============================================================================
+**
+** CIMSERVERA
+**
+**     The name of the external PAM authentication program.
+**
+**==============================================================================
+*/
+
+#define CIMSERVERA "cimservera"
 
 /*
 **==============================================================================

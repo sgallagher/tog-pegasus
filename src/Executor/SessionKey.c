@@ -123,7 +123,7 @@ SessionKey NewSessionKey(
     entry = (SessionKeyEntry*)calloc(1, sizeof(SessionKeyEntry));
     entry->key = key;
     entry->uid = uid;
-    entry->authenticated = 1;
+    entry->authenticated = authenticated;
     entry->data = data;
     entry->destructor = destructor;
 

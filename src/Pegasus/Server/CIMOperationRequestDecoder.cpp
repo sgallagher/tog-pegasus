@@ -1362,9 +1362,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
     STAT_BYTESREAD
 
-/*
-MEB: POI: set session key into request message.
-*/
     request->authType = authType;
     request->userName = userName;
     request->ipAddress = ipAddress;

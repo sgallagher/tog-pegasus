@@ -40,10 +40,6 @@ int GetHomedPath(
     const char* name,
     char path[EXECUTOR_BUFFER_SIZE]);
 
-int GetInternalPegasusProgramPath(
-    const char* program,
-    char path[EXECUTOR_BUFFER_SIZE]);
-
 int GetPegasusInternalBinDir(
     char path[EXECUTOR_BUFFER_SIZE]);
 

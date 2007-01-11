@@ -56,7 +56,7 @@
 void Child(
     int argc, 
     char** argv, 
-    char path[EXECUTOR_BUFFER_SIZE],
+    const char* path,
     int uid,
     int gid,
     int sock,
@@ -130,8 +130,8 @@ void Child(
         username, uid, gid);
 
     /*
-     * Precheck that cimxml.socket is owned by cimservermain process. If 
-     * not, then the bind would fail in the cimservermain process much 
+     * Precheck that cimxml.socket is owned by CIMSERVERMAIN process. If 
+     * not, then the bind would fail in the CIMSERVERMAIN process much 
      * later and the cause of the error would be difficult to determine.
      */
 
@@ -144,9 +144,8 @@ void Child(
             (int)st.st_uid != uid || 
             (int)st.st_gid != gid)
         {
-            Fatal(FL, 
-                "cimservermain process cannot stat or does not own %s",
-                PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+            Fatal(FL, "%s process cannot stat or does not own %s",
+                CIMSERVERMAIN, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
         }
     }
 

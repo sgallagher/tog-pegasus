@@ -37,8 +37,6 @@
 #include "Defines.h"
 
 int GetConfigParamFromCommandLine(
-    int argc,
-    char** argv,
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE]);
 
@@ -48,8 +46,6 @@ int GetConfigParamFromFile(
     char value[EXECUTOR_BUFFER_SIZE]);
 
 int GetConfigParam(
-    int argc,
-    char** argv,
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE]);
 

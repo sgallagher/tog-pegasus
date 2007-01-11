@@ -48,7 +48,6 @@
 #include "Globals.h"
 #include "Path.h"
 #include "User.h"
-#include "Bit.h"
 #include "File.h"
 #include "Exit.h"
 #include "Strlcpy.h"
@@ -56,6 +55,7 @@
 #include "Strlcat.h"
 #include "PasswordFile.h"
 #include "Policy.h"
+#include "Macro.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
@@ -73,7 +73,7 @@
 
 static void _sigHandler(int signum)
 {
-    SetBit(&globals.signalMask, signum);
+    globals.signalMask |= (1 << signum);
 }
 
 /*
@@ -253,14 +253,14 @@ static void HandleStartProviderAgentRequest(int sock)
     }
 
     /*
-     * Map cimservermain user to root to preserve pre-privilege-separation
+     * Map CIMSERVERMAIN user to root to preserve pre-privilege-separation
      * behavior.
      */
 
     if (request.uid == globals.childUid)
     {
         Log(LL_TRACE, 
-            "using root instead of cimservermain user for cimprovagt");
+            "using root instead of %s user for %s", CIMSERVERMAIN, CIMPROVAGT);
 
         request.uid = 0;
         request.gid = 0;
@@ -273,12 +273,12 @@ static void HandleStartProviderAgentRequest(int sock)
 
     do
     {
-        /* Resolve full path of "cimprovagt". */
+        /* Resolve full path of CIMPROVAGT. */
 
-        char path[EXECUTOR_BUFFER_SIZE];
+        const char* path;
 
-        if (GetInternalPegasusProgramPath(CIMPROVAGT, path) != 0)
-            Fatal(FL, "Failed to locate Pegasus program: %s", CIMPROVAGT);
+        if ((path = FindMacro("cimprovagtPath")) == NULL)
+            Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
 
         /* Create "to-agent" pipe: */
 
@@ -363,7 +363,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
 # endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
 
-            /* Exec the cimprovagt program. */
+            /* Exec the CIMPROVAGT program. */
 
             sprintf(arg1, "%d", to[0]);
             sprintf(arg2, "%d", from[1]);
@@ -1053,7 +1053,7 @@ void Parent(int sock, int childPid)
      * Ignore SIGPIPE, which occurs if a child with whom the executor shares
      * a local domain socket unexpectedly dies. In such a case, the socket
      * read/write functions will return an error. There are two child processes
-     * the executor talks to over sockets: cimservera and cimservermain.
+     * the executor talks to over sockets: CIMSERVERA and CIMSERVERMAIN.
      */
 
     signal(SIGPIPE, SIG_IGN);

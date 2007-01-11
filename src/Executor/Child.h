@@ -39,7 +39,7 @@
 void Child(
     int argc, 
     char** argv, 
-    char path[EXECUTOR_BUFFER_SIZE],
+    const char* path,
     int uid,
     int gid,
     int sock,

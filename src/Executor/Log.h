@@ -45,7 +45,7 @@ enum LogLevel
     LL_TRACE
 };
 
-void GetLogLevel(int argc, char** argv);
+void GetLogLevel();
 
 void OpenLog(const char* ident, int perror);
 

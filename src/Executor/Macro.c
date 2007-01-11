@@ -155,7 +155,6 @@ int ExpandMacros(const char* input, char output[EXECUTOR_BUFFER_SIZE])
 {
     char buffer[EXECUTOR_BUFFER_SIZE];
     char* p;
-    size_t n = 0;
 
     /* Make copy of input since we'll need to destroy it. */
 
@@ -254,8 +253,7 @@ int DefineConfigPathMacro(const char* configParam, const char* defaultPath)
 
         /* First try to get value from configuration. */
 
-        if (GetConfigParam(
-            globals.argc, globals.argv, configParam, buffer) == 0)
+        if (GetConfigParam(configParam, buffer) == 0)
         {
             if (buffer[0] == '/')
             {

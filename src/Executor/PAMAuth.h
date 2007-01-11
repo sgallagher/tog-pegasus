@@ -52,12 +52,8 @@
 #include <security/pam_appl.h>
 #include "Defines.h"
 
-#define CIMSERVERA "cimservera"
-
 /*
 **==============================================================================
-**
-** cimservera
 **
 **     This program is used to authenticate users with the "Basic PAM 
 **     Authentication" scheme. It was originally written to isolate memory
@@ -120,7 +116,7 @@ static ssize_t CimserveaSend(int sock, void* buffer, size_t size)
 **
 ** CimserveraStart()
 **
-**     Starts the cimservera program, returning a socket used to communicate
+**     Starts the CIMSERVERA program, returning a socket used to communicate
 **     with it.
 **
 **==============================================================================
@@ -131,7 +127,7 @@ static int CimserveraStart(int* sock)
     int pair[2];
     int pid;
 
-    /* Get absolute path of "cimservera" program. */
+    /* Get absolute path of CIMSERVERA program. */
 
     char path[EXECUTOR_BUFFER_SIZE];
 
@@ -414,6 +410,12 @@ static int PAMValidateUserCallback(
     struct pam_response** resp, 
     void* appdata_ptr)
 {
+    /* Unused */
+    msg = 0;
+
+    /* Unused */
+    appdata_ptr = 0;
+
     if (num_msg > 0)
     {
         *resp = (struct pam_response*)calloc(
@@ -438,7 +440,8 @@ static int PAMValidateUserCallback(
 **==============================================================================
 */
 
-static int PAMAuthenticateInProcess(const char* username, const char* password)
+static int PAMAuthenticateInProcess(
+    const char* username, const char* password)
 {
     PAMData data;
     struct pam_conv pconv;

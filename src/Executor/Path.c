@@ -106,7 +106,7 @@ int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
     char buffer[EXECUTOR_BUFFER_SIZE];
     Strlcpy(buffer, PEGASUS_PROVIDER_AGENT_PROC_NAME, sizeof(buffer));
 
-    /* Remove "cimprovagt" suffix. */
+    /* Remove CIMPROVAGT suffix. */
 
     p = strrchr(buffer, '/');
 
@@ -143,29 +143,6 @@ int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
 
     if (!S_ISDIR(st.st_mode))
         return -1;
-
-    return 0;
-}
-
-/*
-**==============================================================================
-**
-** GetInternalPegasusProgramPath()
-**
-**     Get the full path name of the given program.
-**
-**==============================================================================
-*/
-
-int GetInternalPegasusProgramPath(
-    const char* program,
-    char path[EXECUTOR_BUFFER_SIZE])
-{
-    if (GetPegasusInternalBinDir(path) != 0)
-        return -1;
-
-    Strlcat(path, "/", EXECUTOR_BUFFER_SIZE);
-    Strlcat(path, program, EXECUTOR_BUFFER_SIZE);
 
     return 0;
 }

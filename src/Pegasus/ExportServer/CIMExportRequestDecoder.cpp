@@ -566,8 +566,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Reject cimVersion not in 2.0 to 2.3
 
       if ((cimVersion[0] != '2') || (cimVersion[1] != '.') ||
-          ((cimVersion[2] != '0') && (cimVersion[2] != '1') &&
-           (cimVersion[2] != '2') && (cimVersion[2] != '3')))
+          ((cimVersion[2] < '0') || (cimVersion[2] > '3')))
       {
          sendHttpError(
              queueId,

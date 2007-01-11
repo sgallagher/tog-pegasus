@@ -92,15 +92,14 @@ PEGASUS_NAMESPACE_BEGIN
     a policy that identifies which files it may removed (or manipulated by the
     other methods). In order to remove a file, the file must be added to the
     executor policy (located in pegasus/src/Executor/Policy.c).
-
-    <br>
-    There are 
 */
 class PEGASUS_COMMON_LINKAGE Executor
 {
 public:
 
     /** Sets the local socket used to communicate with the executor.
+        Warning: this method must be called before any other method or
+        not at all.
         @sock the socket
     */
     static void setSock(int sock);

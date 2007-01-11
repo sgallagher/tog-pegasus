@@ -124,11 +124,12 @@
 #endif
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-# include <Pegasus/Common/Executor.h>
 # define PEGASUS_PROCESS_NAME "cimservermain"
 #else
 # define PEGASUS_PROCESS_NAME "cimserver"
 #endif
+
+#include <Pegasus/Common/Executor.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -669,8 +670,6 @@ int main(int argc, char** argv)
 
     Executor::setSock(_extractExecutorSockOpt(argc, argv));
 
-#endif /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
-
     // Ping executor to be sure the sock was valid.
 
     if (Executor::ping() != 0)
@@ -680,6 +679,8 @@ int main(int argc, char** argv)
             argv[0]);
         exit(1);
     }
+
+#endif /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 
     String pegasusHome  = String::EMPTY;
     Boolean shutdownOption = false;

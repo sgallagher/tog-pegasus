@@ -1212,6 +1212,8 @@ static ExecutorImpl* _getImpl()
                 _impl = new ExecutorLoopbackImpl();
             else
                 _impl = new ExecutorSocketImpl(_sock);
+#else
+            _impl = new ExecutorLoopbackImpl();
 #endif
         }
 

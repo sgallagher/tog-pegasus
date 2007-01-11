@@ -49,6 +49,7 @@
 #include "Policy.h"
 #include "Macro.h"
 #include "Assert.h"
+#include "Options.h"
 
 /*
 **==============================================================================
@@ -300,54 +301,10 @@ void DefineExecutorMacros()
 /*
 **==============================================================================
 **
-** TestFlagOption()
-**
-**     Check whether argv contains the given option. Return 0 if so. Else
-**     return -1. Remove the argument from the list if the *remove* argument
-**     is non-zero.
-**
-**         if (TestFlagOption(&argc, &argv, "--help", 0) == 0)
-**         {
-**         }
-**
-**==============================================================================
-*/
-
-int TestFlagOption(int* argc_, char*** argv_, const char* option, int remove)
-{
-    int argc = *argc_;
-    char** argv = *argv_;
-    int i;
-
-    for (i = 0; i < argc; i++)
-    {
-        if (strcmp(argv[i], option) == 0)
-        {
-            if (remove)
-            {
-                memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
-                argc--;
-            }
-
-            *argc_ = argc;
-            *argv_ = argv;
-            return 0;
-        }
-    }
-
-    /* Not found */
-    return -1;
-}
-
-/*
-**==============================================================================
-**
 ** main()
 **
 **==============================================================================
 */
-
-void doit();
 
 int main(int argc, char** argv)
 {
@@ -355,10 +312,14 @@ int main(int argc, char** argv)
     int pair[2];
     char username[EXECUTOR_BUFFER_SIZE];
     int childPid;
-    int perror;
     const char* repositoryDir;
+    struct Options options;
 
-    /* Save as global so it can be used in error and log messages. */
+    /* Get options. */
+
+    GetOptions(&argc, &argv, &options);
+
+    /* Save argc-argv as globals. */
 
     globals.argc = argc;
     globals.argv = argv;
@@ -369,24 +330,19 @@ int main(int argc, char** argv)
 
     /* If shuting down, then run CIMSHUTDOWN client. */
 
-    if (TestFlagOption(&argc, &argv, "-s", 0) == 0)
+    if (options.shutdown)
         ExecShutdown();
 
-    /* Check for --dump-policy option. */
+    /* Process --policy and --macros options. */
 
-    if (TestFlagOption(&argc, &argv, "--dump-policy", 0) == 0)
+    if (options.policy || options.macros)
     {
-        DumpPolicy(1);
-        putchar('\n');
-        exit(0);
-    }
+        if (options.policy)
+            DumpPolicy(1);
 
-    /* Check for --dump-macros option. */
+        if (options.macros)
+            DumpMacros();
 
-    if (TestFlagOption(&argc, &argv, "--dump-macros", 0) == 0)
-    {
-        DumpMacros();
-        putchar('\n');
         exit(0);
     }
 
@@ -395,9 +351,12 @@ int main(int argc, char** argv)
     if ((cimservermainPath = FindMacro("cimservermainPath")) == NULL)
         Fatal(FL, "Failed to locate %s program", CIMSERVERMAIN);
 
-    /* If CIMSERVERMAIN is already running, warn and exit now. */
+    /* If CIMSERVERMAIN is already running, warn and exit now, unless one of
+     * the following options are given: -v, --version, -h, --help (these are
+     * passed through to CIMSERVERMAIN).
+     */
 
-    if (TestCimServerProcess() == 0)
+    if (!options.version && !options.help && TestCimServerProcess() == 0)
     {
         fprintf(stderr,
             "%s: cimserver is already running (the PID found in the file "
@@ -430,30 +389,18 @@ int main(int argc, char** argv)
 
     GetLogLevel(argc, argv);
 
-    /* Extract --perror option (directs syslog output to stderr). */
-
-    perror = 0;
-
-    if (TestFlagOption(&argc, &argv, "--perror", 1) == 0)
-        perror = 1;
-
     /* Open the log. */
 
-    OpenLog("cimexecutor", perror);
+    OpenLog("cimexecutor", options.perror);
 
     Log(LL_INFORMATION, "starting");
 
     /* Be sure this process is running as root (otherwise fail). */
 
     if (setuid(0) != 0 || setgid(0) != 0)
-    {
-        Log(LL_FATAL, "attempted to run program as non-root user");
-        fprintf(stderr, 
-            "%s: this program must be run as root\n", globals.argv[0]);
-        exit(0);
-    }
+        Fatal(FL, "attempted to run program as non-root user");
 
-    /* Warn if authentication not enabled (strange use of executor if not). */
+    /* Warn if authentication not enabled (suspicious use of executor). */
 
     if (!globals.enableAuthentication)
         Log(LL_WARNING, "authentication is NOT enabled");

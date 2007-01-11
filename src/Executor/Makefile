@@ -59,7 +59,8 @@ SOURCES = \
     Macro.c \
     Match.c \
     Messages.c \
-    Assert.c
+    Assert.c \
+    Options.c
 
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
     FLAGS += -pedantic -ansi -Werror -Wunused -Wno-unused-function

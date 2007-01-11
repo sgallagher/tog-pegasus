@@ -340,4 +340,6 @@ void DumpPolicy(int expandMacros)
         else
             printf("%s(\"%s\")\n", codeStr, arg1);
     }
+
+    putchar('\n');
 }

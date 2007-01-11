@@ -305,4 +305,6 @@ void DumpMacros()
 
     for (p = _macros; p; p = p->next)
         printf("%s=%s\n", p->name, p->value);
+
+    putchar('\n');
 }

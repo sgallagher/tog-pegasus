@@ -124,12 +124,11 @@
 #endif
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+# include <Pegasus/Common/Executor.h>
 # define PEGASUS_PROCESS_NAME "cimservermain"
 #else
 # define PEGASUS_PROCESS_NAME "cimserver"
 #endif
-
-#include <Pegasus/Common/Executor.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

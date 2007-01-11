@@ -99,7 +99,13 @@ public:
                 CIMName ("destination"));
         if (pos == PEG_NOT_FOUND)
         {
-            String msg = _getMalformedExceptionMsg();
+            MessageLoaderParms param(
+                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."
+                    "MALFORMED_HANDLER_INSTANCE",
+                "Malformed CIM-XML handler instance, "
+                    "\'Destination\' property is not found.");
+
+            String msg = String(MessageLoader::getMessage(param));
 
             PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
 
@@ -121,10 +127,12 @@ public:
         catch (TypeMismatchException& e)
         {
             MessageLoaderParms param(
-                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR",
-                "CIMxmlIndicationHandler Error: ");
+                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."
+                    "DESTINATION_TYPE_MISMATCH",
+                "Malformed CIM-XML handler instance, "
+                    "\'Destination\' property type mismatch.");
 
-            String msg = MessageLoader::getMessage(param) + e.getMessage();
+            String msg = MessageLoader::getMessage(param);
 
             PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
 
@@ -198,7 +206,7 @@ public:
                 }
                 else
                 {
-                    String msg = _getMalformedExceptionMsg();
+                    String msg = _getMalformedExceptionMsg(dest);
 
                     PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg+dest);
                     PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -209,12 +217,12 @@ public:
 
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                        msg + dest);
+                        msg);
                 }
             }
             else
             {
-                String msg = _getMalformedExceptionMsg();
+                String msg = _getMalformedExceptionMsg(dest);
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
 
@@ -225,7 +233,7 @@ public:
                     "in Destination " + dest);
 
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest);
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
             }
 
             String doubleSlash = dest.subString(colon + 1, 2);
@@ -236,7 +244,7 @@ public:
             }
             else
             {
-                String msg = _getMalformedExceptionMsg();
+                String msg = _getMalformedExceptionMsg(dest);
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
 
@@ -247,7 +255,7 @@ public:
                     "in Destination " + dest);
 
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest);
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
             }
 
             bool parseError = false;
@@ -296,7 +304,7 @@ public:
 
             if (parseError)
             {
-                String msg = _getMalformedExceptionMsg();
+                String msg = _getMalformedExceptionMsg(dest);
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
 
@@ -307,7 +315,7 @@ public:
                     "in Destination " + dest);
 
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg + dest);
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
             }
 
 #ifndef PEGASUS_OS_ZOS
@@ -323,20 +331,15 @@ public:
                 exportclient.connect (hostName, portNumber, sslcontext);
 #else
                 MessageLoaderParms param(
-                    "Handler.CIMxmlIndicationHandler."
-                        "CIMxmlIndicationHandler.ERROR",
-                    "CIMxmlIndicationHandler Error: ");
-                MessageLoaderParms param1(
-                    "Handler.CIMxmlIndicationHandler."
-                        "CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION",
-                    "Cannot do https connection.");
+                    "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."
+                        "CANNOT_DO_HTTPS_CONNECTION",
+                    "SSL is not available. "
+                        "Cannot support an HTTPS connection.");
 
                 PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL3,
-                     MessageLoader::getMessage(param) +
-                         MessageLoader::getMessage(param1));
+                    MessageLoader::getMessage(param));
 
-                String msg = MessageLoader::getMessage(param) +
-                    MessageLoader::getMessage(param1);
+                String msg = MessageLoader::getMessage(param);
 
                 PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "CIMxmlIndicationHandler::handleIndication failed to "
@@ -379,11 +382,7 @@ public:
         {
             //ATTN: Catch specific exceptions and log the error message
             // as Indication delivery failed.
-            MessageLoaderParms param(
-                "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR",
-                "CIMxmlIndicationHandler Error: ");
-
-            String msg = MessageLoader::getMessage(param) + e.getMessage();
+            String msg = e.getMessage();
 
             PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
@@ -397,19 +396,16 @@ public:
     }
 
 private:
-    String _getMalformedExceptionMsg()
+    String _getMalformedExceptionMsg(
+        String destinationValue)
     {
         MessageLoaderParms param(
-            "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR",
-            "CIMxmlIndicationHandler Error: ");
-
-        MessageLoaderParms param1(
-            "Handler.CIMxmlIndicationHandler."
-                "CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE",
-            "Malformed handler instance.");
-
-        return MessageLoader::getMessage(param) +
-            MessageLoader::getMessage(param1);
+            "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."
+                "DESTINATION_NOT_VALID",
+            "Malformed CIM-XML handler instance, "
+                "\'Destination\' property \"$0\" is not valid.",
+                destinationValue);
+        return (String(MessageLoader::getMessage(param)));
     }
 
 };

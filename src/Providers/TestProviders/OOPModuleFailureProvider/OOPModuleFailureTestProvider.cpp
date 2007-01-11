@@ -336,7 +336,7 @@ void OOPModuleFailureTestProvider::deleteSubscription (
     }
 
     //
-    //  If I am the OOPModuleDeleteFailureTestProvider, and there are
+    //  If I am the OOPModuleDelete2FailureTestProvider, and there are
     //  remaining subscriptions, fail (i.e. exit)
     //
     else if (String::equalNoCase (_providerName,

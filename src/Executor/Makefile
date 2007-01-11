@@ -57,7 +57,8 @@ SOURCES = \
     PasswordFile.c \
     Policy.c \
     Macro.c \
-    Match.c
+    Match.c \
+    Messages.c
 
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
     FLAGS += -pedantic -ansi -Werror

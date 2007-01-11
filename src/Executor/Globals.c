@@ -35,16 +35,12 @@
 
 struct Globals globals =
 {
-    NULL, /* arg0 */
+    0, /* argc */
+    0, /* argv */
     0, /* childPid */
     0, /* childUid */
     0, /* childGid */
     0, /* signalMask */
     0, /* enableAuthentication */
-    { '\0' }, /* passwordFilePath */
-    { '\0' }, /* traceFilePath */
-    { '\0' }, /* sslKeyFilePath */
-    { '\0' }, /* sslTrustStore */
-    { '\0' }, /* crlStore */
 };
 

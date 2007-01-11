@@ -40,4 +40,8 @@ int DefineMacro(const char* name, const char* value);
 
 int ExpandMacros(const char* input, char output[EXECUTOR_BUFFER_SIZE]);
 
+int DefineConfigPathMacro(const char* configParam, const char* defaultPath);
+
+void DumpMacros();
+
 #endif /* _Executor_Macro_h */

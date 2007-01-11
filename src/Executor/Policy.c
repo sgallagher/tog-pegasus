@@ -75,82 +75,82 @@ static struct Policy _policyTable[] =
     /* cimserver_current.conf policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${CIMSERVER_CURRENT_CONF}",
+        "${currentConfigFilePath}",
         "w"
     },
     { 
         EXECUTOR_RENAME_FILE_MESSAGE,
-        "${CIMSERVER_CURRENT_CONF}",
-        "${CIMSERVER_CURRENT_CONF_BAK}",
+        "${currentConfigFilePath}",
+        "${currentConfigFilePath}.bak",
     },
     { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${CIMSERVER_CURRENT_CONF}",
+        "${currentConfigFilePath}",
         NULL,
     },
     { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${CIMSERVER_CURRENT_CONF_BAK}",
+        "${currentConfigFilePath}.bak",
         NULL,
     },
     /* cimserver.passwd policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${CIMSERVER_PASSWD}",
+        "${passwordFilePath}",
         "w"
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
-        "${CIMSERVER_PASSWD_BAK}",
-        "${CIMSERVER_PASSWD}",
+        "${passwordFilePath}.bak",
+        "${passwordFilePath}",
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
-        "${CIMSERVER_PASSWD}",
-        "${CIMSERVER_PASSWD_BAK}",
+        "${passwordFilePath}",
+        "${passwordFilePath}.bak",
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${CIMSERVER_PASSWD_BAK}",
+        "${passwordFilePath}.bak",
         NULL,
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${CIMSERVER_PASSWD}",
+        "${passwordFilePath}",
         NULL,
     },
     /* cimserver.trc policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${TRACE_FILE_PATH}/cimserver.trc*",
+        "${traceFilePath}/cimserver.trc*",
         "a",
     },
     /* SSL key file policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${SSL_KEY_FILE_PATH}",
+        "${sslKeyFilePath}",
         "r",
     },
     /* SSL trust store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${SSL_TRUST_STORE}/*",
+        "${sslTrustStore}/*",
         "w",
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${SSL_TRUST_STORE}/*",
+        "${sslTrustStore}/*",
         NULL,
     },
     /* CRL store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
-        "${CRL_STORE}/*",
+        "${crlStore}/*",
         "w",
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
-        "${CRL_STORE}/*",
+        "${crlStore}/*",
         NULL,
     },
 };
@@ -300,71 +300,44 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 /*
 **==============================================================================
 **
-** DefinePolicyMacros()
+** DumpStaticPolicy()
 **
-**     Define macros used by the policies.
+**     Dump the static policy to standard output.
 **
 **==============================================================================
 */
 
-void DefinePolicyMacros()
+void DumpPolicy(int expandMacros)
 {
-    /* Define ${CIMSERVER_CURRENT_CONF} */
+    size_t i;
 
+    printf("===== Policy:\n");
+
+    for (i = 0; i < _policyTableSize; i++)
     {
-        char path[EXECUTOR_BUFFER_SIZE];
+        const struct Policy* p = &_policyTable[i];
+        const char* codeStr = MessageCodeToString(p->messageCode);
+        char arg1[EXECUTOR_BUFFER_SIZE];
+        char arg2[EXECUTOR_BUFFER_SIZE];
 
-        if (GetHomedPath(PEGASUS_CURRENT_CONFIG_FILE_PATH, path) != 0)
+        if (expandMacros)
         {
-            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
-                PEGASUS_CURRENT_CONFIG_FILE_PATH);
+            ExpandMacros(p->arg1, arg1);
+
+            if (p->arg2)
+                ExpandMacros(p->arg2, arg2);
+        }
+        else
+        {
+            Strlcpy(arg1, p->arg1, sizeof(arg1));
+
+            if (p->arg2)
+                Strlcpy(arg2, p->arg2, sizeof(arg2));
         }
 
-        DefineMacro("CIMSERVER_CURRENT_CONF", path);
+        if (p->arg2)
+            printf("%s(\"%s\", \"%s\")\n", codeStr, arg1, arg2);
+        else
+            printf("%s(\"%s\")\n", codeStr, arg1);
     }
-
-    /* Define ${CIMSERVER_CURRENT_CONF_BAK} */
-
-    {
-        char path[EXECUTOR_BUFFER_SIZE];
-
-        if (GetHomedPath(PEGASUS_CURRENT_CONFIG_FILE_PATH, path) != 0)
-        {
-            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
-                PEGASUS_CURRENT_CONFIG_FILE_PATH);
-        }
-
-        Strlcat(path, ".bak", sizeof(path));
-        DefineMacro("CIMSERVER_CURRENT_CONF_BAK", path);
-    }
-
-    /* Define ${CIMSERVER_PASSWD} */
-
-    DefineMacro("CIMSERVER_PASSWD", globals.passwordFilePath);
-
-    /* Define ${CIMSERVER_PASSWD_BAK} */
-
-    {
-        char path[EXECUTOR_BUFFER_SIZE];
-        Strlcpy(path, globals.passwordFilePath, sizeof(path));
-        Strlcat(path, ".bak", sizeof(path));
-
-        DefineMacro("CIMSERVER_PASSWD_BAK", path);
-    }
-
-    /* Define ${TRACE_FILE_PATH} */
-
-    DefineMacro("TRACE_FILE_PATH", globals.traceFilePath);
-
-    /* Define ${SSL_KEY_FILE_PATH} */
-
-    DefineMacro("SSL_KEY_FILE_PATH", globals.sslKeyFilePath);
-
-    /* Define ${SSL_TRUST_STORE} */
-
-    DefineMacro("SSL_TRUST_STORE", globals.sslTrustStore);
-
-    /* Define ${SSL_TRUST_STORE} */
-
-    DefineMacro("CRL_STORE", globals.crlStore);
 }

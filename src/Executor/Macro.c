@@ -37,6 +37,9 @@
 #include "Strlcpy.h"
 #include "Strlcat.h"
 #include "Log.h"
+#include "Config.h"
+#include "Globals.h"
+#include "Path.h"
 #include <assert.h>
 
 /*
@@ -118,10 +121,22 @@ int DefineMacro(const char* name, const char* value)
     macro->name = strdup(name);
     macro->value = strdup(value);
 
-    /* Add to front of list. */
+    /* Add to end of list. */
 
-    macro->next = _macros;
-    _macros = macro;
+    {
+        struct Macro* p;
+        struct Macro* prev = NULL;
+
+        for (p = _macros; p; p = p->next)
+            prev = p;
+
+        if (prev)
+            prev->next = macro;
+        else
+            _macros = macro;
+
+        macro->next = NULL;
+    }
 
     return 0;
 }
@@ -212,4 +227,84 @@ int ExpandMacros(const char* input, char output[EXECUTOR_BUFFER_SIZE])
     }
 
     return 0;
+}
+
+/*
+**==============================================================================
+**
+** DefineConfigPathMacro()
+**
+**     Define a new path macro whose value is taken from the given 
+**     configuration parameter. If no such configuration parameter is defined, 
+**     use the defaultPath.
+**
+**==============================================================================
+*/
+
+int DefineConfigPathMacro(const char* configParam, const char* defaultPath)
+{
+    char path[EXECUTOR_BUFFER_SIZE];
+    int status;
+
+    status = 0;
+
+    do
+    {
+        char buffer[EXECUTOR_BUFFER_SIZE];
+
+        /* First try to get value from configuration. */
+
+        if (GetConfigParam(
+            globals.argc, globals.argv, configParam, buffer) == 0)
+        {
+            if (buffer[0] == '/')
+            {
+                Strlcpy(path, buffer, sizeof(path));
+                break;
+            }
+            else if (GetHomedPath(buffer, buffer) == 0)
+            {
+                Strlcpy(path, buffer, sizeof(path));
+                break;
+            }
+        }
+
+        /* Just use the default value. */
+
+        if (GetHomedPath(defaultPath, buffer) == 0)
+        {
+            Strlcpy(path, buffer, sizeof(path));
+            break;
+        }
+
+        /* Failed. */
+
+        status = -1;
+    }
+    while (0);
+
+    if (status == 0)
+        DefineMacro(configParam, path);
+
+    return status;
+}
+
+/*
+**==============================================================================
+**
+** DumpMacros()
+**
+**     Dump all macros to standard output.
+**
+**==============================================================================
+*/
+
+void DumpMacros()
+{
+    const struct Macro* p;
+
+    printf("===== Macros:\n");
+
+    for (p = _macros; p; p = p->next)
+        printf("%s=%s\n", p->name, p->value);
 }

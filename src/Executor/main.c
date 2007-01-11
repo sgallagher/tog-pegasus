@@ -47,6 +47,7 @@
 #include "Strlcpy.h"
 #include "Log.h"
 #include "Policy.h"
+#include "Macro.h"
 
 /*
 **==============================================================================
@@ -165,6 +166,144 @@ void ExecShutdown(int argc, char** argv)
 /*
 **==============================================================================
 **
+** DefineExecutorMacros()
+**
+**     Define macros used by the executor.
+**
+**==============================================================================
+*/
+
+void DefineExecutorMacros()
+{
+    /* Define ${internalBinDir} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (GetPegasusInternalBinDir(path) != 0)
+            Fatal(FL, "failed to resolve internal pegasus bin directory");
+
+        DefineMacro("internalBinDir", path);
+    }
+
+    /* Define ${cimservermainPath} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (ExpandMacros("${internalBinDir}/cimservermain", path) != 0)
+            Fatal(FL, "failed to resolve cimserver main path");
+
+        DefineMacro("cimservermainPath", path);
+    }
+
+    /* Define ${cimprovagtPath} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (ExpandMacros("${internalBinDir}/cimprovagt", path) != 0)
+            Fatal(FL, "failed to resolve cimserver main path");
+
+        DefineMacro("cimprovagtPath", path);
+    }
+
+    /* Define ${cimserveraPath} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (ExpandMacros("${internalBinDir}/cimservera", path) != 0)
+            Fatal(FL, "failed to resolve cimserver main path");
+
+        DefineMacro("cimserveraPath", path);
+    }
+
+    /* Define ${currentConfigFilePath} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (GetHomedPath(PEGASUS_CURRENT_CONFIG_FILE_PATH, path) != 0)
+        {
+            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
+                PEGASUS_CURRENT_CONFIG_FILE_PATH);
+        }
+
+        DefineMacro("currentConfigFilePath", path);
+    }
+
+    /* Define ${repositoryDir} */
+
+    if (DefineConfigPathMacro("repositoryDir", PEGASUS_REPOSITORY_DIR) != 0)
+        Fatal(FL, "missing \"repositoryDir\" configuration parameter.");
+
+    /* Define ${passwordFilePath} */
+
+    if (DefineConfigPathMacro("passwordFilePath", "cimserver.passwd") != 0)
+        Fatal(FL, "missing \"passwordFilePath\" configuration parameter.");
+
+    /* Define ${traceFilePath} */
+
+    if (DefineConfigPathMacro("traceFilePath", NULL) != 0)
+        Fatal(FL, "missing \"traceFilePath\" configuration parameter.");
+
+    /* Define ${sslKeyFilePath} */
+
+    if (DefineConfigPathMacro("sslKeyFilePath", "file.pem") != 0)
+        Fatal(FL, "missing \"sslKeyFilePath\" configuration parameter.");
+
+    /* Define ${sslTrustStore} */
+
+    if (DefineConfigPathMacro("sslTrustStore", "cimserver_trust") != 0)
+        Fatal(FL, "missing \"sslTrustStore\" configuration parameter.");
+
+    /* Define ${crlStore} */
+
+    if (DefineConfigPathMacro("crlStore", "crl") != 0)
+        Fatal(FL, "missing \"crlStore\" configuration parameter.");
+}
+
+/*
+**==============================================================================
+**
+** TestFlagOption()
+**
+**     Check whether argv contains the given option. Return 0 if so. Else
+**     return -1. Remove the argument from the list if the *remove* argument
+**     is non-zero.
+**
+**         if (TestFlagOption(&argc, &argv, "--help", 0) == 0)
+**         {
+**         }
+**
+**==============================================================================
+*/
+
+int TestFlagOption(int* argc_, char*** argv_, const char* option, int remove)
+{
+    int argc = *argc_;
+    char** argv = *argv_;
+    int i;
+
+    for (i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], option) == 0)
+        {
+            if (remove)
+            {
+                memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
+                argc--;
+            }
+
+            *argc_ = argc;
+            *argv_ = argv;
+            return 0;
+        }
+    }
+
+    /* Not found */
+    return -1;
+}
+
+/*
+**==============================================================================
+**
 ** main()
 **
 **==============================================================================
@@ -181,17 +320,38 @@ int main(int argc, char** argv)
     int childPid;
     int perror;
     long shutdownTimeout;
+    const char* repositoryDir;
 
     /* Save as global so it can be used in error and log messages. */
 
-    globals.arg0 = argv[0];
+    globals.argc = argc;
+    globals.argv = argv;
 
     /* If shuting down, then run "cimshutdown" client. */
 
-    for (i = 0; i < argc; i++)
+    if (TestFlagOption(&argc, &argv, "-s", 0) == 0)
+        ExecShutdown(argc, argv);
+
+    /* Define macros needed by the executor. */
+
+    DefineExecutorMacros();
+
+    /* Check for --dump-policy option. */
+
+    if (TestFlagOption(&argc, &argv, "--dump-policy", 0) == 0)
     {
-        if (strcmp(argv[i], "-s") == 0)
-            ExecShutdown(argc, argv);
+        DumpPolicy(1);
+        putchar('\n');
+        exit(0);
+    }
+
+    /* Check for --dump-macros option. */
+
+    if (TestFlagOption(&argc, &argv, "--dump-macros", 0) == 0)
+    {
+        DumpMacros();
+        putchar('\n');
+        exit(0);
     }
 
     /* Get absolute cimservermain program name. */
@@ -206,7 +366,7 @@ int main(int argc, char** argv)
         fprintf(stderr,
             "%s: cimserver is already running (the PID found in the file "
             "\"%s\" corresponds to an existing process named \"%s\").\n\n",
-            globals.arg0, PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);
+            globals.argv[0], PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);
 
         exit(1);
     }
@@ -223,35 +383,6 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Locate password file. */
-
-    if (LocatePasswordFile(argc, argv, globals.passwordFilePath) != 0)
-        Fatal(FL, "Failed to locate password file");
-
-    /* Locate key file. */
-
-    if (LocateKeyFile(argc, argv, globals.sslKeyFilePath) != 0)
-        Fatal(FL, "Failed to locate key file");
-
-    /* Locate the path of directory to contain trace files. */
-
-    if (LocateTraceFilePath(argc, argv, globals.traceFilePath) != 0)
-        Fatal(FL, "Failed to locate trace file path");
-
-    /* Locate the sslTrustStore. */
-
-    if (LocateSslTrustStore(argc, argv, globals.sslTrustStore) != 0)
-        Fatal(FL, "Failed to locate SSL trust store");
-
-    /* Locate the crlStore . */
-
-    if (LocateCrlStore(argc, argv, globals.crlStore) != 0)
-        Fatal(FL, "Failed to locate crl store");
-
-    /* Define macros needed by policy facility. */
-
-    DefinePolicyMacros();
-
     /* Create a socket pair for communicating with the child process. */
 
     if (CreateSocketPair(pair) != 0)
@@ -263,20 +394,12 @@ int main(int argc, char** argv)
 
     GetLogLevel(argc, argv);
 
-    /* Extract -p (perror) option. */
+    /* Extract --perror option (directs syslog output to stderr). */
 
     perror = 0;
 
-    for (i = 0; i < argc; i++)
-    {
-        if (strcmp(argv[i], "-p") == 0)
-        {
-            perror = 1;
-            memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
-            argc--;
-            break;
-        }
-    }
+    if (TestFlagOption(&argc, &argv, "--perror", 1) == 0)
+        perror = 1;
 
     /* Open the log. */
 
@@ -289,7 +412,8 @@ int main(int argc, char** argv)
     if (setuid(0) != 0 || setgid(0) != 0)
     {
         Log(LL_FATAL, "attempted to run program as non-root user");
-        fprintf(stderr, "%s: this program must be run as root\n", globals.arg0);
+        fprintf(stderr, 
+            "%s: this program must be run as root\n", globals.argv[0]);
         exit(0);
     }
 
@@ -312,6 +436,11 @@ int main(int argc, char** argv)
 
     GetServerUser(&globals.childUid, &globals.childGid);
 
+    /* Get repositoryDir for child. */
+
+    if ((repositoryDir = FindMacro("repositoryDir")) == NULL)
+        Fatal(FL, "failed to find repositoryDir macro");
+
     /* Fork child process. */
 
     childPid = fork();
@@ -320,8 +449,8 @@ int main(int argc, char** argv)
     {
         /* Child. */
         close(pair[1]);
-        Child(argc, argv, 
-            cimservermainPath, globals.childUid, globals.childGid, pair[0]);
+        Child(argc, argv, cimservermainPath, globals.childUid, 
+            globals.childGid, pair[0], repositoryDir);
     }
     else if (childPid > 0)
     {

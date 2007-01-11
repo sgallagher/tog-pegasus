@@ -59,10 +59,10 @@ void Child(
     char path[EXECUTOR_BUFFER_SIZE],
     int uid,
     int gid,
-    int sock)
+    int sock,
+    const char* repositoryDir)
 {
     char sockStr[EXECUTOR_BUFFER_SIZE];
-    char repositoryDir[EXECUTOR_BUFFER_SIZE];
     char username[EXECUTOR_BUFFER_SIZE];
     char** execArgv;
 
@@ -76,11 +76,6 @@ void Child(
     execArgv[0] = CIMSERVERMAIN;
     execArgv[1] = "-x";
     execArgv[2] = strdup(sockStr);
-
-    /* Locate repository directory. */
-
-    if (LocateRepositoryDirectory(argc, argv, repositoryDir) != 0)
-        Fatal(FL, "failed to locate repository directory");
 
     /* Check whether repository directory exists. */
 

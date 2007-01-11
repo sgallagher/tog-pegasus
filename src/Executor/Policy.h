@@ -34,12 +34,12 @@
 #ifndef _Executor_Policy_h
 #define _Executor_Policy_h
 
-void DefinePolicyMacros();
-
 int CheckOpenFilePolicy(const char* path, int mode);
 
 int CheckRemoveFilePolicy(const char* path);
 
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath);
+
+void DumpPolicy(int expandMacros);
 
 #endif /* _Executor_Policy_h */

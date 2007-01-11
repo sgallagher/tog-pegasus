@@ -67,7 +67,7 @@ void Fatal(const char* file, size_t line, const char* format, ...)
     {
         va_list ap;
 
-        fprintf(stderr, "%s: %s(%d): ", globals.arg0, file, (int)line);
+        fprintf(stderr, "%s: %s(%d): ", globals.argv[0], file, (int)line);
         va_start(ap, format);
         /* Flawfinder: ignore */
         vfprintf(stderr, format, ap);

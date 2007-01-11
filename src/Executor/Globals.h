@@ -48,8 +48,11 @@
 
 struct Globals
 {
-    /* Same as argv[0] passed to main(). */
-    const char* arg0;
+    /* Same as argc passed to main(). */
+    int argc;
+
+    /* Same as argv passed to main(). */
+    char** argv;
 
     /* PID of child process (cimservermain). */
     int childPid;
@@ -67,27 +70,6 @@ struct Globals
      * passed to the command line or found in the planned configuration file.
      */
     int enableAuthentication;
-
-    /* The path of the basic password file (cimserver.passwd). Only applicable
-     * when using "secure basic" authentication.
-     */
-    char passwordFilePath[EXECUTOR_BUFFER_SIZE];
-
-    /* The path of the directory containing trace files.
-     */
-    char traceFilePath[EXECUTOR_BUFFER_SIZE];
-
-    /* The path of the key file.
-     */
-    char sslKeyFilePath[EXECUTOR_BUFFER_SIZE];
-
-    /* The path of the SSL trust store.
-     */
-    char sslTrustStore[EXECUTOR_BUFFER_SIZE];
-
-    /* The path of the CRL store.
-     */
-    char crlStore[EXECUTOR_BUFFER_SIZE];
 };
 
 extern struct Globals globals;

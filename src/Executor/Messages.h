@@ -326,4 +326,14 @@ struct ExecutorDeleteSessionKeyResponse
     int status;
 };
 
+/*
+**==============================================================================
+**
+** MessageCodeToString()
+**
+**==============================================================================
+*/
+
+const char* MessageCodeToString(enum ExecutorMessageCode code);
+
 #endif /* _Executor_Messages_h */

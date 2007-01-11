@@ -42,6 +42,7 @@ void Child(
     char path[EXECUTOR_BUFFER_SIZE],
     int uid,
     int gid,
-    int sock);
+    int sock,
+    const char* repositoryDir);
 
 #endif /* _Executor_Child_h */

@@ -579,7 +579,7 @@ StringRep* StringRep::create(const char* data, size_t size)
     if (rep->size == size_t(-1))
     {
         StringRep::free(rep);
-        _StringThrowBadUTF8(utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index);
     }
 
     rep->data[rep->size] = '\0';
@@ -596,7 +596,7 @@ Uint32 StringRep::length(const Uint16* str)
     while (*end++)
         ;
 
-    return end - str - 1;
+    return (Uint32)(end - str - 1);
 }
 
 //==============================================================================
@@ -669,7 +669,7 @@ String::String(const String& s1, const char* s2)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8(utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index);
     }
 
     _rep->size = n1 + tmp;
@@ -689,7 +689,7 @@ String::String(const char* s1, const String& s2)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8(utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index);
     }
 
     _rep->size = n2 + tmp;
@@ -742,7 +742,7 @@ String& String::assign(const char* str, Uint32 n)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8(utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index);
     }
 
     _rep->data[_rep->size] = 0;
@@ -788,7 +788,7 @@ CString String::getCString() const
     str[_rep->size] = '\0';
     return CString(str);
 #else
-    Uint32 n = 3 * _rep->size;
+    Uint32 n = (Uint32)(3 * _rep->size);
     char* str = (char*)operator new(n + 1);
     size_t size = _copyToUTF8(str, _rep->data, _rep->size);
     str[size] = '\0';
@@ -802,7 +802,7 @@ String& String::append(const Char16* str, Uint32 n)
 
     size_t oldSize = _rep->size;
     size_t newSize = oldSize + n;
-    _reserve(_rep, newSize);
+    _reserve(_rep, (Uint32)newSize);
     _copy(_rep->data + oldSize, (Uint16*)str, n);
     _rep->size = newSize;
     _rep->data[newSize] = '\0';
@@ -812,7 +812,7 @@ String& String::append(const Char16* str, Uint32 n)
 
 String& String::append(const String& str)
 {
-    return append((Char16*)(&(str._rep->data[0])), str._rep->size);
+    return append((Char16*)(&(str._rep->data[0])), (Uint32)str._rep->size);
 }
 
 String& String::append(const char* str, Uint32 size)
@@ -822,7 +822,7 @@ String& String::append(const char* str, Uint32 size)
     size_t oldSize = _rep->size;
     size_t cap = oldSize + size;
 
-    _reserve(_rep, cap);
+    _reserve(_rep, (Uint32)cap);
     size_t utf8_error_index;
     size_t tmp = _convert(
         (Uint16*)_rep->data + oldSize, str, size, utf8_error_index);
@@ -831,7 +831,7 @@ String& String::append(const char* str, Uint32 size)
     {
         StringRep::free(_rep);
         _rep = &StringRep::_emptyRep;
-        _StringThrowBadUTF8(utf8_error_index);
+        _StringThrowBadUTF8((Uint32)utf8_error_index);
     }
 
     _rep->size += tmp;
@@ -843,7 +843,7 @@ String& String::append(const char* str, Uint32 size)
 void String::remove(Uint32 index, Uint32 n)
 {
     if (n == PEG_NOT_FOUND)
-        n = _rep->size - index;
+        n = (Uint32)(_rep->size - index);
 
     _checkBounds(index + n, _rep->size);
 
@@ -870,7 +870,7 @@ String String::subString(Uint32 index, Uint32 n) const
     if (index < _rep->size)
     {
         if (n == PEG_NOT_FOUND || n > _rep->size - index)
-            n = _rep->size - index;
+            n = (Uint32)(_rep->size - index);
 
         return String((Char16*)(_rep->data + index), n);
     }

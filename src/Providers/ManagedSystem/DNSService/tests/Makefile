@@ -72,7 +72,7 @@ XMLCOVSCRIPTS = \
 	PG_DNS_EnumInst \
 	PG_DNS_EnumInstNames
 else
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 XMLSCRIPTS =
 XMLCOVSCRIPTS =
 else

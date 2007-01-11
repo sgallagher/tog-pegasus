@@ -137,7 +137,7 @@ int main (int argc, char * argv [])
         sprintf (buffer, "%s", "Good-bye");
         responseBuffer.append (buffer, strlen (buffer));
         AnonymousPipe::Status writeBufferStatus;
-        bufferLength = responseBuffer.size ();
+        bufferLength = (Uint32)responseBuffer.size ();
 
         writeBufferStatus = pipeToParent->writeBuffer
             ((const char *) &bufferLength, sizeof (Uint32));

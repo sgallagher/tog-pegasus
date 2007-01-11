@@ -37,7 +37,7 @@
 #include "TSDKey.h"
 #include "Once.h"
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <sys/timeb.h>
 #endif
 
@@ -68,7 +68,7 @@ void Threads::sleep(int msec)
            usleep(microsecs - (loop*1000000));
    }
 
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#elif defined(PEGASUS_OS_TYPE_WINDOWS)
 
     if (msec == 0)
     {

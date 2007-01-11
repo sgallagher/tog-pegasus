@@ -97,7 +97,7 @@ PEGASUS_STRING_INLINE String::~String()
 
 PEGASUS_STRING_INLINE Uint32 String::size() const
 {
-    return _rep->size;
+    return (Uint32)_rep->size;
 }
 
 PEGASUS_STRING_INLINE const Char16* String::getChar16Data() const
@@ -140,12 +140,13 @@ PEGASUS_STRING_INLINE String& String::assign(const Char16* str)
 
 PEGASUS_STRING_INLINE String& String::assign(const char* str)
 {
-    return assign(str, strlen(str));
+    return assign(str, (Uint32)strlen(str));
 }
 
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 {
-    return StringFindAux(_rep, (Char16*)&(s._rep->data[0]), s._rep->size);
+    return StringFindAux(_rep, (Char16*)&(s._rep->data[0]),
+        (Uint32)s._rep->size);
 }
 
 PEGASUS_STRING_INLINE String& String::append(const Char16& c)
@@ -171,7 +172,7 @@ PEGASUS_STRING_INLINE Boolean String::equalNoCase(
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 PEGASUS_STRING_INLINE String& String::append(const char* str)
 {
-    append(str, strlen(str));
+    append(str, (Uint32)strlen(str));
     return *this;
 }
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */

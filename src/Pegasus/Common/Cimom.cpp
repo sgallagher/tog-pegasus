@@ -850,7 +850,7 @@ Boolean cimom::moduleChange(struct timeval last)
 
 Uint32 cimom::getModuleCount()
 {
-    return _modules.size();
+    return (Uint32)_modules.size();
 }
 
 Uint32 cimom::getModuleIDs(Uint32* ids, Uint32 count)
@@ -877,7 +877,7 @@ Uint32 cimom::getModuleIDs(Uint32* ids, Uint32 count)
         count--;
     }
 
-    return _modules.size();
+    return (Uint32)_modules.size();
 }
 
 AsyncOpNode* cimom::get_cached_op()

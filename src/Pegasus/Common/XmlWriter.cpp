@@ -2714,7 +2714,7 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size());
+        (Uint32)out.size());
     tmp << out;
 
     return tmp;
@@ -2787,7 +2787,7 @@ Buffer XmlWriter::formatSimpleMethodErrorRspMessage(
         tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        out.size());
+        (Uint32)out.size());
     tmp << out;
 
     return tmp;
@@ -2831,7 +2831,7 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size());
+        (Uint32)out.size());
     tmp << out;
 
     return tmp;
@@ -2919,7 +2919,7 @@ Buffer XmlWriter::formatSimpleIMethodErrorRspMessage(
     appendMethodResponseHeader(tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        out.size());
+        (Uint32)out.size());
     tmp << out;
 
     return tmp;
@@ -3212,7 +3212,7 @@ Buffer XmlWriter::formatSimpleEMethodReqMessage(
         authenticationHeader,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size());
+        (Uint32)out.size());
     tmp << out;
 
     return tmp;
@@ -3245,7 +3245,7 @@ Buffer XmlWriter::formatSimpleEMethodRspMessage(
     appendEMethodResponseHeader(tmp,
         httpMethod,
         httpContentLanguages,
-        out.size());
+        (Uint32)out.size());
     tmp << out;
 
     return tmp;
@@ -3278,7 +3278,7 @@ Buffer XmlWriter::formatSimpleEMethodErrorRspMessage(
         tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        out.size());
+        (Uint32)out.size());
     tmp << out;
 
     return tmp;

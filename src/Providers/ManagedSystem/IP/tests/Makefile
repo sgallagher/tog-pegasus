@@ -94,7 +94,7 @@ XMLCOVSCRIPTS = \
   c01_ei_IPPEp \
   c01_ei_IPR
 else
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 XMLSCRIPTS = \
   f01_ci_BIPTLEp \
   f02_di_BIPTLEp \

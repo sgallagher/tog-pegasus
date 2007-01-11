@@ -109,7 +109,7 @@ SOURCES = cimserver.cpp
 
 include $(ROOT)/mak/program.mak
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
   SYS_LIBS = ws2_32.lib advapi32.lib	
 endif
 
@@ -238,18 +238,18 @@ $(PEGASUS_HOME)/setupserverdev: cert.pem file.pem cimserver.rnd ssl.rnd ssl.cnf
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageServerSSLFiles-SystemIndependent
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageClientSSLFiles-SystemIndependent
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageCIMServerConfigurationFiles
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 	-@$(PEGASUS_HOME)/bin/cimserver -install
 endif
 	@$(TOUCH) $(PEGASUS_HOME)/setupserverdev
 
 uninstall:
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 	$(PEGASUS_HOME)/bin/cimserver -remove
 endif
 
 run: install_run
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 	cimserver -start
 else
 	cimserver

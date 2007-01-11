@@ -67,7 +67,9 @@
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define lloonngg __int64
 #else
 #define lloonngg long long int

@@ -36,6 +36,10 @@
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include <Pegasus/Common/Platform_WIN32_IX86_MSVC.h>
+#elif defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC)
+# include <Pegasus/Common/Platform_WIN64_IA64_MSVC.h>
+#elif defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC)
+# include <Pegasus/Common/Platform_WIN64_X86_64_MSVC.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include <Pegasus/Common/Platform_LINUX_IX86_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)

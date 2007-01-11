@@ -37,7 +37,9 @@
 
 
 #include <sys/types.h>
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if !(defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC))
 # include <unistd.h>
 #endif
 #include <iostream>

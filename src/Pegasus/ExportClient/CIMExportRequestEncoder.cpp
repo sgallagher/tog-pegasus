@@ -122,7 +122,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
        TRC_XML_IO,
        Tracer::LEVEL2,
        httpMessage->message.getData(),
-       httpMessage->message.size());
+       (Uint32)httpMessage->message.size());
 
    _outputQueue->enqueue(httpMessage);
    PEG_METHOD_EXIT();

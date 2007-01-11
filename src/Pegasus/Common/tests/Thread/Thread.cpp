@@ -40,7 +40,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/ReadWriteSem.h>
 #include <sys/types.h>
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 #else
 #include <unistd.h>
 #endif 

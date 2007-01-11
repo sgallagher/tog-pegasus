@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.11 2006/07/21 18:33:38 a.dunfey Exp $
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.12 2007/01/11 16:22:08 a.dunfey Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -623,7 +623,7 @@ extern "C" {
     int  _convergence;
     void *_crypto_context;
     SOCKETD _rcv_sock;    //jeb
-#ifdef _WIN32
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
     int _winsock_count ;
     WSADATA _wsa_data;
 #endif
@@ -760,7 +760,8 @@ void free_url_entry_members(struct url_entry *url);
 void free_url_node(struct url_entry *node);
 void free_url_list(struct url_entry *list);
 char *slp_get_host_name( char *buf, int buf_size  );
-#if defined( _WIN32 ) || defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( _NUCLEUS )
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || \
+    defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( _NUCLEUS )
  int gethostbyname_r(const char *name,
 		      struct hostent *resultbuf,
 		      char *buf,

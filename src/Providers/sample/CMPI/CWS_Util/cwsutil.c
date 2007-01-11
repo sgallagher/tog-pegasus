@@ -47,7 +47,9 @@ typedef struct {
 
 #include "cwssimdata.c"
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 char * dirname(char *path) {
 	char drive[_MAX_DRIVE];
 	char *dir = (char *)malloc(_MAX_DIR*sizeof(char));

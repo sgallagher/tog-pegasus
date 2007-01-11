@@ -335,14 +335,14 @@ String System::getEffectiveUserName()
     if (wcscmp(computerName, userDomain) != 0)
     {
         //userId.append(userDomain);
-        Uint32 n = wcslen(userDomain);
+        Uint32 n = (Uint32)wcslen(userDomain);
         for (unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userDomain[i]));
         }
         userId.append("\\");
         //userId.append(userName);
-        n = wcslen(userName);
+        n = (Uint32)wcslen(userName);
         for (unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userName[i]));
@@ -352,7 +352,7 @@ String System::getEffectiveUserName()
     else
     {
         //userId.append(userName);
-        Uint32 n = wcslen(userName);
+        Uint32 n = (Uint32)wcslen(userName);
         for (unsigned long i = 0; i < n; i++)
         {
             userId.append(Char16(userName[i]));
@@ -394,7 +394,7 @@ String System::encryptPassword(const char* password, const char* salt)
     char pcSalt[3] = {0};
 
     strncpy(pcSalt, salt, 2);
-    dwByteCount = strlen(password);
+    dwByteCount = (DWORD)strlen(password);
     memcpy(pbBuffer, password, dwByteCount);
     for (DWORD i=0; (i<dwByteCount) || (i>=PW_BUFF_LEN); i++)
             (i%2 == 0) ? pbBuffer[i] ^= pcSalt[1] : pbBuffer[i] ^= pcSalt[0];
@@ -468,14 +468,15 @@ Boolean System::isSystemUser(const char* userName)
 
     //convert domain name to unicode
     if (!MultiByteToWideChar(
-            CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName) + 1))
+            CP_ACP, 0, mDomainName, -1, wDomainName,
+            (int)(strlen(mDomainName) + 1)))
     {
         return false;
     }
 
     //convert username to unicode
     if (!MultiByteToWideChar(
-            CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName) + 1))
+            CP_ACP, 0, mUserName, -1, wUserName, (int)(strlen(mUserName) + 1)))
     {
         return false;
     }
@@ -595,14 +596,15 @@ Boolean System::isPrivilegedUser(const String& userName)
 
     //convert domain name to unicode
     if (!MultiByteToWideChar(
-            CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName) + 1))
+            CP_ACP, 0, mDomainName, -1, wDomainName,
+            (int)(strlen(mDomainName) + 1)))
     {
         return false;
     }
 
     //convert username to unicode
     if (!MultiByteToWideChar(
-            CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName) + 1))
+            CP_ACP, 0, mUserName, -1, wUserName, (int)(strlen(mUserName) + 1)))
     {
         return false;
     }
@@ -870,7 +872,7 @@ Boolean System::truncateFile(
     int fd = open(path, O_RDWR);
     if (fd != -1)
     {
-        if (chsize(fd, newSize) == 0)
+        if (chsize(fd, (long)newSize) == 0)
         {
             rv = true;
         }

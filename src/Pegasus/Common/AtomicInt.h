@@ -438,11 +438,11 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_WIN32_IX86_MSVC
+// PEGASUS_OS_TYPE_WINDOWS
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 #include <Pegasus/Common/Network.h>
@@ -497,7 +497,7 @@ typedef AtomicIntTemplate<AtomicType> AtomicInt;
 
 PEGASUS_NAMESPACE_END
 
-#endif /* PEGASUS_PLATFORM_WIN32_IX86_MSVC */
+#endif /* PEGASUS_OS_TYPE_WINDOWS */
 
 //==============================================================================
 //

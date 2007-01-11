@@ -36,7 +36,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #   include "OperatingSystem_Windows.cpp"
 #elif defined PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 #   include "OperatingSystem_Linux.cpp"

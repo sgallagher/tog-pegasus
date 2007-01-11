@@ -355,7 +355,9 @@ static void threadSleep(int msec)
            usleep(microsecs - (loop*1000000));
    }
 
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#elif defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+      defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+      defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
     if (msec == 0)
     {

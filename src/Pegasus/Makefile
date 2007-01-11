@@ -110,7 +110,7 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
-    ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+    ifeq ($(OS_TYPE),windows)
         $(error Error: Remote CMPI is not currently supported on Windows.)
     endif
 

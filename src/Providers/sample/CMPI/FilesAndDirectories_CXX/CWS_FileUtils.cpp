@@ -37,7 +37,9 @@
 #include "CWS_FileUtils.h"
 #include <Providers/sample/CMPI/CWS_Util/cwsutil.h>
 
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if !defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) && \
+    !defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) && \
+    !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #include <unistd.h>
 #endif
 

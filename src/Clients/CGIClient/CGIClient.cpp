@@ -3329,7 +3329,9 @@ int main(int argc, char** argv)
     //in Linux.
 
     // IS this "argc != 1" check required anyway ??
-    #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+    #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+        defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+        defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     if (argc != 1)
     ErrorExit("unexpected command line arguments");
     #endif

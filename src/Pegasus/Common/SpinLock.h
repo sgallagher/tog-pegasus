@@ -283,7 +283,7 @@ inline size_t SpinLockIndex(const void* x)
 {
     // Throw away the lower two bits since they are almost always zero
     // anyway due to alignment properties.
-    return ((unsigned long)x >> 2) % PEGASUS_NUM_SHARED_SPIN_LOCKS;
+    return ((size_t)x >> 2) % PEGASUS_NUM_SHARED_SPIN_LOCKS;
 }
 
 // Call this function before forking to unlock the spinlocks in the global

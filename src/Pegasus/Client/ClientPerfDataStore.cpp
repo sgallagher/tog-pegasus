@@ -176,7 +176,7 @@ String ClientPerfDataStore::toString() const
         out << "_serverTimeKnown is false" << "\r\n";
     }
 
-    return (String(out.getData(), out.size()));
+    return (String(out.getData(), (Uint32)out.size()));
 }
 
 Boolean ClientPerfDataStore::getStatError() const

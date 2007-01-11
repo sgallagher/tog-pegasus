@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_srvreg/slp_srvreg.cpp,v 1.5 2006/01/31 14:50:43 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_srvreg/slp_srvreg.cpp,v 1.6 2007/01/11 16:22:08 a.dunfey Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -64,7 +64,7 @@
 
 #define SLP_LIB_IMPORT
 #include "../slp_client/slp_client.h"
-#ifdef _WIN32
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <time.h>
 #endif
 

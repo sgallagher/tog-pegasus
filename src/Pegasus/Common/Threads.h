@@ -64,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 # define PEGASUS_THREAD_CDECL __stdcall
 #else
 # define PEGASUS_THREAD_CDECL /* empty */

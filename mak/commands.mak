@@ -44,7 +44,7 @@ ifndef ROOT
     include $(ROOT)/mak/config.mak
 endif
 
-ifeq ($(OS),win32)
+ifeq ($(OS_TYPE),windows)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     DIFF = mu compare
     SORT = mu sort
@@ -347,7 +347,7 @@ ifeq ($(OS),darwin)
 endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
-    ifeq ($(OS),win32)
+    ifeq ($(OS_TYPE),windows)
         $(error Error: Remote CMPI is not currently supported on Windows.)
     else
         CMPIR_START_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon

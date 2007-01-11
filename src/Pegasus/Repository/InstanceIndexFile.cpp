@@ -96,7 +96,7 @@ static Boolean _GetLine(fstream& fs, Buffer& x)
         // This will NOT consume the \n at the end.
         fs.get(input, buffersize, '\n');
 
-        gcount = fs.gcount();
+        gcount = (Uint32)fs.gcount();
         x.append(input, gcount);
         xcount += gcount;
 
@@ -734,7 +734,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     Uint32 size;
     Boolean error;
 #ifndef PEGASUS_OS_ZOS
-        entryOffset = fs.tellp();
+        entryOffset = (Uint32)fs.tellp();
 #else
         entryOffset = getOffset(fs.tellp());
 #endif
@@ -762,7 +762,7 @@ Boolean InstanceIndexFile::_lookupEntry(
         }
 
 #ifndef PEGASUS_OS_ZOS
-        entryOffset = fs.tellp();
+        entryOffset = (Uint32)fs.tellp();
 #else
         entryOffset = getOffset(fs.tellp());
 #endif

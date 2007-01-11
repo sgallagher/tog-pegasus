@@ -39,7 +39,7 @@ DIR = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/JRE
 
 include $(PEGASUS_ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
    JAVALIBS=$(JAVA_SDK)/jre/lib/
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
    EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
@@ -92,7 +92,7 @@ PROGRAM = TestJRE
 include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
   SYS_LIBS = ws2_32.lib advapi32.lib	
 endif
 

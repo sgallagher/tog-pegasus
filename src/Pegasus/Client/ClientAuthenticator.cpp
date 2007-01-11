@@ -231,7 +231,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 encodedArray = Base64::encode(userPassArray);
 
                 challengeResponse.append(
-                    String( encodedArray.getData(), encodedArray.size() ) );
+                    String( encodedArray.getData(), (Uint32)encodedArray.size() ) );
             }
             break;
 
@@ -494,7 +494,7 @@ String ClientAuthenticator::_getSubStringUptoMarker(
     {
         if (*line != NULL)
         {
-            Uint32 length = pos - *line;
+            Uint32 length = (Uint32)(pos - *line);
 
             result.assign(*line, length);
         }

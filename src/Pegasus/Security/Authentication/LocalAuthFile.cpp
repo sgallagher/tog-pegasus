@@ -369,7 +369,7 @@ Boolean LocalAuthFile::remove()
     if (FileSystem::exists(_filePathName))
     {
     
-#ifndef PEGASUS_OS_WIN32
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
         // change ownership back to the CIMOM
 #if defined(PEGASUS_OS_OS400)
         CString tempPath = _filePathName.getCString();
@@ -430,7 +430,8 @@ String LocalAuthFile::_generateRandomTokenString()
         char token[RANDOM_BYTES_NEEDED+1];
 
         setvbuf(fh, NULL, _IONBF, 0);   // need unbuffered input
-        Uint32 n = fread( (unsigned char *)token, 1, RANDOM_BYTES_NEEDED, fh );
+        Uint32 n = (Uint32)fread( (unsigned char *)token, 1,
+            RANDOM_BYTES_NEEDED, fh );
         fclose(fh);
         token[n]=0;
 

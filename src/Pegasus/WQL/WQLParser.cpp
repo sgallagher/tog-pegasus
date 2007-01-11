@@ -75,7 +75,7 @@ void WQLParser::parse(
     globalParserState = new WQLParserState;
     globalParserState->error = false;
     globalParserState->text = text;
-    globalParserState->textSize = strlen(text) + 1;
+    globalParserState->textSize = (Uint32)(strlen(text) + 1);
     globalParserState->offset = 0;
     globalParserState->statement = &statement;
 

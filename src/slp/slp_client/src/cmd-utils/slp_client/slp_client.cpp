@@ -161,7 +161,9 @@ static void _debug_print(int dc, const char* format, ...)
 /*********************************************************************/
 
 
-#ifdef _WIN32
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
  int _winsock_count = 0;
  WSADATA _wsa_data ;
 #include <time.h>
@@ -390,7 +392,10 @@ void free_url_list(struct url_entry *list)
   }
 }
 
-#if defined( _WIN32 ) || defined( BSD ) || defined( PEGASUS_OS_SOLARIS ) || \
+#  if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || \
+    defined( BSD ) || defined( PEGASUS_OS_SOLARIS ) || \
     defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX)
  int Gethostbyname_r(const char *name,
 		    struct hostent *resultbuf,
@@ -405,7 +410,9 @@ void free_url_list(struct url_entry *list)
   bufsize = bufsize;
 
   if(NULL == (*result = gethostbyname(name))) {
-#if defined( _WIN32 )
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     *errnop = WSAGetLastError();
 #else
     *errnop = errno;
@@ -476,7 +483,9 @@ char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
     return NULL;
 
   if( get_addr_from_url( url, &a, NULL) ) {
-#if defined ( _WIN32 )
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     _snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
 #elif defined (NUCLEUS)                                              //jeb
     sprintf(name, "%s:%d", inet_ntoa(a.sin_addr), a.sin_port );  //jeb
@@ -613,7 +622,9 @@ int slp_get_local_interfaces(uint32 **list)
 {
   SOCKETD sock;                         //jeb
   int interfaces = 0;
-#if defined ( _WIN32 )
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 int errcode;
   int buf_size = 256;
 #endif
@@ -624,7 +635,9 @@ int errcode;
 
   DEBUG_PRINT((DEBUG_ENTER, "slp_get_local_interfaces "));
 
-#if defined ( _WIN32 )
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
   if ( INVALID_SOCKET != ( sock  = WSASocket(AF_INET,
 					   SOCK_RAW, 0, NULL, 0, 0) ) ) {
@@ -2882,7 +2895,9 @@ struct slp_client *create_slp_client(const char *target_addr,
       return NULL;
     }
 
-#ifdef _WIN32
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
   WindowsStartNetwork();
 
 #endif

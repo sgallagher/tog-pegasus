@@ -43,7 +43,9 @@
 #include "cmpift.h"
 #include <string.h>
 
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if !defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) && \
+    !defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) && \
+    !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #include <strings.h>
 #endif
 
@@ -57,7 +59,9 @@
 #include "CmpiStatus.h"
 #include "Linkage.h"
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define strcasecmp _stricmp
 #endif
 

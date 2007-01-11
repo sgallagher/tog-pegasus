@@ -763,7 +763,8 @@ void Tracer::traceEnter(
         token.method = method;
 
         _traceEnter(
-            file, line, traceComponent, "%s %s", _METHOD_ENTER_MSG, method);
+            file, (Uint32)line, traceComponent, "%s %s",
+            _METHOD_ENTER_MSG, method);
     }
 }
 
@@ -774,7 +775,7 @@ void Tracer::traceExit(
 {
     if (_traceOn)
         _traceExit(
-            file, line, token.component, "%s %s",
+            file, (Uint32)line, token.component, "%s %s",
             _METHOD_EXIT_MSG, token.method);
 }
 

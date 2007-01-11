@@ -72,7 +72,7 @@ XMLCOVSCRIPTS = \
 	PG_NTP_EnumInst \
 	PG_NTP_EnumInstNames
 else
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 XMLSCRIPTS =
 XMLCOVSCRIPTS =
 else

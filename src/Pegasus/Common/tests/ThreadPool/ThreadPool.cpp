@@ -41,7 +41,7 @@
 #include <Pegasus/Common/Tracer.h>
 
 #include <sys/types.h>
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <unistd.h>
 #endif
 #include <Pegasus/Common/PegasusAssert.h>

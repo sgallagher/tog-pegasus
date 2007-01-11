@@ -67,7 +67,7 @@ endif
 ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
   LOCAL_DEFINES += -DPEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
-  ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+ ifeq ($(OS_TYPE),windows)
     EXTRA_LINK_FLAGS += -defaultlib:libz -libpath:/"Program Files"/GnuWin32/lib
     EXTRA_INCLUDES += -I/"Program Files"/GnuWin32/include
   else
@@ -76,7 +76,7 @@ ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
 endif
 
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 ##
 ## The following .PHONY rule gets around the problem in Windows for
 ## the "Program Files" directory name. The depends program strips the

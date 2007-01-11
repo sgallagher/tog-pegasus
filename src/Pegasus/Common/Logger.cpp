@@ -106,7 +106,8 @@ static CString _allocLogFileName(
     const char* logFileName = fileNames[index];
 
     String result;
-    result.reserveCapacity(homeDirectory.size() + 1 + strlen(logFileName));
+    result.reserveCapacity((Uint32)(homeDirectory.size() + 1 +
+        strlen(logFileName)));
     result.append(homeDirectory);
     result.append('/');
     result.append(logFileName);

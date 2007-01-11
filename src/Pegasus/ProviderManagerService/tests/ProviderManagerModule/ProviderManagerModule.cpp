@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 
     // Use "bin" directory for Windows, to be consistent with the default
     // providerDir value in Config/ProviderDirPropertyOwner.cpp.
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
     fileName = String(getenv("PEGASUS_HOME")) + String("/bin/") + FILE_NAME;
 #elif defined(PEGASUS_OS_VMS)
     fileName = String(getenv("PEGASUS_HOME")) + String("/bin/") + FILE_NAME +

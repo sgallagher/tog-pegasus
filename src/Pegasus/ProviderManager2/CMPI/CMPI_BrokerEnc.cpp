@@ -73,7 +73,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern int _cmpi_trace;
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
    #define lloonngg __int64
 #else
    #define lloonngg long long int

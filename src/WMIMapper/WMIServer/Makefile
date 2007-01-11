@@ -51,7 +51,7 @@ SOURCES = cimserver.cpp
 
 include $(ROOT)/mak/program.mak
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
   SYS_LIBS = ws2_32.lib advapi32.lib	
 endif
 
@@ -74,7 +74,7 @@ install:
 	$(COPY) $(PEGASUS_ROOT)/ssl.cnf    $(PEGASUS_HOME)
 
 run: install
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 	cimserver -l
 else
 	cimserver

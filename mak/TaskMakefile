@@ -285,7 +285,7 @@ PATCH ?= patch
 PATCH_FULL_PATH = $(call pathsearch,$(PATCH))
 
 
-ifeq (PEGASUS_PLATFORM,WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 ## windows 
 
 GREP ?= find

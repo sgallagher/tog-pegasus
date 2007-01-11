@@ -5,7 +5,10 @@
 #define HAVE_STRSTREAM 1
 #endif
 
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || defined(PEGASUS_OS_AIX)
+#elif defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+      defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+      defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || \
+      defined(PEGASUS_OS_AIX)
 #include <strstream>
 
 #ifndef HAVE_STRSTREAM

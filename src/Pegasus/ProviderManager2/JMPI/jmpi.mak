@@ -34,7 +34,7 @@ DIR = Pegasus/ProviderManager2/JMPI
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
    JAVALIBS=$(JAVA_SDK)/jre/lib/
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
    EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib

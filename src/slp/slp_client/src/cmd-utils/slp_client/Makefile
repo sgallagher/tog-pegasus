@@ -35,7 +35,7 @@ DIR = slp/slp_client/src/cmd-utils/slp_client
 include $(ROOT)/mak/config.mak
 
 # Treat all the SOURCES as C source only
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 FLAGS += /TC
 endif
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
@@ -54,7 +54,7 @@ SOURCES = \
     y_filter.cpp \
     l_filter.cpp \
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
   SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 

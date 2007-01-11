@@ -37,7 +37,7 @@
 #include "CMPI_Ftabs.h"
 
 #include <time.h>
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC 
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <sys/time.h>
 #endif
 #include <string.h>
@@ -146,7 +146,7 @@ extern "C" {
 
       else {
          time_t tt=time(NULL);
-   #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   #if defined(PEGASUS_OS_TYPE_WINDOWS)
          tmt=*localtime(&tt);
    #else
          localtime_r(&tt,&tmt);

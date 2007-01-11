@@ -337,7 +337,7 @@ perfsuite: FORCE
 # alltests
 #
 alltests: unittests servertests
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile uninstall
 endif

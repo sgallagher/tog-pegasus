@@ -76,7 +76,7 @@ void CompareClasses(
 
     PEGASUS_TEST_ASSERT(classNames1 == classNames2);
 
-    for (size_t i = 0; i < classNames1.size(); i++)
+    for (Uint32 i = 0; i < classNames1.size(); i++)
     {
 	CIMClass class1 = r1.getClass(namespaceName, classNames1[i]);
 	CIMClass class2 = r2.getClass(namespaceName, classNames2[i]);
@@ -127,7 +127,7 @@ void CompareInstances(
     BubbleSort(classNames2);
     PEGASUS_TEST_ASSERT(classNames1 == classNames2);
 
-    for (size_t i = 0; i < classNames1.size(); i++)
+    for (Uint32 i = 0; i < classNames1.size(); i++)
     {
 	Array<CIMObjectPath> objectPaths1 = r1.enumerateInstanceNamesForClass(
 	    namespaceName, classNames1[i]);
@@ -137,7 +137,7 @@ void CompareInstances(
 	// BubbleSort(objectPaths2);
 	PEGASUS_TEST_ASSERT(objectPaths1 == objectPaths2);
 
-	for (size_t i = 0; i < objectPaths2.size(); i++)
+	for (Uint32 i = 0; i < objectPaths2.size(); i++)
 	{
 	    CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[i]);
 	    CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[i]);
@@ -162,7 +162,7 @@ void CompareQualifiers(
     Array<CIMQualifierDecl> quals2 = r2.enumerateQualifiers(namespaceName);
     PEGASUS_TEST_ASSERT(quals1.size() == quals2.size());
 
-    for (size_t i = 0; i < quals2.size(); i++)
+    for (Uint32 i = 0; i < quals2.size(); i++)
     {
 	if (verbose)
 	{
@@ -199,7 +199,7 @@ void Compare(
     // Compare classes in each namespace:
     //
 
-    for (size_t i = 0; i < nameSpaces1.size(); i++)
+    for (Uint32 i = 0; i < nameSpaces1.size(); i++)
     {
 	CompareQualifiers(r1, r2, nameSpaces1[i]);
 	CompareClasses(r1, r2, nameSpaces1[i]);

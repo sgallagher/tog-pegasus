@@ -185,7 +185,7 @@ static char* _FindSeparator(const char* data, Uint32 size)
     {
         if (*p == '\r')
         {
-            Uint32 n = end - p;
+            size_t n = end - p;
 
             if (n >= 2 && p[1] == '\n')
                 return (char*)p;
@@ -345,7 +345,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     Boolean isFirst = message.isFirst();
     Boolean isLast = message.isComplete();
     Sint32 totalBytesWritten = 0;
-    Uint32 messageLength = buffer.size();
+    Uint32 messageLength = (Uint32) buffer.size();
 
     try
     {
@@ -441,7 +441,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         String httpStatus(s);
                         Buffer message = XmlWriter::formatHttpErrorRspMessage
                             (httpStatus, String(), httpDetail);
-                        messageLength = message.size();
+                        messageLength = (Uint32)message.size();
                         message.reserveCapacity(messageLength+1);
                         messageStart = (char *) message.getData();
                         messageStart[messageLength] = 0;
@@ -454,7 +454,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 {
                     // subsequent chunks from the server, just append
 
-                    messageLength += _incomingBuffer.size();
+                    messageLength += (Uint32)(_incomingBuffer.size());
                     _incomingBuffer.reserveCapacity(messageLength+1);
                     _incomingBuffer.append(buffer.getData(), buffer.size());
                     buffer.clear();
@@ -482,7 +482,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         String messageS = cimException.getMessage();
                         CString messageC = messageS.getCString();
                         messageStart = (char *) (const char *) messageC;
-                        messageLength = strlen(messageStart);
+                        messageLength = (Uint32)strlen(messageStart);
                         buffer.reserveCapacity(messageLength+1);
                         buffer.append(messageStart, messageLength);
                         // null terminate
@@ -570,7 +570,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         headerNameTerminatorLength + numberAsStringLength;
 
                     Uint32 contentLengthLineLengthFound =
-                        contentLengthEnd - contentLengthStart;
+                        (Uint32)(contentLengthEnd - contentLengthStart);
 
                     if (isValid == false || ! contentLengthEnd ||
                             contentLengthLineLengthFound !=
@@ -663,9 +663,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             Uint32 insertOffset =
                                 headerLength - headerLineTerminatorLength;
                             messageLength =
-                                contentLanguagesString.size() + buffer.size();
+                                (Uint32)(contentLanguagesString.size() +
+                                    buffer.size());
                             buffer.reserveCapacity(messageLength+1);
-                            messageLength = contentLanguagesString.size();
+                            messageLength =
+                                (Uint32)contentLanguagesString.size();
                             messageStart =
                                 (char *)contentLanguagesString.getData();
                             // insert the content language line before end
@@ -673,7 +675,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             // note: this can be expensive on large payloads
                             buffer.insert(
                                 insertOffset, messageStart, messageLength);
-                            messageLength = buffer.size();
+                            messageLength = (Uint32)buffer.size();
                             // null terminate
                             messageStart = (char *) buffer.getData();
                             messageStart[messageLength] = 0;
@@ -775,7 +777,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _mpostPrefix << headerNameDescription << headerValueSeparator <<
                 headerNameContentLanguage << headerLineTerminator;
             sendStart = (char *) trailer.getData();
-            bytesToWrite = trailer.size();
+            bytesToWrite = (Uint32)trailer.size();
             bytesWritten = _socket->write(sendStart, bytesToWrite);
 
             if (bytesWritten < 0)
@@ -811,7 +813,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 // terminator
                 sprintf(chunkLine, "%x%s", bytesToWrite, chunkLineTerminator);
                 sendStart = chunkLine;
-                Sint32 chunkBytesToWrite = strlen(sendStart);
+                Sint32 chunkBytesToWrite = (Sint32)strlen(sendStart);
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
                 if (bytesWritten < 0)
                     _socketWriteError();
@@ -1023,7 +1025,7 @@ Boolean _IsBodylessMessage(const char* line)
 
     for (Uint32 i = 0; i < METHOD_NAMES_SIZE; i++)
     {
-        Uint32 n = strlen(METHOD_NAMES[i]);
+        Uint32 n = (Uint32)strlen(METHOD_NAMES[i]);
 
         if (strncmp(line, METHOD_NAMES[i], n) == 0 && isspace(line[n]))
             return true;
@@ -1034,7 +1036,7 @@ Boolean _IsBodylessMessage(const char* line)
 
     for (Uint32 i = 0; i < RESPONSE_CODES_SIZE; i++)
     {
-        Uint32 n = strlen(RESPONSE_CODES[i]);
+        Uint32 n = (Uint32)strlen(RESPONSE_CODES[i]);
 
         if (strncmp(line, RESPONSE_CODES[i], n - 2) == 0 && isspace(line[n]))
                 return true;
@@ -1083,7 +1085,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 {
     static const char func[] =
     "HTTPConnection::_getContentLengthAndContentOffset";
-    Uint32 size = _incomingBuffer.size();
+    Uint32 size = (Uint32)_incomingBuffer.size();
     if (size == 0)
         return;
     char* data = (char*)_incomingBuffer.getData();
@@ -1096,7 +1098,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
     Boolean gotContentLanguage = false;
     Boolean gotTransferTE = false;
 
-    while ((sep = _FindSeparator(line, size - (line - data))))
+    while ((sep = _FindSeparator(line, (Uint32)(size - (line - data)))))
     {
         char save = *sep;
         *sep = '\0';
@@ -1107,7 +1109,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
         {
             *sep = save;
             line = sep + ((save == '\r') ? 2 : 1);
-            _contentOffset = line - _incomingBuffer.getData();
+            _contentOffset = (Sint32)(line - _incomingBuffer.getData());
 
             // reserve space for entire non-chunked message
             if (_contentLength > 0)
@@ -1221,7 +1223,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                     // note: if this is a chunked header, then this will be
                     // ignored later
                     String contentLanguagesString(
-                        valueStart, valueEnd - valueStart + 1);
+                        valueStart, (Uint32)(valueEnd - valueStart + 1));
                     try
                     {
                         ContentLanguageList contentLanguagesValue =
@@ -1430,7 +1432,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         "HTTPConnection::_handleReadEventTransferEncoding";
     PEG_METHOD_ENTER(TRC_HTTP, func);
 
-    Uint32 messageLength = _incomingBuffer.size();
+    Uint32 messageLength = (Uint32)_incomingBuffer.size();
     Uint32 headerLength = (Uint32) _contentOffset;
 
     // return immediately under these conditions:
@@ -1531,7 +1533,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         }
 
         chunkLineEnd += chunkLineTerminatorLength;
-        Uint32 chunkLineLength = chunkLineEnd - chunkLineStart;
+        Uint32 chunkLineLength = (Uint32)(chunkLineEnd - chunkLineStart);
         Uint32 chunkMetaLength = chunkLineLength;
         if (chunkLengthParsed > 0)
             chunkMetaLength += chunkTerminatorLength;
@@ -1564,7 +1566,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
 
         // remove the chunk length line
         _incomingBuffer.remove(_transferEncodingChunkOffset, chunkLineLength);
-        messageLength = _incomingBuffer.size();
+        messageLength = (Uint32)_incomingBuffer.size();
         // always keep the byte after the last data byte null for easy string
         // processing.
         messageStart[messageLength] = 0;
@@ -1613,7 +1615,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                 trailerStart[trailerLength] = save;
 
                 _incomingBuffer.remove(trailerOffset, trailerLength);
-                messageLength = _incomingBuffer.size();
+                messageLength = (Uint32)_incomingBuffer.size();
                 messageStart[messageLength] = 0;
                 remainderLength -= trailerLength;
 
@@ -1777,7 +1779,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
 
         // now remove the chunk terminator
         _incomingBuffer.remove(chunkTerminatorOffset, chunkTerminatorLength);
-        messageLength = _incomingBuffer.size();
+        messageLength = (Uint32)_incomingBuffer.size();
         messageStart[messageLength] = 0;
 
         // jump to the start of the next chunk (which may not have been
@@ -1820,7 +1822,7 @@ void HTTPConnection::_handleReadEventFailure(
     HTTPMessage* httpMessage = new HTTPMessage(message);
     Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
         httpMessage->message.getData(),
-        httpMessage->message.size());
+        (Uint32)(httpMessage->message.size()));
 
     // this is common error code. If we are the server side, we want to send
     // back the error to the client, but if we are the client side, then we
@@ -1947,7 +1949,7 @@ void HTTPConnection::_handleReadEvent()
             buffer[n] = 0;
             // important: always keep message buffer null terminated for easy
             // string parsing!
-            Uint32 size = _incomingBuffer.size() + n;
+            Uint32 size = (Uint32)(_incomingBuffer.size() + n);
             _incomingBuffer.reserveCapacity(size + 1);
             _incomingBuffer.append(buffer, n);
             // put a null on it. This is safe sice we have reserved an

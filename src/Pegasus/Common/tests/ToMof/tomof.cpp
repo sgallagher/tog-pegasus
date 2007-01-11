@@ -63,7 +63,7 @@ bool resultTest(Buffer& buffer, const char * result)
  
    else
     {
-        int maxLen = strlen(result);
+        int maxLen = (int)strlen(result);
         if (strlen(buffer.getData()) != strlen(result))
         {
             cout << "Size diff error. str1 len = " << strlen(buffer.getData())

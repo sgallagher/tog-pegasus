@@ -36,7 +36,9 @@
 #include <iostream>
 #include "Files.h"
 #include "CopyCmd.h"
-#ifdef _WIN32_WINNT
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
@@ -85,7 +87,9 @@ int SleepCmd(const vector<string>& args)
             return(2);
     }
 
-#ifdef _WIN32_WINNT
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     Sleep(seconds * 1000);
 #else
     while (seconds > 0)

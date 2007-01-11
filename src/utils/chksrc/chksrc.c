@@ -67,7 +67,9 @@ void chksrc(const char* path)
 
         /* Check for Ctrl-M characters */
 
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if !defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) && \
+    !defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) && \
+    !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
         if (strchr(buf, '\r'))
         {
@@ -76,7 +78,7 @@ void chksrc(const char* path)
             reject = 1;
         }
 
-#endif /* PEGASUS_PLATFORM_WIN32_IX86_MSVC */
+#endif /* PEGASUS_OS_TYPE_WINDOWS */
 
         /* Check for lines longer than 80 characters */
 

@@ -43,7 +43,9 @@
 #      define CMPI_PLATFORM_HPUX_ACC 1
 #   endif
 
-#   ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#   if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+       defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+       defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #      define CMPI_PLATFORM_WIN32_IX86_MSVC 1
 #   endif
 

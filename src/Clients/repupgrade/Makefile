@@ -54,7 +54,7 @@ SOURCES = SSPModule.cpp \
           RepositoryUpgrade.cpp \
           RepositoryUpgradeException.cpp
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 

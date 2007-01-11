@@ -86,7 +86,7 @@ static char* _FindSeparator(const char* data, Uint32 size)
     {
         if (*p == '\r')
         {
-            Uint32 n = end - p;
+            size_t n = end - p;
 
             if (n >= 2 && p[1] == '\n')
                 return (char*)p;
@@ -140,12 +140,12 @@ void HTTPMessage::parse(
     contentLength = 0;
 
     char* data = (char*)message.getData();
-    Uint32 size = message.size();
+    Uint32 size = (Uint32)message.size();
     char* line = data;
     char* sep;
     Boolean firstTime = true;
 
-    while ((sep = _FindSeparator(line, size - (line - data))))
+    while ((sep = _FindSeparator(line, (Uint32)(size - (line - data)))))
     {
         // Look for double separator which terminates the header?
 
@@ -157,11 +157,11 @@ void HTTPMessage::parse(
 
             // Determine length of content:
 
-            contentLength = message.size() - (content - data);
+            contentLength = (Uint32)(message.size() - (content - data));
             break;
         }
 
-        Uint32 lineLength = sep - line;
+        Uint32 lineLength = (Uint32)(sep - line);
 
         if (firstTime)
             startLine.assign(line, lineLength);
@@ -193,7 +193,7 @@ void HTTPMessage::parse(
 
                 end++;
 
-                String name(line, end - line);
+                String name(line, (Uint32)(end - line));
 
                 // Get the value part:
 
@@ -202,7 +202,7 @@ void HTTPMessage::parse(
                 for (start = colon + 1; start < sep && isspace(*start); start++)
                     ;
 
-                String value(start, sep - start);
+                String value(start, (Uint32)(sep - start));
 
                 // From the HTTP/1.1 specification (RFC 2616) section 4.2
                 // Message Headers:

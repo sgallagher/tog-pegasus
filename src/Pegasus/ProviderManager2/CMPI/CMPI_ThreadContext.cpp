@@ -39,7 +39,7 @@
 
 #include "CMPI_Object.h"
 
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <pthread.h>
 #endif
 #include <limits.h>

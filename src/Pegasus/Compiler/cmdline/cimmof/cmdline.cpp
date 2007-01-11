@@ -418,7 +418,7 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
 #endif
 }
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 # define SEPCHAR '\\'
 # define SEPCHAR2 '/'
 #else

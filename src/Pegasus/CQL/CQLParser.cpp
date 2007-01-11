@@ -76,7 +76,7 @@ void CQLParser::parse(
     CQL_globalParserState = new CQLParserState;
     CQL_globalParserState->error = false;
     CQL_globalParserState->text = text;
-    CQL_globalParserState->textSize = strlen(text) + 1;
+    CQL_globalParserState->textSize = (Uint32)(strlen(text) + 1);
     CQL_globalParserState->offset = 0;
     CQL_globalParserState->currentTokenPos = 0;
     CQL_globalParserState->tokenCount = 0;

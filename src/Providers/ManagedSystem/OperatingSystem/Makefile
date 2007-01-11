@@ -61,7 +61,7 @@ DYNAMIC_LIBRARIES = \
 	-lpegcommon \
 	-lpegprovider
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 # Note that PEGASUS_WINDOWS_SDK_HOME only needs to be specified if using VC6.
   ifdef PEGASUS_WINDOWS_SDK_HOME
 	FLAGS += -DPEGASUS_WINDOWS_SDK_HOME

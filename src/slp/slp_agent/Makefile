@@ -69,7 +69,7 @@ include $(ROOT)/mak/library.mak
 #$(SOURCES): common
 #common :
 #	@ $(MAKE) -SC $(ROOT)/src/Pegasus/Common
-#ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+#ifeq ($(OS_TYPE),windows)
 #SYS_LIBS = ws2_32.lib advapi32.lib
 #endif
 #endif

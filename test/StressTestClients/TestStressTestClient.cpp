@@ -249,7 +249,7 @@ void TestStressTestClient::logInfo(
             {
                 long pos;
                 addClient = true;
-                pos = pFile.tellp();
+                pos = (long)pFile.tellp();
                 pFile.seekp(pos - line.size()-offset);
                 String newLine = String(clientId.getCString());
                 newLine.append("::");

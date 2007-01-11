@@ -78,7 +78,7 @@ endif
 
 
 
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
 else
     ifeq  ($(PEGASUS_OS_TYPE), VMS)

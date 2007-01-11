@@ -47,7 +47,7 @@ SOURCES = SSLClientVerification.cpp
 
 
 # for testing purposes, the username can be anything, as long as its a valid username
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 CURRENT_USER=Administrator
 else	
 CURRENT_USER=`whoami`
@@ -74,7 +74,7 @@ ifdef PEGASUS_HAS_SSL
 	$(MKDIRHIER) $(PEGASUS_HOME)/clientkeystore
 	$(COPY) client_key.pem $(PEGASUS_HOME)/clientkeystore/client_key.pem
 	$(COPY) client_cert.pem $(PEGASUS_HOME)/clientkeystore/client_cert.pem
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+ifeq ($(OS_TYPE),windows)
 	$(COPY) cimserver_planned.conf.win32 $(PEGASUS_HOME)/cimserver_planned.conf
 else
 	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)/cimserver_planned.conf

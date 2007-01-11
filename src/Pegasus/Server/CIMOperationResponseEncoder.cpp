@@ -228,7 +228,7 @@ void CIMOperationResponseEncoder::sendResponse(
                 isFirst,
                 isLast);
         }
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
         catch (std::bad_alloc&)
 #else
         catch (bad_alloc&)

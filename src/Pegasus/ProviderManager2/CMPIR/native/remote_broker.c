@@ -720,7 +720,9 @@ __new_remote_broker ( const char * comm_layer_id,
 
 	{
 	   char dlName[512];
-           #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+           #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+               defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+               defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 	      strcpy(dlName,provider_module);
               strcat(dlName,".dll");
            #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)

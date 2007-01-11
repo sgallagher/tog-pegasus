@@ -59,7 +59,9 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#ifdef _WIN32
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define HAVE_UNISTD_H 0
 #else
 #define HAVE_UNISTD_H 1
@@ -69,14 +71,18 @@
 #define HAVE_IF_H 1
 
 /* Target Operation System */
-#ifdef _WIN32
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define HOST_OS "Windows"
 #else
 #define HOST_OS "Linux"
 #endif
 
 /* Portability Header */
-#ifdef _WIN32
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define OS_PORT_INCLUDE "lslp-windows.h"
 #else
 #define OS_PORT_INCLUDE "lslp-linux.h"
@@ -103,7 +109,9 @@
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
-#ifdef _WIN32
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #define DLL_IMPORT __declspec(dllimport)
 #define DLL_EXPORT __declspec(dllexport)
 #else

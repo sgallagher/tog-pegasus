@@ -34,7 +34,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.10 2006/01/31 14:50:42 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.11 2007/01/11 16:22:07 a.dunfey Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -66,7 +66,9 @@
 #ifndef _LSLP_WINDOWS_INCL_
 #define _LSLP_WINDOWS_INCL_
 
-#ifdef _WIN32 
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) 
 #ifndef _MT
 #define _MT
 #endif

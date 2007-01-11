@@ -56,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
     {"providerDir", "lib;bin", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     {"providerDir", "lib:provider", IS_STATIC, 0, 0, IS_VISIBLE},

@@ -70,6 +70,9 @@ void snmpDeliverTrap_netsnmp::terminate()
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLER, "snmpDeliverTrap_netsnmp::terminate");
 
+    // Shuts down the application, and appropriate clean up
+    snmp_shutdown("snmpIndicationHandler");
+   
     SOCK_CLEANUP;
 
     PEG_METHOD_EXIT();

@@ -67,11 +67,15 @@ endif
 ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
   LOCAL_DEFINES += -DPEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
- ifeq ($(OS_TYPE),windows)
+  ifeq ($(OS_TYPE),windows)
     EXTRA_LINK_FLAGS += -defaultlib:libz -libpath:/"Program Files"/GnuWin32/lib
     EXTRA_INCLUDES += -I/"Program Files"/GnuWin32/include
   else
-     EXTRA_LINK_FLAGS += -lz
+    ifeq ($(OS_TYPE),vms)
+       EXTRA_INCLUDES += -I/libz
+    else
+       EXTRA_LINK_FLAGS += -lz
+    endif
   endif
 
 endif

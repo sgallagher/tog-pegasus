@@ -150,6 +150,13 @@ $  ssllib2 = "libcrypto32/lib"
 $  write/error=optfile_writeerror optfile "''ssllib1'"
 $  write/error=optfile_writeerror optfile "''ssllib2'"
 $No_ssl:
+$ !
+$  zlibdir = f$trnlnm("libz")
+$  if (zlibdir .EQS. "") then goto No_zlib
+$ !
+$  zlib1 = "libz:libz/lib"
+$  write/error=optfile_writeerror optfile "''zlib1'"
+$No_zlib:
 $ ! 
 $ ! Looking for "SHARE_COPY"
 $ ! 

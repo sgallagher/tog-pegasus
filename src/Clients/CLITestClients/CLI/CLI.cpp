@@ -384,19 +384,6 @@ int main(int argc, char** argv)
             String host = opts.location.subString (0, index);
 
             Uint32 portNumber = WBEM_DEFAULT_HTTP_PORT;
-
-            // Set up SSL port and flag for verbose display
-            // if SSL included in build
-            String useSSL = String::EMPTY;
-#ifdef PEGASUS_HAS_SSL
-            if (opts.ssl)
-            {
-                portNumber = WBEM_DEFAULT_HTTPS_PORT;
-            }
-            useSSL = " ssl=";
-            useSSL.append((opts.ssl)? "true" : "false");
-#endif
-
             if (index != PEG_NOT_FOUND)
             {
                 String portStr = opts.location.subString (index + 1,
@@ -410,20 +397,17 @@ int main(int argc, char** argv)
             {
                 if (opts.verboseTest)
                 {
-                    cout << "Connect with connectLocal" << endl;
+                    cout << "Connecting to localhost" << endl;
                 }
                 client.connectLocal();
 
-            }
-            else
+            } else
             {
                 if (opts.verboseTest)
                 {
-                    cout << "Connect to " << host
-                        << " port=" << portNumber
-                        << useSSL
-                         << " for User=" << opts.user
-                         << " password=" << opts.password
+                    cout << "Connecting to " << opts.location
+                         << " for User = " << opts.user
+                         << " password = " << opts.password
                          << endl;
                 }
 #ifdef PEGASUS_HAS_SSL
@@ -431,12 +415,6 @@ int main(int argc, char** argv)
                 {
                     if (!String::equal(opts.clientCert, String::EMPTY) && !String::equal(opts.clientKey, String::EMPTY))
                     {
-                        if (opts.verboseTest)
-                        {
-                            cout << "SSL options " 
-                                << "Cert = " << opts.clientCert
-                                << "clientKey = "  << opts.clientKey << endl;
-                        }
                         client.connect(host,
                                        portNumber,
                                        SSLContext("", opts.clientCert, opts.clientKey, NULL, "ssl.rnd"),

@@ -73,8 +73,8 @@ int Match(const char* pattern, const char* str)
         }
         else if (*p == *q)
         {
-            *p++;
-            *q++;
+            p++;
+            q++;
         }
         else
             return -1;

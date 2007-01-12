@@ -55,11 +55,14 @@
 **==============================================================================
 */
 
+#define POLICY_FLAG_REQUESTOR 1
+
 struct Policy
 {
     enum ExecutorMessageCode messageCode;
     const char* arg1;
     const char* arg2;
+    int flags;
 };
 
 /*
@@ -78,82 +81,97 @@ static struct Policy _staticPolicyTable[] =
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${currentConfigFilePath}",
-        "w"
+        "w",
+        0
     },
     { 
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${currentConfigFilePath}",
         "${currentConfigFilePath}.bak",
+        0
     },
     { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${currentConfigFilePath}",
         NULL,
+        0
     },
     { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${currentConfigFilePath}.bak",
         NULL,
+        0
     },
     /* cimserver.passwd policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${passwordFilePath}",
-        "w"
+        "w",
+        0
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${passwordFilePath}.bak",
         "${passwordFilePath}",
+        0
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${passwordFilePath}",
         "${passwordFilePath}.bak",
+        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${passwordFilePath}.bak",
         NULL,
+        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${passwordFilePath}",
         NULL,
+        0
     },
     /* cimserver.trc policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${traceFilePath}/cimserver.trc*",
         "a",
+        0
     },
     /* SSL key file policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${sslKeyFilePath}",
         "r",
+        0
     },
     /* SSL trust store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${sslTrustStore}/*",
         "w",
+        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${sslTrustStore}/*",
         NULL,
+        0
     },
     /* CRL store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${crlStore}/*",
         "w",
+        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${crlStore}/*",
         NULL,
+        0
     },
 };
 

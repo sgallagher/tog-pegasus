@@ -31,7 +31,8 @@
 
 ROOT = ../../../..
 
-DIR = Executor/tests/ExecutorTestLib
+# Need two more levels since ../.. will remove two levels.
+DIR = Executor/tests/lib/tests/lib
 
 include $(ROOT)/mak/config.mak
 

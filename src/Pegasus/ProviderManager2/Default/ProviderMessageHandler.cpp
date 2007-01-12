@@ -1193,9 +1193,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
             "Object path: $0, Method: $1",
         objectPath.toString(), request->methodName.getString()));
 
-    CIMObjectPath instanceReference(request->instanceName);
-    instanceReference.setNameSpace(request->nameSpace);
-
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
@@ -1212,7 +1209,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
     HANDLE_PROVIDER_EXCEPTION(
         provider->invokeMethod(
             providerContext,
-            instanceReference,
+            objectPath,
             request->methodName,
             request->inParameters,
             handler),

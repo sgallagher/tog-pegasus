@@ -166,6 +166,8 @@
 **==============================================================================
 */
 
-#define EXIT_ON_POLICY_FAILURE
+#if 0
+# define EXIT_ON_POLICY_FAILURE
+#endif
 
 #endif /* _Executor_Defines_h */

@@ -309,6 +309,14 @@ void DefineExecutorMacros()
 
         DefineMacro("policyConfigFilePath", path2);
     }
+
+    /* Define ${privilegedUser} */
+
+    DefineMacro("privilegedUser", "root");
+
+    /* Define ${cimserverUser} */
+
+    DefineMacro("cimserverUser", PEGASUS_CIMSERVERMAIN_USER);
 }
 
 /*

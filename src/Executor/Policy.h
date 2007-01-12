@@ -41,9 +41,9 @@ int CheckRemoveFilePolicy(const char* path);
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath);
 
 int CheckStartProviderAgentPolicy(
-    const char* module, 
-    const char* user,
-    const char* requestor);
+    const char* providerModule, 
+    const char* providerUser,
+    const char* requestorUser);
 
 void LoadDynamicPolicy();
 

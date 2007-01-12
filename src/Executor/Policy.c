@@ -48,6 +48,27 @@
 /*
 **==============================================================================
 **
+** ARG()
+**
+**     Expands function arguments to "name, value" for use in formatted
+**     output statements.
+**
+**     For example, this,
+**
+**         printf("%s=\"%s\"", ARG(count));
+**
+**     is expanded to this:
+**
+**         printf("%s=\"%s\"", "count", count);
+**
+**==============================================================================
+*/
+
+#define ARG(X) #X, X
+
+/*
+**==============================================================================
+**
 ** Policy
 **
 **     This structure defines a policy rule.
@@ -326,40 +347,34 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 */
 
 int CheckStartProviderAgentPolicy(
-    const char* module, 
-    const char* user,
-    const char* requestor)
+    const char* providerModule, 
+    const char* providerUser,
+    const char* requestorUser)
 {
-/*
-MEB: remove this.
-*/
-    Log(LL_INFORMATION, 
-        "CheckStartProviderAgentPolicy(\"%s\", \"%s\", \"%s\")\n",
-        module, user, requestor);
+    const char func[] = "CheckStartProviderAgentPolicy";
 
-    /* Define $requestor since policy rule might use the macro. */
+    /* Define ${requestorUser} since policy rule might use the macro. */
 
-    DefineMacro("requestor", requestor);
+    DefineMacro("requestorUser", requestorUser);
 
     if (CheckPolicy(_dynamicPolicyTable, _dynamicPolicyTableSize,
-        EXECUTOR_START_PROVIDER_AGENT_MESSAGE, module, user) == 0)
+        EXECUTOR_START_PROVIDER_AGENT_MESSAGE, 
+        providerModule, providerUser) == 0)
     {
-        Log(LL_TRACE, 
-            "CheckStartProviderAgentPolicy(\"%s\", \"%s\", \"%s\") passed", 
-            module, user, requestor);
-        UndefineMacro("requestor");
+        Log(LL_TRACE, "%s(%s=\"%s\", %s=\"%s\", %s=\"%s\") passed", 
+            func, ARG(providerModule), ARG(providerUser), ARG(requestorUser));
+        UndefineMacro("requestorUser");
         return 0;
     }
 
-    Log(LL_SEVERE, 
-        "CheckStartProviderAgentPolicy(\"%s\", \"%s\", \"%s\") failed", 
-        module, user, requestor);
+    Log(LL_SEVERE, "%s(%s=\"%s\", %s=\"%s\", %s=\"%s\") failed", 
+        func, ARG(providerModule), ARG(providerUser), ARG(requestorUser));
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");
 #endif
 
-    UndefineMacro("requestor");
+    UndefineMacro("requestorUser");
     return -1;
 }
 

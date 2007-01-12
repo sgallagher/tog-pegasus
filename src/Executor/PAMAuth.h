@@ -180,7 +180,7 @@ static int CimserveraStart(int* sock)
         /* Execute child: */
 
         /* Flawfinder: ignore */
-        execv(path, argv);
+        execv(path, (char**)argv);
         close(pair[0]);
         _exit(0);
     }

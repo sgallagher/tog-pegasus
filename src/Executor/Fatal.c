@@ -55,24 +55,28 @@
 
 void Fatal(const char* file, size_t line, const char* format, ...)
 {
-    char buffer[EXECUTOR_BUFFER_SIZE];
+    char prefixedFormat[EXECUTOR_BUFFER_SIZE];
     char lineStr[32];
 
     /* Prepend "__FILE__(__LINE__): FATAL: " to format. */
 
-    Strlcpy(buffer, file, sizeof(buffer));
-    Strlcat(buffer, "(", sizeof(buffer));
+    Strlcpy(prefixedFormat, file, sizeof(prefixedFormat));
+    Strlcat(prefixedFormat, "(", sizeof(prefixedFormat));
     sprintf(lineStr, "%u", (unsigned int)line);
-    Strlcat(buffer, lineStr, sizeof(buffer));
-    Strlcat(buffer, "): FATAL: ", sizeof(buffer));
-    Strlcat(buffer,  format, sizeof(buffer));
+    Strlcat(prefixedFormat, lineStr, sizeof(prefixedFormat));
+    Strlcat(prefixedFormat, "): FATAL: ", sizeof(prefixedFormat));
+    Strlcat(prefixedFormat,  format, sizeof(prefixedFormat));
 
     /* Print to syslog. */
     {
         va_list ap;
+        char buffer[EXECUTOR_BUFFER_SIZE];
+
         va_start(ap, format);
-        vsyslog(LOG_CRIT, buffer, ap);
+        vsprintf(buffer, prefixedFormat, ap);
         va_end(ap);
+
+        vsyslog(LOG_CRIT, buffer, ap);
     }
 
     /* Print to stderr. */
@@ -82,7 +86,7 @@ void Fatal(const char* file, size_t line, const char* format, ...)
         fprintf(stderr, "%s: ", globals.argv[0]);
         va_start(ap, format);
         /* Flawfinder: ignore */
-        vfprintf(stderr, buffer, ap);
+        vfprintf(stderr, prefixedFormat, ap);
         va_end(ap);
         fputc('\n', stderr);
     }

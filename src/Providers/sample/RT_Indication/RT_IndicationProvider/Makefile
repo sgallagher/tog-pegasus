@@ -39,13 +39,19 @@ LIBRARY = RT_IndicationProvider
 
 LIBRARIES = \
     pegqueryexpression \
-    pegprovider \
-    pegcql \
+    pegprovider
+	
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+        pegcql
+endif
+
+LIBRARIES += \
     pegwql \
     pegquerycommon \
     pegclient \
     pegcommon
-	
+    
 SOURCES = \
 	RT_IndicationProviderMain.cpp \
 	RT_IndicationProvider.cpp

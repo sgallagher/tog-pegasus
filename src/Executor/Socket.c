@@ -209,7 +209,6 @@ ssize_t SendNonBlock(
 
     while (r)
     {
-        /* ATTN: handle this or not? */
         int status = _waitForWriteEnable(sock, TIMEOUT_MSEC);
         ssize_t n;
 

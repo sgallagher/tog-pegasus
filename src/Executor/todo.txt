@@ -1,9 +1,18 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+    (A) Add additional restrictions to provider policy:
 
-    (B) Does the provider policy need any additional restrictions?
+            (1) Only one policy rule may be present per module.
+
+            (2) The four context declarations:
+
+                REQUESTOR - username=* (need to check session key).
+                DESIGNATED - username=whatever
+                PRIVILEGED - username=root
+                CIMSERVER - username=pegasus
+
+    BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
     (B) Rewrite readme.privsep
 
@@ -11,13 +20,6 @@
 
     (B) Develop tool to generate provider policy from repository (cimpolicy).
 
-    (B) Build for HP.
+    (B) Build and tests on HP.
 
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-    (C) Rethink "run as CIM server" policy when starting provider agents.
-        Currently, this means run as the same user as the executor (this
-        preserves the old behavior). Changing it to use the cimservermain
-        user will most likely break existing providers, which were probably
-        written with the expectation of running as root.
-

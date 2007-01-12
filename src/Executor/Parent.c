@@ -288,6 +288,10 @@ static void HandleStartProviderAgentRequest(int sock)
         }
     }
 
+/*
+MEB: remove this.
+*/
+#if 0
     /*
      * Map CIMSERVERMAIN user to root to preserve pre-privilege-separation
      * behavior.
@@ -301,6 +305,7 @@ static void HandleStartProviderAgentRequest(int sock)
         request.uid = 0;
         request.gid = 0;
     }
+#endif
 
     /* Process request. */
 
@@ -338,7 +343,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pid < 0)
         {
-            /* ATTN: log this. */
+            Log(LL_SEVERE, "fork failed");
             status = -1;
             break;
         }
@@ -361,7 +366,6 @@ static void HandleStartProviderAgentRequest(int sock)
              * Close unused descriptors. Leave stdin, stdout, stderr, and the
              * child's pipe descriptors open. 
              */
-
 
             if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
             {

@@ -52,6 +52,7 @@ static String testUserContext;
 
 void testUserContextRequestor()
 {
+printf("testUserContextRequestor()\n");
     try
     {
         CIMClient client;
@@ -91,9 +92,13 @@ void testUserContextRequestor()
         }
         else
         {
-cout << "userContext=" << userContext << endl;
-cout << "testUserContext=" << testUserContext << endl;
+#ifndef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+            // MEB: This test cannot pass with privilege separation enabled
+            // since it expects to run as requestor, which in this case is
+            // "root" whereas the server is "pegasus". But with authentication
+            // enabled it will work fine.
             PEGASUS_TEST_ASSERT(userContext == testUserContext);
+#endif
         }
     }
     catch (Exception& e)
@@ -105,6 +110,7 @@ cout << "testUserContext=" << testUserContext << endl;
 
 void testUserContextPrivileged()
 {
+printf("testUserContextPrivileged()\n");
     try
     {
         CIMClient client;
@@ -140,6 +146,7 @@ void testUserContextPrivileged()
 
 void testUserContextDesignated()
 {
+printf("testUserContextDesignated()\n");
     try
     {
         if (!System::isSystemUser(alternateUserContext))
@@ -183,6 +190,7 @@ void testUserContextDesignated()
 
 void testUserContextCIMServer()
 {
+printf("testUserContextCIMServer()\n");
     try
     {
         CIMClient client;

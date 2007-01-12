@@ -1,10 +1,10 @@
 ROOT = $(PEGASUS_ROOT)
-DIR = Executor/tests/Config
+DIR = Executor/tests/File
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = TestExecutorConfig
-SOURCES = TestExecutorConfig.c
+PROGRAM = TestExecutorFile
+SOURCES = TestExecutorFile.c
 EXTRA_INCLUDES += -I../../..
 
 LIBRARIES += pegexecutor

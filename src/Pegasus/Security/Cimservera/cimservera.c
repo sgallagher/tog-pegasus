@@ -114,6 +114,8 @@ int main(int argc, char* argv[])
         Exit(1);
     }
 
+    /* Handle request (authenticate or validateUser) */
+
     if (strcmp(request.arg0, "authenticate") == 0)
     {
         int status = PAMAuthenticateInProcess(request.arg1, request.arg2);

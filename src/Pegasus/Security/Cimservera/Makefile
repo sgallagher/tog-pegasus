@@ -47,7 +47,7 @@ ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 endif
 
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
-    FLAGS += -pedantic -ansi -Werror
+    FLAGS += -pedantic -ansi -Werror -Wunused -Wno-unused-function
     CXX=gcc
 endif
 

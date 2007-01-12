@@ -22,13 +22,3 @@
         preserves the old behavior). Changing it to use the cimservermain
         user will most likely break existing providers, which were probably
         written with the expectation of running as root.
-
-        Should we consider deprecating this option?
-
-    (C) Consider feasibility of rotating one-shot session keys.
-
-    (C) Propose pre-check utility that verifies proper file ownership (e.g.,
-        private key must be owned by root, all other files must be owned
-        by root but not writable by anyone else). Perhaps the executor could
-        perform these checks and print warnings.
-

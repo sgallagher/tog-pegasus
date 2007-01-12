@@ -162,7 +162,7 @@ static int _readPidFile(const char* path, int& pid)
 //
 //==============================================================================
 
-int _killCimServer()
+static int _killCimServer()
 {
     // Read the PID from the PID file.
 

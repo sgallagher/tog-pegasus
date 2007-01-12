@@ -184,16 +184,6 @@ public:
     */
     void closeWriteHandle ();
 
-    /**
-        Set the session key associated with this anonymous pipe.
-    */
-    void setSessionKey(const SessionKey& sessionKey);
-
-    /**
-        Get the session key associated with this anonymous pipe.
-    */
-    const SessionKey& getSessionKey() const;
-
 private:
 
     /**

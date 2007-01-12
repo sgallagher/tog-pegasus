@@ -35,17 +35,98 @@
 #define _Executor_Socket_h
 
 #include <stdlib.h>
+#include "Defines.h"
+#include <sys/socket.h>
+#include <string.h>
 
+EXECUTOR_LINKAGE
 int SetNonBlocking(int sock);
 
+EXECUTOR_LINKAGE
 ssize_t RecvNonBlock(int sock, void* buffer, size_t size);
 
+EXECUTOR_LINKAGE
 ssize_t SendNonBlock(int sock, const void* buffer, size_t size);
 
+EXECUTOR_LINKAGE
 int CloseOnExec(int fd);
 
+EXECUTOR_LINKAGE
 ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count);
 
+EXECUTOR_LINKAGE
 int CreateSocketPair(int pair[2]);
+
+static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
+{
+    struct msghdr mh;
+    size_t size;
+    char* data;
+    struct iovec iov[1];
+    char dummy;
+    ssize_t n;
+    struct cmsghdr* cmh = CMSG_FIRSTHDR(&mh);
+
+    /*
+     * This control data begins with a cmsghdr struct followed by the data
+     * (a descriptor in this case). The union ensures that the data is 
+     * aligned suitably for the leading cmsghdr struct. The descriptor 
+     * itself is properly aligned since the cmsghdr ends on a boundary 
+     * that is suitably aligned for any type (including int).
+     *
+     *     ControlData = [ cmsghdr | int ]
+     */
+
+    size = CMSG_SPACE(sizeof(int) * count);
+    data = (char*)malloc(size);
+
+    /* Define a msghdr that refers to the control data, which is filled in
+     * by calling recvmsg() below.
+     */
+
+    memset(&mh, 0, sizeof(mh));
+    mh.msg_control = data;
+    mh.msg_controllen = size;
+
+    /*
+     * The other process sends a single-byte message. This byte is not
+     * used since we only need the control data (the descriptor) but we
+     * must request at least one byte from recvmsg().
+     */
+
+    memset(iov, 0, sizeof(iov));
+
+    iov[0].iov_base = &dummy;
+    iov[0].iov_len = 1;
+    mh.msg_iov = iov;
+    mh.msg_iovlen = 1;
+
+    /* Receive the message from the other process. */
+
+    n = recvmsg(sock, &mh, 0);
+
+    if (n <= 0)
+        return -1;
+
+    /* Get a pointer to control message. Return if the header is null or 
+     * does not contain what we expect.
+     */
+
+    cmh = CMSG_FIRSTHDR(&mh);
+
+    if (!cmh || 
+        cmh->cmsg_len != CMSG_LEN(sizeof(int) * count) ||
+        cmh->cmsg_level != SOL_SOCKET ||
+        cmh->cmsg_type != SCM_RIGHTS)
+    {
+        return -1;
+    }
+
+    /* Copy the data: */
+
+    memcpy(descriptors, CMSG_DATA(cmh), sizeof(int) * count);
+
+    return 0;
+}
 
 #endif /* _Executor_Socket_h */

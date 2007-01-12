@@ -34,6 +34,9 @@
 #ifndef _Executor_Match_h
 #define _Executor_Match_h
 
+#include "Defines.h"
+
+EXECUTOR_LINKAGE
 int Match(const char* pattern, const char* str);
 
 #endif /* _Executor_Match_h */

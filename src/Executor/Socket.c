@@ -30,13 +30,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
+#include "Socket.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/socket.h>
-#include "Socket.h"
 #include "Exit.h"
 #include "Globals.h"
 #include "Defines.h"
@@ -298,13 +298,14 @@ ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 
     result = sendmsg(sock, &mh, 0);
     free(data);
-    return result;
+
+    return result == -1 ? -1 : 0;
 }
 
 /*
 **==============================================================================
 **
-** SendDescriptorArray()
+** CreateSocketPair()
 **
 **     Send an array of descriptors (file, socket, pipe) to the child process. 
 **

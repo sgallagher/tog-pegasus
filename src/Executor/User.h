@@ -36,8 +36,10 @@
 
 #include "Defines.h"
 
+EXECUTOR_LINKAGE
 int GetUserName(int uid, char username[EXECUTOR_BUFFER_SIZE]);
 
+EXECUTOR_LINKAGE
 int GetUserInfo(const char* user, int* uid, int* gid);
 
 #endif /* _Executor_User_h */

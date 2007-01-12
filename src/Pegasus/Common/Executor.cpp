@@ -39,6 +39,7 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>
 #else
+# include <Executor/Socket.h>
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <unistd.h>
@@ -625,7 +626,7 @@ public:
         {
             int fds[1];
 
-            if (_receiveDescriptorArray(_sock, fds, 1) != 0)
+            if (RecvDescriptorArray(_sock, fds, 1) != 0)
                 return NULL;
 
             if (fds[0] == -1)
@@ -775,7 +776,7 @@ public:
         // Receive descriptors.
 
         int descriptors[2];
-        int result = _receiveDescriptorArray(_sock, descriptors, 2);
+        int result = RecvDescriptorArray(_sock, descriptors, 2);
 
         if (result == 0)
         {
@@ -1114,68 +1115,6 @@ private:
         }
 
         return size - r;
-    }
-
-    static int _receiveDescriptorArray(
-        int sock, int descriptors[], size_t count)
-    {
-        // This control data begins with a cmsghdr struct followed by the data
-        // (a descriptor in this case). The union ensures that the data is 
-        // aligned suitably for the leading cmsghdr struct. The descriptor 
-        // itself is properly aligned since the cmsghdr ends on a boundary 
-        // that is suitably aligned for any type (including int).
-        //
-        //     ControlData = [ cmsghdr | int ]
-
-        size_t size = CMSG_SPACE(sizeof(int) * count);
-        char* data = (char*)malloc(size);
-
-        // Define a msghdr that refers to the control data, which is filled in
-        // by calling recvmsg() below.
-
-        msghdr mh;
-        memset(&mh, 0, sizeof(mh));
-        mh.msg_control = data;
-        mh.msg_controllen = size;
-
-        // The other process sends a single-byte message. This byte is not
-        // used since we only need the control data (the descriptor) but we
-        // must request at least one byte from recvmsg().
-
-        struct iovec iov[1];
-        memset(iov, 0, sizeof(iov));
-
-        char dummy;
-        iov[0].iov_base = &dummy;
-        iov[0].iov_len = 1;
-        mh.msg_iov = iov;
-        mh.msg_iovlen = 1;
-
-        // Receive the message from the other process.
-
-        ssize_t n = recvmsg(sock, &mh, 0);
-
-        if (n <= 0)
-            return -1;
-
-        // Get a pointer to control message. Return if the header is null or 
-        // does not contain what we expect.
-
-        cmsghdr* cmh = CMSG_FIRSTHDR(&mh);
-
-        if (!cmh || 
-            cmh->cmsg_len != CMSG_LEN(sizeof(int) * count) ||
-            cmh->cmsg_level != SOL_SOCKET ||
-            cmh->cmsg_type != SCM_RIGHTS)
-        {
-            return -1;
-        }
-
-        // Copy the data:
-
-        memcpy(descriptors, CMSG_DATA(cmh), sizeof(int) * count);
-
-        return 0;
     }
 
     int _sock;

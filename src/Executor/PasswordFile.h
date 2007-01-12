@@ -34,6 +34,9 @@
 #ifndef _Executor_PasswordFile_h
 #define _Executor_PasswordFile_h
 
+#include "Defines.h"
+
+EXECUTOR_LINKAGE
 int CheckPasswordFile(
     const char* path,
     const char* username,

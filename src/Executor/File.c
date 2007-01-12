@@ -44,34 +44,6 @@
 /*
 **==============================================================================
 **
-** ChangeOwner()
-**
-**     Change the given file's owner.
-**
-**==============================================================================
-*/
-
-int ChangeOwner(const char* path, const char* owner)
-{
-    int uid;
-    int gid;
-
-    if (GetUserInfo(owner, &uid, &gid) != 0)
-        return -1;
-
-    /* Flawfinder: ignore */
-    if (chown(path, uid, gid) != 0)
-    {
-        Log(LL_TRACE, "chown(%s, %d, %d) failed", path, uid, gid);
-        return -1;
-    }
-
-    return 0;
-}
-
-/*
-**==============================================================================
-**
 ** ChangeDirOwnerRecursive()
 **
 **==============================================================================

@@ -36,6 +36,7 @@
 
 #include "Defines.h"
 
+EXECUTOR_LINKAGE
 int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE]);
 
 #endif /* _Executor_Process_h */

@@ -36,15 +36,13 @@
 
 #include "Defines.h"
 
-int ChangeOwner(
-    const char* path, 
-    const char* owner);
-
+EXECUTOR_LINKAGE
 int ChangeDirOwnerRecursive(
     const char* path,
     int uid,
     int gid);
 
+EXECUTOR_LINKAGE
 int AccessDir(
     const char* path);
 

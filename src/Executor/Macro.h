@@ -34,14 +34,21 @@
 #ifndef _Executor_Macro_h
 #define _Executor_Macro_h
 
+#include "Defines.h"
+
+EXECUTOR_LINKAGE 
 const char* FindMacro(const char* name);
 
+EXECUTOR_LINKAGE 
 int DefineMacro(const char* name, const char* value);
 
+EXECUTOR_LINKAGE 
 int ExpandMacros(const char* input, char output[EXECUTOR_BUFFER_SIZE]);
 
+EXECUTOR_LINKAGE 
 int DefineConfigPathMacro(const char* configParam, const char* defaultPath);
 
+EXECUTOR_LINKAGE
 void DumpMacros();
 
 #endif /* _Executor_Macro_h */

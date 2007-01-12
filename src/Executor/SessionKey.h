@@ -50,26 +50,35 @@ typedef struct SessionKeyStruct
 }
 SessionKey;
 
+EXECUTOR_LINKAGE
 SessionKey NewSessionKey(
     int uid, 
     long data, 
     void (*destructor)(long),
     int authenticated);
 
+EXECUTOR_LINKAGE
 int DeleteSessionKey(const SessionKey* key);
 
+EXECUTOR_LINKAGE
 int GetSessionKeyUid(const SessionKey* key, int* uid);
 
+EXECUTOR_LINKAGE
 int GetSessionKeyData(const SessionKey* key, long* data);
 
+EXECUTOR_LINKAGE
 int DeleteSessionKeyData(const SessionKey* key);
 
+EXECUTOR_LINKAGE
 int SetSessionKeyAuthenticated(const SessionKey* key);
 
+EXECUTOR_LINKAGE
 int GetSessionKeyAuthenticated(const SessionKey* key, int* authenticated);
 
+EXECUTOR_LINKAGE
 int TestNullSessionKey(const SessionKey* key);
 
+EXECUTOR_LINKAGE
 int TestValidSessionKey(const SessionKey* key);
 
 #endif /* _Executor_SessionKey_h */

@@ -335,6 +335,14 @@ private:
         ProviderManagerRouter::_subscriptionInitComplete member variable.
      */
     Boolean _subscriptionInitComplete;
+
+    /** 
+        This SessionKey is used for processing upcalls from the out-of-process
+        provider module received from _pipeFromAgent. This session key was
+        assigned by Executor::startProviderAgent() as the 
+        providerAgentSessionKey output argument.
+    */
+    SessionKey _providerAgentSessionKey;
 };
 
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
@@ -444,7 +452,7 @@ void ProviderAgentContainer::_startAgentProcess()
         newUid,
         newGid,
         pid,
-        providerAgentSessionKey,
+        _providerAgentSessionKey,
         readPipe,
         writePipe);
 
@@ -462,8 +470,6 @@ void ProviderAgentContainer::_startAgentProcess()
     // Set the session key to be used for requests emanating from this read
     // pipe (i.e., the provider agent). Examples include requests made by the
     // provider with the CIMOMHandle or indications delivered by the provider.
-
-    readPipe->setSessionKey(providerAgentSessionKey);
 
 # if defined(PEGASUS_HAS_SIGNALS)
     _pid = pid;
@@ -559,7 +565,7 @@ void ProviderAgentContainer::_sendInitializationData()
         CIMRequestMessage* m = dynamic_cast<CIMRequestMessage*>(message);
 
         if (m)
-            m->sessionKey = _pipeFromAgent->getSessionKey();
+            m->sessionKey = _providerAgentSessionKey;
     }
 
     PEG_METHOD_EXIT();
@@ -643,7 +649,7 @@ void ProviderAgentContainer::_initialize()
     }
     catch (...)
     {
-        SessionKey sessionKey = _pipeFromAgent->getSessionKey();
+        SessionKey sessionKey = _providerAgentSessionKey;
 
         // Closing the connection causes the agent process to exit
         _pipeToAgent.reset();
@@ -699,7 +705,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
     try
     {
-        SessionKey sessionKey = _pipeFromAgent->getSessionKey();
+        SessionKey sessionKey = _providerAgentSessionKey;
 
         // Close the connection with the Provider Agent
         _pipeFromAgent.reset();
@@ -1135,7 +1141,7 @@ void ProviderAgentContainer::_processResponses()
                     dynamic_cast<CIMRequestMessage*>(message);
 
                 if (m)
-                    m->sessionKey = _pipeFromAgent->getSessionKey();
+                    m->sessionKey = _providerAgentSessionKey;
             }
 
             // It is a CIM_PROCESS_INDICATION_REQUEST_MESSAGE?

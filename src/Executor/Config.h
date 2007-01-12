@@ -36,15 +36,18 @@
 
 #include "Defines.h"
 
+EXECUTOR_LINKAGE
 int GetConfigParamFromCommandLine(
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE]);
 
+EXECUTOR_LINKAGE
 int GetConfigParamFromFile(
     const char* path,
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE]);
 
+EXECUTOR_LINKAGE
 int GetConfigParam(
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE]);

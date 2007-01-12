@@ -170,14 +170,4 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
     return readStatus;
 }
 
-void AnonymousPipe::setSessionKey(const SessionKey& sessionKey)
-{
-    _sessionKey = sessionKey;
-}
-
-const SessionKey& AnonymousPipe::getSessionKey() const
-{
-    return _sessionKey;
-}
-
 PEGASUS_NAMESPACE_END

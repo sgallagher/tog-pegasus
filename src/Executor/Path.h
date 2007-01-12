@@ -36,10 +36,13 @@
 
 #include "Defines.h"
 
+EXECUTOR_LINKAGE
 void DirName(const char* pathIn, char pathOut[EXECUTOR_BUFFER_SIZE]);
 
+EXECUTOR_LINKAGE
 int GetHomedPath(const char* name, char path[EXECUTOR_BUFFER_SIZE]);
 
+EXECUTOR_LINKAGE
 int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE]); 
 
 #endif /* _Executor_Path_h */

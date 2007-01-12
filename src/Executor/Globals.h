@@ -72,6 +72,7 @@ struct Globals
     int enableAuthentication;
 };
 
+EXECUTOR_LINKAGE
 extern struct Globals globals;
 
 #endif /* _Executor_Globals_h */

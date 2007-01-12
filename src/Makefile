@@ -33,7 +33,7 @@ ROOT = ..
 include $(ROOT)/mak/config.mak
 
 ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-  DIRS += Executor
+  DIRS += Executor Executor/tests
 endif
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)

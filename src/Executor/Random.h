@@ -35,9 +35,12 @@
 #define _Executor_Random_h
 
 #include <stdlib.h>
+#include "Defines.h"
 
+EXECUTOR_LINKAGE
 void FillRandomBytes(unsigned char* data, size_t size);
 
+EXECUTOR_LINKAGE
 void RandBytesToHexASCII(const unsigned char* data, size_t size, char* ascii);
 
 #endif /* _Executor_Random_h */

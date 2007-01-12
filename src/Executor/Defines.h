@@ -34,8 +34,38 @@
 #ifndef _Executor_Defines_h
 #define _Executor_Defines_h
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <assert.h>
+
+/*
+**==============================================================================
+**
+** EXECUTOR_LINKAGE
+**
+**     Linkage macro used to export various functions in the executor. Since the
+**     executor is a self-contained program, export linkage may seem unecessary
+**     but the source files in this directory are also included in a test 
+**     library used to test some of the executor functions.
+**
+**==============================================================================
+*/
+
+#ifdef EXECUTOR_PLEASE_EXPORT
+# define EXECUTOR_LINKAGE PEGASUS_EXPORT
+#else
+# define EXECUTOR_LINKAGE PEGASUS_IMPORT
+#endif
+
+/*
+**==============================================================================
+**
+** EXECUTOR_TRACE()
+**
+**     Handy macro for temporary source-level tracing and debugging.
+**
+**==============================================================================
+*/
 
 #define EXECUTOR_TRACE printf("TRACE: %s(%d)\n", __FILE__, __LINE__)
 

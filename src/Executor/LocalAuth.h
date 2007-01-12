@@ -37,11 +37,13 @@
 #include "SessionKey.h"
 #include "Defines.h"
 
+EXECUTOR_LINKAGE
 int StartLocalAuthentication(
     const char* user,
     char path[EXECUTOR_BUFFER_SIZE],
     SessionKey* key);
 
+EXECUTOR_LINKAGE
 int FinishLocalAuthentication(
     const SessionKey* key,
     const char* token);

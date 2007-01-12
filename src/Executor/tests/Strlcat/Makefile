@@ -7,6 +7,7 @@ PROGRAM = TestStrlcat
 SOURCES = TestStrlcat.c
 EXTRA_INCLUDES += -I../../..
 
+include ../common.mak
 include $(ROOT)/mak/program.mak
 
 tests:

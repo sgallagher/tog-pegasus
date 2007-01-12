@@ -1,26 +1,19 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
+    (C) Change Executor class to use String rather than char*.
+
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
     (B) Rewrite readme.privsep
 
     (B) Revalidation (all configurations and all platforms).
 
-    (B) Take out CLI.cpp changes.
+    (B) Back out CLI.cpp changes.
 
-    (B) Deal with ATTN's and MEB's.
+    (B) Code review (privsep.diff).
 
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-    (C) cimserver -h does not work if server is already running.
-
-    (C) Change Executor class to use String rather than char*.
-
-    (C) Remove Backtrace.* files.
-
-    (C) Eliminate AnonymousPipe::setSessionKey() and getSessionKey(). Put 
-        session key into ProviderAgentContainer.
 
     (C) Add Strlcat and Strlcpy unit tests to Pegasus build.
 

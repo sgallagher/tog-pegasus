@@ -271,11 +271,13 @@ int CheckOpenFilePolicy(const char* path, int mode)
     if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize, 
         EXECUTOR_OPEN_FILE_MESSAGE, path, arg2) == 0)
     {
-        Log(LL_TRACE, "CheckOpenFilePolicy(\"%s\", '%c') passed", path, mode);
+        Log(LL_TRACE, "CheckOpenFilePolicy(%s=\"%s\", %s='%c') passed", 
+            ARG(path), ARG(mode));
         return 0;
     }
 
-    Log(LL_SEVERE, "CheckOpenFilePolicy(\"%s\", '%c') failed", path, mode);
+    Log(LL_SEVERE, "CheckOpenFilePolicy(%s=\"%s\", %s='%c') failed", 
+        ARG(path), ARG(mode));
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");
@@ -297,11 +299,11 @@ int CheckRemoveFilePolicy(const char* path)
     if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
         EXECUTOR_REMOVE_FILE_MESSAGE, path, NULL) == 0)
     {
-        Log(LL_TRACE, "CheckRemoveFilePolicy(\"%s\") passed", path);
+        Log(LL_TRACE, "CheckRemoveFilePolicy(%s=\"%s\") passed", ARG(path));
         return 0;
     }
 
-    Log(LL_SEVERE, "CheckRemoveFilePolicy(\"%s\") failed", path);
+    Log(LL_SEVERE, "CheckRemoveFilePolicy(%s=\"%s\") failed", ARG(path));
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");
@@ -323,13 +325,13 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
     if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize, 
         EXECUTOR_RENAME_FILE_MESSAGE, oldPath, newPath) == 0)
     {
-        Log(LL_TRACE, "CheckRenameFilePolicy(\"%s\", \"%s\") passed",
-            oldPath, newPath);
+        Log(LL_TRACE, "CheckRenameFilePolicy(%s=\"%s\", %s=\"%s\") passed",
+            ARG(oldPath), ARG(newPath));
         return 0;
     }
 
-    Log(LL_SEVERE, "CheckRenameFilePolicy(\"%s\", \"%s\") failed",
-        oldPath, newPath);
+    Log(LL_SEVERE, "CheckRenameFilePolicy(%s=\"%s\", %s=\"%s\") failed",
+        ARG(oldPath), ARG(newPath));
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");

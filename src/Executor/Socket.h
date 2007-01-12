@@ -34,9 +34,12 @@
 #ifndef _Executor_Socket_h
 #define _Executor_Socket_h
 
+#if !defined(_XOPEN_SOURCE_EXTENDED)
+# define _XOPEN_SOURCE_EXTENDED
+#endif
+
 #include <stdlib.h>
 #include "Defines.h"
-#define _XOPEN_SOURCE_EXTENDED
 #include <sys/socket.h>
 #include <string.h>
 

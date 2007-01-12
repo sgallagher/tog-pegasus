@@ -57,7 +57,7 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 LOCAL_CLEAN_TARGET=local-clean
 
-PROGRAM = CompareRepositories
+PROGRAM = TestCompareRepositories
 SOURCES = 
 
 ##
@@ -155,7 +155,7 @@ repo_clean:
 	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_CMP)
 
 local-clean: repo_clean
-	@ - rm -rf file1 file2
+	@ - $(RM) -rf file1 file2
 
 run_test:
 	$(PROGRAM) $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_CMP) 

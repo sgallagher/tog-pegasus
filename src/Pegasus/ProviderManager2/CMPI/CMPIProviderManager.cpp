@@ -2296,7 +2296,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
     HandlerIntroInd(CreateSubscription,message,request,response,
                  handler);
     try {
-        const CIMObjectPath &x=request->subscriptionInstance.getPath();
         CIMInstance req_provider, req_providerModule;
         ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
         req_provider = pidc.getProvider();

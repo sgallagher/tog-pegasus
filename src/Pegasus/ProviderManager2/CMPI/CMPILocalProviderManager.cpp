@@ -550,11 +550,10 @@ getRemoteProvider (const String & location, const String & providerName)
   {
     PEG_METHOD_EXIT ();
     throw;
-  } CMPIProvider & prov = ph.GetProvider ();
+  }
 
   PEG_METHOD_EXIT ();
-  return (ph);
-
+  return ph;
 }
 
 CMPIProvider::OpProviderHolder CMPILocalProviderManager::

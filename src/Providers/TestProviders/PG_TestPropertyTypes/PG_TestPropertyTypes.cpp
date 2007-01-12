@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou (yi_zhou@hp.com)
-//
-// Modified By:
-//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//      Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
-//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
-//      Chip Vincent (cvincent@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -503,9 +495,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 	for (j=0; j<PropertyCount; j++)
 	{
 	  const CIMConstProperty & property = instanceObject.getProperty(j);
-	  const CIMName & propertyName = property.getName();
 	  const CIMValue& propertyValue = property.getValue();
-
 	  CIMType type = propertyValue.getType();
 
 	  switch (type)

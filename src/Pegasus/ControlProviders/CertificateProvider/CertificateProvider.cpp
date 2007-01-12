@@ -1555,12 +1555,10 @@ void CertificateProvider::invokeMethod(
             //
             // Read the buffer until no more certificates found.
             //
-            X509 *xCert = NULL;
             Uint32 certCount = 0;
-            while (( xCert = PEM_read_bio_X509(mem, NULL , 0, NULL)))
+            while (PEM_read_bio_X509(mem, NULL , 0, NULL))
             {
                 certCount++;
-                xCert = NULL;
             }
  
             //
@@ -1584,7 +1582,7 @@ void CertificateProvider::invokeMethod(
             //
             // Read the certificate from buffer.
             //
-            xCert = PEM_read_bio_X509(memCert, NULL , 0, NULL);
+            X509* xCert = PEM_read_bio_X509(memCert, NULL , 0, NULL);
             if (xCert == NULL)
             {
                 BIO_free(memCert);

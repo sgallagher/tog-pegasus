@@ -370,17 +370,15 @@ void WbemExecCommand::_printContent(
     //
     //  Get HTTP header
     //
-    const char* message = responseMessage.getData ();
-
     if (contentOffset < responseMessage.size())
-      {
+    {
         //
         //  Print XML response to the ostream
         //
         ((Buffer&) responseMessage).append ('\0');
         const char* content = responseMessage.getData () + contentOffset;
         XmlWriter::indentedPrint (oStream, content, 0);
-      }
+    }
 }
 
 /**

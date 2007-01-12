@@ -212,6 +212,8 @@ static void HandleStartProviderAgentRequest(int sock)
     int from[2];
     struct ExecutorStartProviderAgentResponse response;
     struct ExecutorStartProviderAgentRequest request;
+    SessionKey key;
+    char requestor[EXECUTOR_BUFFER_SIZE];
 
     memset(&response, 0, sizeof(response));
 
@@ -220,20 +222,25 @@ static void HandleStartProviderAgentRequest(int sock)
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
 
-    Log(LL_TRACE, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
-        request.module, request.gid, request.uid);
+    /* Get session key. */
+
+    Strlcpy(key.data, request.key, sizeof(key.data));
+
+    /* Log request. */
+
+    Log(LL_TRACE, "HandleStartProviderAgentRequest(): "
+        "key=%s module=%s gid=%d uid=%d",
+        key.data, request.module, request.gid, request.uid);
 
     /* Check session key. */
 
     if (globals.enableAuthentication)
     {
-        SessionKey key;
         int authenticated;
 
         /* Check session key. */
 
         authenticated = 0;
-        Strlcpy(key.data, request.key, sizeof(key.data));
 
         if (GetSessionKeyAuthenticated(&key, &authenticated) != 0)
         {
@@ -261,17 +268,27 @@ static void HandleStartProviderAgentRequest(int sock)
 
             return;
         }
+
+        /* Get requestor's username. */
+
+        if (GetSessionKeyUsername(&key, requestor) != 0)
+            Fatal(FL, "Failed to get requestor's username");
     }
+    else
+        *requestor = '\0';
 
     /* Check policy for this operation. */
 
     {
         char username[EXECUTOR_BUFFER_SIZE];
 
-        if (GetUserName(getuid(), username) != 0)
+        /* Get username to run provider agent as. */
+
+        if (GetUserName(request.uid, username) != 0)
             Fatal(FL, "Failed to resolve username for uid=%d", request.uid);
 
-        if (CheckStartProviderAgentPolicy(request.module, username) != 0)
+        if (CheckStartProviderAgentPolicy(
+            request.module, username, requestor) != 0)
         {
             response.status = -1;
             response.pid = -1;

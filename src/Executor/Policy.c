@@ -55,14 +55,11 @@
 **==============================================================================
 */
 
-#define POLICY_FLAG_REQUESTOR 1
-
 struct Policy
 {
     enum ExecutorMessageCode messageCode;
     const char* arg1;
     const char* arg2;
-    int flags;
 };
 
 /*
@@ -82,96 +79,81 @@ static struct Policy _staticPolicyTable[] =
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${currentConfigFilePath}",
         "w",
-        0
     },
     { 
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${currentConfigFilePath}",
         "${currentConfigFilePath}.bak",
-        0
     },
     { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${currentConfigFilePath}",
         NULL,
-        0
     },
     { 
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${currentConfigFilePath}.bak",
         NULL,
-        0
     },
     /* cimserver.passwd policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${passwordFilePath}",
         "w",
-        0
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${passwordFilePath}.bak",
         "${passwordFilePath}",
-        0
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${passwordFilePath}",
         "${passwordFilePath}.bak",
-        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${passwordFilePath}.bak",
         NULL,
-        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${passwordFilePath}",
         NULL,
-        0
     },
     /* cimserver.trc policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${traceFilePath}/cimserver.trc*",
         "a",
-        0
     },
     /* SSL key file policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${sslKeyFilePath}",
         "r",
-        0
     },
     /* SSL trust store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${sslTrustStore}/*",
         "w",
-        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${sslTrustStore}/*",
         NULL,
-        0
     },
     /* CRL store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${crlStore}/*",
         "w",
-        0
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${crlStore}/*",
         NULL,
-        0
     },
 };
 
@@ -343,23 +325,41 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 **==============================================================================
 */
 
-int CheckStartProviderAgentPolicy(const char* module, const char* user)
+int CheckStartProviderAgentPolicy(
+    const char* module, 
+    const char* user,
+    const char* requestor)
 {
+/*
+MEB: remove this.
+*/
+    Log(LL_INFORMATION, 
+        "CheckStartProviderAgentPolicy(\"%s\", \"%s\", \"%s\")\n",
+        module, user, requestor);
+
+    /* Define $requestor since policy rule might use the macro. */
+
+    DefineMacro("requestor", requestor);
+
     if (CheckPolicy(_dynamicPolicyTable, _dynamicPolicyTableSize,
         EXECUTOR_START_PROVIDER_AGENT_MESSAGE, module, user) == 0)
     {
-        Log(LL_TRACE, "CheckStartProviderAgentPolicy(\"%s\", \"%s\") passed", 
-            module, user);
+        Log(LL_TRACE, 
+            "CheckStartProviderAgentPolicy(\"%s\", \"%s\", \"%s\") passed", 
+            module, user, requestor);
+        UndefineMacro("requestor");
         return 0;
     }
 
-    Log(LL_SEVERE, "CheckStartProviderAgentPolicy(\"%s\", \"%s\") failed", 
-        module, user);
+    Log(LL_SEVERE, 
+        "CheckStartProviderAgentPolicy(\"%s\", \"%s\", \"%s\") failed", 
+        module, user, requestor);
 
 #if defined(EXIT_ON_POLICY_FAILURE)
     Fatal(FL, "exited due to policy failure");
 #endif
 
+    UndefineMacro("requestor");
     return -1;
 }
 

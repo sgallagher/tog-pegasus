@@ -356,3 +356,26 @@ int TestValidSessionKey(const SessionKey* key)
 
     return 0;
 }
+
+/*
+**==============================================================================
+**
+** GetSessionKeyUsername()
+**
+**==============================================================================
+*/
+
+int GetSessionKeyUsername(
+    const SessionKey* key, 
+    char username[EXECUTOR_BUFFER_SIZE])
+{
+    int uid = -1;
+
+    if (GetSessionKeyUid(key, &uid) != 0)
+        return -1;
+
+    if (GetUserName(uid, username) != 0)
+        return -1;
+
+    return 0;
+}

@@ -64,6 +64,11 @@ EXECUTOR_LINKAGE
 int GetSessionKeyUid(const SessionKey* key, int* uid);
 
 EXECUTOR_LINKAGE
+int GetSessionKeyUsername(
+    const SessionKey* key, 
+    char username[EXECUTOR_BUFFER_SIZE]);
+
+EXECUTOR_LINKAGE
 int GetSessionKeyData(const SessionKey* key, long* data);
 
 EXECUTOR_LINKAGE

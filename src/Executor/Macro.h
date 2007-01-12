@@ -43,6 +43,9 @@ EXECUTOR_LINKAGE
 int DefineMacro(const char* name, const char* value);
 
 EXECUTOR_LINKAGE 
+int UndefineMacro(const char* name);
+
+EXECUTOR_LINKAGE 
 int ExpandMacros(const char* input, char output[EXECUTOR_BUFFER_SIZE]);
 
 EXECUTOR_LINKAGE 

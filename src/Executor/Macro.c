@@ -144,6 +144,43 @@ int DefineMacro(const char* name, const char* value)
 /*
 **==============================================================================
 **
+** UndefineMacro()
+**
+**     Remove the given macro from the macro table.
+**
+**==============================================================================
+*/
+
+int UndefineMacro(const char* name)
+{
+    struct Macro* p;
+    struct Macro* prev;
+
+    for (p = _macros, prev = 0; p; p = p->next)
+    {
+        if (strcmp(p->name, name) == 0)
+        {
+            if (prev)
+                prev->next = p->next;
+            else
+                _macros = p->next;
+
+            free(p->name);
+            free(p->value);
+            free(p);
+            return 0;
+        }
+
+        prev = p;
+    }
+
+    /* Not found. */
+    return -1;
+}
+
+/*
+**==============================================================================
+**
 ** ExpandMacros()
 **
 **     Expand all macros in *input*. Leave result in *output*.

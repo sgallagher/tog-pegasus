@@ -91,9 +91,13 @@ void Log(enum LogLevel type, const char *format, ...)
     if ((int)type <= (int)_level)
     {
         va_list ap;
+        char buffer[EXECUTOR_BUFFER_SIZE];
+
         va_start(ap, format);
-        vsyslog(_priorities[(int)type], prefixedFormat, ap);
+        vsprintf(buffer, prefixedFormat, ap);
         va_end(ap);
+
+        syslog(_priorities[(int)type], "%s", buffer);
     }
 }
 

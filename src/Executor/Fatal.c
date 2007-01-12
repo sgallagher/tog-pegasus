@@ -76,7 +76,7 @@ void Fatal(const char* file, size_t line, const char* format, ...)
         vsprintf(buffer, prefixedFormat, ap);
         va_end(ap);
 
-        vsyslog(LOG_CRIT, buffer, ap);
+        syslog(LOG_CRIT, "%s", buffer);
     }
 
     /* Print to stderr. */

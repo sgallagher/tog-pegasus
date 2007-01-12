@@ -163,7 +163,7 @@ static int CimserveraStart(int* sock)
     if (pid == 0)
     {
         char sockStr[32];
-        char* argv[3];
+        const char* argv[3];
 
         close(pair[1]);
 

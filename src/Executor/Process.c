@@ -56,7 +56,7 @@ int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
     if (pstat_getproc(&psts, sizeof(psts), 0, pid) == -1)
         return -1;
 
-    Strlcpy(name, pstru.pst_ucomm, EXECUTOR_BUFFER_SIZE);
+    Strlcpy(name, psts.pst_ucomm, EXECUTOR_BUFFER_SIZE);
 
     return 0;
 }

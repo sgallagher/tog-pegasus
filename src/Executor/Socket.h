@@ -36,6 +36,7 @@
 
 #include <stdlib.h>
 #include "Defines.h"
+#define _XOPEN_SOURCE_EXTENDED
 #include <sys/socket.h>
 #include <string.h>
 

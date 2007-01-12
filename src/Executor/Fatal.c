@@ -37,6 +37,8 @@
 #include "Log.h"
 #include "Exit.h"
 #include "Globals.h"
+#include "Strlcpy.h"
+#include "Strlcat.h"
 
 /*
 **==============================================================================
@@ -53,13 +55,23 @@
 
 void Fatal(const char* file, size_t line, const char* format, ...)
 {
-    Log(LL_FATAL, "%s(%d): Fatal() called", file, (int)line);
+    char buffer[EXECUTOR_BUFFER_SIZE];
+    char lineStr[32];
+
+    /* Prepend "__FILE__(__LINE__): FATAL: " to format. */
+
+    Strlcpy(buffer, file, sizeof(buffer));
+    Strlcat(buffer, "(", sizeof(buffer));
+    sprintf(lineStr, "%u", (unsigned int)line);
+    Strlcat(buffer, lineStr, sizeof(buffer));
+    Strlcat(buffer, "): FATAL: ", sizeof(buffer));
+    Strlcat(buffer,  format, sizeof(buffer));
 
     /* Print to syslog. */
     {
         va_list ap;
         va_start(ap, format);
-        vsyslog(LOG_CRIT, format, ap);
+        vsyslog(LOG_CRIT, buffer, ap);
         va_end(ap);
     }
 
@@ -67,10 +79,10 @@ void Fatal(const char* file, size_t line, const char* format, ...)
     {
         va_list ap;
 
-        fprintf(stderr, "%s: %s(%d): ", globals.argv[0], file, (int)line);
+        fprintf(stderr, "%s: ", globals.argv[0]);
         va_start(ap, format);
         /* Flawfinder: ignore */
-        vfprintf(stderr, format, ap);
+        vfprintf(stderr, buffer, ap);
         va_end(ap);
         fputc('\n', stderr);
     }

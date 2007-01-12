@@ -76,10 +76,7 @@
     14. The KerberosAuthenticationHandler.h and all Kerberos authentication
         logic is not part of the Pegasus repository.
 
-    15.  The CIMExportIndicationRequestMessage comes back into the server
-         and is delivered to an indication consumer (which must be loaded).
-
-    16. The following authentication schemes were rewritten and are now
+    15. The following authentication schemes were rewritten and are now
         part of the executor.
 
             - PAM Basic Authentication
@@ -92,12 +89,18 @@
             - SSL peer authentication
             - Kerberos (source not available to Pegasus).
 
-    17. Places that NEW_SESSION_KEY request is used.
+    16. Places that NEW_SESSION_KEY request is used.
 
             - SSL certificate authentication.
-            - Indication service.
+            - Indication service (before accepting connections).
 
-    18. Note that "secure basic" authentication and "SSL peer authentication"
-        cannot be used together since the validate user (performed by
-        SSL peer authentication) fails since the username is not in the
-        cimserver.passwd file.
+    17. Note that using "secure basic" authentication and "SSL peer 
+        authentication" togehter breaks the end-to-end tests (validate
+        user fails since the user is not in the cimserver.passwd file).
+
+    18. Four provider agent user contexts:
+
+            - REQUESTOR         MyProviderModule:*
+            - DESIGNATED        MyProviderModule:fred
+            - PRIVILEGED        MyProviderModule:root
+            - CIMSERVER         MyProviderModule:pegasus

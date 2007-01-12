@@ -9,8 +9,6 @@
 
     (B) Revalidation (all configurations and all platforms).
 
-    (B) Back out CLI.cpp changes.
-
     (B) Develop tool to generate provider policy from repository (cimpolicy).
 
     (B) Build for HP.

@@ -235,6 +235,9 @@ stageClientSSLFiles-SystemIndependent:
 stageCIMServerConfigurationFiles:
 	@$(RM) $(PEGASUS_HOME)/cimserver_planned.conf
 	@$(COPY) cimserver_planned.conf $(PEGASUS_HOME)
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+	@$(COPY) cimserver_policy.conf $(PEGASUS_HOME)
+endif
 
 install_run: $(PEGASUS_HOME)/setupserverdev
 

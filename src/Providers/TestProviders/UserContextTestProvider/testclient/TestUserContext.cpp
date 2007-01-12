@@ -208,18 +208,19 @@ void testUserContextCIMServer()
         }
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-/*
-MEB:
 
-    We must skip this test for now since run-as-cim-server no longer means
-    run-as-root, the way it did before. In this test, the following variables
-    will end up being as follows:
+        // ATTN-MEB:
+        //
+        // We must skip this test for now since run-as-cim-server no longer 
+        // means run-as-root, the way it did before. In this test, the 
+        // following variables will end up being as follows:
+        //
+        // userContext=pegasus
+        // testUserContext=root
+        //
+        // To make this test work correctly, we would have to obtain the 
+        // serverUser.
 
-        userContext=pegasus
-        testUserContext=root
-
-    To make this test work correctly, we would have to obtain the serverUser.
-*/
         cout << " Skipping as-cimserver UserContext test when using privilege ";
         cout << "separation feature" << endl;
 

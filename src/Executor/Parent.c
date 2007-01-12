@@ -223,32 +223,68 @@ static void HandleStartProviderAgentRequest(int sock)
     Log(LL_TRACE, "HandleStartProviderAgentRequest(): module=%s gid=%d uid=%d",
         request.module, request.gid, request.uid);
 
-    /* Check for a valid session key. */
+    /* Check session key. */
 
     if (globals.enableAuthentication)
     {
         SessionKey key;
-        int uid;
+        int authenticated;
 
+        /* Check session key. */
+
+        authenticated = 0;
         Strlcpy(key.data, request.key, sizeof(key.data));
 
-        if (TestValidSessionKey(&key) != 0)
+        if (GetSessionKeyAuthenticated(&key, &authenticated) != 0)
         {
-            Log(LL_SEVERE, 
-                "Invalid session key in HandleStartProviderAgentRequest(): %s",
-                key.data);
+            Log(LL_SEVERE, "attempted to start provider module \"%s\" as "
+                "user \"%s\", using unknown session key");
         }
-        else if (TestNullSessionKey(&key) == 0)
+        else if (!authenticated)
         {
-            Log(LL_SEVERE, 
-                "Null session key in HandleStartProviderAgentRequest(): %s",
-                key.data);
+            Log(LL_SEVERE, "attempted to start provider module \"%s\" as "
+                "user \"%s\", using an unauthenticated session key");
         }
-        else if (GetSessionKeyUid(&key, &uid) != 0)
+
+        if (!authenticated)
         {
-            Log(LL_SEVERE, 
-                "Unknown session key in HandleStartProviderAgentRequest(): %s",
-                key.data);
+            response.status = -1;
+            response.pid = -1;
+            Strlcpy(
+                response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
+
+            if (SendNonBlock(
+                sock, &response, sizeof(response)) != sizeof(response))
+            {
+                Fatal(FL, "Failed to write response");
+            }
+
+            return;
+        }
+    }
+
+    /* Check policy for this operation. */
+
+    {
+        char username[EXECUTOR_BUFFER_SIZE];
+
+        if (GetUserName(getuid(), username) != 0)
+            Fatal(FL, "Failed to resolve username for uid=%d", request.uid);
+
+        if (CheckStartProviderAgentPolicy(request.module, username) != 0)
+        {
+            response.status = -1;
+            response.pid = -1;
+            Strlcpy(
+                response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
+
+            if (SendNonBlock(
+                sock, &response, sizeof(response)) != sizeof(response))
+            {
+                Fatal(FL, "Failed to write response");
+            }
+
+            return;
         }
     }
 

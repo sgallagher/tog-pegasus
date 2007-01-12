@@ -40,6 +40,10 @@ int CheckRemoveFilePolicy(const char* path);
 
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath);
 
+int CheckStartProviderAgentPolicy(const char* module, const char* user);
+
+void LoadDynamicPolicy();
+
 void DumpPolicy(int expandMacros);
 
 #endif /* _Executor_Policy_h */

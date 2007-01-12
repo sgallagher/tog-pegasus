@@ -44,6 +44,66 @@
 /*
 **==============================================================================
 **
+** DirName()
+**
+**     Remove the trailing component from the path (like the Unix dirname 
+**     command).
+**
+**         /a => /
+**         /a/ => /
+**         /a/b => /a
+**         /a/b/foo.conf => /a/b
+**
+**==============================================================================
+*/
+
+void DirName(const char* path1, char path2[EXECUTOR_BUFFER_SIZE])
+{
+    char* p;
+
+    /* Copy path1 to path2. */
+
+    Strlcpy(path2, path1, EXECUTOR_BUFFER_SIZE);
+
+    /* Find last slash. */
+
+    p = strrchr(path2, '/');
+
+    /* Handle "." case (empty string or no slashes). */
+
+    if (*path2 == '\0' || p == NULL)
+    {
+        Strlcpy(path2, ".", EXECUTOR_BUFFER_SIZE);
+        return;
+    }
+
+    /* Remove trailing slashes. */
+
+    if (p[1] == '\0')
+    {
+        while (p != path2 && *p == '/')
+            *p-- = '\0';
+    }
+
+    /* Remove trailing component. */
+
+    p = strrchr(path2, '/');
+
+    if (p)
+    {
+        if (p == path2)
+            p[1] = '\0';
+
+        while (p != path2 && *p == '/')
+            *p-- = '\0';
+    }
+    else
+        Strlcpy(path2, ".", EXECUTOR_BUFFER_SIZE);
+}
+
+/*
+**==============================================================================
+**
 ** GetHomedPath()
 **
 **     Get the absolute path of the given named file or directory. If already

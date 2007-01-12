@@ -45,6 +45,7 @@
 #include "Globals.h"
 #include "Socket.h"
 #include "Strlcpy.h"
+#include "Strlcat.h"
 #include "Log.h"
 #include "Policy.h"
 #include "Macro.h"
@@ -296,6 +297,18 @@ void DefineExecutorMacros()
 
     if (DefineConfigPathMacro("crlStore", "crl") != 0)
         Fatal(FL, "missing \"crlStore\" configuration parameter.");
+
+    /* Define ${policyConfigFilePath} */
+    {
+        char path1[EXECUTOR_BUFFER_SIZE];
+        char path2[EXECUTOR_BUFFER_SIZE];
+
+        ExpandMacros("${currentConfigFilePath}", path1);
+        DirName(path1, path2);
+        Strlcat(path2, "/cimserver_policy.conf", sizeof(path2));
+
+        DefineMacro("policyConfigFilePath", path2);
+    }
 }
 
 /*
@@ -332,6 +345,10 @@ int main(int argc, char** argv)
 
     if (options.shutdown)
         ExecShutdown();
+
+    /* Load the dynamic policy file. */
+
+    LoadDynamicPolicy();
 
     /* Process --policy and --macros options. */
 

@@ -1,15 +1,11 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Implement provider policy.
-
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
-    (B) Update readme.privsep
+    (B) Rewrite readme.privsep
 
     (B) Revalidation (all configurations and all platforms).
-
-    (B) Code walk-through of all diffs to cimservermain.
 
     (B) Take out CLI.cpp changes.
 

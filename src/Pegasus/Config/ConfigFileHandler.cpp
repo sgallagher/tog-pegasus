@@ -186,7 +186,6 @@ void ConfigFileHandler::copyPlannedFileOverCurrentFile()
         // Remove the current file
         //
 
-        // ATTN:MEB: removed no-case option.
         Executor::removeFile(
             _currentConfFile->getFileName().getCString());
     }

@@ -36,11 +36,10 @@
 
 #include "Defines.h"
 
-int GetHomedPath(
-    const char* name,
-    char path[EXECUTOR_BUFFER_SIZE]);
+void DirName(const char* pathIn, char pathOut[EXECUTOR_BUFFER_SIZE]);
 
-int GetPegasusInternalBinDir(
-    char path[EXECUTOR_BUFFER_SIZE]);
+int GetHomedPath(const char* name, char path[EXECUTOR_BUFFER_SIZE]);
+
+int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE]); 
 
 #endif /* _Executor_Path_h */

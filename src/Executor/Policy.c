@@ -31,6 +31,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
+#include <string.h>
+#include <ctype.h>
 #include "Policy.h"
 #include "Defines.h"
 #include "Macro.h"
@@ -63,14 +65,14 @@ struct Policy
 /*
 **==============================================================================
 **
-** _policyTable[]
+** _staticPolicyTable[]
 **
 **     This array defines the static policy table for the executor.
 **
 **==============================================================================
 */
 
-static struct Policy _policyTable[] =
+static struct Policy _staticPolicyTable[] =
 {
     /* cimserver_current.conf policies */
     {
@@ -155,8 +157,23 @@ static struct Policy _policyTable[] =
     },
 };
 
-static const size_t _policyTableSize = 
-    sizeof(_policyTable) / sizeof(_policyTable[0]);
+static const size_t _staticPolicyTableSize = 
+    sizeof(_staticPolicyTable) / sizeof(_staticPolicyTable[0]);
+
+/*
+**==============================================================================
+**
+** _dynamicPolicyTable[]
+**
+**     This array defines the dynamic policy table for the executor (this
+**     includes the START_PROVIDER_AGENT policies.
+**
+**==============================================================================
+*/
+static struct Policy* _dynamicPolicyTable = 0;
+
+static size_t _dynamicPolicyTableSize = 
+    sizeof(_dynamicPolicyTable) / sizeof(_dynamicPolicyTable[0]);
 
 /*
 **==============================================================================
@@ -167,17 +184,19 @@ static const size_t _policyTableSize =
 */
 
 static int CheckPolicy(
+    const struct Policy* policyTable,
+    size_t policyTableSize,
     enum ExecutorMessageCode messageCode,
     const char* arg1,
     const char* arg2)
 {
     size_t i;
 
-    for (i = 0; i < _policyTableSize; i++)
+    for (i = 0; i < policyTableSize; i++)
     {
         const struct Policy* p;
 
-        p = &_policyTable[i];
+        p = &policyTable[i];
 
         /* Check message code */
 
@@ -191,9 +210,7 @@ static int CheckPolicy(
             char pat[EXECUTOR_BUFFER_SIZE];
 
             if (ExpandMacros(p->arg1, pat) != 0 || Match(pat, arg1) != 0)
-            {
                 continue;
-            }
         }
 
         /* Check arg2. */
@@ -230,7 +247,8 @@ int CheckOpenFilePolicy(const char* path, int mode)
     arg2[0] = mode;
     arg2[1] = '\0';
 
-    if (CheckPolicy(EXECUTOR_OPEN_FILE_MESSAGE, path, arg2) == 0)
+    if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize, 
+        EXECUTOR_OPEN_FILE_MESSAGE, path, arg2) == 0)
     {
         Log(LL_TRACE, "CheckOpenFilePolicy(\"%s\", '%c') passed", path, mode);
         return 0;
@@ -255,7 +273,8 @@ int CheckOpenFilePolicy(const char* path, int mode)
 
 int CheckRemoveFilePolicy(const char* path)
 {
-    if (CheckPolicy(EXECUTOR_REMOVE_FILE_MESSAGE, path, NULL) == 0)
+    if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
+        EXECUTOR_REMOVE_FILE_MESSAGE, path, NULL) == 0)
     {
         Log(LL_TRACE, "CheckRemoveFilePolicy(\"%s\") passed", path);
         return 0;
@@ -280,7 +299,8 @@ int CheckRemoveFilePolicy(const char* path)
 
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 {
-    if (CheckPolicy(EXECUTOR_RENAME_FILE_MESSAGE, oldPath, newPath) == 0)
+    if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize, 
+        EXECUTOR_RENAME_FILE_MESSAGE, oldPath, newPath) == 0)
     {
         Log(LL_TRACE, "CheckRenameFilePolicy(\"%s\", \"%s\") passed",
             oldPath, newPath);
@@ -300,22 +320,154 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 /*
 **==============================================================================
 **
-** DumpStaticPolicy()
-**
-**     Dump the static policy to standard output.
+** CheckStartProviderAgentPolicy()
 **
 **==============================================================================
 */
 
-void DumpPolicy(int expandMacros)
+int CheckStartProviderAgentPolicy(const char* module, const char* user)
+{
+    if (CheckPolicy(_dynamicPolicyTable, _dynamicPolicyTableSize,
+        EXECUTOR_START_PROVIDER_AGENT_MESSAGE, module, user) == 0)
+    {
+        Log(LL_TRACE, "CheckStartProviderAgentPolicy(\"%s\", \"%s\") passed", 
+            module, user);
+        return 0;
+    }
+
+    Log(LL_SEVERE, "CheckStartProviderAgentPolicy(\"%s\", \"%s\") failed", 
+        module, user);
+
+#if defined(EXIT_ON_POLICY_FAILURE)
+    Fatal(FL, "exited due to policy failure");
+#endif
+
+    return -1;
+}
+
+/*
+**==============================================================================
+**
+** LoadDynamicPolicy()
+**
+**     Load the dynamic policy file (cimserver_policy.conf). This file has
+**     lines of the format.
+**
+**         <provider-module-name>:<username>
+**
+**     For example:
+**
+**         # This is the policy configuration file.
+**         MyProviderModule:smith
+**         YourProviderModule:jones
+**
+**==============================================================================
+*/
+
+void LoadDynamicPolicy()
+{
+    const char* path;
+    FILE* is;
+    char buffer[EXECUTOR_BUFFER_SIZE];
+    int line;
+    size_t r;
+
+    /* Locate the policy configuration file. */
+
+    if ((path = FindMacro("policyConfigFilePath")) == NULL)
+        Fatal(FL, "failed form path of policy configuration file");
+
+    /* Open the policy configuration file. */
+
+    if ((is = fopen(path, "r")) == NULL)
+        Fatal(FL, "failed to open the policy configuration file: %s", path);
+
+    /* Process file line-by-line. */
+
+    for (line = 1; fgets(buffer, sizeof(buffer), is) != NULL; line++)
+    {
+        char* p;
+        struct Policy policy;
+
+        /* Skip comment lines. */
+
+        if (buffer[0] == '#')
+            continue;
+
+        /* Remove trailing whitespace. */
+
+        r = strlen(buffer);
+
+        while (r--)
+        {
+            if (isspace(buffer[r]))
+                buffer[r] = '\0';
+        }
+
+        /* Skip empty lines. */
+
+        if (buffer[0] == '\0')
+            continue;
+
+        /* Split line about the ':' character. */
+
+        if ((p = strchr(buffer, ':')) == NULL)
+        {
+            Fatal(FL, "%s(%d): syntax error in policy configuration file; "
+                "missing ':' separator character.",
+                path, line);
+        }
+
+        *p = '\0';
+
+        /* Create new policy object. */
+
+        policy.messageCode = EXECUTOR_START_PROVIDER_AGENT_MESSAGE;
+        policy.arg1 = strdup(buffer);
+        policy.arg2 = strdup(p + 1);
+
+        /* Append the policy to the _dynamicPolicyTable[]. */
+
+        _dynamicPolicyTable = (struct Policy*)realloc(_dynamicPolicyTable, 
+            (_dynamicPolicyTableSize + 1) * sizeof(struct Policy));
+
+        _dynamicPolicyTable[_dynamicPolicyTableSize++] = policy;
+    }
+
+    /* Close the file. */
+
+    fclose(is);
+
+    /* Error out if no entries found (we need at least one entry). */
+
+    if (_dynamicPolicyTableSize == 0)
+    {
+        Fatal(FL, "policy configuration file must have at least one entry: %s",
+            path);
+    }
+}
+
+/*
+**==============================================================================
+**
+** _DumpPolicyHelper()
+**
+**     Dump the policy table given by *policyTable* and *policyTableSize*.
+**     Expand any macros in the entries.
+**
+**==============================================================================
+*/
+
+static void _DumpPolicyHelper(
+    const struct Policy* policyTable,
+    size_t policyTableSize,
+    int expandMacros)
 {
     size_t i;
 
-    printf("===== Policy:\n");
-
-    for (i = 0; i < _policyTableSize; i++)
+    for (i = 0; i < policyTableSize; i++)
     {
-        const struct Policy* p = &_policyTable[i];
+        const struct Policy* p = &policyTable[i];
         const char* codeStr = MessageCodeToString(p->messageCode);
         char arg1[EXECUTOR_BUFFER_SIZE];
         char arg2[EXECUTOR_BUFFER_SIZE];
@@ -340,6 +492,27 @@ void DumpPolicy(int expandMacros)
         else
             printf("%s(\"%s\")\n", codeStr, arg1);
     }
+}
+
+/*
+**==============================================================================
+**
+** DumpPolicy()
+**
+**     Dump both the static and dynamic policy tables.
+**
+**==============================================================================
+*/
+
+void DumpPolicy(int expandMacros)
+{
+    printf("===== Policy:\n");
+
+    _DumpPolicyHelper(
+        _staticPolicyTable, _staticPolicyTableSize, expandMacros);
+
+    _DumpPolicyHelper(
+        _dynamicPolicyTable, _dynamicPolicyTableSize, expandMacros);
 
     putchar('\n');
 }

@@ -74,7 +74,7 @@ static int _getProcessName(int pid, char name[PEGASUS_BUFFER_SIZE])
         return -1;
 
     name[0] = '\0';
-    strncat(name, pstru.pst_ucomm, PEGASUS_BUFFER_SIZE);
+    strncat(name, psts.pst_ucomm, PEGASUS_BUFFER_SIZE);
 
     return 0;
 }

@@ -11,7 +11,7 @@ int main()
 
     /* Start authentication and get challenge. */
 
-    assert(StartLocalAuthentication("mbrasher", path, &key) == 0);
+    assert(StartLocalAuthentication("pegasus", path, &key) == 0);
 
     /* Read token from file. */
 

@@ -41,7 +41,7 @@
 # be lost the next time this file is regenerated and submitted to CVS.
 #
 
-Version: 2.6.0
+Version: 2.7.0
 Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 
@@ -143,7 +143,7 @@ sources.
 %global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
 %global PEGASUS_PREV_REPOSITORY_DIR /var/lib/Pegasus/prev_repository
 %global PEGASUS_SBIN_DIR /usr/sbin
-%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.6
+%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.7
 
 %global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
@@ -388,7 +388,7 @@ fi;
 
 %files
 %defattr(600, root, pegasus, 755)
-%dir /usr/share/doc/tog-pegasus-2.6
+%dir /usr/share/doc/tog-pegasus-2.7
 %dir /usr/share/Pegasus
 %dir /usr/share/Pegasus/scripts
 %dir /usr/share/Pegasus/mof
@@ -430,9 +430,9 @@ fi;
 %attr(644,root,pegasus) /usr/share/man/man1/*
 %attr(640,root,pegasus) /usr/share/man/man8/*
 
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.6/Admin_Guide_Release.pdf
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.6/PegasusSSLGuidelines.htm
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.6/license.txt
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.7/Admin_Guide_Release.pdf
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.7/PegasusSSLGuidelines.htm
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.7/license.txt
 /usr/%PEGASUS_ARCH_LIB/libpegclient.so
 /usr/%PEGASUS_ARCH_LIB/libpegcommon.so
 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so
@@ -450,7 +450,7 @@ fi;
 /usr/share/Pegasus/samples/lib
 /usr/share/Pegasus/samples/bin
 /usr/include/Pegasus
-/usr/share/doc/tog-pegasus-2.6/*
+/usr/share/doc/tog-pegasus-2.7/*
 /usr/share/Pegasus/html
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so
 

@@ -42,7 +42,7 @@ PEGASUS_PROVIDER_DIR_2 = $(PEGASUS_PROD_DIR)/%PEGASUS_ARCH_LIB/Pegasus
 PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_DIR)/providers
 PEGASUS_PROVIDER_LIB_DIR_2 = $(PEGASUS_PROVIDER_DIR_2)/providers
 
-PEGASUS_DOC_DIR = /usr/share/doc/tog-pegasus-2.6
+PEGASUS_DOC_DIR = /usr/share/doc/tog-pegasus-2.7
 PEGASUS_MAN_DIR = /usr/share/man
 PEGASUS_MANUSER_DIR = $(PEGASUS_MAN_DIR)/man1
 PEGASUS_MANADMIN_DIR = $(PEGASUS_MAN_DIR)/man8
@@ -123,7 +123,7 @@ PEGASUS_SYSTEM_DIRECTORIES = \
 # Only Pegasus-specific directories should be added to this list.
 
 PEGASUS_SPECIFIC_DIRECTORIES = \
-   /usr/share/doc/tog-pegasus-2.6 \
+   /usr/share/doc/tog-pegasus-2.7 \
    /usr/share/Pegasus \
    /usr/share/Pegasus/scripts \
    /usr/share/Pegasus/mof \
@@ -138,7 +138,7 @@ PEGASUS_SPECIFIC_DIRECTORIES = \
    /etc/Pegasus 
 
 PEGASUS_DIRECTORIES_TO_BE_REMOVED = \
-   /usr/share/doc/tog-pegasus-2.6 \
+   /usr/share/doc/tog-pegasus-2.7 \
    /usr/share/Pegasus \
    /var/lib/Pegasus \
    /var/run/tog-pegasus \

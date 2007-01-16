@@ -71,6 +71,7 @@ endif
 LOCAL_DEFINES = -DPEGASUS_JMPIPM_INTERNAL -DPEGASUS_INTERNALONLY
 
 ifeq ($(OS_TYPE),vms)
+ EXTRA_LIBRARIES += java\$jvm_shr
  VMS_VECTOR = PegasusCreateProviderManager
 endif
 

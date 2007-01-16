@@ -77,11 +77,11 @@ typedef provider_comm * (* INIT_COMM_LAYER) ( CONST CMPIBroker *, CONST CMPICont
                 comm_ticket ticket; \
         };
 
-REMOTE_CMPI_MI(Instance);
-REMOTE_CMPI_MI(Association);
-REMOTE_CMPI_MI(Method);
-REMOTE_CMPI_MI(Property);
-REMOTE_CMPI_MI(Indication);
+REMOTE_CMPI_MI(Instance)
+REMOTE_CMPI_MI(Association)
+REMOTE_CMPI_MI(Method)
+REMOTE_CMPI_MI(Property)
+REMOTE_CMPI_MI(Indication)
 
 
 

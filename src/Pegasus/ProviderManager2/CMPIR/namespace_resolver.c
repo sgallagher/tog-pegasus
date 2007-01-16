@@ -90,7 +90,7 @@ static provider_address * outofprocess_resolver ( CONST CMPIBroker * broker, con
 }
 
 static provider_address * namespace_resolver ( CONST CMPIBroker * broker,
-        const char * provider, char *hostname)
+        const char * provider, const char *hostname)
 {
 	provider_address * addr;
 	char *module,*pnp;
@@ -117,7 +117,7 @@ provider_address * resolve_instance ( CONST CMPIBroker * broker,
         CONST CMPIContext * ctx, CONST CMPIObjectPath * cop, const char * provider, CMPIStatus * rc)
 {
         CMPIStatus irc;
-        char *ip;
+        const char *ip;
         provider_address *a=NULL;
 
         CMPIData info=CMGetContextEntry(ctx,"CMPIRRemoteInfo",&irc);

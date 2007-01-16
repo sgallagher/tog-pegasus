@@ -139,7 +139,7 @@ static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
-};
+}
 static CMPIStatus __InstanceMI_enumInstanceNames(CMPIInstanceMI * cThis,
 						 CONST CMPIContext * ctx,
 						 CONST CMPIResult * rslt,
@@ -175,7 +175,7 @@ static CMPIStatus __InstanceMI_enumInstanceNames(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 static CMPIStatus __InstanceMI_enumInstances(CMPIInstanceMI * cThis,
@@ -214,7 +214,7 @@ static CMPIStatus __InstanceMI_enumInstances(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -243,7 +243,7 @@ static CMPIStatus __InstanceMI_getInstance(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 static CMPIStatus __InstanceMI_createInstance(CMPIInstanceMI * cThis,
@@ -271,7 +271,7 @@ static CMPIStatus __InstanceMI_createInstance(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 #ifdef CMPI_VER_100
@@ -311,7 +311,7 @@ static CMPIStatus __InstanceMI_setInstance(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -339,7 +339,7 @@ static CMPIStatus __InstanceMI_deleteInstance(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 static CMPIStatus __InstanceMI_execQuery(CMPIInstanceMI * cThis,
@@ -378,7 +378,7 @@ static CMPIStatus __InstanceMI_execQuery(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -417,7 +417,7 @@ CMPIInstanceMI *_Generic_Create_InstanceMI(CMPIBroker * broker,
     mi->broker = broker;
     mi->ticket = generate_ticket(broker);
     return (CMPIInstanceMI *) mi;
-};
+}
 
 #ifdef CMPI_VER_100
 static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
@@ -443,7 +443,7 @@ static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
-};
+}
 
 static CMPIStatus __AssociationMI_associators(CMPIAssociationMI * cThis,
 					      CONST CMPIContext * ctx,
@@ -486,7 +486,7 @@ static CMPIStatus __AssociationMI_associators(CMPIAssociationMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 static CMPIStatus __AssociationMI_associatorNames(CMPIAssociationMI *
@@ -531,7 +531,7 @@ static CMPIStatus __AssociationMI_associatorNames(CMPIAssociationMI *
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 static CMPIStatus __AssociationMI_references(CMPIAssociationMI * cThis,
@@ -571,7 +571,7 @@ static CMPIStatus __AssociationMI_references(CMPIAssociationMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -615,7 +615,7 @@ static CMPIStatus __AssociationMI_referenceNames(CMPIAssociationMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -648,7 +648,7 @@ CMPIAssociationMI *_Generic_Create_AssociationMI(CMPIBroker * broker,
     mi->broker = broker;
     mi->ticket = generate_ticket(broker);
     return (CMPIAssociationMI *) mi;
-};
+}
 
 
 #ifdef CMPI_VER_100
@@ -672,7 +672,7 @@ static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, CMPIContext * ctx)
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
-};
+}
 
 static CMPIStatus __MethodMI_invokeMethod(CMPIMethodMI * cThis,
 					  CONST CMPIContext * ctx,
@@ -700,7 +700,7 @@ static CMPIStatus __MethodMI_invokeMethod(CMPIMethodMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -733,7 +733,7 @@ CMPIMethodMI *_Generic_Create_MethodMI(CMPIBroker * broker,
     mi->broker = broker;
     mi->ticket = generate_ticket(broker);
     return (CMPIMethodMI *) mi;
-};
+}
 
 
 #ifdef CMPI_VER_100
@@ -761,7 +761,7 @@ static CMPIStatus __PropertyMI_cleanup(CMPIPropertyMI * cThis,
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
-};
+}
 
 static CMPIStatus __PropertyMI_setProperty(CMPIPropertyMI * cThis,
 					   CONST CMPIContext * ctx,
@@ -788,7 +788,7 @@ static CMPIStatus __PropertyMI_setProperty(CMPIPropertyMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -821,7 +821,7 @@ static CMPIStatus __PropertyMI_getProperty(CMPIPropertyMI * cThis,
 
     return rc;
 
-};
+}
 
 
 
@@ -852,7 +852,7 @@ CMPIPropertyMI *_Generic_Create_PropertyMI(CMPIBroker * broker,
     mi->broker = broker;
     mi->ticket = generate_ticket(broker);
     return (CMPIPropertyMI *) mi;
-};
+}
 
 #ifdef CMPI_VER_100
 static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
@@ -878,7 +878,7 @@ static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
-};
+}
 
 #ifdef CMPI_VER_100
 static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
@@ -937,7 +937,7 @@ static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -999,7 +999,7 @@ static CMPIStatus __IndicationMI_mustPoll(CMPIIndicationMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -1064,7 +1064,7 @@ static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 
@@ -1126,7 +1126,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
     return rc;
-};
+}
 
 
 #ifdef CMPI_VER_100
@@ -1249,6 +1249,6 @@ CMPIIndicationMI *_Generic_Create_IndicationMI(CMPIBroker * broker,
     mi->broker = broker;
     mi->ticket = generate_ticket(broker);
     return (CMPIIndicationMI *) mi;
-};
+}
 
 

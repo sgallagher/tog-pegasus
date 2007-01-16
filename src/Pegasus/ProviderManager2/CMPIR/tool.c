@@ -150,11 +150,11 @@ static void * __get_fixed_entry_point ( const char * provider,
 }
 
 
-LOAD_MI(Instance);
-LOAD_MI(Association);
-LOAD_MI(Method);
-LOAD_MI(Property);
-LOAD_MI(Indication);
+LOAD_MI(Instance)
+LOAD_MI(Association)
+LOAD_MI(Method)
+LOAD_MI(Property)
+LOAD_MI(Indication)
 
 
 /****************************************************************************/

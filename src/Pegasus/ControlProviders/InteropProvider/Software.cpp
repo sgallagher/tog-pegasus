@@ -183,7 +183,7 @@ void InteropProvider::extractSoftwareIdentityInfo(
     // version information.
     Array<CIMInstance> providerModules = repository->enumerateInstancesForClass(
         PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERMODULE,
-        true, false, false, CIMPropertyList(propertyList));
+        false, false, false, CIMPropertyList(propertyList));
 
     Uint32 moduleIndex = PEG_NOT_FOUND;
     for(Uint32 i = 0, n = providerModules.size(); i < n; ++i)
@@ -325,7 +325,7 @@ Array<CIMInstance> InteropProvider::enumSoftwareIdentityInstances()
     Array<CIMInstance> instances;
 
     Array<CIMInstance> registeredProviders = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER, false);
     for(Uint32 i = 0, n = registeredProviders.size(); i < n; ++i)
     {
         String moduleName;
@@ -371,7 +371,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 
     Array<CIMInstance> profileCapabilities = repository->enumerateInstancesForClass(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
+        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false);
 
     CIMClass elementSoftwareIdentityClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,

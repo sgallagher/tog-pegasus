@@ -165,8 +165,6 @@ void CIMInstanceRep::resolve(
             // resolve the property
             Resolver::resolveProperty (property, context, nameSpace, true,
                 cimClass.getProperty (index), propagateQualifiers);
-        // Ensure that the PROPAGATED attribute is false
-        property.setPropagated(false);
         }
     }
 

@@ -245,7 +245,7 @@ Array<String> findProviderNamespacesForElement(
         propList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
         capabilities = repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, true, false, false);
+            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false, false);
     }
     else
     {
@@ -315,7 +315,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
     propList.append(PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS);
     Array<CIMInstance> providerProfileInstances =
         repository->enumerateInstancesForClass(PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, true,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false,
             false, false, CIMPropertyList(propList));
     CIMClass elementConformsClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -395,7 +395,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
                 propList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
                 capabilities = repository->enumerateInstancesForClass(
                     PEGASUS_NAMESPACENAME_INTEROP,
-                    PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, true, false,
+                    PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false,
                     false);
             }
             Array<CIMInstance> capabilitiesForProvider;

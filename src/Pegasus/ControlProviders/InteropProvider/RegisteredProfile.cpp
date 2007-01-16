@@ -167,7 +167,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
         PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE);
     Array<CIMInstance> profileCapabilities = repository->enumerateInstancesForClass(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
+        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false);
     Array<String> instanceIDs;
 
     CIMClass registeredProfileClass;
@@ -395,7 +395,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
     //
     Array<CIMInstance> referencedProfiles = repository->enumerateInstancesForClass(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES);
+        PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES, false);
 
     CIMClass providerRefProfileClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,

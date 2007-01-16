@@ -1025,6 +1025,7 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
   try {
     newprop = new CIMProperty(p);
     newprop->setValue(v);
+    newprop->setPropagated(false);
   } catch (Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,

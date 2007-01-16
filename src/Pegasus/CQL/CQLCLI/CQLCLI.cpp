@@ -867,7 +867,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
 
     try
     {
-      cSystems.appendArray(_rep->enumerateInstancesForClass( _ns, CSClass));
+      cSystems.appendArray(_rep->enumerateInstancesForClass( _ns, CSClass, false));
     }
     catch(Exception& e)
     {
@@ -895,7 +895,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
     try
     {
       const CIMName _testclass(className);
-      _instances = _rep->enumerateInstancesForSubtree( _ns, _testclass, true );  // deep inh true
+      _instances = _rep->enumerateInstancesForSubtree( _ns, _testclass, true, false );  // deep inh true
 
       // Sort the CQL instances to avoid the class ordering problem that happens
       // because the order depends on how the file system orders the class files
@@ -917,7 +917,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
     {
       // Deep inh = true for CQL_TestElement to also get CQL_TestPropertyTypes
       // and CQL_TestPropertyTypesMissing
-      _instances = _rep->enumerateInstancesForSubtree( _ns, _testclass1, true ); // deep inh true
+      _instances = _rep->enumerateInstancesForSubtree( _ns, _testclass1, true, false ); // deep inh true
 
       // Sort the CQL instances to avoid the class ordering problem that happens
       // because the order depends on how the file system orders the class files
@@ -927,7 +927,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
       sortInstances(_instances);
 
       // only get the CIM_ComputerSystem
-      _instances.appendArray(_rep->enumerateInstancesForClass( _ns, _testclass2));
+      _instances.appendArray(_rep->enumerateInstancesForClass( _ns, _testclass2, false));
     }
     catch(Exception& e)
     {
@@ -1054,7 +1054,7 @@ int main(int argc, char ** argv)
     cout << "Running Demo..." << endl;
     _instances.clear();
     const CIMName _testclassDEMO(String("CIM_Process"));
-    _instances.appendArray(_rep->enumerateInstancesForSubtree( _ns, _testclassDEMO ));
+    _instances.appendArray(_rep->enumerateInstancesForSubtree( _ns, _testclassDEMO, true, false ));
     _instances.remove(6,6);
   }
 

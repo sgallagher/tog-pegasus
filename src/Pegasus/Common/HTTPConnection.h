@@ -208,7 +208,11 @@ private:
     // When used by the client, it is an offset (from start of http message)
     // representing last NON completely parsed chunk of a transfer encoding.
     // When used by the server, it is the message index that comes down
-    // from the providers/repository representing each message chunk
+    // from the providers/repository representing each message chunk.
+    // WARNING: Due to the duel use of this member variable, modifying code
+    // that uses this variable should be done very carefully. Accidental bugs
+    // introduced could easily break interoperability with wbem
+    // clients/servers that transfer and/or receive data via HTTP chunking.
     Uint32 _transferEncodingChunkOffset;
 
     // list of transfer encoding values from sender

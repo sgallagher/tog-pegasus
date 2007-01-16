@@ -54,7 +54,7 @@ endif
 ifeq ($(PEGASUS_JVM),sun)
    JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/linux
-   EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/client -ljvm -lhpi -lcrypt
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/$(PEGASUS_JAVA_TYPE) -ljvm -lhpi -lcrypt
 endif
 ifeq ($(PEGASUS_JVM),ibm)
    JAVALIBS=$(JAVA_SDK)/jre/bin
@@ -68,7 +68,7 @@ ifeq ($(PEGASUS_JVM),bea)
 endif
 ifeq ($(PEGASUS_JVM),gcj)
    JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
-   EXTRA_LIBRARIES += -L$(JAVALIBS)/client -ljvm
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/$(PEGASUS_JAVA_TYPE) -ljvm
 endif
 endif
 endif

@@ -35,7 +35,7 @@ Java Manageability Programming Interface (JMPI)
 JMPI is a bridge between clients and providers written in Java and the Open
 Pegasus project.
 
-More information on JMPI's status can be found at 
+More information on JMPI's status can be found at
    http://www.openpegasus.org/page.tpl?ggid=799
 
 
@@ -55,6 +55,7 @@ You might need to adjust this to your system layout.
    export JAVA_SDK=/usr/java/j2sdk1.4.2_08
    export JAVA_SDKINC=${JAVA_SDK}/include
    export PEGASUS_JAVA_ARCH=i386
+   export PEGASUS_JAVA_TYPE=client
    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/server:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/native_threads:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}
    export PATH=${JAVA_SDK}/bin/:${PEGASUS_HOME}/bin:${PATH}
    export CLASSPATH=${CLASSPATH}:${PEGASUS_HOME}/lib/JMPIImpl.jar
@@ -82,13 +83,21 @@ Since we are using Sun's JRE, point to Sun's paths.
 The fifth variable defines the Java architecture of the JMV
    export PEGASUS_JAVA_ARCH=i386
 
-The sixth may be necessary to tell the linker where to load the JRE libraries.
+The sixth variable defines which version of the jvm library to link to (the
+client or the server).
+   export PEGASUS_JAVA_TYPE=client
+
+As a test to make sure your environment variables are correct
+   ls ${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/${PEGASUS_JAVA_TYPE}
+should show you libjvm.so for Sun's JRE.
+
+The seventh may be necessary to tell the linker where to load the JRE libraries.
    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/server:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/native_threads:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}
 
-The seventh one may be necessary to get the JVM's executable files into the PATH.
+The eighth one may be necessary to get the JVM's executable files into the PATH.
    export PATH=${JAVA_SDK}/bin/:${PEGASUS_HOME}/bin:${PATH}
 
-The eight tells the JRE to include JMPI's Java classes.
+The nineth tells the JRE to include JMPI's Java classes.
    export CLASSPATH=${CLASSPATH}:${PEGASUS_HOME}/lib/JMPIImpl.jar
 
 There are a couple of optional environment variables to determine how the JRE is initialized.  These are

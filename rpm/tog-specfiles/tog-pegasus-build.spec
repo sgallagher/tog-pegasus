@@ -23,7 +23,7 @@ export PEGASUS_DISPLAYCONSUMER_DIR=%PEGASUS_VARDATA_DIR/log
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
 make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
-make -f $PEGASUS_ROOT/Makefile.Release all
+make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.Release all
 make -f $PEGASUS_ROOT/Makefile.Release repository
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec

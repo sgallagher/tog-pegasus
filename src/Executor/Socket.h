@@ -42,6 +42,7 @@
 #include "Defines.h"
 #include <sys/socket.h>
 #include <string.h>
+#include "Defines.h"
 
 EXECUTOR_LINKAGE
 int SetNonBlocking(int sock);
@@ -66,12 +67,13 @@ int CreateSocketPair(int pair[2]);
 
 static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
 {
-    struct msghdr mh;
-    size_t size;
-    char* data;
     struct iovec iov[1];
     char dummy;
+    struct msghdr mh;
     ssize_t n;
+#if defined(HAVE_MSG_CONTROL)
+    size_t size;
+    char* data;
     struct cmsghdr* cmh = CMSG_FIRSTHDR(&mh);
 
     /*
@@ -94,6 +96,13 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
     memset(&mh, 0, sizeof(mh));
     mh.msg_control = data;
     mh.msg_controllen = size;
+
+#else /* !defined(HAVE_MSG_CONTROL) */
+
+    mh.msg_accrights = (caddr_t)descriptors;
+    mh.msg_accrightslength = sizeof(int) * count;
+
+#endif /* defined(HAVE_MSG_CONTROL) */
 
     /*
      * The other process sends a single-byte message. This byte is not
@@ -119,6 +128,8 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
      * does not contain what we expect.
      */
 
+#if defined(HAVE_MSG_CONTROL)
+
     cmh = CMSG_FIRSTHDR(&mh);
 
     if (!cmh || 
@@ -132,6 +143,15 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
     /* Copy the data: */
 
     memcpy(descriptors, CMSG_DATA(cmh), sizeof(int) * count);
+
+#else /* !defined(HAVE_MSG_CONTROL) */
+
+    if (mh.msg_accrightslength != sizeof(int) * count)
+        return -1;
+
+    memcpy(descriptors, mh.msg_accrights, sizeof(int) * count);
+
+#endif /* defined(HAVE_MSG_CONTROL) */
 
     return 0;
 }

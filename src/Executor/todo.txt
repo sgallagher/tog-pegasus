@@ -1,17 +1,6 @@
 
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    (A) Add additional restrictions to provider policy:
-
-            (1) Only one policy rule may be present per module.
-
-            (2) The four context declarations:
-
-                REQUESTOR - username=* (need to check session key).
-                DESIGNATED - username=whatever
-                PRIVILEGED - username=root
-                CIMSERVER - username=pegasus
-
     BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
     (B) Rewrite readme.privsep
@@ -20,6 +9,6 @@
 
     (B) Develop tool to generate provider policy from repository (cimpolicy).
 
-    (B) Build and tests on HP.
+    (B) Build and test on HP.
 
     CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

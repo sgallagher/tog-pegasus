@@ -255,6 +255,10 @@ public:
     static int deleteSessionKey(
         const SessionKey& sessionKey);
 
+    /** Cause executor to re-read the policy file.
+    */
+    static int refreshPolicy();
+
 private:
     // Private to prevent instantiation.
     Executor();

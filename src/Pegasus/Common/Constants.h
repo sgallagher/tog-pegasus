@@ -195,6 +195,9 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/var/opt/wbem/cimserver_planned.conf"
+#  undef PEGASUS_POLICY_CONFIG_FILE_PATH
+#  define PEGASUS_POLICY_CONFIG_FILE_PATH  \
+    "/var/opt/wbem/cimserver_policy.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/etc/opt/wbem/cimserver_start.conf"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
@@ -226,6 +229,9 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/opt/freeware/cimom/pegasus/etc/cimserver_planned.conf"
+#  undef PEGASUS_POLICY_CONFIG_FILE_PATH
+#  define PEGASUS_POLICY_CONFIG_FILE_PATH  \
+    "/opt/freeware/cimom/pegasus/etc/cimserver_policy.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
@@ -255,6 +261,9 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/var/opt/tog-pegasus/cimserver_planned.conf"
+#  undef PEGASUS_POLICY_CONFIG_FILE_PATH
+#  define PEGASUS_POLICY_CONFIG_FILE_PATH  \
+    "/var/opt/tog-pegasus/cimserver_policy.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/run/tog-pegasus/cimserver.pid"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
@@ -284,6 +293,9 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/etc/opt/lsb-pegasus/cimserver_planned.conf"
+#  undef PEGASUS_POLICY_CONFIG_FILE_PATH
+#  define PEGASUS_POLICY_CONFIG_FILE_PATH  \
+    "/etc/opt/lsb-pegasus/cimserver_policy.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/run/cimserver.pid"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
@@ -315,6 +327,9 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/wbem_var/opt/wbem/cimserver_planned.conf"
+#  undef PEGASUS_POLICY_CONFIG_FILE_PATH
+#  define PEGASUS_POLICY_CONFIG_FILE_PATH  \
+    "/wbem_var/opt/wbem/cimserver_policy.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      \
     "/wbem_var/opt/wbem/cimserver_start.conf"
@@ -337,6 +352,8 @@
 #  define PEGASUS_CURRENT_CONFIG_FILE_PATH  "/etc/wbem/cimserver_current.conf"
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  "/etc/wbem/cimserver_planned.conf"
+#  undef PEGASUS_POLICY_CONFIG_FILE_PATH
+#  define PEGASUS_POLICY_CONFIG_FILE_PATH  "/etc/wbem/cimserver_policy.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/wbem/cimserver.pid"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
@@ -348,6 +365,9 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/etc/pegasus/cimserver_planned.conf"
+#  undef PEGASUS_POLICY_CONFIG_FILE_PATH
+#  define PEGASUS_POLICY_CONFIG_FILE_PATH  \
+    "/etc/pegasus/cimserver_policy.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      \
     "/var/cache/pegasus/cimserver_start.conf"
@@ -366,6 +386,9 @@
 #endif
 #ifndef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #define PEGASUS_PLANNED_CONFIG_FILE_PATH  "cimserver_planned.conf"
+#endif
+#ifndef PEGASUS_POLICY_CONFIG_FILE_PATH
+#define PEGASUS_POLICY_CONFIG_FILE_PATH  "cimserver_policy.conf"
 #endif
 #ifndef PEGASUS_CIMSERVER_START_FILE
 #define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"

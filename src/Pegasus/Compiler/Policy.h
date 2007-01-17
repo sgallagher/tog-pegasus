@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -29,28 +28,19 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef _Executor_Policy_h
-#define _Executor_Policy_h
+#ifndef _Pegasus_Compiler_Policy_h
+#define _Pegasus_Compiler_Policy_h
 
-int CheckOpenFilePolicy(const char* path, int mode);
+#include <Pegasus/Client/CIMClient.h>
 
-int CheckRemoveFilePolicy(const char* path);
+PEGASUS_NAMESPACE_BEGIN
 
-int CheckRenameFilePolicy(const char* oldPath, const char* newPath);
+void UpdatePolicyFile(
+    class CIMClient* client, 
+    const CIMNamespaceName& nameSpace,
+    const CIMInstance& inst);
 
-int CheckStartProviderAgentPolicy(
-    const char* providerModule, 
-    const char* providerUser,
-    const char* requestorUser);
+PEGASUS_NAMESPACE_END
 
-void LoadDynamicPolicy();
-
-void ClearDynamicPolicy();
-
-void RefreshDynamicPolicy();
-
-void DumpPolicy(int expandMacros);
-
-#endif /* _Executor_Policy_h */
+#endif /* _Pegasus_Compiler_Policy_h */

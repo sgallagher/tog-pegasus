@@ -73,6 +73,7 @@ void Fatal(const char* file, size_t line, const char* format, ...)
         char buffer[EXECUTOR_BUFFER_SIZE];
 
         va_start(ap, format);
+        /* Flawfinder: ignore */
         vsprintf(buffer, prefixedFormat, ap);
         va_end(ap);
 

@@ -8,7 +8,8 @@
         to modify them.
 
     3.  The executor grants ownership of the repository to the server user
-        upon startup.
+        upon startup if the server user does not already own them. Although
+        at installation time this should have already been done.
 
     4.  The Executor now checks whether Pegasus repository exists and errors 
         out if not.

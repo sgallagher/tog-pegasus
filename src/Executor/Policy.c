@@ -32,6 +32,7 @@
 */
 
 #include <string.h>
+#include <unistd.h>
 #include <ctype.h>
 #include "Policy.h"
 #include "Defines.h"
@@ -383,6 +384,36 @@ int CheckStartProviderAgentPolicy(
 /*
 **==============================================================================
 **
+** ClearDynamicPolicy()
+**
+**     Clear the dynamic table structures.
+**
+**==============================================================================
+*/
+
+void ClearDynamicPolicy()
+{
+    size_t i;
+
+    for (i = 0; i < _dynamicPolicyTableSize; i++)
+    {
+        struct Policy* policy = &_dynamicPolicyTable[i];
+
+        if (policy->arg1)
+            free((char*)policy->arg1);
+
+        if (policy->arg2)
+            free((char*)policy->arg2);
+    }
+
+    free(_dynamicPolicyTable);
+    _dynamicPolicyTable = NULL;
+    _dynamicPolicyTableSize = 0;
+}
+
+/*
+**==============================================================================
+**
 ** LoadDynamicPolicy()
 **
 **     Load the dynamic policy file (cimserver_policy.conf). This file has
@@ -472,14 +503,6 @@ void LoadDynamicPolicy()
     /* Close the file. */
 
     fclose(is);
-
-    /* Error out if no entries found (we need at least one entry). */
-
-    if (_dynamicPolicyTableSize == 0)
-    {
-        Fatal(FL, "policy configuration file must have at least one entry: %s",
-            path);
-    }
 }
 
 /*

@@ -279,6 +279,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
     /* Check policy for this operation. */
 
+    if (globals.enableAuthentication)
     {
         char username[EXECUTOR_BUFFER_SIZE];
 
@@ -304,25 +305,6 @@ static void HandleStartProviderAgentRequest(int sock)
             return;
         }
     }
-
-/*
-MEB: remove this.
-*/
-#if 0
-    /*
-     * Map CIMSERVERMAIN user to root to preserve pre-privilege-separation
-     * behavior.
-     */
-
-    if (request.uid == globals.childUid)
-    {
-        Log(LL_TRACE, 
-            "using root instead of %s user for %s", CIMSERVERMAIN, CIMPROVAGT);
-
-        request.uid = 0;
-        request.gid = 0;
-    }
-#endif
 
     /* Process request. */
 
@@ -1089,6 +1071,34 @@ static void HandleDeleteSessionKeyRequest(int sock)
 /*
 **==============================================================================
 **
+** HandleRefreshPolicyMessage()
+**
+**==============================================================================
+*/
+
+static void HandleRefreshPolicyMessage(int sock)
+{
+    struct ExecutorRefreshPolicyResponse response;
+    memset(&response, 0, sizeof(response));
+
+    /* Trace request. */
+
+    Log(LL_TRACE, "HandleRefreshPolicyRequest()");
+
+    /* Handle request. */
+
+    ClearDynamicPolicy();
+    LoadDynamicPolicy();
+
+    /* Send response. */
+
+    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
+        Fatal(FL, "Failed to write response");
+}
+
+/*
+**==============================================================================
+**
 ** Parent()
 **
 **     The parent process (cimserver).
@@ -1200,6 +1210,10 @@ void Parent(int sock, int childPid)
 
             case EXECUTOR_DELETE_SESSION_KEY_MESSAGE:
                 HandleDeleteSessionKeyRequest(sock);
+                break;
+
+            case EXECUTOR_REFRESH_POLICY_MESSAGE:
+                HandleRefreshPolicyMessage(sock);
                 break;
 
             default:

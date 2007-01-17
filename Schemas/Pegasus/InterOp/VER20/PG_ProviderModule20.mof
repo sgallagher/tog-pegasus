@@ -1,75 +1,52 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 
 // ==================================================================
 // PG_ProviderModule
 // ==================================================================
-        [Version("2.11.0"), Description ( "A ProviderModule contains "
+        [Version("2.5.0"), Description ( "A ProviderModule contains "
          "one or more Providers. ") ]
 class PG_ProviderModule : CIM_LogicalElement {
       [Key, Override("Name"), Description ("A human-readable name that"
-       "uniquely identifies the Provider Module. This name is used as "
-       "a key by  the PG_Provider ProviderModuleName property and the "
-       "PG_ProviderCapabilities ProviderModuleName property.")]
+       "uniquely identifies the Provider Module.")]
    string Name;
-
-      [Required, Description ("The name of the Provider Module vendor. "
-      "Used only for documentation.") ]
+      [Required, Description ("The name of the Provider Module vendor.") ]
    string Vendor;
-
       [Required, Description ("The Provider Module version.")]
    string Version;
-
-      [Required, Description ("A string defining the provider interface "
-      "implemented by the provider module.  It must be one of the values "
-      "defined in the valueMap and defines the Pegasus Provider Manager "
-      "destination for operation requests in conjunction with the "
-      "InterfaceVesion property."),
-      valueMap {"C++Default", "CMPI","JMPI"} ]
+      [Required, Description ("")]
    string InterfaceType;
-
-      [Required, Description ("A string defining the version of the "
-      "provider interface defined in the InterFaceType property. "
-      "In conjunction with the InterfaceType property this defines a "
-      "Pegasus Provider Manager to which operations are routed.  The "
-      "string is of the form xxx.yyy.zzz where:\n"
-      "xxx is the major version number \n"
-      "yyy is the minor version number \n"
-      "zzz is the revision number for the interface. \n"
-      "Separate provider managers can exist within the Pegasus environment "
-      "for the same InterfaceType and different interface versions.")]
+      [Required, Description ("")]
    string InterfaceVersion;
-
-      [Required, Description ("The location string defines the name of "
-      "shared library that implements the ProviderModule.  Only the main "
-      "part of the name is provided. Pegasus provides the shared library "
-      "suffix consistent with each operating system. ")]
+      [Required, Description ("")]
    string Location;
 
       [Description (
@@ -145,43 +122,12 @@ class PG_ProviderModule : CIM_LogicalElement {
         "CIM_ManagedSystemElement.OperationalStatus"} ]
     string OtherStatusDescription;
 
-      [Description(
-        " A string specifying a group name for the provider module."
-        " If the specified value is \"CIMServer\",  provider module"
-        " is loaded into the CIMServer process. Provider modules"
-        " having the same group name other than \"CIMServer\" are"
-        " loaded into a single agent process except when overridden"
-        " by specific UserContext values. If the value is not specified,"
-        " each provider module is loaded into different agent process."
-        " Provider modules having different UserContext values but the"
-        " same group name are loaded according to the UserContext"
-        " information")]
-   string ModuleGroupName;
-
-      [Description(
-        " Sets the module group name")]
-   sint16 setModuleGroupName([IN] string moduleGroupName);
-
-      [Description(
-        " Uint16 value indicating the provider module bitness."
-        " This option is useful when the CIMServer is compiled"
-        " to support different types of (bitness) provider modules. For"
-        " example: 64 bit CIMServer supporting the 32 bit provider"
-        " modules. \"Default\" indicates both provider module and"
-        " CIMServer have same bitness."
-        " \"32\" indicates that the provider module is 32/31-bit type."
-        " \"64\" indicates that the provider module is 64-bit type."
-        " If the specified bitness is different from CIMServer bitness,"
-        " the provider module is always loaded into out of process"
-        " irrespective of forceProviderProcesses option value."),
-      ValueMap {"1", "2", "3", "4"},
-      Values {"Default", "32", "64" }]
-   uint16 Bitness;
-
       [Description ("")]
    uint32 start();
       [Description ("")]
    uint32 stop();
+      [Description ("Ask CIM server to refresh policy to reflect this change")]
+   uint32 refreshPolicy();
 };
 
 // ==================================================================
@@ -234,8 +180,7 @@ class PG_CapabilitiesRegistration : PG_Capabilities {
        "capabilities defined for the associated Provider. "),
        ArrayType ("Indexed"),
        ValueMap { "2", "3", "4" , "5" , "6" , "7"},
-       Values {"Instance", "Association", "Indication" , "Method",
-           "IndicationConsumer", "InstanceQuery"}]
+       Values {"Instance", "Association", "Indication" , "Method", "IndicationConsumer", "InstanceQuery"}]
     uint16 ProviderType[];
 };
 
@@ -251,7 +196,7 @@ class PG_ProviderCapabilities : PG_CapabilitiesRegistration {
        "Provider supplies instances, associations or indications "
        "information.")]
    string ClassName;
-      [Required, Description ("Namespaces defines the namespaces that are "
+      [Required, Description ("Namespaces describes the namespaces that are "
        "supported by the Provider for ClassName.")] 
    string Namespaces[];
       [Description (

@@ -300,14 +300,15 @@ void DefineExecutorMacros()
 
     /* Define ${policyConfigFilePath} */
     {
-        char path1[EXECUTOR_BUFFER_SIZE];
-        char path2[EXECUTOR_BUFFER_SIZE];
+        char path[EXECUTOR_BUFFER_SIZE];
 
-        ExpandMacros("${currentConfigFilePath}", path1);
-        DirName(path1, path2);
-        Strlcat(path2, "/cimserver_policy.conf", sizeof(path2));
+        if (GetHomedPath(PEGASUS_POLICY_CONFIG_FILE_PATH, path) != 0)
+        {
+            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
+                PEGASUS_POLICY_CONFIG_FILE_PATH);
+        }
 
-        DefineMacro("policyConfigFilePath", path2);
+        DefineMacro("policyConfigFilePath", path);
     }
 
     /* Define ${privilegedUser} */

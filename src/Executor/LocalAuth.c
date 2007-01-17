@@ -122,9 +122,15 @@ static int CreateLocalAuthFile(
         RandBytesToHexASCII(data, sizeof(data), token);
     }
 
+    /* If file already exists, remove it. */
+
+    /* Flawfinder: ignore */
+    if (access(path, F_OK) == 0 && unlink(path) != 0)
+        return -1;
+
     /* Create the file as read-only by user. */
 
-    fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR);
+    fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
 
     if (fd < 0)
         return -1;

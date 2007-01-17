@@ -534,7 +534,7 @@ void CertificateProvider::enumerateInstances(
         // get instances from the repository
         Array<CIMInstance> cimInstances;
         cimInstances = _repository->enumerateInstancesForClass(
-            cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE);
+            cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE, false);
     
         for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
@@ -972,7 +972,7 @@ void CertificateProvider::deleteInstance(
             certificateNamedInstances =
                 _repository->enumerateInstancesForClass(
                     PEGASUS_NAMESPACENAME_CERTIFICATE,
-                    PEGASUS_CLASSNAME_CERTIFICATE);
+                    PEGASUS_CLASSNAME_CERTIFICATE, false);
 
             //
             // Retrieve the instances for the specified subject & issuer

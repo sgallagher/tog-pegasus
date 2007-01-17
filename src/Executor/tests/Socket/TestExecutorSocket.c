@@ -19,7 +19,6 @@ void Child(int sock)
     memset(buffer, 0xFF, sizeof(buffer));
     assert(RecvNonBlock(sock, buffer, sizeof(token)) == sizeof(token));
     assert(strcmp(buffer, token) == 0);
-    assert(SendNonBlock(sock, buffer, sizeof(token)) == sizeof(token));
 
     /* Open file for parent and pass descriptor back. */
 
@@ -28,6 +27,7 @@ void Child(int sock)
 
     /* Send descriptor back to parent. */
 
+    assert(SendNonBlock(sock, buffer, sizeof(token)) == sizeof(token));
     assert(SendDescriptorArray(sock, &fd, 1) == 0);
     assert(close(fd) == 0);
     exit(55);

@@ -170,4 +170,18 @@
 # define EXIT_ON_POLICY_FAILURE
 #endif
 
+/*
+**==============================================================================
+**
+** HAVE_MSG_CONTROL
+**
+**     Define this if the platform support Berkeley msg control structures.
+**
+**==============================================================================
+*/
+
+#if defined(PEGASUS_OS_LINUX)
+# define HAVE_MSG_CONTROL
+#endif
+
 #endif /* _Executor_Defines_h */

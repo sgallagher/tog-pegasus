@@ -40,6 +40,7 @@
 #include "Exit.h"
 #include "Globals.h"
 #include "Defines.h"
+#include "Socket.h"
 
 /*
 **==============================================================================
@@ -268,13 +269,14 @@ ssize_t SendNonBlock(
 
 ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 {
+    struct iovec iov[1];
+    char dummy;
     struct msghdr mh;
+    int result;
+#if defined(HAVE_MSG_CONTROL)
     size_t size;
     char* data;
     struct cmsghdr* cmh;
-    struct iovec iov[1];
-    char dummy;
-    int result;
 
     /* Allocate space for control header plus descriptors. */
 
@@ -295,6 +297,13 @@ ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
     cmh->cmsg_type = SCM_RIGHTS;
     memcpy((int*)CMSG_DATA(cmh), descriptors, sizeof(int) * count);
 
+#else /* defined(HAVE_MSG_CONTROL) */
+
+    mh.msg_accrights = (caddr_t)descriptors;
+    mh.msg_accrightslength = count * sizeof(int);
+
+#endif /* defined(HAVE_MSG_CONTROL) */
+
     /* 
      * Prepare to send single dummy byte. It will not be used but we must send
      * at least one byte otherwise the call will fail on some platforms. 
@@ -311,7 +320,10 @@ ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
     /* Send message to child. */
 
     result = sendmsg(sock, &mh, 0);
+
+#if defined(HAVE_MSG_CONTROL)
     free(data);
+#endif
 
     return result == -1 ? -1 : 0;
 }

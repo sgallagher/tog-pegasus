@@ -28,9 +28,8 @@ void Child(int sock)
     /* Send descriptor back to parent. */
 
     assert(SendNonBlock(sock, buffer, sizeof(token)) == sizeof(token));
-sleep(1);
     assert(SendDescriptorArray(sock, &fd, 1) == 0);
-    // assert(close(fd) == 0);
+    assert(close(fd) == 0);
     exit(55);
 }
 

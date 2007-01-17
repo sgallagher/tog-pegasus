@@ -96,7 +96,7 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
 #else /* !defined(HAVE_MSG_CONTROL) */
 
     mh.msg_accrights = (caddr_t)descriptors;
-    mh.msg_accrightslength = sizeof(int) * count;
+    mh.msg_accrightslen = sizeof(int) * count;
 
 #endif /* defined(HAVE_MSG_CONTROL) */
 
@@ -142,7 +142,7 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
 
 #else /* !defined(HAVE_MSG_CONTROL) */
 
-    if (mh.msg_accrightslength != sizeof(int) * count)
+    if (mh.msg_accrightslen != sizeof(int) * count)
         return -1;
 
     memcpy(descriptors, mh.msg_accrights, sizeof(int) * count);

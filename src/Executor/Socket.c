@@ -300,7 +300,7 @@ ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 #else /* defined(HAVE_MSG_CONTROL) */
 
     mh.msg_accrights = (caddr_t)descriptors;
-    mh.msg_accrightslength = count * sizeof(int);
+    mh.msg_accrightslen = count * sizeof(int);
 
 #endif /* defined(HAVE_MSG_CONTROL) */
 

@@ -28,8 +28,9 @@ void Child(int sock)
     /* Send descriptor back to parent. */
 
     assert(SendNonBlock(sock, buffer, sizeof(token)) == sizeof(token));
+sleep(1);
     assert(SendDescriptorArray(sock, &fd, 1) == 0);
-    assert(close(fd) == 0);
+    // assert(close(fd) == 0);
     exit(55);
 }
 
@@ -49,7 +50,9 @@ void Parent(int pid, int sock)
     /* Wait for descriptor from child. */
 
     memset(buffer, 0xFF, sizeof(buffer));
+
     assert(RecvDescriptorArray(sock, &fd, 1) == 0);
+
     assert(read(fd, buffer, sizeof(token)) == sizeof(token));
     assert(close(fd) == 0);
     assert(strcmp(token, buffer) == 0);

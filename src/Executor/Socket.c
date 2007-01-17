@@ -75,6 +75,21 @@ int SetNonBlocking(int sock)
 /*
 **==============================================================================
 **
+** SetBlocking()
+**
+**     Set the given socket into blocking mode.
+**
+**==============================================================================
+*/
+
+int SetBlocking(int sock)
+{
+    return fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) & ~O_NONBLOCK);
+}
+
+/*
+**==============================================================================
+**
 ** _waitForReadEnable()
 **
 **     Wait until the given socket is read-enabled. Returns 1 if read enabled

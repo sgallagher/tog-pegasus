@@ -69,8 +69,7 @@ enum ExecutorMessageCode
     EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
     EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE,
     EXECUTOR_NEW_SESSION_KEY_MESSAGE,
-    EXECUTOR_DELETE_SESSION_KEY_MESSAGE,
-    EXECUTOR_REFRESH_POLICY_MESSAGE
+    EXECUTOR_DELETE_SESSION_KEY_MESSAGE
 };
 
 /*
@@ -337,18 +336,5 @@ struct ExecutorDeleteSessionKeyResponse
 
 EXECUTOR_LINKAGE
 const char* MessageCodeToString(enum ExecutorMessageCode code);
-
-/*
-**==============================================================================
-**
-** EXECUTOR_REFRESH_POLICY_MESSAGE
-**
-**==============================================================================
-*/
-
-struct ExecutorRefreshPolicyResponse
-{
-    int status;
-};
 
 #endif /* _Executor_Messages_h */

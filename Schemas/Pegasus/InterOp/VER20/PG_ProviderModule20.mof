@@ -126,8 +126,6 @@ class PG_ProviderModule : CIM_LogicalElement {
    uint32 start();
       [Description ("")]
    uint32 stop();
-      [Description ("Ask CIM server to refresh policy to reflect this change")]
-   uint32 refreshPolicy();
 };
 
 // ==================================================================

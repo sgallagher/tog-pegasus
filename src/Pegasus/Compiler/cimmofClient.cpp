@@ -123,7 +123,7 @@ cimmofClient::addInstance(
     {
         try
         {
-            UpdatePolicyFile(_client, nameSpace, instance);
+            UpdatePolicyFile(instance);
         }
         catch (Exception& e)
         {

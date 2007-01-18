@@ -272,10 +272,7 @@ struct PolicyFileLine
 //
 //==============================================================================
 
-void UpdatePolicyFile(
-    class CIMClient* client, 
-    const CIMNamespaceName& nameSpace,
-    const CIMInstance& inst)
+void UpdatePolicyFile(const CIMInstance& inst)
 {
     // Deduce new policy rule from instance.
 
@@ -499,30 +496,6 @@ void UpdatePolicyFile(
 
     _UnlockFile(fd);
     fclose(os);
-
-    // If no client, then return success.
-
-    if (!client)
-        return;
-
-    // Send PG_ProviderModule.refreshPolicy() method to server, so that it will
-    // re-read the policy file.
-
-    try
-    {
-        CIMObjectPath cop("PG_ProviderModule");
-        Array<CIMKeyBinding> kbs;
-        kbs.append(CIMKeyBinding("Name", moduleName, CIMKeyBinding::STRING));
-        cop.setKeyBindings(kbs);
-        Array<CIMParamValue> in;
-        Array<CIMParamValue> out;
-
-        client->invokeMethod(nameSpace, cop, CIMName("refreshPolicy"), in, out);
-    }
-    catch (Exception&)
-    {
-        throw;
-    }
 }
 
 PEGASUS_NAMESPACE_END

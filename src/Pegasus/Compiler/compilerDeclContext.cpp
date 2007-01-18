@@ -125,7 +125,7 @@ compilerDeclContext::addInstance(const CIMNamespaceName &nameSpace,
     String className = x.getClassName().getString();
 
     if (String::equalNoCase(className, "PG_ProviderModule"))
-        UpdatePolicyFile(0, nameSpace, x);
+        UpdatePolicyFile(x);
 
 #endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
   }

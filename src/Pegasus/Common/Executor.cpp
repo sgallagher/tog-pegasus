@@ -138,8 +138,6 @@ public:
 
     virtual int deleteSessionKey(
         const SessionKey& sessionKey) = 0;
-
-    virtual int refreshPolicy() = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -512,11 +510,6 @@ public:
 
     virtual int deleteSessionKey(
         const SessionKey& sessionKey)
-    {
-        return -1;
-    }
-
-    virtual int refreshPolicy()
     {
         return -1;
     }
@@ -1074,28 +1067,6 @@ public:
         return response.status;
     }
 
-    virtual int refreshPolicy()
-    {
-        AutoMutex autoMutex(_mutex);
-
-        // _send request header:
-
-        ExecutorRequestHeader header;
-        header.code = EXECUTOR_REFRESH_POLICY_MESSAGE;
-
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
-            return -1;
-
-        // Receive the response
-
-        ExecutorRefreshPolicyResponse response;
-
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
-            return -1;
-
-        return response.status;
-    }
-
 private:
 
     static ssize_t _recv(int sock, void* buffer, size_t size)
@@ -1294,11 +1265,6 @@ int Executor::deleteSessionKey(
     const SessionKey& sessionKey)
 {
     return _getImpl()->deleteSessionKey(sessionKey);
-}
-
-int Executor::refreshPolicy()
-{
-    return _getImpl()->refreshPolicy();
 }
 
 PEGASUS_NAMESPACE_END

@@ -55,10 +55,7 @@ void AddPath(const String& path);
 //
 //==============================================================================
 
-void UpdatePolicyFile(
-    class CIMClient* client, 
-    const CIMNamespaceName& nameSpace,
-    const CIMInstance& inst);
+void UpdatePolicyFile(const CIMInstance& inst);
 
 //==============================================================================
 //

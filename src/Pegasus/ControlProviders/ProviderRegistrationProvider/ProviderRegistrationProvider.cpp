@@ -50,7 +50,6 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/Executor.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -68,11 +67,6 @@ static const CIMName _STOP_PROVIDER     = CIMName ("Stop");
    starting provider method
 */
 static const CIMName _START_PROVIDER   = CIMName ("Start");
-
-/**
-   refreshPolicy provider method.
-*/
-static const CIMName _REFRESH_POLICY = CIMName ("refreshPolicy");
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)	
@@ -1147,13 +1141,6 @@ void ProviderRegistrationProvider::invokeMethod(
     	{
 	    // enable module
     	     ret_value =  _enableModule(objectReference, moduleName, al);
-	}
-    	else if(methodName.equal(_REFRESH_POLICY))
-    	{
-	    // Ask the executor to refresh its policy list.
-
-            Executor::refreshPolicy();
-    	     ret_value = 0;
 	}
         else
         {

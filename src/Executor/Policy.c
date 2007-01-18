@@ -357,6 +357,9 @@ int CheckStartProviderAgentPolicy(
 {
     const char func[] = "CheckStartProviderAgentPolicy";
 
+    ClearDynamicPolicy();
+    LoadDynamicPolicy();
+
     /* Define ${requestorUser} since policy rule might use the macro. */
 
     DefineMacro("requestorUser", requestorUser);
@@ -442,7 +445,7 @@ static int _LockFile(FILE* fp)
 **==============================================================================
 */
 
-int _UnlockFile(FILE* fp)
+static int _UnlockFile(FILE* fp)
 {
     static struct flock lock;
     lock.l_type = F_UNLCK; 

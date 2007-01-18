@@ -34,9 +34,10 @@
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <fstream>
+#include <cstdio>
 #include <cstdarg>
 #include "Policy.h"
+#include <fcntl.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -45,22 +46,19 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
-// _getHomedPath()
+// trustedDirs[]
+//
+//     When providers are registered, the corresponding MOF file must reside 
+//     in an "trusted directory" to ensure the MOF could not have been 
+//     created by a hacker without write access to that directory. If this
+//     array is empty, then no restriction applies.
 //
 //==============================================================================
 
-static String _getHomedPath(const String& name)
+static const char* _trustedDirs[] =
 {
-    if (name[0] == '/')
-        return name;
-
-    const char* home = getenv("PEGASUS_HOME");
-
-    if (home)
-        return String(home) + String("/") + name;
-
-    return name;
-}
+    NULL,
+};
 
 //==============================================================================
 //
@@ -79,6 +77,173 @@ static void _throwEx(const char* format, ...)
 
     throw CIMException(CIM_ERR_FAILED,
         String("failed to update policy file: ") + String(buffer));
+}
+
+//==============================================================================
+//
+// CheckTrustedDirs()
+//     
+//==============================================================================
+
+static Array<String> _dirnames;
+static Array<String> _basenames;
+
+void CheckTrustedDirs()
+{
+    if (_trustedDirs[0] == NULL)
+        return;
+
+    for (size_t i = 0; i < _dirnames.size(); i++)
+    {
+        bool found = false;
+
+        for (size_t j = 0; _trustedDirs[j]; j++)
+        {
+            if (_dirnames[i] == String(_trustedDirs[j]))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            String path = _dirnames[i] + String("/") + _basenames[i];
+
+            _throwEx(
+                "Provider module registration error. File does not reside in a "
+                "trusted directory: %s", (const char*)path.getCString());
+        }
+    }
+}
+
+//==============================================================================
+//
+// ReverseFind()
+//     
+//     Find the given charcter in the string starting from the rear of the
+//     string. This function is like strrchr().
+//
+//==============================================================================
+
+Uint32 ReverseFind(const String& s, char c)
+{
+    for (Uint32 i = s.size(); i--; )
+    {
+        if (s[i] == c)
+            return i;
+    }
+
+    return Uint32(-1);
+}
+
+//==============================================================================
+//
+// _LockFile()
+//
+//     Obtain an exclusive lock on the given file.
+//
+//==============================================================================
+
+static int _LockFile(int fd)
+{
+    static struct flock lock;
+    lock.l_type = F_WRLCK; 
+    lock.l_whence = SEEK_SET; 
+    lock.l_start = 0; 
+    lock.l_len = 0; 
+    return fcntl(fd, F_SETLKW, &lock);
+}
+
+//==============================================================================
+//
+// _UnlockFile()
+//
+//     Release the lock on the given file.
+//
+//==============================================================================
+
+static int _UnlockFile(int fd)
+{
+    static struct flock lock;
+    lock.l_type = F_UNLCK; 
+    lock.l_whence = SEEK_SET; 
+    lock.l_start = 0; 
+    lock.l_len = 0; 
+    return fcntl(fd, F_SETLKW, &lock);
+}
+
+//==============================================================================
+//
+// ExpandPath()
+//
+//     Expand the given path into a dirname and basename (use getcwd() if 
+//     necessary).
+//
+//==============================================================================
+
+static void ExpandPath(const String& path, String& dirname, String& basename)
+{
+    String cwd;
+    FileSystem::getCurrentDirectory(cwd);
+
+    // Prepend current-working-directory if necessary.
+
+    {
+        String tmp;
+
+        if (path[0] == '/')
+            tmp = path;
+        else
+            tmp = cwd + String("/") + path;
+
+        Uint32 slash = ReverseFind(tmp, '/');
+        dirname = tmp.subString(0, slash);
+        basename = tmp.subString(slash + 1);
+    }
+
+    // Normalize dirname:
+
+    if (FileSystem::changeDirectory(dirname))
+    {
+        FileSystem::getCurrentDirectory(dirname);
+        FileSystem::changeDirectory(cwd);
+    }
+}
+
+//==============================================================================
+//
+// AddFile()
+//
+//==============================================================================
+
+void AddPath(const String& path)
+{
+    String dirname;
+    String basename;
+
+    ExpandPath(path, dirname, basename);
+    _dirnames.append(dirname);
+    _basenames.append(basename);
+}
+
+//==============================================================================
+//
+// _getHomedPath()
+//
+//==============================================================================
+
+static String _getHomedPath(const String& name)
+{
+    if (name[0] == '/')
+        return name;
+
+    const char* home = getenv("PEGASUS_HOME");
+
+    if (home)
+        return String(home) + String("/") + name;
+
+    return name;
 }
 
 //==============================================================================
@@ -288,20 +453,52 @@ void UpdatePolicyFile(
 
     is.close();
 
-    // Write the policy file (adding or replacing new rule).
+    // Open the policy file (adding or replacing new rule).
 
-    ofstream os(path.getCString());
+    int fd = open(path.getCString(), O_RDWR | O_CREAT, 0644);
+
+    // Obtain a write lock
+
+    if (_LockFile(fd) != 0)
+    {
+        _throwEx("failed to obtain write lock on policy configuration file: %s",
+            (const char*)path.getCString());
+    }
+
+    // Truncate file now that we have a lock.
+
+    ftruncate(fd, 0);
+
+    // Write the file.
+
+    FILE* os = fdopen(fd, "w+");
+
+    if (!os)
+    {
+        _throwEx("failed to open policy configuration file: %s",
+            (const char*)path.getCString());
+    }
 
     for (Uint32 i = 0; i < lines.size(); i++)
     {
         if (lines[i].type == PolicyFileLine::COMMENT)
-            os << lines[i].comment;
+        {
+            fprintf(os, "%s\n", (const char*)lines[i].comment.getCString());
+        }
         else if (lines[i].moduleName != moduleName)
-            os << lines[i].moduleName << ":" << lines[i].providerUser << endl;
+        {
+            fprintf(os, "%s:%s\n", 
+                (const char*)lines[i].moduleName.getCString(),
+                (const char*)lines[i].providerUser.getCString());
+        }
     }
 
-    os << moduleName << ":" << providerUser << endl;
-    os.close();
+    fprintf(os, "%s:%s\n", 
+        (const char*)moduleName.getCString(),
+        (const char*)providerUser.getCString());
+
+    _UnlockFile(fd);
+    fclose(os);
 
     // If no client, then return success.
 

@@ -67,8 +67,11 @@ PRE_DEPEND_INCLUDES = -I./depends
 SOURCES = cimmof_lex_wrapper.cpp cimmofParser.cpp cimmofMessages.cpp \
         cimmofRepositoryInterface.cpp cimmofClient.cpp \
 	cimmofRepository.cpp cimmof_tab_wrapper.cpp parser.cpp \
-	qualifierList.cpp valueFactory.cpp objname.cpp compilerDeclContext.cpp \
-        Policy.cpp
+	qualifierList.cpp valueFactory.cpp objname.cpp compilerDeclContext.cpp
+
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+  SOURCES += Policy.cpp
+endif
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -36,10 +36,39 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+//==============================================================================
+//
+// AddPath()
+//
+//     Add a new MOF file to the list of MOF files being parse.
+//
+//==============================================================================
+
+void AddPath(const String& path);
+
+//==============================================================================
+//
+// UpdatePolicyFile()
+//
+//     Updates the policy to reflect the new PG_ProviderModule instance
+//     that is being created.
+//
+//==============================================================================
+
 void UpdatePolicyFile(
     class CIMClient* client, 
     const CIMNamespaceName& nameSpace,
     const CIMInstance& inst);
+
+//==============================================================================
+//
+// CheckTrustedDirs()
+//
+//     Check that the MOF files were in trusted directories.
+//
+//==============================================================================
+
+void CheckTrustedDirs();
 
 PEGASUS_NAMESPACE_END
 

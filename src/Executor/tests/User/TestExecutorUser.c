@@ -10,7 +10,7 @@ int main()
     int gid;
 
     assert(GetUserInfo("root", &uid, &gid) == 0);
-    assert(uid == 0 && gid == 0);
+    assert(uid == 0);
 
     assert(GetUserName(uid, username) == 0);
     assert(strcmp(username, "root") == 0);

@@ -117,15 +117,17 @@ compilerDeclContext::addInstance(const CIMNamespaceName &nameSpace,
   {
     _repository->_createInstance(nameSpace, x);
 
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
     // If the class name is "PG_ProviderModule", then the policy file must
     // be updated before asking the CIM server to create the instance.
 
     String className = x.getClassName().getString();
 
     if (String::equalNoCase(className, "PG_ProviderModule"))
-    {
         UpdatePolicyFile(0, nameSpace, x);
-    }
+
+#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
   }
 }
 

@@ -45,7 +45,10 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Config/ConfigManager.h>
-#include "Policy.h"
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+# include "Policy.h"
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -96,15 +99,40 @@ cimmofClient::addInstance(
     const CIMNamespaceName &nameSpace,
     CIMInstance &instance) const
 {
+    // Check that MOF files encountered so far are in trusted directories.
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
+    CheckTrustedDirs();
+
+#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+
+    // Create the instance.
+
     _client->createInstance(nameSpace, instance);
 
     // If the class name is "PG_ProviderModule", then the policy file must
     // be updated before asking the CIM server to create the instance.
 
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
     String className = instance.getClassName().getString();
 
+
     if (String::equalNoCase(className, "PG_ProviderModule"))
-        UpdatePolicyFile(_client, nameSpace, instance);
+    {
+        try
+        {
+            UpdatePolicyFile(_client, nameSpace, instance);
+        }
+        catch (Exception& e)
+        {
+            cerr << e.getMessage() << endl;
+            exit(1);
+        }
+    }
+
+#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 }
 
 CIMQualifierDecl

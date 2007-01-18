@@ -34,6 +34,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <fcntl.h>
 #include "Policy.h"
 #include "Defines.h"
 #include "Macro.h"
@@ -414,6 +415,46 @@ void ClearDynamicPolicy()
 /*
 **==============================================================================
 **
+** _LockFile()
+**
+**     Obtain an exclusive lock on the given file.
+**
+**==============================================================================
+*/
+
+static int _LockFile(FILE* fp)
+{
+    static struct flock lock;
+    lock.l_type = F_RDLCK; 
+    lock.l_whence = SEEK_SET; 
+    lock.l_start = 0; 
+    lock.l_len = 0; 
+    return fcntl(fileno(fp), F_SETLKW, &lock);
+}
+
+/*
+**==============================================================================
+**
+** _UnlockFile()
+**
+**     Release the lock on the given file.
+**
+**==============================================================================
+*/
+
+int _UnlockFile(FILE* fp)
+{
+    static struct flock lock;
+    lock.l_type = F_UNLCK; 
+    lock.l_whence = SEEK_SET; 
+    lock.l_start = 0; 
+    lock.l_len = 0; 
+    return fcntl(fileno(fp), F_SETLKW, &lock);
+}
+
+/*
+**==============================================================================
+**
 ** LoadDynamicPolicy()
 **
 **     Load the dynamic policy file (cimserver_policy.conf). This file has
@@ -447,6 +488,14 @@ void LoadDynamicPolicy()
 
     if ((is = fopen(path, "r")) == NULL)
         Fatal(FL, "failed to open the policy configuration file: %s", path);
+
+    /* Obtain a lock on the file (wait until available). */
+
+    if (_LockFile(is) != 0)
+    {
+        Fatal(FL, "failed to obtain a lock on policy configuration file: %s",
+            path);
+    }
 
     /* Process file line-by-line. */
 
@@ -498,6 +547,14 @@ void LoadDynamicPolicy()
             (_dynamicPolicyTableSize + 1) * sizeof(struct Policy));
 
         _dynamicPolicyTable[_dynamicPolicyTableSize++] = policy;
+    }
+
+    /* Release the lock on the file. */
+
+    if (_UnlockFile(is) != 0)
+    {
+        Fatal(FL, "failed to obtain a lock on policy configuration file: %s",
+            path);
     }
 
     /* Close the file. */

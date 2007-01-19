@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // AddPath()
 //
-//     Add a new MOF file to the list of MOF files being parse.
+//     Add a new MOF file to the list of MOF files being parsed.
 //
 //==============================================================================
 

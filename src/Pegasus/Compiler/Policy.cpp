@@ -46,17 +46,21 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
-// trustedDirs[]
+// _predefinedTrustedDirs[]
 //
 //     When providers are registered, the corresponding MOF file must reside 
-//     in an "trusted directory" to ensure the MOF could not have been 
+//     in or below a "trusted directory" to ensure the MOF could not have been 
 //     created by a hacker without write access to that directory. If this
-//     array is empty, then no restriction applies.
+//     array is empty, then no restriction applies. This array defines the
+//     predefiend trusted directories.
 //
 //==============================================================================
 
-static const char* _trustedDirs[] =
+static const char* _predefinedTrustedDirs[] =
 {
+    "/usr",
+    "/opt",
+    "/etc",
     NULL,
 };
 
@@ -81,7 +85,51 @@ static void _throwEx(const char* format, ...)
 
 //==============================================================================
 //
+// _NormalizeDir()
+//
+//     Normalize directory path.
+//
+//==============================================================================
+
+static bool _NormalizeDir(const String& path, String& normalizedPath)
+{
+    normalizedPath.clear();
+
+    String cwd;
+
+    if (!FileSystem::getCurrentDirectory(cwd))
+        return false;
+
+    if (!FileSystem::changeDirectory(path))
+        return false;
+
+    if (!FileSystem::getCurrentDirectory(normalizedPath))
+        return false;
+
+    if (!FileSystem::changeDirectory(cwd))
+        return false;
+
+    return true;
+}
+
+//==============================================================================
+//
 // CheckTrustedDirs()
+//
+//     This functions checks that all MOF files, parsed in the process of 
+//     registering a provider, reside in trusted directories. If not, an
+//     exception is thrown and the program exits with an error status of 1.
+//     
+//     This function forms a list of trusted directories from two sources.
+//     (1) from the _predefinedTrustedDirs[] array defined above, and (2)
+//     from directories given by the PEGASUS_TRUSTED_DIRS envirionment 
+//     variable.
+//
+//     The MOF file must reside within the directory hierarchy given by one
+//     of the trusted directories.
+//
+//     This check is only performed in a released version of Pegasus (same as
+//     a production version), which includes all SDK provider developers.
 //     
 //==============================================================================
 
@@ -90,16 +138,69 @@ static Array<String> _basenames;
 
 void CheckTrustedDirs()
 {
-    if (_trustedDirs[0] == NULL)
-        return;
+#if defined(PEGASUS_USE_RELEASE_DIRS)
+
+    // Merge _predefinedTrustedDirs[] and PEGASUS_TRUSTED_DIRS into one array.
+
+    Array<String> trustedDirs;
+    {
+        // Process PEGASUS_TRUSTED_DIRS.
+
+        const char* env = getenv("PEGASUS_TRUSTED_DIRS");
+
+        if (env)
+        {
+            char* tmp = strdup(env);
+
+            for (char* p = strtok(tmp, ":"); p; p = strtok(NULL, ":"))
+                trustedDirs.append(p);
+
+            free(tmp);
+        }
+
+        // Process _predefinedTrustedDirs[].
+
+        for (size_t i = 0; _predefinedTrustedDirs[i]; i++)
+            trustedDirs.append(_predefinedTrustedDirs[i]);
+    }
+
+    // Normalize the trusted dirs.
+
+    for (Uint32 i = 0; i < trustedDirs.size(); i++)
+    {
+        String tmp;
+
+        if (_NormalizeDir(trustedDirs[i], tmp))
+            trustedDirs[i] = tmp;
+    }
+
+    // Check to see if the file resides in a trusted directory.
 
     for (size_t i = 0; i < _dirnames.size(); i++)
     {
         bool found = false;
 
-        for (size_t j = 0; _trustedDirs[j]; j++)
+        for (size_t j = 0; j < trustedDirs.size(); j++)
         {
-            if (_dirnames[i] == String(_trustedDirs[j]))
+            String dir = trustedDirs[j];
+
+            // If exactly equal to trusted directory, then pass.
+
+            if (_dirnames[i] == dir)
+            {
+                found = true;
+                break;
+            }
+
+            // If _dirnames[i] directory is a descendant of the trusted
+            // directory, then allow it.
+
+            Uint32 n = dir.size();
+
+            if (_dirnames[i].size() <= n)
+                continue;
+
+            if (_dirnames[i].subString(0, n) == dir && _dirnames[i][n] == '/')
             {
                 found = true;
                 break;
@@ -110,11 +211,29 @@ void CheckTrustedDirs()
         {
             String path = _dirnames[i] + String("/") + _basenames[i];
 
+            String dirs;
+
+            for (size_t j = 0; _predefinedTrustedDirs[j]; j++)
+            {
+                dirs.append(_predefinedTrustedDirs[j]);
+
+                if (_predefinedTrustedDirs[j + 1])
+                    dirs.append(", ");
+            }
+
             _throwEx(
-                "Provider module registration error. File does not reside in a "
-                "trusted directory: %s", (const char*)path.getCString());
+                "Failed to register provider module. MOF provider registration "
+                "file does not reside in a trusted directory: \"%s\". These "
+                "files must reside in one of the following directory "
+                "hierarchies: %s, or they must reside in a directory hierarchy "
+                "defined by the PEGASUS_TRUSTED_DIRS environment variable (a "
+                "colon-separted list of directory paths).",
+                (const char*)path.getCString(), 
+                (const char*)dirs.getCString());
         }
     }
+
+#endif /* defined(PEGASUS_USE_RELEASE_DIRS) */
 }
 
 //==============================================================================

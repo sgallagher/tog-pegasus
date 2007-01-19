@@ -1,33 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,8 +39,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
-//  namespace. There is a test on each operation that returns
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
+//  namespace. There is a test on each operation that returns 
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -84,45 +84,6 @@ CIMInstance buildElementConformsToProfile(
     return tmpInstance;
 }
 
-Array<CIMInstance> InteropProvider::enumElementConformsToProfileRPRPInstances(
-    const OperationContext & opContext,
-    const CIMNamespaceName & opNamespace)
-{
-    CIMClass elementConformsClass = repository->getClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
-        false, true, false);
-
-    Array<CIMInstance> instances;
-    CIMObjectPath smisVersionProfile, profRegProfile;
-
-    if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
-    {
-        //Add associations between the 1.2 SMIS-Version profile and all
-        //the version 1.2.0 profiles and subprofiles.
-        smisVersionProfile = buildDependencyReference(
-            hostName,
-            buildProfileInstanceId(SNIA_NAME, "SMI-S", SNIA_VER_120),
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-
-        Array<CIMInstance> profileInstances =
-            enumRegisteredProfileInstances();
-        Array<CIMInstance> subprofileInstances =
-            enumRegisteredSubProfileInstances();
-        profileInstances.appendArray(subprofileInstances);
-        Array<CIMInstance> profilesForVersion = getProfilesForVersion(
-            profileInstances, SNIA_NUM, 1, 2, 0);
-        for (Uint32 i = 0, n = profilesForVersion.size(); i < n; ++i)
-        {
-            instances.append(buildElementConformsToProfile(
-                smisVersionProfile,
-                profilesForVersion[i].getPath(),
-                elementConformsClass));
-        }
-    }
-    return instances;
-}
-
 //
 // Enumerates all of the ElementConformsToProfile association instances.
 //
@@ -139,29 +100,29 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
     verifyCachedInfo();
     // Loop through the cached profile Id's and related info about its
     // conforming elements.
-    for (Uint32 i = 0, n = profileIds.size(); i < n; ++i)
+    for(Uint32 i = 0, n = profileIds.size(); i < n; ++i)
     {
         String & profileId = profileIds[i];
         Array<CIMName> & elementList = conformingElements[i];
         Array<CIMNamespaceName> & namespaceList = elementNamespaces[i];
         Array<CIMObjectPath> conformingElementPaths;
-        for (Uint32 j = 0, m = elementList.size(); j < m; ++j)
+        for(Uint32 j = 0, m = elementList.size(); j < m; ++j)
         {
             CIMName & currentElement = elementList[j];
             CIMNamespaceName & currentNamespace = namespaceList[j];
 
-            if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP ||
+            if(opNamespace == PEGASUS_NAMESPACENAME_INTEROP ||
                 opNamespace == currentNamespace)
             {
                 String currentElementStr(currentElement.getString());
-                if (currentElementStr.find(PEGASUS_DYNAMIC) == 0)
+                if(currentElementStr.find(PEGASUS_DYNAMIC) == 0)
                 {
                     // If the provider profile registration did not provide a
                     // list of conforming elements (presumably because there is
                     // no such definite list), then the provider is required
                     // to provide instances of ElementConformsToProfile in the
                     // vendor namespace, so we do not generate instances.
-                    if (opNamespace != PEGASUS_NAMESPACENAME_INTEROP)
+                    if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP)
                     {
                         continue;
                     }
@@ -173,32 +134,28 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
                         true, CIMPropertyList());
 
                     // Retrieve the Conforming Element
-                    for (Uint32 k = 0, x = elementConformsInstances.size();
+                    for(Uint32 k = 0, x = elementConformsInstances.size();
                         k < x; ++k)
                     {
                         CIMInstance & currentInstance =
                             elementConformsInstances[k];
 
-                        // NOCHKSRC
                         // Make sure that the current instance points to the
                         // current profile ID.
                         CIMObjectPath profilePath =
                             getRequiredValue<CIMObjectPath>(
                                 elementConformsInstances[k],
                                 ELEMENTCONFORMSTOPROFILE_PROPERTY_CONFORMANTSTANDARD);
-                        // DOCHKSRC
                         const Array<CIMKeyBinding> & keys =
                             profilePath.getKeyBindings();
-                        if (keys.size() != 1)
+                        if(keys.size() != 1)
                             continue;
-                        if (keys.size() == 1 && keys[0].getValue() == profileId)
+                        if(keys.size() == 1 && keys[0].getValue() == profileId)
                         {
-                            // NOCHKSRC
                             conformingElementPaths.append(
                                 getRequiredValue<CIMObjectPath>(
                                 currentInstance,
                                 ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT));
-                            // DOCHKSRC
                         }
                     }
                 }
@@ -210,7 +167,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
                         cimomHandle.enumerateInstanceNames(opContext,
                             currentNamespace, currentElement);
                     // Set the namespace in the paths just in case
-                    for (Uint32 k = 0, x = paths.size();
+                    for(Uint32 k = 0, x = paths.size();
                         k < x; ++k)
                     {
                         CIMObjectPath & curPath = paths[k];
@@ -229,7 +186,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
 
         // Build all of the ElementConformsToProfile instances for the current
         // profile.
-        for (Uint32 k = 0, x = conformingElementPaths.size(); k < x; ++k)
+        for(Uint32 k = 0, x = conformingElementPaths.size(); k < x; ++k)
         {
             instances.append(buildElementConformsToProfile(profilePath,
                 conformingElementPaths[k], elementConformsClass));
@@ -238,134 +195,19 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
 
     // Now add the default instance: the association between the Server Profile
     // and the ObjectManager (if we're in the Interop namespace)
-    if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
+    if(opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
     {
-        // Build up the Object Path for the server profile version 1.1.0
-        CIMObjectPath serverProfile = buildDependencyReference(
-            hostName,
+        // Build up the Object Path for the server profile
+        CIMObjectPath serverProfile = buildDependencyReference(hostName,
             buildProfileInstanceId(SNIA_NAME, "Server", SNIA_VER_110),
             PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
         // Retrieve the Object Manager instance
         CIMInstance objManager = getObjectManagerInstance();
 
-        instances.append(
-            buildElementConformsToProfile(
-                serverProfile,
-                objManager.getPath(),
-                elementConformsClass));
-
-        // Build up the Object Path for the server profile ver 1.2.0
-        // and add the elementconformstoprofile association instance
-        serverProfile = buildDependencyReference(
-            hostName,
-            buildProfileInstanceId(SNIA_NAME, "Server", SNIA_VER_120),
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-        instances.append(
-            buildElementConformsToProfile(
-                serverProfile,
-                objManager.getPath(),
-                elementConformsClass));
-
+        instances.append(buildElementConformsToProfile(serverProfile,
+            objManager.getPath(), elementConformsClass));
     }
 
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    // Now add the  association between the Indication profile
-    // and IndicationService
-    if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
-    {
-        CIMObjectPath serverProfile = buildDependencyReference(
-            hostName,
-            buildProfileInstanceId(DMTF_NAME, "Indications", DMTF_VER_110),
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-        // Retrieve the IndicationService instance
-        Array<CIMInstance> indService =
-            enumIndicationServiceInstances(OperationContext());
-
-        instances.append(
-            buildElementConformsToProfile(
-                serverProfile,
-                indService[0].getPath(),
-                elementConformsClass));
-    }
-#endif
-
-    return instances;
-}
-
-//Method that filters the registered profile or registered subprofile instances
-//whose versions are greater or equal to the given version.
-Array<CIMInstance> InteropProvider::getProfilesForVersion(
-    Array<CIMInstance>& profiles,
-    Uint16 regOrg,
-    Uint32 majorVer,
-    Uint32 minorVer,
-    Uint32 updateVer)
-{
-    static const String SMISProfileName("SMI-S");
-    static const String SNIAIndicationProfileName("Indication");
-    static const String DMTFIndicationProfileName("Indications");
-    static const String ServerProfileName("Server");
-    static const String SoftwareProfileName("Software");
-
-    Array<CIMInstance> instances;
-    instances.clear();
-    for (Uint32 i = 0, n = profiles.size(); i < n; ++i)
-    {
-        String versionNumber;
-        String profileName;
-        //Can use 0 here as registered organization value of 0 is 
-        //ruled out(not specified in the CIM Schema
-        Uint16 regOrgNo = 0;
-
-        Uint32 index = profiles[i].findProperty("RegisteredVersion");
-        if (index != PEG_NOT_FOUND)
-        {
-            const CIMValue &tmpVal = profiles[i].getProperty(index).getValue();
-            if (!tmpVal.isNull())
-            {
-              tmpVal.get(versionNumber);
-            }
-        }
-        index = profiles[i].findProperty("RegisteredName");
-        if (index != PEG_NOT_FOUND)
-        {
-            const CIMValue &tmpVal = profiles[i].getProperty(index).getValue();
-            if (!tmpVal.isNull())
-            {
-                tmpVal.get(profileName);
-            }
-        }
-        index = profiles[i].findProperty("RegisteredOrganization");
-        if (index != PEG_NOT_FOUND)
-        {
-            const CIMValue &tmpVal = profiles[i].getProperty(index).getValue();
-            if (!tmpVal.isNull())
-            {
-                tmpVal.get(regOrgNo);
-            }
-        }
-
-        if ( regOrgNo != 0 && regOrg == regOrgNo)
-        {
-            if (profileName == ServerProfileName ||
-                (regOrg == SNIA_NUM &&
-                    profileName == SNIAIndicationProfileName) ||
-                (regOrg == DMTF_NUM
-                    && profileName == DMTFIndicationProfileName) ||
-                profileName == SoftwareProfileName)
-            {
-                if (VersionUtil::isVersionGreaterOrEqual(
-                    versionNumber, majorVer, minorVer, updateVer))
-                {
-                    instances.append(profiles[i]);
-                }
-            }
-            else if (profileName != SMISProfileName)
-            {
-                instances.append(profiles[i]);
-            }
-        }
-    }
     return instances;
 }
 
@@ -374,24 +216,13 @@ typedef Array<String> StringArray;
 
 void InteropProvider::verifyCachedInfo()
 {
-    if (!updateProfileCache.get())
-    {
-        return;
-    }
-    // At present cache will be rebuilt in the following conditions.
-    // (1) When instances of PG_ProviderProfileCapabilities is created
-    //     or deleted.
-    // (2) When Provider and ProviderCapabilities instances
-    //     are created or Provider, ProviderModule and ProviderCapabilities
-    //     instance are deleted.
-    // (3) When Provider or ProviderModule is disabled or enabled.
-    AutoMutex mtx(interopMut);
-    if (updateProfileCache.get())
-    {
-        initializeNamespaces();
-        cacheProfileRegistrationInfo();
-        updateProfileCache--;
-    }
+    // TBD: May need an algorithm to determine whether or not the information
+    // cached by the Interop Provider is out of date in some way. Until that
+    // can be created, then providers that are dynamically registered after
+    // the Server profile has already been traversed may not be properly
+    // reflected. Although this is a shortcoming, the current users of this
+    // functionality do not generally use dynamic registration as part of their
+    // installation procedures.
 }
 
 //
@@ -405,7 +236,7 @@ Array<String> findProviderNamespacesForElement(
     Array<CIMInstance> & providerCapabilitiesInstances)
 {
     Array<CIMInstance> capabilities;
-    if (providerCapabilitiesInstances.size() == 0)
+    if(providerCapabilitiesInstances.size() == 0)
     {
         Array<CIMName> propList;
         propList.append(PROVIDERCAPABILITIES_PROPERTY_PROVIDERMODULENAME);
@@ -414,14 +245,14 @@ Array<String> findProviderNamespacesForElement(
         propList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
         capabilities = repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false);
+            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false, false);
     }
     else
     {
         capabilities = providerCapabilitiesInstances;
     }
 
-    for (Uint32 i = 0, n = capabilities.size(); i < n; ++i)
+    for(Uint32 i = 0, n = capabilities.size(); i < n; ++i)
     {
         CIMInstance & currentCapabilities = capabilities[i];
         Uint32 propIndex = currentCapabilities.findProperty(
@@ -430,21 +261,21 @@ Array<String> findProviderNamespacesForElement(
         String currentName;
         currentCapabilities.getProperty(propIndex).getValue().get(
             currentName);
-        if (currentName == moduleName)
+        if(currentName == moduleName)
         {
             propIndex = currentCapabilities.findProperty(
                 PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME);
             PEGASUS_ASSERT(propIndex != PEG_NOT_FOUND);
             currentCapabilities.getProperty(propIndex).getValue().get(
                 currentName);
-            if (currentName == providerName)
+            if(currentName == providerName)
             {
                 propIndex = currentCapabilities.findProperty(
                     PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
                 PEGASUS_ASSERT(propIndex != PEG_NOT_FOUND);
                 currentCapabilities.getProperty(propIndex).getValue().get(
                     currentName);
-                if (elementClass.equal(CIMName(currentName)))
+                if(elementClass.equal(CIMName(currentName)))
                 {
                     propIndex = currentCapabilities.findProperty(
                       PROVIDERCAPABILITIES_PROPERTY_NAMESPACES);
@@ -473,12 +304,6 @@ void InteropProvider::cacheProfileRegistrationInfo()
 {
     Array<CIMInstance> instances;
     Array<CIMInstance> providerCapabilitiesInstances;
-
-    // Clear existing cache
-    profileIds.clear();
-    conformingElements.clear();
-    elementNamespaces.clear();
-
     // Retrieve all of the provider profile registration info
     Array<CIMName> propList;
     propList.append(CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
@@ -488,14 +313,10 @@ void InteropProvider::cacheProfileRegistrationInfo()
     propList.append(PROFILECAPABILITIES_PROPERTY_OTHERREGISTEREDPROFILE);
     propList.append(PROFILECAPABILITIES_PROPERTY_OTHERPROFILEORGANIZATION);
     propList.append(PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS);
-
     Array<CIMInstance> providerProfileInstances =
-        enumProviderProfileCapabilityInstances(
-            true,
-            false,
-            false,
-            CIMPropertyList(propList));
-
+        repository->enumerateInstancesForClass(PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false,
+            false, false, CIMPropertyList(propList));
     CIMClass elementConformsClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE,
@@ -509,7 +330,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
     // Loop through the provider profile info to determine what profiles are
     // supported by what providers, and to build the ElementConformsToProfile
     // associations.
-    for (Uint32 i = 0, n = providerProfileInstances.size(); i < n; ++i)
+    for(Uint32 i = 0, n = providerProfileInstances.size(); i < n; ++i)
     {
         CIMInstance & currentProfileInstance = providerProfileInstances[i];
         String moduleName = getRequiredValue<String>(currentProfileInstance,
@@ -524,9 +345,6 @@ void InteropProvider::cacheProfileRegistrationInfo()
         Array<String> profileVersions; // Not going to use this info
         Array<Uint16> profileOrganizations; // Not going to use this info
         Array<String> profileOrganizationNames; // Not going to use this info
-        Array<String> providerModuleNames; // Not going to use this info
-        Array<String> providerNames; // Not going to use this info
-
         String profileId = extractProfileInfo(currentProfileInstance,
             profileCapabilitiesClass,
             registeredProfileClass,
@@ -538,10 +356,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
             profileVersions,
             profileOrganizations,
             profileOrganizationNames,
-            providerModuleNames,
-            providerNames,
             true);
-
         Uint32 propIndex = currentProfileInstance.findProperty(
               PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS);
 
@@ -558,35 +373,42 @@ void InteropProvider::cacheProfileRegistrationInfo()
         Array<String> elementClasses;
         currentProfileInstance.getProperty(propIndex).getValue().get(
             elementClasses);
-        //if (propIndex == PEG_NOT_FOUND)
-        if (elementClasses.size() == 0)
+        //if(propIndex == PEG_NOT_FOUND)
+        if(elementClasses.size() == 0)
         {
             // Get the namespaces in which this provider operates and trim down
             // the list of capabilities instaces to just those that are related
             // to this one.
-            if (capabilities.size() == 0)
+            String moduleName = getRequiredValue<String>(
+                currentProfileInstance,
+                CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
+            String providerName = getRequiredValue<String>(
+                currentProfileInstance,
+                CAPABILITIES_PROPERTY_PROVIDERNAME);
+            if(capabilities.size() == 0)
             {
-                Array<CIMName> capPropList;
-                capPropList.append(
+                Array<CIMName> propList;
+                propList.append(
                     PROVIDERCAPABILITIES_PROPERTY_PROVIDERMODULENAME);
-                capPropList.append(PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME);
-                capPropList.append(PROVIDERCAPABILITIES_PROPERTY_NAMESPACES);
-                capPropList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
+                propList.append(PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME);
+                propList.append(PROVIDERCAPABILITIES_PROPERTY_NAMESPACES);
+                propList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
                 capabilities = repository->enumerateInstancesForClass(
                     PEGASUS_NAMESPACENAME_INTEROP,
-                    PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false);
+                    PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false,
+                    false);
             }
             Array<CIMInstance> capabilitiesForProvider;
             Array<CIMNamespaceName> namespacesForProvider;
             Array<CIMNameArray> subclassesForNamespace;
-            for (Uint32 j = 0, m = capabilities.size(); j < m; ++j)
+            for(Uint32 j = 0, m = capabilities.size(); j < m; ++j)
             {
                 CIMInstance & currentInstance = capabilities[j];
                 String curModuleName = getRequiredValue<String>(
                     currentInstance, CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
                 String curProviderName = getRequiredValue<String>(
                     currentInstance, CAPABILITIES_PROPERTY_PROVIDERNAME);
-                if (curModuleName == moduleName &&
+                if(curModuleName == moduleName &&
                     curProviderName == providerName)
                 {
                     CIMName currentClass(getRequiredValue<String>(
@@ -601,40 +423,40 @@ void InteropProvider::cacheProfileRegistrationInfo()
 
                     // If one of the namespaces is Interop, then continue
                     bool interopNamespaceFound = false;
-                    for (; z < y; ++z)
+                    for(; z < y; ++z)
                     {
-                        if (CIMNamespaceName(curNamespaces[z]) ==
+                        if(CIMNamespaceName(curNamespaces[z]) ==
                             PEGASUS_NAMESPACENAME_INTEROP)
                         {
                             interopNamespaceFound = true;
                             break;
                         }
                     }
-                    if (interopNamespaceFound)
+                    if(interopNamespaceFound)
                         continue;
 
                     // See if the current namespaces are already listed
-                    for (Sint32 w = 0; w < y; ++w)
+                    for(Sint32 z = 0, y = curNamespaces.size(); z < y; ++z)
                     {
                         Sint32 foundIndex = -1;
-                        CIMNamespaceName curNamespace = curNamespaces[w];
+                        CIMNamespaceName curNamespace = curNamespaces[z];
                         Uint32 k = 0;
                         Uint32 x = namespacesForProvider.size();
-                        for (; k < x; ++k)
+                        for(; k < x; ++k)
                         {
-                            if (curNamespace == namespacesForProvider[k])
+                            if(curNamespace == namespacesForProvider[k])
                             {
                                 foundIndex = (Sint32)k;
                                 break;
                             }
                         }
-                        if (foundIndex == -1)
+                        if(foundIndex == -1)
                         {
                             // Get all the subclasses of
                             // ElementConformsToProfile in the namespace and
                             // cache them.
                             foundIndex = namespacesForProvider.size();
-                            Array<CIMName> subClasses =
+                            Array<CIMName> subClasses = 
                                 repository->enumerateClassNames(curNamespace,
                                 PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE,
                                 true);
@@ -650,9 +472,9 @@ void InteropProvider::cacheProfileRegistrationInfo()
                         // add it to the list
                         Array<CIMName> & subClasses =
                             subclassesForNamespace[foundIndex];
-                        for (k = 0, x = subClasses.size(); k < x; ++k)
+                        for(k = 0, x = subClasses.size(); k < x; ++k)
                         {
-                            if (subClasses[k] == currentClass)
+                            if(subClasses[k] == currentClass)
                             {
                                 String dynamicElement = PEGASUS_DYNAMIC +
                                     currentClass.getString();
@@ -671,7 +493,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
             //Array<String> elementClasses;
             //currentProfileInstance.getProperty(propIndex).getValue().get(
             //    elementClasses);
-            for (Uint32 j = 0, m = elementClasses.size(); j < m; ++j)
+            for(Uint32 j = 0, m = elementClasses.size(); j < m; ++j)
             {
                 CIMName elementClass(elementClasses[j]);
                 Array<String> searchNamespaces =
@@ -682,7 +504,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
                         providerCapabilitiesInstances);
                 Uint32 k = 0;
                 Uint32 x = searchNamespaces.size();
-                for (; k < x; ++k)
+                for(; k < x; ++k)
                 {
                     conformingElementsForProfile.append(elementClass);
                     elementNamespacesForProfile.append(searchNamespaces[k]);
@@ -691,16 +513,16 @@ void InteropProvider::cacheProfileRegistrationInfo()
         }
 
         Sint32 foundIndex = -1;
-        for (Sint32 j = 0, m = profileIds.size(); j < m; ++j)
+        for(Sint32 j = 0, m = profileIds.size(); j < m; ++j)
         {
-            if (profileIds[j] == profileId)
+            if(profileIds[j] == profileId)
             {
                 foundIndex = j;
                 break;
             }
         }
 
-        if (foundIndex >= 0)
+        if(foundIndex >= 0)
         {
             // Append the results to already existing entries
             conformingElements[foundIndex].appendArray(

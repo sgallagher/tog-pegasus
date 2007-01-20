@@ -95,6 +95,7 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
 
 #else /* !defined(HAVE_MSG_CONTROL) */
 
+    memset(&mh, 0, sizeof(mh));
     mh.msg_accrights = (caddr_t)descriptors;
     mh.msg_accrightslen = sizeof(int) * count;
 
@@ -107,7 +108,6 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
      */
 
     memset(iov, 0, sizeof(iov));
-
     iov[0].iov_base = &dummy;
     iov[0].iov_len = 1;
     mh.msg_iov = iov;

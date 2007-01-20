@@ -299,6 +299,7 @@ ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 
 #else /* defined(HAVE_MSG_CONTROL) */
 
+    memset(&mh, 0, sizeof(mh));
     mh.msg_accrights = (caddr_t)descriptors;
     mh.msg_accrightslen = count * sizeof(int);
 
@@ -310,7 +311,6 @@ ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
      */
 
     memset(iov, 0, sizeof(iov));
-
     dummy = '\0';
     iov[0].iov_base = &dummy;
     iov[0].iov_len = 1;

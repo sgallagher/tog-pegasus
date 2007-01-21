@@ -48,11 +48,18 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // _predefinedTrustedDirs[]
 //
-//     When providers are registered, the corresponding MOF file must reside 
-//     in or below a "trusted directory" to ensure the MOF could not have been 
-//     created by a hacker without write access to that directory. If this
-//     array is empty, then no restriction applies. This array defines the
-//     predefiend trusted directories.
+//     When providers are registered, the corresponding MOF file must reside
+//     in or below a "trusted directory", a place where the platform does not
+//     deliver world-writable directories.  Using only trusted directories 
+//     helps avoid cases where the MOF could have been created by a malicious 
+//     user with write access to an untrusted directory. 
+//
+//     This check is implemented to help guide developers to exercise care in 
+//     the directories they use to place MOF files, and directories should
+//     not be added to the trusted list without considering the permissions 
+//     of that directory and its descendants. Though an empty list will defeat 
+//     this check, this should only be done for platforms that expect no 
+//     untrusted users.
 //
 //==============================================================================
 

@@ -766,11 +766,21 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
-        if (CheckPasswordFile(
-            globals.passwordFilePath, request.username, request.password) != 0)
         {
-            status = -1;
-            break;
+            const char* path = FindMacro("passwordFilePath");
+
+            if (!path)
+            {
+                status = -1;
+                break;
+            }
+
+            if (CheckPasswordFile(
+                path, request.username, request.password) != 0)
+            {
+                status = -1;
+                break;
+            }
         }
 
         /* Generate session key (set authenticated flag to true). */
@@ -842,11 +852,23 @@ static void HandleValidateUserRequest(int sock)
 
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
-    if (CheckPasswordFile(
-        globals.passwordFilePath, request.username, NULL) != 0)
+    do
     {
-        status = -1;
+        const char* path = FindMacro("passwordFilePath");
+
+        if (!path)
+        {
+            status = -1;
+            break;
+        }
+
+        if (CheckPasswordFile(path, request.username, NULL) != 0)
+        {
+            status = -1;
+            break;
+        }
     }
+    while (0);
 
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
 

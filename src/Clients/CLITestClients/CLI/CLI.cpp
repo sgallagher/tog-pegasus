@@ -356,14 +356,14 @@ int main(int argc, char** argv)
 
     // Find the command and save index in cmdIndex
     Uint32 cmdIndex = 0;
-    opts.cimCmd.toLower();
+    
     if (opts.verboseTest && opts.debug)
         cout << "TEST Command = " << opts.cimCmd << endl;
 
     // Find the command or the short cut name
     for( ; cmdIndex < NUM_COMMANDS; cmdIndex++ )
     {
-        if ((opts.cimCmd == CommandTable[cmdIndex].CommandName) ||
+        if ((String::equalNoCase(opts.cimCmd, CommandTable[cmdIndex].CommandName)) ||
             (opts.cimCmd == CommandTable[cmdIndex].ShortCut))
             // Break if found
                     break;

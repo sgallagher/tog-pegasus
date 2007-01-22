@@ -161,7 +161,7 @@ static CMD_STRUCT CommandTable[] =
         " Enumerate References of <classname>|<instancename> " },
     {ID_ReferenceNames,          "referenceNames",2 ,       "rn",
         " Enumerate Reference Names <classname>|<instancename> " },
-    {ID_InvokeMethod,            "InvokeMethod",  2 ,       "im",
+    {ID_InvokeMethod,            "invokeMethod",  2 ,       "im",
         " Invoke Method for <object> <method> {<inputParams>} " },
     {ID_ExecQuery,               "execQuery",     2 ,       "xq",
         " Execute Query <query-expresssion> [<query-language>]"  },

@@ -1361,11 +1361,6 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));  
 
-        CIMObjectPath instanceReference(request->instanceName);
-
-        // ATTN: propagate namespace
-        instanceReference.setNameSpace(request->nameSpace);
-
         // forward request
         STAT_PMS_PROVIDERSTART;
 
@@ -1377,7 +1372,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
 
         ph.GetProvider().invokeMethod(
             context,
-            instanceReference,
+            objectPath,
             request->methodName,
             request->inParameters,
             handler);

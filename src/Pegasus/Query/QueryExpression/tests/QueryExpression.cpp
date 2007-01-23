@@ -381,7 +381,8 @@ int main(int argc, char ** argv)
 	if(className != String::EMPTY){
 		try{
 			const CIMName _testclass(className);
-			_instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
+			_instances = _rep->enumerateInstances(
+			    _ns, _testclass, true, false);  // deep inh true
 		}catch(Exception& e){
         cout << endl << endl
              << "Exception: Invalid namespace/class: "
@@ -392,8 +393,10 @@ int main(int argc, char ** argv)
       const CIMName _testclass(String("QExpr_TestPropertyTypes"));
 		const CIMName _testclass2(String("QExpr_TestElement"));
 		try{
-        _instances = _rep->enumerateInstances( _ns, _testclass, true ); // deep inh true
-        _instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, true )); // deep inh true
+        _instances = _rep->enumerateInstances(
+            _ns, _testclass, true, false); // deep inh true
+        _instances.appendArray(_rep->enumerateInstances(
+            _ns, _testclass2, true, false)); // deep inh true
 		}catch(Exception& e){
 			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
       }

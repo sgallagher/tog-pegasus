@@ -280,8 +280,11 @@ InteropProvider::InteropProvider(CIMRepository* repository)
 
      try
      { 
-         instance = repository->enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, 
-                                                   CIM_OBJECTMANAGER_CLASSNAME);
+         instance = repository->enumerateInstances(
+             PEGASUS_NAMESPACENAME_INTEROP, 
+             CIM_OBJECTMANAGER_CLASSNAME,
+             true,
+             false);
      }
      catch(Exception e)
      {

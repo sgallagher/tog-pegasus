@@ -64,10 +64,20 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 URL:       http://www.openpegasus.org
 
 Source:    %{name}-%{version}-%{srcRelease}.tar.gz
+#
+# End of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec
 
+# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-buildRequires.spec
+#
 BuildRequires:      bash, sed, grep, coreutils, procps, gcc, gcc-c++
 BuildRequires:      libstdc++, make, pam-devel
 BuildRequires:      openssl-devel >= 0.9.6, e2fsprogs
+BuildRequires:      net-snmp-devel
+#
+# End of section  pegasus/rpm/tog-specfiles/tog-pegasus-buildRequires.spec
+
+# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-requires.spec
+#
 Requires:           bash, sed, grep, coreutils, procps, openssl >= 0.9.6, pam
 #Requires:          krb5-libs, redhat-lsb, chkconfig, SysVinit, bind-libs
 Requires:           e2fsprogs, bind-utils, net-tools
@@ -80,7 +90,12 @@ Requires(pre):      e2fsprogs, bind-utils, net-tools
 Requires(postun):   bash, sed, grep, coreutils, procps, openssl >= 0.9.6, pam
 #Requires(postun):  krb5-libs, redhat-lsb, chkconfig, SysVinit, bind-libs
 Requires(postun):   e2fsprogs, bind-utils, net-tools
+Requires:           net-snmp
+#
+# End of section  pegasus/rpm/tog-specfiles/tog-pegasus-requires.spec
 
+# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-desc.spec
+#
 Conflicts: openwbem
 Provides: tog-pegasus-cimserver
 BuildConflicts: tog-pegasus
@@ -92,7 +107,7 @@ independent DMTF standard that defines a common information model and
 communication protocol for monitoring and controlling resources from diverse
 sources.
 #
-# End of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec
+# End of section pegasus/rpm/tog-specfiles/tog-pegasus-desc.spec
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-arch.spec
 #
@@ -295,6 +310,7 @@ if [ $1 -eq 1 ]; then
    ln -sf libDefaultProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/libDefaultProviderManager.so
    ln -sf libCIMxmlIndicationHandler.so.1 /usr/%PEGASUS_ARCH_LIB/libCIMxmlIndicationHandler.so
    ln -sf libCMPIProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/libCMPIProviderManager.so
+   ln -sf libsnmpIndicationHandler.so.1 /usr/%PEGASUS_ARCH_LIB/libsnmpIndicationHandler.so
 
    # Create Symbolic Links for Packaged Provider Libraries
    #
@@ -439,6 +455,7 @@ fi;
 /usr/%PEGASUS_ARCH_LIB/libDefaultProviderManager.so
 /usr/%PEGASUS_ARCH_LIB/libCIMxmlIndicationHandler.so
 /usr/%PEGASUS_ARCH_LIB/libCMPIProviderManager.so
+/usr/%PEGASUS_ARCH_LIB/libsnmpIndicationHandler.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libComputerSystemProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libOSProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libProcessProvider.so

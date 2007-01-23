@@ -124,6 +124,11 @@ PEGASUS_LIBRARIES += \
    libcmpiCppImpl
 endif
 
+ifdef PEGASUS_USE_NET_SNMP
+   PEGASUS_LIBRARIES += \
+      libsnmpIndicationHandler
+endif
+
 ifeq ($(OS),HPUX)
 PEGASUS_LIBRARIES += \
    libNTPProviderSecurity
@@ -139,6 +144,11 @@ PEGASUS_LIBRARY_LINKS = \
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 PEGASUS_LIBRARY_LINKS += \
    libCMPIProviderManager
+endif
+
+ifdef PEGASUS_USE_NET_SNMP
+PEGASUS_LIBRARY_LINKS += \
+   libsnmpIndicationHandler
 endif
 
 PEGASUS_PROVIDERS = \
@@ -1043,6 +1053,31 @@ _append_PreambleToSpecFile: FORCE
 	@$(ECHO-E) "Epoch:   1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-intro.spec \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-buildRequires.spec \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+ifdef PEGASUS_USE_NET_SNMP
+	@$(ECHO-E) "BuildRequires:      net-snmp-devel" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+endif
+	@$(ECHO-E) "#" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# End of section " \
+            "pegasus/rpm/tog-specfiles/tog-pegasus-buildRequires.spec" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-requires.spec \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+ifdef PEGASUS_USE_NET_SNMP
+	@$(ECHO-E) "Requires:           net-snmp" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+endif
+	@$(ECHO-E) "#" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# End of section " \
+            "pegasus/rpm/tog-specfiles/tog-pegasus-requires.spec" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-desc.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch.spec \

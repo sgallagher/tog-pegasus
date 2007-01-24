@@ -38,7 +38,7 @@
 #include "Socket.h"
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 #include <Pegasus/Common/NamedPipe.h>
 #endif
 #include <Pegasus/Common/MessageLoader.h> //l10n
@@ -224,7 +224,7 @@ void HTTPConnector::handleEnqueue(Message *message)
         HTTPConnection* connection = _rep->connections[i];
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
               if(!connection->isNamedPipeConnection())
               {
 #endif
@@ -239,7 +239,7 @@ void HTTPConnector::handleEnqueue(Message *message)
         }
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
               }
               else
               {
@@ -293,33 +293,33 @@ HTTPConnection* HTTPConnector::connect(
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined (PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined (PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
    {
 # ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
        {
            AutoMutex automut(Monitor::_cout_mut);
-           PEGASUS_STD(cout) 
-			   << "HTTPConnector::connect before connectLocal on \
-				  windows section" << PEGASUS_STD(endl);
+           PEGASUS_STD(cout)
+               << "HTTPConnector::connect before connectLocal on \
+                  windows section" << PEGASUS_STD(endl);
 
-           PEGASUS_STD(cout) 
-			   << "HTTPConnector::connect at connectLocal on windows\
-				  section" << PEGASUS_STD(endl);
+           PEGASUS_STD(cout)
+               << "HTTPConnector::connect at connectLocal on windows\
+                  section" << PEGASUS_STD(endl);
        }
 # endif
        HTTPConnection* pipeConnection = _connectNamedPipe(outputMessageQueue);
        //error checking needed here
-       if (pipeConnection->isNamedPipeConnection()) 
-	   //this if/else is a small bit of error checking - it needs to be better
+       if (pipeConnection->isNamedPipeConnection())
+       //this if/else is a small bit of error checking - it needs to be better
        {
 # ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
            {
                AutoMutex automut(Monitor::_cout_mut);
-               PEGASUS_STD(cout) 
-				   <<" named pipe HTTPConnetion has this as an owner - " 
-				   <<  pipeConnection->get_owner().getQueueName() 
-				   << " it should be " << this->getQueueName() 
-				   << PEGASUS_STD(endl);
+               PEGASUS_STD(cout)
+                   <<" named pipe HTTPConnetion has this as an owner - "
+                   <<  pipeConnection->get_owner().getQueueName()
+                   << " it should be " << this->getQueueName()
+                   << PEGASUS_STD(endl);
            }
 # endif
        }
@@ -345,7 +345,7 @@ HTTPConnection* HTTPConnector::connect(
       {
 
          MessageLoaderParms parms(
-			 "Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
+             "Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
              "Cannot connect to local CIM server. Connection failed.");
          Socket::close(socket);
          throw CannotConnectException(parms);
@@ -418,8 +418,8 @@ HTTPConnection* HTTPConnector::connect(
       connection->getQueueId(), Monitor::CONNECTOR)))
    {
       (connection->getMPSocket()).close();
-  	  //Not sure if we need to throw an exception here. We are unable to 
-	  //monitor the socket as we could not allocate an entry
+        //Not sure if we need to throw an exception here. We are unable to
+      //monitor the socket as we could not allocate an entry
 
    }
 
@@ -463,7 +463,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     if (!currentConnection->isNamedPipeConnection())
     {
 #endif
@@ -471,7 +471,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
         _monitor->unsolicitSocketMessages(socket);
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     }
     else
     {
@@ -483,8 +483,8 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
         {
             AutoMutex automut(Monitor::_cout_mut);
             PEGASUS_STD(cout)
-				<< " in HTTPConnector::disconnecting named pipe handle: "
-				<< namedPipe.getPipe() << endl;
+                << " in HTTPConnector::disconnecting named pipe handle: "
+                << namedPipe.getPipe() << endl;
         }
 #endif
     }
@@ -498,7 +498,7 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 {
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     if (!httpConnection->isNamedPipeConnection())
     {
 #endif
@@ -510,7 +510,7 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     }
     else
     {
@@ -521,8 +521,8 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
         {
             AutoMutex automut(Monitor::_cout_mut);
             PEGASUS_STD(cout)
-				 << " in HTTPConnector::disconnecting named pipe handle: " 
-				 << namedPipe.getPipe() << endl;
+                 << " in HTTPConnector::disconnecting named pipe handle: "
+                 << namedPipe.getPipe() << endl;
         }
 # endif
     }
@@ -533,7 +533,7 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 }
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
  HTTPConnection* HTTPConnector::_connectNamedPipe(MessageQueue* outputMessageQueue)
 {
     //Create a temporary named pipe of  client
@@ -548,8 +548,8 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
     {
         AutoMutex automut(Monitor::_cout_mut);
         PEGASUS_STD(cout)
-			<< "In HTTPConnector::_connectNamedPipe, creaed a Operation Pipe -"
-			<< nPCEndPoint.getName() << endl;
+            << "In HTTPConnector::_connectNamedPipe, creaed a Operation Pipe -"
+            << nPCEndPoint.getName() << endl;
     }
 #endif
 
@@ -560,11 +560,11 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
     {
         AutoMutex automut(Monitor::_cout_mut);
         PEGASUS_STD(cout)
-			<< "In HTTPConnector::_connectNamedPipe created HTTPConnection"
-			<< PEGASUS_STD(endl);
-        PEGASUS_STD(cout) 
-			<< "In HTTPConnector::_connectNamedPipe pipe in HTTPConnection - "
-			<< (connection->getNamedPipe()).getName() << endl;
+            << "In HTTPConnector::_connectNamedPipe created HTTPConnection"
+            << PEGASUS_STD(endl);
+        PEGASUS_STD(cout)
+            << "In HTTPConnector::_connectNamedPipe pipe in HTTPConnection - "
+            << (connection->getNamedPipe()).getName() << endl;
     }
 #endif
     // Solicit events on this new connection's socket:
@@ -578,13 +578,13 @@ void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
 {
        AutoMutex automut(Monitor::_cout_mut);
-       PEGASUS_STD(cout) << "_monitor->solicitPipeMessages failed " 
-		   << PEGASUS_STD(endl);
+       PEGASUS_STD(cout) << "_monitor->solicitPipeMessages failed "
+           << PEGASUS_STD(endl);
 }
 #endif
       //NOTE: closing of Pipe is handled in UnsolicitPipeMessage method
-	  //Not sure if we need to throw an exception here. We are unable to 
-	  //monitor the socket as we could not allocate an entry
+      //Not sure if we need to throw an exception here. We are unable to
+      //monitor the socket as we could not allocate an entry
 
    }
 

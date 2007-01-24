@@ -261,14 +261,14 @@ HTTPConnection::HTTPConnection(
         "Connection IP address = " + _ipAddress);
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     _namedPipeConnection = false;
 #endif
     PEG_METHOD_EXIT();
 }
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
@@ -314,7 +314,7 @@ HTTPConnection::~HTTPConnection()
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
     {
@@ -330,7 +330,7 @@ HTTPConnection::~HTTPConnection()
      _socket->close();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
       }
       else
       {
@@ -365,9 +365,9 @@ void HTTPConnection::handleEnqueue(Message *message)
     }
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) && \
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)\
     && defined PEGASUS_LOCALDOMAINSOCKET_DEBUG
-	if (_namedPipeConnection)
+    if (_namedPipeConnection)
     {
         {
             AutoMutex automut(Monitor::_cout_mut);
@@ -397,14 +397,14 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) && \
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)\
-	&& defined PEGASUS_LOCALDOMAINSOCKET_DEBUG
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)\
+    && defined PEGASUS_LOCALDOMAINSOCKET_DEBUG
             if(_namedPipeConnection)
             {
                 AutoMutex automut(Monitor::_cout_mut);
-                PEGASUS_STD(cout) 
-					<< " this connection thinks it is a Pipe connection"
-					<< endl;
+                PEGASUS_STD(cout)
+                    << " this connection thinks it is a Pipe connection"
+                    << endl;
             }
 #endif
             _handleWriteEvent(*message);
@@ -413,7 +413,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         case NAMEDPIPE_MESSAGE:
         {
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -463,7 +463,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     Buffer messageForNamePipe;
 #endif
     try
@@ -842,7 +842,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         static const char errorNamedPipe[] = "NamedPipe write error";
 #endif
         char *sendStart = messageStart;
@@ -858,7 +858,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             if (_namedPipeConnection)
             {
 
@@ -878,7 +878,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _socketWriteError();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             }
 #endif
             totalBytesWritten += bytesWritten;
@@ -894,7 +894,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             bytesToWrite = trailer.size();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             if (_namedPipeConnection)
             {
 # ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG
@@ -927,7 +927,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _socketWriteError();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             }
 #endif
             totalBytesWritten += bytesWritten;
@@ -939,7 +939,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             sendStart = messageStart + headerLength - bytesToWrite;
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             if (_namedPipeConnection)
             {
                 DWORD size = 0;
@@ -972,7 +972,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _socketWriteError();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             }
 #endif
             totalBytesWritten += bytesWritten;
@@ -998,7 +998,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 Sint32 chunkBytesToWrite = strlen(sendStart);
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined (PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined (PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                 if (_namedPipeConnection)
                 {
                     DWORD size = 0;
@@ -1014,7 +1014,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     _socketWriteError();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                 }
 #endif
                 totalBytesWritten += bytesWritten;
@@ -1037,7 +1037,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
               bytesToWrite = _Min(httpTcpBufferSize, bytesRemaining);
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             if (_namedPipeConnection)
             {
                 DWORD size = 0;
@@ -1052,7 +1052,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                   _socketWriteError();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             }
 #endif
               totalBytesWritten += bytesWritten;
@@ -1108,7 +1108,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
                 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                 if (_namedPipeConnection)
                 {
                     DWORD size = 0;
@@ -1125,7 +1125,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     _socketWriteError();
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                 }
 #endif
 
@@ -1137,9 +1137,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 // Added for NamedPipe implementation for windows
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         if (_namedPipeConnection)
-        {   
+        {
             if (messageForNamePipe.size() > 0 || isLast == true)
             {
                 _writeToNamePipe (messageForNamePipe, messageForNamePipe.size());
@@ -1200,7 +1200,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
                     "Now setting state to %d", _MonitorEntry::IDLE);
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
                 if (_namedPipeConnection)
                 {
@@ -1213,7 +1213,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     _monitor->tickle();
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                 }
 #endif
             }
@@ -1596,7 +1596,7 @@ void HTTPConnection::_closeConnection()
         Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
             "Now setting state to %d", _MonitorEntry::DYING);
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
         if (_namedPipeConnection)
         {
@@ -1609,7 +1609,7 @@ void HTTPConnection::_closeConnection()
             _monitor->tickle();
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         }
 #endif
     }
@@ -2133,15 +2133,15 @@ void HTTPConnection::_handleReadEvent()
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
     DWORD dwPeekSize =0;
     DWORD srcIndx = 0;
         if (_namedPipeConnection)  //this clause reads from the namedPipe
         {
              _namedPipe.setBusy();
-             
-			 BOOL bPeekRes = 0;
+
+             BOOL bPeekRes = 0;
 
              dwPeekSize = 0;
              // Double check if the data is available in Pipe and the size.
@@ -2173,7 +2173,7 @@ void HTTPConnection::_handleReadEvent()
         Sint32 n = 0;
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
         if (_namedPipeConnection)  //this clause reads from the namedPipe
         {
@@ -2186,7 +2186,7 @@ void HTTPConnection::_handleReadEvent()
             DWORD bytesToRead = (bytesRemaining > NAMEDPIPE_MAX_BUFFER_SIZE)?
                                  NAMEDPIPE_MAX_BUFFER_SIZE : bytesRemaining;
 
-               
+
             // If we are left with more data to be read
             if (bytesRemaining)
             {
@@ -2212,46 +2212,46 @@ void HTTPConnection::_handleReadEvent()
             }
 
 
-			buffer[_namedPipe.bytesRead]='\0';
+            buffer[_namedPipe.bytesRead]='\0';
             n = strlen(buffer);
         }
         else if (!_namedPipeConnection) // this clause reads from the socket
         {
 #endif
 
-			n =_socket->read(buffer, sizeof(buffer)-1);
+            n =_socket->read(buffer, sizeof(buffer)-1);
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         }
 #endif
 
         if (n <= 0)
         {
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             if (!_namedPipeConnection)
             {
 #endif
-				if (_socket->isSecure())
-				{
-					// It is possible that SSL_read was not able to
-					// read the entire SSL record.  This could happen
-					// if the record was send in multiple packets
-					// over the network and only some of the packets
-					// are available.  Since SSL requires the entire
-					// record to successfully decrypt, the SSL_read
-					// operation will return "0 bytes" read.
-					// Once all the bytes of the SSL record have been read,
-					// SSL_read will return the entire record.
-					// The following test was added to allow
-					// handleReadEvent to distinguish between a
-					// disconnect and partial read of an SSL record.
-					//
-					incompleteSecureReadOccurred = _socket->incompleteReadOccurred(n);
-				}
+                if (_socket->isSecure())
+                {
+                    // It is possible that SSL_read was not able to
+                    // read the entire SSL record.  This could happen
+                    // if the record was send in multiple packets
+                    // over the network and only some of the packets
+                    // are available.  Since SSL requires the entire
+                    // record to successfully decrypt, the SSL_read
+                    // operation will return "0 bytes" read.
+                    // Once all the bytes of the SSL record have been read,
+                    // SSL_read will return the entire record.
+                    // The following test was added to allow
+                    // handleReadEvent to distinguish between a
+                    // disconnect and partial read of an SSL record.
+                    //
+                    incompleteSecureReadOccurred = _socket->incompleteReadOccurred(n);
+                }
  // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
             }
 #endif
             break;
@@ -2352,21 +2352,21 @@ void HTTPConnection::_handleReadEvent()
             Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
                 "Now setting state to %d", _MonitorEntry::BUSY);
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
-			if (_namedPipeConnection)
-			{
-				_monitor->setPipeState (_entry_index, _MonitorEntry::IDLE);
-			}
-			else
-			{
+            if (_namedPipeConnection)
+            {
+                _monitor->setPipeState (_entry_index, _MonitorEntry::IDLE);
+            }
+            else
+            {
 #endif
-				_monitor->setSocketState (_entry_index, _MonitorEntry::IDLE);
-				_monitor->tickle();
+                _monitor->setSocketState (_entry_index, _MonitorEntry::IDLE);
+                _monitor->tickle();
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-			}
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+            }
 #endif
         }
         _outputMessageQueue->enqueue(message);
@@ -2400,7 +2400,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 {
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     if (_namedPipeConnection)
     {
         //the following code may need to be put in it's own method
@@ -2427,47 +2427,47 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
     else
     {
 #endif
-		Boolean handled_events = false;
-		int events = 0;
-		fd_set fdread; // , fdwrite;
-		struct timeval tv = { 0, 1 };
-		FD_ZERO(&fdread);
-		FD_SET(getSocket(), &fdread);
-		events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
+        Boolean handled_events = false;
+        int events = 0;
+        fd_set fdread; // , fdwrite;
+        struct timeval tv = { 0, 1 };
+        FD_ZERO(&fdread);
+        FD_SET(getSocket(), &fdread);
+        events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 
-		if (events == PEGASUS_SOCKET_ERROR)
-			return false;
+        if (events == PEGASUS_SOCKET_ERROR)
+            return false;
 
-		if (events)
-		{
-			events = 0;
-			if( FD_ISSET(getSocket(), &fdread))
-			{
-				events |= SocketMessage::READ;
-				Message *msg = new SocketMessage(getSocket(), events);
-				try
-				{
-					handleEnqueue(msg);
-				}
-				catch(...)
-				{
-					Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-						"HTTPConnection::run handleEnqueue(msg) failure");
-					return true;
-				}
-				handled_events = true;
-			}
+        if (events)
+        {
+            events = 0;
+            if( FD_ISSET(getSocket(), &fdread))
+            {
+                events |= SocketMessage::READ;
+                Message *msg = new SocketMessage(getSocket(), events);
+                try
+                {
+                    handleEnqueue(msg);
+                }
+                catch(...)
+                {
+                    Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPConnection::run handleEnqueue(msg) failure");
+                    return true;
+                }
+                handled_events = true;
+            }
 
-		}
+        }
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     return handled_events;
    }
 #endif
 }
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 Boolean HTTPConnection::_writeToNamePipe(Buffer message, Uint32 messageLength)
 {
 

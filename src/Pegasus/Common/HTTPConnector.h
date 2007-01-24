@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -61,65 +61,65 @@ class HTTPConnection;
 class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
 {
    public:
-   
+
       typedef MessageQueue Base;
-  
+
       /** Constructor.
-	  @param monitor pointer to monitor object which this class uses to
-	  solicit SocketMessages on the server port (socket).
-	  @param outputMessageQueue ouptut message queue for connections
-	  created by this connector.
+      @param monitor pointer to monitor object which this class uses to
+      solicit SocketMessages on the server port (socket).
+      @param outputMessageQueue ouptut message queue for connections
+      created by this connector.
       */
       HTTPConnector(Monitor* monitor);
 
       HTTPConnector(Monitor* monitor, SSLContext * sslcontext);
-   
+
       /** Destructor. */
       ~HTTPConnector();
 
       /** This method is called whenever a SocketMessage is enqueued
-	  on the input queue of the HTTPConnector object.
-      */ 
+      on the input queue of the HTTPConnector object.
+      */
 
       virtual void handleEnqueue(Message *);
       virtual void handleEnqueue();
 
       /** Establishes a new connection and creates an HTTPConnection object
-	  to represent it.
+      to represent it.
 
-	  @param host indicates host to connect to
-	  @param portNumber indicates port number to use
-	  @param outputMessageQueue output message queue for the HTTPConnection
-	  that will be created.
-	  @exception InvalidLocatorException
-	  @exception CannotCreateSocketException
-	  @exception CannotConnectException
+      @param host indicates host to connect to
+      @param portNumber indicates port number to use
+      @param outputMessageQueue output message queue for the HTTPConnection
+      that will be created.
+      @exception InvalidLocatorException
+      @exception CannotCreateSocketException
+      @exception CannotConnectException
       */
       inline HTTPConnection* connect(
-         const String& host, 
+         const String& host,
          const Uint32 portNumber,
-	 MessageQueue* outputMessageQueue)
+     MessageQueue* outputMessageQueue)
       {
           return connect(host, portNumber, NULL, outputMessageQueue);
       }
 
       /** Establishes a new connection and creates an HTTPConnection object
-	  to represent it.
+      to represent it.
 
-	  @param host indicates host to connect to
-	  @param portNumber indicates port number to use
-	  @param sslContext Specifies the SSL context to use for this connection
-	  @param outputMessageQueue output message queue for the HTTPConnection
-	  that will be created.
-	  @exception InvalidLocatorException
-	  @exception CannotCreateSocketException
-	  @exception CannotConnectException
+      @param host indicates host to connect to
+      @param portNumber indicates port number to use
+      @param sslContext Specifies the SSL context to use for this connection
+      @param outputMessageQueue output message queue for the HTTPConnection
+      that will be created.
+      @exception InvalidLocatorException
+      @exception CannotCreateSocketException
+      @exception CannotConnectException
       */
       HTTPConnection* connect(
-         const String& host, 
+         const String& host,
          const Uint32 portNumber,
-	 SSLContext * sslContext,
-	 MessageQueue* outputMessageQueue);
+     SSLContext * sslContext,
+     MessageQueue* outputMessageQueue);
 
       /** Destroys all the connections created by this connector. */
       void destroyConnections();
@@ -134,16 +134,16 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
       /** Used for local connections on windows */
       HTTPConnection* _connectNamedPipe(MessageQueue* outputMessageQueue);
 #endif
       Monitor* _monitor;
       HTTPConnectorRep* _rep;
-    
+
       SSLContext * _sslcontext;
       int _entry_index;
-      
+
 };
 
 PEGASUS_NAMESPACE_END

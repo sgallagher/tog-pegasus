@@ -133,7 +133,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
       void _deleteConnection(HTTPConnection* httpConnection);
 
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
       /** Used for local connections on windows */
       HTTPConnection* _connectNamedPipe(MessageQueue* outputMessageQueue);
 #endif

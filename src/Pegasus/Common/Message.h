@@ -382,7 +382,8 @@ enum MessageType
     CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE,
 
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     // Monitor-related messages:
     NAMEDPIPE_MESSAGE,
 #endif

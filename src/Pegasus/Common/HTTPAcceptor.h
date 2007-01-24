@@ -41,7 +41,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 #include <Pegasus/Common/NamedPipe.h>
 #endif
 #include <Pegasus/Common/SSLContext.h>
@@ -136,7 +137,8 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       cimom *_meta_dispatcher;
 
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
       /*This method creates and connects to a named pipe*/
       void _createNamedPipe();
       void _acceptNamedPipeConnection();

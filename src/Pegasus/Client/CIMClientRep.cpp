@@ -170,13 +170,15 @@ void CIMClientRep::_connect()
     _responseDecoder->setDataStorePointer(&perfDataStore);
 
     _connected = true;
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     if (_connectHost.size())
     {
 #endif
 
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     }
 #endif
 
@@ -1092,9 +1094,16 @@ Message* CIMClientRep::_doRequest(
         //
         // Wait until the timeout expires or an event occurs:
         //
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         // if it is a local connection and NamedPipe feature is supported
-        // run monitor for timeout in a period of 1000 milliseconds
+        // run monitor for timeout in a period of 1000 milliseconds.
+        //=====================================================================
+        // NOTE: If the CIMClient::connect method is called with parameter to
+        // host set to either "localhost" or machine's hostname or the
+        // loop back address, it would continue to use socket rather than
+        // NamedPipe.
+        //=====================================================================
         if (!_connectHost.size())
         {
             _monitor->handlePipe();
@@ -1104,7 +1113,8 @@ Message* CIMClientRep::_doRequest(
 #endif
 
         _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         }
 #endif
 

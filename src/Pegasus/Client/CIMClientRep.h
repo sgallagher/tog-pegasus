@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -104,10 +104,17 @@ public:
     virtual void setTimeout(Uint32 timeoutMilliseconds)
     {
         _timeoutMilliseconds = timeoutMilliseconds;
-        if ((_connected) && (_httpConnection != 0) && _connectHost.size() != 0) 
-		{
+
+        if ((_connected) && (_httpConnection != 0)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+            && (_connectHost.size() != 0)
+#endif
+            )
+        {
             _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 		}
+
     }
 
     // l10n start

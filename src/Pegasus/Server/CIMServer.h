@@ -155,14 +155,15 @@ private:
 #endif
 
     Monitor* _monitor;
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    DWORD waitResult ;
-    int threadIndex;
-    HANDLE threadSocketHandle ; //Thread Handle for remote connection
-    HANDLE threadPipeHandle ;   //Thread Handle for list of local connection
-	Boolean bThreadCreated;
-	static int runPipe(Monitor* ptrMonitor);
-	static int runSocket(Monitor* ptrMonitor);
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    DWORD _waitResult ;
+    int _threadIndex;
+    HANDLE _threadSocketHandle ; //Thread Handle for remote connection
+    HANDLE _threadPipeHandle ;   //Thread Handle for list of local connection
+    Boolean _bThreadCreated;
+    static int runPipe(Monitor* ptrMonitor);
+    static int runSocket(Monitor* ptrMonitor);
 #endif
     CIMRepository* _repository;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;

@@ -96,7 +96,7 @@ public:
     SocketHandle socket;
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     NamedPipeServer* namedPipeServer;
 #endif
 
@@ -203,7 +203,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         case NAMEDPIPE_MESSAGE:
         {
             NamedPipeMessage* namedPipeMessage = (NamedPipeMessage*)message;
@@ -235,7 +235,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
             HTTPConnection* connection = _rep->connections[i];
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                 if(!connection->isNamedPipeConnection())
                 {
 #endif
@@ -251,7 +251,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
                     }
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
                 }
                 else
                 {
@@ -693,13 +693,13 @@ void HTTPAcceptor::unbind()
 #endif
       }
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
      if (!_localConnection)
      {
 #endif
       delete _rep;
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
      }
 #endif
       _rep = 0;
@@ -723,7 +723,7 @@ void HTTPAcceptor::destroyConnections()
         HTTPConnection* connection = _rep->connections[i];
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         if(!connection->isNamedPipeConnection())
         {
 #endif
@@ -736,7 +736,7 @@ void HTTPAcceptor::destroyConnections()
 // Added for NamedPipe implementation for windows
         // Destroy the connection (causing it to close):
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         }
         else
         {
@@ -905,7 +905,7 @@ void HTTPAcceptor::_acceptConnection()
 }
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 void HTTPAcceptor::_createNamedPipe()
 {
 #ifdef PEGASUS_LOCALDOMAINSOCKET_DEBUG

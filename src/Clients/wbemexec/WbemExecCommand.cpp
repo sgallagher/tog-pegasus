@@ -104,10 +104,12 @@ const char   WbemExecCommand::_OPTION_HTTPVERSION  = 'v';
  */
 const char   WbemExecCommand::_OPTION_HTTPMETHOD   = 'm';
 
+#ifdef PEGASUS_HAS_SSL
 /**
     The option character used to specify SSL usage.
  */
 const char   WbemExecCommand::_OPTION_SSL          = 's';
+#endif
 
 /**
     The option character used to specify the timeout value.
@@ -258,9 +260,13 @@ WbemExecCommand::WbemExecCommand ()
     usage.append (_OPTION_USERNAME);
     usage.append (" username ]\n                [ -");
     usage.append (_OPTION_PASSWORD);
-    usage.append (" password ] [ -");
+    usage.append (" password ] [ ");
+#ifdef PEGASUS_HAS_SSL
+    usage.append ("-");
     usage.append (_OPTION_SSL);
-    usage.append (" ] [ --");
+    usage.append (" ] [ ");
+#endif
+    usage.append ("--");
     usage.append (LONG_HELP);
     usage.append (" ] [ --");
     usage.append (LONG_VERSION);
@@ -271,7 +277,9 @@ WbemExecCommand::WbemExecCommand ()
     usage.append("    --help     - Display this help message\n");
     usage.append("    -m         - Use the specified HTTP method for the request\n");
     usage.append("    -p         - Connect to CIM Server on specified portnumber\n");
+#ifdef PEGASUS_HAS_SSL
     usage.append("    -s         - Use SSL protocol between 'wbemexec' client and the CIM Server\n");
+#endif
     usage.append("    -t         - Specify response timeout value in milliseconds\n");
     usage.append("    -u         - Authorize the operation using the specified username\n");
     usage.append("    -v         - Use the specified HTTP version for the request\n");
@@ -693,7 +701,9 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_HTTPMETHOD);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
+#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
@@ -827,11 +837,13 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     break;
                 }
 
+#ifdef PEGASUS_HAS_SSL
                 case _OPTION_SSL:
                 {
             _useSSL = true;
                     break;
                 }
+#endif
 
                 case _OPTION_HTTPMETHOD:
                 {

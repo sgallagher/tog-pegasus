@@ -183,9 +183,12 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
     //
     //Call pam_start since you need to before making any other PAM calls
     //
-    if ( ( pam_start(service, 
-        (const char *)userName.getCString(), &pconv, &phandle) ) != PAM_SUCCESS ) 
+    int rc = pam_start(service,
+                       (const char *)userName.getCString(), &pconv, &phandle);
+    if ( rc != PAM_SUCCESS ) 
     {
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::_authenticateByPAM() - pam_start failed! %d", rc);
         PEG_METHOD_EXIT();
         return (authenticated);
     }
@@ -193,7 +196,8 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
     //
     //Call pam_authenticate to authenticate the user
     //
-    if ( ( pam_authenticate(phandle, 0) ) == PAM_SUCCESS ) 
+    rc = pam_authenticate(phandle, 0);
+    if ( rc == PAM_SUCCESS ) 
     {
        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
          "pam_authenticate successful.");
@@ -202,12 +206,23 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
         //checking for password and account expiration, as well as verifying access 
         //hour restrictions.
         //
-        if ( ( pam_acct_mgmt(phandle, 0) ) == PAM_SUCCESS ) 
+        rc = pam_acct_mgmt(phandle, 0);
+        if ( rc == PAM_SUCCESS ) 
         {
            Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
               "pam_acct_mgmt successful.");
             authenticated = true;
         }
+        else
+        {
+           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+              "PAMBasicAuthenticator::_authenticateByPAM() - pam_acct_mgmt failed! %d", rc);
+        }
+    }
+    else
+    {
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::_authenticateByPAM() - pam_authenticate failed! %d", rc);
     }
 
     //
@@ -240,9 +255,12 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
     //
     // Call pam_start since you need to before making any other PAM calls
     //
-    if ( pam_start(service,
-     (const char *)userName.getCString(), &pconv, &phandle) != PAM_SUCCESS)
+    int rc = pam_start(service,
+                       (const char *)userName.getCString(), &pconv, &phandle);
+    if ( rc != PAM_SUCCESS ) 
     {
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::validateUser() - pam_start failed! %d", rc);
         PEG_METHOD_EXIT();
         return (authenticated);
     }
@@ -252,9 +270,15 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
     // checking for account expiration, as well as verifying access
     // hour restrictions.
     //
-    if ( pam_acct_mgmt(phandle, 0) == PAM_SUCCESS )
+    rc = pam_acct_mgmt(phandle, 0);
+    if ( rc == PAM_SUCCESS )
     {
         authenticated = true;
+    }
+    else
+    {
+        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::validateUser() - pam_acct_mgmt failed! %d", rc);
     }
 
     //

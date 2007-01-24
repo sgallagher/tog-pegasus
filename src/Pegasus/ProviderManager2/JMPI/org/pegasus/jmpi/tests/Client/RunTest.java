@@ -57,12 +57,20 @@ public class RunTest
     * This is the java equivalent of #define.  It is the starting pattern to
     * search for.
     */
-   public static String       patternStart = "test";
+   public static String       patternStart   = "test";
    /**
     * This is the java equivalent of #define.  It is the ending pattern to
     * search for.
     */
-   public static final String patternEnd   = ".class";
+   public static final String patternEnd     = ".class";
+   /**
+    * Use the hypertext transfer protocol.
+    */
+   public static final int    PROTOCOL_HTTP  = 1;
+   /**
+    * Use the secure hypertext transfer protocol.
+    */
+   public static final int    PROTOCOL_HTTPS = 2;
 
    /**
     * This is the class constructor.
@@ -123,6 +131,32 @@ public class RunTest
 
       for (int i = 0; i < args.length; i++)
       {
+         if (args[i].startsWith ("--protocol="))
+         {
+            if (args[i].equalsIgnoreCase ("--protocol=http"))
+            {
+               protocol_d = PROTOCOL_HTTP;
+            }
+            else if (args[i].equalsIgnoreCase ("--protocol=https"))
+            {
+               protocol_d = PROTOCOL_HTTPS;
+            }
+            else
+            {
+               System.out.println ("Error: Invalid protocol " + args[i]);
+
+               System.exit (1);
+            }
+         }
+      }
+
+      if (protocol_d == PROTOCOL_HTTPS)
+      {
+         portNumber_d = 5989;
+      }
+
+      for (int i = 0; i < args.length; i++)
+      {
           if (args[i].equalsIgnoreCase ("debug"))
           {
               setDebug (true);
@@ -130,6 +164,12 @@ public class RunTest
           else if (args[i].startsWith ("--patternStart="))
           {
              patternStart = args[i].substring (15);
+          }
+          else if (args[i].startsWith ("--port="))
+          {
+             String port = args[i].substring (7);
+
+             portNumber_d = Integer.parseInt (port);
           }
       }
 
@@ -201,11 +241,25 @@ public class RunTest
    private CIMClient connectToClient ()
    {
       CIMClient     cimClient        = null;
-      int           portNo           = 5988;
       String        username         = "";
       String        password         = "";
-      String        urlAttach        = "http://" + hostName + ":" + portNo;
+      String        urlAttach        = null;
       CIMNameSpace  clientNameSpace  = null;
+
+      if (protocol_d == PROTOCOL_HTTP)
+      {
+         urlAttach = "http://" + hostName + ":" + portNumber_d;
+      }
+      else if (protocol_d == PROTOCOL_HTTPS)
+      {
+         urlAttach = "https://" + hostName + ":" + portNumber_d;
+      }
+      else
+      {
+         System.out.println ("Error: Invalid protocol specified " + protocol_d);
+
+         System.exit (1);
+      }
 
       clientNameSpace = new CIMNameSpace (urlAttach, nameSpaceInterOp);
       if (clientNameSpace == null)
@@ -780,6 +834,8 @@ public class RunTest
    private boolean             DEBUG            = false;
    private final String        nameSpaceInterOp = "test/PG_InterOp";
    private final String        hostName         = "localhost";
+   private int                 protocol_d       = PROTOCOL_HTTP;
+   private int                 portNumber_d     = 5988;
 }
 
 /**

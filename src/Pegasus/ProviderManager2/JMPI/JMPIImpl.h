@@ -137,10 +137,12 @@ class _nameSpace {
    int port();
    String hostName();
    String nameSpace();
+   Boolean isHttps ();
    int port_;
    String protocol_;
    String hostName_;
    String nameSpace_;
+   Boolean fHttps;
 };
 
 class _dataType {

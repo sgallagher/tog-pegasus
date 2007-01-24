@@ -1466,6 +1466,22 @@ static int normalizeNs (String &ns, String &nsBase, String &lastNsComp)
    return 0;
 }
 
+Boolean verifyServerCertificate (SSLCertificateInfo &certInfo)
+{
+   //
+   // If server certificate was found in CA trust store and validated, then
+   // return 'true' to accept the certificate, otherwise return 'false'.
+   //
+   if (certInfo.getResponseCode () == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
 JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1newNaUnPw
   (JNIEnv *jEnv, jobject jThs, jlong jNs, jstring jUn, jstring jPw)
 {
@@ -1474,10 +1490,34 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1newNaUnPw
    const char *pw  = jEnv->GetStringUTFChars (jPw, NULL);
    jlong       jCc = 0;
 
+   SSLContext *sslContext = 0; // initialized for unencrypted connection
+
+   if (cNs->isHttps ())
+   {
+      try
+      {
+         sslContext = new SSLContext (PEGASUS_SSLCLIENT_CERTIFICATEFILE,
+                                      verifyServerCertificate,
+                                      PEGASUS_SSLCLIENT_RANDOMFILE);
+      }
+      catch (Exception &e)
+      {
+        cerr << "JMPI: Error: could not create SSLContext: " << e.getMessage() << endl;
+        return jCc;
+      }
+   }
+
    try {
       CIMClient *cc = new CIMClient ();
 
-      cc->connect (cNs->hostName (), cNs->port (), un, pw);
+      if (sslContext)
+      {
+         cc->connect (cNs->hostName (), cNs->port (), *sslContext, un, pw);
+      }
+      else
+      {
+         cc->connect (cNs->hostName (), cNs->port (), un, pw);
+      }
 
       jCc = DEBUG_ConvertCToJava (CIMClient*, jlong, cc);
    }
@@ -1485,6 +1525,8 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1newNaUnPw
 
    jEnv->ReleaseStringUTFChars (jUn, un);
    jEnv->ReleaseStringUTFChars (jPw, pw);
+
+   delete sslContext;
 
    return jCc;
 }
@@ -3201,6 +3243,7 @@ _nameSpace::_nameSpace ()
    port_ = 0;
    hostName_ = System::getHostName ();
    nameSpace_ = "root/cimv2";
+   fHttps = false;
 }
 
 _nameSpace::_nameSpace (String hn)
@@ -3208,6 +3251,7 @@ _nameSpace::_nameSpace (String hn)
    port_ = 0;
    hostName_ = hn;
    nameSpace_ = "root/cimv2";
+   fHttps = false;
 }
 
 _nameSpace::_nameSpace (String hn, String ns)
@@ -3215,6 +3259,7 @@ _nameSpace::_nameSpace (String hn, String ns)
     port_ = 0;
     hostName_ = hn;
     nameSpace_ = ns;
+    fHttps = false;
 }
 
 int _nameSpace::port ()
@@ -3226,8 +3271,14 @@ int _nameSpace::port ()
 
    if (hostName_.subString (0,7) == "http://")
    {
-      protocol_ = "http://";
+      protocol_ = hostName_.subString (0,7);
       hostName_ = hostName_.subString (7);
+   }
+   else if (hostName_.subString (0,8) == "https://")
+   {
+      protocol_ = hostName_.subString (0,8);
+      hostName_ = hostName_.subString (8);
+      fHttps = true;
    }
 
    Sint32 p = hostName_.reverseFind (':');
@@ -3252,6 +3303,12 @@ String _nameSpace::hostName ()
 String _nameSpace::nameSpace ()
 {
    return nameSpace_;
+}
+
+Boolean _nameSpace::isHttps ()
+{
+   port ();
+   return fHttps;
 }
 
 JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMNameSpace__1new

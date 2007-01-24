@@ -38,6 +38,14 @@ used as part of the table name inside the bundle.<br>
       <td style="vertical-align: top;">Section 2.2.5. &nbsp; Added information how to write platform specific messages.<br>
       </td>
     </tr>
+    <tr>
+      <td style="vertical-align: top;">01/23/07<br>
+      </td>
+      <td style="vertical-align: top;">Sushma Fernandes<br>
+      </td>
+      <td style="vertical-align: top;">Section 2.2.5. &nbsp; Added information on special considerations while creating a new message.<br>
+      </td>
+    </tr>
   </tbody>
 </table>
 <p><br>
@@ -620,6 +628,50 @@ is changed, while the meaning is kept. For instance if the
 event(error,warning,whatever) is described more precisely by the new message
 text, it is not necessary to create a new message, but the existing one should
 be updated.</p>
+
+<p><b>Are there any special considerations while creating a new message ? </b></p>
+
+<ul>
+<li>If a message definition contains text within a single quote
+it is not interpreted in any way. 
+
+<p><i>Example:</i></p>
+<p> Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:
+    string {"PGS05202: User '{0}' is not authorized to access CIM data."}
+</p>
+
+<p><i>Processed message:</i></p>
+<p>  User {0} is not authorized to access CIM data.  </p>
+</li>
+
+<li> For a single quote to appear in a processed message, it needs to be preceded by
+another single quote. 
+
+<p><i>Example:</i></p>
+<p> Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:
+    string {"PGS05202: User ''{0}'' is not authorized to access CIM data."}
+</p>
+
+<p><i>Processed message:</i></p>
+<p>  User 'wbemuser' is not authorized to access CIM data.  </p>
+</li>
+
+<li> For a double quote to appear in a processed message, it needs to be preceded by
+a back slash. 
+
+<p><i>Example:</i></p>
+<p>
+ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.
+UNSUPPORTED_USERCONTEXT_VALUE:string {"PGS03029: Unsupported UserContext 
+value: \"{0}\"."} 
+</p>
+
+<p><i>Processed message:</i></p>
+<p>  Unsupported UserContext value: "10".  </p>
+</li>
+</ul>
+
+<p>&nbsp;</p>
 
 <p><b>How do I write a platform specific
 message ? </b></p>

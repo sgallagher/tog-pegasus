@@ -46,7 +46,8 @@
 #include <Pegasus/Common/AutoPtr.h>
 
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
  #include <Pegasus/Common/NamedPipe.h>
 #endif
 PEGASUS_NAMESPACE_BEGIN
@@ -59,8 +60,9 @@ public:
   AtomicInt _status;
 
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-  NamedPipe namedPipe; //WW not sure if I need to change any of the construcotrs
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  NamedPipe namedPipe;
   Boolean namedPipeConnection;
   Boolean pipeSet;
 #endif
@@ -71,9 +73,11 @@ public:
       queueId(x.queueId),
       _status(x._status.get()),
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-      namedPipeConnection(false),
-      pipeSet(false),
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+      namedPipe(x.namedPipe),
+      namedPipeConnection(x.namedPipeConnection),
+      pipeSet(x.pipeSet),
 #endif
       _type(x._type)
   {
@@ -81,13 +85,14 @@ public:
   int _type;
 
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
   _MonitorEntry(SocketHandle sock, Uint32 q, int Type)
-    : socket(sock), queueId(q), _status(EMPTY), _type(Type), namedPipeConnection(false), pipeSet(false)
+    : socket(sock), queueId(q), _status(EMPTY), _type(Type), namedPipeConnection(false), pipeSet(false),namedPipe()
   {
   }
 
- _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0), namedPipeConnection(false), pipeSet(false)
+ _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0), namedPipeConnection(false), pipeSet(false),namedPipe()
   {
   }
 
@@ -102,15 +107,21 @@ _MonitorEntry(SocketHandle sock, Uint32 q, int Type)
   }
 
 #endif
-  _MonitorEntry & operator =(const _MonitorEntry & entry)
-  {
+_MonitorEntry & operator =(const _MonitorEntry & entry)
+{
     if( this != &entry )
-      {
-    this->socket = entry.socket;
-    this->queueId = entry.queueId;
-    this->_status = entry._status.get();
-    this->_type = entry._type;
-      }
+    {
+        this->socket = entry.socket;
+        this->queueId = entry.queueId;
+        this->_status = entry._status.get();
+        this->_type = entry._type;
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+        this->namedPipeConnection = entry.namedPipeConnection;
+        this->pipeSet = entry.pipeSet;
+        this->namedPipe = entry.namedPipe;
+#endif
+    }
 
     return *this;
   }
@@ -141,7 +152,8 @@ public:
   Uint32 events;
 };
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 /** This message occurs when there is activity on a NamedPipe. */
 class NamedPipeMessage : public Message
 {       //NOTE: this class is not really needed it is just used for clarity -
@@ -153,10 +165,10 @@ public:
 
 
   NamedPipeMessage(NamedPipe namedPipe_, Uint32 events_) :
-     Message(NAMEDPIPE_MESSAGE)
+     Message(NAMEDPIPE_MESSAGE),
+     namedPipe(namedPipe_),
+     events(events_)
   {
-      namedPipe = namedPipe_;
-      events = events_;
   }
 
   NamedPipe namedPipe;
@@ -220,8 +232,10 @@ public:
     {
       UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION, INTERNAL
     };
-
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined (PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
   static Mutex _cout_mut;
+#endif
 
   /** Default constructor. */
   Monitor();
@@ -232,8 +246,10 @@ public:
   /** Sets the state of the monitor entry to the specified state.
       This is used to synchronize the monitor and the worker
       thread. Bug# 2057 */
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-    void setState( Uint32 index, _MonitorEntry::entry_status status );
+    void setSocketState( Uint32 index, _MonitorEntry::entry_status status );
+
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     void setPipeState( Uint32 index, _MonitorEntry::entry_status status );
 #endif
 
@@ -250,6 +266,10 @@ public:
       @return true if an event occured.
   */
   void run(Uint32 timeoutMsec);
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  void handlePipe();
+#endif
 
   /** Solicit interest in SocketMessages. Note that there may only
       be one solicitor per socket.
@@ -266,8 +286,17 @@ public:
                 Uint32 queueId,
                 int type);
 
+  /** Unsolicit messages on the given socket.
+
+  @param socket on which to unsolicit messages.
+  @return false if no such solicitation has been made on the given socket.
+  */
+  void unsolicitSocketMessages(SocketHandle);
+
+
 // Added for NamedPipe implementation for windows
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
   /**Solicit interest in NamedPipe Messages. Note that there may only
       be one solicitor per pipe.This method is the same as solicitSocketMessages
       but for Named Pipes
@@ -284,18 +313,9 @@ public:
     Uint32 queueId,
     int type);
 
-  void unsolicitPipeMessages(NamedPipe namedPipe);
-  int handlePipe();
-  Uint32 _solicitPipeCount;
-  Mutex _entry_pipe_mut; // Monitor Entries for Pipe
+   void unsolicitPipeMessages(NamedPipe namedPipe);
+
 #endif
-  /** Unsolicit messages on the given socket.
-
-  @param socket on which to unsolicit messages.
-  @return false if no such solicitation has been made on the given socket.
-  */
-  void unsolicitSocketMessages(SocketHandle);
-
   /** dispatch a message to the cimom on an independent thread
       Note: The Monitor class uses the MessageQueueService ThreadPool.
       This ThreadPool is only available if it has been initialized by
@@ -311,11 +331,29 @@ public:
 
 private:
 
-  Array<_MonitorEntry> _entries;
+  Array<_MonitorEntry> _entries_socket;
+
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  Array<_MonitorEntry> _entries_pipe;
+#endif
+
   Mutex _entry_mut;
+// Added for NamedPipe implementation for windows
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  Mutex _entry_pipe_mut; // Monitor Entries for Pipe
+#endif
+
   AtomicInt _stopConnections;
   Semaphore _stopConnectionsSem;
   Uint32 _solicitSocketCount;  // tracks how many times solicitSocketCount() has been called
+
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+  Uint32 _solicitPipeCount;
+#endif
+
   friend class HTTPConnection;
   struct sockaddr_in _tickle_server_addr;
   struct sockaddr_in _tickle_client_addr;
@@ -324,9 +362,7 @@ private:
   SocketHandle _tickle_server_socket;
   SocketHandle _tickle_peer_socket;
   Mutex _tickle_mutex;
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
-  Array<_MonitorEntry> _entries_pipe;
-#endif
+
 };
 
 PEGASUS_NAMESPACE_END

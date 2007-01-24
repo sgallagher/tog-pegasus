@@ -383,7 +383,7 @@ enum MessageType
 
 // Added for NamedPipe implementation for windows
 #if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
-	!defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     // Monitor-related messages:
     NAMEDPIPE_MESSAGE,
 #endif

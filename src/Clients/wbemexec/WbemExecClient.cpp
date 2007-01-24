@@ -393,7 +393,8 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
     // Wait until the timeout expires or an event occurs:
     //
 
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         if (!_isRemote)
         {
             _monitor->handlePipe();
@@ -402,7 +403,8 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
         {
 #endif
     _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         }
 #endif
 

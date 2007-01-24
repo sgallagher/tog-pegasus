@@ -159,9 +159,16 @@ SSLSocket::~SSLSocket()
 Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
 {
     Sint32 err = SSL_get_error(_SSLConnection, retCode);
+    if (Tracer::isTraceOn())
+    {
+        unsigned long rc = ERR_get_error ();
+        char buff[120];
+        SSL_load_error_strings();
+        ERR_error_string_n (rc, buff, sizeof (buff)); // added in OpenSSL 0.9.6
 
     Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-        "In SSLSocket::incompleteReadOccurred : err = %d", err);
+            "In SSLSocket::incompleteReadOccurred : err = %d %s", err, buff);
+    }
 
     return ((err == SSL_ERROR_SYSCALL) &&
             (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
@@ -317,8 +324,15 @@ Sint32 SSLSocket::accept()
     if (ssl_rc < 0)
     {
         ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+        if (Tracer::isTraceOn())
+        {
+            unsigned long rc = ERR_get_error ();
+            char buff[120];
+            SSL_load_error_strings();
+            ERR_error_string_n (rc, buff, sizeof (buff)); // added in OpenSSL 0.9.6
         Tracer::trace(TRC_SSL, Tracer::LEVEL3,
-            "---> SSL: Not accepted %d", ssl_rsn );
+                "---> SSL: Not accepted %d %s", ssl_rsn, buff );
+        }
 
         if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
             (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -417,8 +431,15 @@ redo_connect:
     if (ssl_rc < 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-           "---> SSL: Not connected " + ssl_rsn);
+       if (Tracer::isTraceOn())
+       {
+           unsigned long rc = ERR_get_error ();
+           char buff[120];
+           SSL_load_error_strings();
+           ERR_error_string_n (rc, buff, sizeof (buff)); // added in OpenSSL 0.9.6
+           Tracer::trace(TRC_SSL, Tracer::LEVEL3,
+               "---> SSL: Not connected %d %s", ssl_rsn, buff);
+       }
 
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))

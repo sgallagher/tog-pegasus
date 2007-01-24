@@ -150,13 +150,14 @@ void CIMServer::shutdownSignal()
 
 CIMServer::CIMServer(Monitor* monitor)
   : _dieNow(false), _monitor(monitor)
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     ,
-    waitResult (0),
-    threadIndex (-1),
-    threadSocketHandle (INVALID_HANDLE_VALUE),
-    threadPipeHandle (INVALID_HANDLE_VALUE),
-	bThreadCreated(false)
+    _waitResult (0),
+    _threadIndex (-1),
+    _threadSocketHandle (INVALID_HANDLE_VALUE),
+    _threadPipeHandle (INVALID_HANDLE_VALUE),
+    _bThreadCreated(false)
 #endif
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
@@ -586,19 +587,21 @@ void CIMServer::bind()
     PEG_METHOD_EXIT();
 }
 
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 int CIMServer::runPipe(Monitor* ptrMonitor)
 {
     ptrMonitor->handlePipe();
-	Threads::yield();
+    Threads::yield();
     _endthreadex(0);
     return 0;
 }
 
 int CIMServer::runSocket(Monitor* ptrMonitor)
 {
+
     ptrMonitor->run(500000);
-	Threads::yield();
+    Threads::yield();
     _endthreadex(0);
     return 0;
 }
@@ -613,54 +616,59 @@ void CIMServer::runForever()
     // Note - this func prevents multiple starting of slp provider
     startSLPProvider();
 #endif
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
 
-    int i = 0;
-    DWORD milli = 50000;
+
+    DWORD milliSeconds = 500000;
 
     HANDLE thrdHandle[2];
-
-    if ((bThreadCreated == false || threadIndex == 0) )
+    //_bThreadCreated indicates whether the thread is being created first time
+    //_threadIndex inidicates which thread completed so that we re-create the thread
+    if ((_bThreadCreated == false || _threadIndex == 0) )
     {
-        threadPipeHandle = (HANDLE) _beginthreadex  (NULL,
+        _threadPipeHandle = (HANDLE) _beginthreadex  (NULL,
                             0,
-							(unsigned int (__stdcall *)(void *)) CIMServer::runPipe,
+                            (unsigned int (__stdcall *)(void *)) CIMServer::runPipe,
                             _monitor ,
                             0,
                             0);
 
     }
 
-    if ((bThreadCreated == false || threadIndex == 1) )
+    if ((_bThreadCreated == false || _threadIndex == 1) )
     {
 
-        threadSocketHandle = (HANDLE) _beginthreadex  (NULL,
+        _threadSocketHandle = (HANDLE) _beginthreadex  (NULL,
                             0,
-							(unsigned int (__stdcall *)(void *)) CIMServer::runSocket,
+                            (unsigned int (__stdcall *)(void *)) \
+                            CIMServer::runSocket,
                             _monitor ,
                             0,
                             0);
 
 
     }
-	if (threadSocketHandle != INVALID_HANDLE_VALUE && threadPipeHandle != INVALID_HANDLE_VALUE)
-	{
-	    bThreadCreated = true;
-	}
-    thrdHandle[0] = threadPipeHandle;
-    thrdHandle[1] = threadSocketHandle;
-    waitResult = WaitForMultipleObjects (2,thrdHandle,false,milli);
-
-    if (waitResult != WAIT_TIMEOUT && waitResult != WAIT_FAILED)
+    //if both the socket_thread  and pipe_thread were created successfully
+    if (_threadSocketHandle != INVALID_HANDLE_VALUE
+        && _threadPipeHandle != INVALID_HANDLE_VALUE)
     {
-        threadIndex = waitResult - WAIT_OBJECT_0;
-        CloseHandle( thrdHandle[threadIndex] );
-        thrdHandle[threadIndex] = INVALID_HANDLE_VALUE;
+        _bThreadCreated = true;
+    }
+    thrdHandle[0] = _threadPipeHandle;
+    thrdHandle[1] = _threadSocketHandle;
+    _waitResult = WaitForMultipleObjects (2,thrdHandle,false,milliSeconds);
+
+    if (_waitResult != WAIT_TIMEOUT && _waitResult != WAIT_FAILED)
+    {
+        _threadIndex = _waitResult - WAIT_OBJECT_0;
+        CloseHandle( thrdHandle[_threadIndex] );
+        thrdHandle[_threadIndex] = INVALID_HANDLE_VALUE;
 
     }
     else
     {
-        threadIndex = -1;
+        _threadIndex = -1;
     }
 
 

@@ -608,7 +608,8 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     }
     catch (const XmlException& xe)
     {
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         Sleep(1000);
         client.disconnect();
 #endif
@@ -617,7 +618,8 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     }
     catch (const WbemExecException&)
     {
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
         Sleep(1000);
         client.disconnect();
 #endif
@@ -628,7 +630,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         throw WbemExecException(
             WbemExecException::CONNECT_FAIL, ex.getMessage());
     }
-
     try
     {
         httpResponse = client.issueRequest( message );
@@ -652,7 +653,8 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     // Process the response message
     //
     _handleResponse( httpResponse, outPrintWriter, errPrintWriter );
-#if defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
+#if defined (PEGASUS_OS_TYPE_WINDOWS) &&\
+    !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET)
     Sleep(2000);
     client.disconnect();
 #endif

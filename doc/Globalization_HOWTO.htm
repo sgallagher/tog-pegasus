@@ -485,6 +485,18 @@ Pegasus into the caller's Thread.&nbsp;&nbsp; See the Note below for
 details.&nbsp;</td>
     </tr>
     <tr>
+      <td>Boolean useICUfallback</td>
+      <td>Input <br>
+Optional <br>
+Default = false</td>
+      <td>If true, use ICU's fallback mechnism to search more general
+resource bundles if the msg_id cannot be found.&nbsp; Note: the
+recommended setting is false if you are using an AcceptLanguageList from a
+CIM client.&nbsp; The Accept-Languages HTTP header from the client
+contains the fallback specifications. &nbsp;Using ICU's fallback in this
+case may lead to returning a language that the client didn't ask for.</td>
+    </tr>
+    <tr>
       <td>Formatter::Arg arg0; <br>
 &nbsp;Formatter::Arg arg1; <br>
 &nbsp;Formatter::Arg arg2; <br>
@@ -540,13 +552,22 @@ AcceptLanguageList, useThreadLocale, and useProcessLocale settings in
 MessageLoaderParms that it gets.&nbsp; The MessageLoader will use the
 default process locale, as determined by ICU, in this case. <br>
 &nbsp; </p>
-<p><i>Important Note:</i>&nbsp; The MessageLoader does <i>not</i> use
+<p><i>Important Note:</i>&nbsp; The MessageLoader defaults to <i>not </i>use
 the "fallback" mechanism described in the ICU Resource Management
 section.&nbsp; This is because the Accept-Language header itself
-describes the fallback that the client wants.&nbsp; If the
-MessageLoader cannot find a message file for any of the languages
-in the AcceptLanguageList, it will try the default process locale.
-If this fails, the ICU root resource bundle will be tried.<br>
+describes the fallback that the client wants.&nbsp; However, the
+MessageLoader does "fallback" to the root resource bundle if none of the
+languages in AcceptLanguageList can be found.&nbsp; If the root resource
+bundle cannot be found, then the default_msg is returned.&nbsp; The
+"useICUFallback" flag can be set to have MessageLoader use ICU fallback
+on all message load attempts.&nbsp; However, usage of this flag for
+client requests may lead to incorrect results.&nbsp; For example, a
+client sets Accept-Language to french, german, and spanish, in that
+order, but there is no french resource bundle.&nbsp; A call to
+MessageLoader with useICUfallback == true would cause the root resource
+bundle string to be returned on the attempt to load from the french
+bundle.&nbsp; But the client requested german to be the fallback after
+french. <br>
 &nbsp; </p>
 <p>Please refer to the following files for details on the new Pegasus
 classes. <br>
@@ -612,7 +633,7 @@ be updated.</p>
 
 <ul>
 <li>If a message definition contains text within a single quote
-it is not interpreted in any way.
+it is not interpreted in any way. 
 
 <p><i>Example:</i></p>
 <p> Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:
@@ -624,7 +645,7 @@ it is not interpreted in any way.
 </li>
 
 <li> For a single quote to appear in a processed message, it needs to be preceded by
-another single quote.
+another single quote. 
 
 <p><i>Example:</i></p>
 <p> Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:
@@ -636,13 +657,13 @@ another single quote.
 </li>
 
 <li> For a double quote to appear in a processed message, it needs to be preceded by
-a back slash.
+a back slash. 
 
 <p><i>Example:</i></p>
 <p>
 ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.
-UNSUPPORTED_USERCONTEXT_VALUE:string {"PGS03029: Unsupported UserContext
-value: \"{0}\"."}
+UNSUPPORTED_USERCONTEXT_VALUE:string {"PGS03029: Unsupported UserContext 
+value: \"{0}\"."} 
 </p>
 
 <p><i>Processed message:</i></p>
@@ -1264,25 +1285,39 @@ for cimconfig. <br>
 &nbsp; </p>
 <p> </p>
 <hr>
-<p>Licensed to The Open Group (TOG) under one or more contributor license
-agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-this work for additional information regarding copyright ownership.
-Each contributor licenses this file to you under the OpenPegasus Open
-Source License; you may not use this file except in compliance with the
-License.</p>
-<p>Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following conditions:</p>
-<p>The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.</p>
-<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p></body>
+<p><i>
+Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+IBM Corp.; EMC Corporation, The Open Group.
+Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+EMC Corporation; VERITAS Software Corporation; The Open Group.
+Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+EMC Corporation; Symantec Corporation; The Open Group.
+</i> </p>
+
+<p><i>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+</i> </p>
+
+<p><i>
+THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+"AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</i> <br>
+<br>
+</p>
+</body>
 </html>

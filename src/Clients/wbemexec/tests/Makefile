@@ -36,7 +36,11 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
 RESULTFILE =  $(TMP_DIR)/result
+ifdef PEGASUS_HAS_SSL
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+else
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nossl
+endif
 
 
 ##

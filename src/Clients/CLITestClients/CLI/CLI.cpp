@@ -179,7 +179,8 @@ public:
     {
         if (!(0 <= item.operationType) || !(39 >= item.operationType))
         {
-           cerr << "Operation type out of expected range in ClientOpPerformanceData " << endl;
+           cerr << "Operation type out of expected range in ClientOpPerformanceData "
+               << endl;
            exit(1);
         }
         returnedPerformanceData.operationType =  item.operationType;
@@ -383,7 +384,22 @@ int main(int argc, char** argv)
             Uint32 index = opts.location.find (':');
             String host = opts.location.subString (0, index);
 
-            Uint32 portNumber = WBEM_DEFAULT_HTTP_PORT;
+            Uint32 portNumber = System::lookupPort( WBEM_HTTP_SERVICE_NAME,
+                              WBEM_DEFAULT_HTTP_PORT );
+
+            // Set up SSL port and flag for verbose display
+            // if SSL included in build
+            String useSSL = String::EMPTY;
+#ifdef PEGASUS_HAS_SSL
+            if (opts.ssl)
+            {
+                portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
+                              WBEM_DEFAULT_HTTPS_PORT );
+            }
+            useSSL = " ssl=";
+            useSSL.append((opts.ssl)? "true" : "false");
+#endif
+
             if (index != PEG_NOT_FOUND)
             {
                 String portStr = opts.location.subString (index + 1,
@@ -397,27 +413,37 @@ int main(int argc, char** argv)
             {
                 if (opts.verboseTest)
                 {
-                    cout << "Connecting to localhost" << endl;
+                    cout << "Connect with connectLocal" << endl;
                 }
                 client.connectLocal();
 
-            } else
+            }
+            else
             {
                 if (opts.verboseTest)
                 {
-                    cout << "Connecting to " << opts.location
-                         << " for User = " << opts.user
-                         << " password = " << opts.password
+                    cout << "Connect to " << host
+                        << " port=" << portNumber
+                        << useSSL
+                         << " for User=" << opts.user
                          << endl;
                 }
 #ifdef PEGASUS_HAS_SSL
                 if (opts.ssl) //connect over HTTPS
                 {
-                    if (!String::equal(opts.clientCert, String::EMPTY) && !String::equal(opts.clientKey, String::EMPTY))
+                    if (!String::equal(opts.clientCert, String::EMPTY) 
+                            && !String::equal(opts.clientKey, String::EMPTY))
                     {
+                        if (opts.verboseTest)
+                        {
+                            cout << "SSL options " 
+                                << "Cert = " << opts.clientCert
+                                << "clientKey = "  << opts.clientKey << endl;
+                        }
                         client.connect(host,
                                        portNumber,
-                                       SSLContext("", opts.clientCert, opts.clientKey, NULL, "ssl.rnd"),
+                                       SSLContext("", opts.clientCert, opts.clientKey,
+                                           NULL, "ssl.rnd"),
                                        opts.user,
                                        opts.password);
                     } else
@@ -552,7 +578,8 @@ int main(int argc, char** argv)
                 case ID_GetProperty :
                     // ATTN: This one is wrong
                     if (argc != 4)
-                        cout << "Usage: cli getproperty <instancename> <propertyname>" << endl;
+                        cout << "Usage: cli getproperty <instancename> <propertyname>"
+                            << endl;
 
                     if (argc > 2)
                     {
@@ -567,7 +594,9 @@ int main(int argc, char** argv)
                     break;
                 case ID_SetProperty :
                     if (argc != 5)
-                        cout << "Usage: cli setproperty instancename propertyname value " << endl;
+                        cout <<
+                           "Usage: cli setproperty instancename propertyname value "
+                           << endl;
                     setProperty(client, opts);
                     break;
 
@@ -653,8 +682,10 @@ int main(int argc, char** argv)
                 case ID_InvokeMethod :
                     if (argc < 4)
                     {
-                        cout << "Usage: InvokeMethod requires object and method names\n."
-                             << "       input parameters are optional through -ip option"
+                        cout << "Usage: InvokeMethod requires object"
+                                " and method names\n."
+                             << "       input parameters are optional through"
+                                " -ip option"
                              << "       or as additional parameters to this call. For"
                              << "       additional parameters, enter each parameter as"
                              << "       name=value without spaces."
@@ -704,7 +735,8 @@ int main(int argc, char** argv)
 
                 //case ID_Unknown :
                 default:
-                    cout << "Invalid Command. Command name must be first parm or --c parameter."
+                    cout << "Invalid Command. Command name must be first parm"
+                            " or --c parameter."
                         << " \n  ex. cli enumerateclasses\n"
                         << "Enter " << argv[0] << " -h for help."
                         << endl;
@@ -724,14 +756,18 @@ int main(int argc, char** argv)
                     maxTime = LOCAL_MAX(maxTime, opts.saveElapsedTime);
                     minTime = LOCAL_MIN(minTime, opts.saveElapsedTime);
                     rtTotalTime += (returnedPerformanceData.roundTripTime);
-                    maxRtTime = LOCAL_MAX(maxRtTime, returnedPerformanceData.roundTripTime);
-                    minRtTime = LOCAL_MIN(minRtTime, returnedPerformanceData.roundTripTime);
+                    maxRtTime = LOCAL_MAX(maxRtTime,
+                            returnedPerformanceData.roundTripTime);
+                    minRtTime = LOCAL_MIN(minRtTime,
+                            returnedPerformanceData.roundTripTime);
 
                     if (returnedPerformanceData.serverTimeKnown)
                     {
                         serverTotalTime += (returnedPerformanceData.serverTime);
-                        maxServerTime = LOCAL_MAX(maxServerTime, returnedPerformanceData.serverTime);
-                        minServerTime = LOCAL_MIN(minServerTime, returnedPerformanceData.serverTime);
+                        maxServerTime = LOCAL_MAX(maxServerTime,
+                                returnedPerformanceData.serverTime);
+                        minServerTime = LOCAL_MIN(minServerTime,
+                                returnedPerformanceData.serverTime);
                     }
                 }
             }
@@ -805,7 +841,8 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage()
-                <<  ". Cmd = " << opts.cimCmd << " Object = " << opts.inputObjectName << PEGASUS_STD(endl);
+                <<  ". Cmd = " << opts.cimCmd << " Object = " << opts.inputObjectName
+                << PEGASUS_STD(endl);
             opts.termCondition = 1;
     }
     catch(...)
@@ -830,7 +867,8 @@ int main(int argc, char** argv)
                 << " min= " << minTime << " max= " << maxTime << endl;
         }
 
-        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << " Sec. Terminated at " << System::getCurrentASCIITime() << endl;
+        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed()
+             << " Sec. Terminated at " << System::getCurrentASCIITime() << endl;
     }
     if (opts.delay != 0)
     {

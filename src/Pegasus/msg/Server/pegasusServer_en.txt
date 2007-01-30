@@ -610,7 +610,7 @@ en:table {
         * @note  PGS01403:
         *    Substitution {0} is a user name (a string)
         */
-        Security.UserManager.UserExceptions.PASSWORD_MISMATCH:string {"PGS01403: The specified password does not match user's current password for user {0}."}
+        Security.UserManager.UserExceptions.PASSWORD_MISMATCH:string {"PGS01403: The specified password does not match user''s current password for user {0}."}
 
         Security.UserManager.UserExceptions.INTERNAL_ERROR_PWD_CACHE:string {"PGS01404: Internal error while processing the password cache table."}
 
@@ -1391,7 +1391,7 @@ not be valid."}
         * @note  PGS04600
         *    Substitution {0} is the invalid flag name (a string)
         */
-        getoopt.getoopt.CANT_NAME_FLAG:string {"PGS04600:  The flag name '{0}' is not valid."}
+        getoopt.getoopt.CANT_NAME_FLAG:string {"PGS04600:  The flag name ''{0}'' is not valid."}
 
         /**
         * @note  PGS04601
@@ -2070,9 +2070,9 @@ not be valid."}
             "         cimmofl should only be used under very controlled situations.\n"
             "         cimmof is the recommended OpenPegasus MOF compiler.\n\n"}
 
-        Compiler.cimmofMessages.ERR_OPTION_NOT_SUPPORTED:string {"PGS04864: Command line option is not recognized. Use '--help' to obtain command syntax."}
+        Compiler.cimmofMessages.ERR_OPTION_NOT_SUPPORTED:string {"PGS04864: Command line option is not recognized. Use ''--help'' to obtain command syntax."}
 
-        Compiler.cimmofMessages.ERR_USAGE:string {"PGS04865: Incorrect usage. Use '--help' to obtain command syntax."}
+        Compiler.cimmofMessages.ERR_USAGE:string {"PGS04865: Incorrect usage. Use ''--help'' to obtain command syntax."}
 
         // ==========================================================
         // Messages for CIMOperationResponseEncoder
@@ -2100,7 +2100,7 @@ not be valid."}
         * @note  PGS05202
         *    Substitution {0} is the user name requesting a CIM operation (a string)
         */
-        Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:string {"PGS05202: User '{0}' is not authorized to access CIM data."}
+        Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:string {"PGS05202: User ''{0}'' is not authorized to access CIM data."}
 
 
         // ==========================================================
@@ -3709,7 +3709,7 @@ CIM server listening on HTTPS port {0}."}
 
         Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION:string {"PGS10801: SSL is not available. Cannot support an HTTPS connection."}
 
-        Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE:string {"PGS10802: Malformed handler instance, 'Destination' property is not found or is not valid."}
+        Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE:string {"PGS10802: Malformed handler instance, ''Destination'' property is not found or is not valid."}
 
 
         // ==========================================================
@@ -4282,21 +4282,21 @@ CIM server listening on HTTPS port {0}."}
           * DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. The CIM server is not started."}
+         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is ''required''. The CIM server is not started."}
 
         /*
          * @note  PGS13301:
           * DO NOT TRANSLATE "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is 'required' in order for the cimserver to properly shutdown. The CIM server not started."}
+         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is ''required'' in order for the cimserver to properly shutdown. The CIM server not started."}
 
         /*
          * @note  PGS13302:
           * DO NOT TRANSLATE "sslTrustStoreUserName" or "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is 'required' or 'optional', and a trust store is specified. The CIM server is not started."}
+         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is ''required'' or ''optional'', and a trust store is specified. The CIM server is not started."}
 
         /*
          * @note  PGS13303:
@@ -4669,7 +4669,7 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS14703
         *     Substitution {0} is the identifier name (a string)
         */
-        CQL.CQLIdentifier.INVALID_CIMNAME:string {"PGS14703: The CIM name '{0}' in the identifier is not valid."}
+        CQL.CQLIdentifier.INVALID_CIMNAME:string {"PGS14703: The CIM name ''{0}'' in the identifier is not valid."}
 
 
         // ==========================================================
@@ -4899,21 +4899,21 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {0} is the object type that the string is being converted to (a string)
         *     Substitution {1} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_NEG:string {"PGS15102: Error converting string to {0}.  String '{1}' cannot begin with '-'."}
+        CQL.CQLUtilities.INVALID_NEG:string {"PGS15102: Error converting string to {0}.  String ''{1}'' cannot begin with ''-''."}
 
         /**
         * @note  PGS15103
         *     Substitution {0} is the object type that the string is being converted to (a string)
         *     Substitution {1} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_NUM_FORMAT:string {"PGS15103: Error converting string to {0}.  String '{1}' is not well formed."}
+        CQL.CQLUtilities.INVALID_NUM_FORMAT:string {"PGS15103: Error converting string to {0}.  String ''{1}'' is not well formed."}
 
         /**
         * @note  PGS15104
         *     Substitution {0} is the object type that the string is being converted to (a string)
         *     Substitution {1} is the string being converted (a string)
         */
-        CQL.CQLUtilities.OVERFLOW:string {"PGS15104: Error converting string to {0}.  String \'{1}\' caused an overflow."}
+        CQL.CQLUtilities.OVERFLOW:string {"PGS15104: Error converting string to {0}.  String ''{1}'' caused an overflow."}
 
         /**
         * @note  PGS15105
@@ -4921,14 +4921,14 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is the character in the string that cannot be converted (a single character)
         *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_BIN_CHAR:string {"PGS15105: Error converting string to {0}.  Character \'{1}\' in string \'{2}\' is not a binary digit."}
+        CQL.CQLUtilities.INVALID_BIN_CHAR:string {"PGS15105: Error converting string to {0}.  Character ''{1}'' in string ''{2}'' is not a binary digit."}
 
         /**
         * @note  PGS15106
         *     Substitution {0} is the object type that the string is being converted to (a string)
         *     Substitution {1} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_HEX_FORMAT:string {"PGS15106: Error converting string to {0}.  String \'{1}\' needs a hexadecimal digit character following \'0x\'."}
+        CQL.CQLUtilities.INVALID_HEX_FORMAT:string {"PGS15106: Error converting string to {0}.  String ''{1}'' needs a hexadecimal digit character following ''0x''."}
 
         /**
         * @note  PGS15107
@@ -4936,7 +4936,7 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is the character in the string that cannot be converted (a single character)
         *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_HEX_CHAR:string {"PGS15107: Error converting string to {0}.  Character \'{1}\' in string \'{2}\' is not a hexidecimal digit."}
+        CQL.CQLUtilities.INVALID_HEX_CHAR:string {"PGS15107: Error converting string to {0}.  Character ''{1}'' in string ''{2}'' is not a hexidecimal digit."}
 
         /**
         * @note  PGS15108
@@ -4944,14 +4944,14 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is the character in the string that cannot be converted (a single character)
         *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_DECIMAL_CHAR:string {"PGS15108: Error converting string to {0}.  Character \'{1}\' in string \'{2}\' is not a decimal digit."}
+        CQL.CQLUtilities.INVALID_DECIMAL_CHAR:string {"PGS15108: Error converting string to {0}.  Character ''{1}'' in string ''{2}'' is not a decimal digit."}
 
         /**
         * @note  PGS15109
         *     Substitution {0} is the string being converted (a string)
         *     Do not translate Real64 since it is the name of a data type
         */
-        CQL.CQLUtilities.INVALID_CHAR_POST_DOT:string {"PGS15109: Error converting string to Real64.  String \'{0}\' must have a digit character following the decimal point."}
+        CQL.CQLUtilities.INVALID_CHAR_POST_DOT:string {"PGS15109: Error converting string to Real64.  String ''{0}'' must have a digit character following the decimal point."}
 
         /**
         * @note  PGS15110
@@ -4959,7 +4959,7 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is the character in the string that cannot be converted (a single character)
         *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_REAL_CHAR:string {"PGS15110: Error converting string to {0}.  Character '{1}' in string '{2}` is not invalid."}
+        CQL.CQLUtilities.INVALID_REAL_CHAR:string {"PGS15110: Error converting string to {0}.  Character ''{1}'' in string ''{2}'' is not invalid."}
 
         /**
         * @note  PGS15111
@@ -4967,14 +4967,14 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is the character in the string that cannot be converted (a single character)
         *     Do not translate Real64 because it is the name of a data type
         */
-        CQL.CQLUtilities.INVALID_REAL_EXP:string {"PGS15111: Error converting string to Real64.  String '{0}' has an exponent that is not well formed.  Character '{1}' is not invalid."}
+        CQL.CQLUtilities.INVALID_REAL_EXP:string {"PGS15111: Error converting string to Real64.  String ''{0}'' has an exponent that is not well formed.  Character ''{1}'' is not invalid."}
 
         /**
         * @note  PGS15112
         *     Substitution {0} is the string being converted (a string)
         *     Do not translate Real64 because it is the name of a data type
         */
-        CQL.CQLUtilities.CONVERSION_REAL_ERROR:string {"PGS15112: Unable to convert string '{0}' to a Real64.  The value could be out of range."}
+        CQL.CQLUtilities.CONVERSION_REAL_ERROR:string {"PGS15112: Unable to convert string ''{0}'' to a Real64.  The value could be out of range."}
 
 
         // ==========================================================
@@ -5736,7 +5736,7 @@ ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE:string {"PGS16506
         * @note  PGS17201:
         *    Substitution {0} is a user name (a string)
         */
-        Security.Authentication.BasicAuthenticationHandler.PRIVILEGED_ACCESS_DISABLED:string {"PGS17201: Authentication failed for user '{0}' because enableRemotePrivilegedUserAccess is not set to 'true'."}
+        Security.Authentication.BasicAuthenticationHandler.PRIVILEGED_ACCESS_DISABLED:string {"PGS17201: Authentication failed for user ''{0}'' because enableRemotePrivilegedUserAccess is not set to ''true''."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

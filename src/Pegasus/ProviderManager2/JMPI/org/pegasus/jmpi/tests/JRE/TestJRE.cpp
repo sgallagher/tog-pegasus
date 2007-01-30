@@ -34,6 +34,7 @@
 #include "Convert.h"
 #include "JMPIImpl.h"
 #include "JMPIProvider.h"
+#include "JMPIProviderManager.h"
 
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -743,60 +744,13 @@ int testJVM ()
 
       String         path         = ConfigManager::getHomedPath (manager->getCurrentValue ("providerDir"));
       ProviderVector pv           = { 0, 0 };
-      String         fileName;
-      String         className;
       String         providerName;
-
-      // Windows returns two paths, must pick the correct one!
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-      PEGASUS_STD(cerr)<<"testJVM: path = \"" << path <<"\""<<PEGASUS_STD(endl);
-
-      String winPath = path;
-
-      do
-      {
-         String winPathPart;
-         String testJarLocation;
-         Uint32 posDelim        = 0;
-
-         posDelim = winPath.find (FileSystem::getPathDelimiter ());
-
-         if (posDelim != PEG_NOT_FOUND)
-         {
-            winPathPart = winPath.subString (posDelim + 1);
-
-            winPath.remove (posDelim);
-         }
-         else
-         {
-            winPathPart = winPath;
-            winPath     = "";
-         }
-
-         PEGASUS_STD(cerr)<<"testJVM: winPathPart = \"" << winPathPart <<"\""<<PEGASUS_STD(endl);
-
-         testJarLocation = winPathPart + "/JMPIExpAssociationProvider.jar";
-
-         FileSystem::translateSlashes (testJarLocation);
-
-         if (FileSystem::exists (testJarLocation))
-         {
-            PEGASUS_STD(cerr)<<"testJVM: Found!"<<PEGASUS_STD(endl);
-
-            path = winPathPart;
-
-            break;
-         }
-
-      } while (winPath.size () > 0);
-#endif
-
-      fileName  = path + "/JMPIExpAssociationProvider.jar";
-      className = "Associations/JMPIExpAssociationProvider";
+      String         fileName("JMPIExpAssociationProvider.jar");
+      String         className("Associations/JMPIExpAssociationProvider");
 
       FileSystem::translateSlashes (fileName);
-
-      providerName = fileName + ":" + className;
+      
+      fileName = JMPIProviderManager::resolveFileName(fileName);
 
       if (!FileSystem::exists (fileName))
       {
@@ -804,6 +758,7 @@ int testJVM ()
 
          return 1;
       }
+      providerName = fileName + ":" + className;
 
       pv.jProvider = JMPIjvm::getProvider (jEnv,
                                            fileName,

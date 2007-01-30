@@ -218,6 +218,10 @@ PROVIDERSRCPATH1FILES += \
    CMPI/CWS_Util/cwsutil.h \
    CMPI/CWS_Util/cwsutil.c 
 
+define NL
+
+
+endef
 
 error:
 	@echo "Please specify an action"
@@ -231,9 +235,9 @@ stageSDK:
 stageINCLUDE:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)
 	@$(foreach i, $(INCLUDE_DIRS), $(MKDIRHIER) \
-            $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i)$(NL))
 	@$(foreach i, $(INCLUDE_FILES), $(COPY) $(INCLUDE_SRCPATH)/$(i) \
-            $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i)$(NL))
 	@$(COPY) $(INCLUDE_SRCPATH)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h \
             $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h
 
@@ -249,27 +253,27 @@ create_ProductInstallationVerificationScript:
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
 	@$(foreach i, $(SAMPLE_DIRS), $(ECHO-E) "ls -ld" \
              "$(PEGASUS_SAMLES_DIR)/$(i)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 	@$(ECHO-E) "ls -ld $(PEGASUS_INCLUDE_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
 	@$(foreach i, $(INCLUDE_DIRS), $(ECHO-E) "ls -ld" \
              "$(PEGASUS_INCLUDE_DIR)/$(i)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 	@$(ECHO-E) "ls -ld $(PEGASUS_HTML_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS INCLUDE FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
 	@$(foreach i, $(INCLUDE_FILES), $(ECHO-E) "ls -ld" \
              "$(PEGASUS_INCLUDE_DIR)/$(i)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS SAMPLE FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) "ls -ld" \
              "$(PEGASUS_SAMPLES_DIR)/$(i)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 	@$(foreach i, $(PROVIDERSCPATH1FILES), $(ECHO-E) "ls -ld" \
              "$(PEGASUS_SAMPLES_DIR)/Providers/$(i)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 	@$(ECHO-E) "ls -l $(PEGASUS_SAMPLES_DIR)/mak/config.mak" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
 	@$(ECHO-E) "ls -l" \
@@ -357,7 +361,7 @@ createConfigFile:
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 
 stageDOCS:
-	@$(foreach i, $(DOCSRCPATH1FILES), $(COPY) $(DOC_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
+	@$(foreach i, $(DOCSRCPATH1FILES), $(COPY) $(DOC_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i)$(NL))
 
 stageSAMPLES:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
@@ -369,11 +373,11 @@ stageSAMPLES:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_BIN_DIR)
 	@$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_BIN_DIR)/target
 	@$(foreach i, $(SAMPLES_DIRS), $(MKDIRHIER) \
-            $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i)$(NL))
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) \
-            $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i)$(NL))
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) \
-            $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i);)
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i)$(NL))
 	@$(COPY) $(CLIENT_SRCPATH1)/mak/$(PEGASUS_PLATFORM).mak \
             $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak 
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createConfigFile
@@ -435,7 +439,7 @@ buildSDK:
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load \
             -f Makefile createrepository \
             PEGASUS_MOF_DIR=$(PEGASUS_ROOT)/Schemas \
-            PEGASUS_BIN_DIR=$(PEGASUS_HOME)bin
+            PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile  -i \
             registerproviders PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
 

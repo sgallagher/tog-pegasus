@@ -311,6 +311,7 @@ ifeq ($(OS),aix)
     CHMOD =
     CHOWN =
     CHGRP =
+    CAT = cat
 endif
 
 ifeq ($(OS),darwin)

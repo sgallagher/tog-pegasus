@@ -306,6 +306,9 @@ const char* RepositoryUpgrade::_ALL = "a";
     const String OLD_REPOSITORY_PATH = "/var/opt/tog-pegasus/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/tog-pegasus/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/tog-pegasus/log/upgrade";
+# else
+#   undef REPUPGRADE_USE_RELEASE_DIRS
+    const String RepositoryUpgrade::_LOG_PATH = "./";
 # endif
 #else
     const String RepositoryUpgrade::_LOG_PATH

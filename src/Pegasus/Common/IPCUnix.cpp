@@ -946,7 +946,8 @@ void Semaphore::time_wait(Uint32 milliseconds)
       int retcode = pthread_cond_timedwait(
          &_semaphore.cond, &_semaphore.mutex, &waittime);
 
-      if ((retcode == -1) && (errno = ETIMEDOUT) && (_count == 0))
+      if (((retcode == -1 && errno == ETIMEDOUT) || (retcode == ETIMEDOUT)) &&
+          _count == 0)
       {
          timedOut = true;
       }

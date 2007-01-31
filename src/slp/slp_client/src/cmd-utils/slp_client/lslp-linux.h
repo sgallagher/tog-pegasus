@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,28 +29,28 @@
 //
 //==============================================================================
 /*****************************************************************************
- *  Description:   
+ *  Description:
  *
  *  Originated: March 15, 2000
- *	Original Author: Mike Day md@soft-hackle.net
+ *  Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.10 2006/11/29 14:04:49 marek Exp $ 	                                                            
- *               					                    
- *  Copyright (c) 2001 - 2003  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.11 2007/01/31 11:29:42 ks.madhusudan Exp $
+ *
+ *  Copyright (c) 2001 - 2003  IBM
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -71,7 +71,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -94,7 +94,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <net/if.h>
-typedef	unsigned char uint8;
+typedef unsigned char uint8;
 typedef uint8 byte;
 typedef short int16;
 typedef unsigned short uint16;
@@ -118,7 +118,7 @@ void  num_to_ascii(uint32 val, char *buf, int32 radix, BOOL is_neg);
 void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 
   typedef int SOCKETD;
-  
+
 
 #define LSLP_DEFAULT_WAIT 100
 #define LSLP_EXTRA_WAIT 250
@@ -148,11 +148,11 @@ void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #define _LSLP_SLEEP(m) \
   { if(m) { \
-		if (m<=1000) \
-		{ usleep(1); } else { \
-			sleep( m / 1000000000);	\
-			usleep((m % 1000000000) / 1000); \
-		} \
+        if (m<=1000) \
+        { usleep(1); } else { \
+            sleep( m / 1000000000); \
+            usleep((m % 1000000000) / 1000); \
+        } \
   } }
 #else
 #define _LSLP_SLEEP(m) \
@@ -161,7 +161,7 @@ void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
       wait_time.tv_sec = (m / 1000); ; wait_time.tv_nsec = (((m % 1000) * 1000) * 1000);  \
       nanosleep(&wait_time, &actual_time); \
   } }
-#endif  
+#endif
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
@@ -213,8 +213,8 @@ void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 
 
 #define LSLP_HEXDUMP(c) ((((c) > 31) && ((c) < 128)) ? (c) : '.')
-#define LSLP_MSG_STRINGS		4
-#define LSLP_STRINGS_HEXDUMP 	1
+#define LSLP_MSG_STRINGS        4
+#define LSLP_STRINGS_HEXDUMP    1
 #define LSLP_STRINGS_WORKDUMP   2
 #define LSLP_STRINGS_NADUMP     3
 
@@ -234,7 +234,7 @@ SOCKETD _lslp_socket(int domain, int type, int protocol);
 #ifndef _LSLP_SENDTO
 #define _LSLP_SENDTO(a, b, c, d, e, f) \
            sendto((int)(a), (const void *)(b), (size_t)(c), (int)(d), \
-                  (const struct sockaddr *)(e), (socklen_t)(f)) 
+                  (const struct sockaddr *)(e), (socklen_t)(f))
 #endif
 #define _LSLP_RECV(a, b, c, d) recv((int)(a), (void *)(b), (size_t)(c), (int)(d))
 #ifndef _LSLP_RECV_FROM
@@ -243,14 +243,13 @@ SOCKETD _lslp_socket(int domain, int type, int protocol);
                     (struct sockaddr *)(e), (socklen_t *)(f))
 #endif
 #define _LSLP_GETHOSTBYNAME(a) gethostbyname((const char *)(a))
-#define _LSLP_GETHOSTBYADDR(a, b, c) gethostbyaddr( (const void *)(a), (socklen_t)(b), (int)(c))
 #ifndef _LSLP_SETSOCKOPT
 #define _LSLP_SETSOCKOPT(a, b, c, d, e) \
            setsockopt((int)(a), (int)(b), (int)(c), (const void *)(d), (socklen_t)(e))
 #endif
 #define _LSLP_GETSOCKOPT(a, b, c, d, e) \
            getsockopt((int)(a), (int)(b), (int)(c), (void *)(d), (socklen_t)(e))
-#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t))) 
+#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t)))
 
 #define _LSLP_ABORT(a) { shutdown((int)(a), SHUT_RDWR) ; close((int)(a)); }
 #define LSLP_FD_SET fd_set

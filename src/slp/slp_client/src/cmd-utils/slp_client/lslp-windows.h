@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,25 +31,25 @@
 /*****************************************************************************
  *  Description:   portability routines for WINDOZE
  *
- *  Originated: December 31, 1999 
- *	Original Author: Mike Day md@soft-hackle.net
- *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.11 2007/01/11 16:22:07 a.dunfey Exp $ 	                                                            
- *               					                    
- *  Copyright (c) 2001 - 2003  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *  Originated: December 31, 1999
+ *  Original Author: Mike Day md@soft-hackle.net
+ *                                mdday@us.ibm.com
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.12 2007/01/31 11:26:20 ks.madhusudan Exp $
+ *
+ *  Copyright (c) 2001 - 2003  IBM
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -68,7 +68,7 @@
 
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) 
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #ifndef _MT
 #define _MT
 #endif
@@ -82,8 +82,8 @@
 #include <process.h>    /* _beginthread, _endthread */
 #include <winbase.h>
 #include <tchar.h>
-#include <sys/types.h> 
-#include <sys/timeb.h> 
+#include <sys/types.h>
+#include <sys/timeb.h>
 #include <assert.h>
 #include <errno.h>
 
@@ -91,7 +91,7 @@
 extern "C" {
 #endif
 
-typedef	unsigned char uint8;
+typedef unsigned char uint8;
 typedef uint8 byte;
 typedef short int16;
 typedef unsigned short uint16;
@@ -100,7 +100,7 @@ typedef unsigned int uint32;
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
 typedef SOCKET SOCKETD;
-  
+
 typedef struct socket_address {
   struct sockaddr_in *address;
   int address_len;
@@ -109,51 +109,51 @@ typedef struct socket_address {
 typedef struct socket_address_list {
   int count;
   socket_addr *list;
-} socket_addr_list; 
+} socket_addr_list;
 
 void WindowsStartNetwork(void);
 /* int32 gettimeofday(struct timeval *tv, struct timezone *tz); */
 
 /* WIN 32 macros for mutex semaphore */
 #define _LSLP_CREATE_MUTEX(h) \
-	(((h) = CreateMutex(NULL, FALSE, NULL)) ? 0 : -1)
+    (((h) = CreateMutex(NULL, FALSE, NULL)) ? 0 : -1)
 #define _LSLP_CLOSE_MUTEX(h) \
-	if((h) != 0){ReleaseMutex((HANDLE)(h));CloseHandle((HANDLE)(h)); (h) = 0;}
+    if((h) != 0){ReleaseMutex((HANDLE)(h));CloseHandle((HANDLE)(h)); (h) = 0;}
 #define LSLP_DEFAULT_WAIT 100
 #define LSLP_EXTRA_WAIT   250
 /* h = handle, m = milliseconds, c = pointer to completion code */
 #define _LSLP_WAIT_MUTEX(h, m, c) \
-	if((h) != 0){(*(c)) = WaitForSingleObject((HANDLE)(h), (m));}
+    if((h) != 0){(*(c)) = WaitForSingleObject((HANDLE)(h), (m));}
 #define _LSLP_RELEASE_MUTEX(h) \
-	if((h) != 0) {ReleaseMutex((HANDLE)(h));}
+    if((h) != 0) {ReleaseMutex((HANDLE)(h));}
 #define _LSLP_DUP_MUTEX(h, n) \
-	if ((h) != 0)		 \
-	{DuplicateHandle(GetCurrentProcess(), (h), GetCurrentProcess(), (n),  \
-		0, TRUE, DUPLICATE_SAME_ACCESS | MUTEX_ALL_ACCESS | SYNCHRONIZE);}
-#define	_LSLP_CREATE_SEM(h, i) \
-	(((h) = (uint32)CreateSemaphore(NULL, (i), 0x0000ffff, NULL)) ? 0 : -1)
+    if ((h) != 0)        \
+    {DuplicateHandle(GetCurrentProcess(), (h), GetCurrentProcess(), (n),  \
+        0, TRUE, DUPLICATE_SAME_ACCESS | MUTEX_ALL_ACCESS | SYNCHRONIZE);}
+#define _LSLP_CREATE_SEM(h, i) \
+    (((h) = (uint32)CreateSemaphore(NULL, (i), 0x0000ffff, NULL)) ? 0 : -1)
 /* h = handle, m = milliseconds, c = pointer to completion code */
 #define _LSLP_WAIT_SEM(h, m, c) \
-	if((h) != 0){(*(c)) = WaitForSingleObject((HANDLE)(h), (m));}
+    if((h) != 0){(*(c)) = WaitForSingleObject((HANDLE)(h), (m));}
 #define _LSLP_SIGNAL_SEM(h)  \
-	ReleaseSemaphore((HANDLE)(h), 1, NULL)
+    ReleaseSemaphore((HANDLE)(h), 1, NULL)
 #define _LSLP_CLOSE_SEM(h) \
-	{if((h) != 0){ReleaseSemaphore((HANDLE)(h), 0x0000fff0, NULL); CloseHandle((HANDLE)(h)); (h) = 0;}}
+    {if((h) != 0){ReleaseSemaphore((HANDLE)(h), 0x0000fff0, NULL); CloseHandle((HANDLE)(h)); (h) = 0;}}
 
 #define LSLP_SEM_T HANDLE
 #define LSLP_THREAD_T HANDLE
-#define LSLP_WAIT_FAILED	WAIT_FAILED
-#define LSLP_WAIT_OK		WAIT_OBJECT_0
+#define LSLP_WAIT_FAILED    WAIT_FAILED
+#define LSLP_WAIT_OK        WAIT_OBJECT_0
 #define LSLP_WAIT_TIMEOUT   WAIT_TIMEOUT
 #define LSLP_WAIT_ABANDONDED WAIT_ABANDONED
 
 /* void SLEEP(int32 milliseconds) */
 #define _LSLP_SLEEP Sleep
-#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t))) 
+#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t)))
 
 /* void *(*start)(void *), ustacksize, void *arg           */
-#define _LSLP_BEGINTHREAD(start, stacksize, arg) _beginthread((start), (stacksize), (arg)) 
-#define _LSLP_ENDTHREAD  _endthread 
+#define _LSLP_BEGINTHREAD(start, stacksize, arg) _beginthread((start), (stacksize), (arg))
+#define _LSLP_ENDTHREAD  _endthread
 
 #define _LSLP_STRTOK(n, d, s) strtok((n), (d) )
 #define _LSLP_SIG_ACTION()
@@ -166,19 +166,19 @@ void WindowsStartNetwork(void);
 /* maximum path length */
 #define LSLP_MAXPATH _MAX_PATH
 #define LSLP_NEWLINE \r\n
-#endif	 /* WIN 32 */
+#endif   /* WIN 32 */
 
 
 #define ENOTSOCK WSAENOTSOCK
-#define EADDRNOTAVAIL WSAEADDRNOTAVAIL 
-#define EAFNOSUPPORT WSAEAFNOSUPPORT 
-#define EISCONN WSAEISCONN 
+#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+#define EAFNOSUPPORT WSAEAFNOSUPPORT
+#define EISCONN WSAEISCONN
 #define ETIMEDOUT WSAETIMEDOUT
 #define ECONNREFUSED WSAECONNREFUSED
 #define ENETUNREACH WSAENETUNREACH
 #define EADDRINUSE WSAEADDRINUSE
-#define EINPROGRESS WSAEINPROGRESS 
-#define EALREADY WSAEALREADY 
+#define EINPROGRESS WSAEINPROGRESS
+#define EALREADY WSAEALREADY
 #define EWOULDBLOCK WSAEWOULDBLOCK
 
 #define _LSLP_GETLASTERROR() WSAGetLastError()
@@ -202,7 +202,6 @@ void WindowsStartNetwork(void);
                     ((struct sockaddr *)(e)), ((int *)(f)))
 
 #define _LSLP_GETHOSTBYNAME(a, b) /* ATTN << Tue Dec 18 13:26:09 2001 mdd >> */
-#define _LSLP_GETHOSTBYADDR(a, b, c, d) /* ATTN << Tue Dec 18 13:26:49 2001 mdd >> */
 
 #define _LSLP_SETSOCKOPT(a, b, c, d, e) \
            setsockopt(((SOCKET)(a)), ((int)(b)), ((int)(c)), ((const char *)(d)), ((int)(e)))
@@ -227,7 +226,7 @@ void WindowsStartNetwork(void);
 
 #define _LSLP_ISASCII(a) __isascii(a)
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

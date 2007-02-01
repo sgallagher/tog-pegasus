@@ -112,11 +112,8 @@ static CMPIStatus __aft_release ( CMPIArray * array )
 							   &a->data[i].value );
 			}
 		}
-
-		CMReturn ( CMPI_RC_OK );
 	}
-
-	CMReturn ( CMPI_RC_ERR_FAILED );
+        CMReturn ( CMPI_RC_OK );
 }
 
 

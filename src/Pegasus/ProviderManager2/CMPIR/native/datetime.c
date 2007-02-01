@@ -117,11 +117,8 @@ static CMPIStatus __dtft_release ( CMPIDateTime * dt )
 
 		ndt->mem_state = TOOL_MM_ADD;
 		tool_mm_add ( ndt );
-
-		CMReturn ( CMPI_RC_OK );
 	}
-
-	CMReturn ( CMPI_RC_ERR_FAILED );
+        CMReturn ( CMPI_RC_OK );
 }
 
 

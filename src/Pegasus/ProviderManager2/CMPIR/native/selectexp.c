@@ -84,11 +84,9 @@ static CMPIStatus __eft_release ( CMPISelectExp * exp )
         if (rc.rc == CMPI_RC_OK)
         {
 		tool_mm_add ( e );
-		CMReturn ( CMPI_RC_OK );
 	}
    }
-
-	CMReturn ( CMPI_RC_ERR_FAILED );
+   CMReturn ( CMPI_RC_OK );
 }
 
 

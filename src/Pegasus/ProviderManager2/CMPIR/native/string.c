@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -76,11 +72,8 @@ static CMPIStatus __sft_release ( CMPIString * string )
 
 		tool_mm_add ( s );
 		tool_mm_add ( s->string.hdl );
-
-		CMReturn ( CMPI_RC_OK );
 	}
-
-	CMReturn ( CMPI_RC_ERR_FAILED );
+        CMReturn ( CMPI_RC_OK );
 }
 
 

@@ -79,7 +79,7 @@ static CMPIStatus __eft_release ( CMPIEnumeration * enumeration )
 		return e->data->ft->release ( e->data );
 	}
 
-	CMReturn ( CMPI_RC_ERR_FAILED );
+	CMReturn ( CMPI_RC_OK );
 }
 
 

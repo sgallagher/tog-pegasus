@@ -88,11 +88,8 @@ static CMPIStatus __oft_release(CMPIObjectPath * cop)
         tool_mm_add(o->hostname);
 
         propertyFT.release(o->keys);
-
-        CMReturn(CMPI_RC_OK);
     }
-
-    CMReturn(CMPI_RC_ERR_FAILED);
+    CMReturn(CMPI_RC_OK);
 }
 
 
@@ -308,13 +305,13 @@ CMPIString *__oft_toString( CONST CMPIObjectPath * cop, CMPIStatus *rc)
     char *v;
 
     hn = __oft_getHostName(cop, rc);
-    if (hn)
+    if (hn && hn->hdl)
     {
         strcat(str, (char*)hn->hdl);
         strcat(str, ":");
     }
     ns = __oft_getNameSpace(cop, rc);
-    if (ns)
+    if (ns && ns->hdl)
     {
         strcat(str, (char*)ns->hdl);
         strcat(str, ":");

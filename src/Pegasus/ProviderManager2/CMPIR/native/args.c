@@ -82,11 +82,8 @@ static CMPIStatus __aft_release ( CMPIArgs * args )
 		tool_mm_add ( a );
 		a->mem_state = TOOL_MM_ADD;
 		propertyFT.release ( a->data );
-
-		CMReturn ( CMPI_RC_OK );
 	}
-
-	CMReturn ( CMPI_RC_ERR_FAILED );
+        CMReturn ( CMPI_RC_OK );
 }
 
 

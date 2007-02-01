@@ -140,11 +140,8 @@ static CMPIStatus __ift_release(CMPIInstance * instance)
         __release_list(i->key_list);
 
         propertyFT.release(i->props);
-
-        CMReturn(CMPI_RC_OK);
     }
-
-    CMReturn(CMPI_RC_ERR_FAILED);
+    CMReturn(CMPI_RC_OK);
 }
 
 

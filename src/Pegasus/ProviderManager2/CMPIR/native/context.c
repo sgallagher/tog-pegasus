@@ -80,7 +80,7 @@ static struct native_context * __new_empty_context ( int );
 
 static CMPIStatus __cft_release ( CMPIContext * ctx )
 {
-	CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED );
+	CMReturn ( CMPI_RC_OK );
 }
 
 

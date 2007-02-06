@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -75,8 +71,8 @@ void callMethod(const CIMName& methodName)
 
         PEGASUS_TEST_ASSERT(outParams.size() == 2);
 
-        Uint32 outParam1;
-        Uint32 outParam2;
+        Uint32 outParam1 = 0;
+        Uint32 outParam2 = 0;
 
         for (Uint32 i = 0; i < 2; i++)
         {

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "MethodTestProvider.h"
@@ -113,8 +109,8 @@ void MethodTestProvider::invokeMethod(
             throw CIMOperationFailedException("Incorrect out parameters");
         }
 
-        Uint32 outParam1;
-        Uint32 outParam2;
+        Uint32 outParam1 = 0;
+        Uint32 outParam2 = 0;
  
         for (Uint32 i = 0; i < 2; i++)
         {
@@ -148,8 +144,8 @@ void MethodTestProvider::invokeMethod(
             throw CIMOperationFailedException("Incorrect in parameters");
         }
 
-        Uint32 inParam1;
-        Uint32 inParam2;
+        Uint32 inParam1 = 0;
+        Uint32 inParam2 = 0;
 
         for (Uint32 i = 0; i < 2; i++)
         {

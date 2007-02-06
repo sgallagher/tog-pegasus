@@ -100,7 +100,7 @@ static CString _allocLogFileName(
 
     int index = int(logFileType);
 
-    if (index > Logger::NUM_LOGS)
+    if (index >= Logger::NUM_LOGS)
         index = Logger::ERROR_LOG;
 
     const char* logFileName = fileNames[index];

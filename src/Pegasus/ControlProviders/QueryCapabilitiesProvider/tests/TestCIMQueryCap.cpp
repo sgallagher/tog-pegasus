@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Amit K Arora, IBM (amitarora@in.ibm.com) - PEP 193
-//
-// Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2468,#2491
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +36,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
+//NOCHKSRC
 #include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
 #include <iostream>
 
@@ -72,7 +70,8 @@ void _checkIfReturnedValueIsCorrect(Array<Uint16>& providerReturnedVal)
 
    if(providerReturnedVal.size() != (unsigned)NUM_QUERY_CAPABILITIES)
    {
-      Exception e("Number of capabilities returned by the Provider does not match the actual value.");
+      Exception e("Number of capabilities returned by the Provider "
+                  "does not match the actual value.");
       throw e;
    }
 

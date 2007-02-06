@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
-//
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef UserAuthProvider_h
@@ -92,7 +86,7 @@ public:
 
     UserAuthProvider(CIMRepository* repository)
     {
-	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::UserAuthProvider");
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::UserAuthProvider");
 
         //
         // get an instance of User Manager and initialize
@@ -102,14 +96,14 @@ public:
 
         _repository = repository;
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
     }
 
     virtual ~UserAuthProvider()
     {
-	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::~UserAuthProvider");
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::~UserAuthProvider");
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
     }
 
     // Note:  The initialize() and terminate() methods are not called for
@@ -121,12 +115,12 @@ public:
     Returns the instance based on instanceName.
     */
     virtual void getInstance(
-	const OperationContext & context,
+    const OperationContext & context,
         const CIMObjectPath& instanceName,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-	InstanceResponseHandler & handler)
+    InstanceResponseHandler & handler)
     {
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, "");
     }
@@ -140,10 +134,10 @@ public:
     @param  handler
     */
     virtual void createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ObjectPathResponseHandler & handler);
+    ObjectPathResponseHandler & handler);
 
     /**
     Deletes the specified instance.
@@ -153,9 +147,9 @@ public:
     @param  handler
     */
     virtual void deleteInstance(
-	const OperationContext & context,
+    const OperationContext & context,
         const CIMObjectPath& myInstance,
-	ResponseHandler & handler);
+    ResponseHandler & handler);
 
 
     /**
@@ -197,8 +191,8 @@ public:
     Enumerates all the user names.
     */
     virtual void enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
 
     /**
@@ -215,7 +209,7 @@ private:
     /**
         Verify User Authorization.
 
-        @param  user	                userName to be verified
+        @param  user                    userName to be verified
 
         @throw  CIM_ERR_ACCESS_DENIED   if the specified user is not a
                                         priviliged user.

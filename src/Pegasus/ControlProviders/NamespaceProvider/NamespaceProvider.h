@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengrooup.org)
-//
-// Modified By:
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -73,11 +70,11 @@ PEGASUS_NAMESPACE_BEGIN
     same characteristics as the CIM_namespace class defined in CIM 2.6.
 
     This provider implements the following functions:
-    - createInstance		( adds a new namespace to the repository)
-    - getInstance		( Gets one instance containing a namespace name)
-    - modifyInstance		( Not supported )
-    - enumerateInstances	( Lists all namespaces as Instances)
-    - enumerateInstanceNames	( Lists all namespace names )
+    - createInstance            ( adds a new namespace to the repository)
+    - getInstance               ( Gets one instance containing a namespace name)
+    - modifyInstance            ( Not supported )
+    - enumerateInstances        ( Lists all namespaces as Instances)
+    - enumerateInstanceNames    ( Lists all namespace names )
 
 */
 
@@ -106,10 +103,10 @@ public:
     */
     PEGASUS_HIDDEN_LINKAGE
     virtual void createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ObjectPathResponseHandler & handler);
+        ObjectPathResponseHandler & handler);
 
     /**
     Deletes the specified instance. In the namespace provider, this deletes
@@ -121,15 +118,15 @@ public:
     */
     PEGASUS_HIDDEN_LINKAGE
     virtual void deleteInstance(
-	const OperationContext & context,
+        const OperationContext & context,
         const CIMObjectPath& instanceName,
-	ResponseHandler & handler);
+        ResponseHandler & handler);
 
     /**
     Returns the instance based on instanceName.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+                   the lifetime of this operation.
     @param instanceName name of the class for which instance is requested.
     @param includeQualifiers specifies whether qualifiers must be included in
     the returned instance
@@ -140,18 +137,18 @@ public:
     */
     PEGASUS_HIDDEN_LINKAGE
     virtual void getInstance(
-	const OperationContext & context,
+        const OperationContext & context,
         const CIMObjectPath& instanceName,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-	InstanceResponseHandler & handler);
+        InstanceResponseHandler & handler);
 
     /**
     Modify instance based on modifiedInstance.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+                   the lifetime of this operation.
     @param instanceReference the fully qualified object path of the instance.
     @param modifiedInstance  the modified instance.
     @param includeQualifiers specifies whether qualifiers must be updated as
@@ -162,18 +159,18 @@ public:
     */
     PEGASUS_HIDDEN_LINKAGE
     virtual void modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
-	const Boolean includeQualifiers,
+        const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
-	ResponseHandler & handler);
+        ResponseHandler & handler);
 
     /**
     Enumerates all the config properties and values.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+                   the lifetime of this operation.
     @param ref the fully qualified object path of the instance.
     @param includeQualifiers specifies whether qualifiers must be included in
     the returned instances
@@ -184,25 +181,25 @@ public:
     */
     PEGASUS_HIDDEN_LINKAGE
     virtual void enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-	InstanceResponseHandler & handler);
+        InstanceResponseHandler & handler);
 
     /**
     Enumerates all the config property names.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+                   the lifetime of this operation.
     @param classReference the fully qualified object path of the instance.
     @param handler enables providers to asynchronously return the results.
     */
     PEGASUS_HIDDEN_LINKAGE
     virtual void enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
 
 private:

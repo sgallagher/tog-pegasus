@@ -27,11 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +40,8 @@
 
 #include <Pegasus/Common/AcceptLanguageList.h>
 
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -87,7 +84,8 @@ public:
         ProviderRegistrationManager* providerRegistrationManager);
     virtual ~ProviderRegistrationProvider(void);
 
-ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & handle);
+ProviderRegistrationProvider & operator=
+    (const ProviderRegistrationProvider & handle);
 
     // CIMProvider interface
     // Note:  The initialize() and terminate() methods are not called for
@@ -152,18 +150,18 @@ protected:
 
     MessageQueueService * _getProviderManagerService();
     Array<Uint16> _sendDisableMessageToProviderManager(
-	CIMDisableModuleRequestMessage * notify_req);
+        CIMDisableModuleRequestMessage * notify_req);
     Array<Uint16> _sendEnableMessageToProviderManager(
-	CIMEnableModuleRequestMessage * notify_req);
+        CIMEnableModuleRequestMessage * notify_req);
     MessageQueueService * _getIndicationService();
     void _sendTerminationMessageToSubscription(
-	const CIMObjectPath & ref, const String & moduleName,
-	const Boolean disableProviderOnly,
+        const CIMObjectPath & ref, const String & moduleName,
+        const Boolean disableProviderOnly,
         const AcceptLanguageList & al);
 
     Sint16 _disableModule(const CIMObjectPath & moduleRef, 
-			  const String & moduleName,
-			  Boolean disableProviderOnly,
+                          const String & moduleName,
+                          Boolean disableProviderOnly,
                       const AcceptLanguageList & al);
 
     //
@@ -174,23 +172,23 @@ protected:
                                   const CIMInstance & instance);
 
     Sint16 _enableModule(const CIMObjectPath & moduleRef, 
-			 const String & moduleName,
+                         const String & moduleName,
                          const AcceptLanguageList & al); 
 
     void _sendEnableMessageToSubscription(
-	const CIMInstance & mInstance,
-	const CIMInstance & pInstance,
-	const Array<CIMInstance> & capInstances,
-	const AcceptLanguageList & al);
+        const CIMInstance & mInstance,
+        const CIMInstance & pInstance,
+        const Array<CIMInstance> & capInstances,
+        const AcceptLanguageList & al);
 
      //
     // get all the indication capability instances which belongs
     // to the provider
     //
     Array<CIMInstance>  _getIndicationCapInstances(
-	const String & moduleName,
-	const CIMInstance & instance,
-	const CIMObjectPath & providerRef);
+        const String & moduleName,
+        const CIMInstance & instance,
+        const CIMObjectPath & providerRef);
 
 };
 

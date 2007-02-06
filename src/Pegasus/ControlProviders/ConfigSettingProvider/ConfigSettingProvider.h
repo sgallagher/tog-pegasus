@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//            : Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -103,10 +98,10 @@ public:
     @param  handler
     */
     virtual void createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ObjectPathResponseHandler & handler)
+    ObjectPathResponseHandler & handler)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
     }
@@ -119,9 +114,9 @@ public:
     @param  handler
     */
     virtual void deleteInstance(
-	const OperationContext & context,
+    const OperationContext & context,
         const CIMObjectPath& instanceName,
-	ResponseHandler & handler)
+    ResponseHandler & handler)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
     }
@@ -130,7 +125,7 @@ public:
     Returns the instance based on instanceName.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+           the lifetime of this operation.
     @param instanceName name of the class for which instance is requested.
     @param includeQualifiers specifies whether qualifiers must be included in
     the returned instance
@@ -140,18 +135,18 @@ public:
     @param handler enables providers to asynchronously return the results.
     */
     virtual void getInstance(
-	const OperationContext & context,
+    const OperationContext & context,
         const CIMObjectPath& instanceName,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-	InstanceResponseHandler & handler);
+    InstanceResponseHandler & handler);
 
     /**
     Modify instance based on modifiedInstance.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+           the lifetime of this operation.
     @param instanceReference the fully qualified object path of the instance.
     @param modifiedInstance  the modified instance.
     @param includeQualifiers specifies whether qualifiers must be updated as
@@ -161,18 +156,18 @@ public:
     @param handler enables providers to asynchronously return the results.
     */
     void modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
-	const Boolean includeQualifiers,
+    const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
-	ResponseHandler & handler);
+    ResponseHandler & handler);
 
     /**
     Enumerates all the config properties and values.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+           the lifetime of this operation.
     @param ref the fully qualified object path of the instance.
     @param includeQualifiers specifies whether qualifiers must be included in
     the returned instances
@@ -182,24 +177,24 @@ public:
     @param handler enables providers to asynchronously return the results.
     */
     virtual void enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
+    const OperationContext & context,
+    const CIMObjectPath & ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-	InstanceResponseHandler & handler);
+    InstanceResponseHandler & handler);
 
     /**
     Enumerates all the config property names.
 
     @param context specifies security and locale information relevant for
-		   the lifetime of this operation.
+           the lifetime of this operation.
     @param classReference the fully qualified object path of the instance.
     @param handler enables providers to asynchronously return the results.
     */
     virtual void enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
 
 private:

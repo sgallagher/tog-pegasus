@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -118,12 +109,11 @@ void UserAuthProvider::_verifyAuthorization(const String& user)
     if ( System::isPrivilegedUser(user) == false )
     {
         PEG_METHOD_EXIT();
-	//l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
-            //"Must be a privileged user to execute this CIM operation.");
-	MessageLoaderParms parms("ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER",
-						 "Must be a privileged user to execute this CIM operation.");
-	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,parms);
+        MessageLoaderParms parms(
+            "ControlProviders.UserAuthProvider."
+            "MUST_BE_PRIVILEGED_USER",
+            "Must be a privileged user to execute this CIM operation.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,parms);
     }
 
     PEG_METHOD_EXIT();
@@ -153,7 +143,8 @@ void UserAuthProvider::createInstance(
     String user;
     try
     {
-        const IdentityContainer container = context.get(IdentityContainer::NAME);
+        const IdentityContainer container = 
+            context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)
@@ -310,8 +301,8 @@ void UserAuthProvider::createInstance(
     else
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION (
-            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName().getString());
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+                                 instanceReference.getClassName().getString());
     }
 
     handler.deliver(instanceReference);
@@ -377,12 +368,11 @@ void UserAuthProvider::deleteInstance(
             kbArray = myInstance.getKeyBindings();
             if ( ! kbArray.size() )
             {
-		//l10n
-                //throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-                     //"Unable to find Key Property Username");
-		MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
-								 "Unable to find Key Property Username");
-		throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
+                MessageLoaderParms parms(
+                    "ControlProviders.UserAuthProvider."
+                        "UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
+                    "Unable to find Key Property Username");
+                throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
             }
             if ( kbArray[0].getName() == PROPERTY_NAME_USERNAME )
             {
@@ -390,12 +380,10 @@ void UserAuthProvider::deleteInstance(
             }
             else
             {
-		//l10n
-                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
-                     //"Unexpected Key property");
-		MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY",
-								 "Unexpected Key property");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
+                MessageLoaderParms parms("ControlProviders.UserAuthProvider."
+                                             "UNEXPECTED_KEY_PROPERTY",
+                                         "Unexpected Key property");
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
             }
 
             //
@@ -451,24 +439,18 @@ void UserAuthProvider::deleteInstance(
         if ( !userNameStr.size() )
         {
             PEG_METHOD_EXIT();
-	    //l10n
-            //throw PEGASUS_CIM_EXCEPTION (
-                //CIM_ERR_INVALID_PARAMETER,
-                //"Username property can not be empty.") ;
-	    MessageLoaderParms parms("ControlProviders.UserAuthProvider.USERNAME_PROPERTY_CANNOT_BE_EMPTY",
-							 "Username property can not be empty.");
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
+            MessageLoaderParms parms("ControlProviders.UserAuthProvider."
+                                        "USERNAME_PROPERTY_CANNOT_BE_EMPTY",
+                                        "Username property can not be empty.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
         }
         else if ( !namespaceStr.size() )
         {
             PEG_METHOD_EXIT();
-	    //l10n
-            //throw PEGASUS_CIM_EXCEPTION (
-                //CIM_ERR_INVALID_PARAMETER,
-                //"Namespace property can not be empty.") ;
-	    MessageLoaderParms parms("ControlProviders.UserAuthProvider.NAMESPACE_PROPERTY_CANNOT_BE_EMPTY",
-							 "Namespace property can not be empty.");
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
+            MessageLoaderParms parms("ControlProviders.UserAuthProvider."
+                                         "NAMESPACE_PROPERTY_CANNOT_BE_EMPTY",
+                                     "Namespace property can not be empty.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,parms);
         }
 
         try
@@ -555,7 +537,8 @@ void UserAuthProvider::modifyInstance(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION (
-            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName().getString());
+            CIM_ERR_NOT_SUPPORTED,
+            instanceReference.getClassName().getString());
     }
 
     CIMInstance newInstance = modifiedIns;
@@ -714,7 +697,8 @@ void UserAuthProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::enumerateInstanceNames");
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,
+                     "UserAuthProvider::enumerateInstanceNames");
 
     Array<CIMObjectPath> instanceRefs;
     Array<String>       userNames;
@@ -766,7 +750,8 @@ void UserAuthProvider::enumerateInstanceNames(
 
             for (Uint32 i = 0; i < size; i++)
             {
-                keyBindings.append(CIMKeyBinding(PROPERTY_NAME_USERNAME, userNames[i],
+                keyBindings.append(CIMKeyBinding(PROPERTY_NAME_USERNAME,
+                   userNames[i],
                    CIMKeyBinding::STRING));
 
                 //
@@ -887,14 +872,11 @@ void UserAuthProvider::invokeMethod(
     {
         handler.complete();
         PEG_METHOD_EXIT();
-	//l10n
-        //throw PEGASUS_CIM_EXCEPTION (
-            //CIM_ERR_FAILED,
-           //"Unsupported method name, " + methodName.getString());
-	MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNSUPPORTED_METHOD_NAME",
-						 "Unsupported method name, $0",
-						 methodName.getString());
-	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
+        MessageLoaderParms parms("ControlProviders.UserAuthProvider."
+                                     "UNSUPPORTED_METHOD_NAME",
+                                 "Unsupported method name, $0",
+                                 methodName.getString());
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
     }
 
     // Check if all the input parameters are passed.
@@ -902,12 +884,13 @@ void UserAuthProvider::invokeMethod(
     {
         handler.complete();
         PEG_METHOD_EXIT();
-	//l10n
+    //l10n
        //     throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
          //                           "Input parameters are not valid.");
-	MessageLoaderParms parms("ControlProviders.UserAuthProvider.INPUT_PARAMETERS_NOT_VALID",
-						 "Input parameters are not valid.");
-	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER, parms);
+    MessageLoaderParms parms("ControlProviders.UserAuthProvider."
+                                 "INPUT_PARAMETERS_NOT_VALID",
+                             "Input parameters are not valid.");
+    throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER, parms);
     }
 
     try
@@ -917,12 +900,10 @@ void UserAuthProvider::invokeMethod(
         if ( !kbArray.size() )
         {
             PEG_METHOD_EXIT();
-	    //l10n
-            //throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-              //       "Unable to find Key Property Username");
-	    MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
-	    						 "Unable to find Key Property Username");
-	    throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
+            MessageLoaderParms parms("ControlProviders.UserAuthProvider."
+                                         "UNABLE_TO_FIND_KEY_PROPERTY_USERNAME",
+                                     "Unable to find Key Property Username");
+            throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
         }
 
         //

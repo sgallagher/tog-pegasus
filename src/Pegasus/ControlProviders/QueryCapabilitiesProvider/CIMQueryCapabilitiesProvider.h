@@ -57,11 +57,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CIMQUERYCAPPROVIDER_LINKAGE CIMQueryCapabilitiesProvider :
-	public CIMInstanceProvider
+    public CIMInstanceProvider
 {
 public:
-	CIMQueryCapabilitiesProvider();
-	virtual ~CIMQueryCapabilitiesProvider();
+    CIMQueryCapabilitiesProvider();
+    virtual ~CIMQueryCapabilitiesProvider();
 
     // CIMProvider interface
     // Note:  The initialize() and terminate() methods are not called for
@@ -69,27 +69,27 @@ public:
     virtual void initialize(CIMOMHandle& cimom) { }
     virtual void terminate() { }
 
-	// CIMQueryCapabilitiesProvider interface
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
+    // CIMQueryCapabilitiesProvider interface
+    virtual void getInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
                 const Boolean includeQualifiers,
                 const Boolean includeClassOrigin,
                 const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
+    virtual void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
                 const Boolean includeQualifiers,
                 const Boolean includeClassOrigin,
                 const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    virtual void enumerateInstanceNames(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ObjectPathResponseHandler & handler);
 
         virtual void modifyInstance(
                 const OperationContext & context,

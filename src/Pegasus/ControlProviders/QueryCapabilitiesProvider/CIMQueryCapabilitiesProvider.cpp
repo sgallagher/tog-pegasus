@@ -29,9 +29,9 @@
 //
 //==============================================================================
 //
-// Author: Amit K Arora, IBM (amita@in.ibm.com) - PEP 193
+// PEP 193
 //
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) - Bug#2491
+// Bug#2491
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,14 +50,14 @@ const int CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES = 2;
 CIMQueryCapabilitiesProvider::CIMQueryCapabilitiesProvider()
 {
   PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
-                   "CIMQueryCapabilitiesProvider::CIMQueryCapabilitiesProvider");
+           "CIMQueryCapabilitiesProvider::CIMQueryCapabilitiesProvider");
   PEG_METHOD_EXIT();
 }
 
 CIMQueryCapabilitiesProvider::~CIMQueryCapabilitiesProvider()
 {
   PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
-                   "CIMQueryCapabilitiesProvider::~CIMQueryCapabilitiesProvider");
+           "CIMQueryCapabilitiesProvider::~CIMQueryCapabilitiesProvider");
   PEG_METHOD_EXIT();
 }
 
@@ -69,7 +69,8 @@ void CIMQueryCapabilitiesProvider::getInstance(
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CIMQueryCapabilitiesProvider::getInstance");
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+             "CIMQueryCapabilitiesProvider::getInstance");
 
     Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
 
@@ -169,7 +170,8 @@ void CIMQueryCapabilitiesProvider::modifyInstance(
         const CIMPropertyList & propertyList,
         ResponseHandler & handler)
 {
-    throw CIMNotSupportedException("CIMQueryCapabilitiesProvider::modifyInstance");
+    throw CIMNotSupportedException(
+        "CIMQueryCapabilitiesProvider::modifyInstance");
 }
 
 void CIMQueryCapabilitiesProvider::createInstance(
@@ -178,7 +180,8 @@ void CIMQueryCapabilitiesProvider::createInstance(
         const CIMInstance & instanceObject,
         ObjectPathResponseHandler & handler)
 {
-    throw CIMNotSupportedException("CIMQueryCapabilitiesProvider::createInstance");
+    throw CIMNotSupportedException(
+        "CIMQueryCapabilitiesProvider::createInstance");
 }
 
 void CIMQueryCapabilitiesProvider::deleteInstance(
@@ -186,7 +189,8 @@ void CIMQueryCapabilitiesProvider::deleteInstance(
         const CIMObjectPath & instanceReference,
         ResponseHandler & handler)
 {
-    throw CIMNotSupportedException("CIMQueryCapabilitiesProvider::deleteInstance");
+    throw CIMNotSupportedException(
+        "CIMQueryCapabilitiesProvider::deleteInstance");
 }
 
 CIMInstance CIMQueryCapabilitiesProvider::buildInstance(CIMObjectPath cimRef)

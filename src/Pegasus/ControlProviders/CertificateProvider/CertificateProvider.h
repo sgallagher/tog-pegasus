@@ -69,23 +69,30 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This is the control provider outlined in PEP#187 SSL Certificate Mgmt Enhancements.
- * It models certificate mgmt operations as standard CIM operations.  Client certificates are modeled
- * by the PG_SSLCertificate class. Certificate revocation lists (CRLs) are modeled using the 
- * PG_SSLCertificateRevocationClass.  These classes are defined in the pg_internal schema.  
- * The ssltrustmgr CLI in Clients/ssltrustmgr can be used to invoke these provider methods.
+/** This is the control provider outlined in PEP#187,
+ * SSL Certificate Mgmt Enhancements.
+ * It models certificate mgmt operations as standard CIM operations.
+ * Client certificates are modeled by the PG_SSLCertificate class.
+ * Certificate revocation lists (CRLs) are modeled using the 
+ * PG_SSLCertificateRevocationClass.  These classes are defined in
+ * the pg_internal schema.  
+ * The ssltrustmgr CLI in Clients/ssltrustmgr can be used to invoke
+ * these provider methods.
 */
 
-class PEGASUS_CERTIFICATEPROVIDER_LINKAGE CertificateProvider : public CIMInstanceProvider, public CIMMethodProvider
+class PEGASUS_CERTIFICATEPROVIDER_LINKAGE CertificateProvider
+         : public CIMInstanceProvider, public CIMMethodProvider
 {
 public:
 
-	enum TruststoreType
-	{
-		OTHER_TRUSTSTORE, UNKNOWN_TRUSTSTORE, SERVER_TRUSTSTORE, EXPORT_TRUSTSTORE, CLIENT_TRUSTSTORE
-	};
+    enum TruststoreType
+    {
+        OTHER_TRUSTSTORE, UNKNOWN_TRUSTSTORE, SERVER_TRUSTSTORE,
+            EXPORT_TRUSTSTORE, CLIENT_TRUSTSTORE
+    };
 
-    CertificateProvider( CIMRepository* repository, SSLContextManager* sslContextMgr);
+    CertificateProvider( CIMRepository* repository,
+                         SSLContextManager* sslContextMgr);
     virtual ~CertificateProvider(void);
 
     // CIMProvider interface
@@ -135,8 +142,8 @@ public:
         const CIMObjectPath & instanceReference,
         ResponseHandler & handler);
 
-	// CIMMethodProvider interface
-	virtual void invokeMethod(
+    // CIMMethodProvider interface
+    virtual void invokeMethod(
         const OperationContext & context,
         const CIMObjectPath & cimObjectPath,
         const CIMName & methodName,
@@ -148,9 +155,9 @@ private:
     CIMRepository* _repository;
     SSLContextManager* _sslContextMgr;
 
-	Boolean _enableAuthentication;
-	String _sslTrustStore;
-	String _crlStore;
+    Boolean _enableAuthentication;
+    String _sslTrustStore;
+    String _crlStore;
    
     String _getNewCertificateFileName(String trustStore, 
                                       unsigned long hashVal);

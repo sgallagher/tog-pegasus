@@ -28,16 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Yi Zhou (yi_zhou@hp.com)
-//
-// Modified By: Chip Vincent (cvincent@us.ibm.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Seema Gupta (gseema@in.ibm.com) for PEP135
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderRegistrationProvider.h"
@@ -69,14 +59,14 @@ static const CIMName _STOP_PROVIDER     = CIMName ("Stop");
 static const CIMName _START_PROVIDER   = CIMName ("Start");
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
-    ProviderRegistrationManager * providerRegistrationManager)	
+    ProviderRegistrationManager * providerRegistrationManager)  
 {
     _providerRegistrationManager = providerRegistrationManager;
 
     _controller = ModuleController::getModuleController();
 }
 
-ProviderRegistrationProvider::~ProviderRegistrationProvider(void)	
+ProviderRegistrationProvider::~ProviderRegistrationProvider(void)       
 {
 }
 
@@ -92,7 +82,7 @@ void ProviderRegistrationProvider::getInstance(
 
     if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
             instanceReference.getNameSpace().getString());
     }
 
@@ -104,7 +94,7 @@ void ProviderRegistrationProvider::getInstance(
        !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             className.getString());
     }
 
@@ -115,10 +105,10 @@ void ProviderRegistrationProvider::getInstance(
 
     try
     {
-	instance = _providerRegistrationManager->getInstance(instanceReference,
-							     includeQualifiers,
-							     includeClassOrigin,
-							     propertyList);
+        instance = _providerRegistrationManager->getInstance(instanceReference,
+                                                             includeQualifiers,
+                                                             includeClassOrigin,
+                                                             propertyList);
     }
     catch(const CIMException&)
     {
@@ -142,7 +132,7 @@ void ProviderRegistrationProvider::enumerateInstances(
 {
     if(!classReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             classReference.getNameSpace().getString());
     }
 
@@ -154,7 +144,7 @@ void ProviderRegistrationProvider::enumerateInstances(
        !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             className.getString());
     }
 
@@ -166,7 +156,7 @@ void ProviderRegistrationProvider::enumerateInstances(
     try
     {
         enumInstances = 
-	    _providerRegistrationManager->enumerateInstancesForClass(
+            _providerRegistrationManager->enumerateInstancesForClass(
                 classReference, 
                 includeQualifiers,
                 includeClassOrigin, 
@@ -191,7 +181,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
 {
     if(!classReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             classReference.getNameSpace().getString());
     }
 
@@ -203,7 +193,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
        !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             className.getString());
     }
 
@@ -255,17 +245,17 @@ void ProviderRegistrationProvider::modifyInstance(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-    	//l10n
-	//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
-	    //"You must have superuser privilege to modify the registration."); 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,MessageLoaderParms(
-	    		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_MODIFY_REGISTRATION",
-	    		"You must have superuser privilege to modify the registration.")); 	
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,MessageLoaderParms(
+            "ControlProviders.ProviderRegistrationProvider."
+                "ProviderRegistrationProvider."
+                "SUPERUSER_PRIVILEGE_REQUIRED_MODIFY_REGISTRATION",
+            "You must have superuser privilege to modify the"
+                " registration."));      
     }
 
     if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             instanceReference.getNameSpace().getString());
     }
 
@@ -275,7 +265,7 @@ void ProviderRegistrationProvider::modifyInstance(
     if (!instanceReference.getClassName().equal 
         (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             instanceReference.getClassName().getString());
     }
 
@@ -285,24 +275,24 @@ void ProviderRegistrationProvider::modifyInstance(
     //
     if (propertyList.isNull())
     {
-    	//l10n
-	//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-	    //"Only can modify Namespaces, SupportedProperties, and SupportedMethods.");
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
-	    		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.CAN_ONLY_MODIFY_ERR",
-	    		"Only can modify Namespaces, SupportedProperties, and SupportedMethods."));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
+            "ControlProviders.ProviderRegistrationProvider."
+                "ProviderRegistrationProvider."
+            "CAN_ONLY_MODIFY_ERR",
+            "Only can modify Namespaces, SupportedProperties,"
+                "and SupportedMethods."));
     }
 
     Array<CIMName> propertyArray = propertyList.getPropertyNameArray();
     for (Uint32 i=0; i<propertyArray.size(); i++)
     {
-	if (!propertyArray[i].equal (_PROPERTY_NAMESPACES) &&
-	    !propertyArray[i].equal (_PROPERTY_SUPPORTEDPROPERTIES) &&
-	    !propertyArray[i].equal (_PROPERTY_SUPPORTEDMETHODS))
-	{
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        if (!propertyArray[i].equal (_PROPERTY_NAMESPACES) &&
+            !propertyArray[i].equal (_PROPERTY_SUPPORTEDPROPERTIES) &&
+            !propertyArray[i].equal (_PROPERTY_SUPPORTEDMETHODS))
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
                 propertyArray[i].getString());
-	}
+        }
     }
 
     // begin processing the request
@@ -311,9 +301,9 @@ void ProviderRegistrationProvider::modifyInstance(
     try
     {
         _providerRegistrationManager->modifyInstance(instanceReference, 
-						     instanceObject, 
-						     includeQualifiers, 
-	    					     propertyArray);
+                                                     instanceObject, 
+                                                     includeQualifiers, 
+                                                     propertyArray);
     }
     catch(const CIMException&)
     {
@@ -345,12 +335,11 @@ void ProviderRegistrationProvider::createInstance(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-    	//l10n
-	//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
-	    //"You must have superuser privilege to register providers."); 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
-	    			"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_REGISTER_PROVIDERS",
-	    			"You must have superuser privilege to register providers.")); 	
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+            "ControlProviders.ProviderRegistrationProvider."
+                "ProviderRegistrationProvider."
+                "SUPERUSER_PRIVILEGE_REQUIRED_REGISTER_PROVIDERS",
+            "You must have superuser privilege to register providers."));   
     }
 
     CIMName className = instanceReference.getClassName();
@@ -362,7 +351,7 @@ void ProviderRegistrationProvider::createInstance(
 
     if(!nameSpace.equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             nameSpace.getString());
     }
 
@@ -372,7 +361,7 @@ void ProviderRegistrationProvider::createInstance(
        !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             className.getString());
     }
 
@@ -381,53 +370,53 @@ void ProviderRegistrationProvider::createInstance(
     //
     if (className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	//
-	// Name, Version, InterfaceType, InterfaceVersion, and Location
-	// properties must be set
-	// OperationalStatus property needs to be set. If not, set to default
-	//
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULE_NAME) ==
+        //
+        // Name, Version, InterfaceType, InterfaceVersion, and Location
+        // properties must be set
+        // OperationalStatus property needs to be set. If not, set to default
+        //
+        if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULE_NAME) ==
             PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing Name which is required property in PG_ProviderModule class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDERMODULE",
-		"Missing Name which is required property in PG_ProviderModule class."));
-	}
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_NAME_IN_PG_PROVIDERMODULE",
+                "Missing Name which is required property in PG_ProviderModule"
+                    " class."));
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_VENDOR) == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing Vendor which is required property in PG_ProviderModule class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VENDOR_IN_PG_PROVIDERMODULE",
-		"Missing Vendor which is required property in PG_ProviderModule class."));
-	}
+        if (instanceObject.findProperty(_PROPERTY_VENDOR) == PEG_NOT_FOUND)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_VENDOR_IN_PG_PROVIDERMODULE",
+                "Missing Vendor which is required property in"
+                    " PG_ProviderModule class."));
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_VERSION) == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing Version which is required property in PG_ProviderModule class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VERSION_IN_PG_PROVIDERMODULE",
-		"Missing Version which is required property in PG_ProviderModule class."));
-	}
+        if (instanceObject.findProperty(_PROPERTY_VERSION) == PEG_NOT_FOUND)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_VERSION_IN_PG_PROVIDERMODULE",
+                "Missing Version which is required property in"
+                    " PG_ProviderModule class."));
+        }
 
         Uint32 ifcTypeIndex =
             instanceObject.findProperty(_PROPERTY_INTERFACETYPE);
-	if (ifcTypeIndex == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing InterfaceType which is required property in PG_ProviderModule class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE",
-		"Missing InterfaceType which is required property in PG_ProviderModule class."));
-	}
+        if (ifcTypeIndex == PEG_NOT_FOUND)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE",
+                "Missing InterfaceType which is required property in"
+                    " PG_ProviderModule class."));
+        }
         String ifcTypeString;
         instanceObject.getProperty(ifcTypeIndex).getValue().
             get(ifcTypeString);
@@ -440,27 +429,27 @@ void ProviderRegistrationProvider::createInstance(
             && (ifcTypeString != "JMPI")
             && (ifcTypeString != "JMPIExperimental")
 #endif
-	        )
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-		//"Unsupported InterfaceType value: \"" + ifcTypeString + "\"");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACETYPE_VALUE",
-		"Unsupported InterfaceType value: \"$0\"",ifcTypeString));
-	}
+                )
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "UNSUPPORTED_INTERFACETYPE_VALUE",
+                "Unsupported InterfaceType value: \"$0\"",ifcTypeString));
+        }
 
         Uint32 ifcVersionIndex =
             instanceObject.findProperty(_PROPERTY_INTERFACEVERSION);
-	if (ifcVersionIndex == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing InterfaceVersion which is required property in PG_ProviderModule class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE",
-		"Missing InterfaceVersion which is required property in PG_ProviderModule class."));
-	}
+        if (ifcVersionIndex == PEG_NOT_FOUND)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE",
+                "Missing InterfaceVersion which is required property "
+                    "in PG_ProviderModule class."));
+        }
         String ifcVersionString;
         instanceObject.getProperty(ifcVersionIndex).getValue().
             get(ifcVersionString);
@@ -483,35 +472,33 @@ void ProviderRegistrationProvider::createInstance(
             ifcVersionString != "2.3.0" &&
             ifcVersionString != "2.5.0" &&
             ifcVersionString != "2.6.0"))
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-		//"Unsupported InterfaceVersion value: \"" + ifcVersionString +
-                   // "\"");
+        {
         String unsupported = "InterfaceVersion";
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACEVERSION_VALUE",
-		"Unsupported InterfaceVersion value: \"$0\"",ifcVersionString));
-	}
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "UNSUPPORTED_INTERFACEVERSION_VALUE",
+                "Unsupported InterfaceVersion value: \"$0\"",ifcVersionString));
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_LOCATION) == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing Location which is required property in PG_ProviderModule class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_LOCATION_IN_PG_PROVIDERMODULE",
-		"Missing Location which is required property in PG_ProviderModule class."));
-	}
+        if (instanceObject.findProperty(_PROPERTY_LOCATION) == PEG_NOT_FOUND)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_LOCATION_IN_PG_PROVIDERMODULE",
+                "Missing Location which is required property in"
+                    " PG_ProviderModule class."));
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_OPERATIONALSTATUS) == 
+        if (instanceObject.findProperty(_PROPERTY_OPERATIONALSTATUS) == 
             PEG_NOT_FOUND)
-	{
-	    Array<Uint16> _operationalStatus;
-	    _operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
-	    instance.addProperty (CIMProperty
-		(_PROPERTY_OPERATIONALSTATUS, _operationalStatus));
-	}
+        {
+            Array<Uint16> _operationalStatus;
+            _operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
+            instance.addProperty (CIMProperty
+                (_PROPERTY_OPERATIONALSTATUS, _operationalStatus));
+        }
 
         //
         // Validate the UserContext property
@@ -592,54 +579,53 @@ void ProviderRegistrationProvider::createInstance(
     }
     else if (className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
-	//
-	// ProviderModuleName, ProviderName, InstanceID, ClassName,
- 	// Namespaces, and ProviderType properties must be set
-	//
+        //
+        // ProviderModuleName, ProviderName, InstanceID, ClassName,
+        // Namespaces, and ProviderType properties must be set
+        //
 
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
+        if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
             PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ProviderModuleName which is required property in PG_ProviderCapabilities class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES",
-		"Missing ProviderModuleName which is required property in PG_ProviderCapabilities class."));
-	}
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES",
+                "Missing ProviderModuleName which is required property in"
+                    " PG_ProviderCapabilities class."));
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
+        if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
             PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ProviderName which is required property in PG_ProviderCapabilities class.");
-		String missing = "ProviderName";
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_REQUIRED_PROPERTY",
-		"Missing ProviderName which is required property in PG_ProviderCapabilities class."));
-	}
+        {
+            String missing = "ProviderName";
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider.MISSING_REQUIRED_PROPERTY",
+                "Missing ProviderName which is required property in"
+                    " PG_ProviderCapabilities class."));
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
+        if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
             PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing CapabilityID which is required property in PG_ProviderCapabilities class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSINGCAPABILITYID_IN_PG_PROVIDERCAPABILITIES",
-		"Missing CapabilityID which is required property in PG_ProviderCapabilities class."));
-	}
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSINGCAPABILITYID_IN_PG_PROVIDERCAPABILITIES",
+                "Missing CapabilityID which is required property in"
+                    " PG_ProviderCapabilities class."));
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_CLASSNAME) == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ClassName which is required property in PG_ProviderCapabilities class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES",
-		"Missing ClassName which is required property in PG_ProviderCapabilities class."));
-	}
+        if (instanceObject.findProperty(_PROPERTY_CLASSNAME) == PEG_NOT_FOUND)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES",
+                "Missing ClassName which is required property in"
+                    " PG_ProviderCapabilities class."));
+        }
 
         // Validate the Namespaces property
 
@@ -657,14 +643,14 @@ void ProviderRegistrationProvider::createInstance(
         }
 
         if (namespacesArray.size() == 0)
-	{
+        {
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
                 "ControlProviders.ProviderRegistrationProvider."
                     "ProviderRegistrationProvider."
                     "MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES",
                 "Missing Namespaces which is required property in "
                     "PG_ProviderCapabilities class."));
-	}
+        }
 
         // Validate the ProviderType property
 
@@ -715,113 +701,115 @@ void ProviderRegistrationProvider::createInstance(
     }
     else if (className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES))
     {
-	//
-	// ProviderModuleName, ProviderName, CapabilityID, ProviderType,
- 	// and Destinations properties must be set
-	//
+        //
+        // ProviderModuleName, ProviderName, CapabilityID, ProviderType,
+        // and Destinations properties must be set
+        //
 
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
+        if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
             PEG_NOT_FOUND)
-	{
-//L10N_ TODO DONE
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ProviderModuleName which is required property in PG_ConsumerCapabilities class.");
-	    MessageLoaderParms parms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_MODULE_NAME_WHICH_IS_REQUIRED",
-		"Missing ProviderModuleName which is required property in PG_ConsumerCapabilities class.");
+        {
+            MessageLoaderParms parms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_PROVIDER_MODULE_NAME_WHICH_IS_REQUIRED",
+                "Missing ProviderModuleName which is required property in"
+                    " PG_ConsumerCapabilities class.");
 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-	}
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
+        if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
             PEG_NOT_FOUND)
-	{
-//L10N_ TODO DONE
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ProviderName which is required property in PG_ConsumerCapabilities class.");
+        {
 
-	    MessageLoaderParms parms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_NAME_WHICH_IS_REQUIRED",
-		"Missing ProviderName which is required property in PG_ConsumerCapabilities class.");
+            MessageLoaderParms parms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_PROVIDER_NAME_WHICH_IS_REQUIRED",
+                "Missing ProviderName which is required property in"
+                    " PG_ConsumerCapabilities class.");
 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-	}
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
+        if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
             PEG_NOT_FOUND)
-	{
-//L10N_ TODO DONE
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing CapabilityID which is required property in PG_ConsumerCapabilities class.");
+        {
 
-	    MessageLoaderParms parms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CAPABILITY_ID_WHICH_IS_REQUIRED",
-		"Missing CapabilityID which is required property in PG_ConsumerCapabilities class.");
+            MessageLoaderParms parms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_CAPABILITY_ID_WHICH_IS_REQUIRED",
+                "Missing CapabilityID which is required property in"
+                    " PG_ConsumerCapabilities class.");
 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-	}
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERTYPE) == PEG_NOT_FOUND)
-	{
-//L10N_ TODO DONE
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ProviderType which is required property in PG_ConsumerCapabilities class.");
+        if (instanceObject.findProperty
+            (_PROPERTY_PROVIDERTYPE) == PEG_NOT_FOUND)
+        {
 
-	    MessageLoaderParms parms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_TYPE_WHICH_IS_REQUIRED",
-		"Missing ProviderType which is required property in PG_ConsumerCapabilities class.");
+            MessageLoaderParms parms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_PROVIDER_TYPE_WHICH_IS_REQUIRED",
+                "Missing ProviderType which is required property in"
+                    " PG_ConsumerCapabilities class.");
 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-	}
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+        }
 
-	if (instanceObject.findProperty(_PROPERTY_INDICATIONDESTINATIONS) == 
-	    PEG_NOT_FOUND)
-	{
-//L10N_ TODO DONE
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing Destinations which is required property in PG_ConsumerCapabilities class.");
+        if (instanceObject.findProperty(_PROPERTY_INDICATIONDESTINATIONS) == 
+            PEG_NOT_FOUND)
+        {
 
-	    MessageLoaderParms parms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_DESTINATIONS_TYPE_WHICH_IS_REQUIRED",
-		"Missing Destinations which is required property in PG_ConsumerCapabilities class.");
+            MessageLoaderParms parms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_DESTINATIONS_TYPE_WHICH_IS_REQUIRED",
+                "Missing Destinations which is required property in"
+                    " PG_ConsumerCapabilities class.");
 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-	}
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+        }
     }
     else // PEGASUS_CLASSNAME_PROVIDER
     {
-	//
-	// Name and ProviderModuleName properties must be set
-	//
-	if (instanceObject.findProperty(_PROPERTY_PROVIDER_NAME) == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing Name which is required property in PG_Provider class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_REQUIRED_PROPERTY",
-		"Missing Name which is required property in PG_Provider class."));
-	}
-	
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) == 
+        //
+        // Name and ProviderModuleName properties must be set
+        //
+        if (instanceObject.findProperty
+                (_PROPERTY_PROVIDER_NAME) == PEG_NOT_FOUND)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider.MISSING_REQUIRED_PROPERTY",
+                "Missing Name which is required property in"
+                    " PG_Provider class."));
+        }
+        
+        if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) == 
             PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ProviderModuleName which is required property in PG_Provider class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER",
-		"Missing ProviderModuleName which is required property in PG_Provider class."));
-	}
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER",
+                "Missing ProviderModuleName which is required property in"
+                    " PG_Provider class."));
+        }
     }
 
     // begin processing the request
     handler.processing();
-	
+        
     try
     {
         returnReference =
-            _providerRegistrationManager->createInstance(instanceReference, instance);
+            _providerRegistrationManager->createInstance(instanceReference,
+                    instance);
     }
     catch(const CIMException&)
     {
@@ -854,28 +842,26 @@ void ProviderRegistrationProvider::deleteInstance(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-    	//l10n
-	//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
-	    //"You must have superuser privilege to unregister providers.");
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS",
-	    "You must have superuser privilege to unregister providers.")); 	
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,MessageLoaderParms(
+            "ControlProviders.ProviderRegistrationProvider."
+                "ProviderRegistrationProvider."
+                "SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS",
+            "You must have superuser privilege to unregister providers."));     
     }
 
     if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             instanceReference.getNameSpace().getString());
     }
 
 
-// l10n
-    // Get the client's list of preferred languages for the response
     AcceptLanguageList al;
     try 
     {
         AcceptLanguageListContainer al_container = 
-		(AcceptLanguageListContainer)context.get(AcceptLanguageListContainer::NAME);
+                (AcceptLanguageListContainer)context.get
+                (AcceptLanguageListContainer::NAME);
         al = al_container.getLanguages();
     }
     catch (...)
@@ -891,7 +877,7 @@ void ProviderRegistrationProvider::deleteInstance(
        !className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) &&
        !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             className.getString());
     }
 
@@ -908,65 +894,66 @@ void ProviderRegistrationProvider::deleteInstance(
     //
     if (className.equal (PEGASUS_CLASSNAME_PROVIDER))
     {
-    	// get module name from reference
+        // get module name from reference
 
-    	for(Uint32 i=0; i<keys.size() ; i++)
-    	{
-	    if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULENAME))
-	    {
-	        moduleName = keys[i].getValue();
-	        moduleFound = true;
-	    }
-	}
+        for(Uint32 i=0; i<keys.size() ; i++)
+        {
+            if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+            {
+                moduleName = keys[i].getValue();
+                moduleFound = true;
+            }
+        }
 
-    	// if _PROPERTY_PROVIDERMODULENAME key not found
-    	if( !moduleFound)
-    	{
-    		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-		//"key ProviderModuleName was not found");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.PROVIDERMODULENAME_KEY_NOT_FOUND",
-		"key ProviderModuleName was not found"));
-    	}
+        // if _PROPERTY_PROVIDERMODULENAME key not found
+        if( !moduleFound)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                    MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "PROVIDERMODULENAME_KEY_NOT_FOUND",
+                "key ProviderModuleName was not found"));
+        }
 
-	// 
-	// disable the provider 
-	//
-	try
-	{
-	     Sint16 ret_value = _disableModule(instanceReference, moduleName, true, al);
+        // 
+        // disable the provider 
+        //
+        try
+        {
+             Sint16 ret_value = _disableModule(instanceReference,
+                     moduleName, true, al);
 
              //
              // if the provider disable failed
              //
-// l10n
+             // l10n
              if (ret_value == -1)
              {
-             	//l10n
-                 //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                     //"disable the provider failed.");
-                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-					"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED",
+                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                         MessageLoaderParms(
+                     "ControlProviders.ProviderRegistrationProvider."
+                         "ProviderRegistrationProvider."
+                         "DISABLE_PROVIDER_FAILED",
                     "disable the provider failed."));
              }
-	     //
+             //
              // The provider disable failed since there are pending requests
              //
              if (ret_value == -2)
              {
-//L10N TODO
-                // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                     //"disable the provider failed: Provider is busy.");
-                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-					"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED_PROVIDER_BUSY",
+                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "DISABLE_PROVIDER_FAILED_PROVIDER_BUSY",
                     "disable the provider failed: Provider is busy."));
              }
-	}
-    	catch(CIMException&)
-    	{
-	    throw;
-    	}
+        }
+        catch(CIMException&)
+        {
+            throw;
+        }
     }
 
     //
@@ -976,60 +963,59 @@ void ProviderRegistrationProvider::deleteInstance(
 
     if (className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-    	// get module name from reference
+        // get module name from reference
 
-    	for(Uint32 i=0; i<keys.size() ; i++)
-    	{
-	    if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
-	    {
-	        moduleName = keys[i].getValue();
-	        moduleFound = true;
-	    }
-	}
+        for(Uint32 i=0; i<keys.size() ; i++)
+        {
+            if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
+            {
+                moduleName = keys[i].getValue();
+                moduleFound = true;
+            }
+        }
 
-    	// if _PROPERTY_PROVIDERMODULE_NAME key not found
-    	if( !moduleFound)
-    	{
-    		//l10n 485
-	//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-		//"key Name was not found");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.NAME_KEY_NOT_FOUND",
-		"key Name was not found"));
-    	}
+        // if _PROPERTY_PROVIDERMODULE_NAME key not found
+        if( !moduleFound)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                "ProviderRegistrationProvider.NAME_KEY_NOT_FOUND",
+                "key Name was not found"));
+        }
 
-	// 
-	// disable the provider module
-	//
-	try
-	{
-	    Sint16 ret_value = _disableModule(instanceReference, moduleName, false, al);
+        // 
+        // disable the provider module
+        //
+        try
+        {
+            Sint16 ret_value = _disableModule(instanceReference,
+                    moduleName, false, al);
 
             //
             // if the provider module disable failed
             //
-// l10n
+            // l10n
             if (ret_value == -1)
             {
-            	//l10n
-                 //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                     //"disable the provider module failed.");
-                     throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-						"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED",
-                     	"disable the provider module failed."));
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "DISABLE_PROVIDER_MODULE_FAILED",
+                    "disable the provider module failed."));
             }
-	    
-	    //
-            // The provider module disable failed since there are pending requests
+            
+            //
+            // The provider module disable failed since there are 
+            // pending requests
             //
             if (ret_value == -2)
             {
-//L10N TODO
-                 //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                    // "disable the provider module failed: Provider is busy.");
-                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-						"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY",
-                     	"disable the provider module failed: Provider is busy."));
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY",
+                    "disable the provider module failed: Provider is busy."));
             }
         }
         catch(const CIMException&)
@@ -1073,28 +1059,30 @@ void ProviderRegistrationProvider::invokeMethod(
 
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
-    	//l10n
-	//throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
-	    //"You must have superuser privilege to disable or enable providers."); 
-	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_DISABLE_ENABLE_PROVIDERS",
-	    "You must have superuser privilege to disable or enable providers.")); 	
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+            MessageLoaderParms(
+            "ControlProviders.ProviderRegistrationProvider."
+                "ProviderRegistrationProvider."
+                "SUPERUSER_PRIVILEGE_REQUIRED_DISABLE_ENABLE_PROVIDERS",
+            "You must have superuser privilege to disable or enable"
+                " providers."));      
     }
 
     if(!objectReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
             objectReference.getNameSpace().getString());
     }
 
 
-// l10n
+    // l10n
     // Get the client's list of preferred languages for the response
     AcceptLanguageList al;
     try 
     {
         AcceptLanguageListContainer al_container = 
-		(AcceptLanguageListContainer)context.get(AcceptLanguageListContainer::NAME);
+                (AcceptLanguageListContainer)context.get
+                (AcceptLanguageListContainer::NAME);
         al = al_container.getLanguages();
     }
     catch (...)
@@ -1110,20 +1098,20 @@ void ProviderRegistrationProvider::invokeMethod(
 
     for(Uint32 i=0; i<keys.size() ; i++)
     {
-	if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
-	{
-	    moduleName = keys[i].getValue();
-	    moduleFound = true;
-	}
+        if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
+        {
+            moduleName = keys[i].getValue();
+            moduleFound = true;
+        }
     }
 
     // if _PROPERTY_PROVIDERMODULE_NAME key not found
     if( !moduleFound)
     {
-    	//l10n 485
-	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.NAME_KEY_NOT_FOUND",
-		"key Name was not found"));
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider.NAME_KEY_NOT_FOUND",
+                "key Name was not found"));
     }
 
     handler.processing();
@@ -1133,18 +1121,20 @@ void ProviderRegistrationProvider::invokeMethod(
     try
     {
         if(methodName.equal(_STOP_PROVIDER))
-    	{
-	    // disable module
-    	     ret_value =  _disableModule(objectReference, moduleName, false, al);
-	}
-    	else if(methodName.equal(_START_PROVIDER))
-    	{
-	    // enable module
-    	     ret_value =  _enableModule(objectReference, moduleName, al);
-	}
+        {
+            // disable module
+             ret_value =  _disableModule(objectReference, 
+                                         moduleName, false, al);
+        }
+        else if(methodName.equal(_START_PROVIDER))
+        {
+            // enable module
+             ret_value =  _enableModule(objectReference, moduleName, al);
+        }
         else
         {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
+                    String::EMPTY);
         }
     }
     catch(const CIMException&)
@@ -1160,13 +1150,15 @@ void ProviderRegistrationProvider::invokeMethod(
 // get provider manager service
 MessageQueueService * ProviderRegistrationProvider::_getProviderManagerService()
 {
-    MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+    MessageQueue * queue = 
+        MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
     MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
 
     return(_service);
 }
 
-ProviderRegistrationProvider & ProviderRegistrationProvider::operator=(const ProviderRegistrationProvider & handle)
+ProviderRegistrationProvider & ProviderRegistrationProvider::operator=
+    (const ProviderRegistrationProvider & handle)
 {
     if(this == &handle)
     {
@@ -1176,7 +1168,8 @@ ProviderRegistrationProvider & ProviderRegistrationProvider::operator=(const Pro
     return(*this);
 }
 
-Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager(
+Array<Uint16>
+    ProviderRegistrationProvider::_sendDisableMessageToProviderManager(
         CIMDisableModuleRequestMessage * disable_req)
 {
     MessageQueueService * _service = _getProviderManagerService();
@@ -1193,8 +1186,9 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
     AsyncReply * asyncReply =
         _controller->ClientSendWait(_queueId, asyncRequest);
     CIMDisableModuleResponseMessage * response =
-	reinterpret_cast<CIMDisableModuleResponseMessage *>(
-             (dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+        reinterpret_cast<CIMDisableModuleResponseMessage *>(
+             (dynamic_cast<AsyncLegacyOperationResult
+                  *>(asyncReply))->get_result());
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
         CIMException e = response->cimException;
@@ -1230,15 +1224,16 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
     AsyncReply * asyncReply =
         _controller->ClientSendWait(_queueId, asyncRequest);
     CIMEnableModuleResponseMessage * response =
-	reinterpret_cast<CIMEnableModuleResponseMessage *>(
-             (dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+        reinterpret_cast<CIMEnableModuleResponseMessage *>(
+             (dynamic_cast<AsyncLegacyOperationResult
+                  *>(asyncReply))->get_result());
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
-	CIMException e = response->cimException;
+        CIMException e = response->cimException;
         delete asyncRequest;
         delete asyncReply;
         delete response;
-	throw (e);
+        throw (e);
     }
 
     Array<Uint16> operationalStatus = response->operationalStatus;
@@ -1263,16 +1258,16 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
     if (!disableProviderOnly)
     {
         CIMObjectPath reference("", PEGASUS_NAMESPACENAME_INTEROP,
-	    PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
+            PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
 
         Array<CIMObjectPath> instanceNames =
-	    _providerRegistrationManager->enumerateInstanceNamesForClass(
+            _providerRegistrationManager->enumerateInstanceNamesForClass(
                 reference);
 
         // find all the instances which have same module name as moduleName
         for (Uint32 i = 0, n=instanceNames.size(); i < n; i++)
         {
-	    //
+            //
             // get provider module name from reference
             //
 
@@ -1286,31 +1281,31 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
                 }
             }
 
-	    if (String::equalNoCase(moduleName, _moduleName))
-	    {
-	        reference.setKeyBindings(keys);
-	        instance = _providerRegistrationManager->getInstance(reference);
-		//
-		// if the provider is indication provider
-		//
-		if (_isIndicationProvider(moduleName, instance))
-		{
-	            instances.append(instance);
-		}
-	    }
+            if (String::equalNoCase(moduleName, _moduleName))
+            {
+                reference.setKeyBindings(keys);
+                instance = _providerRegistrationManager->getInstance(reference);
+                //
+                // if the provider is indication provider
+                //
+                if (_isIndicationProvider(moduleName, instance))
+                {
+                    instances.append(instance);
+                }
+            }
         }
     }
     else
     {
-	instance = _providerRegistrationManager->getInstance(ref);
+        instance = _providerRegistrationManager->getInstance(ref);
 
-	//
-	// if the provider is indication provider
-	//
-	if (_isIndicationProvider(moduleName, instance))
-	{
-	    instances.append(instance);
-	}
+        //
+        // if the provider is indication provider
+        //
+        if (_isIndicationProvider(moduleName, instance))
+        {
+            instances.append(instance);
+        }
     }
 
     //
@@ -1323,12 +1318,12 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
         Uint32 _queueId = _service->getQueueId();
 
         CIMNotifyProviderTerminationRequestMessage * termination_req =
-	    new CIMNotifyProviderTerminationRequestMessage(
-	        XmlWriter::getNextMessageId (),
-	        instances,
-	        QueueIdStack(_service->getQueueId()));
+            new CIMNotifyProviderTerminationRequestMessage(
+                XmlWriter::getNextMessageId (),
+                instances,
+                QueueIdStack(_service->getQueueId()));
 
-// l10n
+        // l10n
         termination_req->operationContext.set(AcceptLanguageListContainer(al));
 
         // create request envelope
@@ -1358,10 +1353,10 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 MessageQueueService * ProviderRegistrationProvider::_getIndicationService()
 {
     MessageQueue * queue = MessageQueue::lookup(
-	PEGASUS_QUEUENAME_INDICATIONSERVICE);
+        PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
     MessageQueueService * _service =
-	dynamic_cast<MessageQueueService *>(queue);
+        dynamic_cast<MessageQueueService *>(queue);
     return(_service);
 }
 
@@ -1374,71 +1369,71 @@ Sint16 ProviderRegistrationProvider::_disableModule(
     Boolean disableProviderOnly,
     const AcceptLanguageList & al)
 {
-    	//
-    	// get module status
-    	//
-    	Array<Uint16> _OperationalStatus =
-	    _providerRegistrationManager->getProviderModuleStatus( moduleName);
+        //
+        // get module status
+        //
+        Array<Uint16> _OperationalStatus =
+            _providerRegistrationManager->getProviderModuleStatus( moduleName);
 
-	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
-	{
-	    // retValue equals 1 if module is already disabled
-	    if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED ||
-		_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING)
-	    {
-		return (1);
-	    }
-	}
+        for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
+        {
+            // retValue equals 1 if module is already disabled
+            if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED ||
+                _OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING)
+            {
+                return (1);
+            }
+        }
 
-	CIMInstance instance;
-	Array<CIMInstance> instances;
+        CIMInstance instance;
+        Array<CIMInstance> instances;
         CIMInstance mInstance;
-	String _moduleName;
-	CIMObjectPath providerRef;
-	Boolean indProvider = false;
+        String _moduleName;
+        CIMObjectPath providerRef;
+        Boolean indProvider = false;
         Array<Boolean> indicationProviders;
 
-	// disable a provider module or delete a provider module
-	if (!disableProviderOnly)
-	{
-	    providerRef = CIMObjectPath(objectReference.getHost(),
-				 objectReference.getNameSpace(),
-				 PEGASUS_CLASSNAME_PROVIDER,
-				 objectReference.getKeyBindings());
+        // disable a provider module or delete a provider module
+        if (!disableProviderOnly)
+        {
+            providerRef = CIMObjectPath(objectReference.getHost(),
+                                 objectReference.getNameSpace(),
+                                 PEGASUS_CLASSNAME_PROVIDER,
+                                 objectReference.getKeyBindings());
 
             // get module instance
             mInstance = 
-	        _providerRegistrationManager->getInstance(objectReference);
+                _providerRegistrationManager->getInstance(objectReference);
 
-	}
-	else // disable a provider
-	{
+        }
+        else // disable a provider
+        {
             // get module instance
-	    Array <CIMKeyBinding> moduleKeyBindings;
-	    moduleKeyBindings.append (CIMKeyBinding
-		(_PROPERTY_PROVIDERMODULE_NAME, moduleName, 
-		 CIMKeyBinding::STRING)); 
+            Array <CIMKeyBinding> moduleKeyBindings;
+            moduleKeyBindings.append (CIMKeyBinding
+                (_PROPERTY_PROVIDERMODULE_NAME, moduleName, 
+                 CIMKeyBinding::STRING)); 
 
-	    CIMObjectPath moduleRef(objectReference.getHost(),
-				    objectReference.getNameSpace(),
-				    PEGASUS_CLASSNAME_PROVIDERMODULE,
-				    moduleKeyBindings);
-				    
+            CIMObjectPath moduleRef(objectReference.getHost(),
+                                    objectReference.getNameSpace(),
+                                    PEGASUS_CLASSNAME_PROVIDERMODULE,
+                                    moduleKeyBindings);
+                                    
             mInstance = 
-	        _providerRegistrationManager->getInstance(moduleRef);
-	}
+                _providerRegistrationManager->getInstance(moduleRef);
+        }
 
         if (!disableProviderOnly)
         {
-	    // get all provider instances which have same module name as 
-	    // moduleName
- 	    Array<CIMObjectPath> instanceNames = 
-	        _providerRegistrationManager->enumerateInstanceNamesForClass(
+            // get all provider instances which have same module name as 
+            // moduleName
+            Array<CIMObjectPath> instanceNames = 
+                _providerRegistrationManager->enumerateInstanceNamesForClass(
                     providerRef);
 
-	    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
-	    {
-	        //
+            for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+            {
+                //
                 // get provider module name from reference
                 //
 
@@ -1452,12 +1447,12 @@ Sint16 ProviderRegistrationProvider::_disableModule(
                     }
                 }
 
-	        if (String::equalNoCase(_moduleName, moduleName))
-	        {
-		    providerRef.setKeyBindings(keys);
-		    instance = _providerRegistrationManager->getInstance
-			(providerRef);
-		    if (_isIndicationProvider(moduleName, instance))
+                if (String::equalNoCase(_moduleName, moduleName))
+                {
+                    providerRef.setKeyBindings(keys);
+                    instance = _providerRegistrationManager->getInstance
+                        (providerRef);
+                    if (_isIndicationProvider(moduleName, instance))
                     {
                         indProvider = true;
                         indicationProviders.append(true);
@@ -1466,14 +1461,15 @@ Sint16 ProviderRegistrationProvider::_disableModule(
                     {
                         indicationProviders.append(false);
                     }
-		    instances.append(instance);
-	        }
+                    instances.append(instance);
+                }
 
-	    }
+            }
         }
         else
         {
-	    instance = _providerRegistrationManager->getInstance(objectReference);
+            instance = 
+                _providerRegistrationManager->getInstance(objectReference);
             if (_isIndicationProvider(moduleName, instance))
             {
                 indProvider = true;
@@ -1492,60 +1488,61 @@ Sint16 ProviderRegistrationProvider::_disableModule(
         //
         MessageQueueService * _service = _getProviderManagerService();
 
-	if (_service != NULL)
-	{
-	    // create CIMDisableModuleRequestMessage
-	    CIMDisableModuleRequestMessage * disable_req =
-	        new CIMDisableModuleRequestMessage(
-		    XmlWriter::getNextMessageId (),
-		    mInstance,
-		    instances,
-		    disableProviderOnly,
-		    indicationProviders,
-		    QueueIdStack(_service->getQueueId()));
-// l10n
-		disable_req->operationContext.set(AcceptLanguageListContainer(al));;
+        if (_service != NULL)
+        {
+            // create CIMDisableModuleRequestMessage
+            CIMDisableModuleRequestMessage * disable_req =
+                new CIMDisableModuleRequestMessage(
+                    XmlWriter::getNextMessageId (),
+                    mInstance,
+                    instances,
+                    disableProviderOnly,
+                    indicationProviders,
+                    QueueIdStack(_service->getQueueId()));
+                // l10n
+                disable_req->operationContext.set
+                    (AcceptLanguageListContainer(al));;
 
-  	    Array<Uint16> _opStatus =
-	        _sendDisableMessageToProviderManager(disable_req);
+            Array<Uint16> _opStatus =
+                _sendDisableMessageToProviderManager(disable_req);
 
-	    if (!disableProviderOnly) // disable provider module
-	    {
-	        for (Uint32 i = 0; i<_opStatus.size(); i++)
-	        {
-		    // module was disabled successfully
-	            if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED)
-	            {
-			if (indProvider)
-			{
-	 	            // send termination message to subscription service
-		            _sendTerminationMessageToSubscription(objectReference,
-				  moduleName, false, al);
-			}
-		        return (0);
-	            }
+            if (!disableProviderOnly) // disable provider module
+            {
+                for (Uint32 i = 0; i<_opStatus.size(); i++)
+                {
+                    // module was disabled successfully
+                    if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED)
+                    {
+                        if (indProvider)
+                        {
+                            // send termination message to subscription service
+                            _sendTerminationMessageToSubscription(
+                                objectReference, moduleName, false, al);
+                        }
+                        return (0);
+                    }
 
-		    // module is not disabled since there are pending
+                    // module is not disabled since there are pending
                     // requests for the providers in the module
                     if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
                     {
                         return (-2);
                     }
-	        }
-	    }
-	    else // disable provider
-	    {
-		if (indProvider)
-		{
-	            _sendTerminationMessageToSubscription(objectReference,
-			moduleName, true, al);
-		}
-	        return (0);
-	    }
-  	}
+                }
+            }
+            else // disable provider
+            {
+                if (indProvider)
+                {
+                    _sendTerminationMessageToSubscription(objectReference,
+                        moduleName, true, al);
+                }
+                return (0);
+            }
+        }
 
         // disable failed
-	return (-1);
+        return (-1);
 }
 
 // enable provider module 
@@ -1558,104 +1555,104 @@ Sint16 ProviderRegistrationProvider::_enableModule(
     const String & moduleName,
     const AcceptLanguageList & al)
 {
-    	//
-    	// get module status
-    	//
-    	Array<Uint16> _OperationalStatus =
-	    _providerRegistrationManager->getProviderModuleStatus( moduleName);
+        //
+        // get module status
+        //
+        Array<Uint16> _OperationalStatus =
+            _providerRegistrationManager->getProviderModuleStatus( moduleName);
 
-	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
-	{
-	    // retValue equals 1 if module is already enabled
-	    if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
-	    {
-		return (1);
-	    }
+        for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
+        {
+            // retValue equals 1 if module is already enabled
+            if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
+            {
+                return (1);
+            }
 
-	    // retValue equals 2 if module is stopping
-	    // at this stage, module can not be started
-	    if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING)
-	    {
+            // retValue equals 2 if module is stopping
+            // at this stage, module can not be started
+            if (_OperationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING)
+            {
                 return (2);
-	    }
-	}
+            }
+        }
 
         // get module instance
         CIMInstance mInstance = 
-	    _providerRegistrationManager->getInstance(moduleRef);
+            _providerRegistrationManager->getInstance(moduleRef);
 
-	//
+        //
         // get provider manager service
         //
         MessageQueueService * _service = _getProviderManagerService();
-	Boolean enabled = false;
+        Boolean enabled = false;
 
         if (_service != NULL)
-	{
-	    // create CIMEnableModuleRequestMessage
-	    CIMEnableModuleRequestMessage * enable_req =
-	        new CIMEnableModuleRequestMessage(
-		    XmlWriter::getNextMessageId (),
-		    mInstance,
-		    QueueIdStack(_service->getQueueId()));
-// l10n
-        enable_req->operationContext.set(AcceptLanguageListContainer(al));;    
-		
-  	    Array<Uint16> _opStatus;
+        {
+            // create CIMEnableModuleRequestMessage
+            CIMEnableModuleRequestMessage * enable_req =
+                new CIMEnableModuleRequestMessage(
+                    XmlWriter::getNextMessageId (),
+                    mInstance,
+                    QueueIdStack(_service->getQueueId()));
+
+            enable_req->operationContext.set(AcceptLanguageListContainer(al));;    
+                
+            Array<Uint16> _opStatus;
             _opStatus = _sendEnableMessageToProviderManager(enable_req);
 
-	    for (Uint32 i = 0; i<_opStatus.size(); i++)
-	    {
-		// module is enabled successfully
-	        if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
-	        {
-		    enabled = true;
-	        }
-	    }
-	}
+            for (Uint32 i = 0; i<_opStatus.size(); i++)
+            {
+                // module is enabled successfully
+                if (_opStatus[i] == CIM_MSE_OPSTATUS_VALUE_OK)
+                {
+                    enabled = true;
+                }
+            }
+        }
 
-	if (enabled)
-	{
-	    //
-	    // Since module is enabled, need get updated module instance
-	    //
-            CIMInstance updatedModuleInstance = 
-	        _providerRegistrationManager->getInstance(moduleRef);
-
-	    // module is enabled, initialize providers as necessary
-	    _providerRegistrationManager->initializeProviders(
-		updatedModuleInstance);
-
-	    //
-	    // The module is enabled, need to send enable message to 
-	    // subscription service if the provider is an indication provider
-	    //
-
-	    CIMObjectPath providerRef = CIMObjectPath(String::EMPTY,
-				    moduleRef.getNameSpace(),
-				    PEGASUS_CLASSNAME_PROVIDER,
-				    Array<CIMKeyBinding>());
-
-	    //
-	    // get all provider instances which have same module name as
-	    // moduleName
+        if (enabled)
+        {
             //
-	    Array<CIMObjectPath> instanceNames =
-	        _providerRegistrationManager->enumerateInstanceNamesForClass(
-                    providerRef);
-	    CIMInstance pInstance;
-	    String _moduleName;
-	    String _providerName;
-	    Array<CIMInstance> capInstances;
+            // Since module is enabled, need get updated module instance
+            //
+            CIMInstance updatedModuleInstance = 
+                _providerRegistrationManager->getInstance(moduleRef);
 
-	    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
-	    {
+            // module is enabled, initialize providers as necessary
+            _providerRegistrationManager->initializeProviders(
+                updatedModuleInstance);
+
+            //
+            // The module is enabled, need to send enable message to 
+            // subscription service if the provider is an indication provider
+            //
+
+            CIMObjectPath providerRef = CIMObjectPath(String::EMPTY,
+                                    moduleRef.getNameSpace(),
+                                    PEGASUS_CLASSNAME_PROVIDER,
+                                    Array<CIMKeyBinding>());
+
+            //
+            // get all provider instances which have same module name as
+            // moduleName
+            //
+            Array<CIMObjectPath> instanceNames =
+                _providerRegistrationManager->enumerateInstanceNamesForClass(
+                    providerRef);
+            CIMInstance pInstance;
+            String _moduleName;
+            String _providerName;
+            Array<CIMInstance> capInstances;
+
+            for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+            {
 
                 Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
 
                 for(Uint32 j=0; j < keys.size(); j++)
                 {
-	            //
+                    //
                     // get provider module name from reference
                     //
                     if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
@@ -1663,7 +1660,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
                         _moduleName = keys[j].getValue();
                     }
 
-	            //
+                    //
                     // get provider name from reference
                     //
                     if(keys[j].getName().equal (_PROPERTY_PROVIDER_NAME))
@@ -1672,36 +1669,36 @@ Sint16 ProviderRegistrationProvider::_enableModule(
                     }
                 }
 
-	        if (String::equalNoCase(_moduleName, moduleName))
-	        {
-	 	    providerRef.setKeyBindings(keys);
-	            pInstance = _providerRegistrationManager->getInstance
-			(providerRef);
-		    // 
-		    // get all the indication capability instances which belongs 
-		    // to this provider
-		    //
-		    capInstances = _getIndicationCapInstances(
-				   moduleName, pInstance, providerRef);
+                if (String::equalNoCase(_moduleName, moduleName))
+                {
+                    providerRef.setKeyBindings(keys);
+                    pInstance = _providerRegistrationManager->getInstance
+                        (providerRef);
+                    // 
+                    // get all the indication capability instances which 
+                    // belongs to this provider
+                    //
+                    capInstances = _getIndicationCapInstances(
+                                   moduleName, pInstance, providerRef);
 
-		    //
-		    // if there are indication capability instances
-		    //
+                    //
+                    // if there are indication capability instances
+                    //
                     if (capInstances.size() != 0)
-		    {
-		        _sendEnableMessageToSubscription(updatedModuleInstance,
-		  					 pInstance,
-						     	 capInstances,
-							 al);
-		    }
-	        }    
-	    }
-	    return (0);
-	}
+                    {
+                        _sendEnableMessageToSubscription(updatedModuleInstance,
+                                                         pInstance,
+                                                         capInstances,
+                                                         al);
+                    }
+                }    
+            }
+            return (0);
+        }
 
 
         // enable failed
-	return (-1);
+        return (-1);
 }
 
 // send enable message to indication service
@@ -1718,31 +1715,33 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
 
     if (_service != NULL)
     {
-    	Uint32 _queueId = _service->getQueueId();
-	    
-    	CIMNotifyProviderEnableRequestMessage * enable_req = 
-		new CIMNotifyProviderEnableRequestMessage (
-		    XmlWriter::getNextMessageId (),
-		    capInstances,
-		    QueueIdStack(_service->getQueueId()));
+        Uint32 _queueId = _service->getQueueId();
+            
+        CIMNotifyProviderEnableRequestMessage * enable_req = 
+                new CIMNotifyProviderEnableRequestMessage (
+                    XmlWriter::getNextMessageId (),
+                    capInstances,
+                    QueueIdStack(_service->getQueueId()));
 
-	enable_req->operationContext.set(AcceptLanguageListContainer(al));
-    enable_req->operationContext.insert(ProviderIdContainer(mInstance,pInstance));
-	
-	// create request envelope
+        enable_req->operationContext.set(AcceptLanguageListContainer(al));
+    enable_req->operationContext.insert(ProviderIdContainer
+                                        (mInstance,pInstance));
+        
+        // create request envelope
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart (
                 NULL,
                 _queueId,
                 enable_req,
                 _queueId);
-	    
-	AsyncReply * asyncReply = 
-	    _controller->ClientSendWait(_queueId, asyncRequest);
+            
+        AsyncReply * asyncReply = 
+            _controller->ClientSendWait(_queueId, asyncRequest);
 
         CIMNotifyProviderEnableResponseMessage * response =
-	    reinterpret_cast<CIMNotifyProviderEnableResponseMessage *>(
-		(dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+            reinterpret_cast<CIMNotifyProviderEnableResponseMessage *>(
+                (dynamic_cast<AsyncLegacyOperationResult *>
+                    (asyncReply))->get_result());
 
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)
         {
@@ -1770,11 +1769,11 @@ Boolean ProviderRegistrationProvider::_isIndicationProvider(
     Uint32 pos = instance.findProperty(_PROPERTY_PROVIDER_NAME);
     if (pos != PEG_NOT_FOUND)
     {
-	instance.getProperty(pos).getValue().get(providerName);	
+        instance.getProperty(pos).getValue().get(providerName); 
     }
 
     return (_providerRegistrationManager->isIndicationProvider(
-	    moduleName, providerName));
+            moduleName, providerName));
 }
 
 //
@@ -1790,30 +1789,30 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
     Uint32 pos = instance.findProperty(CIMName (_PROPERTY_PROVIDER_NAME));
     if (pos != PEG_NOT_FOUND)
     {
-	instance.getProperty(pos).getValue().get(providerName);	
+        instance.getProperty(pos).getValue().get(providerName); 
     }
 
     CIMObjectPath capabilityRef;
 
     capabilityRef = CIMObjectPath(providerRef.getHost(),
-				  providerRef.getNameSpace(),
-		       		  PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
-		       		  providerRef.getKeyBindings());
+                                  providerRef.getNameSpace(),
+                                  PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
+                                  providerRef.getKeyBindings());
 
     // get all Capabilities instances
     Array<CIMObjectPath> instanceNames =
-	_providerRegistrationManager->enumerateInstanceNamesForClass(
+        _providerRegistrationManager->enumerateInstanceNamesForClass(
             capabilityRef);
-			
+                        
     String _moduleName, _providerName;
     CIMInstance capInstance;
     Array<Uint16> providerTypes;
     Array<CIMInstance> indCapInstances = 0;
     for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
     {
-	Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+        Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
 
-	for(Uint32 j=0; j < keys.size(); j++)
+        for(Uint32 j=0; j < keys.size(); j++)
         {
              if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
              {
@@ -1824,7 +1823,7 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
              {
                   _providerName = keys[j].getValue();
              }
-	}
+        }
 
        //
        // if capability instance has same module name as moduleName
@@ -1833,27 +1832,28 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
        if(String::equal(_moduleName, moduleName) &&
           String::equal(_providerName, providerName))
        {
-	    capInstance = _providerRegistrationManager->getInstance
-				(instanceNames[i]);
+            capInstance = _providerRegistrationManager->getInstance
+                                (instanceNames[i]);
 
-	    Uint32 pos = capInstance.findProperty(CIMName (_PROPERTY_PROVIDERTYPE));
-    	    if (pos != PEG_NOT_FOUND)
-	    {
-	        capInstance.getProperty(pos).getValue().get(providerTypes); 
+            Uint32 pos = capInstance.findProperty(
+                CIMName (_PROPERTY_PROVIDERTYPE));
+            if (pos != PEG_NOT_FOUND)
+            {
+                capInstance.getProperty(pos).getValue().get(providerTypes); 
 
-    		for (Uint32 k=0; k < providerTypes.size(); k++)
-    		{
-		    // 
-		    // if provider type of the instance is indication,
-		    // append the instance 
-		    //
-        	    if (providerTypes[k] == _INDICATION_PROVIDER)
-        	    {
-            	        indCapInstances.append(capInstance);
-        	    }
-    		}
-	    }
-	}
+                for (Uint32 k=0; k < providerTypes.size(); k++)
+                {
+                    // 
+                    // if provider type of the instance is indication,
+                    // append the instance 
+                    //
+                    if (providerTypes[k] == _INDICATION_PROVIDER)
+                    {
+                        indCapInstances.append(capInstance);
+                    }
+                }
+            }
+        }
     }
 
     return (indCapInstances);

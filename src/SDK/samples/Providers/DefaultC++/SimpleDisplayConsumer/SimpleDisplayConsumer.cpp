@@ -69,12 +69,12 @@ void SimpleDisplayConsumer::terminate()
 // no output will be produced.
 //
 void SimpleDisplayConsumer::consumeIndication(
-                                             const OperationContext & context,
-                                             const String& url,
-                                             const CIMInstance& indicationInstance)
+    const OperationContext& context,
+    const String& url,
+    const CIMInstance& indicationInstance)
 {
-
     String indicationFile = INDICATION_DIR;
+    FILE* indicationLogHandle = 0;
 
     Boolean printOnConsole;
 
@@ -91,8 +91,11 @@ void SimpleDisplayConsumer::consumeIndication(
         printOnConsole = false;
     }
 
-    indicationFile.append("/indicationLog");
-    FILE *_indicationLogHandle = fopen(indicationFile.getCString(), "a+");
+    if (!printOnConsole)
+    {
+        indicationFile.append("/indicationLog");
+        indicationLogHandle = fopen(indicationFile.getCString(), "a+");
+    }
 
     if (printOnConsole)
     {
@@ -101,14 +104,19 @@ void SimpleDisplayConsumer::consumeIndication(
     }
     else
     {
-        if (_indicationLogHandle == NULL)
+        if (indicationLogHandle == NULL)
         {
-            fprintf (stderr, "Failed to open file %s \n", (const char *) indicationFile.getCString());
+            fprintf(
+                stderr,
+                "Failed to open file %s \n",
+                (const char *) indicationFile.getCString());
             return;
         }
         else
         {
-            fprintf(_indicationLogHandle, "++++++++++++++ Received Indication +++++++++++++++++\n");
+            fprintf(
+                indicationLogHandle,
+                "++++++++++++++ Received Indication +++++++++++++++++\n");
         }
     }
 
@@ -127,9 +135,11 @@ void SimpleDisplayConsumer::consumeIndication(
         {
             cout << _propertyName;
         }
-        else if (_indicationLogHandle != NULL)
+        else if (indicationLogHandle != NULL)
         {
-            fprintf(_indicationLogHandle, "%s", (const char *)_propertyName.getCString());
+            fprintf(
+                indicationLogHandle,
+                "%s", (const char*)_propertyName.getCString());
         }
 
         if (!valueIsNull)
@@ -145,7 +155,9 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%u\n", propertyValueUint8);
+                        fprintf(
+                            indicationLogHandle,
+                            "%u\n", propertyValueUint8);
                     }
                     break;
 
@@ -158,7 +170,9 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%u\n", propertyValueUint16);
+                        fprintf(
+                            indicationLogHandle,
+                            "%u\n", propertyValueUint16);
                     }
                     break;
 
@@ -171,7 +185,9 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%u\n", propertyValueUint32);
+                        fprintf(
+                            indicationLogHandle,
+                            "%u\n", propertyValueUint32);
                     }
                     break;
 
@@ -185,7 +201,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     else
                     {
                         fprintf(
-                            _indicationLogHandle,
+                            indicationLogHandle,
                             "%" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
                             propertyValueUint64);
                     }
@@ -200,7 +216,9 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint8);
+                        fprintf(
+                            indicationLogHandle,
+                            "%d\n", propertyValueSint8);
                     }
                     break;
 
@@ -213,7 +231,9 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint16);
+                        fprintf(
+                            indicationLogHandle,
+                            "%d\n", propertyValueSint16);
                     }
                     break;
 
@@ -226,7 +246,9 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint32);
+                        fprintf(
+                            indicationLogHandle,
+                            "%d\n", propertyValueSint32);
                     }
                     break;
 
@@ -240,7 +262,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     else
                     {
                         fprintf(
-                            _indicationLogHandle,
+                            indicationLogHandle,
                             "%" PEGASUS_64BIT_CONVERSION_WIDTH "d\n",
                             propertyValueSint64);
                     }
@@ -255,7 +277,9 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%f\n", propertyValueReal32);
+                        fprintf(
+                            indicationLogHandle,
+                            "%f\n", propertyValueReal32);
                     }
                     break;
 
@@ -268,11 +292,13 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%f\n", propertyValueReal64);
+                        fprintf(
+                            indicationLogHandle,
+                            "%f\n", propertyValueReal64);
                     }
                     break;
 
-                case CIMTYPE_BOOLEAN :
+                case CIMTYPE_BOOLEAN:
                     Boolean booleanValue;
                     propertyValue.get(booleanValue);
                     if (printOnConsole)
@@ -281,88 +307,105 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%d\n", booleanValue);
+                        fprintf(indicationLogHandle, "%d\n", booleanValue);
                     }
                     break;
 
                 case CIMTYPE_CHAR16:
-                case CIMTYPE_STRING :
+                case CIMTYPE_STRING:
                     if (printOnConsole)
                     {
                         cout << propertyValue.toString() << endl;
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%s\n", (const char *) propertyValue.toString().getCString());
+                        fprintf(
+                            indicationLogHandle,
+                            "%s\n",
+                            (const char*)propertyValue.toString().getCString());
                     }
                     break;
 
-                case CIMTYPE_DATETIME :
+                case CIMTYPE_DATETIME:
+                {
+                    CIMDateTime propertyValueDateTime;
+                    propertyValue.get(propertyValueDateTime);
+                    if (printOnConsole)
                     {
-                        CIMDateTime propertyValueDateTime;
-                        propertyValue.get(propertyValueDateTime);
-                        if (printOnConsole)
-                        {
-                            cout << propertyValueDateTime.toString () << endl;
-                        }
-                        else
-                        {
-                            fprintf(_indicationLogHandle, "%s\n", (const char *) propertyValueDateTime.toString().getCString());
-                        }
-                        break;
+                        cout << propertyValueDateTime.toString () << endl;
                     }
+                    else
+                    {
+                        fprintf(
+                            indicationLogHandle,
+                            "%s\n",
+                            (const char*)propertyValueDateTime.toString().
+                                getCString());
+                    }
+                    break;
+                }
 
-                case CIMTYPE_OBJECT :
+                case CIMTYPE_OBJECT:
+                {
+                    CIMObject propertyValueObject;
+                    propertyValue.get(propertyValueObject);
+                    if (printOnConsole)
                     {
-                        CIMObject propertyValueObject;
-                        propertyValue.get(propertyValueObject);
-                        if (printOnConsole)
-                        {
-                            cout << propertyValueObject.toString () << endl;
-                        }
-                        else
-                        {
-                            fprintf(_indicationLogHandle, "%s\n", (const char *) propertyValueObject.toString().getCString());
-                        }
-                        break;
+                        cout << propertyValueObject.toString () << endl;
                     }
+                    else
+                    {
+                        fprintf(
+                            indicationLogHandle,
+                            "%s\n",
+                            (const char*)propertyValueObject.toString().
+                                getCString());
+                    }
+                    break;
+                }
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-                case CIMTYPE_INSTANCE :
-                  {
+                case CIMTYPE_INSTANCE:
+                {
                     CIMInstance propertyValueInstance;
                     propertyValue.get(propertyValueInstance);
                     CIMObject printableObject(propertyValueInstance);
                     if (printOnConsole)
                     {
-                      cout << printableObject.toString () << endl;
+                        cout << printableObject.toString () << endl;
                     }
                     else
                     {
-                      fprintf(_indicationLogHandle, "%s\n", (const char *) printableObject.toString().getCString());
+                        fprintf(
+                            indicationLogHandle,
+                            "%s\n",
+                            (const char*)printableObject.toString().
+                                getCString());
                     }
                     break;
-                  }
+                }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-                 case CIMTYPE_REFERENCE:
-                     {
-                         //
-                         //  ATTN: reference properties are not allowed in
-                         //        indications; print to log or console
-                         //
-                         CIMObjectPath propertyValueReference;
-                         propertyValue.get(propertyValueReference);
-                         if (printOnConsole)
-                         {
-                             cout << propertyValueReference.toString() << endl;
-                         }
-                         else
-                         {
-                             fprintf(_indicationLogHandle, "%s\n", (const char *)
-                                     propertyValueReference.toString().getCString());
-                         }
-                         break;
-                     }
-
+                case CIMTYPE_REFERENCE:
+                {
+                    //
+                    //  ATTN: reference properties are not allowed in
+                    //        indications; print to log or console
+                    //
+                    CIMObjectPath propertyValueReference;
+                    propertyValue.get(propertyValueReference);
+                    if (printOnConsole)
+                    {
+                        cout << propertyValueReference.toString() << endl;
+                    }
+                    else
+                    {
+                        fprintf(
+                            indicationLogHandle,
+                            "%s\n",
+                            (const char*)propertyValueReference.toString().
+                                getCString());
+                    }
+                    break;
+                }
             }
         }
     }
@@ -373,8 +416,10 @@ void SimpleDisplayConsumer::consumeIndication(
     }
     else
     {
-        fprintf(_indicationLogHandle, "++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
-        fclose(_indicationLogHandle);
+        fprintf(
+            indicationLogHandle,
+            "++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
+        fclose(indicationLogHandle);
     }
 }
 

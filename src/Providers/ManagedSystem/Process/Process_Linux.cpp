@@ -862,9 +862,10 @@ String Process::getOSName(void) const
             vf = fopen(info_file, "r");
             if (vf)
             {
-               if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+               char* rc = fgets(buffer, MAXPATHLEN, vf);
+               fclose(vf);
+               if (rc != NULL)
 	       {
-		  fclose(vf);
                   buffer_s.assign(buffer);
 	    
 		  // parse the text to extract Distribution Name

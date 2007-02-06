@@ -501,7 +501,7 @@ public:
 
     TraceableCIMException(
         CIMStatusCode code,
-        MessageLoaderParms parms,
+        const MessageLoaderParms& parms,
         const String& file,
         Uint32 line);
 

@@ -275,7 +275,7 @@ static String _makeCIMExceptionDescription(
 
 TraceableCIMException::TraceableCIMException(
     CIMStatusCode code,
-    MessageLoaderParms parms,
+    const MessageLoaderParms& parms,
     const String& file,
     Uint32 line)
     : CIMException(code, parms)

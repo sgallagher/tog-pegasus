@@ -537,7 +537,7 @@ en:table {
         //  Please use message prefix "PGS01200"
         // ==========================================================
 
-        Repository.CIMRepository.COMPACT_FAILED:string {"PGS01200: Failed to compact the file."}
+        Repository.CIMRepository.COMPACT_FAILED:string {"PGS01200: Failed to compact the Repository Instance Data file."}
 
         Repository.CIMRepository.ROLLBACK_FAILED:string {"PGS01201:  The rollback operation failed."}
 
@@ -601,6 +601,10 @@ en:table {
         *         Do not translate the word 'Content-Language' since it is a standard HTTP header
         */
         Repository.CIMRepository.UNSUPPORTED_CONTENTLANG:string {"PGS01213: The Content-Language parameter is not supported for this request."}
+
+        Repository.CIMRepository.INDEX_ENUM_ENTRIES_FAILED:string {"PGS01214: Failed to obtain the entries from the Repository Instance Index file."}
+
+        Repository.CIMRepository.INDEX_COMPACT_FAILED:string {"PGS01215: Failed to compact the Repository Instance Index file."}
 
 
         // ==========================================================

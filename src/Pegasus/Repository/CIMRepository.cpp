@@ -1228,16 +1228,19 @@ void _CompactInstanceRepository(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
-                "compact failed"));
+            MessageLoaderParms(
+                "Repository.CIMRepository.INDEX_ENUM_ENTRIES_FAILED",
+                "Failed to obtain the entries from the Repository Instance"
+                " Index file."));
     }
 
     if (!InstanceDataFile::compact(dataFilePath, freeFlags, indices, sizes))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
-                "compact failed"));
+            MessageLoaderParms(
+                "Repository.CIMRepository.COMPACT_FAILED",
+                "Failed to compact the Repository Instance Data file."));
     }
 
     //
@@ -1248,8 +1251,9 @@ void _CompactInstanceRepository(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.CIMRepository.COMPACT_FAILED",
-                "compact failed"));
+            MessageLoaderParms(
+                "Repository.CIMRepository.INDEX_COMPACT_FAILED",
+                "Failed to compact the Repository Instance Index file."));
     }
 
     PEG_METHOD_EXIT();

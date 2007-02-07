@@ -2135,6 +2135,8 @@ not be valid."}
         * @note  PGS05200
         *    Substitution {0} is the name of the CIM operation (a string)
         *    Substitution {1} is the namespace (a string)
+        *    This message is no longer used in 2.7. Message PGS05203 obsoletes
+        *    this message.
         */
         Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED:string {"PGS05200: The user is not authorized to run {0} in the namespace {1}."}
 
@@ -2146,6 +2148,13 @@ not be valid."}
         */
         Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:string {"PGS05202: User ''{0}'' is not authorized to access CIM data."}
 
+        /**
+        * @note  PGS05203
+        *    Substitution {0} is the name of the user (a string)
+        *    Substitution {1} is the name of the CIM operation (a string)
+        *    Substitution {2} is the namespace (a string)
+        */
+        Server.CIMOperationRequestAuthorizer.NAMESPACE_AUTHORIZATION_FAILED:string {"PGS05203: The user ''{0}'' is not authorized to run ''{1}'' in the namespace ''{2}''."}
 
         // ==========================================================
         // Messages for CIMOperationRequestDecoder
@@ -4619,6 +4628,12 @@ CIM server listening on HTTPS port {0}."}
          * @version 2.5
          */
      Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME:string{"PGS13004:  No username is registered to this certificate."}
+
+        /**
+         * @note PGS13005:
+         * @version 2.7
+         */
+     Pegasus.Server.HTTPAuthenticatorDelegator.CERTIFICATE_USER_NOT_VALID:string{"PGS13005:  The user ''{0}'' registered to this certificate is not a valid user."}
 
 
     // ==========================================================

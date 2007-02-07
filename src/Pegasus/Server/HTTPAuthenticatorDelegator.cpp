@@ -544,13 +544,29 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // Validate user information
             //
 
-            if (!_authenticationManager->validateUserForHttpAuth(certUserName))
+            if (certUserName == String::EMPTY)
             {
                 MessageLoaderParms msgParms(
                     "Pegasus.Server.HTTPAuthenticatorDelegator."
                         "BAD_CERTIFICATE_USERNAME",
-                    "The username registered to this certificate is not a "
-                        "valid user.");
+                    "No username is registered to this certificate.");
+                _sendHttpError(
+                    queueId,
+                    HTTP_STATUS_UNAUTHORIZED,
+                    String::EMPTY,
+                    MessageLoader::getMessage(msgParms),
+                    closeConnect);
+                PEG_METHOD_EXIT();
+                return;
+            }
+
+            if (!_authenticationManager->validateUserForHttpAuth(certUserName))
+            {
+                MessageLoaderParms msgParms(
+                    "Pegasus.Server.HTTPAuthenticatorDelegator."
+                        "CERTIFICATE_USER_NOT_VALID",
+                    "User '$0' registered to this certificate is not a "
+                        "valid user.", certUserName);
                 _sendHttpError(
                     queueId,
                     HTTP_STATUS_UNAUTHORIZED,

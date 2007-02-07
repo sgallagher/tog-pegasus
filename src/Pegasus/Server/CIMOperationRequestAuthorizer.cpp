@@ -320,9 +320,9 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                 ((CIMInvokeMethodRequestMessage*)req.get())->methodName,
                 PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
                     MessageLoaderParms(
-                        "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED",
-                        "Not authorized to run $0 in the namespace $1",
-                        cimMethodName, nameSpace.getString())));
+                        "Server.CIMOperationRequestAuthorizer.NAMESPACE_AUTHORIZATION_FAILED",
+                        "User '$0' is not authorized to run '$1' in the namespace '$2'",
+                        userName, cimMethodName, nameSpace.getString())));
         }
         else
         {
@@ -333,9 +333,9 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                 cimMethodName,
                 PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
                     MessageLoaderParms(
-                        "Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED",
-                        "Not authorized to run $0 in the namespace $1",
-                        cimMethodName, nameSpace.getString())));
+                        "Server.CIMOperationRequestAuthorizer.NAMESPACE_AUTHORIZATION_FAILED",
+                        "User '$0' is not authorized to run '$1' in the namespace '$2'",
+                        userName, cimMethodName, nameSpace.getString())));
         }
         PEG_METHOD_EXIT();
         return;
@@ -475,10 +475,9 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                       ((CIMInvokeMethodRequestMessage*)req.get())->methodName,
                       PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
                           MessageLoaderParms(
-                              "Server.CIMOperationRequestAuthorizer."
-                                  "NOT_AUTHORIZED",
-                              "Not authorized to run $0 in the namespace $1",
-                              cimMethodName, nameSpace.getString())));
+                        "Server.CIMOperationRequestAuthorizer.NAMESPACE_AUTHORIZATION_FAILED",
+                        "User '$0' is not authorized to run '$1' in the namespace '$2'",
+                        userName, cimMethodName, nameSpace.getString())));
                 }
                 else
                 {
@@ -489,10 +488,9 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                         cimMethodName,
                         PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
                             MessageLoaderParms(
-                                "Server.CIMOperationRequestAuthorizer."
-                                    "NOT_AUTHORIZED",
-                                "Not authorized to run $0 in the namespace $1",
-                                cimMethodName, nameSpace.getString())));
+                             "Server.CIMOperationRequestAuthorizer.NAMESPACE_AUTHORIZATION_FAILED",
+                             "User '$0' is not authorized to run '$1' in the namespace '$2'",
+                             userName, cimMethodName, nameSpace.getString())));
                 }
 
                 PEG_METHOD_EXIT();

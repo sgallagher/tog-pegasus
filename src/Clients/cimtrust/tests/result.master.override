@@ -568,7 +568,7 @@ Certificate added successfully.
 
 Try to connect, this should fail since the root CA does not have an associated username.
 TestCertClient::Connecting to 127.0.0.1:5989
-Exception: HTTP Error (401 Unauthorized): Detail = "The username registered to this certificate is not a valid user.".
+Exception: HTTP Error (401 Unauthorized): Detail = "No username is registered to this certificate.".
 
 Add the intermediate CA signed certificate to the truststore without an associated username.
 NOTE: No user name will be associated with the certificate in the truststore.
@@ -576,7 +576,7 @@ Certificate added successfully.
 
 Try to connect, this should fail since the root CA does not have an associated username.
 TestCertClient::Connecting to 127.0.0.1:5989
-Exception: HTTP Error (401 Unauthorized): Detail = "The username registered to this certificate is not a valid user.".
+Exception: HTTP Error (401 Unauthorized): Detail = "No username is registered to this certificate.".
 
 Add the leaf CA signed certificate to the truststore with an associated username.
 Certificate added successfully.

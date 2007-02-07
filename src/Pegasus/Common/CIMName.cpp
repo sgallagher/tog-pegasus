@@ -205,8 +205,11 @@ Boolean CIMNamespaceName::legal(const String& name)
 
         // First character must be alphabetic or '_' if ASCII
 
-        if (!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlphaUnder(ch)))
-            return false;
+        if (!(ch < 128 && CharSet::isAlphaUnder(ch)))
+        {
+            if (!(ch >= 0x0080 && ch <= 0xFFEF))
+                return false;
+        }
 
         // Remaining characters must be alphanumeric or '_' if ASCII
         while (index < length)
@@ -220,8 +223,11 @@ Boolean CIMNamespaceName::legal(const String& name)
                 break;
             }
 
-            if (!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlNumUnder(ch)))
-                return false;
+            if (!(ch < 128 && CharSet::isAlNumUnder(ch)))
+            {
+                if (!(ch >= 0x0080 && ch <= 0xFFEF))
+                    return false;
+            }
         }
     }
 

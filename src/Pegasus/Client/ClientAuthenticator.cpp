@@ -483,34 +483,36 @@ String ClientAuthenticator::_getSubStringUptoMarker(
     const char** line,
     char marker)
 {
-    String result = String::EMPTY;
+    String result;
 
-    //
-    // Look for the marker
-    //
-    const char *pos = strchr(*line, marker);
-
-    if (pos)
+    if (*line)
     {
-        if (*line != NULL)
+        //
+        // Look for the marker
+        //
+        const char *pos = strchr(*line, marker);
+
+        if (pos)
         {
-            Uint32 length = (Uint32)(pos - *line);
+            if (*line)
+            {
+                Uint32 length = (Uint32)(pos - *line);
+                result.assign(*line, length);
+            }
 
-            result.assign(*line, length);
+            while (*pos == marker)
+            {
+                ++pos;
+            }
+
+            *line = pos;
         }
-
-        while (*pos == marker)
+        else
         {
-            ++pos;
+            result.assign(*line);
+
+            *line += strlen(*line);
         }
-
-        *line = pos;
-    }
-    else
-    {
-        result.assign(*line);
-
-        *line += strlen(*line);
     }
 
     return result;

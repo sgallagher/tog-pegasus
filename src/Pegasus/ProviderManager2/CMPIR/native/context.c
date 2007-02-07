@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -45,8 +41,6 @@
   
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM.
-
-  \author Frank Scheffler
 */
 
 #include <stdio.h>
@@ -80,12 +74,18 @@ static struct native_context * __new_empty_context ( int );
 
 static CMPIStatus __cft_release ( CMPIContext * ctx )
 {
-	CMReturn ( CMPI_RC_OK );
+        CMPIStatus rc = checkArgsReturnStatus(ctx);
+
+        return rc;
 }
 
 
 static CMPIContext * __cft_clone ( CONST CMPIContext * ctx, CMPIStatus * rc )
 {
+        if (!checkArgs(ctx, rc) )
+        {
+            return 0;
+        }
 	if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
 	return NULL;
 }
@@ -96,6 +96,12 @@ static CMPIData __cft_getEntry ( CONST CMPIContext * ctx,
 				 CMPIStatus * rc )
 {
 	struct native_context * c = (struct native_context *) ctx;
+        CMPIData data = checkArgsReturnData(ctx, rc);
+
+        if (data.state == CMPI_badValue)
+        {
+            return data;
+        }
 
 	return propertyFT.getDataProperty ( c->entries, name, rc );
 }
@@ -107,6 +113,12 @@ static CMPIData __cft_getEntryAt ( CONST CMPIContext * ctx,
 				   CMPIStatus * rc )
 {
 	struct native_context * c = (struct native_context *) ctx;
+        CMPIData data = checkArgsReturnData(ctx, rc);
+
+        if (data.state == CMPI_badValue)
+        {
+            return data;
+        }
 
 	return propertyFT.getDataPropertyAt ( c->entries, index, name, rc );
 }
@@ -116,6 +128,11 @@ static unsigned int __cft_getEntryCount ( CONST CMPIContext * ctx, CMPIStatus * 
 {
 	struct native_context * c = (struct native_context *) ctx;
   
+        if (!checkArgs(ctx, rc) )
+        {
+            return 0;
+        }  
+
 	return propertyFT.getPropertyCount ( c->entries, rc );
 }
 
@@ -126,7 +143,12 @@ static CMPIStatus __cft_addEntry ( CONST CMPIContext * ctx,
 				   CONST CMPIType type )
 {
 	struct native_context * c = (struct native_context *) ctx;
+        CMPIStatus rc = checkArgsReturnStatus(ctx);
 
+        if (rc.rc != CMPI_RC_OK)
+        {
+            return rc;
+        } 
 	CMReturn ( ( propertyFT.addProperty ( &c->entries,
 					      c->mem_state,
 					      name,

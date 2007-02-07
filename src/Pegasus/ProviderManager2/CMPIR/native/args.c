@@ -76,14 +76,16 @@ static struct native_args * __new_empty_args ( int, CMPIStatus * );
 static CMPIStatus __aft_release ( CMPIArgs * args )
 {
 	struct native_args * a = (struct native_args *) args;
+        CMPIStatus rc = checkArgsReturnStatus(args);
 
-	if ( a->mem_state == TOOL_MM_NO_ADD ) {
-
+	if (rc.rc == CMPI_RC_OK && a->mem_state == TOOL_MM_NO_ADD )
+        {
 		tool_mm_add ( a );
 		a->mem_state = TOOL_MM_ADD;
 		propertyFT.release ( a->data );
 	}
-        CMReturn ( CMPI_RC_OK );
+
+        return rc;
 }
 
 
@@ -91,8 +93,13 @@ static CMPIArgs * __aft_clone ( CONST CMPIArgs * args, CMPIStatus * rc )
 
 {
 	struct native_args * a   = (struct native_args *) args;
-	struct native_args * new = __new_empty_args ( TOOL_MM_NO_ADD, rc );
+	struct native_args * new;
 
+        if (!checkArgs(args, rc) )
+        {
+            return 0;
+        }   
+        new = __new_empty_args ( TOOL_MM_NO_ADD, rc );
 	if ( rc->rc == CMPI_RC_OK ) {
 		new->data = propertyFT.clone ( a->data, rc );
 	}
@@ -109,7 +116,12 @@ static CMPIStatus __aft_addArg ( CONST CMPIArgs * args,
 
 {
 	struct native_args * a = (struct native_args *) args;
+        CMPIStatus rc = checkArgsReturnStatus(args);
 
+        if (rc.rc != CMPI_RC_OK)
+        {
+            return rc;
+        }
 	CMReturn ( ( propertyFT.addProperty ( &a->data,
 					      a->mem_state,
 					      name,
@@ -128,7 +140,12 @@ static CMPIData __aft_getArg ( CONST CMPIArgs * args,
 
 {
 	struct native_args * a = (struct native_args *) args;
+        CMPIData data = checkArgsReturnData(args, rc);
 
+        if (data.state == CMPI_badValue)
+        {
+            return data;
+        }   
 	return propertyFT.getDataProperty ( a->data, name, rc );
 }
 
@@ -139,6 +156,12 @@ static CMPIData __aft_getArgAt ( CONST CMPIArgs * args,
 
 {
 	struct native_args * a = (struct native_args *) args;
+        CMPIData data = checkArgsReturnData(args, rc);
+
+        if (data.state == CMPI_badValue)
+        {
+            return data;
+        }
 
 	return propertyFT.getDataPropertyAt ( a->data, index, name, rc );
 }
@@ -149,6 +172,11 @@ static unsigned int __aft_getArgCount ( CONST CMPIArgs * args, CMPIStatus * rc )
 
 {
 	struct native_args * a = (struct native_args *) args;
+
+        if (!checkArgs(args, rc) )
+        {
+            return 0;
+        }
 
 	return propertyFT.getPropertyCount ( a->data, rc );
 }

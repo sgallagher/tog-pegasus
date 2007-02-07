@@ -42,8 +42,6 @@
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM. 
 
-  \author Frank Scheffler
-
   \todo Once CMGetCharPtr() macro uses the appropriate function call instead
   of casting the internal hdl, store "CMPIString" type in there.
 */
@@ -67,18 +65,24 @@ static struct native_string * __new_string ( int, const char *, CMPIStatus * );
 static CMPIStatus __sft_release ( CMPIString * string )
 {
 	struct native_string * s = (struct native_string *) string;
+        CMPIStatus rc = checkArgsReturnStatus(string);
 
-	if ( s->mem_state == TOOL_MM_NO_ADD ) {
-
+	if (rc.rc != CMPI_RC_OK &&  s->mem_state == TOOL_MM_NO_ADD ) 
+        {
 		tool_mm_add ( s );
 		tool_mm_add ( s->string.hdl );
 	}
-        CMReturn ( CMPI_RC_OK );
+
+        return rc;
 }
 
 
 static CMPIString * __sft_clone ( CONST CMPIString * string, CMPIStatus * rc )
 {
+        if (!checkArgs(string, rc) )
+        {
+            return 0;
+        }
 	return (CMPIString * )
 		__new_string ( TOOL_MM_NO_ADD,
 			       string->ft->getCharPtr ( string, rc ),
@@ -88,6 +92,11 @@ static CMPIString * __sft_clone ( CONST CMPIString * string, CMPIStatus * rc )
 
 static char * __sft_getCharPtr ( CONST CMPIString * string, CMPIStatus * rc )
 {
+        if (!checkArgs(string, rc) )
+        {
+            return 0;
+        }
+
 	return (char *) string->hdl;
 }
 

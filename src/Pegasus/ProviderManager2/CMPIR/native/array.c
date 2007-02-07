@@ -45,8 +45,6 @@
   In contrast to a regular array, there exists an additional increase()
   method, which is only used by the native CMPIResult implementation to
   grow an array stepwise.
-
-  \author Frank Scheffler
 */
 
 #include <stdlib.h>
@@ -98,9 +96,10 @@ static void __make_NULL ( struct native_array * a,
 static CMPIStatus __aft_release ( CMPIArray * array )
 {
 	struct native_array * a = (struct native_array *) array;
+        CMPIStatus rc = checkArgsReturnStatus(array);
 
-	if ( a->mem_state == TOOL_MM_NO_ADD ) {
-
+	if (rc.rc == CMPI_RC_OK && a->mem_state == TOOL_MM_NO_ADD ) 
+        {
 		int i = a->size;
 
 		tool_mm_add ( a );
@@ -113,7 +112,8 @@ static CMPIStatus __aft_release ( CMPIArray * array )
 			}
 		}
 	}
-        CMReturn ( CMPI_RC_OK );
+
+        return rc;
 }
 
 
@@ -123,14 +123,19 @@ static CMPIArray * __aft_clone ( CONST CMPIArray * array, CMPIStatus * rc )
 {
 	CMPIStatus tmp;
 	struct native_array * a   = (struct native_array *) array;
-	struct native_array * new =
-		__new_empty_array ( TOOL_MM_NO_ADD,
+	struct native_array *new;
+        int i;
+
+        if (!checkArgs(array, rc) )
+        {
+            return 0;
+        }
+        new  = __new_empty_array (
+                TOOL_MM_NO_ADD,
 				    a->size,
 				    a->type,
 				    &tmp );
-
-	int i = a->size;
-
+	 i = a->size;
 	while ( i-- && tmp.rc == CMPI_RC_OK ) {
 		new->data[i].state = a->data[i].state;
 		if ( ! ( new->data[i].state & CMPI_nullValue ) ) {
@@ -152,6 +157,10 @@ static CMPICount __aft_getSize ( CONST CMPIArray * array, CMPIStatus * rc )
 {
 	struct native_array * a = (struct native_array *) array;
 
+        if (!checkArgs(array, rc) )
+        {
+            return 0;
+        }
 	if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
 	return a->size;
 }
@@ -161,6 +170,10 @@ static CMPIType __aft_getSimpleType ( CONST CMPIArray * array, CMPIStatus * rc )
 {
 	struct native_array * a = (struct native_array *) array;
 
+        if (!checkArgs(array, rc) )
+        {
+            return 0;
+        }
 	if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
 	return a->type;
 }
@@ -171,9 +184,14 @@ static CMPIData __aft_getElementAt ( CONST CMPIArray * array,
 				     CMPIStatus * rc )
 {
 	struct native_array * a = (struct native_array *) array;
+	CMPIData result = checkArgsReturnData(array, rc);
 
-	CMPIData result = { a->type, CMPI_badValue, { 0 }  };
-
+        if (result.state == CMPI_badValue)
+        {
+           return result;
+        }
+        result.type = a->type;
+        result.state = CMPI_badValue;
 	if ( index < a->size ) {
 
 		result.state = a->data[index].state;
@@ -191,7 +209,12 @@ static CMPIStatus __aft_setElementAt ( CMPIArray * array,
 				       CMPIType type )
 {
 	struct native_array * a = (struct native_array *) array;
+        CMPIStatus rc = checkArgsReturnStatus(array);
 
+        if (rc.rc != CMPI_RC_OK)
+        {
+            return rc;
+        }
 	if ( index < a->size ) {
 		CMPIValue v;
 

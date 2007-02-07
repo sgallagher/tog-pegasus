@@ -58,6 +58,10 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 
+//! Utility functions, used to validate input parameters.
+CMPIStatus checkArgsReturnStatus(const void *ptr);
+CMPIData checkArgsReturnData(const void *ptr, CMPIStatus *rc);
+void* checkArgs(const void *ptr, CMPIStatus *rc);
 
 //! Forward declaration for anonymous struct.
 struct native_property;

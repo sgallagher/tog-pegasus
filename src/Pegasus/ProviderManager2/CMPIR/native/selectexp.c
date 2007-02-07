@@ -74,8 +74,12 @@ static CMPIStatus __eft_release ( CMPISelectExp * exp )
 	struct native_selectexp * e = (struct native_selectexp *) exp;
     CMPIContext *ctx;
     CMPIBroker *broker;
-    CMPIStatus rc;
+    CMPIStatus rc = checkArgsReturnStatus(exp);
 
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
     if ( e->mem_state == TOOL_MM_NO_ADD )
@@ -86,6 +90,7 @@ static CMPIStatus __eft_release ( CMPISelectExp * exp )
 		tool_mm_add ( e );
 	}
    }
+
    CMReturn ( CMPI_RC_OK );
 }
 
@@ -95,6 +100,10 @@ static CMPISelectExp * __eft_clone ( CONST CMPISelectExp * exp, CMPIStatus * rc 
     CMPIContext *ctx;
     CMPIBroker *broker;
 
+    if (!checkArgs(exp, rc) )
+    {
+        return 0;
+    }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
     return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_clone (exp, rc);
@@ -109,6 +118,10 @@ CMPIBoolean __eft_evaluate ( CONST CMPISelectExp * exp,
     CMPIContext *ctx;
     CMPIBroker *broker;
 
+    if (!checkArgs(exp, rc) || !checkArgs(inst, rc) )
+    {
+        return 0;
+    }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
     return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_evaluate (exp, inst ,rc);
@@ -120,6 +133,10 @@ CMPIString * __eft_getString ( CONST CMPISelectExp * exp, CMPIStatus * rc )
     CMPIContext *ctx;
     CMPIBroker *broker;
 
+    if (!checkArgs(exp, rc) )
+    {
+        return 0;
+    }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
     return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getString (exp, rc);
@@ -131,6 +148,10 @@ CMPISelectCond * __eft_getDOC ( CONST CMPISelectExp * exp, CMPIStatus * rc )
     CMPIContext *ctx;
     CMPIBroker *broker;
 
+    if (!checkArgs(exp, rc) )
+    {
+        return 0;
+    }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
     return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getDOC (exp, rc);
@@ -142,6 +163,10 @@ CMPISelectCond * __eft_getCOD ( CONST CMPISelectExp * exp, CMPIStatus * rc )
     CMPIContext *ctx;
     CMPIBroker *broker;
 
+    if (!checkArgs(exp, rc) )
+    {
+        return 0;
+    }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
     return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getCOD (exp, rc);
@@ -153,6 +178,10 @@ CMPIBoolean __eft_evaluateUsingAccessor (CONST CMPISelectExp* se,
     CMPIContext *ctx;
     CMPIBroker *broker;
 
+    if (!checkArgs(se, rc) || !checkArgs(accessor, rc) )
+    {
+        return 0;
+    }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
     return ( ( (NativeCMPIBrokerFT*)broker->bft) )->

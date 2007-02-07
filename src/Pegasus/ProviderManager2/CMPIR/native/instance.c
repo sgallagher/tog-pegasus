@@ -127,8 +127,9 @@ static int __contained_list(char ** list, const char * name)
 static CMPIStatus __ift_release(CMPIInstance * instance)
 {
     struct native_instance * i = (struct native_instance *) instance;
+    CMPIStatus rc = checkArgsReturnStatus(instance);
 
-    if (i->mem_state == TOOL_MM_NO_ADD)
+    if (rc.rc == CMPI_RC_OK && i->mem_state == TOOL_MM_NO_ADD)
     {
         i->mem_state = TOOL_MM_ADD;
 
@@ -141,7 +142,8 @@ static CMPIStatus __ift_release(CMPIInstance * instance)
 
         propertyFT.release(i->props);
     }
-    CMReturn(CMPI_RC_OK);
+
+    return rc;
 }
 
 
@@ -150,11 +152,15 @@ static CMPIInstance * __ift_clone(
     CMPIStatus * rc)
 {
     struct native_instance * i = (struct native_instance *) instance;
-    struct native_instance * new =
-        (struct native_instance *)tool_mm_alloc(
+    struct native_instance *new;
+
+    if (!checkArgs(instance, rc) )
+    {
+        return 0;
+    }
+    new = (struct native_instance *) tool_mm_alloc(
             TOOL_MM_NO_ADD,
-            sizeof(struct native_instance)
-            );
+           sizeof(struct native_instance) );
     // Copy CMPIInstance and native_instance extensions.
     new->instance = i->instance;
     new->classname = strdup(i->classname);
@@ -172,6 +178,12 @@ static CMPIData __ift_getProperty ( CONST CMPIInstance * instance,
     CMPIStatus * rc )
 {
     struct native_instance * i = (struct native_instance *) instance;
+    CMPIData data = checkArgsReturnData(instance, rc);
+
+    if (data.state == CMPI_badValue)
+    {
+        return data;
+    }
 
     return propertyFT.getDataProperty(i->props, name, rc);
 }
@@ -184,6 +196,12 @@ static CMPIData __ift_getPropertyAt(
     CMPIStatus * rc)
 {
     struct native_instance * i = (struct native_instance *) instance;
+    CMPIData data = checkArgsReturnData(instance, rc);
+
+    if (data.state == CMPI_badValue)
+    {
+        return data;
+    }
 
     return propertyFT.getDataPropertyAt(i->props, index, name, rc);
 }
@@ -194,6 +212,11 @@ static unsigned int __ift_getPropertyCount(
     CMPIStatus * rc)
 {
     struct native_instance * i = (struct native_instance *) instance;
+
+    if (!checkArgs(instance, rc) )
+    {
+        return 0;
+    }
 
     return propertyFT.getPropertyCount(i->props, rc);
 }
@@ -206,7 +229,12 @@ static CMPIStatus __ift_setProperty(
     CMPIType type)
 {
     struct native_instance * i = (struct native_instance *) instance;
+    CMPIStatus rc = checkArgsReturnStatus(instance);
 
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    } 
     if (i->filtered == 0 ||
         i->property_list == NULL ||
         __contained_list ( i->property_list, name ) ||
@@ -234,7 +262,13 @@ static CMPIObjectPath * __ift_getObjectPath(
     int j, f = 0;
     CMPIStatus tmp;
     struct native_instance * i = (struct native_instance *) instance;
-    CMPIObjectPath * cop = native_new_CMPIObjectPath(
+    CMPIObjectPath * cop;
+
+    if (!checkArgs(instance, rc) )
+    {
+        return 0;
+    }
+    cop = native_new_CMPIObjectPath(
         i->namespace,
         i->classname,
         rc );
@@ -290,7 +324,12 @@ static CMPIStatus __ift_setPropertyFilter(
     CONST char ** keys)
 {
     struct native_instance * i = (struct native_instance *) instance;
+    CMPIStatus rc = checkArgsReturnStatus(instance);
 
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    } 
     if (i->filtered && i->mem_state == TOOL_MM_NO_ADD)
     {
         __release_list(i->property_list);
@@ -354,6 +393,10 @@ CMPIString *instance2String(CONST CMPIInstance *inst, CMPIStatus *rc)
     char *buf = NULL, *v;
     unsigned int bp, bm;
 
+    if (!checkArgs(inst, rc) )
+    {
+        return 0;
+    }
     add(&buf, &bp, &bm, "Instance of ");
     path = __ift_getObjectPath(inst, NULL);
     name = __oft_getClassName(path, rc);

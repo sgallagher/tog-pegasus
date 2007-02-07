@@ -77,19 +77,19 @@ static struct native_cop * __new_empty_cop(
 static CMPIStatus __oft_release(CMPIObjectPath * cop)
 {
     struct native_cop * o = (struct native_cop *) cop;
-    if (o->mem_state == TOOL_MM_NO_ADD)
+    CMPIStatus rc = checkArgsReturnStatus(cop);
+
+    if (rc.rc == CMPI_RC_OK && o->mem_state == TOOL_MM_NO_ADD)
     {
-
         o->mem_state = TOOL_MM_ADD;
-
         tool_mm_add(o);
         tool_mm_add(o->classname);
         tool_mm_add(o->namespace);
         tool_mm_add(o->hostname);
-
         propertyFT.release(o->keys);
     }
-    CMReturn(CMPI_RC_OK);
+
+    return rc;
 }
 
 
@@ -97,7 +97,13 @@ static CMPIObjectPath * __oft_clone(CONST CMPIObjectPath * cop, CMPIStatus * rc)
 {
     CMPIStatus tmp;
     struct native_cop * o = (struct native_cop *) cop;
-    struct native_cop * new = __new_empty_cop(
+    struct native_cop *new;
+
+    if (!checkArgs(cop, rc) )
+    {
+        return 0;
+    }
+    new  = __new_empty_cop(
         TOOL_MM_NO_ADD,
         o->namespace,
         o->classname,
@@ -123,9 +129,14 @@ static CMPIStatus __oft_setNameSpace(
     const char * namespace)
 {
     struct native_cop * o = (struct native_cop *) cop;
+    char * ns;
+    CMPIStatus rc = checkArgsReturnStatus(cop);
 
-    char * ns = (namespace) ? strdup(namespace) : NULL;
-
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    } 
+    ns  = (namespace) ? strdup(namespace) : NULL;
     if (o->mem_state == TOOL_MM_NO_ADD)
     {
         free(o->namespace);
@@ -146,6 +157,11 @@ static CMPIString * __oft_getNameSpace(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
+    if (!checkArgs(cop, rc) )
+    {
+        return 0;
+    }
+
     return native_new_CMPIString(o->namespace, rc);
 }
 
@@ -153,8 +169,14 @@ static CMPIString * __oft_getNameSpace(
 static CMPIStatus __oft_setHostName(CMPIObjectPath * cop, const char * hostname)
 {
     struct native_cop * o = (struct native_cop *) cop;
-    char * hn = (hostname) ? strdup(hostname) : NULL;
+    char * hn;
+    CMPIStatus rc = checkArgsReturnStatus(cop);
 
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    } 
+    hn  = (hostname) ? strdup(hostname) : NULL;
     if (o->mem_state == TOOL_MM_NO_ADD)
     {
         free(o->hostname);
@@ -174,6 +196,11 @@ static CMPIString * __oft_getHostName(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
+    if (!checkArgs(cop, rc) )
+    {
+        return 0;
+    }
+
     return native_new_CMPIString(o->hostname, rc);
 }
 
@@ -183,9 +210,14 @@ static CMPIStatus __oft_setClassName(
     const char * classname)
 {
     struct native_cop * o = (struct native_cop *) cop;
+    char * cn;
+    CMPIStatus rc = checkArgsReturnStatus(cop);
 
-    char * cn = (classname) ? strdup(classname) : NULL;
-
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    } 
+    cn  = (classname) ? strdup(classname) : NULL;
     if (o->mem_state == TOOL_MM_NO_ADD)
     {
         free(o->classname);
@@ -206,6 +238,10 @@ CMPIString * __oft_getClassName(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
+    if (!checkArgs(cop, rc) )
+    {
+        return 0;
+    }
     return native_new_CMPIString(o->classname, rc);
 }
 
@@ -217,7 +253,12 @@ static CMPIStatus __oft_addKey(
     CONST CMPIType type)
 {
     struct native_cop * o = (struct native_cop *) cop;
+    CMPIStatus rc = checkArgsReturnStatus(cop);
 
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    } 
     CMReturn(
         (propertyFT.addProperty(
             &o->keys,
@@ -236,6 +277,12 @@ static CMPIData __oft_getKey(
     CMPIStatus * rc)
 {
     struct native_cop * o = (struct native_cop *) cop;
+    CMPIData data = checkArgsReturnData(cop, rc);
+
+    if (data.state == CMPI_badValue)
+    {
+        return data;
+    }
 
     return propertyFT.getDataProperty(o->keys, name, rc);
 }
@@ -248,6 +295,12 @@ static CMPIData __oft_getKeyAt(
     CMPIStatus * rc)
 {
     struct native_cop * o = (struct native_cop *) cop;
+    CMPIData data = checkArgsReturnData(cop, rc);
+
+    if (data.state == CMPI_badValue)
+    {
+        return data;
+    }
 
     return propertyFT.getDataPropertyAt(o->keys, index, name, rc);
 }
@@ -259,6 +312,11 @@ static unsigned int __oft_getKeyCount(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
+    if (!checkArgs(cop, rc) )
+    {
+        return 0;
+    }
+
     return propertyFT.getPropertyCount(o->keys, rc);
 }
 
@@ -268,6 +326,12 @@ static CMPIStatus __oft_setNameSpaceFromObjectPath(
     CONST CMPIObjectPath * src)
 {
     struct native_cop * s = (struct native_cop *) src;
+    CMPIStatus rc = checkArgsReturnStatus(cop);
+
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    }
 
     return __oft_setNameSpace(cop, s->namespace);
 }
@@ -280,6 +344,16 @@ static CMPIStatus __oft_setHostAndNameSpaceFromObjectPath(
     CMPIStatus rc;
     struct native_cop * s = (struct native_cop *) src;
 
+    rc = checkArgsReturnStatus(cop);
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    } 
+    rc = checkArgsReturnStatus(src);
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    }
     rc =  __oft_setNameSpace(cop, s->namespace);
     if (rc.rc == CMPI_RC_OK)
     {
@@ -304,6 +378,10 @@ CMPIString *__oft_toString( CONST CMPIObjectPath * cop, CMPIStatus *rc)
     unsigned int i, m;
     char *v;
 
+    if (!checkArgs(cop, rc) )
+    {
+        return 0;
+    }
     hn = __oft_getHostName(cop, rc);
     if (hn && hn->hdl)
     {

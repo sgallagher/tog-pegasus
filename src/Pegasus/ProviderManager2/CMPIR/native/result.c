@@ -66,23 +66,30 @@ static struct native_result * __new_empty_result ( int, CMPIStatus * );
 static CMPIStatus __rft_release ( CMPIResult * result )
 {
 	struct native_result * r = (struct native_result *) result;
+        CMPIStatus rc = checkArgsReturnStatus(result);
 
-	if ( r->mem_state == TOOL_MM_NO_ADD ) {
-
+	if (rc.rc == CMPI_RC_OK && r->mem_state == TOOL_MM_NO_ADD ) 
+        {
 		tool_mm_add ( result );
 		return r->data->ft->release ( r->data );
 	}
 
-	CMReturn ( CMPI_RC_OK );
+	return rc;
 }
 
 
 static CMPIResult * __rft_clone ( CONST CMPIResult * result,
 				  CMPIStatus * rc )
 {
-	CMPIArray * a = ( (struct native_result *) result )->data;
-	struct native_result * r = __new_empty_result ( TOOL_MM_NO_ADD, rc );
+	CMPIArray * a;
+	struct native_result * r;
 
+        if (!checkArgs(result, rc) )
+        {
+            return 0;
+        }
+        a  = ( (struct native_result *) result )->data;
+        r = __new_empty_result ( TOOL_MM_NO_ADD, rc );
 	if ( rc && rc->rc != CMPI_RC_OK )
 		return NULL;
   
@@ -97,7 +104,12 @@ static CMPIStatus __rft_returnData ( CONST CMPIResult * result,
 				     CONST CMPIType type )
 {
 	struct native_result * r = (struct native_result *) result;
+        CMPIStatus rc = checkArgsReturnStatus(result);
 
+        if (rc.rc != CMPI_RC_OK)
+        {
+            return rc;
+        } 
 	if ( r->current == 0 ) {
 
 		CMPIStatus rc;
@@ -118,6 +130,12 @@ static CMPIStatus __rft_returnInstance ( CONST CMPIResult * result,
 					 CONST CMPIInstance * instance )
 {
 	CMPIValue v;
+        CMPIStatus rc = checkArgsReturnStatus(result);
+
+        if (rc.rc != CMPI_RC_OK)
+        {
+            return rc;
+        } 
 	v.inst = (CMPIInstance *)instance;
 
 	return __rft_returnData ( result, &v, CMPI_instance );
@@ -128,6 +146,11 @@ static CMPIStatus __rft_returnObjectPath ( CONST CMPIResult * result,
 					   CONST CMPIObjectPath * cop )
 {
 	CMPIValue v;
+        CMPIStatus rc = checkArgsReturnStatus(result);
+        if (rc.rc != CMPI_RC_OK)
+        {
+            return rc;
+        } 
 	v.ref = (CMPIObjectPath *)cop;
 
 	return __rft_returnData ( result, &v, CMPI_ref );
@@ -136,7 +159,9 @@ static CMPIStatus __rft_returnObjectPath ( CONST CMPIResult * result,
 
 static CMPIStatus __rft_returnDone ( CONST CMPIResult * result )
 {
-	CMReturn ( CMPI_RC_OK );
+        CMPIStatus rc = checkArgsReturnStatus(result);
+
+	return rc;
 }
 
 

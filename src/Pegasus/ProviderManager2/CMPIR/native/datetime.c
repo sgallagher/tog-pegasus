@@ -41,8 +41,6 @@
 
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM.
-
-  \author Frank Scheffler
 */
 
 #include <stdio.h>
@@ -112,13 +110,15 @@ static struct native_datetime * __new_datetime ( int,
 static CMPIStatus __dtft_release ( CMPIDateTime * dt )
 {
 	struct native_datetime * ndt = (struct native_datetime *) dt;
+        CMPIStatus rc = checkArgsReturnStatus(dt);
 
-	if ( ndt->mem_state == TOOL_MM_NO_ADD ) {
-
+	if (rc.rc == CMPI_RC_OK && ndt->mem_state == TOOL_MM_NO_ADD ) 
+        {
 		ndt->mem_state = TOOL_MM_ADD;
 		tool_mm_add ( ndt );
 	}
-        CMReturn ( CMPI_RC_OK );
+
+        return rc; 
 }
 
 
@@ -136,7 +136,14 @@ static CMPIStatus __dtft_release ( CMPIDateTime * dt )
 static CMPIDateTime * __dtft_clone ( CONST CMPIDateTime * dt, CMPIStatus * rc )
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
-	struct native_datetime * new = __new_datetime ( TOOL_MM_NO_ADD,
+	struct native_datetime * new;
+
+        if (!checkArgs(dt, rc) )
+        {
+            return 0;
+        }
+        new  = __new_datetime ( 
+                  TOOL_MM_NO_ADD,
 							ndt->msecs,
 							ndt->interval,
 							rc );
@@ -157,7 +164,12 @@ static CMPIUint64 __dtft_getBinaryFormat ( CONST CMPIDateTime * dt,
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
 
+        if (!checkArgs(dt, rc) )
+        {
+            return 0;
+        }
 	if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+
 	return ndt->msecs;
 }
 
@@ -176,13 +188,16 @@ static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
 					     CMPIStatus * rc )
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
-
-	time_t secs         = ndt->msecs / 1000000;
-        unsigned long usecs = ndt->msecs % 1000000;
-
+	time_t secs; 
+        unsigned long usecs;
 	char str_time[26];
 
-
+        if (!checkArgs(dt, rc) )
+        {
+            return 0;
+        }
+        secs  = ndt->msecs / 1000000;
+        usecs = ndt->msecs % 1000000;
 	if ( ndt->interval ) {
 
 		unsigned long mins, hrs, days;
@@ -237,6 +252,10 @@ static CMPIBoolean __dtft_isInterval ( CONST CMPIDateTime * dt, CMPIStatus * rc 
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
 
+        if (!checkArgs(dt, rc) )
+        {
+            return 0;
+        }
 	if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
 	return ndt->interval;
 }

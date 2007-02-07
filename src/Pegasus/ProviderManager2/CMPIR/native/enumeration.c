@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -45,8 +41,6 @@
   
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM.
-
-  \author Frank Scheffler
 */
 
 #include "mm.h"
@@ -72,14 +66,15 @@ static struct native_enum * __new_enumeration ( int,
 static CMPIStatus __eft_release ( CMPIEnumeration * enumeration )
 {
 	struct native_enum * e = (struct native_enum *) enumeration;
+        CMPIStatus rc = checkArgsReturnStatus(enumeration);
 
-	if ( e->mem_state == TOOL_MM_NO_ADD ) {
+	if (rc.rc == CMPI_RC_OK && e->mem_state == TOOL_MM_NO_ADD ) {
 
 		tool_mm_add ( enumeration );
 		return e->data->ft->release ( e->data );
 	}
 
-	CMReturn ( CMPI_RC_OK );
+	return rc;
 }
 
 
@@ -88,8 +83,13 @@ static CMPIEnumeration * __eft_clone ( CONST CMPIEnumeration * enumeration,
 {
 	CMPIStatus tmp;
 	struct native_enum * e = (struct native_enum *) enumeration;
-	CMPIArray * data       = CMClone ( e->data, &tmp );
+	CMPIArray * data;
 
+        if (!checkArgs(enumeration, rc) )
+        {
+            return 0;
+        }
+        data  = CMClone ( e->data, &tmp );
 	if ( tmp.rc != CMPI_RC_OK ) {
 
 		if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_FAILED );
@@ -107,6 +107,13 @@ static CMPIData __eft_getNext ( CONST CMPIEnumeration * enumeration,
 				CMPIStatus * rc )
 {
 	struct native_enum * e = (struct native_enum *) enumeration;
+
+        CMPIData data = checkArgsReturnData(enumeration, rc);
+        if (data.state == CMPI_badValue)
+        {
+            return data;
+        }
+
 	return CMGetArrayElementAt ( e->data, e->current++, rc );
 }
 
@@ -115,6 +122,12 @@ static CMPIBoolean __eft_hasNext ( CONST CMPIEnumeration * enumeration,
 				   CMPIStatus * rc )
 {
 	struct native_enum * e = (struct native_enum *) enumeration;
+
+        if (!checkArgs(enumeration, rc) )
+        {
+            return 0;
+        }
+
 	return ( e->current < CMGetArrayCount ( e->data, rc ) );
 }
 
@@ -123,7 +136,12 @@ static CMPIArray * __eft_toArray ( CONST CMPIEnumeration * enumeration,
 				   CMPIStatus * rc )
 {
 	struct native_enum * e = (struct native_enum *) enumeration;
-	rc->rc = CMPI_RC_OK;
+
+        if (!checkArgs(enumeration, rc) )
+        {
+            return 0;
+        }
+
 	return e->data;
 }
 

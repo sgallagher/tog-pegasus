@@ -364,6 +364,60 @@ CMPIBrokerEncFT native_brokerEncFT = {
 #endif
 };
 
+/*
+   Utility functions that check for Args and hdl pointers.
+*/
+
+CMPIStatus checkArgsReturnStatus(const void *ptr)
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    if (!ptr)
+    {
+        rc.rc = CMPI_RC_ERR_INVALID_HANDLE;
+    }
+    else if (! (void*)(*( (int*)ptr) ) ) // first pointer in object is hdl pointer
+    {
+        rc.rc = CMPI_RC_ERR_INVALID_PARAMETER;
+    }
+
+    return rc;
+}
+
+CMPIData checkArgsReturnData(const void *ptr, CMPIStatus *rc)
+{
+    CMPIStatus status = checkArgsReturnStatus(ptr);
+    CMPIData data;
+    data.state = CMPI_nullValue;
+
+    if (status.rc != CMPI_RC_OK)
+    {        
+        if (rc)
+        {
+            rc->rc = status.rc;
+        }
+        data.state = CMPI_badValue; 
+    }
+
+    return data;
+}
+
+void* checkArgs(const void *ptr, CMPIStatus *rc)
+{
+    CMPIStatus status = checkArgsReturnStatus(ptr);
+    
+    if (status.rc != CMPI_RC_OK)
+    {
+        if (rc)
+        {
+            rc->rc = status.rc;
+        }
+        return 0;
+    }
+
+    return (void*)ptr; // Args are good, return the pointer we got
+}
+
 /****************************************************************************/
 
 /*** Local Variables:  ***/

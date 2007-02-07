@@ -59,9 +59,9 @@ void testParseHTTPHeaders(
     Boolean cimReconnect;
     Boolean valid;
 
-    HTTPMessage* httpMessage = new HTTPMessage(httpBuffer);
+    HTTPMessage httpMessage(httpBuffer);
 
-    HTTPExportResponseDecoder::parseHTTPHeaders(httpMessage, exceptionMessage,
+    HTTPExportResponseDecoder::parseHTTPHeaders(&httpMessage, exceptionMessage,
         headers, contentLength, statusCode, reasonPhrase, cimReconnect,
         valid);
 
@@ -90,13 +90,13 @@ void testValidateHTTPHeaders(
     Boolean cimReconnect;
     Boolean valid;
 
-    HTTPMessage* httpMessage = new HTTPMessage(httpBuffer);
+    HTTPMessage httpMessage(httpBuffer);
 
-    HTTPExportResponseDecoder::parseHTTPHeaders(httpMessage, exceptionMessage,
+    HTTPExportResponseDecoder::parseHTTPHeaders(&httpMessage, exceptionMessage,
         headers, contentLength, statusCode, reasonPhrase, cimReconnect,
         valid);
 
-    HTTPExportResponseDecoder::validateHTTPHeaders(httpMessage, headers,
+    HTTPExportResponseDecoder::validateHTTPHeaders(&httpMessage, headers,
         contentLength, statusCode, cimReconnect, reasonPhrase, content,
         exceptionMessage, valid);
 
@@ -137,13 +137,13 @@ void testDecodeExportResponse(
     Boolean valid;
     Message* responseMessage;
 
-    HTTPMessage* httpMessage = new HTTPMessage(httpBuffer);
+    HTTPMessage httpMessage(httpBuffer);
 
-    HTTPExportResponseDecoder::parseHTTPHeaders(httpMessage, exceptionMessage,
+    HTTPExportResponseDecoder::parseHTTPHeaders(&httpMessage, exceptionMessage,
         headers, contentLength, statusCode, reasonPhrase, cimReconnect,
         valid);
 
-    HTTPExportResponseDecoder::validateHTTPHeaders(httpMessage, headers,
+    HTTPExportResponseDecoder::validateHTTPHeaders(&httpMessage, headers,
         contentLength, statusCode, cimReconnect, reasonPhrase, content,
         exceptionMessage, valid);
 

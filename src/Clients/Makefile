@@ -55,7 +55,6 @@ DIRS = \
     cimsub \
     cimsub/tests \
     repupgrade/SSPModules/SampleSSPModule \
-    SendTestIndications \
     repupgrade/tests \
     wbemexec/tests
 

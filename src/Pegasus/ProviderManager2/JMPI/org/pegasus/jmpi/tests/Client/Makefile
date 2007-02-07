@@ -69,6 +69,7 @@ JAR2CLASSES      = \
 	testCIMInstance.class \
 	testCIMMethod.class \
 	testCIMObjectPath.class \
+	testCIMParameter.class \
 	testCIMProperty.class \
 	testCIMQualifier.class \
 	testCIMQualifier.class \

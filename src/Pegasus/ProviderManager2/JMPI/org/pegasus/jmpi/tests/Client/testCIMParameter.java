@@ -38,7 +38,7 @@ import org.pegasus.jmpi.CIMMethod;
 import org.pegasus.jmpi.CIMObjectPath;
 import org.pegasus.jmpi.CIMParameter;
 
-public class testCIMMethod
+public class testCIMParameter
 {
    private boolean DEBUG = false;
 
@@ -49,7 +49,7 @@ public class testCIMMethod
     */
    public String getGroup ()
    {
-      return "CIMMethod";
+      return "CIMParameter";
    }
 
    public void setDebug (boolean fDebug)
@@ -72,32 +72,35 @@ public class testCIMMethod
 
       if (!fExecuted)
       {
-         fRet = testCIMMethod (cimClient);
+         fRet = testCIMParameter (cimClient);
       }
 
       return fRet;
    }
 
-   private boolean testCIMMethod (CIMClient client)
+   private boolean testCIMParameter (CIMClient client)
    {
       if (client == null)
       {
-         System.out.println ("FAILURE: testCIMMethod: client == null");
+         System.out.println ("FAILURE: testCIMParameter: client == null");
 
          return false;
       }
 
       // -----
 
-      CIMObjectPath cop = null;
-      CIMClass      cc  = null;
+      CIMObjectPath cop           = null;
+      CIMClass      cc            = null;
+      String        pszMethodName = "enableModifications";
+      CIMMethod     cm            = null;
+      CIMParameter  cp            = null;
 
       cop = new CIMObjectPath ("JMPIExpInstance_TestPropertyTypes",
                                "root/SampleProvider");
 
       if (DEBUG)
       {
-         System.out.println ("testCIMMethod: cop = " + cop);
+         System.out.println ("testCIMParameter: cop = " + cop);
       }
 
       try
@@ -110,81 +113,47 @@ public class testCIMMethod
       }
       catch (CIMException e)
       {
-         System.out.println ("FAILURE: testCIMMethod: client.getClass: caught " + e);
-
-         return false;
-      }
-
-      if (cc == null)
-      {
-         System.out.println ("FAILURE: testCIMMethod: cc == null");
+         System.out.println ("FAILURE: testCIMParameter: client.getClass: caught " + e);
 
          return false;
       }
 
       if (DEBUG)
       {
-         System.out.println ("testCIMMethod: cc = " + cc);
+         System.out.println ("testCIMParameter: cc = " + cc);
       }
 
-      // -----
+      if (cc == null)
+      {
+         System.out.println ("FAILURE: testCIMParameter: cc == null");
 
-      String    pszMethodName = "enableModifications";
-      CIMMethod cm            = null;
+         return false;
+      }
 
       cm = cc.getMethod (pszMethodName);
 
       if (DEBUG)
       {
-         System.out.println ("testCIMMethod: cm = " + cm);
+         System.out.println ("testCIMParameter: cm = " + cm);
       }
 
       if (cm == null)
       {
-         System.out.println ("FAILURE: testCIMMethod: cc.getMethod ()");
+         System.out.println ("FAILURE: testCIMParameter: cm == null");
 
          return false;
       }
 
-      // -----
-
-      int iType = 0;
-
-      iType = cm.getType ();
+      cp = cm.getParameter (0);
 
       if (DEBUG)
       {
-         System.out.println ("testCIMMethod: cm.getType () = " + iType);
+         System.out.println ("testCIMParameter: cp = " + cp);
       }
 
-      if (iType != CIMDataType.BOOLEAN)
+      if (cp == null)
       {
-         System.out.println ("FAILURE: testCIMMethod: cm.getType ()");
-
-         return false;
-      }
-
-      // -----
-
-      String pszName = null;
-
-      pszName = cm.getName ();
-
-      if (DEBUG)
-      {
-         System.out.println ("testCIMMethod: cm.getName () = " + pszName);
-      }
-
-      if (pszName == null)
-      {
-         System.out.println ("FAILURE: testCIMMethod: cm.getName () 1");
-
-         return false;
-      }
-
-      if (!pszName.equals (pszMethodName))
-      {
-         System.out.println ("FAILURE: testCIMMethod: cm.getName () 2");
+         System.out.println ("FAILURE: testCIMParameter: cp == null");
 
          return false;
       }
@@ -192,109 +161,129 @@ public class testCIMMethod
       // -----
 
       String pszParameterName = "fState";
-      String pszBadParameter  = "bob";
-      int    iParameter       = -1;
+      String pszName          = null;
 
-      iParameter = cm.findParameter (pszParameterName);
+      pszName = cp.getName ();
 
       if (DEBUG)
       {
-         System.out.println ("testCIMMethod: cm.findParameter (" + pszParameterName + ") = " + iParameter);
+         System.out.println ("testCIMParameter: pszName = " + pszName);
       }
 
-      if (iParameter != 0)
+      if (pszName == null)
       {
-         System.out.println ("FAILURE: testCIMMethod: cm.findParameter (" + pszParameterName + ")");
+         System.out.println ("FAILURE: testCIMParameter: cp.getName () 1");
 
          return false;
       }
 
-      iParameter = cm.findParameter (pszBadParameter);
-
-      if (DEBUG)
+      if (!pszName.equals (pszParameterName))
       {
-         System.out.println ("testCIMMethod: cm.findParameter (" + pszBadParameter + ") = " + iParameter);
-      }
-
-      if (iParameter != -1)
-      {
-         System.out.println ("FAILURE: testCIMMethod: cm.findParameter (" + pszBadParameter + ")");
+         System.out.println ("FAILURE: testCIMParameter: cp.getName () 2");
 
          return false;
       }
 
       // -----
 
-      CIMParameter cp = null;
+      String pszNewParameterName = "bob";
 
-      cp = cm.getParameter (0);
+      cp.setName (pszNewParameterName);
+
+      pszName = cp.getName ();
 
       if (DEBUG)
       {
-         System.out.println ("testCIMMethod: cm.getParameter (0) = " + cp);
+         System.out.println ("testCIMParameter: pszName = " + pszName);
       }
 
-      if (cp == null)
+      if (pszName == null)
       {
-         System.out.println ("FAILURE: testCIMMethod: cm.getParameter (0)");
+         System.out.println ("FAILURE: testCIMParameter: cp.getName () 3");
 
          return false;
       }
 
-      try
+      if (!pszName.equals (pszNewParameterName))
       {
-         cp = cm.getParameter (1);
-
-         if (DEBUG)
-         {
-            System.out.println ("testCIMMethod: cm.getParameter (1) = " + cp);
-         }
-      }
-      catch (CIMException e)
-      {
-         cp = null;
-
-         if (DEBUG)
-         {
-            System.out.println ("testCIMMethod: caught = " + e);
-         }
-
-         if (e.getID () != CIMException.CIM_ERR_FAILED)
-         {
-            System.out.println ("FAILURE: testCIMMethod: cm.getParameter (1) 1");
-
-            return false;
-         }
-      }
-
-      if (cp != null)
-      {
-         System.out.println ("FAILURE: testCIMMethod: cm.getParameter (1) 2");
+         System.out.println ("FAILURE: testCIMParameter: cp.getName () 4");
 
          return false;
       }
 
       // -----
 
-      int iParameterCount = 0;
+      if (DEBUG)
+      {
+         System.out.println ("testCIMParameter: cp.isArray () = " + cp.isArray ());
+      }
 
-      iParameterCount = cm.getParameterCount ();
+      if (cp.isArray ())
+      {
+         System.out.println ("FAILURE: testCIMParameter: cp.isArray () 1");
+
+         return false;
+      }
+
+      // @TBD - make a function that has an array parameter.  test if so here.
+
+      // -----
+
+      // @TBD - make a function that has an array parameter.  test the size here.
+
+      // -----
+
+      String pszReferenceClassName = null;
+
+      pszReferenceClassName = cp.getReferenceClassName ();
 
       if (DEBUG)
       {
-         System.out.println ("testCIMMethod: cm.getParameterCount () = " + iParameterCount);
+         System.out.println ("testCIMParameter: cp.getReferenceClassName () = " + pszReferenceClassName);
       }
 
-      if (iParameterCount != 1)
+      if (pszReferenceClassName == null)
       {
-         System.out.println ("FAILURE: testCIMMethod: cm.getParameterCount ()");
+         System.out.println ("FAILURE: testCIMParameter: cp.getReferenceClassName () 1");
+
+         return false;
+      }
+
+      if (!pszReferenceClassName.equals (""))
+      {
+         System.out.println ("FAILURE: testCIMParameter: cp.getReferenceClassName () 2");
 
          return false;
       }
 
       // -----
 
-      System.out.println ("SUCCESS: testCIMMethod");
+      CIMDataType cdt = null;
+
+      cdt = cp.getType ();
+
+      if (DEBUG)
+      {
+         System.out.println ("testCIMParameter: cp.getType () = " + cdt);
+      }
+
+      if (cdt == null)
+      {
+         System.out.println ("FAILURE: testCIMParameter: cp.getType () 1");
+
+         return false;
+      }
+
+      if (cdt.getType () != CIMDataType.BOOLEAN)
+      {
+         System.out.println ("FAILURE: testCIMParameter: cp.getType () 2");
+
+         return false;
+      }
+
+      // -----
+
+      System.out.println ("SUCCESS: testCIMParameter");
 
       return true;
    }

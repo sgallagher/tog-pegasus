@@ -83,6 +83,12 @@ public class CIMClass implements CIMElement
                                              String   n);
    private native boolean _equals           (long     cInst,
                                              long     cInst1);
+   private native boolean _isAssociation    (long     cInst);
+   private native int     _findMethod       (long     cInst,
+                                             String   name);
+   private native long    _getMethodI       (long     cInst,
+                                             int      iMethod);
+   private native int     _getMethodCount   (long     cInst);
    private native void    _finalize         (long     cInst);
 
    protected void finalize ()
@@ -404,6 +410,51 @@ public class CIMClass implements CIMElement
       boolean rv = _equals (cInst, clsToBeCompared.cInst ());
 
       return rv;
+   }
+
+   public boolean isAssociation ()
+   {
+      if (cInst != 0)
+      {
+         return _isAssociation (cInst);
+      }
+
+      return false;
+   }
+
+   public int findMethod (String name)
+   {
+      if (cInst != 0)
+      {
+         return _findMethod (cInst, name);
+      }
+
+      return -1;
+   }
+
+   public CIMMethod getMethod (int iMethod)
+   {
+      if (cInst != 0)
+      {
+         long ciMethod = _getMethodI (cInst, iMethod);
+
+         if (ciMethod != 0)
+         {
+            return new CIMMethod (ciMethod);
+         }
+      }
+
+      return null;
+   }
+
+   public int getMethodCount ()
+   {
+      if (cInst != 0)
+      {
+         return _getMethodCount (cInst);
+      }
+
+      return 0;
    }
 
    static {

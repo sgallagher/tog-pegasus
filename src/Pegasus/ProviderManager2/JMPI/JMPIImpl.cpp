@@ -1415,6 +1415,86 @@ JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMClass__1equals
    return fRc;
 }
 
+JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMClass__1isAssociation
+      (JNIEnv *jEnv, jobject jThs, jlong jCls)
+{
+   CIMClass *cls = DEBUG_ConvertJavaToC (jlong, CIMClass*, jCls);
+   jboolean  rv  = false;
+
+   if (cls)
+   {
+      try
+      {
+         rv = cls->isAssociation ();
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1findMethod
+      (JNIEnv *jEnv, jobject jThs, jlong jCls, jstring jName)
+{
+   CIMClass *cls = DEBUG_ConvertJavaToC (jlong, CIMClass*, jCls);
+   jint      rv  = -1;
+
+   if (cls)
+   {
+      const char *cstrName = jEnv->GetStringUTFChars (jName, NULL);
+
+      try
+      {
+         CIMName name (cstrName);
+
+         rv = cls->findMethod (name);
+      }
+      Catch (jEnv);
+
+      jEnv->ReleaseStringUTFChars (jName, cstrName);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClass__1getMethodI
+      (JNIEnv *jEnv, jobject jThs, jlong jCls, jint jMethod)
+{
+   CIMClass *cls = DEBUG_ConvertJavaToC (jlong, CIMClass*, jCls);
+   jlong     rv  = 0;
+
+   if (cls && jMethod >=0)
+   {
+      try
+      {
+         CIMMethod cm = cls->getMethod (jMethod);
+
+         rv = DEBUG_ConvertCToJava (CIMMethod *, jlong, new CIMMethod (cm));
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1getMethodCount
+      (JNIEnv *jEnv, jobject jThs, jlong jCls)
+{
+   CIMClass *cls = DEBUG_ConvertJavaToC (jlong, CIMClass*, jCls);
+   jint      rv  = 0;
+
+   if (cls)
+   {
+      try
+      {
+         rv = cls->getMethodCount ();
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClass__1finalize
      (JNIEnv *jEnv, jobject jThs, jlong jCls)
 {
@@ -2643,16 +2723,16 @@ JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDateTime__1after
 {
    CIMDateTime *ct = DEBUG_ConvertJavaToC (jlong, CIMDateTime*, jC);
    CIMDateTime *dt = DEBUG_ConvertJavaToC (jlong, CIMDateTime*, jD);
-   jboolean     ret = 0;
+   jboolean     rv  = 0;
 
    if (  ct
       && dt
       )
    {
-      ret = (jboolean)(ct->getDifference (*ct, *dt) < 0);
+      rv = (jboolean)(ct->getDifference (*ct, *dt) < 0);
    }
 
-   return ret;
+   return rv;
 }
 
 JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDateTime__1before
@@ -2660,16 +2740,16 @@ JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMDateTime__1before
 {
    CIMDateTime *ct  = DEBUG_ConvertJavaToC (jlong, CIMDateTime*, jC);
    CIMDateTime *dt  = DEBUG_ConvertJavaToC (jlong, CIMDateTime*, jD);
-   jboolean     ret = 0;
+   jboolean     rv  = 0;
 
    if (  ct
       && dt
       )
    {
-      ret = (jboolean)(ct->getDifference (*ct, *dt) > 0);
+      rv = (jboolean)(ct->getDifference (*ct, *dt) > 0);
    }
 
-   return ret;
+   return rv;
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMDateTime__1finalize
@@ -3219,6 +3299,84 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMMethod__1getType
    }
 
    return jType;
+}
+
+JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMMethod__1getName
+      (JNIEnv *jEnv, jobject jThs, jlong jM)
+{
+   CIMMethod *cm  = DEBUG_ConvertJavaToC (jlong, CIMMethod*, jM);
+   jstring    str = 0;
+
+   if (cm)
+   {
+      CIMName cn = cm->getName ();
+
+      str = jEnv->NewStringUTF (cn.getString ().getCString ());
+   }
+
+   return str;
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMMethod__1findParameter
+      (JNIEnv *jEnv, jobject jThs, jlong jM, jstring jName)
+{
+   CIMMethod *cm  = DEBUG_ConvertJavaToC (jlong, CIMMethod*, jM);
+   jint       rv  = -1;
+
+   if (cm && jName)
+   {
+      const char *cstrName = jEnv->GetStringUTFChars (jName, NULL);
+
+      try
+      {
+         CIMName name (cstrName);
+
+         rv = cm->findParameter (name);
+      }
+      Catch (jEnv);
+
+      jEnv->ReleaseStringUTFChars (jName, cstrName);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMMethod__1getParameter
+      (JNIEnv *jEnv, jobject jThs, jlong jM, jint jParameter)
+{
+   CIMMethod *cm  = DEBUG_ConvertJavaToC (jlong, CIMMethod*, jM);
+   jlong      rv  = 0;
+
+   if (cm && jParameter >= 0)
+   {
+      try
+      {
+         CIMParameter cp = cm->getParameter (jParameter);
+
+         rv = DEBUG_ConvertCToJava (CIMParameter *, jlong, new CIMParameter (cp));
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMMethod__1getParameterCount
+      (JNIEnv *jEnv, jobject jThs, jlong jM)
+{
+   CIMMethod *cm  = DEBUG_ConvertJavaToC (jlong, CIMMethod*, jM);
+   jint       rv  = 0;
+
+   if (cm)
+   {
+      try
+      {
+         rv = cm->getParameterCount ();
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMMethod__1finalize
@@ -4648,6 +4806,157 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1finalize
 
 // -------------------------------------
 // ---
+// -		CIMParameter
+// ---
+// -------------------------------------
+
+JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMParameter__1getName
+   (JNIEnv *jEnv, jobject jThs, jlong jCp)
+{
+   CIMParameter *cp  = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);
+   jstring       rv  = 0;
+
+   if (cp)
+   {
+      try
+      {
+         CIMName name = cp->getName ();
+
+         rv = jEnv->NewStringUTF (name.getString ().getCString ());
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMParameter__1setName 
+   (JNIEnv *jEnv, jobject jThs, jlong jCp, jstring jName)
+{
+   CIMParameter *cp  = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);
+
+   if (cp && jName)
+   {
+      try
+      {
+         const char *cstrName = jEnv->GetStringUTFChars (jName, NULL);
+
+         CIMName name (cstrName);
+
+         cp->setName (name);
+
+         jEnv->ReleaseStringUTFChars (jName, cstrName);
+      }
+      Catch (jEnv);
+   }
+}
+
+JNIEXPORT jboolean JNICALL Java_org_pegasus_jmpi_CIMParameter__1isArray
+   (JNIEnv *jEnv, jobject jThs, jlong jCp)
+{
+   CIMParameter *cp  = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);
+   jboolean      rv  = 0;
+
+   if (cp)
+   {
+      try
+      {
+         rv = cp->isArray ();
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMParameter__1getArraySize
+   (JNIEnv *jEnv, jobject jThs, jlong jCp)
+{
+   CIMParameter *cp  = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);
+   jint          rv  = 0;
+
+   if (cp)
+   {
+      try
+      {
+         rv = cp->getArraySize ();
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMParameter__1getReferenceClassName
+   (JNIEnv *jEnv, jobject jThs, jlong jCp)
+{
+   CIMParameter *cp  = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);
+   jstring       rv  = 0;
+
+   if (cp)
+   {
+      try
+      {
+         CIMName name = cp->getReferenceClassName ();
+
+         rv = jEnv->NewStringUTF (name.getString ().getCString ());
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMParameter__1getType
+   (JNIEnv *jEnv, jobject jThs, jlong jCp)
+{
+   CIMParameter *cp  = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);
+   jlong         rv  = 0;
+
+   if (cp)
+   {
+      try
+      {
+         CIMType    ct       = cp->getType ();
+         bool       fSuccess = false;
+         String     ref      = cp->getReferenceClassName ().getString ();
+         int        iJType   = 0;
+         _dataType *type     = 0;
+
+         iJType = _dataType::convertCTypeToJavaType (ct, &fSuccess);
+
+         if (fSuccess)
+         {
+            type = new _dataType (iJType,
+                                  cp->getArraySize (),
+                                  false,
+                                  false,
+                                  cp->isArray (),
+                                  ref,
+                                  true);
+
+            rv = DEBUG_ConvertCToJava (_dataType*, jlong, type);
+         }
+      }
+      Catch (jEnv);
+   }
+
+   return rv;
+}
+
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMParameter__1finalize
+   (JNIEnv *jEnv, jobject jThs, jlong jCp)
+{
+   CIMParameter *cp = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);
+
+   delete cp;
+
+   DEBUG_ConvertCleanup (jlong, jCp);
+}
+
+
+// -------------------------------------
+// ---
 // -		CIMProperty
 // ---
 // -------------------------------------
@@ -4749,11 +5058,11 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMProperty__1getRefClassName
 JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMProperty__1getType
       (JNIEnv *jEnv, jobject jThs, jlong jP)
 {
-   CIMProperty  *cp        = DEBUG_ConvertJavaToC (jlong, CIMProperty*, jP);
-   String        ref       = cp->getReferenceClassName ().getString ();
-   bool           fSuccess = false;
-   int            iJType   = 0;
-   _dataType     *type     = 0;
+   CIMProperty  *cp       = DEBUG_ConvertJavaToC (jlong, CIMProperty*, jP);
+   String        ref      = cp->getReferenceClassName ().getString ();
+   bool          fSuccess = false;
+   int           iJType   = 0;
+   _dataType     *type    = 0;
 
    iJType = _dataType::convertCTypeToJavaType (cp->getType (), &fSuccess);
 

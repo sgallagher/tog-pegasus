@@ -107,7 +107,9 @@ CLASSES = \
 	PathEnumeration.class \
 	QualEnumeration.class \
 	\
-	JarClassLoader.class
+	JarClassLoader.class \
+	\
+	CIMParameter.class
 
 PFXCLASSES=$(addprefix -C ../../.. org/pegasus/jmpi/,$(CLASSES))
 

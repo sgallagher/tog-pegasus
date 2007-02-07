@@ -29,23 +29,20 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Duta
-//
-// Modified By: Mark Hamzy, hamzy@us.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
 
-public class CIMMethod
+public class CIMParameter
 {
    private long cInst;
 
-   private native int    _getType           (long cInst);
-   private native String _getName           (long cInst);
-   private native int    _findParameter     (long cInst, String name);
-   private native long   _getParameter      (long cInst, int    iParameter);
-   private native int    _getParameterCount (long cInst);
-   private native void   _finalize          (long cInst);
+   private native String  _getName               (long cInst);
+   private native void    _setName               (long cInst, String name);
+   private native boolean _isArray               (long cInst);
+   private native int     _getArraySize          (long cInst);
+   private native String  _getReferenceClassName (long cInst);
+   private native long    _getType               (long cInst);
+   private native void    _finalize              (long cInst);
 
    protected void finalize ()
    {
@@ -57,21 +54,9 @@ public class CIMMethod
       return cInst;
    }
 
-   public CIMMethod (long ci)
+   public CIMParameter (long ci)
    {
       cInst = ci;
-   }
-
-   public int getType ()
-   {
-      if (cInst != 0)
-      {
-         return _getType (cInst);
-      }
-      else
-      {
-         return 0;
-      }
    }
 
    public String getName ()
@@ -80,59 +65,65 @@ public class CIMMethod
       {
          return _getName (cInst);
       }
-      else
-      {
-         return null;
-      }
+
+      return null;
    }
 
-   public int findParameter (String name)
+   public void setName (String name)
    {
       if (cInst != 0)
       {
-         return _findParameter (cInst, name);
-      }
-      else
-      {
-         return -1;
+         _setName (cInst, name);
       }
    }
 
-   public CIMParameter getParameter (int iParameter)
+   public boolean isArray ()
    {
-      CIMParameter ret = null;
-
       if (cInst != 0)
       {
-         long ciParameter = _getParameter (cInst, iParameter);
+         return _isArray (cInst);
+      }
 
-         if (ciParameter != 0)
+      return false;
+   }
+
+   public int getArraySize ()
+   {
+      if (cInst != 0)
+      {
+         return _getArraySize (cInst);
+      }
+
+      return 0;
+   }
+
+   public String getReferenceClassName ()
+   {
+      if (cInst != 0)
+      {
+         return _getReferenceClassName (cInst);
+      }
+
+      return null;
+   }
+
+   public CIMDataType getType ()
+   {
+      if (cInst != 0)
+      {
+         long ciDT = _getType (cInst);
+
+         if (ciDT != 0)
          {
-            ret = new CIMParameter (ciParameter);
+            return new CIMDataType (ciDT, true);
          }
       }
 
-      return ret;
+      return null;
    }
 
-   public int getParameterCount ()
+   static
    {
-      if (cInst != 0)
-      {
-         return _getParameterCount (cInst);
-      }
-      else
-      {
-         return 0;
-      }
-   }
-
-   public String toString ()
-   {
-      return "@ CIMMethod.toString() not implemented yet!";
-   }
-
-   static {
       System.loadLibrary ("JMPIProviderManager");
    }
 }

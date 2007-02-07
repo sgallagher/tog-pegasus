@@ -2089,6 +2089,8 @@ void RepositoryUpgrade::_logRequestToFile(
                 XmlWriter::indentedPrint (outFile, content, 0);
                 outFile.close();
             }
+        
+            delete response;
         }
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     }
@@ -2102,6 +2104,8 @@ void RepositoryUpgrade::_logCreateClassError(
     CIMRequestMessage* request;
 
     // Create a CreateClass message.
+    // NOTE: The allocated memory is freed once the response is dequeued
+    //       by the method _logRequestToFile.
     request = new CIMCreateClassRequestMessage(
                                          String::EMPTY,
                                          namespaceName,
@@ -2120,8 +2124,6 @@ void RepositoryUpgrade::_logCreateClassError(
 
     // Log the request to output filepath.
     _logRequestToFile (outputFileName);
-
-    delete request;
 
     String errMsg = localizeMessage ( MSG_PATH,
                               REPOSITORY_UPGRADE_FAILURE_KEY,
@@ -2150,6 +2152,8 @@ void RepositoryUpgrade::_logCreateInstanceError(
     instanceCount++;
 
     // Create a CreateInstance message.
+    // NOTE: The allocated memory is freed once the response is dequeued
+    //       by the method _logRequestToFile.
     request = new CIMCreateInstanceRequestMessage(
                                          String::EMPTY,
                                          namespaceName,
@@ -2170,8 +2174,6 @@ void RepositoryUpgrade::_logCreateInstanceError(
 
     // Log the request to output filepath.
     _logRequestToFile (outputFileName);
-
-    delete request;
 
     String errMsg = localizeMessage ( MSG_PATH, REPOSITORY_UPGRADE_FAILURE_KEY,
                                        REPOSITORY_UPGRADE_FAILURE)
@@ -2196,6 +2198,8 @@ void RepositoryUpgrade::_logSetQualifierError(
     qualifierCount++;
 
     // Create a SetQualifier message.
+    // NOTE: The allocated memory is freed once the response is dequeued
+    //       by the method _logRequestToFile.
     request = new CIMSetQualifierRequestMessage(
                                          String::EMPTY,
                                          namespaceName,
@@ -2216,8 +2220,6 @@ void RepositoryUpgrade::_logSetQualifierError(
 
     // Log the request to output filepath.
     _logRequestToFile (outputFileName);
-
-    delete request;
 
     String errMsg =  localizeMessage ( MSG_PATH, REPOSITORY_UPGRADE_FAILURE_KEY,
                                        REPOSITORY_UPGRADE_FAILURE)

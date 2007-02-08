@@ -43,7 +43,7 @@
 #include <Pegasus/Provider/ProviderException.h>
 
 // Debugging enabling/disabling point
-// #define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " << X << PEGASUS_STD(endl)
 #define CDEBUG(X);
 
 PEGASUS_NAMESPACE_BEGIN
@@ -51,56 +51,56 @@ PEGASUS_NAMESPACE_BEGIN
 class MCCA_TestAssocProvider : public CIMAssociationProvider
 {
 public:
-	MCCA_TestAssocProvider(void);
-	virtual ~MCCA_TestAssocProvider(void);
+    MCCA_TestAssocProvider(void);
+    virtual ~MCCA_TestAssocProvider(void);
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle & cimom);
+    virtual void terminate(void);
 
-	// CIMAssociationProvider interface
-	virtual void associators(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+    // CIMAssociationProvider interface
+    virtual void associators(
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & associationClass,
+        const CIMName & resultClass,
+        const String & role,
+        const String & resultRole,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        ObjectResponseHandler & handler);
 
-	virtual void associatorNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		ObjectPathResponseHandler & handler);
+    virtual void associatorNames(
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & associationClass,
+        const CIMName & resultClass,
+        const String & role,
+        const String & resultRole,
+        ObjectPathResponseHandler & handler);
 
-	virtual void references(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+    virtual void references(
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & resultClass,
+        const String & role,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        ObjectResponseHandler & handler);
 
-	virtual void referenceNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		ObjectPathResponseHandler & handler);
+    virtual void referenceNames(
+        const OperationContext & context,
+        const CIMObjectPath & objectName,
+        const CIMName & resultClass,
+        const String & role,
+        ObjectPathResponseHandler & handler);
 
-	CIMNamespaceName nameSpaceA;
-	CIMNamespaceName nameSpaceB;
-	CIMName testClassName;
-	CIMName assocClassName;
+    CIMNamespaceName nameSpaceA;
+    CIMNamespaceName nameSpaceB;
+    CIMName testClassName;
+    CIMName assocClassName;
 
 protected:
 

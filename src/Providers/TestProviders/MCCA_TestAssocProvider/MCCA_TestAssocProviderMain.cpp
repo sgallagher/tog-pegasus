@@ -42,13 +42,14 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+        const String & name)
 {
-	if(String::equalNoCase(name, "mccatestassocprovider"))
-	{
-		return(new MCCA_TestAssocProvider());
-	}
+    if(String::equalNoCase(name, "mccatestassocprovider"))
+    {
+        return(new MCCA_TestAssocProvider());
+    }
 
-	return(0);
+    return(0);
 }
 

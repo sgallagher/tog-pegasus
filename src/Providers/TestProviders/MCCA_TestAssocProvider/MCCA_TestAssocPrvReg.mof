@@ -52,7 +52,7 @@ instance of PG_ProviderCapabilities
     ProviderName = "MCCATestAssocProvider";
     CapabilityID = "1";
     ClassName = "MCCA_TestAssocClass";
-    Namespaces = { "root/test/A" , "root/test/B" };
+    Namespaces = { "root/MCCAtest/A" , "root/MCCAtest/B" };
     ProviderType = { 3 };
     SupportedProperties = NULL;
     SupportedMethods = NULL;

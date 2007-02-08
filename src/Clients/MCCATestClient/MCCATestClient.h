@@ -30,7 +30,7 @@
 //==============================================================================
 //
 // Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
-//		   Robert Kieninger, (KIENINGR@de.ibm.com)
+//         Robert Kieninger, (KIENINGR@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,8 @@
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
 
-#define CLDEBUG(X) PEGASUS_STD(cout) << "MCCATestClient:" << X << PEGASUS_STD(endl)
+#define CLDEBUG(X) PEGASUS_STD(cout) << "MCCATestClient:" << X \
+    << PEGASUS_STD(endl)
 // #define CLDEBUG(X);
 
 PEGASUS_NAMESPACE_BEGIN
@@ -62,16 +63,26 @@ public:
    Uint32 enumerateInstances(const String& _host, const String& _port);
 
    // i represents a number as value for the key
-   void createInstance(const String& _host, const String& _port, const CIMNamespaceName& nameSpace, Uint32 i);
+   void createInstance(const String& _host,
+                       const String& _port,
+                       const CIMNamespaceName& nameSpace,
+                       Uint32 i);
 
-   CIMInstance associatorsTest(const String& _host, const String& _port, const CIMNamespaceName& fromNS, const CIMNamespaceName& toNS, Uint32 key);
+   CIMInstance associatorsTest(const String& _host,
+                               const String& _port,
+                               const CIMNamespaceName& fromNS,
+                               const CIMNamespaceName& toNS,
+                               Uint32 key);
 
-   CIMInstance getInstance(const String& _host, const String& _port, const CIMNamespaceName& nameSpace, Uint32 key);
+   CIMInstance getInstance(const String& _host,
+                           const String& _port,
+                           const CIMNamespaceName& nameSpace,
+                           Uint32 key);
 
    void deleteInstance(const CIMInstance& toDelete);
 
    CIMDefaultClientConnectionManager *cca_dccm;
-   CIMManagedClient	client;
+   CIMManagedClient client;
 
 private:
 

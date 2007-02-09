@@ -45,6 +45,7 @@
 #include <iostream>
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
@@ -205,23 +206,29 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
 
     //allocate buffers for type-value pairs
     size_t buflen = strlen(issuer)+1; 
-    char *buf = (char*) malloc(buflen);
     size_t maxPairs = buflen / 2 + 1; 
-    char **types = (char**) malloc(maxPairs * sizeof (char *));  //types
-    char **values = (char**) malloc(maxPairs * sizeof (char *)); //values
+    AutoArrayPtr<char> buf;
+    AutoArrayPtr<char*> types;
+    AutoArrayPtr<char*> values;
 
-    if (!buf || !types || !values)
+    try
+    {
+        buf.reset(new char[buflen]);
+        types.reset(new char*[maxPairs]);
+        values.reset(new char*[maxPairs]);
+    }
+    catch (...)
     {
         return NULL;
     }
 
-    char *sp = issuer, *bp = buf;
+    char *sp = issuer, *bp = buf.get();
     int count = 0;
 
     while (*sp)
     {
         PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                         "CertificateProvider::getIssuerName WHILE");
+            "CertificateProvider::getIssuerName WHILE");
 
         if (*sp != '/') 
         {
@@ -229,7 +236,7 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
         }
         sp++;
 
-        types[count] = bp;
+        types.get()[count] = bp;
         while (*sp)
         {
             if (*sp == '\\')
@@ -238,19 +245,20 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
                 {
                     *bp++ = *sp++;
                 }
-
-            } else if (*sp == '=')
+            }
+            else if (*sp == '=')
             {
                 sp++;
                 *bp++ = '\0';
                 break;
-            } else
+            }
+            else
             {
                 *bp++ = *sp++;
             }
         }
 
-        values[count] = bp;
+        values.get()[count] = bp;
         while (*sp)
         {
             if (*sp == '\\')
@@ -283,17 +291,18 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
 
     for (int i = 0; i < count; i++)
     {
-        nid = OBJ_txt2nid(types[i]);
+        nid = OBJ_txt2nid(types.get()[i]);
 
         //if we don't recognize the name element or there is no
         //corresponding value, continue to the next one
-        if (nid == NID_undef || !*values[i]) 
+        if (nid == NID_undef || !*values.get()[i]) 
         {
             continue;
         }
 
-        if (!X509_NAME_add_entry_by_NID(issuerNameNew, nid, chtype,
-                    (unsigned char*)values[i], -1, -1, 0))
+        if (!X509_NAME_add_entry_by_NID(
+                issuerNameNew, nid, chtype,
+                (unsigned char*)values.get()[i], -1, -1, 0))
         {
             X509_NAME_free(issuerNameNew);
             issuerNameNew = NULL;
@@ -301,12 +310,8 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
         }
     }
 
-    free(types);
-    free(values);
-    free(buf);
-
     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                     "Got issuerName successfully");
+        "Got issuerName successfully");
     PEG_METHOD_EXIT();
 
     return issuerNameNew;

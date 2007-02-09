@@ -341,6 +341,7 @@ void ProviderManagerService::handleCimRequest(
         CIMInstance provider;
         const CIMExportIndicationRequestMessage* expRequest =
             dynamic_cast<const CIMExportIndicationRequestMessage*>(request);
+        PEGASUS_ASSERT(expRequest != 0);
         if (_providerRegistrationManager->lookupIndicationConsumer(
                 expRequest->destinationPath, provider, providerModule))
         {
@@ -668,12 +669,14 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         {
             CIMEnableModuleRequestMessage* emReq =
                 dynamic_cast<CIMEnableModuleRequestMessage*>(request);
+            PEGASUS_ASSERT(emReq != 0);
             providerModule = emReq->providerModule;
         }
         else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
         {
             CIMDisableModuleRequestMessage* dmReq =
                 dynamic_cast<CIMDisableModuleRequestMessage*>(request);
+            PEGASUS_ASSERT(dmReq != 0);
             providerModule = dmReq->providerModule;
         }
         else

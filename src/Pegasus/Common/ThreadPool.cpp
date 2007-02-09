@@ -454,8 +454,10 @@ Boolean ThreadPool::_timeIntervalExpired(
     struct timeval* start,
     struct timeval* interval)
 {
+    PEGASUS_ASSERT(interval != 0);
+
     // never time out if the interval is zero
-    if (interval && (interval->tv_sec == 0) && (interval->tv_usec == 0))
+    if ((interval->tv_sec == 0) && (interval->tv_usec == 0))
     {
         return false;
     }

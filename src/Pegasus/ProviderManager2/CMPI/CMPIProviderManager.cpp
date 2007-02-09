@@ -2199,10 +2199,13 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 dynamic_cast<const CachedClassDefinitionContainer *>(
                     &request->operationContext.get(
                         CachedClassDefinitionContainer::NAME));
+            PEGASUS_ASSERT(classCont != 0);
             const NormalizerContextContainer * contextCont =
                 dynamic_cast<const NormalizerContextContainer*>(
                     &request->operationContext.get(
                         NormalizerContextContainer::NAME));
+            PEGASUS_ASSERT(contextCont != 0);
+
             CIMClass classDef(classCont->getClass());
             Uint32 methodIndex = classDef.findMethod(request->methodName);
             PEGASUS_ASSERT(methodIndex != PEG_NOT_FOUND);

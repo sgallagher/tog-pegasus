@@ -71,6 +71,8 @@ CMPIStatus resolveEmbeddedInstanceTypes(
             dynamic_cast<const CachedClassDefinitionContainer *>(
                 &(request->operationContext.get(
                     CachedClassDefinitionContainer::NAME)));
+        PEGASUS_ASSERT(classContainer);
+
         CIMClass classDef(classContainer->getClass());
         for(unsigned int i = 0, n = inst.getPropertyCount(); i < n; ++i)
         {
@@ -151,11 +153,11 @@ extern "C" {
               try 
               {
                   InvokeMethodResponseHandler * opRes =
-                    dynamic_cast<InvokeMethodResponseHandler *>(res);
+                      dynamic_cast<InvokeMethodResponseHandler *>(res);
+                  PEGASUS_ASSERT(opRes != 0);
                   CIMInvokeMethodRequestMessage * request =
                       dynamic_cast<CIMInvokeMethodRequestMessage *>(
                           opRes->getRequest());
-
                   PEGASUS_ASSERT(request != 0);
 
                   const CachedClassDefinitionContainer * classContainer =

@@ -1033,8 +1033,10 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     if (!responseSent)
     {
 // l10n - no Content-Language in response
-        CIMCreateInstanceResponseMessage * response = dynamic_cast
-            <CIMCreateInstanceResponseMessage *> (request->buildResponse ());
+        CIMCreateInstanceResponseMessage* response =
+            dynamic_cast<CIMCreateInstanceResponseMessage*>(
+                request->buildResponse());
+        PEGASUS_ASSERT(response != 0);
         response->cimException = cimException;
         response->instanceName = instanceRef;
         _enqueueResponse (request, response);
@@ -1326,8 +1328,10 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                                              exception.getMessage());
     }
 
-    CIMEnumerateInstancesResponseMessage * response = dynamic_cast
-        <CIMEnumerateInstancesResponseMessage *> (request->buildResponse ());
+    CIMEnumerateInstancesResponseMessage* response =
+        dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
     response->cimException = cimException;
     if (aggregatedLangs.size())
     {
@@ -1374,11 +1378,11 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
                                              exception.getMessage());
     }
 
-// l10n
     // Note: not setting Content-Language in the response
-    CIMEnumerateInstanceNamesResponseMessage * response = dynamic_cast
-        <CIMEnumerateInstanceNamesResponseMessage *>
-            (request->buildResponse ());
+    CIMEnumerateInstanceNamesResponseMessage* response =
+        dynamic_cast<CIMEnumerateInstanceNamesResponseMessage *>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
     response->cimException = cimException;
     response->instanceNames = enumInstanceNames;
     _enqueueResponse (request, response);
@@ -3198,8 +3202,9 @@ void IndicationService::_handleNotifyProviderFailRequest
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_handleNotifyProviderFailRequest");
 
-    CIMNotifyProviderFailRequestMessage * request =
-        dynamic_cast <CIMNotifyProviderFailRequestMessage *> (message);
+    CIMNotifyProviderFailRequestMessage* request =
+        dynamic_cast<CIMNotifyProviderFailRequestMessage*>(message);
+    PEGASUS_ASSERT(request != 0);
 
     String moduleName = request->moduleName;
     String userName = request->userName;
@@ -6820,11 +6825,11 @@ void IndicationService::_handleCreateResponseAggregation (
         if (operationAggregate->getOrigType () ==
             CIM_CREATE_INSTANCE_REQUEST_MESSAGE)
         {
-            // l10n
             // Note: don't need to set Content-language in the response
-            CIMCreateInstanceResponseMessage * response = dynamic_cast
-                <CIMCreateInstanceResponseMessage *>
-                    (operationAggregate->getOrigRequest ()->buildResponse ());
+            CIMCreateInstanceResponseMessage* response =
+                dynamic_cast<CIMCreateInstanceResponseMessage*>(
+                    operationAggregate->getOrigRequest()->buildResponse());
+            PEGASUS_ASSERT(response != 0);
             response->cimException = cimException;
             response->instanceName = instanceRef;
             _enqueueResponse (operationAggregate->getOrigRequest (), response);

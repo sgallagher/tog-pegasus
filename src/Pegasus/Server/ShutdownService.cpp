@@ -368,6 +368,7 @@ void ShutdownService::_shutdownProviders()
     }
 
     MessageQueueService* _service = dynamic_cast<MessageQueueService*>(queue);
+    PEGASUS_ASSERT(_service != 0);
     Uint32 _queueId = _service->getQueueId();
 
     //

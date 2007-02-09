@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Al Stone <ahs3@fc.hp.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Susan Campbell      <scampbell@hp.com>
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -525,23 +517,17 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
    Uint32 count;
    const char proc_file[] = "/proc/sys/kernel/threads-max";
    char buffer[MAXPATHLEN];
-   struct stat statBuf;
-   FILE *vf;
 
-   count = 0;
-   if (!stat(proc_file, &statBuf))
+   mMaxProcesses = 0;
+   FILE* vf = fopen(proc_file, "r");
+   if (vf)
    {
-      vf = fopen(proc_file, "r");
-      if (vf)
-      {
-         if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-            sscanf(buffer, "%u", &count);
-         fclose(vf);
-      }
-    mMaxProcesses = count;
-    return true;
+      if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+         sscanf(buffer, "%u", &mMaxProcesses);
+      fclose(vf);
    }
-   return false;
+
+   return mMaxProcesses != 0;
 }
 
 /**
@@ -553,33 +539,27 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
 {
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
-   struct stat statBuf;
    regex_t pattern;
-   FILE *vf;
 
    mTotalSwapSpaceSize = 0;
-   if (!stat(proc_file, &statBuf))
+   FILE* vf = fopen(proc_file, "r");
+   if (vf)
    {
-      vf = fopen(proc_file, "r");
-      if (vf)
+      if (regcomp(&pattern, "^SwapTotal:", 0) == 0)
       {
-         if (regcomp(&pattern, "^SwapTotal:", 0) == 0)
+         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
          {
-            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
             {
-               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
-               {
-                  sscanf(buffer, "SwapTotal: %llu kB", &mTotalSwapSpaceSize);
-               }
+               sscanf(buffer, "SwapTotal: %llu kB", &mTotalSwapSpaceSize);
             }
-            regfree(&pattern);
          }
-	 fclose(vf);
+         regfree(&pattern);
       }
+      fclose(vf);
    }
 
-   if(mTotalSwapSpaceSize) return true;
-   else return false;
+   return mTotalSwapSpaceSize != 0;
 }
 
 /** _totalVM method for Linux implementation of OS Provider
@@ -625,33 +605,27 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 {
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
-   struct stat statBuf;
    regex_t pattern;
-   FILE *vf;
 
    freeVirtualMemory = 0;
-   if (!stat(proc_file, &statBuf))
+   FILE* vf = fopen(proc_file, "r");
+   if (vf)
    {
-      vf = fopen(proc_file, "r");
-      if (vf)
+      if (regcomp(&pattern, "^SwapFree:", 0) == 0)
       {
-         if (regcomp(&pattern, "^SwapFree:", 0) == 0)
+         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
          {
-            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
             {
-               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
-               {
-                  sscanf(buffer, "SwapFree: %llu kB", &freeVirtualMemory);
-               }
+               sscanf(buffer, "SwapFree: %llu kB", &freeVirtualMemory);
             }
-            regfree(&pattern);
          }
-	 fclose(vf);
+         regfree(&pattern);
       }
-      if (freeVirtualMemory) return true;  // did get info
-      else return false;       // didn't get info
+      fclose(vf);
    }
-   return false;
+
+   return freeVirtualMemory != 0;
 }
 
 /**
@@ -663,33 +637,27 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 {
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
-   struct stat statBuf;
    regex_t pattern;
-   FILE *vf;
 
    total = 0;
-   if (!stat(proc_file, &statBuf))
+   FILE* vf = fopen(proc_file, "r");
+   if (vf)
    {
-      vf = fopen(proc_file, "r");
-      if (vf)
+      if (regcomp(&pattern, "^MemFree:", 0) == 0)
       {
-         if (regcomp(&pattern, "^MemFree:", 0) == 0)
+         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
          {
-            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
             {
-               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
-               {
-                  sscanf(buffer, "MemFree: %llu kB", &total);
-               }
+               sscanf(buffer, "MemFree: %llu kB", &total);
             }
-            regfree(&pattern);
          }
-	 fclose(vf);
+         regfree(&pattern);
       }
-      if (total) return true;  // did get info
-      else return false;       // didn't get info
+      fclose(vf);
    }
-   return false;
+
+   return total != 0;
 }
 
 /**
@@ -699,36 +667,30 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
   */
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 {
-  Uint64 total;
    const char proc_file[] = "/proc/meminfo";
    char buffer[MAXPATHLEN];
-   struct stat statBuf;
    regex_t pattern;
-   FILE *vf;
 
    memory = 0;
 
-   if (!stat(proc_file, &statBuf))
+   FILE* vf = fopen(proc_file, "r");
+   if (vf)
    {
-      vf = fopen(proc_file, "r");
-      if (vf)
+      if (regcomp(&pattern, "^MemTotal:", 0) == 0)
       {
-         if (regcomp(&pattern, "^MemTotal:", 0) == 0)
+         while (fgets(buffer, MAXPATHLEN, vf) != NULL)
          {
-            while (fgets(buffer, MAXPATHLEN, vf) != NULL)
+            if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
             {
-               if (regexec(&pattern, buffer, 0, NULL, 0) == 0)
-               {
-                  sscanf(buffer, "MemTotal: %llu kB", &memory);
-               }
+               sscanf(buffer, "MemTotal: %llu kB", &memory);
             }
-            regfree(&pattern);
          }
-	 fclose(vf);
+         regfree(&pattern);
       }
+      fclose(vf);
    }
 
-   return true;
+   return memory != 0;
 }
 
 /**
@@ -762,24 +724,22 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
    Uint32 count;
    const char proc_file[] = "/proc/sys/vm/overcommit_memoryt";
    char buffer[MAXPATHLEN];
-   struct stat statBuf;
-   FILE *vf;
 
    count = 0;
-   if (!stat(proc_file, &statBuf))
+   FILE* vf = fopen(proc_file, "r");
+   if (vf)
    {
-      vf = fopen(proc_file, "r");
-      if (vf)
-      {
-         if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-            sscanf(buffer, "%d", &count);
-         fclose(vf);
-      }
+      if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+         sscanf(buffer, "%d", &count);
+      fclose(vf);
    }
-   if (count) {
+
+   if (count)
+   {
       maxProcessMemorySize = count;
    }
-   else {
+   else
+   {
 //ATTN-SLC-P3-18-Apr-02: Optimization?  get this once & share
       if( ! getTotalSwapSpaceSize(maxProcessMemorySize) )
 	      return false;

@@ -480,22 +480,21 @@ void cimom::_handle_cimom_op(
     if (msg == 0)
         return;
 
-    Boolean accepted = false;
-
     Uint32 mask = msg->getMask();
-    Uint32 type = msg->getType();
     if (!(mask & MessageMask::ha_async))
     {
         _make_response(msg, async_results::CIM_NAK);
+        return;
     }
+
     op->_thread_ptr = thread;
     op->_service_ptr = queue;
 
     if (mask & MessageMask::ha_request)
     {
         op->processing();
-        accepted = true;
 
+        Uint32 type = msg->getType();
         if (type == async_messages::REGISTER_CIM_SERVICE )
             register_module(static_cast<RegisterCimService *>(msg));
         else if (type == async_messages::UPDATE_CIM_SERVICE)
@@ -513,9 +512,10 @@ void cimom::_handle_cimom_op(
         else if (type == async_messages::DEREGISTERED_MODULE)
             _deregistered_module_in_service(
                 static_cast<DeRegisteredModule *>(msg));
+        else
+            _make_response(msg, async_results::CIM_NAK);
     }
-
-    if (accepted == false)
+    else
     {
         _make_response(msg, async_results::CIM_NAK);
     }

@@ -348,6 +348,18 @@ public:
         const String& fileName,
         const String& userName);
 
+    /**
+        Flushes the data from the iostream buffers to the OS buffers and
+        then flushes the data from the OS buffers to the disk.
+
+        This will avoid the possible data loss in case of an OS crash when
+        OS filesystem commit directory-level changes immediately while
+        file-level changes remain cached (e.g. HP-UX).
+
+        @param fstream. The iostream that we want to flush data.
+    */
+    static void syncWithDirectoryUpdates(fstream&);
+
 private:
 
     FileSystem() { }

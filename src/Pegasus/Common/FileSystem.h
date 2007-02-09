@@ -358,7 +358,7 @@ public:
 
         @param fstream. The iostream that we want to flush data.
     */
-    static void syncWithDirectoryUpdates(fstream&);
+    static void syncWithDirectoryUpdates(PEGASUS_STD(fstream)&);
 
 private:
 

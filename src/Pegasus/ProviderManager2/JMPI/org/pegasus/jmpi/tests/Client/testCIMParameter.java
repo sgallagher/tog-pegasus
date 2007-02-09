@@ -144,7 +144,16 @@ public class testCIMParameter
          return false;
       }
 
-      cp = cm.getParameter (0);
+      try
+      {
+         cp = cm.getParameter (0);
+      }
+      catch (CIMException e)
+      {
+         System.out.println ("FAILURE: testCIMParameter: cm.getParameter (0) unknown exception " + e);
+
+         return false;
+      }
 
       if (DEBUG)
       {

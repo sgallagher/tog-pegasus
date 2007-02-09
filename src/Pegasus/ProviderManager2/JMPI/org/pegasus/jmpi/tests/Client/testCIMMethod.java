@@ -227,7 +227,16 @@ public class testCIMMethod
 
       CIMParameter cp = null;
 
-      cp = cm.getParameter (0);
+      try
+      {
+         cp = cm.getParameter (0);
+      }
+      catch (CIMException e)
+      {
+         System.out.println ("FAILURE: testCIMMethod: cm.getParameter (0) unknown exception " + e);
+
+         return false;
+      }
 
       if (DEBUG)
       {

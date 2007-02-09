@@ -99,6 +99,7 @@ public class CIMMethod
    }
 
    public CIMParameter getParameter (int iParameter)
+      throws CIMException
    {
       CIMParameter ret = null;
 

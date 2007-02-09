@@ -305,19 +305,21 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         // Build the CommunicationMechanism instance for the HTTP protocol
         namespaceAccessProtocol = 2;
         namespaceType = "http";
-        Uint32 portNumberHttp;
         String httpPort = configManager->getCurrentValue("httpPort");
         if (httpPort == String::EMPTY)
         {
-            portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
-                WBEM_DEFAULT_HTTP_PORT);
+            Uint32 portNumberHttp = System::lookupPort(
+                WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+            char buffer[32];
+            sprintf(buffer, "%u", portNumberHttp);
+            httpPort.assign(buffer);
         }
         CIMInstance instance = 
             buildCIMXMLCommunicationMechanismInstance(
                 namespaceType,
                 namespaceAccessProtocol,
-                getHostAddress(hostName, namespaceAccessProtocol, httpPort,
-                    portNumberHttp), commMechClass);
+                getHostAddress(hostName, namespaceAccessProtocol, httpPort),
+                commMechClass);
         instances.append(instance);
     }
 
@@ -326,23 +328,24 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         // Build the CommunicationMechanism instance for the HTTPS protocol
         namespaceAccessProtocol = 3;
         namespaceType = "https";
-        Uint32 portNumberHttps;
         String httpsPort = configManager->getCurrentValue("httpsPort");
         if (httpsPort == String::EMPTY)
         {
-            portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
-                WBEM_DEFAULT_HTTPS_PORT);
+            Uint32 portNumberHttps = System::lookupPort(
+                WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+            char buffer[32];
+            sprintf(buffer, "%u", portNumberHttps);
+            httpsPort.assign(buffer);
         }
         CIMInstance instance = 
             buildCIMXMLCommunicationMechanismInstance(
                 namespaceType,
                 namespaceAccessProtocol,
-                getHostAddress(hostName, namespaceAccessProtocol, httpsPort,
-                    portNumberHttps), commMechClass);
+                getHostAddress(hostName, namespaceAccessProtocol, httpsPort),
+                commMechClass);
 
         instances.append(instance);
     }
-
 
     PEG_METHOD_EXIT();
     return instances;

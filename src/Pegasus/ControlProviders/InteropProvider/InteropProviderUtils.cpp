@@ -257,17 +257,16 @@ Boolean getPropertyValue(const CIMInstance & instance,
 //     request.  This is exactly the definition in the
 //     PG_CIMXMLCommunicationMechanism mof for the property
 //     namespaceAccessProtocol.
-// @param port String defining the port to be used.  If String::EMPTY, it is
-//     not valid and the defaultPortNumber is inserted instead.
-// @param defaultPortNumber Uint32 defining a default port number to be used
-//     if port string is not provided.
+// @param port String defining the port to be used.
 //
 // @return String with the IP address to be used. This must be the complete
 //     address sufficient to access the IP address. Therefore, it includes the
 //     port number.
 //
-String getHostAddress(const String & hostName, Uint32 namespaceType,
-    const String & port, Uint32 defaultPortNumber)
+String getHostAddress(
+    const String& hostName,
+    Uint32 namespaceType,
+    const String& port)
 {
   String ipAddress;
   if(hostName == String::EMPTY)
@@ -285,20 +284,8 @@ String getHostAddress(const String & hostName, Uint32 namespaceType,
   // Code to get the property service_location_tcp ( which is equivalent to
   // "IP address:5988")
 
-  // If port is valid port number, we use it.  Else use the default port
-  // number provided. One or the other MUST not be zero.
   ipAddress.append(":");
-  if(port == String::EMPTY)
-  {
-      // convert portNumber to ascii
-      char buffer[32];
-      sprintf(buffer, "%u", defaultPortNumber);
-      ipAddress.append(buffer);
-  }
-  else
-  {
-      ipAddress.append(port);
-  }
+  ipAddress.append(port);
 
   return ipAddress;
 }

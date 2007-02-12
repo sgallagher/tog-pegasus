@@ -50,7 +50,6 @@ DIRS = \
     g11ntest \
     benchmarkTest \
     cimperf \
-    MCCATestClient \
     repupgrade  \
     cimsub \
     cimsub/tests \

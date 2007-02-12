@@ -62,6 +62,7 @@ DIRS = \
 	MethodTestProvider \
 	MethodTestProvider/testclient \
 	MCCA_TestAssocProvider \
+    MCCA_TestAssocProvider/testclient \
 	OOPModuleFailureProvider \
 	OOPModuleFailureProvider/testclient \
 	PG_TestPropertyTypes \

@@ -42,7 +42,6 @@
 #include "Socket.h"
 #include "Network.h"
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/FileSystem.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "SystemWindows.cpp"
@@ -65,7 +64,7 @@ Boolean System::bindVerbose = false;
 Boolean System::copyFile(const char* fromPath, const char* toPath)
 {
     ifstream is(fromPath PEGASUS_IOS_BINARY);
-    fstream os(toPath, ios::out  PEGASUS_OR_IOS_BINARY);
+    ofstream os(toPath PEGASUS_IOS_BINARY);
 
     char c;
 
@@ -75,7 +74,6 @@ Boolean System::copyFile(const char* fromPath, const char* toPath)
             return false;
     }
 
-    FileSystem::syncWithDirectoryUpdates(os);
     return is.eof();
 }
 

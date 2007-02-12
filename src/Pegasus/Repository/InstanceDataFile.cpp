@@ -291,7 +291,6 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     // Close the file.
     //
 
-    FileSystem::syncWithDirectoryUpdates(fs);
     fs.close();
 
     PEG_METHOD_EXIT();
@@ -479,8 +478,6 @@ Boolean InstanceDataFile::compact(
     //
 
     fs.close();
-
-    FileSystem::syncWithDirectoryUpdates(tmpFs);
     tmpFs.close();
 
     //

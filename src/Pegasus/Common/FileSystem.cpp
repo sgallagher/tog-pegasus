@@ -573,15 +573,4 @@ Boolean FileSystem::changeFileOwner(
     return true;
 #endif
 }
-
-void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
-{
-#if defined(PEGASUS_OS_HPUX)
-    // Writes the data from the iostream buffers to the OS buffers
-    fs.flush();
-    // Writes the data from the OS buffers to the disk
-    fsync(fs.rdbuf()->fd());
-#endif
-}
-
 PEGASUS_NAMESPACE_END

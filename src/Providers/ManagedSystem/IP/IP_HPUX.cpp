@@ -51,6 +51,7 @@
 
 #include "IPPlatform.h"
 #include <errno.h>
+#include <sys/utsname.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -550,6 +551,21 @@ InterfaceList::InterfaceList()
           ("Error in ioctl() request SIOCGIFNUM: " + String(strerror(errno)));
   }
 
+  // HP-UX < B.11.31 return the number of interfaces plus 1. In this
+  // case numif must be corrected
+
+  struct utsname unameInfo;
+  if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
+  {
+      throw CIMOperationFailedException
+          ("Error in uname: " + String(strerror(errno)));
+  }
+
+  if (strcmp(unameInfo.release,"B.11.31") < 0) 
+  {
+      numif--;
+  }
+
   ifconf.ifc_len = numif * sizeof (struct ifreq);
   ifconf.ifc_req = (struct ifreq *) calloc(numif, sizeof (struct ifreq));
 
@@ -616,7 +632,7 @@ InterfaceList::InterfaceList()
     // ATTN-LEW-2002-07-30: Enhance this to deal with IPv6 too.
     _ipif.set_protocol(PROTOCOL_IPV4);
 
-    for (j = 0; j < (int)(numif-1); j++) {
+    for (j = 0; j < numif; j++) {
 	sin = reinterpret_cast<struct sockaddr_in*>(
             &ifconf.ifc_req[j].ifr_addr);
 	if (sin->sin_addr.s_addr == t.s_addr)

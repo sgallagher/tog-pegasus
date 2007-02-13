@@ -66,7 +66,7 @@ void ListRep::clear()
 
         Linkable* front = _front;
         Linkable* back = _back;
-        size_t size= _size;
+        Uint32 size = _size;
 
         _front = 0;
         _back = 0;

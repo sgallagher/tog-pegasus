@@ -77,9 +77,9 @@ public:
 
     void clear();
 
-    size_t size() const { return _size; }
+    Uint32 size() const { return _size; }
 
-    size_t empty() const { return _size == 0; }
+    Boolean empty() const { return _size == 0; }
 
     Linkable* front() { return _front; }
 
@@ -123,7 +123,7 @@ private:
     Magic<0x6456FD0A> _magic;
     Linkable* _front;
     Linkable* _back;
-    size_t _size;
+    Uint32 _size;
     void (*_destructor)(Linkable*);
 };
 
@@ -314,7 +314,7 @@ public:
 
     /** Returns the number of elements in the list.
     */
-    size_t size() const
+    Uint32 size() const
     {
         AutoLock al(*this);
         return _rep.size();
@@ -322,7 +322,7 @@ public:
 
     /** Returns true if the list is empty (i.e., has zero elements).
     */
-    size_t is_empty() const
+    Boolean is_empty() const
     {
         AutoLock al(*this);
         return _rep.empty();

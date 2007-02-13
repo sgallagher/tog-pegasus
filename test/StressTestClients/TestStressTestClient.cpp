@@ -200,21 +200,15 @@ void TestStressTestClient::logInfo(
     int clientStatus,
     String &pidFile)
 {
-    String line, searchString, subLine;
-    int indx = 0;
     char pid_str[15];
     char status_str[15];
     char time_str[32];
-
-    searchString.append(clientId.getCString());
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     int offset = 2;
 #else
     int offset = 1;
 #endif
-
-    Uint32 whileCount = 0;
 
     //
     //  Get current time for time stamp 
@@ -230,51 +224,42 @@ void TestStressTestClient::logInfo(
 
     Boolean addClient= false;
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    if (pFile.is_open())
-#else
-    if (pFile)
-#endif
+    if (!!pFile)
     {
-        while(!pFile.eof())
+        String line;
+        while(!pFile.eof() && GetLine(pFile, line))
         {
-            whileCount++;
-            GetLine (pFile,line);
-            indx=line.find(':');
-            if (indx > 0)
+            String subLine;
+
+            Uint32 indx=line.find(':');
+            if (indx != PEG_NOT_FOUND)
             {
-                subLine.append(line.subString(0, indx));
+                subLine = line.subString(0, indx);
             }
-            if (String::compare(subLine, searchString) == 0)
+
+            if (String::compare(subLine, clientId) == 0)
             {
                 long pos;
                 addClient = true;
                 pos = (long)pFile.tellp();
                 pFile.seekp(pos - line.size()-offset);
-                String newLine = String(clientId.getCString());
+                String newLine = clientId;
                 newLine.append("::");
                 newLine.append(pid_str);
                 newLine.append("::");
                 newLine.append(status_str);
                 newLine.append("::");
                 newLine.append(time_str);
-                if (line.size() > newLine.size())
+
+                Sint32 jSize = line.size() - newLine.size();
+                CString newLineCString = newLine.getCString();
+                pFile.write(newLineCString, strlen(newLineCString));
+                for (Sint32 i = 0; i < jSize; i++)
                 {
-                    Uint32 jSize = line.size() - newLine.size();
-                    pFile.write(newLine.getCString(),newLine.size());
-                    for (Uint32 i =0;i<jSize;i++)
-                    {
-                        pFile.write(" ",1);
-                    }
-                }
-                else
-                {
-                    pFile.write(newLine.getCString(),newLine.size());
+                    pFile.write(" ",1);
                 }
                 break;
             }
-            subLine.clear();
-            line.clear();
         }
         if(!addClient)
         {

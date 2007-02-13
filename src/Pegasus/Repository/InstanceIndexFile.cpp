@@ -848,6 +848,8 @@ Boolean InstanceIndexFile::compact(
     // Close both files:
 
     fs.close();
+
+    FileSystem::syncWithDirectoryUpdates(tmpFs);
     tmpFs.close();
 
     //

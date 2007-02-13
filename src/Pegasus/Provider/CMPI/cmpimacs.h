@@ -51,9 +51,14 @@
    */
 noReturn CMReturn (CMPIrc rc);
 #   else
-#      define CMReturn(rc) \
-      { CMPIStatus stat={(rc),NULL}; \
-         return stat; }
+#      define CMReturn(rc_) \
+      do \
+      { \
+        CMPIStatus stat; \
+        stat.rc=rc_; \
+        stat.msg=NULL; \
+         return stat; \
+      } while (0)
 #   endif
 
 #   ifdef DOC_ONLY
@@ -86,10 +91,18 @@ noReturn CMReturnWithString (CMPIrc rc, CMPIString * str);
    */
 noReturn CMReturnWithChars (const CMPIBroker * mb, CMPIrc rc, char *msg);
 #   else
-#      define CMReturnWithChars(b,rc,chars) \
-      { CMPIStatus stat={(rc),NULL}; \
-         stat.msg=(b)->eft->newString((b),(chars),NULL); \
-         return stat; }
+#      define CMReturnWithChars(mb_,rc_,chars_) \
+       do \
+       { \
+           CMPIStatus stat; \
+           stat.rc=rc_; \
+           if (mb_) \
+               stat.msg=(mb_)->eft->newString((mb_),(chars_),NULL); \
+           else \
+               stat.msg=NULL; \
+           return stat; \
+       } \
+       while (0)
 #   endif
 
 
@@ -108,8 +121,16 @@ CMSetStatus (CMPIStatus * st, CMPIrc rcp)
     }
 }
 #   else
-#      define CMSetStatus(st,rcp) \
-      { (st)->rc=(rcp); (st)->msg=NULL; }
+#      define CMSetStatus(st_,rcp_) \
+       do \
+       { \
+           if (st_) \
+           { \
+               (st_)->rc=(rcp_); \
+               (st_)->msg=NULL; \
+           } \
+       } \
+       while (0)
 #   endif
 
 
@@ -129,8 +150,16 @@ CMSetStatusWithString (CMPIStatus * st, CMPIrc rcp, const CMPIString * string)
     }
 }
 #   else
-#      define CMSetStatusWithString(st,rcp,string) \
-      { (st)->rc=(rcp); (st)->msg=(string); }
+#      define CMSetStatusWithString(st_,rcp_,string_) \
+       do \
+       { \
+           if (st_) \
+           { \
+               (st_)->rc=(rcp_); \
+               (st_)->msg=(string_); \
+           } \
+       } \
+       while (0)
 #   endif
 
 
@@ -145,16 +174,29 @@ inline static void
 CMSetStatusWithChars (const CMPIBroker * mb, CMPIStatus * st, CMPIrc rcp,
                       const char *chars)
 {
-  if (st && mb)
+  if (st)
     {
       (st)->rc = (rcp);
-      (st)->msg = (mb)->eft->newString ((mb), (chars), NULL);
+      if (mb)
+          (st)->msg = (mb)->eft->newString ((mb), (chars), NULL);
+      else
+          (st)->msg = NULL;
     }
 }
 #   else
-#      define CMSetStatusWithChars(mb,st,rcp,chars) \
-      { (st)->rc=(rcp); \
-        (st)->msg=(mb)->eft->newString((mb),(chars),NULL); }
+#      define CMSetStatusWithChars(mb_,st_,rcp_,chars_) \
+       do \
+       { \
+           if (st_) \
+           { \
+               (st_)->rc=(rcp_); \
+               if (mb_) \
+                   (st_)->msg=(mb_)->eft->newString((mb_),(chars_),NULL); \
+               else \
+                   (st_)->msg=NULL; \
+           } \
+       } \
+       while (0)
 #   endif
 
 

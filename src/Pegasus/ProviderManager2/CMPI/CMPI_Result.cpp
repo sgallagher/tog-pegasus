@@ -486,7 +486,7 @@ extern "C" {
 	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
 	}
 	
-      CMReturn(CMPI_RC_OK)
+      CMReturn(CMPI_RC_OK);
 	}
 
    PEGASUS_STATIC CMPIStatus resultReturnRefDone(const CMPIResult* eRes) {

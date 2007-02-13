@@ -584,20 +584,18 @@ cimmofParser::addClass(CIMClass *classdecl)
   if (_cmdline) {
     if (_cmdline->xml_output() )
     {
-      if (classdecl)
-      {
-        cout << "<VALUE.OBJECT>" << endl;
-        XmlWriter::printClassElement(*classdecl, PEGASUS_STD(cout));
-        cout << "</VALUE.OBJECT>" << endl;
-        cout << endl;
-      }
+      cout << "<VALUE.OBJECT>" << endl;
+      XmlWriter::printClassElement(*classdecl, PEGASUS_STD(cout));
+      cout << "</VALUE.OBJECT>" << endl;
+      cout << endl;
       return ret;
-    } else if (_cmdline->trace() ) {
+    }
+    else if (_cmdline->trace())
+    {
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_CLASS);
       trace(header,"");
-      if (classdecl)
-        XmlWriter::printClassElement(*classdecl, _cmdline->traceos());
+      XmlWriter::printClassElement(*classdecl, _cmdline->traceos());
     }
   }
   if (_cmdline &&
@@ -710,13 +708,10 @@ cimmofParser::addInstance(CIMInstance *instance)
   {
     if (_cmdline->xml_output())
     {
-      if (instance)
-      {
-        cout << "<VALUE.OBJECT>" << endl;
-        XmlWriter::printInstanceElement(*instance, PEGASUS_STD(cout));
-        cout << "</VALUE.OBJECT>" << endl;
-        cout << endl;
-      }
+      cout << "<VALUE.OBJECT>" << endl;
+      XmlWriter::printInstanceElement(*instance, PEGASUS_STD(cout));
+      cout << "</VALUE.OBJECT>" << endl;
+      cout << endl;
       return ret;
     }
     else if (_cmdline->trace())
@@ -724,8 +719,7 @@ cimmofParser::addInstance(CIMInstance *instance)
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
       trace(header, "");
-      if (instance)
-        XmlWriter::printInstanceElement(*instance, _cmdline->traceos());
+      XmlWriter::printInstanceElement(*instance, _cmdline->traceos());
     }
   }
   if (_cmdline &&
@@ -798,19 +792,15 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
 {
   int ret  = 0;
   cimmofMessages::arglist arglist;
-  if (qualifier)
-    arglist.append(qualifier->getName().getString());
+  arglist.append(qualifier->getName().getString());
   String message;
   if (_cmdline) {
     if (_cmdline->xml_output())
     {
-      if (qualifier)
-      {
-        cout << "<VALUE.OBJECT>" << endl;
-        XmlWriter::printQualifierDeclElement(*qualifier, PEGASUS_STD(cout));
-        cout << "</VALUE.OBJECT>" << endl;
-        cout << endl;
-      }
+      cout << "<VALUE.OBJECT>" << endl;
+      XmlWriter::printQualifierDeclElement(*qualifier, PEGASUS_STD(cout));
+      cout << "</VALUE.OBJECT>" << endl;
+      cout << endl;
       return ret;
     }
     else if (_cmdline->trace())
@@ -818,8 +808,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
       String header;
       cimmofMessages::getMessage(header, cimmofMessages::ADD_QUALIFIER);
       trace(header, "");
-      if (qualifier)
-        XmlWriter::printQualifierDeclElement(*qualifier, _cmdline->traceos());
+      XmlWriter::printQualifierDeclElement(*qualifier, _cmdline->traceos());
     }
   }
 

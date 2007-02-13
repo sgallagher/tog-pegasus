@@ -286,10 +286,12 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
   ifstream ifs;
   Open(ifs, filename);
 
-  while (ifs != 0) {
-    GetLine(ifs, line);
-    if (line.size() > 0)
+  while (ifs != 0)
+  {
+    if (GetLine(ifs, line) && (line.size() > 0))
+    {
       cmdlinedata.add_filespecs(line);
+    }
   }
   return 0;
 }
@@ -339,8 +341,7 @@ setCmdLineOpts(getoopt &cmdline, int progtype) {
     else if(progtype == 1 && o.catagory == OPTEND_CIMMOFL) break;
     else if(progtype == 0 && o.catagory == OPTEND_CIMMOF) break;
 
-    //if (o.flag == "") Bug#2314 - Incorrect comparison
-    if ((o.flag != 0) && (o.flag[0] == '\0'))
+    if (o.flag[0] == '\0')
       continue;
     if (o.islong)
       cmdline.addLongFlagspec(o.flag, (getoopt::argtype)o.needsvalue);

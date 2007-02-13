@@ -857,29 +857,6 @@ Uint32 RepositoryUpgrade::execute (
 #endif
         return 1;
     }
-    catch (...)
-    {
-        errPrintWriter << localizeMessage ( MSG_PATH,
-                                  REPOSITORY_UPGRADE_UNKNOWN_ERROR_KEY,
-                                  REPOSITORY_UPGRADE_UNKNOWN_ERROR )
-             << localizeMessage ( MSG_PATH,
-                                  REPOSITORY_UPGRADE_FAILURE_KEY,
-                                  REPOSITORY_UPGRADE_FAILURE );
-#ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
-	           localizeMessage ( MSG_PATH,
-                                  REPOSITORY_UPGRADE_UNKNOWN_ERROR_KEY,
-                                  REPOSITORY_UPGRADE_UNKNOWN_ERROR ));
-
-        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
-                localizeMessage ( MSG_PATH,
-                                  REPOSITORY_UPGRADE_FAILURE_KEY,
-                                  REPOSITORY_UPGRADE_FAILURE ));
-                  
-	throw RepositoryUpgradeException("");
-#endif
-        return 1;
-    }
 
     return 0;
 }
@@ -2437,27 +2414,45 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv [])
 {
-    RepositoryUpgrade 	command;
-    Uint32		retCode;
-
-    //l10n set message loading to process locale
-    MessageLoader::_useProcessLocale = true;
-
     try
     {
-        command.setCommand (argc, argv);
+        RepositoryUpgrade 	command;
+        Uint32			retCode;
+        
+        //l10n set message loading to process locale
+        MessageLoader::_useProcessLocale = true;
+
+        try
+        {
+            command.setCommand (argc, argv);
+        }
+        catch (CommandFormatException& cfe)
+        {
+            cerr << RepositoryUpgrade::COMMAND_NAME << ": " << cfe.getMessage ()
+                 << endl;
+            cerr << "Use '-h' or '--help' to obtain command syntax." << endl;
+            return (Command::RC_ERROR);
+        }
+
+        retCode = command.execute (cout, cerr);
+
+        return (retCode);
+
     }
-    catch (CommandFormatException& cfe)
+    catch (...)
     {
-        cerr << RepositoryUpgrade::COMMAND_NAME << ": " << cfe.getMessage ()
-             << endl;
-        cerr << "Use '-h' or '--help' to obtain command syntax." << endl;
-        return (Command::RC_ERROR);
+        MessageLoaderParms msgParms( REPOSITORY_UPGRADE_UNKNOWN_ERROR_KEY,
+                                     REPOSITORY_UPGRADE_UNKNOWN_ERROR );
+        msgParms.msg_src_path = MSG_PATH;
+        cerr << MessageLoader::getMessage(msgParms) << endl;
+
+        MessageLoaderParms msgParmsAdd( REPOSITORY_UPGRADE_FAILURE_KEY,
+                                        REPOSITORY_UPGRADE_FAILURE );
+        msgParmsAdd.msg_src_path = MSG_PATH;
+        cerr << MessageLoader::getMessage(msgParmsAdd) << endl;
+
+        return 1;
     }
-
-    retCode = command.execute (cout, cerr);
-
-    return (retCode);
 }
 
 #endif

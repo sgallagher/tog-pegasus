@@ -194,7 +194,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self(0);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
@@ -257,7 +257,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self(0);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
@@ -320,7 +320,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self(0);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
@@ -383,7 +383,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self(0);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
@@ -446,7 +446,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self(0);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 
@@ -509,7 +509,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self(0);
+    my_thread->exit_self((ThreadReturnType)uniqueID);
     return(0);
 }
 

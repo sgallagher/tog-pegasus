@@ -91,7 +91,7 @@ String Formatter::Arg::toString() const
             return _string;
 
         case CSTRLIT:
-            return String(_cstrlit->str, ((Uint32)_cstrlit->size));
+            return String(_cstrlit->str, _cstrlit->size);
             break;
 
         case VOIDT:
@@ -261,8 +261,7 @@ void Formatter::Arg::appendToString(String& out) const
             Sint32 x = _integer;
 
             if (x >= 0 && x < 128)
-                out.append(_num_strings[x].str,
-                    (Uint32)(_num_strings[x].size));
+                out.append(_num_strings[x].str, _num_strings[x].size);
             else
             {
                 char buffer[32];
@@ -278,8 +277,7 @@ void Formatter::Arg::appendToString(String& out) const
 
             if (x < 128)
             {
-                out.append(_num_strings[x].str,
-                    (Uint32)(_num_strings[x].size));
+                out.append(_num_strings[x].str, _num_strings[x].size);
             }
             else
             {
@@ -322,8 +320,7 @@ void Formatter::Arg::appendToString(String& out) const
 
             if (x < 128)
             {
-                out.append(_num_strings[x].str,
-                    (Uint32)(_num_strings[x].size));
+                out.append(_num_strings[x].str, _num_strings[x].size);
             }
             else
             {
@@ -343,7 +340,7 @@ void Formatter::Arg::appendToString(String& out) const
 
         case CSTRLIT:
         {
-            out.append(_cstrlit->str, (Uint32)_cstrlit->size);
+            out.append(_cstrlit->str, _cstrlit->size);
             break;
         }
 

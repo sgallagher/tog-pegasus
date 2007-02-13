@@ -79,7 +79,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     Status writeStatus;
     try
     {
-        Uint32 messageLength = (Uint32) messageBuffer.size ();
+        Uint32 messageLength = messageBuffer.size();
         const char * messageData = messageBuffer.getData ();
 
         writeStatus =

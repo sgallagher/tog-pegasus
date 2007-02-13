@@ -97,9 +97,9 @@ PEGASUS_NAMESPACE_BEGIN
 */
 struct StrLit
 {
-    StrLit(const char* s, size_t n) : str(s), size(n) { }
+    StrLit(const char* s, size_t n) : str(s), size((Uint32)n) { }
     const char* str;
-    const size_t size;
+    const Uint32 size;
 };
 
 inline Buffer& operator<<(Buffer& out, const StrLit& x)

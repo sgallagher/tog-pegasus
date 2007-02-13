@@ -42,8 +42,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct BufferRep
 {
-    size_t size;
-    size_t cap;
+    Uint32 size;
+    Uint32 cap;
     char data[1];
 };
 
@@ -55,7 +55,7 @@ public:
 
     Buffer(const Buffer& x);
 
-    Buffer(const char* data, size_t size);
+    Buffer(const char* data, Uint32 size);
 
     ~Buffer();
 
@@ -63,9 +63,9 @@ public:
 
     void swap(Buffer& x);
 
-    size_t size() const;
+    Uint32 size() const;
 
-    size_t capacity() const;
+    Uint32 capacity() const;
 
     /**
         Returns a pointer to a character buffer with the Buffer contents.
@@ -74,36 +74,36 @@ public:
      */
     const char* getData() const;
 
-    char get(size_t i) const;
+    char get(Uint32 i) const;
 
-    void set(size_t i, char x);
+    void set(Uint32 i, char x);
 
-    const char& operator[](size_t i) const;
+    const char& operator[](Uint32 i) const;
 
-    void reserveCapacity(size_t cap);
+    void reserveCapacity(Uint32 cap);
 
-    void grow(size_t size, char x = '\0');
+    void grow(Uint32 size, char x = '\0');
 
     void append(char x);
 
-    void append(const char* data, size_t size);
+    void append(const char* data, Uint32 size);
 
     void append(char c1, char c2, char c3, char c4);
 
     void append(
         char c1, char c2, char c3, char c4, char c5, char c6, char c7, char c8);
 
-    void insert(size_t pos, const char* data, size_t size);
+    void insert(Uint32 pos, const char* data, Uint32 size);
 
-    void remove(size_t pos, size_t size);
+    void remove(Uint32 pos, Uint32 size);
 
-    void remove(size_t pos);
+    void remove(Uint32 pos);
 
     void clear();
 
 private:
 
-    void _reserve_aux(size_t cap);
+    void _reserve_aux(Uint32 cap);
 
     void _append_char_aux();
 
@@ -128,12 +128,12 @@ inline void Buffer::swap(Buffer& x)
     x._rep = tmp;
 }
 
-inline size_t Buffer::size() const
+inline Uint32 Buffer::size() const
 {
     return _rep->size;
 }
 
-inline size_t Buffer::capacity() const
+inline Uint32 Buffer::capacity() const
 {
     return _rep->cap;
 }
@@ -150,30 +150,30 @@ inline const char* Buffer::getData() const
     return _rep->data;
 }
 
-inline char Buffer::get(size_t i) const
+inline char Buffer::get(Uint32 i) const
 {
     return _rep->data[i];
 }
 
-inline void Buffer::set(size_t i, char x)
+inline void Buffer::set(Uint32 i, char x)
 {
     _rep->data[i] = x;
 }
 
-inline const char& Buffer::operator[](size_t i) const
+inline const char& Buffer::operator[](Uint32 i) const
 {
     return _rep->data[i];
 }
 
-inline void Buffer::reserveCapacity(size_t cap)
+inline void Buffer::reserveCapacity(Uint32 cap)
 {
     if (cap > _rep->cap)
         _reserve_aux(cap);
 }
 
-inline void Buffer::grow(size_t size, char x)
+inline void Buffer::grow(Uint32 size, char x)
 {
-    size_t cap = _rep->size + size;
+    Uint32 cap = _rep->size + size;
 
     if (cap > _rep->cap)
         _reserve_aux(cap);
@@ -190,9 +190,9 @@ inline void Buffer::append(char x)
     _rep->data[_rep->size++] = x;
 }
 
-inline void Buffer::append(const char* data, size_t size)
+inline void Buffer::append(const char* data, Uint32 size)
 {
-    size_t cap = _rep->size + size;
+    Uint32 cap = _rep->size + size;
 
     if (cap > _rep->cap)
         _reserve_aux(cap);
@@ -207,14 +207,14 @@ inline void Buffer::clear()
         _rep->size = 0;
 }
 
-inline void Buffer::remove(size_t pos)
+inline void Buffer::remove(Uint32 pos)
 {
     remove(pos, 1);
 }
 
 inline void Buffer::append(char c1, char c2, char c3, char c4)
 {
-    size_t cap = _rep->size + 4;
+    Uint32 cap = _rep->size + 4;
 
     if (cap > _rep->cap)
         _reserve_aux(cap);
@@ -230,7 +230,7 @@ inline void Buffer::append(char c1, char c2, char c3, char c4)
 inline void Buffer::append(
     char c1, char c2, char c3, char c4, char c5, char c6, char c7, char c8)
 {
-    size_t cap = _rep->size + 8;
+    Uint32 cap = _rep->size + 8;
 
     if (cap > _rep->cap)
         _reserve_aux(cap);

@@ -140,7 +140,7 @@ void HTTPMessage::parse(
     contentLength = 0;
 
     char* data = (char*)message.getData();
-    Uint32 size = (Uint32)message.size();
+    Uint32 size = message.size();
     char* line = data;
     char* sep;
     Boolean firstTime = true;

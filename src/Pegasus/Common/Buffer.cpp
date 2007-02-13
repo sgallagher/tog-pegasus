@@ -50,7 +50,7 @@ BufferRep Buffer::_empty_rep =
     {0} /* data[0] */
 };
 
-static const size_t MIN_CAPACITY = 2048;
+static const Uint32 MIN_CAPACITY = 2048;
 
 static Uint32 _next_pow_2(Uint32 x)
 {
@@ -71,7 +71,7 @@ static Uint32 _next_pow_2(Uint32 x)
     return x;
 }
 
-static inline BufferRep* _allocate(size_t cap)
+static inline BufferRep* _allocate(Uint32 cap)
 {
     if (cap < MIN_CAPACITY)
         cap = MIN_CAPACITY;
@@ -87,7 +87,7 @@ static inline BufferRep* _allocate(size_t cap)
     return rep;
 }
 
-static inline BufferRep* _reallocate(BufferRep* rep, size_t cap)
+static inline BufferRep* _reallocate(BufferRep* rep, Uint32 cap)
 {
     // Allocate an extra byte for null-termination performed by getData().
     rep = (BufferRep*)realloc(rep, sizeof(BufferRep) + cap + 1);
@@ -107,7 +107,7 @@ Buffer::Buffer(const Buffer& x)
     _rep->size = x._rep->size;
 }
 
-Buffer::Buffer(const char* data, size_t size)
+Buffer::Buffer(const char* data, Uint32 size)
 {
     _rep = _allocate(size);
     _rep->size = size;
@@ -132,7 +132,7 @@ Buffer& Buffer::operator=(const Buffer& x)
     return *this;
 }
 
-void Buffer::_reserve_aux(size_t cap)
+void Buffer::_reserve_aux(Uint32 cap)
 {
     if (_rep->cap == 0)
     {
@@ -140,7 +140,7 @@ void Buffer::_reserve_aux(size_t cap)
         _rep->size = 0;
     }
     else
-        _rep = _reallocate(_rep, _next_pow_2( (Uint32)cap));
+        _rep = _reallocate(_rep, _next_pow_2(cap));
 }
 
 void Buffer::_append_char_aux()
@@ -158,13 +158,13 @@ void Buffer::_append_char_aux()
     }
 }
 
-void Buffer::insert(size_t pos, const char* data, size_t size)
+void Buffer::insert(Uint32 pos, const char* data, Uint32 size)
 {
     if (pos > _rep->size)
         return;
 
-    size_t cap = _rep->size + size;
-    size_t rem = _rep->size - pos;
+    Uint32 cap = _rep->size + size;
+    Uint32 rem = _rep->size - pos;
 
     if (cap > _rep->cap)
     {
@@ -188,12 +188,12 @@ void Buffer::insert(size_t pos, const char* data, size_t size)
     }
 }
 
-void Buffer::remove(size_t pos, size_t size)
+void Buffer::remove(Uint32 pos, Uint32 size)
 {
     if (pos + size > _rep->size)
         return;
 
-    size_t rem = _rep->size - (pos + size);
+    Uint32 rem = _rep->size - (pos + size);
 
     if (rem)
         memmove(_rep->data + pos, _rep->data + pos + size, rem);

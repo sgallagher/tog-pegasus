@@ -258,13 +258,13 @@ int main ()
         char buffer [32];
         sprintf (buffer, "%s", "Hello world");
         requestBuffer.append (buffer, strlen (buffer));
-        Uint32 bufferLength = (Uint32)requestBuffer.size ();
+        Uint32 bufferLength = requestBuffer.size();
         AnonymousPipe::Status writeBufferStatus = pipeToChild->writeBuffer
             ((const char *) &bufferLength, sizeof (Uint32));
         if (writeBufferStatus == AnonymousPipe::STATUS_SUCCESS)
         {
             writeBufferStatus = pipeToChild->writeBuffer 
-                (requestBuffer.getData (), (Uint32)requestBuffer.size ());
+                (requestBuffer.getData(), requestBuffer.size());
             if (writeBufferStatus != AnonymousPipe::STATUS_SUCCESS)
             {
                 cerr << "Parent failed to write request data: "

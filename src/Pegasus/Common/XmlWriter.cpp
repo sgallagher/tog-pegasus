@@ -92,7 +92,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct SpecialChar
 {
     const char* str;
-    size_t size;
+    Uint32 size;
 };
 
 // Defines encodings of special characters. Just use a 7-bit ASCII character
@@ -2714,7 +2714,7 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        (Uint32)out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2787,7 +2787,7 @@ Buffer XmlWriter::formatSimpleMethodErrorRspMessage(
         tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        (Uint32)out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2831,7 +2831,7 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        (Uint32)out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2919,7 +2919,7 @@ Buffer XmlWriter::formatSimpleIMethodErrorRspMessage(
     appendMethodResponseHeader(tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        (Uint32)out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -3212,7 +3212,7 @@ Buffer XmlWriter::formatSimpleEMethodReqMessage(
         authenticationHeader,
         httpAcceptLanguages,
         httpContentLanguages,
-        (Uint32)out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -3245,7 +3245,7 @@ Buffer XmlWriter::formatSimpleEMethodRspMessage(
     appendEMethodResponseHeader(tmp,
         httpMethod,
         httpContentLanguages,
-        (Uint32)out.size());
+        out.size());
     tmp << out;
 
     return tmp;
@@ -3278,7 +3278,7 @@ Buffer XmlWriter::formatSimpleEMethodErrorRspMessage(
         tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        (Uint32)out.size());
+        out.size());
     tmp << out;
 
     return tmp;

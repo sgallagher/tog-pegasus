@@ -1706,7 +1706,7 @@ CIMObjectPath CIMRepository::_createInstance(
     {
         Buffer data;
         streamer->encode(data, cimInstance);
-        size = (Uint32)data.size();
+        size = data.size();
 
         if (!InstanceDataFile::appendInstance(dataFilePath, data, index))
         {
@@ -2136,7 +2136,7 @@ void CIMRepository::modifyInstance(
         streamer->encode(out, cimInstance);
         //XmlWriter::appendInstanceElement(out, cimInstance);
 
-        newSize = (Uint32)out.size();
+        newSize = out.size();
 
         if (!InstanceDataFile::appendInstance(dataFilePath, out, newIndex))
         {
@@ -2288,7 +2288,7 @@ Boolean CIMRepository::_loadAllInstances(
 
         CIMInstance tmpInstance;
 
-        Uint32 bufferSize = (Uint32)data.size();
+        Uint32 bufferSize = data.size();
         char* buffer = (char*)data.getData();
 
         for (Uint32 i = 0; i < instanceNames.size(); i++)

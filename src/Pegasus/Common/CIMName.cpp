@@ -83,7 +83,7 @@ Boolean CIMName::legal(const String& name)
     // Check first character.
 
     const Uint16* p = (const Uint16*)name.getChar16Data();
-    size_t n = name.size();
+    Uint32 n = name.size();
 
     if (!(*p < 128 && CharSet::isAlphaUnder(*p)))
     {

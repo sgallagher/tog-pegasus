@@ -2036,11 +2036,11 @@ void RepositoryUpgrade::_logRequestToFile(
 
             if( contentLength > 0 )
             {
-                contentOffset = (Uint32)data.size() - contentLength;
+                contentOffset = data.size() - contentLength;
             }
             else
             {
-                contentOffset = (Uint32)data.size();
+                contentOffset = data.size();
             }
 
             //

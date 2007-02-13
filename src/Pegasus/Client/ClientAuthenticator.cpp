@@ -231,7 +231,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 encodedArray = Base64::encode(userPassArray);
 
                 challengeResponse.append(
-                    String( encodedArray.getData(), (Uint32)encodedArray.size() ) );
+                    String(encodedArray.getData(), encodedArray.size()));
             }
             break;
 

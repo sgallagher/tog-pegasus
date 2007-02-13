@@ -345,7 +345,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     Boolean isFirst = message.isFirst();
     Boolean isLast = message.isComplete();
     Sint32 totalBytesWritten = 0;
-    Uint32 messageLength = (Uint32) buffer.size();
+    Uint32 messageLength = buffer.size();
 
     try
     {
@@ -441,7 +441,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         String httpStatus(s);
                         Buffer message = XmlWriter::formatHttpErrorRspMessage
                             (httpStatus, String(), httpDetail);
-                        messageLength = (Uint32)message.size();
+                        messageLength = message.size();
                         message.reserveCapacity(messageLength+1);
                         messageStart = (char *) message.getData();
                         messageStart[messageLength] = 0;
@@ -454,7 +454,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 {
                     // subsequent chunks from the server, just append
 
-                    messageLength += (Uint32)(_incomingBuffer.size());
+                    messageLength += _incomingBuffer.size();
                     _incomingBuffer.reserveCapacity(messageLength+1);
                     _incomingBuffer.append(buffer.getData(), buffer.size());
                     buffer.clear();
@@ -663,11 +663,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             Uint32 insertOffset =
                                 headerLength - headerLineTerminatorLength;
                             messageLength =
-                                (Uint32)(contentLanguagesString.size() +
-                                    buffer.size());
+                                contentLanguagesString.size() + buffer.size();
                             buffer.reserveCapacity(messageLength+1);
-                            messageLength =
-                                (Uint32)contentLanguagesString.size();
+                            messageLength = contentLanguagesString.size();
                             messageStart =
                                 (char *)contentLanguagesString.getData();
                             // insert the content language line before end
@@ -675,7 +673,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             // note: this can be expensive on large payloads
                             buffer.insert(
                                 insertOffset, messageStart, messageLength);
-                            messageLength = (Uint32)buffer.size();
+                            messageLength = buffer.size();
                             // null terminate
                             messageStart = (char *) buffer.getData();
                             messageStart[messageLength] = 0;
@@ -777,7 +775,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _mpostPrefix << headerNameDescription << headerValueSeparator <<
                 headerNameContentLanguage << headerLineTerminator;
             sendStart = (char *) trailer.getData();
-            bytesToWrite = (Uint32)trailer.size();
+            bytesToWrite = trailer.size();
             bytesWritten = _socket->write(sendStart, bytesToWrite);
 
             if (bytesWritten < 0)
@@ -1090,7 +1088,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 {
     static const char func[] =
     "HTTPConnection::_getContentLengthAndContentOffset";
-    Uint32 size = (Uint32)_incomingBuffer.size();
+    Uint32 size = _incomingBuffer.size();
     if (size == 0)
         return;
     char* data = (char*)_incomingBuffer.getData();
@@ -1437,7 +1435,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         "HTTPConnection::_handleReadEventTransferEncoding";
     PEG_METHOD_ENTER(TRC_HTTP, func);
 
-    Uint32 messageLength = (Uint32)_incomingBuffer.size();
+    Uint32 messageLength = _incomingBuffer.size();
     Uint32 headerLength = (Uint32) _contentOffset;
 
     // return immediately under these conditions:
@@ -1571,7 +1569,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
 
         // remove the chunk length line
         _incomingBuffer.remove(_transferEncodingChunkOffset, chunkLineLength);
-        messageLength = (Uint32)_incomingBuffer.size();
+        messageLength = _incomingBuffer.size();
         // always keep the byte after the last data byte null for easy string
         // processing.
         messageStart[messageLength] = 0;
@@ -1620,7 +1618,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                 trailerStart[trailerLength] = save;
 
                 _incomingBuffer.remove(trailerOffset, trailerLength);
-                messageLength = (Uint32)_incomingBuffer.size();
+                messageLength = _incomingBuffer.size();
                 messageStart[messageLength] = 0;
                 remainderLength -= trailerLength;
 
@@ -1784,7 +1782,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
 
         // now remove the chunk terminator
         _incomingBuffer.remove(chunkTerminatorOffset, chunkTerminatorLength);
-        messageLength = (Uint32)_incomingBuffer.size();
+        messageLength = _incomingBuffer.size();
         messageStart[messageLength] = 0;
 
         // jump to the start of the next chunk (which may not have been
@@ -1827,7 +1825,7 @@ void HTTPConnection::_handleReadEventFailure(
     HTTPMessage* httpMessage = new HTTPMessage(message);
     Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
         httpMessage->message.getData(),
-        (Uint32)(httpMessage->message.size()));
+        httpMessage->message.size());
 
     // this is common error code. If we are the server side, we want to send
     // back the error to the client, but if we are the client side, then we

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: John Alex (IBM)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_StressTestControllerCommand_h
@@ -40,6 +36,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
 
@@ -166,8 +163,8 @@ public:
     Uint32 getOperationType(){return _operationType;}
 
     /**
-        Populate test with default configuration values if default configuration file
-        is not found.
+        Populate test with default configuration values if default
+        configuration file is not found.
 
         @return 
                
@@ -328,11 +325,10 @@ private:
      */
     String _portNumberStr;
     Uint32 _portNumber;
-    Uint32 _port;  // JA not sure..if needed
 
     /**
         A Boolean indicating whether a port number was specified on the
-	command line.
+        command line.
      */
     Boolean _portNumberSpecified;
 
@@ -488,27 +484,27 @@ private:
     /**
         Property table that stores the properties
      */
-    Table* _propertyTable;
+    Table _propertyTable;
 
     /**
         Client table that stores the client specific properties
      */
-    Table* _clientTable;
+    AutoArrayPtr<Table> _clientTable;
 
     /**
         Client commands
      */
-    String* _clientCommands;
+    AutoArrayPtr<String> _clientCommands;
 
     /**
         Client specific durations
      */
-    Uint64* _clientDurations;
+    AutoArrayPtr<Uint64> _clientDurations;
 
     /**
         Client specific delays
      */
-    Uint64* _clientDelays;
+    AutoArrayPtr<Uint64> _clientDelays;
 
     /**
         The total number of clients for this test

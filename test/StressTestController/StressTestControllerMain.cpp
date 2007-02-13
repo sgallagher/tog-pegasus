@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: John Alex
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -106,7 +102,7 @@ int main (int argc, char* argv [])
     tmTime = getCurrentActualTime();
     strftime(strTime,256,"%d%m%Y%H%M%S.",&tmTime);
    
-    StressTestControllerCommand command=StressTestControllerCommand();
+    StressTestControllerCommand command;
     
     //
     // Generate log files and PID files

@@ -51,14 +51,37 @@ const CIMNamespaceName
 static const CIMName 
     FILTER_CLASSNAME = CIMName ("CIM_IndicationFilter");
 static const CIMName 
-    HANDLER_CLASSNAME = CIMName ("CIM_IndicationHandlerCIMXML");
+    HANDLER_CLASSNAME = CIMName ("CIM_ListenerDestinationCIMXML");
 static const CIMName 
     SUBSCRIPTION_CLASSNAME = CIMName ("CIM_IndicationSubscription");
 
-void _usage ()
+enum indicationHandlerProtocol{
+    PROTOCOL_CIMXML_INTERNAL = 1,
+    PROTOCOL_CIMXML_HTTPS    = 2};
+
+void _usage()
 {
-    cerr << "Usage: SendTestIndications "
-        << "[subscribe | sendTestIndications | unsubscribe]" << endl;
+    cerr << "Usage: SendTestIndications" << endl
+         << "[[ HTTPS ] |" << endl
+         << " [subscribe | sendTestIndication | unsubscribe]]" << endl
+         << "    where:" << endl
+         << "       [ HTTPS ] is used to specify the protocol to" << endl
+         << "            be used by the CIM-XML Indication Handler to" << endl
+         << "            send indications to the Destination." << endl
+         << "            If no value is specified, by default, the" << endl
+         << "            internal protocol is used." << endl
+         << "       [subscribe | sendTestIndication | unsubscribe] may" << endl
+         << "            be used to execute an individual step of the" << endl
+         << "            sample client." << endl
+         << "            For example, after successfully running the" << endl
+         << "            subscribe step, the sendTestIndication step" << endl
+         << "            may be run as many times as necessary for" << endl
+         << "            testing." << endl
+         << "            As another example, if the test fails for" << endl
+         << "            some reason in the sendTestIndication step," << endl
+         << "            the unsubscribe step may be run to clean up" << endl
+         << "            the repository." << endl
+         << endl;
 }
 
 CIMObjectPath _createFilter
@@ -161,10 +184,11 @@ CIMObjectPath _buildSubscriptionPath
 //  Create subscription to receive indications of the RT_TestIndication
 //  class and have them sent to the SimpleDisplayConsumer
 //  The SimpleDisplayConsumer logs received indications to the 
-//  indicationLog file
+//  indicationLog file in PEGASUS_INDICATION_CONSUMER_LOG_DIR
 //
-void _subscribe
-    (CIMClient & client)
+void _subscribe(
+    CIMClient& client,
+    indicationHandlerProtocol handlerProtocol)
 {
     //
     //  Create filter
@@ -179,16 +203,31 @@ void _subscribe
     //
     //  Create handler
     //
+    String destinationPath;
+    if (handlerProtocol == PROTOCOL_CIMXML_INTERNAL)
+    {
+        destinationPath = "localhost";
+    }
+    else if (handlerProtocol == PROTOCOL_CIMXML_HTTPS)
+    {
+        destinationPath = "https://localhost:5989";
+    }
+    else
+    {
+        destinationPath = "localhost";
+
+    }
+    destinationPath.append("/CIMListener/SDK_SimpleDisplayConsumer");
     CIMObjectPath handlerPath = _createHandler 
        (client,
         "TestHandler",
-        "localhost/CIMListener/SDK_SimpleDisplayConsumer");
+        destinationPath);
 
     //
     //  Create subscription to receive indications of the RT_TestIndication
     //  class and have them sent to the SimpleDisplayConsumer
     //  The SimpleDisplayConsumer logs received indications to the 
-    //  indicationLog file
+    //  indicationLog file in PEGASUS_INDICATION_CONSUMER_LOG_DIR
     //
     CIMObjectPath subscriptionPath = _createSubscription 
        (client,
@@ -197,12 +236,13 @@ void _subscribe
 }
 
 //
-//  Send test indications
-//  The RT_IndicationProvider SendTestIndication method is invoked
-//  If the provider is enabled, it sends two test indications
-//  (the second test indication includes SNMP trap OID)
+//  Send test indication
+//  The IndicationProvider SendTestIndication method is invoked
+//  If the provider is enabled, it sends a test indication
+//  Examine the indicationLog file in PEGASUS_INDICATION_CONSUMER_LOG_DIR
+//  to verify successful indication receipt
 //
-Sint32 _sendTestIndications
+Sint32 _sendTestIndication
    (CIMClient & client)
 {
     //
@@ -230,8 +270,7 @@ Sint32 _sendTestIndications
 //
 //  Delete the subscription, handler, and filter instances
 //
-void _unsubscribe
-    (CIMClient & client)
+void _unsubscribe(CIMClient& client)
 {
     CIMObjectPath filterPath = 
         _findFilterOrHandlerPath (client, FILTER_CLASSNAME, "TestFilter");
@@ -284,6 +323,38 @@ void _unsubscribe
     }
 }
 
+void _test(
+    CIMClient& client,
+    indicationHandlerProtocol handlerProtocol)
+{
+    _subscribe (client, handlerProtocol);
+
+    Sint32 result = _sendTestIndication (client);
+
+    String protocolString;
+    if (handlerProtocol == PROTOCOL_CIMXML_INTERNAL) 
+    {
+        protocolString = "internal protocol";
+    }
+    else if (handlerProtocol == PROTOCOL_CIMXML_HTTPS)
+    {
+        protocolString = "HTTPS";
+    }
+
+    if (result == 0)
+    {
+        cout << "Successfully sent test indication via " << protocolString << 
+                endl;
+    }
+    else
+    {
+        cerr << "Failed to send test indication via " << protocolString <<
+                endl;
+    }
+
+    _unsubscribe (client);
+}
+
 int main (int argc, char ** argv)
 {
     try
@@ -300,11 +371,10 @@ int main (int argc, char ** argv)
 
         catch(Exception& e)
         {
-            cerr << "Exception thown by client.connectLocal(): " 
+            cerr << "Exception thrown by client.connectLocal(): " 
                 << e.getMessage() << endl;
             return -1;
         }
-
 
         if (argc > 2)
         {
@@ -316,34 +386,12 @@ int main (int argc, char ** argv)
         {
             try
             {
-                _subscribe (client);
+                _test(client, PROTOCOL_CIMXML_INTERNAL);
             }
             catch(Exception& e)
             {
-                cerr << "Exception thrown by _subscribe method: " 
-                    << e.getMessage() << endl;
-                return -1;
-            }
-
-            Sint32 result = _sendTestIndications (client);
-
-            if (result == 0)
-            {
-                cout << "Successfully sent test indications" << endl;
-            }
-            else
-            {
-                cerr << "Failed to send test indications" << endl;
-            }
-
-            try
-            {
-                _unsubscribe (client);
-            }
-            catch(Exception& e)
-            {
-                cerr << "Exception thrown by _unsubscribe method: " 
-                    << e.getMessage() << endl;
+                cerr << "SendTestIndications using internal protocol failed: "
+                     << e.getMessage() << endl;
                 return -1;
             }
         }
@@ -352,11 +400,24 @@ int main (int argc, char ** argv)
         {
             const char * opt = argv [1];
 
-            if (String::equalNoCase (opt, "subscribe"))
+            if (String::equalNoCase (opt, "HTTPS"))
             {
                 try
                 {
-                    _subscribe (client);
+                    _test(client, PROTOCOL_CIMXML_HTTPS);
+                }
+                catch(Exception& e)
+                {
+                    cerr << "SendTestIndications using HTTPS protocol failed: "
+                         << e.getMessage() << endl;
+                    return -1;
+                }
+            }
+            else if (String::equalNoCase (opt, "subscribe"))
+            {
+                try
+                {
+                    _subscribe (client, PROTOCOL_CIMXML_INTERNAL);
                 }
                 catch(Exception& e)
                 {
@@ -365,17 +426,17 @@ int main (int argc, char ** argv)
                     return -1;
                 }
             }
-            else if (String::equalNoCase (opt, "sendTestIndications"))
+            else if (String::equalNoCase (opt, "sendTestIndication"))
             {
-                Sint32 result = _sendTestIndications (client);
+                Sint32 result = _sendTestIndication (client);
 
                 if (result == 0)
                 {
-                    cout << "Successfully sent test indications" << endl;
+                    cout << "Successfully sent test indication" << endl;
                 }
                 else
                 {
-                    cerr << "Failed to send test indications" << endl;
+                    cerr << "Failed to send test indication" << endl;
                 }
             }
             else if (String::equalNoCase (opt, "unsubscribe"))

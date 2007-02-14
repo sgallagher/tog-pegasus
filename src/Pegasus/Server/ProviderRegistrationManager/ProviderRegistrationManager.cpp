@@ -4026,17 +4026,21 @@ void ProviderRegistrationManager::_setStatus(
     const Array<Uint16> & status,
     CIMInstance & instance)
 {
+    _repository->setProperty(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        instance.getPath(),
+        _PROPERTY_OPERATIONALSTATUS,
+        status);
+
     Uint32 pos = instance.findProperty(_PROPERTY_OPERATIONALSTATUS);
 
-    if (pos != PEG_NOT_FOUND)
+    if (pos == PEG_NOT_FOUND)
+    {
+        instance.addProperty(CIMProperty(_PROPERTY_OPERATIONALSTATUS, status));
+    }
+    else
     {
         instance.getProperty(pos).setValue(CIMValue(status));
-
-        _repository->modifyInstance(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            instance,
-            true,
-            CIMPropertyList());
     }
 }
 

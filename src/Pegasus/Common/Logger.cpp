@@ -657,7 +657,6 @@ void Logger::setHomeDirectory(const String& homeDirectory)
 
 void Logger::setlogLevelMask( const String logLevelList )
 {
-    Uint32 position          = 0;
     Uint32 logLevelType = 0;
     String logLevelName      = logLevelList;
 
@@ -721,11 +720,9 @@ Boolean Logger::isValidlogLevel(const String logLevel)
     // Validate the logLevel and modify the logLevel argument
     // to reflect the invalid logLevel
 
-    Uint32    position=0;
     Uint32    index=0;
     String    logLevelName = String::EMPTY;
     Boolean   validlogLevel=false;
-    Boolean   retCode=true;
 
     logLevelName = logLevel;
 

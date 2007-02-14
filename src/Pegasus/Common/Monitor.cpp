@@ -347,7 +347,6 @@ void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
 void Monitor::run(Uint32 milliseconds)
 {
 
-    int i = 0;
 
     struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
 

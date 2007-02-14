@@ -42,7 +42,7 @@ LIBRARIES = \
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = TestOSTestClient
+PROGRAM = TestClientOSProvider
 SOURCES = OSTestClient.cpp
 
 include $(ROOT)/mak/program.mak

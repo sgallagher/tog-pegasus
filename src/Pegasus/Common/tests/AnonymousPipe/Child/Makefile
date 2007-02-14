@@ -37,7 +37,7 @@ LIBRARIES = \
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = TestChild
+PROGRAM = TestAnonymousPipeChild
 
 SOURCES = Child.cpp
 

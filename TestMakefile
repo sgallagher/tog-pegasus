@@ -312,7 +312,7 @@ stresstests:
 # perftests - simple performance test until we have better
 #
 # - Turns statistics on (uses TestInterop until we have better)
-# - runs poststarttests suite and benchmarkTest
+# - runs poststarttests suite and TestBenchmark
 # - runs cimperf to displat the statistics
 # - turns statistics off 
 #
@@ -324,7 +324,7 @@ perfsuite: FORCE
 	@ $(ECHO) " "
 	$(TIME_CMD) $(PEGASUS_HOME)/bin/TestClient
 	@ $(ECHO) " "
-	$(TIME_CMD) $(PEGASUS_HOME)/bin/benchmarkTest
+	$(TIME_CMD) $(PEGASUS_HOME)/bin/TestBenchmark
 	@ $(ECHO) " "
 	@ $(ECHO) " "
 	$(TIME_CMD) $(PEGASUS_HOME)/bin/cimperf

@@ -30,8 +30,7 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-PROGRAM_NAME = CreateInstance
-DIR = Clients/CLITestClients/$(PROGRAM_NAME)
+DIR = Clients/CLITestClients/CreateInstance
 include $(ROOT)/mak/config.mak
 include ../../libraries.mak
 
@@ -39,9 +38,9 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = $(PROGRAM_NAME)
+PROGRAM = TestCreateInstance
 
-SOURCES = $(PROGRAM_NAME).cpp
+SOURCES = CreateInstance.cpp
 
 include $(ROOT)/mak/program.mak
 

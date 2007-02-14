@@ -2,7 +2,7 @@
 # These tests are desined to test the CQL Functions.  Each query statement
 # in this file executes on a set of instances of CQL_TestPropertytypes.
 # The test program should be invoked like this:
-# cqlcli $PEGASUS_ROOT/src/Pegasus/CQL/tests/Queries/Function.query -test 1 -className CQL_TestPropertytypes
+# TestCQL $PEGASUS_ROOT/src/Pegasus/CQL/tests/Queries/Function.query -test 1 -className CQL_TestPropertytypes
 # The output of this should match the output of Function.query.resgood found in the .../tests/Queries directory.
 ########################
 

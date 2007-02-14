@@ -1,7 +1,7 @@
 #==============================================================
 # Testcases for isa
 #
-# NOTE: command line call: cqlcli <path to isa.query> -test 1 -className CIM_ComputerSystem
+# NOTE: command line call: TestCQL <path to isa.query> -test 1 -className CIM_ComputerSystem
 #==============================================================
 
 #==============================================================

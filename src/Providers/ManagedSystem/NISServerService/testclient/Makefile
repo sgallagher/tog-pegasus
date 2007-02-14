@@ -37,7 +37,7 @@ DIR = Providers/ManagedSystem/NISServerService/testclient
 include $(ROOT)/mak/config.mak
 include $(ROOT)/src/Clients/libraries.mak
 
-PROGRAM = NISTestClient
+PROGRAM = TestClientNISProvider
 SOURCES = NISTestClient.cpp
 
 include $(ROOT)/mak/program.mak

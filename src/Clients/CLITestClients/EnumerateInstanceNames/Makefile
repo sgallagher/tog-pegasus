@@ -30,8 +30,7 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-PROGRAM_NAME = EnumerateInstanceNames
-DIR = Clients/CLITestClients/$(PROGRAM_NAME)
+DIR = Clients/CLITestClients/EnumerateInstanceNames
 include $(ROOT)/mak/config.mak
 include ../../libraries.mak
 
@@ -39,9 +38,9 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = $(PROGRAM_NAME)
+PROGRAM = TestEnumerateInstanceNames
 
-SOURCES = $(PROGRAM_NAME).cpp
+SOURCES = EnumerateInstanceNames.cpp
 
 include $(ROOT)/mak/program.mak
 

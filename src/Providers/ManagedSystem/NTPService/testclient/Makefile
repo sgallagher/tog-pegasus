@@ -37,7 +37,7 @@ DIR = Providers/ManagedSystem/NTPService/testclient
 include $(ROOT)/mak/config.mak
 include ../../libraries.mak
 
-PROGRAM = NTPTestClient
+PROGRAM = TestClientNTPProvider
 SOURCES = NTPTestClient.cpp
 
 include $(ROOT)/mak/program.mak

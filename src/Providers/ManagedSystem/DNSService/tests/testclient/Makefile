@@ -37,7 +37,7 @@ DIR = Providers/ManagedSystem/DNSService/tests/testclient
 include $(ROOT)/mak/config.mak
 include ../../../libraries.mak
 
-PROGRAM = DNSTestClient
+PROGRAM = TestClientDNSProvider
 SOURCES = DNSTestClient.cpp
 
 include $(ROOT)/mak/program.mak

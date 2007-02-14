@@ -29,14 +29,6 @@
 #//
 #//==============================================================================
 #//
-#// Author: Christopher Neufeld <neufeld@linuxcare.com>
-#//         David Kennedy       <dkennedy@linuxcare.com>
-#//
-#// Modified By: 
-#//         David Kennedy       <dkennedy@linuxcare.com>
-#//         Christopher Neufeld <neufeld@linuxcare.com>
-#//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-#//
 #//%////////////////////////////////////////////////////////////////////////////
 
 ROOT = $(PEGASUS_ROOT)
@@ -45,7 +37,7 @@ DIR = Providers/ManagedSystem/ComputerSystem/tests
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = TestCSProviderTestClient
+PROGRAM = TestClientCSProvider
 
 POSTSTARTTESTS =
 ifeq ($(OS),HPUX)

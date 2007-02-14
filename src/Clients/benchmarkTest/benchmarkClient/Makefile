@@ -42,7 +42,7 @@ LIBRARIES = \
     peggetoopt \
     pegcommon
 
-PROGRAM = benchmarkTest
+PROGRAM = TestBenchmark
 SOURCES = benchmarkTest.cpp benchmarkTestException.cpp
 
 include $(ROOT)/mak/program.mak

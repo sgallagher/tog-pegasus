@@ -786,7 +786,7 @@ int testClass(const String& className)
         status++;
         if (processTestVerbose) cout << "    cimserver" << endl;
       }
-      if (cmd[0] == "TestProcessProviderTestClient")
+      if (cmd[0] == "TestClientProcessProvider")
       {
         status++;
         if (processTestVerbose) cout << "    ProcessProviderTestClient" << endl;

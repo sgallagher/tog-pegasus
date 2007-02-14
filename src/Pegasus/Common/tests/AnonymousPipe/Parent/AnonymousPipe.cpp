@@ -91,7 +91,7 @@ int main ()
             homeDir = ".";
         }
         childPath.append (homeDir);
-        childPath.append ("/bin/TestChild");
+        childPath.append ("/bin/TestAnonymousPipeChild");
 
         CString childPathCStr = childPath.getCString ();
 

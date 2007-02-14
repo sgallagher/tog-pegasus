@@ -65,8 +65,6 @@ void ListRep::clear()
         // a method of List.
 
         Linkable* front = _front;
-        Linkable* back = _back;
-        Uint32 size = _size;
 
         _front = 0;
         _back = 0;

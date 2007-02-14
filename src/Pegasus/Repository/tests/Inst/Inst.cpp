@@ -61,68 +61,65 @@ void _Test01()
     const char* PATH = ipd;
     Uint32 index;
     Uint32 size;
+    Boolean result;
     Uint32 freeCount = 0;
 
     // create 5 entries
     size = 1427;
     index = 0;
-    Boolean result = InstanceIndexFile::createEntry(PATH, 
-	CIMObjectPath("X.key1=1001,key2=\"Hello World 1\""), index, size);
+    CIMObjectPath instName1("X.key1=1001,key2=\"Hello World 1\"");
+    result = InstanceIndexFile::createEntry(PATH, instName1, index, size);
     PEGASUS_TEST_ASSERT(result);
 
     size = 1433;
     index = 1427;
-    result = InstanceIndexFile::createEntry(PATH, 
-	CIMObjectPath("X.key1=1002,key2=\"Hello World 2\""), index, size);
+    CIMObjectPath instName2("X.key1=1002,key2=\"Hello World 2\"");
+    result = InstanceIndexFile::createEntry(PATH, instName2, index, size);
     PEGASUS_TEST_ASSERT(result);
 
     size = 1428;
     index = 2860;
-    result = InstanceIndexFile::createEntry(PATH, 
-	CIMObjectPath("X.key1=1003,key2=\"Hello World 3\""), index, size);
+    // ATTN: Use this test case to reproduce Bug 5962
+    // CIMObjectPath instName3("X.key1=1003,key2=\"Hello \nWorld  \r 3\"");
+    CIMObjectPath instName3("X.key1=1003,key2=\"Hello World 3\"");
+    result = InstanceIndexFile::createEntry(PATH, instName3, index, size);
     PEGASUS_TEST_ASSERT(result);
 
     size = 1433;
     index = 4288;
-    result = InstanceIndexFile::createEntry(PATH, 
-	CIMObjectPath("X.key1=1004,key2=\"Hello World 4\""), index, size);
+    CIMObjectPath instName4("X.key1=1004,key2=\"Hello World 4\"");
+    result = InstanceIndexFile::createEntry(PATH, instName4, index, size);
     PEGASUS_TEST_ASSERT(result);
 
     size = 1431;
     index = 5721;
-    result = InstanceIndexFile::createEntry(PATH, 
-	CIMObjectPath("X.key1=1005,key2=\"Hello World 5\""), index, size);
+    CIMObjectPath instName5("X.key1=1005,key2=\"Hello World 5\"");
+    result = InstanceIndexFile::createEntry(PATH, instName5, index, size);
     PEGASUS_TEST_ASSERT(result);
 
     // delete the 3rd entry
-    result = InstanceIndexFile::deleteEntry(PATH, 
-          CIMObjectPath("X.key2=\"Hello World 3\",key1=1003"), freeCount);
+    result = InstanceIndexFile::deleteEntry(PATH, instName3, freeCount);
     PEGASUS_TEST_ASSERT(result);
 
     // create a new entry
     size = 1428;
     index = 2860;
-    result = InstanceIndexFile::createEntry(
-	PATH, CIMObjectPath("X.key1=1003,key2=\"Hello World 3\""), 
-	index, size);
+    result = InstanceIndexFile::createEntry(PATH, instName3, index, size);
     PEGASUS_TEST_ASSERT(result);
 
     // delete the newly created entry
-    result = InstanceIndexFile::deleteEntry(PATH, 
-          CIMObjectPath("X.key2=\"Hello World 3\",key1=1003"), freeCount);
+    result = InstanceIndexFile::deleteEntry(PATH, instName3, freeCount);
     PEGASUS_TEST_ASSERT(result);
 
     // delete the first entry
-    result = InstanceIndexFile::deleteEntry(PATH, 
-	CIMObjectPath("X.key1=1001,key2=\"Hello World 1\""), freeCount);
+    result = InstanceIndexFile::deleteEntry(PATH, instName1, freeCount);
     PEGASUS_TEST_ASSERT(result);
 
     // modify the 5th entry
     size = 9999;
     index = 8888;
-    result = InstanceIndexFile::modifyEntry(PATH, 
-	CIMObjectPath("X.key1=1005,key2=\"Hello World 5\""), 
-	index, size, freeCount);
+    result = InstanceIndexFile::modifyEntry(
+        PATH, instName5, index, size, freeCount);
     PEGASUS_TEST_ASSERT(result);
 
     //

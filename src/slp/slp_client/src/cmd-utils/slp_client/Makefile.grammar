@@ -29,7 +29,12 @@
 #//
 #//==============================================================================
 ##############################################################
-# *************   REQUIRES BISON 1.35   **********************
+# Update the Bison version in the following line to reflect
+# the version of Bison used the last time the parser files
+# were generated. Never use an older version of Bison than
+# indicated here. All of the generated files should be committed
+# after adding the OpenPegasus license to the top of each.
+# *************   REQUIRES BISON 1.875c or later   ***********
 ##############################################################
 
 ROOT=$(PEGASUS_ROOT)

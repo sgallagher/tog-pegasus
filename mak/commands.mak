@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 # commands.mak is a helper Makefile that is intended to be
 # included in an upper level Makefile.
 
@@ -88,26 +90,21 @@ ifeq ($(OS),HPUX)
     TOUCH = touch
     CAT = cat
     DOCXX = doc++
-    DOXYGEN = doxygen
 
     GENERATE_RANDSEED = randseed
     GET_HOSTNAME = `nslookup \`hostname\` | grep "Name:" | sed 's/Name:[ ]*//'`
 
-        LIB_LINK_SUFFIX = .so
-
     ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
         LIB_LINK_SUFFIX = .sl
-    endif
-    
-    ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_GNU)
-        LIB_LINK_SUFFIX = .sl
+    else
+        LIB_LINK_SUFFIX = .so
     endif
 
     Prwxr_xr_x = 755
     Prwx______ = 700
     Prwxrwxrwx = 777
     Prwxrwxrwt = 1777
-    Prwxr__r__ = 744
+    Pr_xr__r__ = 744
     Pr__r__r__ = 444
     Pr________ = 400
     Pr_xr_xr_x = 555
@@ -159,9 +156,9 @@ endif
     ECHO = echo
     ECHO-E = mu echo-e
     COPY = cp
-    CHMOD = chmod
-    CHOWN = chown
-    CHGRP = chgrp
+    CHMOD =
+    CHOWN =
+    CHGRP =
     CURRENT_USER=`whoami`
 endif
 
@@ -185,7 +182,6 @@ ifeq ($(OS),linux)
     TOUCH = touch
     CAT = cat
     DOCXX = doc++
-    DOXYGEN = doxygen
 
     GET_HOSTNAME = `host \`hostname\`|cut -d" " -f1`
 
@@ -195,7 +191,7 @@ ifeq ($(OS),linux)
     Prwxrwxrwt = 1777
     Prwxr_xr_x = 755
     Prwxr_x___ = 750
-    Prwxr__r__ = 744
+    Pr_xr__r__ = 744
     Prwx______ = 700
     Pr__r__r__ = 444
     Pr________ = 400
@@ -209,7 +205,7 @@ ifeq ($(OS),linux)
     INSTALL_USR = root
     INSTALL_GRP = pegasus
     CIMSERVER_USR = root
-    CIMSERVER_GRP = root
+    CIMSERVER_GRP = pegasus
     CHMOD = chmod
     CHOWN = chown
     CHGRP = chgrp
@@ -219,35 +215,6 @@ ifeq ($(OS),linux)
     SYMBOLIC_LINK_CMD = ln -f -s
 
     CURRENT_USER=`whoami`
-
-#
-# Since the Privilege Separation splits the cimserver process into two
-# processes (cimservermain process - a non privileged process; cimserver
-# process - a privileged process), the pegasus files need to be split into
-# two sets. The files which can be updated by cimservermain process are owned
-# by user "CIMSERVERMAIN_USR" and group "CIMSERVERMAIN_GRP". Other files
-# owned by user "CIMSERVER_USR" and group "CIMSERVER_GRP" can be updated
-# by cimserver process.
-# If the Privilege Separation is not enabled, a single privileged process
-# (cimserver process) is created. All the pegasus files can be updated by
-# the cimserver process. The CIMSERVERMAIN_USR variable will be set
-# equal to CIMSERVER_USR, and the CIMSERVERMAIN_GRP variable will be set
-# equal to CIMSERVER_GRP.
-#
-# To further restrict the privileges assigned to the cimservermain
-# process, we recommend creating a new group for the cimservermain
-# process.  By default, the name of this group will be the same as
-# the cimservermain user.  Note: the CIMSERVERMAIN_GRP should be
-# the primary group for the CIMSERVERMAIN_USER.
-
-ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-    CIMSERVERMAIN_USR = $(PEGASUS_CIMSERVERMAIN_USER)
-    CIMSERVERMAIN_GRP = $(PEGASUS_CIMSERVERMAIN_USER)
-else
-    CIMSERVERMAIN_USR = $(CIMSERVER_USR)
-    CIMSERVERMAIN_GRP = $(CIMSERVER_GRP)
-endif
-
 endif
 
 ifeq ($(OS),zos)
@@ -273,7 +240,7 @@ ifeq ($(OS),zos)
     Prwxrwxrwx = 777
     Prwxrwxrwt = 1777
     Prwxr_xr_x = 755
-    Prwxr__r__ = 744
+    Pr_xr__r__ = 744
     Pr__r__r__ = 444
     Pr________ = 400
     Pr_xr_xr_x = 555
@@ -299,12 +266,12 @@ ifeq ($(OS),zos)
 
 
     SYMBOLIC_LINK_CMD = ln -f -s
-    CAT = cat	
+    CAT = cat
 
 endif
 
 ifeq ($(OS),VMS)
-    STRIPCRS =
+    STRIPCRS =$(MUEXE) echo "STRIPCRS not defined in commands.mak"
     DIFF = mu compare
     SORT = mu sort
     REDIRECTERROR = $(MUEXE) echo "REDIRECTERROR not defined in commands.mak"
@@ -341,31 +308,9 @@ ifeq ($(OS),aix)
     ECHO = echo
     ECHO-E =
     COPY = cp
-    CHMOD = chmod
-    CHOWN = chown
-    CHGRP = chgrp
-    CAT = cat
-endif
-
-ifeq ($(OS),PASE)
-    STRIPCRS =
-    DIFF = diff
-    SORT = sort
-    REDIRECTERROR = 2>&1
-    CIMSERVER_START_SERVICE = system STRTCPSVR *CIMOM
-    CIMSERVER_STOP_SERVICE = system ENDTCPSVR *CIMOM
-    SLEEP = sleep
-    TIME_CMD = time
-    MUEXE = mu
-    RM = rm -f
-    MKDIRHIER = mkdir -p
-    RMDIRHIER = rm -rf
-    ECHO = echo
-    ECHO-E =
-    COPY = cp
-    CHMOD = chmod
-    CHOWN = chown
-    CHGRP = chgrp
+    CHMOD =
+    CHOWN =
+    CHGRP =
     CAT = cat
 endif
 
@@ -387,24 +332,24 @@ ifeq ($(OS),darwin)
     ECHO-E = mu echo-e
     COPY = cp
     TOUCH = touch
-    CAT = cat 	
+    CAT = cat
 
     CHMOD = chmod
     CHOWN = chown
     CHGRP = chgrp
 
-    CHMODDIRHIER = chmod -R 	
+    CHMODDIRHIER = chmod -R
     CHOWNDIRHIER = chown -R
     CHGRPDIRHIER = chgrp -R
 
     SYMBOLIC_LINK_CMD = ln -f -s
 
-    CURRENT_USER=`whoami`		
+    CURRENT_USER=`whoami`
 endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     ifeq ($(OS_TYPE),windows)
-        CMPIR_START_DAEMON = start "/K $(CIMSERVER_PATH)" CMPIRDaemon
+        CMPIR_START_DAEMON = start $(CIMSERVER_PATH)CMPIRDaemon
         CMPIR_STOP_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon --stop
     else
         CMPIR_START_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon
@@ -528,7 +473,7 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##
 runTestSuite: CMDSFORCE
 	-$(CIMSERVER_STOP_SERVICE)
-	-$(CMPIR_STOP_DAEMON)		
+	-$(CMPIR_STOP_DAEMON)
 	$(CIMSERVER_START_SERVICE)
 	$(CMPIR_START_DAEMON)
 	$(WINDOWS_ONLY_SLEEP)

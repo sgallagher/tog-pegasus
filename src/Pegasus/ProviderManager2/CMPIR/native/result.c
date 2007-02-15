@@ -109,6 +109,10 @@ static CMPIStatus __rft_returnData ( CONST CMPIResult * result,
         if (rc.rc != CMPI_RC_OK)
         {
             return rc;
+        }
+        if (!val)
+        {
+            CMReturn (CMPI_RC_ERR_INVALID_PARAMETER);
         } 
 	if ( r->current == 0 ) {
 

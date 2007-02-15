@@ -2927,6 +2927,11 @@ struct slp_client *create_slp_client(const char *target_addr,
     client->_local_addr = inet_addr(local_interface);
   scope_copy = strdup(spi);
   if(scope_copy == NULL){
+    free(client->_pr_buf);
+    free(client->_msg_buf);
+    free(client->_rcv_buf);
+    free(client->_scratch);
+    free(client->_err_buf);
     free(client);
     DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err3 "));
     return NULL;
@@ -2937,6 +2942,11 @@ struct slp_client *create_slp_client(const char *target_addr,
   free(scope_copy);
   scope_copy = strdup(scopes);
   if(scope_copy == NULL){
+    free(client->_pr_buf);
+    free(client->_msg_buf);
+    free(client->_rcv_buf);
+    free(client->_scratch);
+    free(client->_err_buf);
     free(client);
     DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err4 "));
     return NULL;

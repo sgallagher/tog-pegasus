@@ -39,6 +39,7 @@
 #include <sys/stat.h>
 #if defined(PEGASUS_OS_HPUX)
 #include <sys/pstat.h>
+#include <libgen.h>
 #endif
 #include <fcntl.h>
 #include <unistd.h>
@@ -435,20 +436,33 @@ Boolean ServerProcess::isCIMServerRunning(void)
   int ret_code;
   ret_code = pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid);
 
-  if ( (ret_code != -1 ) && (strcmp(pstru.pst_ucomm, getProcessName())) == 0)
+  if ( ret_code != -1 )
   {
       //
-      // Check to see if this command process has the same pid as the 
-      // cimserver daemon process pid stored in the cimserver_start.conf 
-      // file.  Since the command has the same name as the cimserver daemon
-      // process, this could happen after a system reboot.  If the pids are
-      // the same, cimserver isn't really running.
+      // Gets the command basename disregarding the command parameters
       //
-      Uint32 mypid = System::getPID();
-      if ((mypid != pid) && (parentPid != pid))
+      char *execName = strchr(pstru.pst_cmd,' ');
+      if (execName)
       {
-          // cimserver is running
-          return true;
+          *execName = '\0';
+      }
+      execName = basename(pstru.pst_cmd);
+
+      if ( strcmp(execName, getProcessName()) == 0)
+      {
+          //
+          // Check to see if this command process has the same pid as the
+          // cimserver daemon process pid stored in the cimserver_start.conf
+          // file.  Since the command has the same name as the cimserver daemon
+          // process, this could happen after a system reboot.  If the pids are
+          // the same, cimserver isn't really running.
+          //
+          Uint32 mypid = System::getPID();
+          if ((mypid != pid) && (parentPid != pid))
+          {
+              // cimserver is running
+              return true;
+          }
       }
   }
 #endif

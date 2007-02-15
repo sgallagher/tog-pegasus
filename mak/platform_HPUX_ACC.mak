@@ -169,6 +169,12 @@ ifdef PEGASUS_USE_RELEASE_DIRS
   FLAGS += -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
   ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
     FLAGS += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
+    ifdef OPENSSL_HOME
+      FLAGS += -Wl,+cdp,$(OPENSSL_HOME)/lib:/usr/lib
+    endif
+    ifdef ICU_INSTALL
+      FLAGS += -Wl,+cdp,$(ICU_INSTALL)/lib:$(PEGASUS_DEST_LIB_DIR)
+    endif
   endif
 else
   ifdef PEGASUS_HAS_MESSAGES

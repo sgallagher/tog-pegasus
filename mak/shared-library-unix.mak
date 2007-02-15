@@ -75,6 +75,12 @@ ifeq ($(COMPILER),acc)
       LINK_COMMAND += -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
       ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
         LINK_COMMAND += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
+        ifdef OPENSSL_HOME
+          LINK_COMMAND += -Wl,+cdp,$(OPENSSL_HOME)/lib:/usr/lib
+        endif
+        ifdef ICU_INSTALL
+          LINK_COMMAND += -Wl,+cdp,$(ICU_INSTALL)/lib:$(PEGASUS_DEST_LIB_DIR)
+        endif
       endif
     else
         LINK_COMMAND += -Wl,+b$(LIB_DIR):/usr/lib

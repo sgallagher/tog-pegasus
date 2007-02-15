@@ -1,45 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-    \file native.h
-    \brief Header file for the native encapsulated CMPI data type
-    implementation.
+  \file native.h
+  \brief Header file for the native encapsulated CMPI data type implementation.
 
-    This file defines all the data types and functions necessary to use
-    native encapsulated CMPI data objects. These are clones of the regular
-    CMPI data types like CMPIObjectPath, CMPIInstance etc., however, they
-    can be instantiated and manipulated without a full blown CIMOM. Instead,
-    they use an autononmous CIMOM clone that provides all the functions
-    to create these objects as defined by the CMPIBrokerEncFT.
+  This file defines all the data types and functions necessary to use
+  native encapsulated CMPI data objects. These are clones of the regular
+  CMPI data types like CMPIObjectPath, CMPIInstance etc., however, they
+  can be instantiated and manipulated without a full blown CIMOM. Instead,
+  they use an autononmous CIMOM clone that provides all the functions
+  to create these objects as defined by the CMPIBrokerEncFT.
 
 */
 
@@ -100,7 +101,7 @@ static CMPIObjectPath * __oft_clone(CONST CMPIObjectPath * cop, CMPIStatus * rc)
     struct native_cop * o = (struct native_cop *) cop;
     struct native_cop *new;
 
-    if (!checkArgs(cop, rc))
+    if (!checkArgs(cop, rc) )
     {
         return 0;
     }
@@ -117,7 +118,8 @@ static CMPIObjectPath * __oft_clone(CONST CMPIObjectPath * cop, CMPIStatus * rc)
     }
     else
     {
-        CMSetStatus(rc, tmp.rc);
+        if (rc)
+            CMSetStatus(rc, tmp.rc);
     }
 
     return(CMPIObjectPath *) new;
@@ -159,7 +161,7 @@ static CMPIString * __oft_getNameSpace(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
-    if (!checkArgs(cop, rc))
+    if (!checkArgs(cop, rc) )
     {
         return 0;
     }
@@ -199,7 +201,7 @@ static CMPIString * __oft_getHostName(
     CMPIStatus * rc)
 {
     struct native_cop * o = (struct native_cop *) cop;
-    if (!checkArgs(cop, rc))
+    if (!checkArgs(cop, rc) )
     {
         return 0;
     }
@@ -244,7 +246,7 @@ CMPIString * __oft_getClassName(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
-    if (!checkArgs(cop, rc))
+    if (!checkArgs(cop, rc) )
     {
         return 0;
     }
@@ -268,12 +270,12 @@ static CMPIStatus __oft_addKey(
 
     CMReturn(
         (propertyFT.addProperty(
-        &o->keys,
-        o->mem_state,
-        name,
-        type,
-        CMPI_keyValue,
-        value))
+            &o->keys,
+            o->mem_state,
+            name,
+            type,
+            CMPI_keyValue,
+            value))
         ? CMPI_RC_ERR_ALREADY_EXISTS : CMPI_RC_OK);
 }
 
@@ -319,7 +321,7 @@ static unsigned int __oft_getKeyCount(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
-    if (!checkArgs(cop, rc))
+    if (!checkArgs(cop, rc) )
     {
         return 0;
     }
@@ -339,13 +341,6 @@ static CMPIStatus __oft_setNameSpaceFromObjectPath(
     {
         return rc;
     }
-
-    rc = checkArgsReturnStatus(src);
-    if (rc.rc != CMPI_RC_OK)
-    {
-        return rc;
-    }
-
     return __oft_setNameSpace(cop, s->namespace);
 }
 
@@ -393,7 +388,7 @@ CMPIString *__oft_toString( CONST CMPIObjectPath * cop, CMPIStatus *rc)
     unsigned int i, m;
     char *v;
 
-    if (!checkArgs(cop, rc))
+    if (!checkArgs(cop, rc) )
     {
         return 0;
     }
@@ -477,7 +472,7 @@ static struct native_cop * __new_empty_cop(
         tool_mm_add(cop->hostname);
     }
 
-    CMSetStatus(rc, CMPI_RC_OK);
+    if (rc) CMSetStatus(rc, CMPI_RC_OK);
     return cop;
 }
 
@@ -487,7 +482,7 @@ CMPIObjectPath * native_new_CMPIObjectPath(
     const char * classname,
     CMPIStatus * rc)
 {
-    return(CMPIObjectPath *)__new_empty_cop(
+    return (CMPIObjectPath *)__new_empty_cop(
         TOOL_MM_ADD,
         namespace,
         classname,

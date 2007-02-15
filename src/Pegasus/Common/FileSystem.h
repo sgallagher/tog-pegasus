@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,13 +36,15 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Linkage.h>
 #include <fstream>
 #include <cstdio>
+#if defined(PEGASUS_OS_OS400)
+#include "EBCDIC_OS400.h"
+#endif
 #include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -153,17 +157,6 @@ public:
     */
     static Boolean removeFileNoCase(const String& path);
 
-    /** Produces an array of filenames that match the given pattern under
-        the directory given by path. The pattern is limited to asterisks
-        only. Examples: "*.txt", "hello*world.c". Returns true on success.
-        Return false if the base diretory does not exist or cannot be
-        accessed.
-    */
-    static Boolean glob(
-        const String& path,
-        const String& pattern,
-        Array<String>& filenames);
-
     /** Loads contents of the file into the array. Note that the file is
         opened using binary mode (newline sequences are not expanded to
         carriage-return-line-feed sequences on Windows).
@@ -185,22 +178,17 @@ public:
         const String& path1,
         const String& path2);
 
-    /**
-        Renames a file.  If the new name refers to an existing file, it is
-        removed and replaced with the renamed file.  The rename operation is
-        performed atomically.
-        @param oldPath A String containing the name of the file to rename.
-        @param newPath A String containing the name to which to rename the file.
-        @return A Boolean indicating whether the rename operation was
-            successful.
+    /** Renames a file.
+        @param oldPath old name of file.
+        @param newPath new name of file.
+        @return true on success.
     */
     static Boolean renameFile(
         const String& oldPath,
         const String& newPath);
 
     /** Same as rename file except that the case of the file referred to
-        by oldPath is ignored.  The case resolution of the oldPath is
-        performed prior to the atomic rename operation.
+        by oldPath is ignored.
     */
     static Boolean renameFileNoCase(
         const String& oldPath,
@@ -356,15 +344,6 @@ public:
     */
     static String buildLibraryFileName(const String &libraryName);
 
-    /**
-       Returns the platform-specific file name extension for dynamic
-       libraries.
-
-       @return the platform-specific file name extension for dynamic
-       libraries.
-    */
-    static String getDynamicLibraryExtension();
-
     static Boolean changeFileOwner(
         const String& fileName,
         const String& userName);
@@ -377,7 +356,7 @@ public:
         OS filesystem commit directory-level changes immediately while
         file-level changes remain cached (e.g. HP-UX).
 
-        @param fstream. The iostream that we want to flush data.
+        @param fstream The iostream that we want to flush data.
     */
     static void syncWithDirectoryUpdates(PEGASUS_STD(fstream)&);
 
@@ -466,19 +445,32 @@ inline String FileSystem::getAbsolutePath(
 
 inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
 {
+#if defined(PEGASUS_OS_OS400)
+    is.open(path.getCString(), PEGASUS_STD(_CCSID_T(1208)));
+#else
     is.open(path.getCString());
+#endif
     return !!is;
 }
 
 inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 {
+#if defined(PEGASUS_OS_OS400)
+    os.open(path.getCString(), PEGASUS_STD(_CCSID_T(1208)));
+#else
     os.open(path.getCString());
+#endif
     return !!os;
 }
 
 inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 {
+#if defined(PEGASUS_OS_OS400)
+    os.open(
+        path.getCString(), PEGASUS_STD(ios::app), PEGASUS_STD(_CCSID_T(1208)));
+#else
     os.open(path.getCString(), PEGASUS_STD(ios::app));
+#endif
     return !!os;
 }
 
@@ -493,15 +485,7 @@ inline String FileSystem::getPathDelimiter()
 
 /** Get the next line from the input file.
 */
-PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, Buffer& line);
-
-inline Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
-{
-    Buffer lineBuffer;
-    Boolean result = GetLine(is, lineBuffer);
-    line = String(lineBuffer.getData(), lineBuffer.size());
-    return result;
-}
+PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, String& line);
 
 PEGASUS_NAMESPACE_END
 

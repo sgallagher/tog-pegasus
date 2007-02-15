@@ -44,7 +44,6 @@
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "true"},
     {"enableIndicationService", "true"},
-    {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
     {"enableBinaryRepository", "false"},

@@ -121,8 +121,10 @@ static int __addProperty ( struct native_property ** prop,
 							   NULL );
 			value = &v;
 		}
-
-		if ( type != CMPI_null ) {
+                // If Provider sets Property type other than CMPI_null and
+                // value is actually NULL, we need to check the state of 
+                // the value here.
+		if ( type != CMPI_null && tmp->state != CMPI_nullValue) {
 			if ( mm_add == TOOL_MM_ADD ) {
 
 				tmp->value = *value;

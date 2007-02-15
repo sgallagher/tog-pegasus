@@ -1,41 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-    \file proxy_comm.c
-    \brief Proxy Provider communication layer handling.
+  \file proxy_comm.c
+  \brief Proxy Provider communication layer handling.
 
-    This module provides the functionality to load and manage communication
-    layers, as requested by the proxy provider. These are required to
-    communicate with remote providers.
+  This module provides the functionality to load and manage communication
+  layers, as requested by the proxy provider. These are required to
+  communicate with remote providers.
 
 */
 #include "cmpir_common.h"
@@ -47,15 +49,15 @@
 #include "tool.h"
 #include "debug.h"
 
-#if defined PEGASUS_OS_TYPE_WINDOWS
-# include <winsock2.h>
-# include <Winbase.h>
-# include <Windows.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <dll.h>
+#elif defined PEGASUS_OS_TYPE_WINDOWS
+#include <winsock2.h>
+#include <Winbase.h>
+#include <Windows.h>
 #else
-# include <dlfcn.h>
-# ifndef PEGASUS_OS_ZOS
-#  include <error.h>
-# endif
+#include <error.h>
+#include <dlfcn.h>
 #endif
 
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
@@ -64,9 +66,7 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 static void * _load_lib ( const char * libname )
 {
     char filename[255];
-    //PEGASUS_CMPIR_LIBTYPE appends libname with the lib extn based on os.
     sprintf ( filename, PEGASUS_CMPIR_LIBTYPE, libname );
-    //invoke dlopen under unix and LoadLibrary under windows OS.
     return PEGASUS_CMPIR_LOADLIBRARY( filename, RTLD_LAZY );
 }
 
@@ -77,17 +77,17 @@ static void _unload_lib ( void * libhandle )
 
 //! Loads a server-side communication layer library.
 /*!
-    The function tries to load "lib<id>.so" looking for an entry point
-    "<id>_InitCommLayer". The latter one is called to obtain a provider_comm
-    structure including the function pointer table for MI calls towards
-    remote providers.
+  The function tries to load "lib<id>.so" looking for an entry point
+  "<id>_InitCommLayer". The latter one is called to obtain a provider_comm
+  structure including the function pointer table for MI calls towards
+  remote providers.
 
-    \param id the name of the comm-layer for which the library has to be loaded.
-    \param broker broker handle as passed to the init function.
-    \param ctx context as passed to the init function.
+  \param id the name of the comm-layer for which the library has to be loaded.
+  \param broker broker handle as passed to the init function.
+  \param ctx context as passed to the init function.
 
-    \return pointer to the provider_comm structure from the comm-layer, or NULL.
-*/
+  \return pointer to the provider_comm structure from the comm-layer, or NULL.
+ */
 static provider_comm * load_comm_library (
     const char * id,
     CONST CMPIBroker * broker,
@@ -95,21 +95,21 @@ static provider_comm * load_comm_library (
 {
     void * hLibrary;
     char function[255];
+    CMPIStatus rc = {CMPI_RC_OK, NULL};
 
     TRACE_VERBOSE(("entered function."));
     TRACE_NORMAL(("loading comm-layer library: lib%s.so", id));
 
     hLibrary = _load_lib ( id );
 
-    if (hLibrary != NULL)
+    if ( hLibrary != NULL )
     {
         INIT_COMM_LAYER fp;
         sprintf ( function, "%s_InitCommLayer", id );
-        //invokes dlsym on unix and GetProcAddress on windows
         fp = (INIT_COMM_LAYER)PEGASUS_CMPIR_GETPROCADDRESS(hLibrary,function);
-        if (fp != NULL)
+        if ( fp != NULL )
         {
-            provider_comm * result = fp(broker, ctx);
+            provider_comm * result = fp ( broker, ctx );
             result->id = strdup ( id );
             result->handle = hLibrary;
 
@@ -117,16 +117,10 @@ static provider_comm * load_comm_library (
             TRACE_VERBOSE(("leaving function."));
             return result;
         }
-        //invokes dlfree call on unix and FreeLibrary on windows
         PEGASUS_CMPIR_FREELIBRARY( hLibrary );
     }
-    error_at_line (
-        0,
-        errno,
-        __FILE__,
-        __LINE__,
-        "Unable to load/init communication-layer library.%s Error",
-        id);
+    PEGASUS_CMPIR_ERROR_AT_LINE  ( 0, errno, __FILE__, __LINE__,
+        "Unable to load/init communication-layer library.%s Error",id);
     TRACE_VERBOSE(("leaving function."));
     return NULL;
 }
@@ -135,10 +129,11 @@ static provider_comm * load_comm_library (
 
 //! Unloads a server-side communication layer library.
 /*!
-    The function unloads "lib<id>.so".
+  The function unloads "lib<id>.so".
 
-    \param id comm the provider_comm structure that can be unloaded
-*/
+  \param id comm the provider_comm structure that can be unloaded
+
+ */
 static void unload_comm_library ( provider_comm * comm )
 {
     TRACE_VERBOSE(("entered function."));
@@ -155,17 +150,17 @@ static CMPI_MUTEX_TYPE __mutex=NULL;
 
 //! Looks up a server-side communication layer or loads it, if necessary.
 /*!
-    The function maintains a list of previously loaded comm-layers locally.
-    A mutex is used to ensure proper access to this list. If a comm-layer
-    cannot be found within the list, it is being loaded and inserted at
-    the begininng.
+  The function maintains a list of previously loaded comm-layers locally.
+  A mutex is used to ensure proper access to this list. If a comm-layer
+  cannot be found within the list, it is being loaded and inserted at
+  the begininng.
 
-    \param comm_id the name of the communication layer to be looked up.
-    \param broker broker handle as passed to the init function.
-    \param ctx context as passed to the init function.
+  \param comm_id the name of the communication layer to be looked up.
+  \param broker broker handle as passed to the init function.
+  \param ctx context as passed to the init function.
 
-    \return the comm-layer matching the id or NULL if it cannot be loaded.
-*/
+  \return the comm-layer matching the id or NULL if it cannot be loaded.
+ */
 provider_comm * load_provider_comm (
     const char * comm_id,
     CONST CMPIBroker * broker,
@@ -179,9 +174,9 @@ provider_comm * load_provider_comm (
     INIT_LOCK(__mutex);
     CMPI_BrokerExt_Ftab->lockMutex(__mutex);
 
-    for (tmp = __comm_layers; tmp != NULL; tmp = tmp->next)
+    for ( tmp = __comm_layers; tmp != NULL; tmp = tmp->next )
     {
-        if (strcmp ( tmp->id, comm_id ) == 0)
+        if ( strcmp ( tmp->id, comm_id ) == 0 )
         {
             CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
             TRACE_INFO(("found previously loaded comm-layer."));
@@ -192,7 +187,7 @@ provider_comm * load_provider_comm (
 
     tmp = load_comm_library ( comm_id, broker, ctx );
 
-    if (tmp != NULL)
+    if ( tmp != NULL )
     {
         tmp->next     = __comm_layers;
         __comm_layers = tmp;
@@ -206,16 +201,16 @@ provider_comm * load_provider_comm (
 
 //! Unloads communication layers (usually after provider terminsation.)
 /*!
-    The function maintains a list of previously loaded comm-layers locally.
-    A mutex is used to ensure proper access to this list. If a comm-layer
-    is found within the list, it is being unloaded.
+  The function maintains a list of previously loaded comm-layers locally.
+  A mutex is used to ensure proper access to this list. If a comm-layer
+  is found within the list, it is being unloaded.
 
-    \param comm_id the name of the communication layer to be looked up.
-    \param broker broker handle as passed to the init function.
-    \param ctx context as passed to the cleanup function.
+  \param comm_id the name of the communication layer to be looked up.
+  \param broker broker handle as passed to the init function.
+  \param ctx context as passed to the cleanup function.
 
-*/
-void unload_provider_comms ()
+ */
+void unload_provider_comms ( void )
 {
     provider_comm * tmp;
     provider_comm * next;
@@ -225,7 +220,7 @@ void unload_provider_comms ()
     INIT_LOCK(__mutex);
     CMPI_BrokerExt_Ftab->lockMutex(__mutex);
 
-    for (tmp = __comm_layers; tmp != NULL; tmp = next)
+    for ( tmp = __comm_layers; tmp != NULL; tmp = next )
     {
         TRACE_INFO(("unloading comm-layer: %s.", tmp->id));
         next = tmp->next;
@@ -243,7 +238,7 @@ void unload_provider_comms ()
 }
 
 
-void cleanup_provider_comms ()
+void cleanup_provider_comms ( void )
 {
     CMPI_BrokerExt_Ftab->destroyMutex(__mutex);
     __mutex = 0;

@@ -246,11 +246,11 @@ static int CheckPolicy(
                 continue;
         }
 
-        // Found a matching policy!
+        /* Found a matching policy! */
         return 0;
     }
 
-    // Failed to find any matching policy.
+    /* Failed to find any matching policy. */
 
     return -1;
 }

@@ -37,12 +37,12 @@ int CheckPasswordFile(
     FILE* is;
     char line[EXECUTOR_BUFFER_SIZE];
 
-    // Open file.
+    /* Open file. */
 
     if ((is = fopen(path, "r")) == NULL)
         return -1;
 
-    // Lookup encrypted password for this user.
+    /* Lookup encrypted password for this user. */
 
     while (fgets(line, sizeof(line), is) != NULL)
     {
@@ -100,7 +100,7 @@ int CheckPasswordFile(
         }
     }
 
-    // User entry not found.
+    /* User entry not found. */
 
     fclose(is);
     return -1;

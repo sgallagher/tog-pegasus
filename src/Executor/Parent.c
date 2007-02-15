@@ -244,13 +244,19 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (GetSessionKeyAuthenticated(&key, &authenticated) != 0)
         {
-            Log(LL_SEVERE, "attempted to start provider module \"%s\" as "
-                "user \"%s\", using unknown session key");
+            Log(LL_SEVERE,
+                "attempted to start provider module \"%s\" as "
+                    "user ID \"%s\", using unknown session key",
+                request.module,
+                request.uid);
         }
         else if (!authenticated)
         {
-            Log(LL_SEVERE, "attempted to start provider module \"%s\" as "
-                "user \"%s\", using an unauthenticated session key");
+            Log(LL_SEVERE,
+                "attempted to start provider module \"%s\" as "
+                    "user ID \"%s\", using unauthenticated session key",
+                request.module,
+                request.uid);
         }
 
         if (!authenticated)
@@ -556,7 +562,7 @@ static void HandleRenameFileRequest(int sock)
 
     do
     {
-        // Check the policy.
+        /* Check the policy. */
 
         if (CheckRenameFilePolicy(request.oldPath, request.newPath) != 0)
         {
@@ -564,7 +570,7 @@ static void HandleRenameFileRequest(int sock)
             break;
         }
 
-        // Rename the file.
+        /* Rename the file. */
 
         if (rename(request.oldPath, request.newPath) != 0)
         {
@@ -608,7 +614,7 @@ static void HandleRemoveFileRequest(int sock)
 
     do
     {
-        // Check the policy.
+        /* Check the policy. */
 
         if (CheckRemoveFilePolicy(request.path) != 0)
         {
@@ -616,7 +622,7 @@ static void HandleRemoveFileRequest(int sock)
             break;
         }
 
-        // Remove the file.
+        /* Remove the file. */
 
         if (unlink(request.path) != 0)
         {

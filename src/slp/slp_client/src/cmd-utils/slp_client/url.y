@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.3 2006/01/31 15:03:55 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.4 2007/02/15 08:25:59 mreddy Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -345,6 +345,7 @@ ip_site: '/''/' {
 			{
 				strcpy($$, "//");
 				strcat($$, $3);
+				free($3);
 			}
 
 		}

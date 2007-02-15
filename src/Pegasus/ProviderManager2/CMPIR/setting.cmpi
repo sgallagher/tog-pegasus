@@ -1,3 +1,0 @@
-CIMOMDIR=/usr/sniacimom
-CIMOMINC=$(CIMOMDIR)/include
-CIMOMLIB=$(CIMOMDIR)/lib

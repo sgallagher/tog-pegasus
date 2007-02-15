@@ -252,7 +252,9 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
          case CMPI_real32:   CopyFromArray(Real32,real32); break;
          case CMPI_real64:   CopyFromArray(Real64,real64); break;
          default:
-         return CMPI_RC_ERR_NOT_SUPPORTED;
+             // Not supported for this CMPItype
+             delete [] aData;
+             return CMPI_RC_ERR_NOT_SUPPORTED;
       }
       data->value.array=reinterpret_cast<CMPIArray*>(new CMPI_Object(aData-1));
    }  // end of array porocessing

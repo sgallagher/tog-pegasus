@@ -112,7 +112,7 @@ endif
 
 POSTSTARTTEST_FILES = \
    TestClient \
-   TestOSTestClient \
+   TestClientOSProvider \
    TestPegClientInvokeMethod2 \
    TestIndicationStressTest
 

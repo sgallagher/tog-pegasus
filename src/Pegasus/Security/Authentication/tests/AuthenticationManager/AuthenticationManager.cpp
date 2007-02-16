@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -333,7 +326,7 @@ int main(int argc, char** argv)
         }
         repositoryPath.append("/repository");
 
-        FileSystem::isDirectory(repositoryPath);
+        PEGASUS_TEST_ASSERT(FileSystem::isDirectory(repositoryPath));
 
         CIMRepository* repository = new CIMRepository(repositoryPath);
 

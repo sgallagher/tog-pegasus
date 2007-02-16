@@ -33,7 +33,13 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-XMLSCRIPTS = ModifyClass43000 ModifyClass43001 ModifyClass43003 ModifyClass43004 ModifyClass43005
+XMLSCRIPTS = \
+    ModifyClass43000 \
+    ModifyClass43001 \
+    ModifyClass43003 \
+    ModifyClass43004 \
+    ModifyClass43005 \
+    ModifyClass43006
 
 ifndef SECURITY_ENABLED
 XMLSCRIPTS += \

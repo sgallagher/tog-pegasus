@@ -1411,7 +1411,11 @@ CIMCreateClassRequestMessage*
         if (System::strcasecmp(name, "NewClass") == 0)
         {
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getClassElement(parser, newClass);
+            if (!XmlReader::getClassElement(parser, newClass))
+            {
+                throw PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_INVALID_PARAMETER, "NewClass");
+            }
             duplicateParameter = gotClass;
             gotClass = true;
         }
@@ -1589,7 +1593,11 @@ CIMModifyClassRequestMessage*
         if (System::strcasecmp(name, "ModifiedClass") == 0)
         {
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
-            XmlReader::getClassElement(parser, modifiedClass);
+            if (!XmlReader::getClassElement(parser, modifiedClass))
+            {
+                throw PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_INVALID_PARAMETER, "ModifiedClass");
+            }
             duplicateParameter = gotClass;
             gotClass = true;
         }

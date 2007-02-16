@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 MAJOR_VERSION_NUMBER = 1
 
 OS = HPUX
@@ -42,7 +44,7 @@ COMPILER = acc
 
 PLATFORM_VERSION_SUPPORTED = yes
 
-SYS_INCLUDES =
+SYS_INCLUDES = 
 
 ifdef PEGASUS_CCOVER
  SYS_INCLUDES += -I/opt/ccover11/include
@@ -55,7 +57,7 @@ endif
 #########################################################################
 ##
 ## Platform specific compile options controlled by environment variables
-## are set here.
+## are set here.  
 ##
 #########################################################################
 
@@ -73,7 +75,9 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -DPEGASUS_PLATFORM_HPUX_ACC
 
 DEFINES += -DPEGASUS_USE_SYSLOGS
 
-ifeq ($(PEGASUS_USE_EMANATE), true)
+DEFINES += -DPEGASUS_HAS_SIGNALS
+
+ifdef PEGASUS_USE_EMANATE
  DEFINES += -DHPUX_EMANATE
 endif
 
@@ -84,6 +88,65 @@ endif
 ifdef PEGASUS_PURIFY
  DEFINES += -DPEGASUS_PURIFY
 endif
+
+##
+## The following flags need to be set or unset 
+## to compile-in the code required for PAM authentication
+## and compile-out the code that uses the password file.
+##
+
+ifdef PEGASUS_PAM_AUTHENTICATION
+ DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
+endif
+
+# l10n
+ifdef PEGASUS_HAS_MESSAGES
+  DEFINES += -DPEGASUS_HAS_MESSAGES
+  ifdef ICU_ROOT
+        MSG_COMPILE = ${ICU_INSTALL}/bin/genrb
+        MSG_FLAGS =
+        MSG_SOURCE_EXT = .txt
+        MSG_COMPILE_EXT = .res
+        CNV_ROOT_CMD = cnv2rootbundle
+
+##################################
+##
+## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root 
+## resource bundle, default is to uppercase the root resource bundle^M
+##
+##################################
+
+ifdef ICU_NO_UPPERCASE_ROOT
+  CNV_ROOT_FLAGS =
+else
+  CNV_ROOT_FLAGS = -u
+endif
+
+####################################
+##
+## ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root resource
+## bundle will be generated from defaults to _en if not set.  if set, for 
+## any directory containing resource bundles, there must exist a file name: 
+## package(the value of ICU_ROOT_BUNDLE_LANG).txt or the make messages 
+## target will fail
+##
+####################################
+
+ifdef ICU_ROOT_BUNDLE_LANG
+  MSG_ROOT_SOURCE = $(ICU_ROOT_BUNDLE_LANG)
+else
+  MSG_ROOT_SOURCE = _en
+endif
+
+    SYS_INCLUDES += -I${ICU_ROOT}/source/common
+    SYS_INCLUDES += -I${ICU_ROOT}/source/i18n
+    DEFINES += -DPEGASUS_HAS_ICU
+    ifdef ICU_INSTALL
+      EXTRA_LIBRARIES += -L${ICU_INSTALL}/lib -licui18n -licuuc
+    endif
+  endif
+endif
+
 
 DEPEND_INCLUDES =
 
@@ -98,43 +161,37 @@ DEPEND_INCLUDES =
 ##       +b enables dynamic search in the specified directory(ies)
 ##
 
-FLAGS =
+FLAGS = 
 
 PEGASUS_SUPPORTS_DYNLIB=yes
 
-ifeq ($(HAS_ICU_DEPENDENCY),true)
-    ifdef ICU_INSTALL
-        P1 = $(ICU_INSTALL)/lib:
-     endif
-endif
 ifdef PEGASUS_USE_RELEASE_DIRS
-    P2 = $(PEGASUS_DEST_LIB_DIR):
-else
-    P2 = $(LIB_DIR):
-endif
-ACC_LINK_SEARCH_PATH = -Wl,+b$(P1)$(P2)/usr/lib
-
-ifdef PEGASUS_USE_RELEASE_DIRS
-    ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
-        ACC_LINK_SEARCH_PATH += \
-            -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib
-        ACC_LINK_SEARCH_PATH += \
-            -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
-        ifdef OPENSSL_HOME
-          ACC_LINK_SEARCH_PATH += -Wl,+cdp,$(OPENSSL_HOME)/lib:/usr/lib
-        endif
-        ifdef ICU_INSTALL
-          ACC_LINK_SEARCH_PATH += \
-              -Wl,+cdp,$(ICU_INSTALL)/lib:$(PEGASUS_DEST_LIB_DIR)
-        endif
+  FLAGS += -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
+  ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
+    FLAGS += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
+    ifdef OPENSSL_HOME
+      FLAGS += -Wl,+cdp,$(OPENSSL_HOME)/lib:/usr/lib
     endif
+    ifdef ICU_INSTALL
+      FLAGS += -Wl,+cdp,$(ICU_INSTALL)/lib:$(PEGASUS_DEST_LIB_DIR)
+    endif
+  endif
+else
+  ifdef PEGASUS_HAS_MESSAGES
+    ifdef ICU_ROOT
+      ifdef ICU_INSTALL
+        FLAGS += -Wl,+b$(LIB_DIR):/usr/lib:${ICU_INSTALL}/lib
+      endif
+    endif
+  else
+    FLAGS += -Wl,+b$(LIB_DIR):/usr/lib
+  endif
 endif
-ACC_LINK_SEARCH_PATH += -Wl,+s
 
-FLAGS += $(ACC_LINK_SEARCH_PATH)
+FLAGS += -Wl,+s
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
-  FLAGS += -g +noobjdebug
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+  FLAGS += -g
 else
   FLAGS += +O2 -s
 endif

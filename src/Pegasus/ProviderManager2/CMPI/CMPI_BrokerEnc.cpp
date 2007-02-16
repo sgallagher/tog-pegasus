@@ -615,40 +615,45 @@ extern "C" {
 #endif
 
 #ifdef CMPI_VER_200
-   static CMPIStatus mbEncOpenMessageFile(const CMPIBroker *mb,
-               const char* msgFile, CMPIMsgFileHandle* msgFileHandle) {
+   static CMPIStatus mbEncOpenMessageFile(
+      const CMPIBroker* mb,
+      const char* msgFile,
+      CMPIMsgFileHandle* msgFileHandle)
+   {
       CMPIStatus rc = { CMPI_RC_OK, NULL };
-      MessageLoaderParms *parms = new MessageLoaderParms();
-      parms->msg_src_path = String(msgFile);
+      AutoPtr<MessageLoaderParms> parms(new MessageLoaderParms());
+      parms->msg_src_path = msgFile;
       // Get the AcceptLanguage entry
-      const CMPIContext *ctx = CMPI_ThreadContext::getContext ();
-      CMPIData data = ctx->ft->getEntry (ctx, CMPIAcceptLanguage, &rc);
+      const CMPIContext *ctx = CMPI_ThreadContext::getContext();
+      CMPIData data = ctx->ft->getEntry(ctx, CMPIAcceptLanguage, &rc);
       if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
       {
           if (rc.rc == CMPI_RC_OK)
           {
-              parms->acceptlanguages = LanguageParser::parseAcceptLanguageHeader(CMGetCharPtr(data.value.string));
+              parms->acceptlanguages =
+                  LanguageParser::parseAcceptLanguageHeader(
+                      CMGetCharPtr(data.value.string));
           }
           else
           {
               return rc; // should be CMPI_RC_ERR_INVALID_HANDLE
           }
       }
-      MessageLoader::openMessageFile(*parms);
-      
+      MessageLoader::openMessageFile(*parms.get());
+
       ContentLanguageList cll = parms->contentlanguages;
-      // Check that we have at least one content language (ie. matching 
+      // Check that we have at least one content language (ie. matching
       // resource bundle was found) before adding to Invocation Context.
       if (cll.size() > 0)
       {
-          ctx->ft->addEntry (ctx, 
+          ctx->ft->addEntry(ctx,
               CMPIContentLanguage,
               (CMPIValue*)(const char*)
                   LanguageParser::buildContentLanguageHeader(cll).getCString(),
               CMPI_chars);
       }
 
-      *msgFileHandle = (void *)parms;
+      *msgFileHandle = (void *)parms.release();
       CMReturn(CMPI_RC_OK);
    }
 

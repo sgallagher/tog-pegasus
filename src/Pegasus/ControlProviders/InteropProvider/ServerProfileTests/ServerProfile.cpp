@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
@@ -98,6 +98,9 @@ Array<CIMInstance> testAnyClass(CIMClient & client, const CIMName & className)
 
 void testInstanceClass(CIMClient & client, const CIMName & className)
 {
+    cout << "Testing Instance Class "
+        << (const char *)className.getString().getCString()
+        << "...";
     Array<CIMInstance> instances = testAnyClass(client, className);
 
     for(unsigned int i = 0, n = instances.size(); i < n; ++i)
@@ -111,10 +114,10 @@ void testInstanceClass(CIMClient & client, const CIMName & className)
         // Now test association traversal
         // Note that the "TestAssociationClass" method does a very good job
         // of testing association traversal between references contained in
-        // instances of the supplied association class. Therefore, all we really
-        // have to do here is make sure that the results of the associators,
-        // associatorNames, references, and referenceNames operations are
-        // consistent.
+        // instances of the supplied association class. Therefore, all we
+        // really have to do here is make sure that the results of the
+        // associators, associatorNames, references, and referenceNames
+        // operations are consistent.
         //
         Boolean failure = false;
         try
@@ -240,10 +243,15 @@ void testInstanceClass(CIMClient & client, const CIMName & className)
             currentPath.toString() + String(": ") + e.getMessage());
         }
     }
+
+    cout << "Test Complete" << endl;
 }
 
 void testAssociationClass(CIMClient & client, const CIMName & className)
 {
+    cout << "Testing Association Class "
+        << (const char *)className.getString().getCString()
+        << "...";
     Array<CIMInstance> instances = testAnyClass(client, className);
 
     for(unsigned int i = 0, n = instances.size(); i < n; ++i)
@@ -406,6 +414,8 @@ void testAssociationClass(CIMClient & client, const CIMName & className)
                 currentInstanceName.toString());
         }
     }
+
+    cout << "Test Complete" << endl;
 }
 
 ///////////////////////////////////////////////////////////////
@@ -414,34 +424,65 @@ void testAssociationClass(CIMClient & client, const CIMName & className)
 
 int main(int argc, char** argv)
 {
+    cout << "Starting Server Profile Tests" << endl << endl;
     // Create a locally-connected client
     CIMClient client;
 
     try
     {
         client.connectLocal();
+        client.setTimeout(60000); // Set the timeout to one minute
     }
     catch(Exception &)
     {
         exitFailure(String("Could not connect to server"));
     }
 
-    testInstanceClass(client, CIMName("CIM_ComputerSystem"));
-    testInstanceClass(client, CIMName("CIM_ObjectManager"));
-    testInstanceClass(client, CIMName("CIM_RegisteredSubProfile"));
-    testInstanceClass(client, CIMName("CIM_RegisteredProfile"));
-    testInstanceClass(client, CIMName("CIM_CIMXMLCommunicationMechanism"));
-    testInstanceClass(client, CIMName("CIM_Namespace"));
-    testInstanceClass(client, CIMName("CIM_SoftwareIdentity"));
+    CIMName currentClass;
+    try
+    {
+        currentClass = CIMName("CIM_ComputerSystem");
+        testInstanceClass(client, currentClass);
+        currentClass = CIMName("CIM_ObjectManager");
+        testInstanceClass(client, currentClass);
+        currentClass = CIMName("CIM_RegisteredSubProfile");
+        testInstanceClass(client, currentClass);
+        currentClass = CIMName("CIM_RegisteredProfile");
+        testInstanceClass(client, currentClass);
+        currentClass = CIMName("CIM_CIMXMLCommunicationMechanism");
+        testInstanceClass(client, currentClass);
+        currentClass = CIMName("CIM_Namespace");
+        testInstanceClass(client, currentClass);
+        currentClass = CIMName("CIM_SoftwareIdentity");
+        testInstanceClass(client, currentClass);
 
-    testAssociationClass(client, CIMName("CIM_HostedService"));
-    testAssociationClass(client, CIMName("CIM_ElementConformsToProfile"));
-    testAssociationClass(client, CIMName("CIM_SubprofileRequiresProfile"));
-    testAssociationClass(client, CIMName("CIM_ReferencedProfile"));
-    testAssociationClass(client, CIMName("CIM_ElementSoftwareIdentity"));
-    testAssociationClass(client, CIMName("CIM_CommMechanismForManager"));
+        currentClass = CIMName("CIM_HostedService");
+        testAssociationClass(client, currentClass);
+        currentClass = CIMName("CIM_ElementConformsToProfile");
+        testAssociationClass(client, currentClass);
+        currentClass = CIMName("CIM_SubprofileRequiresProfile");
+        testAssociationClass(client, currentClass);
+        currentClass = CIMName("CIM_ReferencedProfile");
+        testAssociationClass(client, currentClass);
+        currentClass = CIMName("CIM_ElementSoftwareIdentity");
+        testAssociationClass(client, currentClass);
+        currentClass = CIMName("CIM_CommMechanismForManager");
+        testAssociationClass(client, currentClass);
+    }
+    catch(Exception & e)
+    {
+        exitFailure(String("Caught exception while testing class ") +
+            currentClass.getString() + String(": ") + e.getMessage());
+    }
+    catch(...)
+    {
+        exitFailure(String("Caught unknown exception while testing class ") +
+            currentClass.getString());
+    }
 
     //testAssociationTraversal(client);
+
+    cout << endl << "Server Profile Tests complete" << endl;
     return 0;
 }
 

@@ -1447,157 +1447,94 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
 // ATTN-SF-P3-20050209: The following needs to be consolidated with
 //                      cimmofParser::verifyVersion method.
 //
-Boolean RepositoryUpgrade::_parseVersion(const String& version,
-                                               Sint32& iMajor,
-                                               Sint32& iMinor,
-                                               Sint32& iUpdate)
+Boolean RepositoryUpgrade::_parseVersion(
+    const String& version,
+    Sint32& iMajor,
+    Sint32& iMinor,
+    Sint32& iUpdate)
 {
-    Boolean ret = true;
-
-    Sint32 pos   = -1;
-    Sint32 pos1  = -1;
-    Sint32 pos2  = -1;
-
     const char CHAR_PERIOD = '.';
 
-    // Parse the input version
-    if (version.size())
+    if (!version.size())
     {
-        // If "V" specified as first character go ahead and ignore
-        if ((version[0] >= '0') && (version[0] <= '9'))
-        {
-            pos = 0;
-            iMajor = version.find(0, CHAR_PERIOD);
-        }
-        else
-        {
-            pos = 1;
-            if (String::equalNoCase(version.subString(0,1), "V"))
-            {
-                iMajor = version.find(1, CHAR_PERIOD);
-            }
-            else
-            {
-                // First character is unknown.
-                // Examples of invalid version:  ".2.7", ".", "..", "...", "AB"
-                return false;
-            }
-        }
+        return true;
+    }
 
-        // Find the second and possible third period
-        if (iMajor >=0)
-        {
-            iMinor = version.find(iMajor+1, CHAR_PERIOD);
-        }
-        if (iMinor >= 0)
-        {
-            iUpdate = version.find(iMinor+1, CHAR_PERIOD);
-        }
+    iMajor = 0;
+    iMinor = 0;
+    iUpdate = 0;
 
-        // There should be no additional identifiers after the update identifier
-        if (iUpdate >= 0 && iUpdate != (Sint32)PEG_NOT_FOUND)
-        {
-            // Examples of invalid version:  "2.7.0.", "2.7.0.1",
-            //                               "2.7.0.a", "2.7.0.1."
-            return false;
-        }
+    Uint32 indexM = 0;
+    Uint32 sizeM = PEG_NOT_FOUND;
+    Uint32 indexN = PEG_NOT_FOUND;
+    Uint32 sizeN = PEG_NOT_FOUND;
+    Uint32 indexU = PEG_NOT_FOUND;
 
-        // Check for trailing period
-        if ((iMajor >=0 && iMajor+1 == (int)version.size()) ||
-            (iMinor >=0 && iMinor+1 == (int)version.size()) ||
-            (iUpdate >=0 && iUpdate+1 == (int)version.size()))
-        {
-            // Examples of invalid version:  "2.", "2.7.", "V.", "9.."
-            return false;
-        }
-        // Major identifier is not specified
-        if (((pos > 0) && (iMajor < 0) && (!version.subString(pos).size())) ||
-            ((pos > 0) && (iMajor >= 0) && (iMajor <= pos)))
-        {
-            // Examples of invalid version: "V.2.7", "V"
-            return false;
-        }
+    // If "V" specified as first character, ignore it
+    if ((version[0] == 'V') || (version[0] == 'v'))
+    {
+        indexM = 1;
+    }
 
-        // Check Major identifier for invalid format
-        int endM = iMajor;
-        if (iMajor < 0)
-        {
-           endM = version.size();
-        }
-        for (int i = pos; i < endM; i++)
-        {
-             if (!((version[i] >= '0') && (version[i] <= '9')))
-             {
-                 // Example of invalid version:  "1B.2D.3F"
-                 return false;
-             }
-        }
+    // Find the M, N, and U version fields delimited by '.' characters
 
-        // Minor identifier is not specified
-        if (iMajor+1 == iMinor)
-        {
-            // Example of invalid version:  "2..9"
-            return false;
-        }
+    indexN = version.find(indexM, CHAR_PERIOD);
 
-        // Check Minor identifier for invalid format
-        if (iMajor > 0)
-        {
-            int endN = iMinor;
-            if (iMinor < 0)
-            {
-                endN = version.size();
-            }
-            for (int i = iMajor+1; i < endN; i++)
-            {
-                 if (!((version[i] >= '0') && (version[i] <= '9')))
-                 {
-                     // Example of invalid version:  "99.CD", "11.2D.3F"
-                     return false;
-                 }
-            }
-        }
+    if (indexN != PEG_NOT_FOUND)
+    {
+        sizeM = indexN++ - indexM;
 
-        // Check Update identifier for invalid format
-        if (iMinor > 0)
+        indexU = version.find(indexN, CHAR_PERIOD);
+        if (indexU != PEG_NOT_FOUND)
         {
-            for (int i = iMinor+1; i < (int)version.size(); i++)
-            {
-                 if (!((version[i] >= '0') && (version[i] <= '9')))
-                 {
-                      // Example of invalid version: "99.88.EF", "11.22.3F"
-                      return false;
-                 }
-            }
-        }
-
-        // Set major, minor, and update values as integers
-        if (iMajor >= 0)
-        {
-            pos1 = iMajor;
-            iMajor = atoi((const char*)
-                      (version.subString(pos, iMajor).getCString()));
-            if (iMinor >= 0)
-            {
-                pos2 = iMinor;
-                iMinor = atoi((const char*)
-                          (version.subString(pos1+1, iMinor).getCString()));
-                iUpdate = atoi((const char*)
-                          (version.subString(pos2+1).getCString()));
-            }
-            else
-            {
-                iMinor = atoi((const char*)
-                          (version.subString(pos1+1).getCString()));
-            }
-        }
-        else
-        {
-            iMajor = atoi((const char*)(version.subString(pos).getCString()));
+            sizeN = indexU++ - indexN;
         }
     }
 
-    return ret;
+    // Parse the major version
+    char dummyChar;
+    int numConversions = sscanf(
+        version.subString(indexM, sizeM).getCString(),
+        "%u%c",
+        &iMajor,
+        &dummyChar);
+
+    if (numConversions != 1)
+    {
+        return false;
+    }
+
+    // Parse the minor version
+    if (indexN != PEG_NOT_FOUND)
+    {
+        numConversions = sscanf(
+            version.subString(indexN, sizeN).getCString(),
+            "%u%c",
+            &iMinor,
+            &dummyChar);
+
+        if (numConversions != 1)
+        {
+            return false;
+        }
+    }
+
+    // Parse the update version
+    if (indexU != PEG_NOT_FOUND)
+    {
+        numConversions = sscanf(
+            version.subString(indexU).getCString(),
+            "%u%c",
+            &iUpdate,
+            &dummyChar);
+
+        if (numConversions != 1)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void RepositoryUpgrade::_processNewClasses(

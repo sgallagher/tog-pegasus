@@ -102,8 +102,16 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   void maybeThrowLexerError(const String &msg) const;
 
   //Processing to determine if class should be updated
-  Boolean updateClass(const CIMClass &classdecl, cimmofMessages::MsgCode &updateMessage, Boolean &classExist);
-  Boolean verifyVersion(const String &version, int &iM, int &iN, int &iU);
+  Boolean updateClass(
+    const CIMClass& classdecl,
+    cimmofMessages::MsgCode& updateMessage,
+    Boolean& classExist);
+
+  Boolean parseVersion(
+    const String& version,
+    int& iM,
+    int& iN,
+    int& iU);
 
   // Here are the members added by this specialization
   const mofCompilerOptions *_cmdline;

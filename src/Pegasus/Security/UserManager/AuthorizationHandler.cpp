@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes (sushma_fernandes@hp.com)
-//
-// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -142,18 +133,7 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 
     _repository = repository;
 
-    try
-    {
-        _loadAllAuthorizations();
-    }
-    catch (Exception&)
-    {
-	//ATTN-NB-03-20020402: Should this exception be thrown or ignored ?
-        //throw e;
-
-      //	cerr << PEGASUS_CLASSNAME_AUTHORIZATION << " class not loaded, ";
-      //	cerr << "No authorizations configured." << endl;
-    }
+    _loadAllAuthorizations();
 
     PEG_METHOD_EXIT();
 }
@@ -261,11 +241,23 @@ void AuthorizationHandler::_loadAllAuthorizations()
             //
             // Add authorization to the table
             //
-            _authTable.insert(userName + nameSpace, auth);
+            if (!_authTable.insert(userName + nameSpace, auth))
+            {
+                throw AuthorizationCacheError();
+            }
         }
 
     }
-    catch(const Exception&)
+    catch (const CIMException& e)
+    {
+        // Allow initialization to succeed with an empty repository
+        if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
+        {
+            PEG_METHOD_EXIT();
+            throw;
+        }
+    }
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
         throw;

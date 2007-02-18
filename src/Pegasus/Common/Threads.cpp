@@ -47,10 +47,15 @@ void Threads::sleep(int msec)
 {
 #if defined(PEGASUS_HAVE_NANOSLEEP)
 
-    struct timespec wait;
+    struct timespec wait, remwait;
     wait.tv_sec = msec / 1000;
     wait.tv_nsec = (msec % 1000) * 1000000;
-    nanosleep(&wait, NULL);
+
+    while ((nanosleep(&wait, &remwait) == -1) && (errno == EINTR))
+    {
+        wait.tv_sec = remwait.tv_sec;
+        wait.tv_nsec = remwait.tv_nsec;
+    }
 
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 

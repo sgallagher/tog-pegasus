@@ -667,7 +667,15 @@ void HTTPAcceptor::_acceptConnection()
         address_size = sizeof(struct sockaddr_in);
     }
 
-    SocketHandle socket = accept(_rep->socket, accept_address, &address_size);
+    SocketHandle socket;
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    socket = accept(_rep->socket, accept_address, &address_size);
+#else
+    while (
+        ((socket = accept(_rep->socket, accept_address, &address_size)) == -1)
+        && (errno == EINTR))
+        ;
+#endif
 
     if (socket == PEGASUS_SOCKET_ERROR)
     {

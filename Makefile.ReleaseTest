@@ -123,7 +123,7 @@ endif
 
 POSTSTARTTEST_CMDS = \
    $(PEGASUS_TEST_DIR)/bin/TestClient@@-local \
-   $(PEGASUS_TEST_DIR)/bin/TestOSTestClient \
+   $(PEGASUS_TEST_DIR)/bin/TestClientOSProvider \
    $(PEGASUS_TEST_DIR)/bin/TestPegClientInvokeMethod2 \
    $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@setup@@WQL \
    $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@run@@100@@1 \

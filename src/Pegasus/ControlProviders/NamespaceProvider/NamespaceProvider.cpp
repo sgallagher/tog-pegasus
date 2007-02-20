@@ -107,29 +107,15 @@ static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
 static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
 
 static Boolean _isChild(
-    CIMNamespaceName& parentNamespaceName,
-    CIMNamespaceName& namespaceName)
-
+    const CIMNamespaceName& parentNamespaceName,
+    const CIMNamespaceName& namespaceName)
 {
     String parent = parentNamespaceName.getString();
     String child = namespaceName.getString();
-   //
-   //  If length of namespace name is shorter than or equal to the
-   //  length of parent namespace name, cannot be a child
-   //
-   if (child.size () <= parent.size ())
-   {
-      return false;
-   }
 
-   //
-   //  Compare prefix substring of namespace name with parent namespace name
-   //
-   else if (String::equalNoCase (child.subString (0, parent.size ()), parent))
-   {
-      return true;
-   }
-   return false;
+    return (child.size() > parent.size()) &&
+        String::equalNoCase(child.subString(0, parent.size()), parent) &&
+        (child[parent.size()] == '/');
 }
 
 static void _getKeyValue (

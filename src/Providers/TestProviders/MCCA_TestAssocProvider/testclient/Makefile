@@ -35,7 +35,7 @@ include $(ROOT)/mak/configschema.mak
 
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
-DIR = Providers/TestProviders/MCCATestProvider/testclient
+DIR = Providers/TestProviders/MCCA_TestAssocProvider/testclient
 
 include $(ROOT)/mak/config.mak
 

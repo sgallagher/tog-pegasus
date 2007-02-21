@@ -86,7 +86,7 @@ The way to use the Pegasus::slp_service_agent class is as follows:
 
 // after this number of seconds, unregister and terminate.
 Uint32 testTimer = 300;
-static char * verbose;
+static Boolean verbose;
 
 // static construct/destruct of our service agent object
 
@@ -96,7 +96,7 @@ slp_service_agent slp_agent;
 int main(int argc, char **argv)
 {
 
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
    // test_registration will return zero if all the parameters have a valid syntax. 
    // positive error codes indicate which specific parameter was not parsable. 
    char * registrationType = "service:wbem.pegasus";

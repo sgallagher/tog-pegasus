@@ -73,16 +73,15 @@ int main(int argc, char** argv)
     Boolean 	fileNotFound 	  = false;
     Uint32  	i		  = 0;
     Uint32 	count             = 0;
-    static 	char* verbose;
+    Boolean bVerbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
     count = sizeof(UPGRADE_TEST_FILE_LIST)/sizeof(UPGRADE_TEST_FILE_LIST[0]);
 
     for ( i = 0; i < count  && fileNotFound == false ; i++ )
     {
         String fileName = newRepositoryPath + "/" + UPGRADE_TEST_FILE_LIST[i];
 
-        if (verbose)
+        if (bVerbose)
         {
             cout << "Now checking for file : " 
                  << UPGRADE_TEST_FILE_LIST[i] << endl;
@@ -94,7 +93,7 @@ int main(int argc, char** argv)
         {
             fileNotFound = true;
 
-            if (verbose)
+            if (bVerbose)
             {
                 cout << "Failed to find file : " << fileName 
                      << " in the new repository. " << endl;

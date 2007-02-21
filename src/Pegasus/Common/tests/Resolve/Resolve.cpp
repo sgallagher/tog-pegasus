@@ -79,7 +79,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 #define TESTIO
-static char* verbose;
+static Boolean verbose;
 
 
 /*  This is the original test written as a simple test of resolution.
@@ -986,7 +986,7 @@ void test07()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     
 	try
     {

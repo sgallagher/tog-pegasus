@@ -42,11 +42,9 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
 	PEGASUS_TEST_ASSERT(FileSystem::compareFiles("file1.dat", "file2.dat"));

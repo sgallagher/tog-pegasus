@@ -45,7 +45,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static char * verbose;
+static Boolean verbose;
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -380,7 +380,7 @@ void TestQualifiers()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     ProgName = argv[0];
 
     const char* tmpDir = getenv ("PEGASUS_TMP");

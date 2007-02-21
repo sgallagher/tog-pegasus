@@ -137,8 +137,6 @@ void test3()
 
 int main(int argc, char** argv)
 {
-    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
-
     const String FILE_NAME =
         FileSystem::buildLibraryFileName("TestProviderManager");
 

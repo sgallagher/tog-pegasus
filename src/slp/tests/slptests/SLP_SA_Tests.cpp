@@ -39,7 +39,7 @@
 #define SLP_PORT 427
 #define LOCALHOST_IP "127.0.0.1"
 #include <Pegasus/Server/SLPAttrib.h>
-static char * verbose;
+static Boolean verbose;
 
 PEGASUS_USING_PEGASUS;
 //Global variables used for SLP registrations and registration tests.
@@ -651,7 +651,7 @@ void test9 ()
 
 int main()
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 #ifdef PEGASUS_SLP_REG_TIMEOUT
     if(verbose)
         PEGASUS_STD(cout)<<"+++++ start of SLP tests +++"<<PEGASUS_STD(endl);

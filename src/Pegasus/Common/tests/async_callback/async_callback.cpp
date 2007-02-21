@@ -42,7 +42,7 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 
-static char *verbose;
+static Boolean verbose;
 
 async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q, Message * op_data):Base (
       op,
@@ -206,7 +206,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL server_func (void *parm);
 int
 main (int argc, char **argv)
 {
-  verbose = getenv ("PEGASUS_TEST_VERBOSE");
+  verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
 
 #ifdef PEGASUS_DEBUG
   if (verbose)

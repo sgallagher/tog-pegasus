@@ -40,7 +40,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static const char * verbose = 0;
+static Boolean verbose;
 
 void dummyCallback(CIMRequestMessage* request, CIMResponseMessage* response)
 {
@@ -342,7 +342,7 @@ void Test2(void)
 
 int main(int argc, char** argv)
 {
-    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     try
     {

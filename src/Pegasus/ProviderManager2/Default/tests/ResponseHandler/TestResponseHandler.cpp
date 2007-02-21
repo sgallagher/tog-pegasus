@@ -49,7 +49,6 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     // instantiate the primary response handler types
     {

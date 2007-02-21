@@ -44,11 +44,11 @@ PEGASUS_USING_STD;
 
 #define DDD(X) // X
 //#define DDD(X) X
-static char * verbose;
+static Boolean verbose;
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     String str = 
 	Formatter::format("\\$dollar\\$ X=$0, Y=$1, Z=$2, X=$0", 88, "Hello World", 7.5);

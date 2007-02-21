@@ -73,7 +73,7 @@ PEGASUS_USING_STD;
 */
 #define IO 1
 
-char * verbose;
+static Boolean verbose;
 
 
 /* This template provides a complete set of tests of simple CIMValues for
@@ -516,7 +516,7 @@ void testEmbeddedValueArray(const CIMInstance & startInstance,
 int main(int argc, char** argv)
 {
 #ifdef IO
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     if (verbose)
 	cout << "Test CIMValue. To turn off display, compile with IO undefined\n";
 #endif

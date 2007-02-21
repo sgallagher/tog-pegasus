@@ -52,7 +52,7 @@ PEGASUS_USING_STD;
 
 static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/testProvider");
 
-static char* verbose;
+static Boolean verbose;
 
 void _createModuleInstance
     (CIMClient & client,
@@ -2366,7 +2366,7 @@ void _test (CIMClient & client, char * argv0)
 
 int main (int argc, char** argv)
 {
-    verbose = getenv ("PEGASUS_TEST_VERBOSE");
+    verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
 
     CIMClient client;
     client.connectLocal ();

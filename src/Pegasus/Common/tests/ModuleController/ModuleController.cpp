@@ -602,8 +602,6 @@ test_service internal_service(SERVICE_NAME);
 
 int main(int argc, char **argv)
 {
-   verbose = getenv("PEGASUS_TEST_VERBOSE");
-
    cout << "module controller at " << internal_controller.getQueueId() << endl;
    cout << "service at " << internal_service.getQueueId() << endl;
 

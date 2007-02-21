@@ -1075,6 +1075,7 @@ Uint32 CIMConfigCommand::execute (
 	{
 	    strcpy(home, env);
 	    EtoA(home);
+        pegasusHome = home;
 	}
     }
     else

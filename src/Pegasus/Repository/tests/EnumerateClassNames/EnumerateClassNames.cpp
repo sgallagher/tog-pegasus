@@ -64,7 +64,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
+static Boolean verbose;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 String repositoryRoot;
@@ -209,7 +209,7 @@ static void CreateClass(
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     
 	const char* tmpDir;
     tmpDir = getenv ("PEGASUS_TMP");

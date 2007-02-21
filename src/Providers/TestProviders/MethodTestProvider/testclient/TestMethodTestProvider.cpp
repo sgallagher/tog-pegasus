@@ -40,7 +40,7 @@ PEGASUS_USING_STD;
 
 static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/TestProvider");
 
-static char* verbose;
+static Boolean verbose;
 
 void callMethod(const CIMName& methodName)
 {
@@ -101,7 +101,7 @@ void callMethod(const CIMName& methodName)
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     try
     {

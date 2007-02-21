@@ -52,7 +52,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static char * verbose;
+static Boolean verbose;
 
 
 const String NAMESPACE = "aa";
@@ -248,7 +248,7 @@ void test04TestAssociationInstances(CIMRepository& repository)
 }
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     
     String repositoryRoot;
     const char* tmpDir = getenv ("PEGASUS_TMP");

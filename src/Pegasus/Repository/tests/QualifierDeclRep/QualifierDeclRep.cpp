@@ -44,7 +44,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static const char* tmpDir;
-static char * verbose;
+static Boolean verbose;
 String repositoryRoot;
 
 void test(Uint32 mode)

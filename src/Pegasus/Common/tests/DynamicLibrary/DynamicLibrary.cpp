@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
 static const String VALID_LIBRARY_NAME = "TestDynLib";
 static const String INVALID_LIBRARY_NAME = "BADDynLib";
 
-const char* verbose = 0;
+static Boolean verbose;
 
 String getLibraryFileName(const String& libraryName) 
 { 
@@ -206,7 +206,7 @@ void Test4()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     Test1();
     Test2();

@@ -51,7 +51,7 @@
 // ATTN-P3-KS - 20 March 2002 - Extend exception tests.
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static char * verbose;
+static Boolean verbose;
 
 void test01()
 {
@@ -381,7 +381,7 @@ void test01()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     
 	try
     {

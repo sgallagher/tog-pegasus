@@ -54,7 +54,7 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-Boolean verbose = false;
+static Boolean verbose;
 
 static const CIMNamespaceName GOOD_NAMESPACE = CIMNamespaceName ("root/cimv2");
 

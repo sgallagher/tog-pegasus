@@ -199,7 +199,7 @@ Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
 
 static void _processFile(const char* xmlFileName, 
                          const char* nameSpace,
-                         const char* repositoryRoot)
+                         String &repositoryRoot)
 {
     // Create the parser:
 
@@ -250,11 +250,11 @@ int main(int argc, char** argv)
 
     try
     {
-        char* repositoryRoot;
+        String repositoryRoot;
         char* nameSpace = "CIMv2";
         if (argc == 4)
         {
-        repositoryRoot = argv[3];
+        repositoryRoot.assign(argv[3]);
         cout << "repository Root " << repositoryRoot << endl;
         }
         else
@@ -265,7 +265,7 @@ int main(int argc, char** argv)
             
             if (tmp)
             {
-                repositoryRoot = tmp;    
+                repositoryRoot.assign(tmp);    
             }
             else
             {

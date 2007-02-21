@@ -47,7 +47,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // #define DO_NOT_DELETE_INSTANCE
-Boolean verbose = false;
+static Boolean verbose;
 
 void TestInstanceAliases(CIMRepository& r)
 {

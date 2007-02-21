@@ -76,7 +76,7 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-Boolean verbose = false;
+static Boolean verbose;
 
 String repositoryRoot;
 
@@ -163,7 +163,7 @@ void test01()
 
 int main(int argc, char** argv)
 {
-    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
 
     const char* tmpDir = getenv ("PEGASUS_TMP");

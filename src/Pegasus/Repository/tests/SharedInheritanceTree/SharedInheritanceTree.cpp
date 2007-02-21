@@ -41,8 +41,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char *verbose;
-static char *tmpDir;
+static Boolean verbose;
 
 Array<CIMNamespaceName> arr1;
 Array<CIMNamespaceName> arro;
@@ -259,7 +258,7 @@ void test02(NameSpaceManager& nsm) {
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL) {
         repositoryRoot = ".";

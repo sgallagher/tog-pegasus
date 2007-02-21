@@ -47,7 +47,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
+static Boolean verbose;
 static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
     CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
     CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
@@ -363,7 +363,7 @@ void test01 ()
 
 int main (int argc, char** argv)
 {
-    verbose = getenv ("PEGASUS_TEST_VERBOSE");
+    verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
 
     try
     {

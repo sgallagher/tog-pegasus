@@ -48,8 +48,8 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-char * verbose;
+ 
+static Boolean verbose;
 
 // Local function to compare created buffer and a result char array
 
@@ -426,7 +426,7 @@ in : DisableOverride, Restricted] boolean SecondParam);\n\
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     // Test values MOF generation
 

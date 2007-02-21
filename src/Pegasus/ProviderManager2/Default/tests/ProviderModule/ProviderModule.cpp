@@ -51,7 +51,7 @@ static const String NONEXISTENT_PROVIDER_LIBRARY_NAME = "BogusLibrary";
 // Uses the DynLib library from Common/tests
 static const String MISSING_ENTRY_POINT_PROVIDER_LIBRARY_NAME = "TestDynLib";
 
-const char* verbose = 0;
+static Boolean verbose;
 
 String getLibraryFileName(const String& libraryName) { 
 #if defined(PEGASUS_OS_VMS)
@@ -182,7 +182,7 @@ void testMissingProviderEntryPoint()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv ("PEGASUS_TEST_VERBOSE");
+    verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
 
     try
     {

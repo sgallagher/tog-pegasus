@@ -42,7 +42,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
+static Boolean verbose;
 static const char* tmpDir;
 
 /** Test of the namespace functions for the repository.
@@ -181,7 +181,7 @@ void test(Uint32 mode)
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     tmpDir = getenv ("PEGASUS_TMP");
 
     if (tmpDir == NULL)

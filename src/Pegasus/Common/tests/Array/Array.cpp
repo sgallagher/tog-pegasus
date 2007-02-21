@@ -47,7 +47,6 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-const char * verbose;
 
 template<class T>
 void Print(const Array<T>& arr)
@@ -65,7 +64,7 @@ void test01(STR*)
     PEGASUS_TEST_ASSERT(arr[0] == STR("Hello"));
     PEGASUS_TEST_ASSERT(arr[1] == STR("Hello"));
     PEGASUS_TEST_ASSERT(arr[2] == STR("Hello"));
-    if(verbose)
+    if(getenv("PEGASUS_TEST_VERBOSE"))
         Print(arr);
 }
 
@@ -240,7 +239,6 @@ void test06()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
         test01((Str*)0);

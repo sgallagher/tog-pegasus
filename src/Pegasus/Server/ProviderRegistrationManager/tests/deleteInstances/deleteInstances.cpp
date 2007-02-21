@@ -45,7 +45,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-Boolean verbose = false;
+static Boolean verbose;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/test");
 const CIMName CLASSNAME = CIMName ("PG_ProviderModule");

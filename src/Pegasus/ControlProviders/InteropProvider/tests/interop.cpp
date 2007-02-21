@@ -70,7 +70,7 @@ Creates, deletes, queries namespaces using both the
 __Namespace and CIM_Namespace functions
 */
 char * pgmName;
-char * verbose;
+static Boolean verbose;
 
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 
@@ -3036,7 +3036,7 @@ void InteropTest::testCommMechinManagerAssocClass()
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     pgmName = argv[0];
     Boolean showNamespaces = false;

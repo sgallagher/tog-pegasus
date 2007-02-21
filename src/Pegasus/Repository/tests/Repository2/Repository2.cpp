@@ -48,7 +48,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static char * verbose;
+static Boolean verbose;
 
 String repositoryRoot;
 
@@ -735,7 +735,7 @@ void TestQualifiers(Uint32 mode)
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)

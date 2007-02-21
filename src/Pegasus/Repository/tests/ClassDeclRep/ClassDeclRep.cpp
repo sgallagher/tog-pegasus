@@ -44,7 +44,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static char * verbose;
+static Boolean verbose;
 
 void Test01(Uint32 mode)
 {
@@ -135,7 +135,7 @@ void Test01(Uint32 mode)
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try 
     {
       Uint32 mode;

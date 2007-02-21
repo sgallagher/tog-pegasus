@@ -52,7 +52,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_USING_PEGASUS;
 
-Boolean verbose = false;
+static Boolean verbose;
 
 String testUser = System::getEffectiveUserName();
 

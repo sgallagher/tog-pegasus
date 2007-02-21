@@ -48,7 +48,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static const char * verbose;
+static Boolean verbose;
 
 
 // Tests getting error Element and determing if data matches the predefined
@@ -243,7 +243,7 @@ static void testGetInstanceElement2(const char* testDataFile)
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     try
     {

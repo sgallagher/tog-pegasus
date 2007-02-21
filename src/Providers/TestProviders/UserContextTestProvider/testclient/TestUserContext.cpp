@@ -47,7 +47,7 @@ PEGASUS_USING_STD;
 static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/TestProvider");
 static const char* alternateUserContext = "guest";
 
-static char* verbose;
+static Boolean verbose;
 static String testUserContext;
 
 void testUserContextRequestor()
@@ -216,7 +216,7 @@ void testUserContextCIMServer()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     // Perform a pre-test to ensure the Provider User Context feature is only
     // enabled when running in a privileged user context.

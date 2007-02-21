@@ -54,7 +54,7 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
-Boolean verbose = false;
+static Boolean verbose;
 
 String authType = "Local";
 

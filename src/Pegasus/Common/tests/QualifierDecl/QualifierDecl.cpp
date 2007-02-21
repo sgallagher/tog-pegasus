@@ -49,7 +49,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;	 // Flag to control test IO
+static Boolean verbose;	 // Flag to control test IO
 
 void test01()
 {
@@ -190,7 +190,7 @@ void test02()
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try
     {
         test01();

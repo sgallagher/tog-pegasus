@@ -42,11 +42,11 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-static char * verbose;
+static Boolean verbose;
 
 int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     TimeValue tv0( 3, 100000);   // set to 3 sec, 100,000 microseconds
     Uint32 ms = tv0.toMilliseconds();

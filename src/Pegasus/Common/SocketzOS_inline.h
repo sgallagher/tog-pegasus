@@ -46,7 +46,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 MP_Socket::MP_Socket(SocketHandle socket)
     : _socket(socket), _isSecure(false),
-      _userAuthenticated(false)
+      _userAuthenticated(false),
+      _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS)
 {
     _username[0]=0;
 }
@@ -56,7 +57,8 @@ MP_Socket::MP_Socket(
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock)
     : _socket(socket),
-      _userAuthenticated(false)
+      _userAuthenticated(false),
+      _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     _username[0]=0;

@@ -73,14 +73,14 @@ class CIMExportRequestEncoder;
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 {
    public:
-      enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
       /** Constructor for a CIM Export Client object.
       */
       CIMExportClient(
          Monitor* monitor,
          HTTPConnector* httpConnector,
-         Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+         Uint32 timeoutMilliseconds = 
+                PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
       // Destructor for a CIM Export Client object.
       ~CIMExportClient();

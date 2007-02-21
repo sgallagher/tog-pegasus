@@ -31,6 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
@@ -543,7 +544,8 @@ Boolean SSLSocket::isCertificateVerified()
 
 
 MP_Socket::MP_Socket(SocketHandle socket)
- : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
+ : _socket(socket), _isSecure(false),
+   _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
@@ -562,8 +564,9 @@ MP_Socket::MP_Socket(
         _isSecure = false;
         _socket = socket;
     }
-     // 20 seconds are the default for client timeouts
-    _socketWriteTimeout = 20;
+    // PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS
+    // seconds are the default for client timeouts
+    _socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
     PEG_METHOD_EXIT();
 }
 
@@ -693,13 +696,15 @@ PEGASUS_NAMESPACE_BEGIN
 #ifndef PEGASUS_OS_ZOS
 
 MP_Socket::MP_Socket(SocketHandle socket)
- : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
+ : _socket(socket), _isSecure(false),
+   _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock)
- : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
+ : _socket(socket), _isSecure(false),
+   _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
 
 #endif
 

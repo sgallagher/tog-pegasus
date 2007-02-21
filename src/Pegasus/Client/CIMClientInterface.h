@@ -64,7 +64,6 @@ class CIMClientInterface : virtual public MessageQueue
 {
 public:
 
-    enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
     CIMClientInterface() :
         MessageQueue(PEGASUS_QUEUENAME_CLIENT)

@@ -37,8 +37,8 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdlib.h>
+#include <Pegasus/Common/Constants.h>
 
-static const int TIMEOUT = 20000;
 static CIMClient _c;
 static String _nameSpace("root/PG_InterOp");
 static String _providerType[] = { "Unknown", "Other", "Instance",
@@ -62,7 +62,7 @@ int main(const int argc, const char **argv)
   //   Module:     OperatingSystemModule
   //   File:       libOSProvider.sl
 
-  _c.setTimeout(20000);
+  _c.setTimeout(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
   // everything in big try/catch to display errors
   try

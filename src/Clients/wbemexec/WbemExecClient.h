@@ -66,15 +66,14 @@ class WbemExecClient : public MessageQueue
 {
 public:
 
-    enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
-
     /** Constructor for a CIM Client object.
         @param timeoutMilliseconds Defines the number of milliseconds the
         WbemExecClient will wait for a response to an outstanding request.
         If a request times out, the connection gets reset (disconnected and
         reconnected).  Default is 20 seconds (20000 milliseconds).
     */
-    WbemExecClient(Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    WbemExecClient(Uint32 timeoutMilliseconds = 
+                        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
     ///
     virtual ~WbemExecClient();

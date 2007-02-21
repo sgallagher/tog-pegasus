@@ -79,7 +79,8 @@ public:
     // Timeout value defines the time the CIMClient will wait for a response
     // to an outstanding request.  If a request times out, the connection
     // gets reset (disconnected and reconnected).
-    CIMClientRep(Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    CIMClientRep(Uint32 timeoutMilliseconds =
+                 PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
     ~CIMClientRep();
 
@@ -94,7 +95,7 @@ public:
     {
         _timeoutMilliseconds = timeoutMilliseconds;
         if ((_connected) && (_httpConnection != 0))
-            _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+           _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
     }
 
     AcceptLanguageList getRequestAcceptLanguages() const;

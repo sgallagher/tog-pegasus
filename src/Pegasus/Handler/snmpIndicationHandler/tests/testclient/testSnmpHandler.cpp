@@ -679,7 +679,8 @@ void _receiveExpectedTraps(CIMClient& workClient,
 
 #define MSG_PER_SEC 4
 
-    Uint32 testTimeout = 20000+(indicationSendCountTotal/MSG_PER_SEC)*1000;
+    Uint32 testTimeout = PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS
+                        + (indicationSendCountTotal/MSG_PER_SEC)*1000;
 
     // connect the clients
     for(Uint32 i = 0; i < runClientThreadCount; i++)

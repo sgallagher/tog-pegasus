@@ -658,7 +658,8 @@ void CIMServer::addAcceptor(
     Uint32 socketWriteTimeout =
         strtol(socketWriteConfigTimeout.getCString(), (char**)0, 10);
     // equal what went wrong, there has to be a timeout
-    if (socketWriteTimeout == 0) socketWriteTimeout = 20;
+    if (socketWriteTimeout == 0)
+        socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
     acceptor->setSocketWriteTimeout(socketWriteTimeout);
 
     _acceptors.append(acceptor);

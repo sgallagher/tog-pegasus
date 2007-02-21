@@ -229,7 +229,7 @@ WbemExecCommand::WbemExecCommand ()
 
     _useHTTP11           = true;
     _useMPost            = true;
-    _timeout             = WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS;
+    _timeout             = PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS;
     _debugOutput1        = false;
     _debugOutput2        = false;
     _userName            = String ();

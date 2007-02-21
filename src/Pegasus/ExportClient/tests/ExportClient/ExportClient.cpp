@@ -103,15 +103,16 @@ static void TestTimeout()
     Monitor* monitor = new Monitor;
     HTTPConnector* httpConnector = new HTTPConnector(monitor);
     CIMExportClient client(monitor, httpConnector);
+    const int TIMEOUT_MILLISECONDS = 
+        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS * 2;
 
-    PEGASUS_TEST_ASSERT(client.getTimeout() ==
-        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
-    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
-    PEGASUS_TEST_ASSERT(client.getTimeout() ==
-        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
-    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
-    PEGASUS_TEST_ASSERT(client.getTimeout() ==
-        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == 
+                        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+    client.setTimeout(TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == TIMEOUT_MILLISECONDS);
+    client.setTimeout(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == 
+                        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
     //
     //  Test setTimeout while connected
@@ -119,14 +120,13 @@ static void TestTimeout()
     Uint32 port =
         System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
     client.connect("localhost", port);
-    PEGASUS_TEST_ASSERT(client.getTimeout() ==
-        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
-    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
-    PEGASUS_TEST_ASSERT(client.getTimeout() ==
-        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS+20000);
-    client.setTimeout(CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
-    PEGASUS_TEST_ASSERT(client.getTimeout() ==
-        CIMExportClient::DEFAULT_TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == 
+                        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+    client.setTimeout(TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == TIMEOUT_MILLISECONDS);
+    client.setTimeout(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == 
+                        PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 }
 
 static void testConnect()

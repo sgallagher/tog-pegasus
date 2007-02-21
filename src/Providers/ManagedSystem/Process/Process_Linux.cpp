@@ -836,53 +836,46 @@ NOTES             :
 */
 String Process::getOSName(void) const
 {
-   String osName, s, buffer_s;
-   Uint32 buffer_index;	// rexex match index
-   char info_file[MAXPATHLEN];
-   char buffer[MAXPATHLEN];
-   struct stat statBuf;
-   FILE *vf;
+    String nameText;
+    static const Uint32 MAX_RELEASE_STRING_LEN = 128;
+    char infoFile[MAXPATHLEN];
+    char buffer[MAX_RELEASE_STRING_LEN];
 
-   s.clear();
-   for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL ; ii++)
-   {
-      memset(info_file, 0, MAXPATHLEN);
-      strcat(info_file, "/etc/");
-      strcat(info_file, LINUX_VENDOR_INFO[ii].determining_filename);
+    for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL; ii++)
+    {
+        sprintf(infoFile, "/etc/%s",
+            LINUX_VENDOR_INFO[ii].determining_filename);
 
+        // If the file exists in /etc, we know what distro we're in
+        FILE *vf = fopen(infoFile, "r");
+        if (vf)
+        {
+            // Set the default OS name
+            nameText.assign(LINUX_VENDOR_INFO[ii].vendor_name);
+            nameText.append(" Distribution");
 
-      // If the file exists in /etc, we know what distro we're in
-      if (!stat(info_file, &statBuf))
-      {
-         s.assign(LINUX_VENDOR_INFO[ii].vendor_name);
-         s.append(" Distribution");
-         if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
-         {
-	    // try to set s to a more descript value from the etc file
-            vf = fopen(info_file, "r");
-            if (vf)
+            if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
             {
-               char* rc = fgets(buffer, MAXPATHLEN, vf);
-               fclose(vf);
-               if (rc != NULL)
-	       {
-                  buffer_s.assign(buffer);
-	    
-		  // parse the text to extract Distribution Name
-		  buffer_index = buffer_s.find(" release");
-		  if ( buffer_index != PEG_NOT_FOUND )
-		  {
-		     // then we have found a valid index into the config file
-		     s.assign(buffer_s.subString(0,buffer_index));
-		  }
-	       }
-	    }
-         }
-      }
-   }
-   osName.assign(s);
-   return osName;
+                // try to get a more descriptive value from the etc file
+                if (fgets(buffer, MAX_RELEASE_STRING_LEN, vf) != NULL)
+                {
+                    String bufferString = buffer;
 
+                    // parse the text to extract the distribution name
+                    Uint32 bufferIndex = bufferString.find(" release");
+                    if (bufferIndex != PEG_NOT_FOUND)
+                    {
+                        nameText = bufferString.subString(0, bufferIndex);
+                    }
+                }
+            }
+
+            fclose(vf);
+            break;
+        }
+    }
+
+    return nameText;
 }
 
 

@@ -94,55 +94,51 @@ static const struct
   */
 static void getVendorInfo(
     String& releaseText,
-    String& nameText )
+    String& nameText)
 {
-   static const Uint32 MAX_RELEASE_STRING_LEN=128;
-   char info_file[MAXPATHLEN];
-   char buffer[MAX_RELEASE_STRING_LEN];
-   struct stat statBuf;
+    static const Uint32 MAX_RELEASE_STRING_LEN = 128;
+    char infoFile[MAXPATHLEN];
+    char buffer[MAX_RELEASE_STRING_LEN];
 
+    for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL; ii++)
+    {
+        sprintf(infoFile, "/etc/%s",
+            LINUX_VENDOR_INFO[ii].determining_filename);
 
-   for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL ; ii++)
-   {
-     sprintf(info_file,  "/etc/%s",
-             LINUX_VENDOR_INFO[ii].determining_filename );
+        // If the file exists in /etc, we know what distro we're in
+        FILE* vf = fopen(infoFile, "r");
+        if (vf)
+        {
+            // Set the default OS name
+            nameText.assign(LINUX_VENDOR_INFO[ii].vendor_name);
+            nameText.append(" Distribution");
 
-      // If the file exists in /etc, we know what distro we're in
-      if (!stat(info_file, &statBuf))
-      {
-         // Set the default OS name
-         nameText.assign(LINUX_VENDOR_INFO[ii].vendor_name);
-         nameText.append(" Distribution");
-         if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
-         {
-	    // try to set text to a more descriptive value from the etc file
-            FILE *vf = fopen(info_file, "r");
-            if (vf)
+            if (LINUX_VENDOR_INFO[ii].optional_string == NULL)
             {
+                // try to get a more descriptive value from the etc file
                 if (fgets(buffer, MAX_RELEASE_STRING_LEN, vf) != NULL)
                 {
-		    String buffer_s = buffer;
+                    String bufferString = buffer;
 
-                    // parse the text to extract first line
-                    Uint32 buffer_index = buffer_s.find( '\n' );
-                    if ( buffer_index != PEG_NOT_FOUND )
+                    // parse the text to extract the first line
+                    Uint32 bufferIndex = bufferString.find('\n');
+                    if (bufferIndex != PEG_NOT_FOUND)
                     {
                         // We have found a valid index into the
                         // release string. Now get just the OS name.
-                        releaseText = buffer_s.subString(0,buffer_index);
-                        buffer_index = releaseText.find( " release" );
-                        if ( buffer_index != PEG_NOT_FOUND )
+                        releaseText = bufferString.subString(0, bufferIndex);
+                        bufferIndex = releaseText.find(" release");
+                        if (bufferIndex != PEG_NOT_FOUND)
                         {
-			    nameText.assign( releaseText.subString(0,buffer_index) );
+                            nameText = releaseText.subString(0, bufferIndex);
                         }
                     }
-	       }
-	       fclose(vf);
-	    }
-         }
-         break;
-      }
-   }
+                }
+            }
+            fclose(vf);
+            break;
+        }
+    }
 }
 
 /**

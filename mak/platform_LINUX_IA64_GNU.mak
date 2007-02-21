@@ -35,8 +35,6 @@ include $(ROOT)/mak/config-linux.mak
 
 ARCHITECTURE = IA64
 
-DEFINES += -DPEGASUS_USE_SYSLOGS
-
 ##
 ## The following flag needs to be set to compile in code for
 ## not listing the trace configuration properties. This will cause

@@ -1206,7 +1206,8 @@ Boolean System::verifyFileOwnership(const char* path)
 
 void System::syslog(const String& ident, Uint32 severity, const char* message)
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
+#if defined(PEGASUS_USE_SYSLOGS) && \
+    (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX))
 
     // Since the openlog(), syslog(), and closelog() function calls must be
     // coordinated (see below), we need a thread control.
@@ -1379,8 +1380,9 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
 void System::openlog(const char *ident, int logopt, int facility)
 {
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
-    (defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_SYSLOGS))
+#if defined(PEGASUS_USE_SYSLOGS) && \
+    (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
+     defined(PEGASUS_OS_ZOS))
     ::openlog(ident, logopt, facility);
 #else /* default */
 
@@ -1393,8 +1395,9 @@ void System::openlog(const char *ident, int logopt, int facility)
 void System::closelog()
 {
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) ||  \
-    (defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_SYSLOGS))
+#if defined(PEGASUS_USE_SYSLOGS) && \
+    (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
+     defined(PEGASUS_OS_ZOS))
     ::closelog();
 #else /* default */
 

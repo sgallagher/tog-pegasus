@@ -1663,8 +1663,8 @@ void CIMSubCommand::_getAllNamespaces(
     Array<CIMNamespaceName>& namespaceNames)
 {
     Array<CIMObjectPath> instanceNames = _client->enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_CIMNAMESPACE);
+        PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE,
+        PEGASUS_CLASSNAME___NAMESPACE);
 
     // for all new elements in the output array
     for (Uint32 i = 0; i < instanceNames.size(); i++)

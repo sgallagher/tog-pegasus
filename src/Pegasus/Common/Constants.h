@@ -377,6 +377,16 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES;
 #endif
 
+/**
+    An EnumerateInstances operation on the __Namespace class returns the
+    "child" namespaces of the namespace in which the operation is requested.
+    Since there is no universal top-level namespace, one cannot find all
+    namespaces by enumerating the __Namespace class.  To circumvent this
+    problem, a virtual top-level namespace is introduced.  An enumeration of
+    __Namespace in the virtual top-level namespace returns all namespaces.
+*/
+extern const CIMNamespaceName PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE;
+
 //
 // HTTP Header Tags, Status Codes, and Reason Phrases
 //

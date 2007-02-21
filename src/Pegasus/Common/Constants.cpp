@@ -282,6 +282,9 @@ const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
     PEGASUS_NAMESPACENAME_CIMV2;
 #endif
 
+const CIMNamespaceName PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE =
+    CIMNamespaceName("PG_Reserved");
+
 //
 // Server Profile-related class names
 //

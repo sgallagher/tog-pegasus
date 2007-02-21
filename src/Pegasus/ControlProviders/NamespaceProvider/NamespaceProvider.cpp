@@ -582,21 +582,36 @@ void NamespaceProvider::enumerateInstances(
            Array<CIMNamespaceName> namespaceNames =
                _repository->enumerateNameSpaces();
 
+           Boolean enumerateAllNamespaces =
+               (parentNamespaceName == PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE);
+
           // Build the instances. For now simply build the __Namespace instances
           // Note that for the moment, the only property is name.
           for (Uint32 i = 0; i < namespaceNames.size(); i++)
           {
-              if (_isChild(parentNamespaceName, namespaceNames[i]))
+              if (enumerateAllNamespaces ||
+                  _isChild(parentNamespaceName, namespaceNames[i]))
               {
+                  String nsName = enumerateAllNamespaces ?
+                      namespaceNames[i].getString() :
+                      namespaceNames[i].getString().subString(
+                          parentNamespaceName.getString().size() + 1);
                   CIMInstance instance(NAMESPACE_CLASSNAME);
-                  instance.addProperty(
-                     (CIMProperty(NAMESPACE_PROPERTYNAME,
-                          namespaceNames[i].getString().subString
-                              (parentNamespaceName.getString().size()+1,
-                          namespaceNames[i].getString().size()-
-                               parentNamespaceName.getString().size()-1))));
+                  instance.addProperty(CIMProperty(
+                      NAMESPACE_PROPERTYNAME, nsName));
+
+                  // Set the instance name
+                  Array<CIMKeyBinding> keyBindings;
+                  keyBindings.append(CIMKeyBinding(
+                      NAMESPACE_PROPERTYNAME, nsName, CIMKeyBinding::STRING));
+                  CIMObjectPath instanceName(
+                      String::EMPTY,
+                      parentNamespaceName,
+                      NAMESPACE_CLASSNAME,
+                      keyBindings);
+                  instance.setPath(instanceName);
+
                   instanceArray.append(instance);
-                  //instance.setPath(instanceName);
                   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                       "childNamespace = " + namespaceNames[i].getString());
               }
@@ -663,23 +678,29 @@ void NamespaceProvider::enumerateInstanceNames(
        {
             Array<CIMNamespaceName> namespaceNames =
                    _repository->enumerateNameSpaces();
-            Array<CIMKeyBinding> keyBindings;
             
+            Boolean enumerateAllNamespaces =
+                (parentNamespaceName == PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE);
+
             // Build the instances. Simply build the __Namespace instances
             // Note, the only property is name.
             for (Uint32 i = 0; i < namespaceNames.size(); i++)
             {
-                if (_isChild(parentNamespaceName, namespaceNames[i]))
+                if (enumerateAllNamespaces ||
+                    _isChild(parentNamespaceName, namespaceNames[i]))
                 {
-                    keyBindings.clear();
-                    keyBindings.append(CIMKeyBinding(NAMESPACE_PROPERTYNAME,
-                        namespaceNames[i].getString().subString
-                        (parentNamespaceName.getString().size()+1,
-                        namespaceNames[i].getString().size()-
-                        parentNamespaceName.getString().size()-1),
-                        CIMKeyBinding::STRING));
-                    CIMObjectPath ref(String::EMPTY, parentNamespaceName,
-                    NAMESPACE_CLASSNAME, keyBindings);
+                    String nsName = enumerateAllNamespaces ?
+                        namespaceNames[i].getString() :
+                        namespaceNames[i].getString().subString(
+                            parentNamespaceName.getString().size() + 1);
+                    Array<CIMKeyBinding> keyBindings;
+                    keyBindings.append(CIMKeyBinding(
+                        NAMESPACE_PROPERTYNAME, nsName, CIMKeyBinding::STRING));
+                    CIMObjectPath ref(
+                        String::EMPTY,
+                        parentNamespaceName,
+                        NAMESPACE_CLASSNAME,
+                        keyBindings);
                     instanceRefs.append(ref);
                     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                         "childNamespace = " + namespaceNames[i].getString());

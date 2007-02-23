@@ -39,7 +39,6 @@
 #define SLP_PORT 427
 #define LOCALHOST_IP "127.0.0.1"
 #include <Pegasus/Server/SLPAttrib.h>
-static Boolean verbose;
 
 PEGASUS_USING_PEGASUS;
 //Global variables used for SLP registrations and registration tests.
@@ -55,6 +54,7 @@ int life = PEGASUS_SLP_REG_TIMEOUT * 60;
 int port=SLP_PORT;
 const char *addr = LOCALHOST_IP;
 const char *iface = NULL;
+static Boolean verbose;
 
 //httpAttrs1 is test data used for registration of  http port.
 const char *httpAttrs1 = "(template-url-syntax=service:wbemtest:http://127.0.0."

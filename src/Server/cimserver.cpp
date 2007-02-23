@@ -1259,8 +1259,10 @@ MessageLoader::_useProcessLocale = false;
         //cout << "Unable to start CIMServer." << endl;
         //cout << "CIMServer is already running." << endl;
         MessageLoaderParms parms("src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
-                     "Unable to start CIMServer.\nCIMServer is already running.");
+                     "Unable to start CIMServer. CIMServer is already running.");
     PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+        Logger::put(Logger::ERROR_LOG,System::CIMSERVER,Logger::INFORMATION,
+                    MessageLoader::getMessage(parms));
 
     //
         // notify parent process (if there is a parent process) to terminate

@@ -3341,7 +3341,7 @@ CIM server listening on HTTPS port {0}."}
 
         src.Server.cimserver.SERVER_FAILED_TO_INITIALIZE:string {"PGS10023: The CIM server failed to initialize."}
 
-        src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING:string {"PGS10024: Unable to start the CIM server.\nCIM server is already running."}
+        src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING:string {"PGS10024: Unable to start the CIM server. CIM server is already running."}
 
         /**
         * @note  PGS10025:  Substitution {0} is the port number (an integer)

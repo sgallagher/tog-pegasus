@@ -94,7 +94,7 @@ static comm_lib __libs[] = {
 };
 
 int nativeSide=1;
-const struct BinarySerializerFT binarySerializerFT;
+
 
 struct BinarySerializerFT *__sft = &binarySerializerFT;
 
@@ -123,7 +123,7 @@ static void __init_remote_comm_lib ( comm_lib * comm )
 {
     void * hdl = comm->hLibrary = tool_mm_load_lib ( comm->libname );
 
-    if ( hdl ) {
+   if ( hdl ) {
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
            START_DAEMON fp = (START_DAEMON) dllqueryfn ( (dllhandle*) hdl, "start_remote_daemon" );
 #elif defined PEGASUS_OS_TYPE_WINDOWS
@@ -183,6 +183,9 @@ int main (int argc, char *argv[])
         _usage();
         return 0;
     }
+
+    //__asm { int 3h };
+
     if (argc == 2)
     {
         if (!strcmp (argv[1], "--foreground" ))

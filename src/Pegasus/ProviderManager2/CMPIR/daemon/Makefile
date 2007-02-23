@@ -51,6 +51,7 @@ LIBRARIES = CMPIRNative \
 EXTRA_INCLUDES = -I../ -I../native
 
 SOURCES = daemon.c                 \
+          ../serialization.c       \
           ../native/native_common.c
 
 PROGRAM = CMPIRDaemon

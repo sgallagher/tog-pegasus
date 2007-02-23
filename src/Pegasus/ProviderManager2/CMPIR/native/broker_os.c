@@ -182,7 +182,7 @@ static int threadOnce (int *once, void (*init)(void))
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
     return pthread_once ( once, init );
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-    if (*once==0)
+    if ((*once)++ == 0)
     {
         (init)();
     }
@@ -366,6 +366,7 @@ static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *w
     return pthread_cond_timedwait((pthread_cond_t*)c, (pthread_mutex_t*)m, wait );
 #elif defined PEGASUS_OS_TYPE_WINDOWS
 
+    int rc;
     int msec;
     struct timespec next=*wait;
     struct timeval
@@ -389,9 +390,9 @@ static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *w
     msec=(next.tv_sec-now.tv_sec)*1000;
     msec+=(next.tv_nsec/1000000)-(now.tv_usec/1000);
 
-    if(SignalObjectAndWait(m,c,msec,FALSE)!=WAIT_FAILED)
+    if((rc = SignalObjectAndWait(m,c,msec,FALSE))!=WAIT_FAILED)
     {
-        if(WaitForSingleObject(m,INFINITE)!=WAIT_FAILED)
+        if(WaitForSingleObject(m,msec)!=WAIT_FAILED)
         {
             return 0;
         }

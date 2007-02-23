@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -47,7 +43,7 @@ extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
 {
     if(String::equalNoCase(className, "MethodTestProvider"))
     {
-	return(new MethodTestProvider());
+        return(new MethodTestProvider());
     }
 
     return(0);

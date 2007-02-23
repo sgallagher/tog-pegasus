@@ -35,14 +35,28 @@ class Test_MethodProviderClass
     string Id;
     [Static] string getIdentity();
     uint32 Test1(
-        [in] uint32 InParam1,
-        [in] uint32 InParam2,
+        [in]  uint32 InParam1,
+        [in]  uint32 InParam2,
         [out] uint32 OutParam1,
         [out] uint32 OutParam2);
 
     uint32 Test2(
-        [in] uint32 InParam1,
-        [in] uint32 InParam2,
+        [in]  uint32 InParam1,
+        [in]  uint32 InParam2,
         [out] uint32 OutParam1,
         [out] uint32 OutParam2);
+
+    uint32 Test3(
+        [in]      CIM_ComputerSystem ref InParam1,
+        [in]      CIM_ComputerSystem ref InParam2,
+	[in, out] Boolean Recursed,
+	[out]     CIM_ComputerSystem ref Outparam1,
+	[out]     CIM_ComputerSystem ref Outparam2);
+
+
+    uint32 Test4(
+        [in]  CIM_ComputerSystem ref InParam1[],
+        [in]  CIM_ComputerSystem ref InParam2[],
+	[out] CIM_ComputerSystem ref Outparam1[],
+	[out] CIM_ComputerSystem ref Outparam2[]);
 };

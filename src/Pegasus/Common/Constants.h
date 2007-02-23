@@ -385,7 +385,8 @@ PEGASUS_COMMON_LINKAGE
     problem, a virtual top-level namespace is introduced.  An enumeration of
     __Namespace in the virtual top-level namespace returns all namespaces.
 */
-extern const CIMNamespaceName PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE;
+PEGASUS_COMMON_LINKAGE
+    extern const CIMNamespaceName PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE;
 
 //
 // HTTP Header Tags, Status Codes, and Reason Phrases

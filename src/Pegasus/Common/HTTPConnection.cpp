@@ -743,6 +743,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         } // if not a client
 
+        Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                "HTTPConnection::_handleWriteEvent: Server write event.");
+
         SignalHandler::ignore(PEGASUS_SIGPIPE);
 
         // use the next four lines to test the SIGABRT handler
@@ -761,6 +764,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             // dont include header terminator yet
             Uint32 headerLength = bytesToWrite;
             bytesToWrite -= headerLineTerminatorLength;
+            Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+              "HTTPConnection::_handleWriteEvent: "
+              "Sending header for chunked reponses.");
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
             if (bytesWritten < 0)
@@ -776,6 +782,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 headerNameContentLanguage << headerLineTerminator;
             sendStart = (char *) trailer.getData();
             bytesToWrite = trailer.size();
+
+            Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                    "HTTPConnection::_handleWriteEvent: "
+                    "Sending trailer header for chunked responses.");
+
             bytesWritten = _socket->write(sendStart, bytesToWrite);
 
             if (bytesWritten < 0)
@@ -787,6 +798,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             // now send header terminator
             bytesToWrite = headerLineTerminatorLength;
             sendStart = messageStart + headerLength - bytesToWrite;
+
+            Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                    "HTTPConnection::_handleWriteEvent: "
+                    "Sending header terminator for chunked responses.");
+
             bytesWritten = _socket->write(sendStart, bytesToWrite);
             if (bytesWritten < 0)
                 _socketWriteError();
@@ -812,6 +828,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 sprintf(chunkLine, "%x%s", bytesToWrite, chunkLineTerminator);
                 sendStart = chunkLine;
                 Sint32 chunkBytesToWrite = (Sint32)strlen(sendStart);
+
+                Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                        "HTTPConnection::_handleWriteEvent: "
+                        "Sending chunk with chunk line terminator.");
+
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
                 if (bytesWritten < 0)
                     _socketWriteError();
@@ -833,6 +854,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             {
               sendStart = messageStart + messageLength - bytesRemaining;
               bytesToWrite = _Min(httpTcpBufferSize, bytesRemaining);
+
+              Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                      "HTTPConnection::_handleWriteEvent: "
+                      "Sending non-chunked data.");
+
               bytesWritten = _socket->write(sendStart, bytesToWrite);
               if (bytesWritten < 0)
                   _socketWriteError();
@@ -901,6 +927,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 }
                 sendStart = (char *) trailer.getData();
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
+
+                Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                        "HTTPConnection::_handleWriteEvent: "
+                        "Sending the last chunk with chunk body terminator ");
+
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
                 if (bytesWritten < 0)
                     _socketWriteError();

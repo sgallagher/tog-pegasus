@@ -154,7 +154,7 @@ IndicationHandlerService::_handleIndication(
     CIMHandleIndicationRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_IND_HANDLE,
-        "IndicationHandlerService::_handleIndication");
+        "IndicationHandlerService::_handleIndication()");
 
     Boolean handleIndicationSuccess = true;
     CIMException cimException =
@@ -321,6 +321,7 @@ IndicationHandlerService::_handleIndication(
             request->queueIds.copyAndPop());
         
     delete request;
+    PEG_METHOD_EXIT();
     return response;
 }
 
@@ -328,6 +329,9 @@ Boolean IndicationHandlerService::_loadHandler(
     CIMHandleIndicationRequestMessage* request,
     CIMException& cimException)
 {
+    PEG_METHOD_ENTER(TRC_IND_HANDLE,
+        "IndicationHandlerService::__loadHandler()");
+
     CIMName className = request->handlerInstance.getClassName();
 
     try
@@ -354,6 +358,7 @@ Boolean IndicationHandlerService::_loadHandler(
                 MessageLoaderParms("HandlerService."
                 "IndicationHandlerService.FAILED_TO_LOAD",
                 "Failed to load Handler"));
+            PEG_METHOD_EXIT();
             return false;
         }
 
@@ -362,20 +367,26 @@ Boolean IndicationHandlerService::_loadHandler(
     {
         cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        PEG_METHOD_EXIT();
         return false;
     }
     catch (...)
     {
         cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Exception: Unknown");
+        PEG_METHOD_EXIT();
         return false;
     }
+    PEG_METHOD_EXIT();
     return true;
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
    const CIMName& className)
 {
+   PEG_METHOD_ENTER(TRC_IND_HANDLE,
+        "IndicationHandlerService::_lookupHandlerForClass()");
+
    String handlerId;
 
    if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
@@ -406,6 +417,7 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
 
    CIMHandler* handler = _handlerTable.getHandler(handlerId, _repository);
 
+   PEG_METHOD_EXIT();
    return handler;
 }
 

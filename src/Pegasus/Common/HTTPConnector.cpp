@@ -193,8 +193,10 @@ HTTPConnector::HTTPConnector(Monitor* monitor)
 
 HTTPConnector::~HTTPConnector()
 {
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnector::~HTTPConnector()");
     delete _rep;
     Socket::uninitializeInterface();
+    PEG_METHOD_EXIT();
 }
 
 void HTTPConnector::handleEnqueue(Message *message)
@@ -255,6 +257,8 @@ HTTPConnection* HTTPConnector::connect(
     SSLContext * sslContext,
     MessageQueue* outputMessageQueue)
 {
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,"HTTPConnector::connect()");
+
     SocketHandle socket;
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
@@ -271,7 +275,11 @@ HTTPConnection* HTTPConnector::connect(
 
         socket = Socket::createSocket(AF_UNIX, SOCK_STREAM, 0);
         if (socket == PEGASUS_INVALID_SOCKET)
+        {
+            PEG_METHOD_EXIT();
             throw CannotCreateSocketException();
+        }
+            
 
         // Connect the socket to the address:
 
@@ -283,6 +291,7 @@ HTTPConnection* HTTPConnector::connect(
                 "Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
                 "Cannot connect to local CIM server. Connection failed.");
             Socket::close(socket);
+            PEG_METHOD_EXIT();
             throw CannotConnectException(parms);
         }
     }
@@ -298,6 +307,7 @@ HTTPConnection* HTTPConnector::connect(
         {
             char portStr [32];
             sprintf (portStr, "%u", portNumber);
+            PEG_METHOD_EXIT();
             throw InvalidLocatorException(host + ":" + portStr);
         }
 
@@ -305,7 +315,11 @@ HTTPConnection* HTTPConnector::connect(
         // Create the socket:
         socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (socket == PEGASUS_INVALID_SOCKET)
+        {
+            PEG_METHOD_EXIT();
             throw CannotCreateSocketException();
+        }
+            
 
         // Conect the socket to the address:
         if (::connect(socket,
@@ -320,6 +334,7 @@ HTTPConnection* HTTPConnector::connect(
                 host,
                 portStr);
             Socket::close(socket);
+            PEG_METHOD_EXIT();
             throw CannotConnectException(parms);
         }
 
@@ -340,6 +355,7 @@ HTTPConnection* HTTPConnector::connect(
             host,
             portStr);
         mp_socket->close();
+        PEG_METHOD_EXIT();
         throw CannotConnectException(parms);
     }
 
@@ -360,7 +376,7 @@ HTTPConnection* HTTPConnector::connect(
     // Save the socket for cleanup later:
 
     _rep->connections.append(connection);
-
+    PEG_METHOD_EXIT();
     return connection;
 }
 

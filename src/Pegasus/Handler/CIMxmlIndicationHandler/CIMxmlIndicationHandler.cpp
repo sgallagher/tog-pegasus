@@ -376,7 +376,7 @@ public:
                 exportclient.exportIndication(
                     "/", indicationInstance, contentLanguages);
             }
-            exportclient.disconnect();
+
         }
         catch(Exception& e)
         {

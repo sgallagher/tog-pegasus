@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,13 +31,6 @@
 ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
-
-#
-# The LoadRepository test is purposely not included in the list below
-# because all of the necessary files were never checked in.  If and
-# when someone checks in the rest of the files the test should be
-# enabled.
-#
 
 DIRS = \
     Inst \
@@ -55,7 +48,6 @@ DIRS = \
     SharedInheritanceTree \
     CompareRepositories \
     CompareXmlBin \
-    LoadClass \
     CompareXmlCompressed \
     AssocOperations
 

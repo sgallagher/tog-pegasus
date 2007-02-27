@@ -712,19 +712,18 @@ Boolean InteropTest::testEnumerateOptions(
     CDEBUG("testEnumerations rtn" );
     return(true);
 }
+
 InteropTest::InteropTest()
 {
     try
     {
         _client.connectLocal();
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-        cerr <<" Error: " << e.getMessage() << " Conection terminate abnormal"
-             << endl;
+        cerr << "Connection error: " << e.getMessage() << endl;
         exit(1);
     }
-
 }
 
 InteropTest::~InteropTest()
@@ -945,13 +944,13 @@ Array<CIMInstance> InteropTest::_getCIMNamespaceInstances()
         instances = _client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
                                               CIM_NAMESPACE_CLASSNAME);
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-        cerr << "Error: " << e.getMessage()
-            << " Conection term abnormal" << endl;
+        cerr << "Error enumerating instances of CIM_Namespace: " <<
+            e.getMessage() << endl;
         // Instead of this returns emptyexit(1);
     }
-    return(instances);
+    return instances;
 }
 
 /* gets the instances for the CIM_Namespace class from host
@@ -964,13 +963,13 @@ Array<CIMInstance> InteropTest::_getPGNamespaceInstances()
         instances = _client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
                                               PG_NAMESPACE_CLASSNAME);
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-        cerr << "Error: " << e.getMessage()
-            << " Conection term abnormal" << endl;
+        cerr << "Error enumerating instances of PG_Namespace: " <<
+            e.getMessage() << endl;
         // Instead of this returns emptyexit(1);
     }
-    return(instances);
+    return instances;
 }
 
 /* gets the instancenames for the CIM_Namespace class from host
@@ -984,13 +983,13 @@ Array<CIMObjectPath> InteropTest::_getPGNamespaceInstanceNames()
                 PEGASUS_NAMESPACENAME_INTEROP,
                 PG_NAMESPACE_CLASSNAME);
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-        cerr << "Error: " << e.getMessage()
-            << " Conection term abnormal" << endl;
+        cerr << "Error enumerating instance names of PG_Namespace: " <<
+            e.getMessage() << endl;
         // Instead of this returns emptyexit(1);
     }
-    return(objectNames);
+    return objectNames;
 
 }
 /* gets the instancenames for the CIM_Namespace class from host
@@ -1004,13 +1003,13 @@ Array<CIMObjectPath> InteropTest::_getCIMNamespaceInstanceNames()
                 PEGASUS_NAMESPACENAME_INTEROP,
                 CIM_NAMESPACE_CLASSNAME);
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-        cerr << "Error: " << e.getMessage()
-            << " Conection term abnormal" << endl;
+        cerr << "Error enumerating instance names of CIM_Namespace: " <<
+            e.getMessage() << endl;
         // Instead of this returns emptyexit(1);
     }
-    return(objectNames);
+    return objectNames;
 
 }
 

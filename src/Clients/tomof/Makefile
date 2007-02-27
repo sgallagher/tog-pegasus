@@ -30,8 +30,7 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-PROGRAM_NAME = tomof
-DIR = Clients/$(PROGRAM_NAME)
+DIR = Clients/tomof
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
@@ -40,12 +39,11 @@ LIBRARIES = \
     pegconfig \
     pegcommon
 
-
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = $(PROGRAM_NAME)
+PROGRAM = tomof
 
-SOURCES = $(PROGRAM_NAME).cpp \
+SOURCES = tomof.cpp \
 	  clientRepositoryInterface.cpp
 
 include $(ROOT)/mak/program.mak

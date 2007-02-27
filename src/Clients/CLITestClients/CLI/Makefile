@@ -30,8 +30,6 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-PROGRAM_NAME = cimcli
-
 DIR = Clients/CLITestClients/CLI
 include $(ROOT)/mak/config.mak
 
@@ -49,7 +47,7 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = $(PROGRAM_NAME)
+PROGRAM = cimcli
 
 SOURCES = CLI.cpp
 

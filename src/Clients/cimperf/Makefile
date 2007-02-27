@@ -30,21 +30,19 @@
 #//==============================================================================
 ROOT = $(PEGASUS_ROOT)
 
-PROGRAM_NAME = cimperf
-DIR = Clients/$(PROGRAM_NAME)
+DIR = Clients/cimperf
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
+PROGRAM = cimperf
 
-PROGRAM = $(PROGRAM_NAME)
-
-SOURCES = $(PROGRAM_NAME).cpp
+SOURCES = cimperf.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
 
 poststarttests:
-	$(PROGRAM_NAME)
+	$(PROGRAM)

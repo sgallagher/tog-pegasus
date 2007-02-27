@@ -199,13 +199,13 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(EXTRA_LIBRARIES) $(SYS_LIBS)
   endif
     ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
+	ln -f -s $(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX) $(LIB_DIR)/lib$(LIBRARY).sl
     endif
     ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
+	ln -f -s $(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX) $(LIB_DIR)/lib$(LIBRARY).so
     endif
     ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
+	ln -f -s $(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX) $(LIB_DIR)/lib$(LIBRARY).so
     endif
 	$(TOUCH) $(FULL_LIB)
 	@ $(ECHO)
@@ -221,11 +221,17 @@ clean-lib: $(ERROR)
 
 ##==============================================================================
 ##
-## ln (target to create soft link)
+## FILES_TO_CLEAN (files removed by "make clean")
 ##
 ##==============================================================================
 
-ln:
-	ln -f -s $(LIBRARY)$(SUFFIX) $(LIBRARY).$(PLATFORM_SUFFIX)
-
 FILES_TO_CLEAN = $(OBJECTS) $(FULL_LIB)
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+    FILES_TO_CLEAN += $(LIB_DIR)/lib$(LIBRARY).sl
+endif
+ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
+    FILES_TO_CLEAN += $(LIB_DIR)/lib$(LIBRARY).so
+endif
+ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    FILES_TO_CLEAN += $(LIB_DIR)/lib$(LIBRARY).so
+endif

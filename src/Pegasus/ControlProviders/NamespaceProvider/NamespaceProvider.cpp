@@ -1,44 +1,56 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//
 //%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Namespace Provider
 //
-//      This provider answers to the "false" class __namespace.  This is the
-//      deprecated version of manipulation in the DMTF WBEM model.  The function
-//      is defined in the CIM Operations over HTTP docuement.  However, while
-//      the function exists, no class was ever defined in the CIM model for
-//      __nemaspace.  Therefore each implementation is free to provide its own
-//      class definition.
+//	This provider answers to the "false" class __namespace.  This is the
+//	deprecated version of manipulation in the DMTF WBEM model.  This function
+//	is defined in the CIM Operations over HTTP docuement.  However, while
+//	the function exists, no class was ever defined in the CIM model for
+//	__nemaspace.  Therefore each implementation is free to provide its own
+//	class definition.
 ///////////////////////////////////////////////////////////////////////////////
+
+/* STATUS: In process but running 30 April 2002 */
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -51,7 +63,6 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -101,8 +112,8 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     The constant representing the __namespace class name
 */
-static const CIMName NAMESPACE_CLASSNAME = CIMNameCast("__Namespace");
-static const CIMName NAMESPACE_PROPERTYNAME = CIMNameCast("Name");
+static const CIMName NAMESPACE_CLASSNAME  = CIMName ("__Namespace");
+static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
 static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
 
 static Boolean _isChild(
@@ -118,109 +129,115 @@ static Boolean _isChild(
 }
 
 static void _getKeyValue (
-    const CIMInstance& namespaceInstance,
-    CIMNamespaceName& childNamespaceName,
-    Boolean& isRelativeName)
+        const CIMInstance& namespaceInstance,
+	CIMNamespaceName& childNamespaceName,
+	Boolean& isRelativeName)
 {
-    //Validate key property
+       //Validate key property
 
-    Uint32 pos;
-    CIMValue propertyValue;
+       Uint32 pos;
+       CIMValue propertyValue;
 
-    // [Key, MaxLen (256), Description (
-    //       "A string that uniquely identifies the Namespace "
-    //       "within the ObjectManager.") ]
-    // string Name;
+       // [Key, MaxLen (256), Description (
+       //       "A string that uniquely identifies the Namespace "
+       //       "within the ObjectManager.") ]
+       // string Name;
 
-    pos = namespaceInstance.findProperty(NAMESPACE_PROPERTYNAME);
-    if (pos == PEG_NOT_FOUND)
-    {
-       throw CIMPropertyNotFoundException
-           (NAMESPACE_PROPERTYNAME.getString());
-    }
-
-    propertyValue = namespaceInstance.getProperty(pos).getValue();
-    if (propertyValue.getType() != CIMTYPE_STRING)
-    {
-        throw CIMInvalidParameterException(MessageLoaderParms(
-            "ControlProviders.NamespaceProvider.NamespaceProvider."
-                "INVALID_TYPE_FOR_PROPERTY",
-            "Invalid type for property: $0",
-            NAMESPACE_PROPERTYNAME.getString()));
-    }
-
-    String cnsName;
-    propertyValue.get(cnsName);
-    if (cnsName == String::EMPTY)
-    {
-       childNamespaceName = CIMNamespaceName();
-    }
-    else
-    {
-       childNamespaceName = CIMNamespaceName(cnsName);
-    }
-
-    isRelativeName = !(childNamespaceName.isNull());
-}
-
-static void _getKeyValue (
-    const CIMObjectPath&  instanceName,
-    CIMNamespaceName& childNamespaceName,
-    Boolean& isRelativeName)
-{
-
-    Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
-    if ((kbArray.size() == 1) &&
-            (kbArray[0].getName() == NAMESPACE_PROPERTYNAME))
-    {
-       String childNamespaceString = kbArray[0].getValue();
-
-       if (childNamespaceString != String::EMPTY)
+       pos = namespaceInstance.findProperty(NAMESPACE_PROPERTYNAME);
+       if (pos == PEG_NOT_FOUND)
        {
-           childNamespaceName = childNamespaceString;
+           throw CIMPropertyNotFoundException
+               (NAMESPACE_PROPERTYNAME.getString());
+       }
+
+       propertyValue = namespaceInstance.getProperty(pos).getValue();
+       if (propertyValue.getType() != CIMTYPE_STRING)
+       {
+       		//l10n
+           //throw CIMInvalidParameterException("Invalid type for property: "
+                                 //+ NAMESPACE_PROPERTYNAME.getString());
+           throw CIMInvalidParameterException(MessageLoaderParms(
+           						 "ControlProviders.NamespaceProvider.NamespaceProvider.INVALID_TYPE_FOR_PROPERTY",
+           						 "Invalid type for property: $0",
+                                 NAMESPACE_PROPERTYNAME.getString()));
+       }
+
+       String cnsName;
+       propertyValue.get(cnsName);
+       if (cnsName == String::EMPTY)
+       {
+           childNamespaceName = CIMNamespaceName();
+       }
+       else
+       {
+           childNamespaceName = CIMNamespaceName(cnsName);
        }
 
        isRelativeName = !(childNamespaceName.isNull());
-    }
-    else
-    {
-        //l10n
-        //throw CIMInvalidParameterException("Invalid key property:  ");
-        throw CIMInvalidParameterException(MessageLoaderParms(
-            "ControlProviders.NamespaceProvider.NamespaceProvider."
-                "INVALID_KEY_PROPERTY",
-            "Invalid key property:  "));
-    }
+
+}
+
+static void _getKeyValue (
+	const CIMObjectPath&  instanceName,
+	CIMNamespaceName& childNamespaceName,
+	Boolean& isRelativeName)
+{
+
+       Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
+       if ((kbArray.size() == 1) &&
+                (kbArray[0].getName() == NAMESPACE_PROPERTYNAME))
+       {
+           String childNamespaceString = kbArray[0].getValue();
+
+           if (childNamespaceString != String::EMPTY)
+           {
+               childNamespaceName = childNamespaceString;
+           }
+
+           isRelativeName = !(childNamespaceName.isNull());
+       }
+       else
+       {
+       	//l10n
+           //throw CIMInvalidParameterException("Invalid key property:  ");
+           throw CIMInvalidParameterException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.INVALID_KEY_PROPERTY",
+           						"Invalid key property:  "));
+       }
 }
 
 static void _generateFullNamespaceName(
-    Array<CIMNamespaceName>& namespaceNames,
-    CIMNamespaceName& parentNamespaceName,
-    CIMNamespaceName& childNamespaceName,
-    Boolean isRelativeName,
-    CIMNamespaceName& fullNamespaceName)
+        Array<CIMNamespaceName>& namespaceNames,
+	CIMNamespaceName& parentNamespaceName,
+	CIMNamespaceName& childNamespaceName,
+	Boolean isRelativeName,
+	CIMNamespaceName& fullNamespaceName)
+
 {
-   // If isRelativeName is true, then the parentNamespace
-   // MUST exist
-   //
-   if (isRelativeName)
-   {
-        if (!Contains(namespaceNames, parentNamespaceName))
-        {
-            throw CIMObjectNotFoundException(MessageLoaderParms(
-                "ControlProviders.NamespaceProvider.NamespaceProvider."
-                    "PARENT_NAMESPACE_DOES_NOT_EXIST",
-                "Parent namespace does not exist: $0",
-                parentNamespaceName.getString()));
+       // If isRelativeName is true, then the parentNamespace
+       // MUST exist
+       //
+       if (isRelativeName)
+       {
+          if (!Contains(namespaceNames, parentNamespaceName))
+          {
+          	//l10n
+             //throw CIMObjectNotFoundException("Parent namespace does not exist: "
+                                      //+ parentNamespaceName.getString());
+             throw CIMObjectNotFoundException(MessageLoaderParms(
+             							"ControlProviders.NamespaceProvider.NamespaceProvider.PARENT_NAMESPACE_DOES_NOT_EXIST",
+             							"Parent namespace does not exist: $0",
+                                        parentNamespaceName.getString()));
+          }
+          // Create full namespace name by prepending parentNamespaceName
+          fullNamespaceName = CIMNamespaceName (parentNamespaceName.getString()
+              + "/" + childNamespaceName.getString());
         }
-        // Create full namespace name by prepending parentNamespaceName
-        fullNamespaceName = CIMNamespaceName (parentNamespaceName.getString()
-            + "/" + childNamespaceName.getString());
-    }
-    else
-    {
-      fullNamespaceName = parentNamespaceName;
-    }
+        else
+        {
+          fullNamespaceName = parentNamespaceName;
+	}
+
 }
 
 NamespaceProvider::NamespaceProvider(CIMRepository* repository)
@@ -249,27 +266,28 @@ void NamespaceProvider::modifyInstance(
 }
 
 void NamespaceProvider::createInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMInstance& myInstance,
-    ObjectPathResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceReference,
+        const CIMInstance& myInstance,
+	ObjectPathResponseHandler & handler)
     {
-        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-                         "NamespaceProvider::createInstance()");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::createInstance()");
 
-        CIMNamespaceName childNamespaceName;
-            CIMNamespaceName newNamespaceName;
-        Boolean isRelativeName;
+	CIMNamespaceName childNamespaceName;
+        CIMNamespaceName newNamespaceName;
+	Boolean isRelativeName;
 
        // Verify that the className = __namespace
        if (!myInstance.getClassName().equal(NAMESPACE_CLASSNAME))
        {
-            PEG_METHOD_EXIT();
-            throw CIMNotSupportedException(MessageLoaderParms(
-                "ControlProviders.NamespaceProvider.NamespaceProvider."
-                    "NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
-                "$0 not supported by Namespace Provider",
-                myInstance.getClassName().getString()));
+	   PEG_METHOD_EXIT();
+	   		//l10n
+           //throw CIMNotSupportedException(myInstance.getClassName().getString()
+               //+ " not supported by Namespace Provider");
+           throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						myInstance.getClassName().getString()));
 
        }
 
@@ -288,35 +306,47 @@ void NamespaceProvider::createInstance(
        _getKeyValue(myInstance, childNamespaceName, isRelativeName);
         CIMNamespaceName parentNamespaceName = instanceReference.getNameSpace();
 
-        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "childNamespaceName = %s, isRelativeName = %s, "
-               "parentNamespaceName = %s",
-               (const char*)childNamespaceName.getString().getCString(),
-               (isRelativeName?"true":"false"),
-               (const char*)parentNamespaceName.getString().getCString()));
+	PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "childNamespaceName = " + childNamespaceName.getString() +
+	       ", isRelativeName = " +
+	       (isRelativeName?String("true"):String("false")) +
+	       ", parentNamespaceName = " + parentNamespaceName.getString());
 
-       // begin processing the request
+	// begin processing the request
        handler.processing();
 
-       Array<CIMNamespaceName> namespaceNames;
-       namespaceNames = _repository->enumerateNameSpaces();
+       try
+       {
+           Array<CIMNamespaceName> namespaceNames;
+	   namespaceNames = _repository->enumerateNameSpaces();
 
-       _generateFullNamespaceName(
-           namespaceNames, parentNamespaceName,
-           childNamespaceName, isRelativeName,
-           newNamespaceName);
+           _generateFullNamespaceName(namespaceNames, parentNamespaceName,
+			             childNamespaceName, isRelativeName,
+				     newNamespaceName);
 
-       _repository->createNameSpace(newNamespaceName);
+	   _repository->createNameSpace(newNamespaceName);
 
-       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-           "Namespace = %s successfully created.",
-           (const char*)newNamespaceName.getString().getCString()));
+	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "Namespace = " + newNamespaceName.getString() +
+               " successfully created.");
+
+       }
+       catch(const CIMException&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
+       catch(const Exception&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
 
        // return key (i.e., CIMObjectPath) for newly created namespace
 
        Array<CIMKeyBinding> keyBindings;
        keyBindings.append(CIMKeyBinding(NAMESPACE_PROPERTYNAME,
-                 isRelativeName?childNamespaceName.getString():
+	         isRelativeName?childNamespaceName.getString():
                                 parentNamespaceName.getString(),
                                      CIMKeyBinding::STRING));
        CIMObjectPath newInstanceReference (String::EMPTY, parentNamespaceName,
@@ -331,25 +361,27 @@ void NamespaceProvider::createInstance(
    }
 
 void NamespaceProvider::deleteInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceName,
-    ResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & instanceName,
+	ResponseHandler & handler)
     {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::deleteInstance");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::deleteInstance");
 
-        CIMNamespaceName childNamespaceName;
+	CIMNamespaceName childNamespaceName;
         CIMNamespaceName deleteNamespaceName;
-        Boolean isRelativeName;
+	Boolean isRelativeName;
 
        // Verify that the className = __namespace
        if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
-            PEG_METHOD_EXIT();
-            throw CIMNotSupportedException(MessageLoaderParms(
-                "ControlProviders.NamespaceProvider.NamespaceProvider."
-                    "NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
-                "$0 not supported by Namespace Provider",
-                instanceName.getClassName().getString()));
+	   PEG_METHOD_EXIT();
+	   		//l10n
+           //throw CIMNotSupportedException(instanceName.getClassName().getString()
+               //+ " not supported by Namespace Provider");
+           throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						instanceName.getClassName().getString()));
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -367,37 +399,49 @@ void NamespaceProvider::deleteInstance(
        _getKeyValue(instanceName, childNamespaceName, isRelativeName);
        CIMNamespaceName parentNamespaceName = instanceName.getNameSpace();
 
-       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-              "childNamespaceName = %s, isRelativeName = %s, "
-              "parentNamespaceName = %s",
-              (const char*)childNamespaceName.getString().getCString(),
-              (isRelativeName?"true":"false"),
-              (const char*)parentNamespaceName.getString().getCString()));
+       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "childNamespaceName = " + childNamespaceName.getString() +
+	       (isRelativeName?String("true"):String("false")) +
+	       ", parentNamespaceName = " + parentNamespaceName.getString());
 
        // begin processing the request
        handler.processing();
 
-       Array<CIMNamespaceName> namespaceNames;
-       namespaceNames = _repository->enumerateNameSpaces();
-
-       _generateFullNamespaceName(
-           namespaceNames, parentNamespaceName,
-           childNamespaceName, isRelativeName,
-           deleteNamespaceName);
-
-       if (deleteNamespaceName.equal(ROOTNS))
+       try
        {
-           throw CIMNotSupportedException(MessageLoaderParms(
-               "ControlProviders.NamespaceProvider.NamespaceProvider."
-                   "ROOT_NAMESPACE_CANNOT_BE_DELETED",
-               "root namespace may be deleted."));
+           Array<CIMNamespaceName> namespaceNames;
+	   namespaceNames = _repository->enumerateNameSpaces();
+
+           _generateFullNamespaceName(namespaceNames, parentNamespaceName,
+			             childNamespaceName, isRelativeName,
+				     deleteNamespaceName);
+
+	   if (deleteNamespaceName.equal (ROOTNS))
+           {
+           		//l10n
+               //throw CIMNotSupportedException("root namespace may be deleted.");
+               throw CIMNotSupportedException(MessageLoaderParms(
+               					"ControlProviders.NamespaceProvider.NamespaceProvider.ROOT_NAMESPACE_CANNOT_BE_DELETED",
+               					"root namespace may be deleted."));
+           }
+
+	   _repository->deleteNameSpace(deleteNamespaceName);
+
+	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "Namespace = " + deleteNamespaceName.getString() +
+               " successfully deleted.");
+
        }
-
-       _repository->deleteNameSpace(deleteNamespaceName);
-
-       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-           "Namespace = %s successfully deleted.",
-           (const char*)deleteNamespaceName.getString().getCString()));
+       catch(const CIMException&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
+       catch(const Exception&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
 
        // complete processing the request
        handler.complete();
@@ -407,28 +451,30 @@ void NamespaceProvider::deleteInstance(
     }
 
 void NamespaceProvider::getInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceName,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList & properatyList,
-    InstanceResponseHandler & handler)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::getInstance");
+	const OperationContext & context,
+	const CIMObjectPath & instanceName,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & properatyList,
+	InstanceResponseHandler & handler)
+    {
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::getInstance");
 
-        CIMNamespaceName childNamespaceName;
+	CIMNamespaceName childNamespaceName;
         CIMNamespaceName getNamespaceName;
-        Boolean isRelativeName;
+	Boolean isRelativeName;
 
        // Verify that the className = __namespace
        if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
-            PEG_METHOD_EXIT();
-            throw CIMNotSupportedException(MessageLoaderParms(
-                "ControlProviders.NamespaceProvider.NamespaceProvider."
-                    "NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
-                "$0 not supported by Namespace Provider",
-                instanceName.getClassName().getString()));
+	   PEG_METHOD_EXIT();
+	   //l10n
+           //throw CIMNotSupportedException(instanceName.getClassName().getString()
+               //+ " not supported by Namespace Provider");
+           throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						instanceName.getClassName().getString()));
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -446,36 +492,49 @@ void NamespaceProvider::getInstance(
        _getKeyValue(instanceName, childNamespaceName, isRelativeName);
        CIMNamespaceName parentNamespaceName = instanceName.getNameSpace();
 
-       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-              "childNamespaceName = %s, isRelativeName = %s, "
-              "parentNamespaceName = %s",
-              (const char*)childNamespaceName.getString().getCString(),
-              (isRelativeName?"true":"false"),
-              (const char*)parentNamespaceName.getString().getCString()));
+       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "childNamespaceName = " + childNamespaceName.getString() +
+	       (isRelativeName?String("true"):String("false")) +
+	       ", parentNamespaceName = " + parentNamespaceName.getString());
 
        // begin processing the request
        handler.processing();
 
-       Array<CIMNamespaceName> namespaceNames;
-       namespaceNames = _repository->enumerateNameSpaces();
-
-       _generateFullNamespaceName(
-           namespaceNames, parentNamespaceName,
-           childNamespaceName, isRelativeName,
-           getNamespaceName);
-
-       if (!Contains(namespaceNames, getNamespaceName))
+       try
        {
-           throw CIMObjectNotFoundException(MessageLoaderParms(
-               "ControlProviders.NamespaceProvider.NamespaceProvider"
-                   ".NAMESPACE_DOES_NOT_EXIST",
-               "Namespace does not exist: $0",
-               getNamespaceName.getString()));
-       }
+           Array<CIMNamespaceName> namespaceNames;
+	   namespaceNames = _repository->enumerateNameSpaces();
 
-       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-           "Namespace = %s successfully found.",
-           (const char*)getNamespaceName.getString().getCString()));
+           _generateFullNamespaceName(namespaceNames, parentNamespaceName,
+			             childNamespaceName, isRelativeName,
+				     getNamespaceName);
+
+           if (!Contains(namespaceNames, getNamespaceName))
+           {
+           		//l10n
+              //throw CIMObjectNotFoundException("Namespace deos not exist: "
+                                     //+ getNamespaceName.getString());
+              throw CIMObjectNotFoundException(MessageLoaderParms(
+              				"ControlProviders.NamespaceProvider.NamespaceProvider.NAMESPACE_DOES_NOT_EXIST",
+              				"Namespace does not exist: $0",
+                            getNamespaceName.getString()));
+           }
+
+	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "Namespace = " + getNamespaceName.getString() +
+               " successfully found.");
+
+       }
+       catch(const CIMException&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
+       catch(const Exception&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
 
        //Set name of class
        CIMInstance instance(NAMESPACE_CLASSNAME);
@@ -484,7 +543,7 @@ void NamespaceProvider::getInstance(
        // construct the instance
        //
        instance.addProperty(CIMProperty(NAMESPACE_PROPERTYNAME,
-           isRelativeName?childNamespaceName.getString():
+	   isRelativeName?childNamespaceName.getString():
                           parentNamespaceName.getString()));
        //instance.setPath(instanceName);
 
@@ -495,29 +554,29 @@ void NamespaceProvider::getInstance(
 
        PEG_METHOD_EXIT();
        return ;
-}
+    }
 
 void NamespaceProvider::enumerateInstances(
-    const OperationContext & context,
-    const CIMObjectPath & ref,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler & handler)
-{
-       PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-                        "NamespaceProvider::enumerateInstances()");
+	const OperationContext & context,
+	const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+	InstanceResponseHandler & handler)
+    {
+       PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::enumerateInstances()");
 
        // Verify that ClassName == __Namespace
        if (!ref.getClassName().equal(NAMESPACE_CLASSNAME))
        {
-            PEG_METHOD_EXIT();
-
-            throw CIMNotSupportedException(MessageLoaderParms(
-                "ControlProviders.NamespaceProvider.NamespaceProvider."
-                    "NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
-                "$0 not supported by Namespace Provider",
-                ref.getClassName().getString()));
+           PEG_METHOD_EXIT();
+           //l10n
+           //throw CIMNotSupportedException(ref.getClassName().getString() +
+			   // " not supported by Namespace Provider");
+			throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						ref.getClassName().getString()));
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -534,52 +593,63 @@ void NamespaceProvider::enumerateInstances(
 
        CIMNamespaceName parentNamespaceName = ref.getNameSpace();
 
-       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "parentNamespaceName = %s",
-                (const char*)parentNamespaceName.getString().getCString()));
+       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "parentNamespaceName = " + parentNamespaceName.getString());
 
        // begin processing the request
        handler.processing();
 
        Array<CIMInstance> instanceArray;
 
-       Array<CIMNamespaceName> namespaceNames =
-           _repository->enumerateNameSpaces();
-
-       Boolean enumerateAllNamespaces =
-           (parentNamespaceName == PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE);
-
-       // Build the instances. For now simply build the __Namespace instances
-       // Note that for the moment, the only property is name.
-       for (Uint32 i = 0; i < namespaceNames.size(); i++)
+       try
        {
-           if (enumerateAllNamespaces ||
-               _isChild(parentNamespaceName, namespaceNames[i]))
-           {
-               String nsName = enumerateAllNamespaces ?
-                   namespaceNames[i].getString() :
-                   namespaceNames[i].getString().subString(
-                       parentNamespaceName.getString().size() + 1);
-               CIMInstance instance(NAMESPACE_CLASSNAME);
-               instance.addProperty(CIMProperty(
-                   NAMESPACE_PROPERTYNAME, nsName));
+	   Array<CIMNamespaceName> namespaceNames =
+               _repository->enumerateNameSpaces();
 
-               // Set the instance name
-               Array<CIMKeyBinding> keyBindings;
-               keyBindings.append(CIMKeyBinding(
-                   NAMESPACE_PROPERTYNAME, nsName, CIMKeyBinding::STRING));
-               CIMObjectPath instanceName(
-                   String::EMPTY,
-                   parentNamespaceName,
-                   NAMESPACE_CLASSNAME,
-                   keyBindings);
-               instance.setPath(instanceName);
+           Boolean enumerateAllNamespaces =
+               (parentNamespaceName == PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE);
 
-               instanceArray.append(instance);
-               PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                   "childNamespace = %s",
-                   (const char*)namespaceNames[i].getString().getCString()));
-           }
+	  // Build the instances. For now simply build the __Namespace instances
+	  // Note that for the moment, the only property is name.
+          for (Uint32 i = 0; i < namespaceNames.size(); i++)
+          {
+              if (enumerateAllNamespaces ||
+                  _isChild(parentNamespaceName, namespaceNames[i]))
+              {
+                  String nsName = enumerateAllNamespaces ?
+                      namespaceNames[i].getString() :
+                      namespaceNames[i].getString().subString(
+                          parentNamespaceName.getString().size() + 1);
+                  CIMInstance instance(NAMESPACE_CLASSNAME);
+                  instance.addProperty(CIMProperty(
+                      NAMESPACE_PROPERTYNAME, nsName));
+
+                  // Set the instance name
+                  Array<CIMKeyBinding> keyBindings;
+                  keyBindings.append(CIMKeyBinding(
+                      NAMESPACE_PROPERTYNAME, nsName, CIMKeyBinding::STRING));
+                  CIMObjectPath instanceName(
+                      String::EMPTY,
+                      parentNamespaceName,
+                      NAMESPACE_CLASSNAME,
+                      keyBindings);
+                  instance.setPath(instanceName);
+
+                  instanceArray.append(instance);
+                  PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	              "childNamespace = " + namespaceNames[i].getString());
+              }
+          }
+       }
+       catch(const CIMException&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
+       catch(const Exception&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
        }
 
        handler.deliver(instanceArray);
@@ -588,30 +658,34 @@ void NamespaceProvider::enumerateInstances(
        handler.complete();
 
        PEG_METHOD_EXIT();
-}
+    }
 
 void NamespaceProvider::enumerateInstanceNames(
-    const OperationContext & context,
-    const CIMObjectPath & classReference,
-    ObjectPathResponseHandler & handler)
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+        ObjectPathResponseHandler & handler)
     {
-        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+
+	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "NamespaceProvider::enumerateInstanceNames()");
+
 
         // Verify that ClassName == __Namespace
         if (!classReference.getClassName().equal(NAMESPACE_CLASSNAME))
         {
-            PEG_METHOD_EXIT();
-
-            throw CIMNotSupportedException(MessageLoaderParms(
-                "ControlProviders.NamespaceProvider.NamespaceProvider."
-                    "NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
-                "$0 not supported by Namespace Provider",
-                classReference.getClassName().getString()));
+	    PEG_METHOD_EXIT();
+	    //l10n
+            //throw CIMNotSupportedException
+                //(classReference.getClassName().getString() +
+			    //" not supported by Namespace Provider");
+			throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						classReference.getClassName().getString()));
         }
 
         //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
-        String userName;
+	String userName;
         try
         {
             IdentityContainer container = context.get(IdentityContainer::NAME);
@@ -622,48 +696,59 @@ void NamespaceProvider::enumerateInstanceNames(
            userName = String::EMPTY;
         }
 
-        CIMNamespaceName parentNamespaceName = classReference.getNameSpace();
-        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            "parentNamespaceName = %s",
-            (const char*)parentNamespaceName.getString().getCString()));
+       CIMNamespaceName parentNamespaceName = classReference.getNameSpace();
+       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+	       "parentNamespaceName = " + parentNamespaceName.getString());
 
-        Array<CIMObjectPath> instanceRefs;
+       Array<CIMObjectPath> instanceRefs;
 
-        Array<CIMNamespaceName> namespaceNames =
-            _repository->enumerateNameSpaces();
+       try
+       {
+	   Array<CIMNamespaceName> namespaceNames =
+               _repository->enumerateNameSpaces();
 
-        Boolean enumerateAllNamespaces =
-            (parentNamespaceName == PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE);
+           Boolean enumerateAllNamespaces =
+               (parentNamespaceName == PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE);
 
-        // Build the instances. Simply build the __Namespace instances
-        // Note, the only property is name.
-        for (Uint32 i = 0; i < namespaceNames.size(); i++)
-        {
-            if (enumerateAllNamespaces ||
-                _isChild(parentNamespaceName, namespaceNames[i]))
-            {
-                String nsName = enumerateAllNamespaces ?
-                    namespaceNames[i].getString() :
-                    namespaceNames[i].getString().subString(
-                        parentNamespaceName.getString().size() + 1);
-                Array<CIMKeyBinding> keyBindings;
-                keyBindings.append(CIMKeyBinding(
-                    NAMESPACE_PROPERTYNAME, nsName, CIMKeyBinding::STRING));
-                CIMObjectPath ref(
-                    String::EMPTY,
-                    parentNamespaceName,
-                    NAMESPACE_CLASSNAME,
-                    keyBindings);
-                instanceRefs.append(ref);
-                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                    "childNamespace = %s",
-                     (const char*)namespaceNames[i].getString().getCString()));
-            }
-        }
+	  // Build the instances. For now simply build the __Namespace instances
+	  // Note that for the moment, the only property is name.
+          for (Uint32 i = 0; i < namespaceNames.size(); i++)
+          {
+              if (enumerateAllNamespaces ||
+                  _isChild(parentNamespaceName, namespaceNames[i]))
+              {
+                  String nsName = enumerateAllNamespaces ?
+                      namespaceNames[i].getString() :
+                      namespaceNames[i].getString().subString(
+                          parentNamespaceName.getString().size() + 1);
+                  Array<CIMKeyBinding> keyBindings;
+                  keyBindings.append(CIMKeyBinding(
+                      NAMESPACE_PROPERTYNAME, nsName, CIMKeyBinding::STRING));
+                  CIMObjectPath ref(
+                      String::EMPTY,
+                      parentNamespaceName,
+                      NAMESPACE_CLASSNAME,
+                      keyBindings);
+                  instanceRefs.append(ref);
+                  PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                      "childNamespace = " + namespaceNames[i].getString());
+              }
+          }
+       }
+       catch(const CIMException&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
+       catch(const Exception&)
+       {
+            PEG_METHOD_EXIT();
+            throw;
+       }
 
-        handler.deliver(instanceRefs);
+	handler.deliver(instanceRefs);
 
-        handler.complete();
+	handler.complete();
 
         PEG_METHOD_EXIT();
 }

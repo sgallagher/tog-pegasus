@@ -106,7 +106,7 @@ int MP_Socket::ATTLS_zOS_query()
           case(ECONNRESET):
           {
               Logger::put_l(
-                  Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                  Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                   "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
                   "ATTLS reset the connection due to handshake failure. "
                       "Connection closed.");

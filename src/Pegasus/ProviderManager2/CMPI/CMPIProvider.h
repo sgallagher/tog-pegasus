@@ -157,8 +157,6 @@ public:
 
  //  typedef CMPIProviderFacade Base;
 
-    CMPIProvider(CMPIProvider*);
-
     virtual ~CMPIProvider(void);
 
     virtual void initialize(CIMOMHandle & cimom);

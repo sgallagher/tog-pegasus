@@ -370,11 +370,10 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
               // candidates above.
               for (Uint32 index = 0; index < upaIndex; index++)
                 {
+                  CMPIProvider *provider = unloadProviderArray[index];
                   PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                     "Now trying to unload CMPIProvider " +
                                     provider->getName ());
-                  CMPIProvider *provider = unloadProviderArray[index];
-
                   {
                       // lock the provider mutex
 

@@ -67,20 +67,6 @@ CMPIProvider::CMPIProvider(const String & name,
    Time::gettimeofday(&_idleTime);
 }
 
-CMPIProvider::CMPIProvider(CMPIProvider *pr)
-  : _status(UNINITIALIZED), _module(pr->_module), _cimom_handle(0), _name(pr->_name),
-    _no_unload(0), _rm(0), _threadWatchList(), _cleanedThreads()
-{
-   _current_operations = 1;
-   _currentSubscriptions = 0;
-   miVector=pr->miVector;
-   broker.hdl =0;
-   broker.provider = this;
-   _cimom_handle=new CIMOMHandle();
-   noUnload=pr->noUnload;
-   Time::gettimeofday(&_idleTime);
-}
-
 CMPIProvider::~CMPIProvider(void)
 {
     delete (CIMOMHandle*)broker.hdl;

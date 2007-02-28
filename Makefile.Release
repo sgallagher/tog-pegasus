@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 ifndef ROOT
  ifdef PEGASUS_ROOT
     ROOT =  $(subst \,/,$(PEGASUS_ROOT))
@@ -45,44 +47,39 @@ include $(ROOT)/mak/recurse.mak
 FORCE:
 
 rebuild: FORCE
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release -i cimstop
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release clean
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release create_ProductVersionFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release create_CommonProductDirectoriesInclude
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release create_ConfigProductDirectoriesInclude
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release depend
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release all
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release repository
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release stage
+	@$(MAKE) -f $(ROOT)/Makefile.Release -i cimstop
+	@$(MAKE) -f $(ROOT)/Makefile.Release clean 
+	@$(MAKE) -f $(ROOT)/Makefile.Release create_ProductVersionFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release create_CommonProductDirectoriesInclude
+	@$(MAKE) -f $(ROOT)/Makefile.Release create_ConfigProductDirectoriesInclude
+	@$(MAKE) -f $(ROOT)/Makefile.Release depend
+	@$(MAKE) -f $(ROOT)/Makefile.Release all 
+	@$(MAKE) -f $(ROOT)/Makefile.Release repository
+	@$(MAKE) -f $(ROOT)/Makefile.Release stage
 	@$(ECHO) "build completed successfully"
 
 repository: FORCE
-	$(CHMOD) $(Prwxrwxrwx) $(PEGASUS_HOME)
 	$(MAKE) "-SC" Schemas/Pegasus repository
 
 stage: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release prestage_verifyInstallEnabled
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release prestage_cleanup
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusDirectories
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusEmptyFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_genOpenPegasusSSLCertsFile
-	$(MAKE) --directory=$(ROOT) -f mak/SDKMakefile stageSDK
+	$(MAKE) -f $(ROOT)/Makefile.Release prestage_verifyInstallEnabled
+	$(MAKE) -f $(ROOT)/Makefile.Release prestage_cleanup
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusDirectories 
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusFiles 
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusEmptyFiles 
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_genOpenPegasusSSLCertsFile
+	$(MAKE) -f $(ROOT)/mak/SDKMakefile stageSDK
 ifdef PEGASUS_BUILD_TEST_RPM
-	$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest stageTEST
+	$(MAKE) -f $(ROOT)/Makefile.ReleaseTest stageTEST
 endif
 
 preinstall: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release prestage_verifyInstallEnabled
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDirectories
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusFiles
-
-PEGASUS_PROVIDER_MANAGERS =
-
+	$(MAKE) -f $(ROOT)/Makefile.Release prestage_verifyInstallEnabled
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusDirectories 
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusFiles 
+	
 PEGASUS_LIBRARIES = \
    libCIMxmlIndicationHandler \
-   libFileListenerDestination \
-   libcimrsserver    \
    libConfigSettingProvider \
    libNamespaceProvider \
    libProviderRegistrationProvider \
@@ -90,8 +87,6 @@ PEGASUS_LIBRARIES = \
    libpegauthentication \
    libpegclient \
    libpegcliutils \
-   libpeghandler \
-   libpeggeneral \
    libpegcommon \
    libpegcompiler \
    libpegconfig \
@@ -101,7 +96,6 @@ PEGASUS_LIBRARIES = \
    libpeghandlerservice \
    libpegindicationservice \
    libpeglistener \
-   libpegpmrouter \
    libpegpmservice \
    libpegprm \
    libpegprovider \
@@ -114,55 +108,20 @@ PEGASUS_LIBRARIES = \
    libCertificateProvider \
    libpegqueryexpression \
    libpegquerycommon \
-   libpegservice
+   libInteropProvider \
+   libCIMOMStatDataProvider \
+   libpegservice 
 
-ifeq ($(PEGASUS_ENABLE_CQL),true)
+ifndef PEGASUS_DISABLE_CQL
    PEGASUS_LIBRARIES += \
       libpegcql \
       libCIMQueryCapabilitiesProvider
 endif
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 PEGASUS_LIBRARIES += \
+   libCMPIProviderManager \
    libcmpiCppImpl
-PEGASUS_PROVIDER_MANAGERS += \
-   libCMPIProviderManager
-endif
-
-PEGASUS_JARS =
-JAR_SUFFIX = .jar
-
-ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
-PEGASUS_LIBRARIES += \
-   libJMPIProviderManager
-PEGASUS_JARS += \
-   JMPIImpl
-endif
-
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-PEGASUS_LIBRARIES += \
-   libInteropProvider
-endif
-
-ifeq ($(PEGASUS_USE_NET_SNMP),true)
-   PEGASUS_LIBRARIES += \
-      libsnmpIndicationHandler
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-PEGASUS_LIBRARIES += \
-    libpegwsmserver
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-PEGASUS_LIBRARIES += \
-    libpegwebserver
-endif
-
-ifeq ($(PEGASUS_ENABLE_SLP), true)
-PEGASUS_LIBRARIES += \
-    libpegslp \
-    libpegslp_client
 endif
 
 ifeq ($(OS),HPUX)
@@ -177,14 +136,9 @@ PEGASUS_LIBRARY_LINKS = \
    libDefaultProviderManager \
    libCIMxmlIndicationHandler
 
-ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
-   PEGASUS_LIBRARY_LINKS += \
-       libJMPIProviderManager
-endif
-
-ifeq ($(PEGASUS_USE_NET_SNMP),true)
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 PEGASUS_LIBRARY_LINKS += \
-   libsnmpIndicationHandler
+   libCMPIProviderManager
 endif
 
 PEGASUS_PROVIDERS = \
@@ -207,14 +161,7 @@ PEGASUS_ADMIN_CMDS = \
    cimprovagt \
    cimservera \
    cimreparchive \
-   cimtrust \
    repupgrade
-
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-   PEGASUS_ADMIN_CMDS += \
-      cimservermain \
-      cimshutdown
-endif
 
 PEGASUS_USER_CMDS = \
    cimmof \
@@ -225,36 +172,273 @@ PEGASUS_USER_CMDS = \
    wbemexec
 
 PEGASUS_GENERATED_SCRIPTS = \
-   genOpenPegasusSSLCerts
+   genOpenPegasusSSLCerts \
+   init_repository
 
-#############################################################################
-## If needed, you can use the PEGASUS_CVS_SCRIPTS variable to include
-## one or more script files in an OpenPegasus release.  Scripts should be
-## placed in the CVS directory pegasus/installs/scripts.
-#############################################################################
+ifeq ($(OS),linux)
+   PEGASUS_CVS_SCRIPTS += \
+      settogpath
+endif
 
 PEGASUS_SCRIPT_FILES = \
    $(PEGASUS_GENERATED_SCRIPTS) \
    $(PEGASUS_CVS_SCRIPTS)
+ 
+
+PEGASUS_REPOSITORY_DIRS = \
+   root\
+   root\#PG_Internal \
+   root\#PG_InterOp \
+   root\#cimv2
 
 PEGASUS_UNIX_MAN_USER_PAGES = \
    cimmof.1 \
    cimprovider.1 \
    cimsub.1 \
    osinfo.1 \
-   wbemexec.1
+   wbemexec.1 
 
 PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimauth.8 \
    cimconfig.8 \
    cimreparchive.8 \
-   cimtrust.8 \
    cimserver.8
 
 PEGASUS_DOC_FILES = \
    Admin_Guide_Release.pdf \
    PegasusSSLGuidelines.htm \
    license.txt
+
+CIM29_MOF_FILES = \
+   Application_AppRuntime.mof \
+   Application_BIOS.mof \
+   Application_CheckAction.mof \
+   Application_DeploymentModel.mof \
+   Application_InstalledProduct.mof \
+   Application_J2eeAppServer.mof \
+   Application_J2eeAppServerStats.mof \
+   Application_SystemSoftware.mof \
+   CIM_Application.mof \
+   CIM_Core.mof \
+   CIM_Database.mof \
+   CIM_Device.mof \
+   CIM_Event.mof \
+   CIM_IPsecPolicy.mof \
+   CIM_Interop.mof \
+   CIM_Metrics.mof \
+   CIM_Network.mof \
+   CIM_Physical.mof \
+   CIM_Policy.mof \
+   CIM_Schema.mof \
+   CIM_Support.mof \
+   CIM_System.mof \
+   CIM_User.mof \
+   Core_Capabilities.mof \
+   Core_Collection.mof \
+   Core_CoreElements.mof \
+   Core_Device.mof \
+   Core_MethodParms.mof \
+   Core_Physical.mof \
+   Core_PowerMgmt.mof \
+   Core_ProductFRU.mof \
+   Core_Qualifiers.mof \
+   Core_Redundancy.mof \
+   Core_Service.mof \
+   Core_Settings.mof \
+   Core_Software.mof \
+   Core_Statistics.mof \
+   Core_StorageExtent.mof \
+   Database_Statistics.mof \
+   Database_Storage.mof \
+   Database_System.mof \
+   Device_Controller.mof \
+   Device_CoolingAndPower.mof \
+   Device_DeviceElements.mof \
+   Device_DiskGroup.mof \
+   Device_FC.mof \
+   Device_IB.mof \
+   Device_Memory.mof \
+   Device_Modems.mof \
+   Device_NetworkAdapter.mof \
+   Device_Ports.mof \
+   Device_Printing.mof \
+   Device_Processor.mof \
+   Device_ProtocolController.mof \
+   Device_SccExtents.mof \
+   Device_Sensors.mof \
+   Device_StorageDevices.mof \
+   Device_StorageExtents.mof \
+   Device_StorageLib.mof \
+   Device_StorageServices.mof \
+   Device_USB.mof \
+   Device_UserDevices.mof \
+   Metrics_BaseMetric.mof \
+   Metrics_UnitOfWork.mof \
+   Network_BGP.mof \
+   Network_Buffers.mof \
+   Network_Collections.mof \
+   Network_Filtering.mof \
+   Network_IPsec.mof \
+   Network_OSPF.mof \
+   Network_Pipes.mof \
+   Network_ProtocolEndpoints.mof \
+   Network_QoS.mof \
+   Network_Routes.mof \
+   Network_RoutingForwarding.mof \
+   Network_SNMP.mof \
+   Network_SwitchingBridging.mof \
+   Network_Systems.mof \
+   Network_VLAN.mof \
+   Physical_Component.mof \
+   Physical_Connector.mof \
+   Physical_Link.mof \
+   Physical_Misc.mof \
+   Physical_Package.mof \
+   Physical_PhysicalMedia.mof \
+   Physical_StoragePackage.mof \
+   System_Boot.mof \
+   System_Diagnostics.mof \
+   System_FileElements.mof \
+   System_Help.mof \
+   System_Logs.mof \
+   System_OperatingSystem.mof \
+   System_Processing.mof \
+   System_SystemElements.mof \
+   System_SystemResources.mof \
+   System_Time.mof \
+   System_Unix.mof \
+   User_AccessControl.mof \
+   User_Account.mof \
+   User_AuthenticationReqmt.mof \
+   User_Credential.mof \
+   User_Group.mof \
+   User_Identity.mof \
+   User_Kerberos.mof \
+   User_Org.mof \
+   User_Privilege.mof \
+   User_PrivilegeManagementService.mof \
+   User_PublicKey.mof \
+   User_Role.mof \
+   User_SecurityLevel.mof \
+   User_SecurityServices.mof \
+   User_SharedSecret.mof \
+   User_StorageHardwareID.mof \
+   User_UsersAccess.mof
+
+CIM28_MOF_FILES = \
+   Application28_AppRuntime.mof \
+   Application28_BIOS.mof \
+   Application28_CheckAction.mof \
+   Application28_DeploymentModel.mof \
+   Application28_InstalledProduct.mof \
+   Application28_J2eeAppServer.mof \
+   Application28_J2eeAppServerStats.mof \
+   Application28_SystemSoftware.mof \
+   CIM_Application28.mof \
+   CIM_Core28.mof \
+   CIM_Database28.mof \
+   CIM_Device28.mof \
+   CIM_Event28.mof \
+   CIM_Interop28.mof \
+   CIM_IPsecPolicy28.mof \
+   CIM_Metrics28.mof \
+   CIM_Network28.mof \
+   CIM_Physical28.mof \
+   CIM_Policy28.mof \
+   CIM_Schema28.mof \
+   CIM_Support28.mof \
+   CIM_System28.mof \
+   CIM_User28.mof \
+   Core28_Capabilities.mof \
+   Core28_Collection.mof \
+   Core28_CoreElements.mof \
+   Core28_Device.mof \
+   Core28_MethodParms.mof \
+   Core28_Physical.mof \
+   Core28_PowerMgmt.mof \
+   Core28_ProductFRU.mof \
+   Core28_Qualifiers.mof \
+   Core28_Redundancy.mof \
+   Core28_Service.mof \
+   Core28_Settings.mof \
+   Core28_Software.mof \
+   Core28_Statistics.mof \
+   Core28_StorageExtent.mof \
+   Database28_Statistics.mof \
+   Database28_Storage.mof \
+   Database28_System.mof \
+   Device28_Controller.mof \
+   Device28_CoolingAndPower.mof \
+   Device28_DeviceElements.mof \
+   Device28_DiskGroup.mof \
+   Device28_FC.mof \
+   Device28_IB.mof \
+   Device28_Memory.mof \
+   Device28_Modems.mof \
+   Device28_NetworkAdapter.mof \
+   Device28_Ports.mof \
+   Device28_Printing.mof \
+   Device28_Processor.mof \
+   Device28_ProtocolController.mof \
+   Device28_SccExtents.mof \
+   Device28_Sensors.mof \
+   Device28_StorageDevices.mof \
+   Device28_StorageExtents.mof \
+   Device28_StorageLib.mof \
+   Device28_StorageServices.mof \
+   Device28_USB.mof \
+   Device28_UserDevices.mof \
+   Metrics28_BaseMetric.mof \
+   Metrics28_UnitOfWork.mof \
+   Network28_BGP.mof \
+   Network28_Buffers.mof \
+   Network28_Collections.mof \
+   Network28_Filtering.mof \
+   Network28_IPsec.mof \
+   Network28_OSPF.mof \
+   Network28_Pipes.mof \
+   Network28_ProtocolEndpoints.mof \
+   Network28_QoS.mof \
+   Network28_Routes.mof \
+   Network28_RoutingForwarding.mof \
+   Network28_SNMP.mof \
+   Network28_SwitchingBridging.mof \
+   Network28_Systems.mof \
+   Network28_VLAN.mof \
+   Physical28_Component.mof \
+   Physical28_Connector.mof \
+   Physical28_Link.mof \
+   Physical28_Misc.mof \
+   Physical28_Package.mof \
+   Physical28_PhysicalMedia.mof \
+   Physical28_StoragePackage.mof \
+   System28_Boot.mof \
+   System28_Diagnostics.mof \
+   System28_FileElements.mof \
+   System28_Logs.mof \
+   System28_OperatingSystem.mof \
+   System28_Processing.mof \
+   System28_SystemElements.mof \
+   System28_SystemResources.mof \
+   System28_Time.mof \
+   System28_Unix.mof \
+   User28_AccessControl.mof \
+   User28_Account.mof \
+   User28_AuthenticationReqmt.mof \
+   User28_Credential.mof \
+   User28_Group.mof \
+   User28_Identity.mof \
+   User28_Kerberos.mof \
+   User28_Org.mof \
+   User28_PrivilegeManagementService.mof \
+   User28_Privilege.mof \
+   User28_PublicKey.mof \
+   User28_Role.mof \
+   User28_SecurityLevel.mof \
+   User28_SecurityServices.mof \
+   User28_SharedSecret.mof \
+   User28_StorageHardwareID.mof \
+   User28_UsersAccess.mof
 
 INTERNAL_MOF_FILES = \
    PG_Authorization20.mof \
@@ -270,13 +454,6 @@ INTEROP_MOF_FILES = \
    PG_InterOpSchema20.mof \
    PG_ProviderModule20.mof
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-   INTEROP_MOF_FILES += \
-      PG_CIMXMLCommunicationMechanism20.mof \
-      PG_Namespace20.mof\
-      PG_ServerProfile20.mof
-endif
-
 MANAGEDSYSTEM_MOF_FILES = \
    PG_ComputerSystem20.mof \
    PG_ComputerSystem20R.mof \
@@ -286,11 +463,6 @@ MANAGEDSYSTEM_MOF_FILES = \
    PG_OperatingSystem20R.mof \
    PG_UnixProcess20.mof \
    PG_UnixProcess20R.mof
-
-ifeq ($(PEGASUS_ENABLE_SLP), true)
-   MANAGEDSYSTEM_MOF_FILES += \
-      PG_SLPProvider20R.mof
-endif
 
 prestage_verifyInstallEnabled: FORCE
 ifndef PEGASUS_ENABLE_MAKE_INSTALL
@@ -309,129 +481,123 @@ stage_PegasusProductDirectories: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
-	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)
 
 setpermissions_PegasusProductDirectories: FORCE
-	$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
+	$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
 
 stage_PegasusSocketDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
 	
 setpermissions_PegasusSocketDirectory: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
-
-stage_PegasusVarRunDirectory: FORCE
-	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_VARRUN_DIR)
-
-setpermissions_PegasusVarRunDirectory: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARRUN_DIR)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
 	
 stage_PegasusLocalAuthDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
 	
 setpermissions_PegasusLocalAuthDirectory: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
-
-stage_PegasusJarFiles: FORCE
-	$(foreach i, $(PEGASUS_JARS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(JAR_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(JAR_SUFFIX);)
-
-setpermissions_PegasusJarFiles: FORCE
-	$(foreach i, $(PEGASUS_JARS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(JAR_SUFFIX);)
-
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
 	
 stage_PegasusLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_LIBRARIES), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-	$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
-ifeq ($(PEGASUS_ENABLE_SLP), true)
-	$(COPY) $(PEGASUS_HOME)/lib/libpegslp_client$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/libpegslp_client$(LIB_SUFFIX)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=libpegslp_client$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/libpegslp_client$(LIB_LINK_SUFFIX)
-endif
+	$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(MAKE) -f $(ROOT)/Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
 
 setpermissions_PegasusLibraryDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_LIBRARIES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-
+	$(foreach i, $(PEGASUS_LIBRARIES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
 stage_PegasusProviderLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
-ifeq ($(PEGASUS_ENABLE_SLP), true)
-	$(COPY) $(PEGASUS_HOME)/lib/libSLPProvider$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_SUFFIX)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release createlink OBJECT=libSLPProvider$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_LINK_SUFFIX)
-endif
+	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
 
 setpermissions_PegasusProviderLibraryDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-ifeq ($(PEGASUS_ENABLE_SLP), true)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_SUFFIX)
-endif
-
-stage_PegasusProviderManagerLibraryDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(MAKE) --directory=${ROOT} -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
-
-setpermissions_PegasusProviderManagerLibraryDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(MAKE) --directory=${ROOT} -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
+	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
 
 stage_PegasusAdminCmdsDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
 	$(foreach i, $(PEGASUS_CVS_SCRIPTS), $(COPY) $(PEGASUS_ROOT)/installs/scripts/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/$(i);)
+	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
+	@$(ECHO-E) "PEGASUS_MOF_DIR=$(PEGASUS_MOF_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
+	@$(ECHO-E) "PEGASUS_CIMXX_MOF_DIR=$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
+	@$(ECHO-E) "PEGASUS_REPOSITORY_DIR=$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
+	@$(ECHO-E) "PEGASUS_BIN_DIR=$(PEGASUS_BIN_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
+	@$(ECHO-E) "PEGASUS_CIM_SCHEMA=$(PEGASUS_CIM_SCHEMA_VERSION)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
+	@$(CAT) $(PEGASUS_ROOT)/installs/scripts/init_repository >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
 
 setpermissions_PegasusAdminCmdsDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
-	$(foreach i, $(PEGASUS_SCRIPT_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
+	$(foreach i, $(PEGASUS_SCRIPT_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/$(i);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/init_repository
 
 stage_PegasusUserCmdsDirectoryFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
 	$(foreach i, $(PEGASUS_USER_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE);)
 
 setpermissions_PegasusUserCmdsDirectoryFiles: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
-	$(foreach i, $(PEGASUS_USER_CMDS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
+	$(foreach i, $(PEGASUS_USER_CMDS), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE);)
 
-stage_PegasusRepository: FORCE
+stage_RepositoryNamespaceDirectory: FORCE
+	$(CPDIRHIER) $(NAMESPACE_DIR_NAME) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)
+
+setpermissions_RepositoryNamespaceDirectory: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
+
+stage_PegasusRepositoryDirectories: FORCE
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
-	$(CPDIRHIER) $(PEGASUS_HOME)/repository $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_PARENT_DIR)
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
+	$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(MAKE) --directory=$(PEGASUS_HOME)/repository -f $(ROOT)/Makefile.Release stage_RepositoryNamespaceDirectory NAMESPACE_DIR_NAME=$(i);)
 
-setpermissions_PegasusRepository: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
+setpermissions_PegasusRepositoryDirectories: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
+	$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions_RepositoryNamespaceDirectory NAMESPACE_DIR_NAME=$(i);)
 
 stage_PegasusUnixManPageDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man1.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
 	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man8.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
 
 setpermissions_PegasusUnixManPageDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
-	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
 
 stage_PegasusDocFiles: FORCE
 	$(foreach i, $(PEGASUS_DOC_FILES), $(COPY) $(ROOT)/doc/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
-	$(COPY) $(ROOT)/OpenPegasusNOTICE.txt \
-            $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/OpenPegasusNOTICE.txt
 
 setpermissions_PegasusDocFiles: FORCE
-	$(foreach i, $(PEGASUS_DOC_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_DOC_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
 
+copyCIMSchemaFiles: FORCE
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
+	$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), $(COPY) $(ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i);)
+	
+setpermissions_CIMSchemaFiles: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
+	$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i);)
+	
 stage_PegasusMOFDirectoryFiles: FORCE
+	$(MAKE) --directory=$(ROOT)/Schemas -f $(ROOT)/Makefile.Release copyCIMSchemaFiles
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
 	$(foreach i, $(INTERNAL_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/Internal/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 	$(foreach i, $(INTEROP_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/InterOp/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 	$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/ManagedSystem/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 
 setpermissions_PegasusMOFDirectoryFiles: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
-	$(foreach i, $(INTERNAL_MOF_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
-	$(foreach i, $(INTEROP_MOF_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
-	$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_CIMSchemaFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
+	$(foreach i, $(INTERNAL_MOF_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
+	$(foreach i, $(INTEROP_MOF_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
+	$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 
-stage_PegasusConfFiles: FORCE
-	$(COPY) $(ROOT)/src/Server/cimserver_planned.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
+stage_PegasusVarDataDirectoryFiles: FORCE
+	$(COPY) $(ROOT)/src/Server/cimserver_planned.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
-setpermissions_PegasusConfFiles: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
+setpermissions_PegasusVarDataDirectoryFiles: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
 stage_genOpenPegasusSSLCertsFile: FORCE
 	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
@@ -454,70 +620,90 @@ stage_genOpenPegasusSSLCertsFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-genSSLCerts.spec >> \
              $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
 
+stage_SSLRandomSeedFiles: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
+
+setpermissions_SSLRandomSeedFiles: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
+
+stage_ServerCertificateFiles: FORCE
+ifdef PEGASUS_SSL_RANDOMFILE
+	$(OPENSSL_COMMAND) req -x509 -days 3650 -newkey rsa:2048 -rand $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE) -nodes -config $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf -keyout $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE) -out $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) 
+else
+	$(OPENSSL_COMMAND) req -x509 -days 3650 -newkey rsa:2048 -nodes -config $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf -keyout $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE) -out $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) 
+endif
+
+setpermissions_ServerCertificateFiles: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE)
+
+stage_ClientCertificateFiles: FORCE
+	$(COPY) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
+
+setpermissions_ClientCertificateFiles: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
+
 stage_PegasusDirectories: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusProductDirectories
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusSocketDirectory
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusLocalAuthDirectory
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusProductDirectories
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusSocketDirectory
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusLocalAuthDirectory
 
 setpermissions_PegasusDirectories: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusProductDirectories
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusSocketDirectory
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusLocalAuthDirectory
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusProductDirectories
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusSocketDirectory
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusLocalAuthDirectory
 
 stage_PegasusFiles: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusLibraryDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusProviderLibraryDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusProviderManagerLibraryDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusAdminCmdsDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusUserCmdsDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusConfFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusRepository
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusUnixManPageDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusDocFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusMOFDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusSystemFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusJarFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusLibraryDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusProviderLibraryDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusAdminCmdsDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusUserCmdsDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusVarDataDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusRepositoryDirectories
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusUnixManPageDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusDocFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusMOFDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusSystemFiles
 
 setpermissions_PegasusFiles: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusLibraryDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusProviderLibraryDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusProviderManagerLibraryDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusAdminCmdsDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusUserCmdsDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusConfFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusRepository
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusUnixManPageDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDocFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusMOFDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusSystemFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusJarFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusLibraryDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusProviderLibraryDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusAdminCmdsDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusUserCmdsDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusVarDataDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusRepositoryDirectories
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusUnixManPageDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusDocFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusMOFDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusSystemFiles
 
 stage_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
 ifdef PEGASUS_PAM_AUTHENTICATION
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)
-	$(COPY) $(ROOT)/rpm/wbem $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)
+	$(COPY) $(ROOT)/rpm/wbem $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
 	$(COPY) $(ROOT)/rpm/access.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)/etc/init.d
-	$(COPY) $(ROOT)/rpm/preamble-tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	@$(ECHO-E) "CIMSERVER_BIN=$(PEGASUS_SBIN_DIR)/cimserver" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	@$(ECHO-E) "PEGASUS_SCRIPT_DIR=$(PEGASUS_SCRIPT_DIR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_CONF_FILE=$(PEGASUS_PEM_DIR)/ssl.cnf" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_CERT_FILE=$(PEGASUS_SSL_CERT_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_KEY_FILE=$(PEGASUS_SSL_KEY_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_TRUSTSTORE=$(PEGASUS_SSL_CLIENT_TRUSTSTORE)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	@$(ECHO-E) "PEGASUS_FLAVOR=$(PEGASUS_FLAVOR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
-	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc | $(TAIL) -n+29 >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	$(COPY) $(ROOT)/rpm/preamble-tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "CIMSERVER_BIN=$(PEGASUS_SBIN_DIR)/cimserver" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SCRIPT_DIR=$(PEGASUS_SCRIPT_DIR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_CONF_FILE=$(PEGASUS_PEM_DIR)/ssl.cnf" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_CERT_FILE=$(PEGASUS_SSL_CERT_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_KEY_FILE=$(PEGASUS_SSL_KEY_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_TRUSTSTORE=$(PEGASUS_SSL_CLIENT_TRUSTSTORE)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
 endif
 
 setpermissions_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
 ifdef PEGASUS_PAM_AUTHENTICATION
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_______)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_______)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)etc/init.d/tog-pegasus
 endif
 
 stage_PegasusEmptyFiles: FORCE
@@ -534,11 +720,11 @@ ifdef PEGASUS_PRODUCT_VERSION
 ifdef PEGASUS_PRODUCT_STATUS
 	@$(ECHO-E) "#ifndef Product_Version_h" > $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define Product_Version_h" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
-	@$(ECHO-E) "" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) " " >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_NAME "\""$(PEGASUS_PRODUCT_NAME)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_VERSION "\""$(PEGASUS_PRODUCT_VERSION)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_STATUS "\""$(PEGASUS_PRODUCT_STATUS)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
-	@$(ECHO-E) "" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) " " >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_CIMOM_GENERIC_NAME \"Pegasus\"" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_CIMOM_DESCRIPTION \"\"" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#endif /* Product_Version_h */" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
@@ -553,52 +739,72 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
              > $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "#define Common_Product_Directory_Structure_h" \
              >>  $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "" \
+	@$(ECHO-E) " " \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_FILE"  \
-             "\""$(PEGASUS_CIMSERVER_START_FILE)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_LOCK_FILE"  \
-             "\""$(PEGASUS_CIMSERVER_START_LOCK_FILE)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_REPOSITORY_DIR"  \
-             "\""$(PEGASUS_REPOSITORY_DIR)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CURRENT_CONFIG_FILE_PATH"  \
-             "\""$(PEGASUS_CURRENT_CONFIG_FILE_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_PLANNED_CONFIG_FILE_PATH"  \
-             "\""$(PEGASUS_PLANNED_CONFIG_FILE_PATH)"\"" \
+	@$(ECHO-E) "# undef PEGASUS_SSLCLIENT_CERTIFICATEFILE" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSLCLIENT_CERTIFICATEFILE"  \
              "\""$(PEGASUS_SSL_CLIENT_TRUSTSTORE)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_SSLCLIENT_RANDOMFILE" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSLCLIENT_RANDOMFILE"  \
              "\""$(PEGASUS_VARDATA_DIR)/ssl.rnd"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_SSLSERVER_RANDOMFILE"  \
-             "\""$(PEGASUS_VARDATA_DIR)/cimserver.rnd"\"" \
+	@$(ECHO-E) "# undef PEGASUS_LOCAL_AUTH_DIR" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_LOCAL_AUTH_DIR"  \
              "\""$(PEGASUS_LOCAL_AUTH_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH"  \
              "\""$(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CORE_DIR" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_CORE_DIR"  \
-             "\""$(PEGASUS_CORE_DIR)"\"" \
+             "\""$(PEGASUS_VARDATA_CACHE_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PAM_STANDALONE_PROC_NAME" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PAM_STANDALONE_PROC_NAME"  \
              "\""$(PEGASUS_SBIN_DIR)/cimservera"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PROVIDER_AGENT_PROC_NAME" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PROVIDER_AGENT_PROC_NAME"  \
              "\""$(PEGASUS_SBIN_DIR)/cimprovagt"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "" \
+	@$(ECHO-E) "# undef CIMSERVER_LOCK_FILE" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define CIMSERVER_LOCK_FILE"  \
+             "\""$(CIMSERVER_LOCK_FILE)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PLANNED_CONFIG_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PLANNED_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_PLANNED_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CURRENT_CONFIG_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CURRENT_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_CURRENT_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CIMSERVER_START_FILE" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_FILE"  \
+             "\""$(PEGASUS_CIMSERVER_START_FILE)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_REPOSITORY_DIR"  \
+             "\""$(PEGASUS_REPOSITORY_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) " " \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "#endif /* Common_Product_Directory_Structure_h */ " \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 endif
+
 
 create_ConfigProductDirectoriesInclude: FORCE
 ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
@@ -606,39 +812,84 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
              > $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "#define Config_Product_Directory_Structure_h" \
              >>  $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "" \
+	@$(ECHO-E) " " \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PLANNED_CONFIG_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PLANNED_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_PLANNED_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CURRENT_CONFIG_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CURRENT_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_CURRENT_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CIMSERVER_START_FILE" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_FILE"  \
+             "\""$(PEGASUS_CIMSERVER_START_FILE)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_LOG_DIR" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_LOG_DIR"  \
              "\""$(PEGASUS_LOG_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_TRACE_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_TRACE_FILE_PATH"  \
              "\""$(PEGASUS_TRACE_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_CONFIG_DIR" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_CONFIG_DIR"  \
              "\""$(PEGASUS_CONFIG_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_SSL_CERT_FILE_PATH" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_CERT_FILE_PATH"  \
              "\""$(PEGASUS_SSL_CERT_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_SSL_KEY_FILE_PATH" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_KEY_FILE_PATH"  \
              "\""$(PEGASUS_SSL_KEY_FILE_PATH)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_SSL_SERVER_TRUSTSTORE" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_SERVER_TRUSTSTORE"  \
              "\""$(PEGASUS_SSL_SERVER_TRUSTSTORE)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_SSL_EXPORT_TRUSTSTORE" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_SSL_EXPORT_TRUSTSTORE"  \
+             "\""$(PEGASUS_SSL_EXPORT_TRUSTSTORE)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_SSL_SERVER_CRL" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_SERVER_CRL"  \
              "\""$(PEGASUS_SSL_SERVER_CRL)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_REPOSITORY_DIR" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_REPOSITORY_DIR"  \
+             "\""$(PEGASUS_REPOSITORY_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PREV_REPOSITORY_DIR" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PREV_REPOSITORY_DIR"  \
              "\""$(PEGASUS_PREV_REPOSITORY_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# undef PEGASUS_PROVIDER_LIB_DIR" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PROVIDER_LIB_DIR"  \
              "\""$(PEGASUS_PROVIDER_LIB_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_PROVIDER_MANAGER_LIB_DIR"  \
-             "\""$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)"\"" \
+	@$(ECHO-E) "# undef PEGASUS_MESSAGE_DIR" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "" \
+	@$(ECHO-E) "# define PEGASUS_MESSAGE_DIR"  \
+             "\""$(PEGASUS_MESSAGE_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) " " \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "#endif /* Config_Product_Directory_Structure_h */ " \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
@@ -660,7 +911,7 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_PROVIDER_LIB_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(ECHO-E) "ls -ld $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)" \
+	@$(ECHO-E) "ls -ld $(PEGASUS_REPOSITORY_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
@@ -669,8 +920,6 @@ create_ProductInstallationVerificationScript: FORCE
 	@$(foreach i, $(PEGASUS_DOC_FILES), \
              $(ECHO-E) "ls -l $(PEGASUS_DOC_DIR)/$(i)" \
                  >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
-	@$(ECHO-E) "ls -l $(PEGASUS_DOC_DIR)/OpenPegasusNOTICE.txt" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS LIBRARIES FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_LIBRARIES), $(ECHO-E) \
@@ -678,18 +927,6 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(ECHO-E) \
              "ls -l $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
-ifeq ($(PEGASUS_ENABLE_SLP), true)
-	@(ECHO-E) "ls -l $(PEGASUS_DEST_LIB_DIR)/libpegslp_client$(LIB_LINK_SUFFIX)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
-endif
-	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS PACKAGED PROVIDER MANAGER FILES\"" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
-             "ls -l $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
-	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
-             "ls -l $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS PACKAGED PROVIDER FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
@@ -699,12 +936,6 @@ endif
 	@$(foreach i, $(PEGASUS_PROVIDERS), $(ECHO-E) \
              "ls -l $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
-ifeq ($(PEGASUS_ENABLE_SLP), true)
-	@(ECHO-E) "ls -l $(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_SUFFIX)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@(ECHO-E) "ls -l $(PEGASUS_PROVIDER_LIB_DIR)/libSLPProvider$(LIB_LINK_SUFFIX)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
-endif
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS ADMIN CMD FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_ADMIN_CMDS), $(ECHO-E) \
@@ -722,8 +953,9 @@ endif
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS REPOSITORY FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(ECHO-E) "ls -lR $(PEGASUS_REPOSITORY_DIR)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
+	@$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(ECHO-E) \
+             "ls -ld $(PEGASUS_REPOSITORY_DIR)/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS MAN FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(ECHO-E) \
@@ -742,6 +974,8 @@ endif
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_SSL_SERVER_TRUSTSTORE)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_SSL_EXPORT_TRUSTSTORE)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS CONF FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_CONFIG_DIR)/ssl.cnf*" \
@@ -752,7 +986,7 @@ endif
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PAM_CONFIG_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(ECHO-E) "ls -l $(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)" \
+	@$(ECHO-E) "ls -l $(PAM_CONFIG_DIR)/wbem" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS TRACE FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
@@ -766,29 +1000,29 @@ endif
 
 create_OpenPegasusRPMSpecFile: FORCE
 	@$(RM) $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release \
+	@$(MAKE) -f $(ROOT)/Makefile.Release \
             _append_OpenPegasusLicenseToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_PreambleToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_PackagesToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_prepSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_buildSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_installSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_cleanSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_preSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_postSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_preunSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f mak/SDKMakefile \
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_PreambleToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_PackagesToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_prepSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_buildSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_installSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_cleanSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_preSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_preunSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/mak/SDKMakefile \
             PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) \
             _append_preunSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest \
+	@$(MAKE) -f $(ROOT)/Makefile.ReleaseTest \
             PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) \
             _append_preunSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_postunSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release _append_filesSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f mak/SDKMakefile \
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postunSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.Release _append_filesSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/mak/SDKMakefile \
             PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) \
             _append_filesSectionToSpecFile
-	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest \
+	@$(MAKE) -f $(ROOT)/Makefile.ReleaseTest \
             PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) \
             _append_filesSectionToSpecFile
 
@@ -796,7 +1030,7 @@ _append_OpenPegasusLicenseToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-header.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# WARNING: This file is automatically generated by executing" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# WARNING: This file is automatically generated by executing " >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#   make -f pegasus/Makefile.Release create_OpenPegasusRPMSpecFile" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# Any changes made directly to this file in the OpenPegasus source will" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# be lost the next time this file is regenerated and submitted to CVS." >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -804,49 +1038,16 @@ _append_OpenPegasusLicenseToSpecFile: FORCE
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_PreambleToSpecFile: FORCE
-	@$(ECHO-E) "%define Flavor  $(PEGASUS_FLAVOR)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%define packageVersion $(PEGASUS_PACKAGE_VERSION)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Version: $(PEGASUS_PRODUCT_VERSION)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "Release:"\
-            "%{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}" \
+	@$(ECHO-E) "Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Epoch:   1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-intro.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-buildRequires.spec \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifeq ($(PEGASUS_USE_NET_SNMP),true)
-	@$(ECHO-E) "BuildRequires:      net-snmp-devel" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-endif
-	@$(ECHO-E) "#" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section " \
-            "pegasus/rpm/tog-specfiles/tog-pegasus-buildRequires.spec" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-requires.spec \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifeq ($(PEGASUS_USE_NET_SNMP),true)
-	@$(ECHO-E) "Requires:           net-snmp" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-endif
-	@$(ECHO-E) "#" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section " \
-            "pegasus/rpm/tog-specfiles/tog-pegasus-requires.spec" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-desc.spec \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch.spec \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch-for-32bit-provider-support.spec \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_ARCH_LIB %{_lib}" >> \
@@ -878,11 +1079,8 @@ endif
 	@$(ECHO-E) "%global PEGASUS_CIMSERVER_START_FILE" \
              "$(PEGASUS_CIMSERVER_START_FILE)"  \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_TRACE_FILE_PATH" \
-             "$(PEGASUS_TRACE_FILE_PATH)"  \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_CIMSERVER_START_LOCK_FILE" \
-             "$(PEGASUS_CIMSERVER_START_LOCK_FILE)"  \
+	@$(ECHO-E) "%global CIMSERVER_LOCK_FILE" \
+             "$(CIMSERVER_LOCK_FILE)"  \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_REPOSITORY_DIR $(PEGASUS_REPOSITORY_DIR)" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -904,7 +1102,7 @@ endif
              "\044RPM_BUILD_DIR/\044RPM_PACKAGE_NAME-\044RPM_PACKAGE_VERSION"\
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) \
-             "%global PEGASUS_RPM_HOME %PEGASUS_RPM_ROOT/build"\
+             "%global PEGASUS_RPM_HOME \044RPM_BUILD_ROOT/build/tog-pegasus"\
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG $(PEGASUS_LOG_DIR)/install.log"\
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -944,32 +1142,14 @@ _append_preSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-pre.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-	@$(ECHO-E) "# When Privilege Separation is enabled, create the" \
-            "'$(CIMSERVERMAIN_USR)' user and">> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# '$(CIMSERVERMAIN_GRP)' group which are used" \
-            "as the context of the cimservermain process" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "if [ \044\061 -gt 0 ]; then" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "    /usr/sbin/groupadd $(CIMSERVERMAIN_GRP) > /dev/null" \
-            "2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "    /usr/sbin/useradd -c \"$(PEGASUS_FLAVOR)-pegasus OpenPegasus"\
-            "WBEM/CIM services\" \\" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "        -g $(CIMSERVERMAIN_GRP) -s /sbin/nologin -r -d" \
-            "%PEGASUS_VARDATA_DIR $(CIMSERVERMAIN_USR) \\" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "        > /dev/null 2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-endif
-
+ 
 _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "%post" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "if [ \044\061 -eq 1 ]; then" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release \
+	@$(MAKE) -f $(ROOT)/Makefile.Release \
             _append_postSectionToSpecFile_createLog
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release \
+	@$(MAKE) -f $(ROOT)/Makefile.Release \
             _append_postSectionToSpecFile_createSymbolicLinks
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-post.spec \
@@ -977,44 +1157,16 @@ _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "elif [ \044\061 -gt 1 ]; then" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   # Check if the cimserver is running" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   isRunning=\`ps -el | grep cimserver | grep -v" \
-            "\"grep cimserver\"\`" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "       /etc/init.d/$(PEGASUS_FLAVOR)-pegasus stop" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then" \
-                   >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "       # The old repository was moved to" \
-                   "/var/lib/Pegasus/prev_repository. It should now be" \
-                   "upgraded to the new repository /var/lib/Pegasus/repository." \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "       %PEGASUS_SBIN_DIR/repupgrade >> %PEGASUS_INSTALL_LOG 2>&1" \
+	@$(ECHO-E) "     # Running Repository Upgrade utility" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-	@$(ECHO-E) "       chown -R $(CIMSERVERMAIN_USR) %PEGASUS_REPOSITORY_DIR" \
+	@$(ECHO-E) "     %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "       chgrp -R $(CIMSERVERMAIN_GRP) %PEGASUS_REPOSITORY_DIR" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-endif
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-	@$(ECHO-E) "   if [ -f %PEGASUS_TRACE_FILE_PATH ]; then" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "     /bin/mv %PEGASUS_TRACE_FILE_PATH" \
-         "%PEGASUS_TRACE_FILE_PATH-\`date '+%Y-%m-%d-%R'\`" \
-	    >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-endif
-	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "       /etc/init.d/$(PEGASUS_FLAVOR)-pegasus start" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   /etc/init.d/tog-pegasus condrestart" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
@@ -1034,25 +1186,6 @@ _append_postSectionToSpecFile_createSymbolicLinks: FORCE
             "   ln -sf $(i)$(LIB_SUFFIX)\
             $(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   # Create Symbolic Links for Packaged Provider Managers"\
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   #" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
-            "   ln -sf $(i)$(LIB_SUFFIX)\
-            $(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) "   # Create Symbolic Links for SLP library and SLP Provider" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   #" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) " %if %{EXTERNAL_SLP_REQUESTED}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   ln -sf    libpegslp_client$(LIB_SUFFIX)\
-            $(PEGASUS_DEST_LIB_DIR_2)/libpegslp_client$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   ln -sf    libSLPProvider$(LIB_SUFFIX)\
-            $(PEGASUS_PROVIDER_LIB_DIR_2)/libSLPProvider$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) " %endif " >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_postSectionToSpecFile_createLog: FORCE
@@ -1086,76 +1219,57 @@ _append_postunSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-postun.spec \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-	@$(ECHO-E) "# When Privilege Separation is enabled, delete the" \
-            "'$(CIMSERVERMAIN_USR)' user and">> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# '$(CIMSERVERMAIN_GRP)' group which are used" \
-            "as the context of the cimservermain process" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "if [ \044\061 -eq 0 ]; then" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "    /usr/sbin/userdel $(CIMSERVERMAIN_USR) > /dev/null" \
-            "2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "    /usr/sbin/groupdel $(CIMSERVERMAIN_GRP) > /dev/null" \
-            "2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-endif
 
 # %defattr(file permissions, owner, group, directory permissions)
 # The %ghost directive instructs RPM not to install the specified file(s).
 #     They will be owned by that package and removed if they exists when
 #     the package is removed. This can be useful for things like log files
-#     and state files.
+#     and state files. 
 
 _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%files" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%defattr($(Prw_______),$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP),$(Prwx______))" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%defattr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_xr_x))"\
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_MOF_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%defattr($(Prw_______),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_xr_x))" \
+	@$(ECHO-E) "%defattr($(Prw_______), $(INSTALL_USR),"\
+             "$(INSTALL_GRP), $(Prwxr_xr_x))" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), \
              if [ $(i) != $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR) ]; then \
              if [ $(i) != $(PEGASUS_REPOSITORY_DIR) ]; then \
              if [ $(i) != $(PEGASUS_TRACE_DIR) ]; then \
              if [ $(i) != $(PEGASUS_CONFIG_DIR) ]; then \
-             if [ $(i) != $(PEGASUS_VARRUN_DIR) ]; then \
-             if [ $(i) != $(PEGASUS_MOF_DIR) ]; then \
                    $(ECHO-E) "%dir $(i)" >> \
-             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi; fi;fi;)
-	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_DIR_2)" \
+             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi;) 
+	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2)" \
-              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)" \
+	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))"\
-              "$(PEGASUS_CONFIG_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir" \
-              "%attr($(Prwxr_xr_x),$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP))"\
-              "$(PEGASUS_VARRUN_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr(1755,$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP))"\
+	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(CIMSERVER_USR)," \
+             "$(CIMSERVER_GRP)) $(PEGASUS_CONFIG_DIR)" \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr(1555,$(CIMSERVER_USR),$(CIMSERVER_GRP))" \
              "$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxrwxrwt),$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP))" \
+	@$(ECHO-E) "%dir %attr($(Prwxrwxrwt),$(INSTALL_USR),$(INSTALL_GRP))" \
              "$(PEGASUS_TRACE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Prwxr_x___), $(CIMSERVER_USR)," \
+             "$(CIMSERVER_GRP)) $(PEGASUS_REPOSITORY_DIR)" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)/*" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/*" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/Pegasus/*" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))"\
-            "/etc/init.d/$(PEGASUS_FLAVOR)-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+            "/etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace)" \
-            "%attr($(Prw_r__r__),$(CIMSERVER_USR),$(CIMSERVER_GRP))" \
-            "$(PEGASUS_CONFIG_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" \
+            "$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace) $(PEGASUS_CONFIG_DIR)/access.conf" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace) $(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)" \
+	@$(ECHO-E) "%config(noreplace) $(PAM_CONFIG_DIR)/wbem" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%ghost %config(noreplace)" \
@@ -1173,75 +1287,32 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%ghost $(PEGASUS_INSTALL_LOG)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))" \
+           "$(PEGASUS_SBIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_SBIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_BIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+           "$(PEGASUS_BIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_DEST_LIB_DIR_2)/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%if %{JMPI_PROVIDER_REQUESTED}"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_DEST_LIB_DIR_2)/*$(JAR_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/libJMPIProviderManager$(LIB_LINK_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_PROVIDER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir /usr/lib/Pegasus" \
-              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir /usr/lib/Pegasus/providers" \
-              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir /usr/lib/Pegasus/providerManagers" \
-              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "/usr/lib/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "/usr/lib/Pegasus/providerManagers/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "/usr/lib/libpegclient.so"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "/usr/lib/libpegcommon.so"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "/usr/lib/libpegprovider.so"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "/usr/lib/libDefaultProviderManager.so" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "/usr/lib/Pegasus/providerManagers/libCMPIProviderManager.so" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+           "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
-	   "$(PEGASUS_MANUSER_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
-	   "$(PEGASUS_MANADMIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	   "$(PEGASUS_MANUSER_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "%attr($(Prw_r_____),$(INSTALL_USR),$(INSTALL_GRP))" \
+	   "$(PEGASUS_MANADMIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_DOC_FILES), \
             $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP))"\
             "$(PEGASUS_DOC_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
-	   "$(PEGASUS_DOC_DIR)/OpenPegasusNOTICE.txt" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
             $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
             $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) " %if %{EXTERNAL_SLP_REQUESTED}"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/libpegslp_client$(LIB_LINK_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR_2)/libSLPProvider$(LIB_LINK_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), \
-            $(ECHO-E) "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 include $(ROOT)/mak/commands.mak

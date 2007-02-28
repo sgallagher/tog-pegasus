@@ -69,9 +69,6 @@ CMPIProvider::CMPIProvider(const String & name,
 
 CMPIProvider::~CMPIProvider(void)
 {
-    delete (CIMOMHandle*)broker.hdl;
-	PEGASUS_ASSERT ( _threadWatchList.size () == 0 );
-	PEGASUS_ASSERT ( _cleanedThreads.size () == 0 );
 }
 
 CMPIProvider::Status CMPIProvider::getStatus(void)
@@ -128,7 +125,7 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
 			      String & name,
                               CMPI_Broker & broker)
 {
-        broker.hdl=new CIMOMHandle(cimom);
+        broker.hdl=& cimom;
         broker.bft=CMPI_Broker_Ftab;
         broker.eft=CMPI_BrokerEnc_Ftab;
         broker.xft=CMPI_BrokerExt_Ftab;
@@ -191,8 +188,6 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
 
 		if (error.size() != 0)
 		 {
-			delete (CIMOMHandle*)broker.hdl;
-			broker.hdl =0;
 		    	throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
             			"ProviderInitFailure: Error initializing $0 the following API(s): $1",
 				realProviderName,

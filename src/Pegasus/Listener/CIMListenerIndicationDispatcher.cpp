@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-//
-// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
-//
-// Modified By:	Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +62,7 @@ public:
 
 	String getURL() const;
 	CIMInstance getIndicationInstance() const;
-        ContentLanguageList getContentLanguages() const; 
+        ContentLanguageList getContentLanguages() const;
 
 private:
 	CIMIndicationConsumer*	_consumer;
@@ -111,13 +106,13 @@ class CIMListenerIndicationDispatcherRep
 public:
 	CIMListenerIndicationDispatcherRep();
 	virtual ~CIMListenerIndicationDispatcherRep();
-	
+
 	Boolean addConsumer(CIMIndicationConsumer* consumer);
 	Boolean removeConsumer(CIMIndicationConsumer* consumer);
 
 	CIMExportIndicationResponseMessage* handleIndicationRequest(CIMExportIndicationRequestMessage* request);
 
-	
+
 	static ThreadReturnType PEGASUS_THREAD_CDECL deliver_routine(void *param);
 
 private:
@@ -135,14 +130,14 @@ CIMListenerIndicationDispatcherRep::CIMListenerIndicationDispatcherRep()
 	deallocateWait))
 ,_consumers(new PtrList())
 {
-	      
+
 }
 CIMListenerIndicationDispatcherRep::~CIMListenerIndicationDispatcherRep()
 {
 	delete _thread_pool;
 	delete _consumers;
 }
-	
+
 Boolean CIMListenerIndicationDispatcherRep::addConsumer(CIMIndicationConsumer* consumer)
 {
 	_consumers->add(consumer);
@@ -165,7 +160,7 @@ CIMExportIndicationResponseMessage* CIMListenerIndicationDispatcherRep::handleIn
 
 	deliverIndication(url,instance,contentLangs);
 
-	// compose a response message  
+	// compose a response message
 	CIMException cimException;
 
 	CIMExportIndicationResponseMessage* response = new CIMExportIndicationResponseMessage(
@@ -185,7 +180,8 @@ void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
                                                            ContentLanguageList contentLangs)
 {
 	// go thru all consumers and broadcast the result; should be run in seperate thread
-	Iterator* it = _consumers->iterator();
+        AutoPtr<Iterator> it( _consumers->iterator() );
+
 	while(it->hasNext()==true)
 	{
 		CIMIndicationConsumer* consumer = static_cast<CIMIndicationConsumer*>(it->next());
@@ -195,12 +191,12 @@ void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
                                                                                      instance,
                                                                                      contentLangs);
 		ThreadStatus rtn = _thread_pool->allocate_and_awaken(event,deliver_routine);
-		
-    		if (rtn != PEGASUS_THREAD_OK) 
+
+    		if (rtn != PEGASUS_THREAD_OK)
     		{
 	    	    Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::TRACE,
 				"Not enough threads to allocate a worker to deliver the event. ");
- 
+
 	    	    Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
 				"Could not allocate thread to deliver event. Instead using current thread.");
 		    delete event;
@@ -225,7 +221,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL CIMListenerIndicationDispatcherRep::delive
 
 		delete event;
 	}
-		
+
 	return (0);
 }
 
@@ -248,18 +244,18 @@ CIMListenerIndicationDispatcher::~CIMListenerIndicationDispatcher()
 void CIMListenerIndicationDispatcher::handleEnqueue()
 {
 	PEG_METHOD_ENTER(TRC_SERVER, "CIMListenerIndicationDispatcher::handleEnqueue");
-	
+
 	Message *message = dequeue();
 	if(message)
 		handleEnqueue(message);
-	
+
 	PEG_METHOD_EXIT();
 }
 
 void CIMListenerIndicationDispatcher::handleEnqueue(Message* message)
 {
 	PEG_METHOD_ENTER(TRC_SERVER, "CIMListenerIndicationDispatcher::handleEnqueue");
-	
+
 	if(message!=NULL)
 	{
 		switch (message->getType())
@@ -268,7 +264,7 @@ void CIMListenerIndicationDispatcher::handleEnqueue(Message* message)
 				{
 					CIMExportIndicationRequestMessage* request = (CIMExportIndicationRequestMessage*)message;
 
-					CIMExportIndicationResponseMessage* response = 
+					CIMExportIndicationResponseMessage* response =
 						static_cast<CIMListenerIndicationDispatcherRep*>(_rep)->handleIndicationRequest(request);
 
 					_enqueueResponse(request, response);
@@ -276,10 +272,10 @@ void CIMListenerIndicationDispatcher::handleEnqueue(Message* message)
 				break;
 		default:
 			break;
-    }	
+    }
     delete message;
-	}	
-   
+	}
+
 	PEG_METHOD_EXIT();
 }
 Boolean CIMListenerIndicationDispatcher::addConsumer(CIMIndicationConsumer* consumer)

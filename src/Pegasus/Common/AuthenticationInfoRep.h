@@ -104,13 +104,6 @@ public:
 
     void   setAuthSecret(const String& secret);
 
-    Boolean isPrivileged() const
-    {
-        return _privileged;
-    }
-
-    void   setPrivileged(Boolean privileged);
-
     Boolean isAuthenticated() const
     {
         return (_authStatus == AUTHENTICATED) ? true : false;
@@ -142,15 +135,13 @@ public:
     void setSecurityAssociation();
 #endif
 
-    //PEP187
     Array<SSLCertificateInfo*> getClientCertificateChain()
     {
         return _clientCertificate;
     }
 
-    //PEP187
-    void setClientCertificateChain(Array<SSLCertificateInfo*>
-                                      clientCertificate);
+    void setClientCertificateChain(
+        Array<SSLCertificateInfo*> clientCertificate);
 
     void setRemotePrivilegedUserAccessChecked()
     {
@@ -161,7 +152,6 @@ public:
     {
         return _wasRemotePrivilegedUserAccessChecked;
     }
-
 
 private:
 
@@ -176,7 +166,6 @@ private:
     String  _authPassword;
     String  _authChallenge;
     String  _authSecret;
-    Boolean _privileged;
     String  _authType;
     AuthStatus _authStatus;
     String  _ipAddress;

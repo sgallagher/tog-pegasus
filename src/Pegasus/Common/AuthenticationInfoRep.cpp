@@ -48,7 +48,6 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _authPassword(String::EMPTY),
     _authChallenge(String::EMPTY),
     _authSecret(String::EMPTY),
-    _privileged(false),
     _authType(String::EMPTY),
     _authStatus(NEW_REQUEST),
     _wasRemotePrivilegedUserAccessChecked(false)
@@ -114,16 +113,6 @@ void   AuthenticationInfoRep::setAuthSecret(const String& secret)
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthSecret");
 
     _authSecret = secret;
-
-    PEG_METHOD_EXIT();
-}
-
-void   AuthenticationInfoRep::setPrivileged(Boolean privileged)
-{
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setPrivileged");
-
-    _privileged = privileged;
 
     PEG_METHOD_EXIT();
 }

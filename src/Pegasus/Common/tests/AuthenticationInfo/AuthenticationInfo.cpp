@@ -80,14 +80,6 @@ void test01()
     PEGASUS_TEST_ASSERT(ret_setAuthSecret == TEST_SECRET);
 
     /**
-	    Added to cover the Function
-        void AuthenticationInfo::setPrivileged(Boolean privileged)
-    */
-    PEGASUS_TEST_ASSERT(authInfo.isPrivileged() == false);
-    authInfo.setPrivileged(true);
-    PEGASUS_TEST_ASSERT(authInfo.isPrivileged() == true);
-
-    /**
         Added to cover the Function
         void AuthenticationInfo::setAuthType(const String& authType)
     */

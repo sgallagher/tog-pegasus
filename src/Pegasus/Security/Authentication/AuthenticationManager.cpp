@@ -206,22 +206,6 @@ Boolean AuthenticationManager::performPegasusAuthentication
         return false;
     }
 
-//
-// Note: Pegasus LocalPrivileged authentication is not being used, but the
-// code is kept here so that we can use it in the future if needed.
-//
-#if defined(PEGASUS_LOCAL_PRIVILEGED_AUTHENTICATION)
-    if ( String::equalNoCase(authType, "LocalPrivileged") )
-    {
-        if (authInfo->isAuthenticated() && authInfo->isPrivileged() &&
-            String::equal(userName, authInfo->getAuthenticatedUser()))
-        {
-            PEG_METHOD_EXIT();
-            return true;
-        }
-    }
-#endif
-
     if ( String::equalNoCase(authType, "Local") )
     {
         if (authInfo->isAuthenticated() &&
@@ -252,18 +236,6 @@ Boolean AuthenticationManager::performPegasusAuthentication
     if ( authenticated )
     {
         authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
-
-#if defined(PEGASUS_LOCAL_PRIVILEGED_AUTHENTICATION)
-        if ( String::equal(authType, "LocalPrivileged") )
-        {
-            authInfo->setPrivileged(true);
-        }
-        else
-        {
-            authInfo->setPrivileged(false);
-        }
-#endif
-
         authInfo->setAuthType(authType);
     }
 

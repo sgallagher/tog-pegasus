@@ -228,24 +228,6 @@ public:
         _rep->setAuthSecret(secret);
     }
 
-    /** Returns the connection type of the previous authenticated request
-        @return true if the connection is privileged, false otherwise
-    */
-    Boolean isPrivileged() const
-    {
-        _checkRep();
-        return _rep->isPrivileged();
-    }
-
-    /** Set the privileged flag to the specified value
-        @param privileged - boolean flag indicating the connection type
-    */
-    void   setPrivileged(Boolean privileged)
-    {
-        _checkRep();
-        _rep->setPrivileged(privileged);
-    }
-
     /** Is the request authenticated
     */
     /** Returns the authentication status of the current connection.

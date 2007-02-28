@@ -74,13 +74,6 @@ static const String DIGEST_AUTH_HEADER          = "Authorization: Digest ";
 static const String LOCAL_AUTH_HEADER           =
                              "PegasusAuthorization: Local";
 
-/**
-    Constant representing the local privileged authentication header.
-*/
-static const String LOCALPRIVILEGED_AUTH_HEADER =
-                             "PegasusAuthorization: LocalPrivileged";
-
-
 
 ClientAuthenticator::ClientAuthenticator()
 {
@@ -135,11 +128,7 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
            throw InvalidAuthHeader();
        }
 
-       if ( String::equal(authType, "LocalPrivileged"))
-       {
-           _authType = ClientAuthenticator::LOCALPRIVILEGED;
-       }
-       else if ( String::equal(authType, "Local"))
+       if (String::equal(authType, "Local"))
        {
            _authType = ClientAuthenticator::LOCAL;
        }
@@ -156,8 +145,7 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
            throw InvalidAuthHeader();
        }
 
-       if ( _authType == ClientAuthenticator::LOCAL ||
-           _authType == ClientAuthenticator::LOCALPRIVILEGED )
+       if (_authType == ClientAuthenticator::LOCAL)
        {
            String filePath = authRealm;
            FileSystem::translateSlashes(filePath);
@@ -245,27 +233,6 @@ String ClientAuthenticator::buildRequestAuthHeader()
         //    }
             break;
 
-        case ClientAuthenticator::LOCALPRIVILEGED:
-
-            challengeResponse = LOCALPRIVILEGED_AUTH_HEADER;
-            challengeResponse.append(" \"");
-
-            if (_userName.size())
-            {
-                 challengeResponse.append(_userName);
-            }
-            else
-            {
-                //
-                // Get the privileged user name on the system
-                //
-                challengeResponse.append(System::getPrivilegedUserName());
-            }
-
-            challengeResponse.append(_buildLocalAuthResponse());
-
-            break;
-
         case ClientAuthenticator::LOCAL:
 
             challengeResponse = LOCAL_AUTH_HEADER;
@@ -344,7 +311,6 @@ void ClientAuthenticator::setAuthType(ClientAuthenticator::AuthType type)
     PEGASUS_ASSERT( (type == ClientAuthenticator::BASIC) ||
          (type == ClientAuthenticator::DIGEST) ||
          (type == ClientAuthenticator::LOCAL) ||
-         (type == ClientAuthenticator::LOCALPRIVILEGED) ||
          (type == ClientAuthenticator::NONE) );
 
     _authType = type;

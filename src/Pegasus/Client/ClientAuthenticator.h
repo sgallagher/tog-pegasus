@@ -49,7 +49,7 @@ class PEGASUS_CLIENT_LINKAGE ClientAuthenticator
 {
 public:
 
-    enum AuthType { NONE, BASIC, DIGEST, LOCAL, LOCALPRIVILEGED };
+    enum AuthType { NONE, BASIC, DIGEST, LOCAL };
 
     /** Constuctor. */
     ClientAuthenticator();

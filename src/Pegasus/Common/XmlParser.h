@@ -157,7 +157,10 @@ public:
 
     XmlParser(char* text);
 
-    Boolean next(XmlEntry& entry);
+    /** Comments are returned with entry if includeComment is true else 
+        XmlParser ignores comments. Default is false.
+    */
+    Boolean next(XmlEntry& entry, Boolean includeComment = false);
 
     void putBack(XmlEntry& entry);
 

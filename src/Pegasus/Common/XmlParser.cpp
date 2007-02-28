@@ -502,7 +502,7 @@ static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
     }
 }
 
-Boolean XmlParser::next(XmlEntry& entry)
+Boolean XmlParser::next(XmlEntry& entry, Boolean includeComment)
 {
     if (!_putBackStack.isEmpty())
     {
@@ -524,74 +524,75 @@ Boolean XmlParser::next(XmlEntry& entry)
         _restoreChar = '\0';
     }
 
-    // Skip over any whitespace:
-
-    _skipWhitespace(_line, _current);
-
-    if (!*_current)
+    // Loop until we are done with comments if includeComment is false.
+    do
     {
-        if (nullTerminator)
-            *nullTerminator = '\0';
+        // Skip over any whitespace:
+        _skipWhitespace(_line, _current);
 
-        if (!_stack.isEmpty())
-            throw XmlException(XmlException::UNCLOSED_TAGS, _line);
-
-        return false;
-    }
-
-    // Either a "<...>" or content begins next:
-
-    if (*_current == '<')
-    {
-        _current++;
-        _getElement(_current, entry);
-
-        if (nullTerminator)
-            *nullTerminator = '\0';
-
-        if (entry.type == XmlEntry::START_TAG)
+        if (!*_current)
         {
-            if (_stack.isEmpty() && _foundRoot)
-                throw XmlException(XmlException::MULTIPLE_ROOTS, _line);
+            if (nullTerminator)
+                *nullTerminator = '\0';
 
-            _foundRoot = true;
-            _stack.push((char*)entry.text);
-        }
-        else if (entry.type == XmlEntry::END_TAG)
-        {
-            if (_stack.isEmpty())
-                throw XmlException(XmlException::START_END_MISMATCH, _line);
+            if (!_stack.isEmpty())
+                throw XmlException(XmlException::UNCLOSED_TAGS, _line);
 
-            if (strcmp(_stack.top(), entry.text) != 0)
-                throw XmlException(XmlException::START_END_MISMATCH, _line);
-
-            _stack.pop();
+            return false;
         }
 
-        return true;
-    }
-    else
-    {
-        // Normalize the content:
+        // Either a "<...>" or content begins next:
 
-        char* start;
-        _normalize(_line, _current, '<', start);
+        if (*_current == '<')
+        {
+            _current++;
+            _getElement(_current, entry);
 
-        // Get the content:
+            if (nullTerminator)
+                *nullTerminator = '\0';
 
-        entry.type = XmlEntry::CONTENT;
-        entry.text = start;
+            if (entry.type == XmlEntry::START_TAG)
+            {
+                if (_stack.isEmpty() && _foundRoot)
+                    throw XmlException(XmlException::MULTIPLE_ROOTS, _line);
 
-        // Overwrite '<' with a null character (temporarily).
+                _foundRoot = true;
+                _stack.push((char*)entry.text);
+            }
+            else if (entry.type == XmlEntry::END_TAG)
+            {
+                if (_stack.isEmpty())
+                    throw XmlException(XmlException::START_END_MISMATCH, _line);
 
-        _restoreChar = *_current;
-        *_current = '\0';
+                if (strcmp(_stack.top(), entry.text) != 0)
+                    throw XmlException(XmlException::START_END_MISMATCH, _line);
 
-        if (nullTerminator)
-            *nullTerminator = '\0';
+                _stack.pop();
+            }
+        }
+        else
+        {
+            // Normalize the content:
 
-        return true;
-    }
+            char* start;
+            _normalize(_line, _current, '<', start);
+
+            // Get the content:
+
+            entry.type = XmlEntry::CONTENT;
+            entry.text = start;
+
+            // Overwrite '<' with a null character (temporarily).
+
+            _restoreChar = *_current;
+            *_current = '\0';
+
+            if (nullTerminator)
+                *nullTerminator = '\0';
+        }
+    }while (!includeComment && entry.type == XmlEntry::COMMENT);
+
+    return true;
 }
 
 void XmlParser::putBack(XmlEntry& entry)

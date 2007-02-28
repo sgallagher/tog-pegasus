@@ -1,9 +1,11 @@
+<!-- ATTN: DO not modify comments in this file. Testcase checks for comments. -->
+                                <!--Test XML file-->
 <?xml version="1.0" ?><CIM CIMVERSION="2.0" DTDVERSION="2.0" ><DECLARATION><DECLGROUP>
-
+<!-- CIM_ManagedElement Class definition -->
 <VALUE.OBJECT>
-<CLASS NAME="CIM_ManagedElement">
+<CLASS NAME="CIM_ManagedElement"> <!-- End of Class START TAG -->
 <QUALIFIER NAME="Abstract" TYPE="boolean" TOSUBCLASS="false">
-<VALUE>TRUE</VALUE></QUALIFIER>
+<VALUE> <!-- Qualifier value --> TRUE <!-- This is end --> </VALUE></QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TOSUBCLASS="false">
 <VALUE>ManagedElement is an abstract class that provides a common superclass (or top of the inheritance tree) for the non-association classes in the CIM Schema.</VALUE></QUALIFIER>
 <PROPERTY NAME="Caption" TYPE="string">

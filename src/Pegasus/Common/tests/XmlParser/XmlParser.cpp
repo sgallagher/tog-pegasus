@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -56,17 +52,30 @@ static void _parseFile(const char* fileName)
 
     XmlParser parser((char*)text.getData());
 
-    try
-    {
 	XmlEntry entry;
 
-	while (parser.next(entry))
-	  if (verbose) entry.print();
-    }
-    catch (Exception& e)
+    // Get initial comment and ignore
+    parser.next(entry, true);
+    // get next comment, check for file Description
+    parser.next(entry, true);
+    if (!String::equal(entry.text, "Test XML file") )
     {
-	cout << fileName << ": " << e.getMessage() << endl;
+        throw CIMException(CIM_ERR_FAILED, "Comment Error");
     }
+    PEGASUS_ASSERT (parser.getLine () == 2);
+    PEGASUS_ASSERT (parser.getStackSize () == 0);
+    // Put the Comment back...
+    parser.putBack (entry);
+    PEGASUS_ASSERT (parser.getLine () == 2);
+    PEGASUS_ASSERT (parser.getStackSize () == 0);
+    while (parser.next(entry))
+    {
+        if (verbose) 
+        {
+            entry.print();
+        }
+    }
+    PEGASUS_ASSERT (parser.next (entry, true) == false);
 }
 
 int main(int argc, char** argv)

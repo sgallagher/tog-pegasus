@@ -874,7 +874,9 @@ CMPI_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers ( long timeout,
         rc = CMPI_BrokerExt_Ftab->timedCondWait( c, m, &wait );
         CMPI_BrokerExt_Ftab->unlockMutex(m);
 
-    } while (  rc );
+
+    } while (  !rc );
+
 
     CMPI_BrokerExt_Ftab->destroyMutex(m);
     CMPI_BrokerExt_Ftab->destroyCondition(c);

@@ -761,7 +761,7 @@ static CMPIContext *TCPCOMM_prepareAttachThread(CONST CMPIBroker * broker,
 {
     CMPIStatus *rc = NULL;
     CMPIContext *r = native_new_CMPIContext(TOOL_MM_NO_ADD);
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_prepareAttachThread");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -791,7 +791,7 @@ static CMPIStatus TCPCOMM_detachThread(CONST CMPIBroker * broker,
                      CONST CMPIContext * context)
 {
     CMPIStatus __rc, *rc = &__rc;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_detachThread");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -817,7 +817,7 @@ static CMPIStatus TCPCOMM_deliverIndication(CONST CMPIBroker * broker,
                         CONST CMPIInstance * ind)
 {
     CMPIStatus __rc, *rc = &__rc;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_deliverIndication");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -845,7 +845,7 @@ static CMPIEnumeration *TCPCOMM_enumInstanceNames(CONST CMPIBroker * broker,
                           CMPIStatus * rc)
 {
     CMPIArray *r;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_enumInstanceNames");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -873,7 +873,7 @@ static CMPIInstance *TCPCOMM_getInstance(CONST CMPIBroker * broker,
                      CONST char **properties, CMPIStatus * rc)
 {
     CMPIInstance *i;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_getInstance");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -903,7 +903,7 @@ static CMPIObjectPath *TCPCOMM_createInstance(CONST CMPIBroker * broker,
                           CMPIStatus * rc)
 {
     CMPIObjectPath *o;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_createInstance");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -933,7 +933,7 @@ static CMPIStatus TCPCOMM_setInstance(CONST CMPIBroker * broker,
                       CONST char **properties)
 {
     CMPIStatus __rc, *rc = &__rc;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_setInstance");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -961,7 +961,7 @@ static CMPIStatus TCPCOMM_deleteInstance(CONST CMPIBroker * broker,
                      CONST CMPIObjectPath * cop)
 {
     CMPIStatus __rc, *rc = &__rc;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_deleteInstance");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -988,7 +988,7 @@ static CMPIEnumeration *TCPCOMM_execQuery(CONST CMPIBroker * broker,
                       const char *lang, CMPIStatus * rc)
 {
     CMPIArray *r;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_execQuery");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1019,7 +1019,7 @@ static CMPIEnumeration *TCPCOMM_enumInstances(CONST CMPIBroker * broker,
                           CMPIStatus * rc)
 {
     CMPIArray *r;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_enumInstances");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1050,7 +1050,7 @@ static CMPIEnumeration *TCPCOMM_associators(CONST CMPIBroker * broker,
                         CONST char **properties, CMPIStatus * rc)
 {
     CMPIArray *r;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_associators");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1086,7 +1086,7 @@ static CMPIEnumeration *TCPCOMM_associatorNames(CONST CMPIBroker * broker,
                         CMPIStatus * rc)
 {
     CMPIArray *r;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_associatorNames");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1119,7 +1119,7 @@ static CMPIEnumeration *TCPCOMM_references(CONST CMPIBroker * broker,
                        CONST char **properties, CMPIStatus * rc)
 {
     CMPIArray *r;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_references");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1151,7 +1151,7 @@ static CMPIEnumeration *TCPCOMM_referenceNames(CONST CMPIBroker * broker,
                            CMPIStatus * rc)
 {
     CMPIArray *r;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_referenceNames");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1182,7 +1182,7 @@ static CMPIData TCPCOMM_invokeMethod(CONST CMPIBroker * broker, CONST CMPIContex
 {
     CMPIArgs *tmp;
     CMPIData result = { CMPI_null, CMPI_badValue, { 0 } };
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_invokeMethod");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1214,7 +1214,7 @@ static CMPIStatus TCPCOMM_setProperty(CONST CMPIBroker * broker,
                       CONST CMPIValue * value, CONST CMPIType type)
 {
     CMPIStatus __rc, *rc = &__rc;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_setProperty");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1243,7 +1243,7 @@ static CMPIData TCPCOMM_getProperty(CONST CMPIBroker * broker, CONST CMPIContext
                     CMPIStatus * rc)
 {
     CMPIData result = { CMPI_null, CMPI_badValue, { 0 }  };
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_getProperty");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1271,7 +1271,7 @@ CMPIArray *TCPCOMM_getKeyNames(CMPIBroker * broker,
                      CMPIObjectPath * cop, CMPIStatus * rc)
 {
     CMPIArray *result;
-    int socket = __broker_connect(broker, context, __FUNCTION__);
+    int socket = __broker_connect(broker, context, "TCPCOMM_getKeyNames");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
     if ((rc)) {
@@ -1304,7 +1304,7 @@ CMPIBoolean TCPCOMM_classPathIsA(CONST  CMPIBroker * broker,
     TRACE_NORMAL(("Executing remote MB call."));
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_classPathIsA");
 
     if (socket < 0) {
     if ((rc)) {
@@ -1339,7 +1339,7 @@ CMPIStatus TCPCOMM_logMessage(const CMPIBroker* broker,
     int socket;
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_logMessage");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
         if ((rc)) {
@@ -1374,7 +1374,7 @@ CMPIStatus  TCPCOMM_trace(const CMPIBroker* broker,
     int socket;
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_trace");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
         if ((rc)) {
@@ -1413,7 +1413,7 @@ CMPIString* TCPCOMM_getMessage(CONST CMPIBroker* broker,
     va_list argptr;
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_getMessage");
 
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
@@ -1509,7 +1509,7 @@ CMPIError* TCPCOMM_newCMPIError(
     int socket;
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_newCMPIError");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
         if ((rc)) {
@@ -1548,7 +1548,7 @@ CMPIStatus TCPCOMM_openMessageFile(
     int socket;
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_openMessageFile");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
         if ((rc)) {
@@ -1579,7 +1579,7 @@ CMPIStatus TCPCOMM_closeMessageFile(
     int socket;
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_closeMessageFile");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
         if ((rc)) {
@@ -1613,7 +1613,7 @@ CMPIString* TCPCOMM_getMessage2(
     va_list argptr;
 
     tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_getMessage2");
 
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0) {
@@ -1711,7 +1711,7 @@ CMPIBoolean TCPCOMM_selExp_evaluate (CONST CMPISelectExp* se,
         int socket;
 
         broker = tool_mm_get_broker((void**)&context);
-        socket = __broker_connect(broker, context, __FUNCTION__);
+        socket = __broker_connect(broker, context, "TCPCOMM_selExp_evaluate");
         TRACE_NORMAL(("Executing remote MB call."));
         if (socket < 0) {
                 if ((rc)) {
@@ -1780,7 +1780,7 @@ CMPISelectExp* TCPCOMM_selExp_clone (CONST CMPISelectExp* se, CMPIStatus* rc)
     int socket;
 
     broker = tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_selExp_clone");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0)
     {
@@ -1815,7 +1815,7 @@ CMPIString* TCPCOMM_selExp_getString (CONST CMPISelectExp* se, CMPIStatus* rc)
     int socket;
 
     broker = tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_selExp_getString");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0)
     {
@@ -1847,7 +1847,7 @@ CMPIStatus TCPCOMM_selExp_release (CONST CMPISelectExp* se)
     int socket;
 
     broker = tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_selExp_release");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0)
     {
@@ -1883,7 +1883,7 @@ CMPISelectExp *TCPCOMM_selExp_newSelExp (const char * queryString,
     int socket;
 
     broker = tool_mm_get_broker((void**)&context);
-    socket = __broker_connect(broker, context, __FUNCTION__);
+    socket = __broker_connect(broker, context, "TCPCOMM_selExp_newSelExp");
     TRACE_NORMAL(("Executing remote MB call."));
     if (socket < 0)
     {
@@ -1990,6 +1990,9 @@ static int __broker_connect(CONST CMPIBroker * broker,
     comm_ticket *ticket = RBGetTicket(rb);
 
     CMPIData d;
+
+
+
     int socket = open_connection(broker_address, CIMOM_LISTEN_PORT,
                                    PEGASUS_PRINT_ERROR_MESSAGE);
 

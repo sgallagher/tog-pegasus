@@ -961,7 +961,7 @@ static CMPIStatus TCPCOMM_InstanceMI_enumInstanceNames(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_InstanceMI_enumInstanceNames", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     {
@@ -988,7 +988,7 @@ static CMPIStatus TCPCOMM_InstanceMI_enumInstances(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_InstanceMI_enumInstances", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     socketcomm_serialize_props(socket, (__sft), (char **)props);
@@ -1017,7 +1017,7 @@ static CMPIStatus TCPCOMM_InstanceMI_getInstance(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_InstanceMI_getInstance", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     socketcomm_serialize_props(socket, (__sft), (char **)props);
@@ -1046,7 +1046,7 @@ static CMPIStatus TCPCOMM_InstanceMI_createInstance(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_InstanceMI_createInstance", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPIInstance(socket, inst);
@@ -1076,7 +1076,7 @@ static CMPIStatus TCPCOMM_InstanceMI_setInstance(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_InstanceMI_setInstance", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPIInstance(socket, inst);
@@ -1105,7 +1105,7 @@ static CMPIStatus TCPCOMM_InstanceMI_deleteInstance(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_InstanceMI_deleteInstance", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     {
@@ -1132,7 +1132,7 @@ static CMPIStatus TCPCOMM_InstanceMI_execQuery(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_InstanceMI_execQuery", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, lang);
@@ -1166,7 +1166,7 @@ static CMPIStatus TCPCOMM_AssociationMI_associators(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_AssociationMI_associators", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
@@ -1202,7 +1202,7 @@ static CMPIStatus TCPCOMM_AssociationMI_associatorNames(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_AssociationMI_associatorNames", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
@@ -1236,7 +1236,7 @@ static CMPIStatus TCPCOMM_AssociationMI_references(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_AssociationMI_references", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
@@ -1267,7 +1267,7 @@ static CMPIStatus TCPCOMM_AssociationMI_referenceNames(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_AssociationMI_referenceNames", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
@@ -1297,7 +1297,7 @@ static CMPIStatus TCPCOMM_MethodMI_invokeMethod(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_MethodMI_invokeMethod", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, method);
@@ -1332,7 +1332,7 @@ static CMPIStatus TCPCOMM_PropertyMI_setProperty(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_PropertyMI_setProperty", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, name);
@@ -1360,7 +1360,7 @@ static CMPIStatus TCPCOMM_PropertyMI_getProperty(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_PropertyMI_getProperty", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, name);
@@ -1400,7 +1400,7 @@ static CMPIStatus TCPCOMM_IndicationMI_authorizeFilter(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_IndicationMI_authorizeFilter", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter,
@@ -1439,7 +1439,7 @@ static CMPIStatus TCPCOMM_IndicationMI_enableIndications(provider_address * addr
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-                           __func__, context, cop);
+                           "TCPCOMM_IndicationMI_enableIndications", context, cop);
     if (socket < 0)
         CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     {
@@ -1469,7 +1469,7 @@ static CMPIStatus TCPCOMM_IndicationMI_disableIndications(provider_address * add
 
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-                           __func__, context, cop);
+                           "TCPCOMM_IndicationMI_disableIndications", context, cop);
     if (socket < 0)
         CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     {
@@ -1504,7 +1504,7 @@ static CMPIStatus TCPCOMM_IndicationMI_mustPoll(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_IndicationMI_mustPoll", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter,
@@ -1550,7 +1550,7 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_IndicationMI_activateFilter", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter,
@@ -1598,7 +1598,7 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(provider_address * addr,
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
-               __func__, context, cop);
+               "TCPCOMM_IndicationMI_deActivateFilter", context, cop);
     if (socket < 0)
     CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter,

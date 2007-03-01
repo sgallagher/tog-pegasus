@@ -63,7 +63,6 @@
 #define PEGASUS_CMPIR_STDCALL
 #define PEGASUS_CMPIR_VSPRINTF(a,b,c,d) vsnprintf(a,b,c,d)
 #define PEGASUS_CMPIR_WSAGETLASTERROR errno
-#define __func__ __FUNCTION__
 #endif
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -76,7 +75,7 @@
 #endif
 
 #define CMPIR_THREAD_CDECL
-#define PEGASUS_CMPIR_ATOL(x) atol(x)
+#define PEGASUS_CMPIR_ATOL(x) _atoi64(x)
 #define PEGASUS_CMPIR_CDECL  __cdecl
 #define PEGASUS_CMPIR_CHAR int
 #define PEGASUS_CMPIR_CLOSESOCKET(socket_hdl) closesocket(socket_hdl)
@@ -99,7 +98,6 @@
 #define PEGASUS_CMPIR_STDCALL __stdcall
 #define PEGASUS_CMPIR_VSPRINTF(a, b, c,d)  vsprintf(a,c,d)
 #define PEGASUS_CMPIR_WSAGETLASTERROR WSAGetLastError()
-#define __func__ __FUNCTION__
 
 typedef unsigned char Uint8;
 typedef unsigned int  Uint32;

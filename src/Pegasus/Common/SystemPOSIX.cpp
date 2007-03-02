@@ -305,23 +305,25 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 
 String System::getHostName()
 {
-    static char _hostname[PEGASUS_MAXHOSTNAMELEN + 1];
+    static String _hostname;
     static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
 
     // Use double-checked locking pattern to avoid overhead of
     // mutex on subsequenct calls.
 
-    if (_hostname[0] == '\0')
+    if (0 == _hostname.size())
     {
         mutex_lock(&_mutex);
 
-        if (_hostname[0] == '\0')
+        if (0 == _hostname.size())
         {
-            gethostname(_hostname, sizeof(_hostname));
-            _hostname[sizeof(_hostname)-1] = 0;
+            char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
+            gethostname(hostname, sizeof(hostname));
+            hostname[sizeof(hostname)-1] = 0;
 #if defined(PEGASUS_OS_OS400)
-            EtoA(_hostname);
+            EtoA(hostname);
 #endif
+            _hostname.assign(hostname);
         }
 
         mutex_unlock(&_mutex);

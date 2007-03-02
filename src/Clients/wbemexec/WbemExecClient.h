@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Dan Gorey, IBM (djgorey@us.ibm.com)
-//              Amit K Arora (amita@in.ibm.com) for PEP-101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WbemExecClient_h
@@ -124,14 +114,11 @@ public:
     */
     inline void connect(
         const String& host,
-        const Uint32 portNumber,
+        Uint32 portNumber,
         const String& userName,
-        const String& password
-    ) throw(AlreadyConnectedException, InvalidLocatorException,
-            CannotCreateSocketException, CannotConnectException)
+        const String& password)
     {
-        AutoPtr<SSLContext> sslContext;
-        connect(host, portNumber, sslContext, userName, password);
+        connect(host, portNumber, 0, userName, password);
     }
 
     /** connect - Creates an HTTP connection with the server
@@ -160,12 +147,10 @@ public:
     */
     void connect(
         const String& host,
-        const Uint32 portNumber,
-        AutoPtr<SSLContext>& sslContext,
+        Uint32 portNumber,
+        const SSLContext* sslContext,
         const String& userName,
-        const String& password
-    ) throw(AlreadyConnectedException, InvalidLocatorException,
-            CannotCreateSocketException, CannotConnectException);
+        const String& password);
 
     /** connectLocal - Creates connection to the server for
         Local clients. The connectLocal connects to the CIM server
@@ -175,9 +160,7 @@ public:
         @return - No return defined. Failure to connect throws an exception.
         @see connect - The exceptions are defined in connect.
     */
-    void connectLocal()
-        throw(AlreadyConnectedException, InvalidLocatorException,
-              CannotCreateSocketException, CannotConnectException);
+    void connectLocal();
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
@@ -197,20 +180,24 @@ public:
 
 private:
 
-    void _connect(
-        const String& host,
-        const Uint32 portNumber,
-        AutoPtr<SSLContext>& sslContext)
-      throw(CannotCreateSocketException, CannotConnectException,
-            InvalidLocatorException);
+    void _connect();
 
-    Message* _doRequest(HTTPMessage * request);
+    /**
+        The authentication challenge status is not changed by this method.
+        It is designed to allow a reconnect after a challenge that contains
+        a "Connection: Close" header, not for reconnecting after a connection
+        timeout or after an operation response containing a "Connection: Close"
+        header.  This design is sufficient because wbemexec only allows a
+        single operation per invocation.
+    */
+    void _reconnect();
+
+    Message* _doRequest(HTTPMessage* request);
 
     void _addAuthHeader(HTTPMessage*& httpMessage);
 
-    Boolean _checkNeedToResend(HTTPMessage* httpMessage);
+    Boolean _checkNeedToResend(const Array<HTTPHeader>& httpHeaders);
 
-    String _getLocalHostName();
     String _promptForPassword();
 
     Monitor* _monitor;
@@ -221,6 +208,11 @@ private:
     Boolean _connected;
     ClientAuthenticator _authenticator;
     Boolean _isRemote;
+
+    // Connection parameters
+    String _connectHost;
+    Uint32 _connectPortNumber;
+    AutoPtr<SSLContext> _connectSSLContext;
 
     /**
         The password to be used for authorization of the operation.

@@ -350,8 +350,8 @@ WbemExecCommand::WbemExecCommand ()
         randFile = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
-        AutoPtr<SSLContext> sslcontext(new SSLContext(certpath, verifyCertificate, randFile));
-        client.connect(host, portNumber, sslcontext,  _userName, _password );
+        SSLContext sslcontext(certpath, verifyCertificate, randFile);
+        client.connect(host, portNumber, &sslcontext, _userName, _password);
     }
       }
     else

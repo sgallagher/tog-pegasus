@@ -80,8 +80,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
 
-# define PEGASUS_PRODUCT_VERSION "2.5.4"
-# define PEGASUS_PRODUCT_STATUS  ""
+# define PEGASUS_PRODUCT_VERSION "2.5.5"
+# define PEGASUS_PRODUCT_STATUS  "Development"
 
 # define PEGASUS_CIMOM_GENERIC_NAME "Pegasus"
 // If the following is non-zero length it becomes SLP description.
@@ -155,7 +155,7 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 // CAUTION: always check whether PEGASUS_VERSION_NUMBER is defined when 
 // integrating with versions prior to 2.5.1.
 //
-#define PEGASUS_VERSION_NUMBER 0x02050400
+#define PEGASUS_VERSION_NUMBER 0x02050500
 
 PEGASUS_NAMESPACE_END
 

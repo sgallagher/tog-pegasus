@@ -37,13 +37,11 @@ include $(ROOT)/mak/config.mak
 
 #Directories to recurse
 DIRS = \
-    generic \
     ManagedSystem \
     sample \
     TestProviders \
     IndicationConsumer
-	
-	
+
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 DIRS += \
     slp

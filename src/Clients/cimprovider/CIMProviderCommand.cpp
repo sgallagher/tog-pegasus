@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,8 +52,13 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/PegasusAssert.h>
 
-#ifdef PEGASUS_OS_ZOS
-#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
+
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#include "qycmutilu2.H"
+#include "vfyptrs.cinc"
+#include <stdio.h>
+#include "OS400ConvertChar.h"
 #endif
 
 #define CIMPROVIDERCOMMAND_CLIENT_DEFAULTTIMEOUT 120000
@@ -86,6 +93,11 @@ static const CIMName _PROPERTY_PROVIDER_NAME = CIMName("Name");
     when an error occurs in parsing or validating the command line.
 */
 static const char USAGE[] = "Usage: ";
+
+/**
+    This constant represents the getoopt argument designator
+*/
+static const char GETOPT_ARGUMENT_DESIGNATOR = ':';
 
 /*
     These constants represent the operation modes supported by the CLI.
@@ -127,15 +139,16 @@ static const Uint32 OPERATION_TYPE_HELP    = 5;
 */
 static const Uint32 OPERATION_TYPE_VERSION = 6;
 
-/**
-    This constant represents provider module group set operation.
-*/
-static const Uint32 OPERATION_TYPE_GROUP = 7;
-
 
 /**
     The constants representing the messages.
 */
+
+static const char NOT_PRIVILEGED_USER[] =
+    "Error, you must have superuser privilege to run cimprovider.";
+
+static const char NOT_PRIVILEGED_USER_KEY[] =
+    "Clients.cimprovider.CIMProviderCommand.NOT_PRIVILEGED_USER";
 
 static const char CIMOM_NOT_RUNNING[] =
     "The CIM server may not be running.";
@@ -217,6 +230,12 @@ static const char CANNOT_START_PROVIDER[] =
 static const char CANNOT_START_PROVIDER_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.CANNOT_START_PROVIDER";
 
+static const char PROVIDER_NOT_REGISTERED[] =
+    "Specified provider was not registered.";
+
+static const char PROVIDER_NOT_REGISTERED_KEY[] =
+    "Clients.cimprovider.CIMProviderCommand.PROVIDER_NOT_REGISTERED";
+
 static const char DELETEING_PROVIDER_MODULE[] =
     "Deleting provider module...";
 
@@ -240,6 +259,18 @@ static const char STOPING_PROVIDER_MODULE[] =
 
 static const char STOPING_PROVIDER_MODULE_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.STOPING_PROVIDER_MODULE";
+
+static const char NO_MODULE_REGISTERED[] =
+    "No modules registered for listing.";
+
+static const char NO_MODULE_REGISTERED_KEY[] =
+    "Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED";
+
+static const char ERR_OPTION_NOT_SUPPORTED[] =
+    "Invalid option. Use '--help' to obtain command syntax.";
+
+static const char ERR_OPTION_NOT_SUPPORTED_KEY[] =
+    "Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED";
 
 static const char ERR_MODULE_NOT_REGISTERED[] =
     "Specified provider module was not registered.";
@@ -265,6 +296,12 @@ static const char REQUIRED_ARGS_MISSING[] =
 static const char REQUIRED_ARGS_MISSING_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.REQUIRED_ARGS_MISSING";
 
+static const char INVALID_ARGS[] =
+    "Invalid arguments.";
+
+static const char INVALID_ARGS_KEY[] =
+    "Clients.cimprovider.CIMProviderCommand.INVALID_ARGS";
+
 static const char UNEXPECTED_OPTION[] = "Unexpected Option.";
 
 static const char UNEXPECTED_OPTION_KEY[] =
@@ -274,28 +311,7 @@ static const char ERR_USAGE_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.ERR_USAGE";
 
 static const char ERR_USAGE[] =
-    "Use '--help' to obtain command syntax.";
-
-static const char SETTING_PROVIDERMODULE_GROUP_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand.SETTING_PROVIDERMODULE_GROUP";
-
-static const char SETTING_PROVIDERMODULE_GROUP[] =
-    "Setting the provider module group...";
-
-static const char SET_PROVIDERMODULE_GROUP_SUCCESS_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand."
-        "SET_PROVIDERMODULE_GROUP_SUCCESS";
-
-static const char SET_PROVIDERMODULE_GROUP_SUCCESS[] =
-    "Provider module group set successfully.";
-
-static const char SET_PROVIDERMODULE_GROUP_FAILURE_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand."
-        "SET_PROVIDERMODULE_GROUP_FAILURE";
-
-static const char SET_PROVIDERMODULE_GROUP_FAILURE[] =
-    "Failed to set the provider module group.";
-
+    "Incorrect usage. Use '--help' to obtain command syntax.";
 
 static const char LONG_HELP[] = "help";
 
@@ -338,11 +354,6 @@ static const char OPTION_LIST        = 'l';
 static const char OPTION_STATUS      = 's';
 
 /**
-    The option character used to specify get full module status.
-*/
-static const char OPTION_FULLSTATUS      = 'f';
-
-/**
     The option character used to display help info.
 */
 static const char OPTION_HELP        = 'h';
@@ -352,10 +363,13 @@ static const char OPTION_HELP        = 'h';
 */
 static const char OPTION_VERSION     = 'v';
 
+#ifdef PEGASUS_OS_OS400
 /**
-    The option character used to specify the module group name.
+    The option character used to specify no output to stdout or stderr.
 */
-static const char OPTION_GROUP     = 'g';
+static const char OPTION_QUIET_VALUE = 'q';
+#endif
+
 
 /**
     The name of the Method that implements stop provider or module
@@ -366,16 +380,6 @@ static const CIMName STOP_METHOD = CIMName("stop");
     The name of the Method that implements start provider or module
 */
 static const CIMName START_METHOD = CIMName("start");
-
-/**
-    The name of the Method that implements the provider module group setting.
-*/
-static const CIMName SETMODULEGROUPNAME_METHOD = CIMName("SetModuleGroupName");
-
-/**
-    ModuleGroupName param or property.
-*/
-static const String MODULEGROUPNAME = "ModuleGroupName";
 
 /**
     This is a CLI used to update providers of the CIM Server.  This
@@ -395,7 +399,9 @@ public:
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function.
     //
-    void setCommand(Uint32, char**)
+    void setCommand(
+        Uint32 argc,
+        char* argv[])
     {
         // Empty function
     }
@@ -473,21 +479,6 @@ private:
         ostream& errPrintWriter);
 
     //
-    // Sets the provider module group
-    //
-    // @param outPrintWriter The stream to which command output is written.
-    // @param errPrintWriter The stream to which command errors are written.
-    //
-    // @return Uint32 command result
-    // @exception CIMException  if the setModuleGroupName operation generates
-    // an exception.
-    //
-   Uint32 _setProviderModuleGroupName(
-        ostream& outPrintWriter,
-        ostream& errPrintWriter);
-
-
-    //
     // List all the registered providers or modules.
     //
     // @param outPrintWriter The stream to which command output is written.
@@ -526,11 +517,6 @@ private:
     String _moduleName;
 
     //
-    // The name of the provider module group.
-    //
-    String _moduleGroupName;
-
-    //
     // The name of the provider.
     //
     String _providerName;
@@ -555,17 +541,15 @@ private:
     //
     Boolean _statusSet;
 
-    //
-    // The flag to indicate whether the full status is set or not
-    //
-    Boolean _fullStatusSet;
-
-    //
-    // The flag to indicate whether the group is set or not
-    //
-    Boolean _moduleGroupSet;
-
     String usage;
+
+#ifdef PEGASUS_OS_OS400
+    //
+    // The flag to indicate whether standard output and standard error are
+    // suppressed
+    //
+    Boolean _defaultQuietSet;
+#endif
 };
 
 /**
@@ -577,11 +561,15 @@ CIMProviderCommand::CIMProviderCommand()
         Initialize the instance variables.
     */
     _operationType      = OPERATION_TYPE_UNINITIALIZED;
+    _hostName           = String::EMPTY;
+    _moduleName         = String::EMPTY;
+    _providerName       = String::EMPTY;
     _moduleSet          = false;
     _providerSet        = false;
     _statusSet          = false;
-    _fullStatusSet          = false;
-    _moduleGroupSet          = false;
+#ifdef PEGASUS_OS_OS400
+    _defaultQuietSet    = false;
+#endif
 
     /**
         Build the usage string for the config command.
@@ -591,13 +579,28 @@ CIMProviderCommand::CIMProviderCommand()
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
+#ifdef PEGASUS_OS_OS400
+    usage.append(" -").append(OPTION_DISABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module ");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                   -").append(OPTION_ENABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module ");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                   -").append(OPTION_REMOVE);
+    usage.append(" -").append(OPTION_MODULE).append(" module");
+    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] ");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                   -").append(OPTION_LIST);
+    usage.append(" [ -").append(OPTION_STATUS);
+    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
+#else
     usage.append(" -").append(OPTION_DISABLE);
     usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
     usage.append("                   -").append(OPTION_ENABLE);
-    usage.append(" -").append(OPTION_MODULE).append(" module \n");
-
-    usage.append("                   -").append(OPTION_GROUP).append(" group");
     usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
     usage.append("                   -").append(OPTION_REMOVE);
@@ -606,54 +609,53 @@ CIMProviderCommand::CIMProviderCommand()
 
     usage.append("                   -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
-    usage.append(" | -").append(OPTION_FULLSTATUS);
     usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
+#endif
 
     usage.append("                   -").append(OPTION_HELP).append("\n");
     usage.append("                   --").append(LONG_HELP).append("\n");
     usage.append("                   --").append(LONG_VERSION).append("\n");
 
-    usage.append("Options:\n");
+    usage.append("Options : \n");
     usage.append("    -d         - "
         "Disable the specified CIM provider module\n");
     usage.append("    -e         - "
         "Enable the specified CIM provider module\n");
-    usage.append("    -g         - "
-        "Sets the CIM provider module group. Specify\n"
-        "                 empty string to remove from grouping.\n"
-        "                 If the provider module is  active, provider\n"
-        "                 module is disabled first, group is set and\n"
-        "                 enabled again. All provider modules with the same\n"
-        "                 group name are loaded into a single agent process\n"
-        "                 except when overridden by specific UserContext\n"
-        "                 values. If group name is CIMServer, provider module\n"
-        "                 is loaded into CIMServer process depending on\n"
-        "                 UserContext value\n");
     usage.append("    -h, --help - Display this help message\n");
     usage.append("    -l         - "
         "Display all the registered provider modules\n");
     usage.append("    -m         - "
         "Specify the provider module for the operation\n");
     usage.append("    -p         - Specify the provider for the operation\n");
-
+#ifdef PEGASUS_OS_OS400
+    usage.append("    -q         - "
+        "Specify quiet mode, avoiding output to stdout or stderr\n");
+#endif
     usage.append("    -r         - "
-        "Remove the registration for a provider (if specified)\n"
-        "                 or for the specified provider module and all the "
-            "providers\n"
-        "                 it contains\n");
+        "Remove specified provider module and its contained providers\n");
     usage.append("    -s         - "
         "Display the status of registered provider modules\n");
-    usage.append("    -f         - "
-        "Full status, display the status of registered\n"
-        "                 provider modules and module group name\n");
     usage.append("    --version  - Display CIM Server version number\n");
 
 // Localize the usage text
 #ifdef PEGASUS_HAS_ICU
+
+# ifdef PEGASUS_OS_OS400
+
+    MessageLoaderParms menuparms(
+        "Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400", usage);
+    menuparms.msg_src_path = MSG_PATH;
+    usage = MessageLoader::getMessage(menuparms);
+
+# else
+
     MessageLoaderParms menuparms(
         "Clients.cimprovider.CIMProviderCommand.MENU.STANDARD", usage);
     menuparms.msg_src_path = MSG_PATH;
     usage = MessageLoader::getMessage(menuparms);
+
+# endif
+
 #endif
 
     setUsage(usage);
@@ -681,8 +683,6 @@ void CIMProviderCommand::setCommand(
     //
     optString.append(OPTION_DISABLE);
     optString.append(OPTION_ENABLE);
-    optString.append(OPTION_GROUP);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_HELP);
     optString.append(OPTION_LIST);
     optString.append(OPTION_MODULE);
@@ -691,7 +691,10 @@ void CIMProviderCommand::setCommand(
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_REMOVE);
     optString.append(OPTION_STATUS);
-    optString.append(OPTION_FULLSTATUS);
+
+#ifdef PEGASUS_OS_OS400
+    optString.append(OPTION_QUIET_VALUE);
+#endif
 
     //
     //  Initialize and parse options
@@ -777,30 +780,6 @@ void CIMProviderCommand::setCommand(
                     }
 
                     _operationType = OPERATION_TYPE_DISABLE;
-
-                    break;
-                }
-                case OPTION_GROUP:
-                {
-                    if (_operationType != OPERATION_TYPE_UNINITIALIZED)
-                    {
-                        //
-                        // More than one operation option was found
-                        //
-                        throw UnexpectedOptionException(OPTION_GROUP);
-                    }
-
-                    if (options.isSet(OPTION_GROUP) > 1)
-                    {
-                        //
-                        // More than one group option was found
-                        //
-                        throw DuplicateOptionException(OPTION_GROUP);
-                    }
-
-                    _operationType = OPERATION_TYPE_GROUP;
-                    _moduleGroupName = options[i].Value();
-                    _moduleGroupSet = true;
 
                     break;
                 }
@@ -916,20 +895,14 @@ void CIMProviderCommand::setCommand(
 
                     break;
                 }
-                case OPTION_FULLSTATUS:
+
+#ifdef PEGASUS_OS_OS400
+                case OPTION_QUIET_VALUE:
                 {
-                    if (options.isSet(OPTION_FULLSTATUS) > 1)
-                    {
-                        //
-                        // More than one status option was found
-                        //
-                        throw DuplicateOptionException(OPTION_FULLSTATUS);
-                    }
-
-                    _fullStatusSet = true;
-
+                    _defaultQuietSet = true;
                     break;
                 }
+#endif
 
                 case OPTION_HELP:
                 {
@@ -996,9 +969,7 @@ void CIMProviderCommand::setCommand(
             MSG_PATH, REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
     }
 
-    if (_operationType == OPERATION_TYPE_DISABLE
-        || _operationType == OPERATION_TYPE_ENABLE
-        || _operationType == OPERATION_TYPE_GROUP)
+    if (_operationType == OPERATION_TYPE_DISABLE)
     {
         if (_providerSet)
         {
@@ -1013,14 +984,20 @@ void CIMProviderCommand::setCommand(
         }
     }
 
-    if (_operationType == OPERATION_TYPE_GROUP)
+    if (_operationType == OPERATION_TYPE_ENABLE)
     {
-        if (!_moduleGroupSet)
+        if (_providerSet)
         {
-            throw MissingOptionException(OPTION_GROUP);
+            throw CommandFormatException(localizeMessage(MSG_PATH,
+                UNEXPECTED_OPTION_KEY,
+                UNEXPECTED_OPTION));
+        }
+
+        if (!_moduleSet)
+        {
+            throw MissingOptionException(OPTION_MODULE);
         }
     }
-
 
     if (_operationType == OPERATION_TYPE_REMOVE && !_moduleSet)
     {
@@ -1034,14 +1011,23 @@ void CIMProviderCommand::setCommand(
             UNEXPECTED_OPTION));
     }
 
-    if (_operationType == OPERATION_TYPE_LIST &&
-        ( (_statusSet && _moduleSet) || (_fullStatusSet && _moduleSet) ||
-            (_fullStatusSet && _statusSet)))
+    if (_operationType == OPERATION_TYPE_LIST && _statusSet && _moduleSet)
     {
         throw CommandFormatException(localizeMessage(MSG_PATH,
             UNEXPECTED_OPTION_KEY,
             UNEXPECTED_OPTION));
     }
+
+#ifdef PEGASUS_OS_OS400
+    if (_operationType == OPERATION_TYPE_LIST && _defaultQuietSet)
+    {
+        //
+        // An invalid option was encountered
+        //
+        throw InvalidOptionException(OPTION_QUIET_VALUE);
+    }
+#endif
+
 }
 
 /**
@@ -1068,6 +1054,18 @@ Uint32 CIMProviderCommand::execute(
         cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
         return RC_SUCCESS;
     }
+
+#ifdef PEGASUS_OS_OS400
+    // disable standard out and standard error
+    if (_defaultQuietSet && (_operationType != OPERATION_TYPE_LIST))
+    {
+        freopen("/dev/null","w",stdout);
+        freopen("/dev/null","w",stderr);
+        // Set the stderr stream to buffered with 32k.
+        // Allows utf-8 to be sent to stderr (P9A66750)
+        setvbuf(stderr, new char[32768], _IOLBF, 32768);
+    }
+#endif
 
     //
     // Get local host name
@@ -1224,44 +1222,6 @@ Uint32 CIMProviderCommand::execute(
             }
             break;
 
-        case OPERATION_TYPE_GROUP:
-            try
-            {
-                return _setProviderModuleGroupName(
-                    outPrintWriter, errPrintWriter);
-            }
-            catch (CIMException& e)
-            {
-                CIMStatusCode code = e.getCode();
-                if (code == CIM_ERR_FAILED)
-                {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        SET_PROVIDERMODULE_GROUP_FAILURE_KEY,
-                        SET_PROVIDERMODULE_GROUP_FAILURE) << endl;
-                    errPrintWriter << e.getMessage() << endl;
-                }
-                else if (code == CIM_ERR_INVALID_CLASS)
-                {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        SET_PROVIDERMODULE_GROUP_FAILURE_KEY,
-                        SET_PROVIDERMODULE_GROUP_FAILURE) << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        PG_PROVIDER_SCHEMA_NOT_LOADED,
-                        PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;
-                }
-                else
-                {
-                    errPrintWriter << e.getMessage() << endl;
-                }
-                return RC_ERROR;
-            }
-            catch (Exception& e)
-            {
-                errPrintWriter << e.getMessage() << endl;
-                return RC_ERROR;
-            }
-            break;
-
         case OPERATION_TYPE_LIST:
             try
             {
@@ -1384,62 +1344,6 @@ void CIMProviderCommand::_deleteProvider(
 }
 
 //
-// Set the  provider module group name
-//
-Uint32 CIMProviderCommand::_setProviderModuleGroupName(
-    ostream& outPrintWriter,
-    ostream& errPrintWriter)
-{
-    PEGASUS_ASSERT(_moduleSet);
-    PEGASUS_ASSERT(_moduleGroupSet);
-
-    // get the module instance
-    CIMInstance moduleInstance = _getModuleInstance();
-
-    CIMObjectPath moduleRef = moduleInstance.getPath();
-    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
-    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
-
-    CIMKeyBinding kb1(CIMName("Name"), _moduleName, CIMKeyBinding::STRING);
-    Array<CIMKeyBinding> keys;
-    keys.append(kb1);
-
-    moduleRef.setKeyBindings(keys);
-
-    outPrintWriter << localizeMessage(MSG_PATH,
-        SETTING_PROVIDERMODULE_GROUP_KEY,
-        SETTING_PROVIDERMODULE_GROUP) << endl;
-
-    Array<CIMParamValue> inParams;
-    Array<CIMParamValue> outParams;
-
-    inParams.append(CIMParamValue(MODULEGROUPNAME, _moduleGroupName));
-
-    CIMValue ret_value = _client->invokeMethod(
-        PEGASUS_NAMESPACENAME_PROVIDERREG,
-        moduleRef,
-        SETMODULEGROUPNAME_METHOD,
-        inParams,
-        outParams);
-
-    Sint16 retValue;
-    ret_value.get(retValue);
-    if (retValue == 0)
-    {
-        outPrintWriter << localizeMessage(MSG_PATH,
-            SET_PROVIDERMODULE_GROUP_SUCCESS_KEY,
-            SET_PROVIDERMODULE_GROUP_SUCCESS) << endl;
-        return RC_SUCCESS;
-    }
-    else
-    {
-        outPrintWriter << localizeMessage(MSG_PATH,
-            SET_PROVIDERMODULE_GROUP_FAILURE_KEY,
-            SET_PROVIDERMODULE_GROUP_FAILURE) << endl;
-        return RC_ERROR;
-    }
-}
-
 // Enable the provider module
 //
 Uint32 CIMProviderCommand::_startProvider(
@@ -1652,7 +1556,14 @@ void CIMProviderCommand::_listProviders(
         moduleInstances = _client->enumerateInstances(
             PEGASUS_NAMESPACENAME_PROVIDERREG,
             PEGASUS_CLASSNAME_PROVIDERMODULE);
-        if (moduleInstances.size() != 0)
+        if (moduleInstances.size() == 0)
+        {
+            cerr << localizeMessage(MSG_PATH,
+                ERR_MODULE_NOT_REGISTERED_KEY,
+                ERR_MODULE_NOT_REGISTERED) << endl;
+            exit(RC_ERROR);
+        }
+        else
         {
             // List all the registered provider modules
             for (Uint32 i = 0; i < moduleInstances.size(); i++)
@@ -1748,28 +1659,52 @@ void CIMProviderCommand::_printList(
     ostream& outPrintWriter,
     ostream& errPrintWriter)
 {
-    Uint32 maxModuleLength=0;
-    Uint32 maxStatusLength=0;
-
+    Uint32 maxLength=0;
+    Uint32 length=0;
     Array<Uint16> _status;
     String output;
     String statusValue;
 
-    Array<String> modulesStatus;
-
-    if (_statusSet || _fullStatusSet)
+    if (_statusSet)
     {
         // get max length of module name
         for (Uint32 i=0; i < moduleNames.size(); i++)
         {
-            if (maxModuleLength < moduleNames[i].size())
+            if (maxLength < moduleNames[i].size())
             {
-                maxModuleLength = moduleNames[i].size();
+                maxLength = moduleNames[i].size();
             }
         }
 
+        output = "MODULE";
+
+        for (Uint32 i = 0; i < maxLength; i++)
+        {
+            output.append(" ");
+        }
+
+        output.append("STATUS");
+#ifdef PEGASUS_OS_VMS
+        //
+        // When outputing to a file using outPrintWriter,
+        // characters appear one per line.
+        // Use printf instead.
+        //
+        printf("%s\n", (const char *) output.getCString());
+#else
+        outPrintWriter << output << endl;
+#endif
+
         for (Uint32 i =0; i < instances.size(); i++)
         {
+            output = moduleNames[i];
+            length = maxLength +6 - moduleNames[i].size();
+
+            for (Uint32 j = 0; j < length; j++)
+            {
+                output.append(" ");
+            }
+
             Uint32 pos = instances[i].findProperty(_PROPERTY_OPERATIONALSTATUS);
             if (pos == PEG_NOT_FOUND)
             {
@@ -1885,76 +1820,6 @@ void CIMProviderCommand::_printList(
                 output.append(statusValue);
                 output.append(" ");
             }
-            modulesStatus.append(output);
-            if (output.size() > maxStatusLength)
-            {
-                maxStatusLength = output.size();
-            }
-            output.clear();
-        }
-
-        output.clear();
-        output = "MODULE";
-
-        for (Uint32 x =0; x < maxModuleLength; ++x)
-        {
-            output.append(" ");
-        }
-
-        output.append("STATUS");
-
-        if (_fullStatusSet)
-        {
-            for (Uint32 x =0; x < maxStatusLength; ++x)
-            {
-                output.append(" ");
-            }
-            output.append("GROUP");
-        }
-
-#ifdef PEGASUS_OS_VMS
-            //
-            // When outputing to a file using outPrintWriter,
-            // characters appear one per line.
-            // Use printf instead.
-            //
-            printf("%s\n", (const char *) output.getCString());
-#else
-            outPrintWriter << output << endl;
-#endif
-
-        for (Uint32 i = 0, n = moduleNames.size(); i < n ; ++i)
-        {
-            output.clear();
-            output.append(moduleNames[i]);
-            for (Uint32 x =0,
-                m = maxModuleLength - moduleNames[i].size() + 6;
-                x < m;  ++x)
-            {
-                output.append(" ");
-            }
-
-            output.append(modulesStatus[i]);
-
-            if (_fullStatusSet)
-            {
-
-                String groupName;
-                Uint32 pos = instances[i].findProperty(MODULEGROUPNAME);
-                if (pos != PEG_NOT_FOUND)
-                {
-                    CIMValue value = instances[i].getProperty(pos).getValue();
-                    value.get(groupName);
-                    for (Uint32 x =0,
-                        m = maxStatusLength - modulesStatus[i].size() + 6;
-                        x < m;  ++x)
-                    {
-                        output.append(" ");
-                    }
-                    output.append(groupName);
-                }
-            }
-
 #ifdef PEGASUS_OS_VMS
             //
             // When outputing to a file using outPrintWriter,
@@ -1966,6 +1831,7 @@ void CIMProviderCommand::_printList(
             outPrintWriter << output << endl;
 #endif
         }
+
     }
     else
     {
@@ -2008,10 +1874,48 @@ int main(int argc, char* argv[])
     MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
-#ifdef PEGASUS_OS_ZOS
-    // for z/OS set stdout and stderr to EBCDIC
-    setEBCDICEncoding(STDOUT_FILENO);
-    setEBCDICEncoding(STDERR_FILENO);
+#ifdef PEGASUS_OS_OS400
+
+    VFYPTRS_INCDCL;               // VFYPTRS local variables
+
+  // verify pointers
+#pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
+    0,_C2_MH_ESCAPE)
+    for (int arg_index = 1; arg_index < argc; arg_index++){
+          VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
+    }
+#pragma disable_handler
+
+    // Convert the args to ASCII
+    for(Uint32 i = 0;i< argc;++i)
+    {
+      EtoA(argv[i]);
+    }
+
+    // Set the stderr stream to buffered with 32k.
+    // Allows utf-8 to be sent to stderr. (P9A66750)
+    setvbuf(stderr, new char[32768], _IOLBF, 32768);
+
+    // check what environment we are running in, native or qsh
+    if (getenv(
+#pragma convert(37)
+               "SHLVL"
+#pragma convert(0)
+               ) == NULL) {  // native mode
+      // Check to ensure the user is authorized to use the command,
+      // suppress diagnostic message
+      if(FALSE == ycmCheckCmdAuthorities(1)){
+        exit(CPFDF80_RC);
+      }
+    }
+    else{ // qsh mode
+      // Check to ensure the user is authorized to use the command
+      // ycmCheckCmdAuthorities() will send a diagnostic message to qsh
+      if(FALSE == ycmCheckCmdAuthorities()){
+        exit(CPFDF80_RC);
+      }
+    }
+
 #endif
 
     command.reset(new CIMProviderCommand());
@@ -2022,12 +1926,25 @@ int main(int argc, char* argv[])
     }
     catch (CommandFormatException& cfe)
     {
-        cerr << COMMAND_NAME << ": " << cfe.getMessage() <<  endl;
+        String msg(cfe.getMessage());
 
-        MessageLoaderParms parms(ERR_USAGE_KEY, ERR_USAGE);
-        parms.msg_src_path = MSG_PATH;
-        cerr << COMMAND_NAME <<
-            ": " << MessageLoader::getMessage(parms) << endl;
+        cerr << COMMAND_NAME << ": " << msg <<  endl;
+
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+         {
+           MessageLoaderParms parms(
+               ERR_OPTION_NOT_SUPPORTED_KEY, ERR_OPTION_NOT_SUPPORTED);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
+        else
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY, ERR_USAGE);
+           parms.msg_src_path = MSG_PATH;
+           cerr << COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
         return 1;
     }

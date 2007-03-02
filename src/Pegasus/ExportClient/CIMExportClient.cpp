@@ -163,6 +163,9 @@ void CIMExportClient::_disconnect()
     // Reconnect no longer applies
     _doReconnect=false;
 
+    // Let go of the cached request message if we have one
+    _authenticator.setRequestMessage(0);
+
     PEG_METHOD_EXIT();
 }
 
@@ -303,7 +306,7 @@ void CIMExportClient::exportIndication(
 
 Message* CIMExportClient::_doRequest(
     CIMRequestMessage* pRequest,
-    const Uint32 expectedResponseMessageType)
+    Uint32 expectedResponseMessageType)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_doRequest()");
 
@@ -377,21 +380,20 @@ Message* CIMExportClient::_doRequest(
             PEGASUS_ASSERT(getCount() == 0);
 
             //
-            //  Future:  If M-POST is used and HTTP response is 501 Not
-            //  Implemented or 510 Not Extended, retry with POST method
-            //
-
-            //
             // Close the connection if response contained a "Connection: Close"
             // header (e.g. at authentication challenge)
             //
             if (response->getCloseConnect() == true)
             {
                 _disconnect();
-                _authenticator.setRequestMessage(0);
                 _doReconnect = true;
                 response->setCloseConnect(false);
             }
+
+            //
+            //  Future:  If M-POST is used and HTTP response is 501 Not
+            //  Implemented or 510 Not Extended, retry with POST method
+            //
 
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {
@@ -514,12 +516,21 @@ Message* CIMExportClient::_doRequest(
         Threads::yield();
     }
 
+    //
+    // Reconnect to reset the connection (disregard late response)
+    //
+
     PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
         "Connection to the listener timed out.");
-    PEG_METHOD_EXIT();
+
+    _disconnect();
+    _authenticator.resetChallengeStatus();
+    _doReconnect = true;
+
     //
     // Throw timed out exception:
     //
+    PEG_METHOD_EXIT();
     throw ConnectionTimeoutException();
 }
 

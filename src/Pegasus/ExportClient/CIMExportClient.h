@@ -159,16 +159,11 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
    private:
 
       void _connect();
-
       void _disconnect();
 
-      void _reconnect();
-
       Message* _doRequest(
-        CIMRequestMessage * request,
-        const Uint32 expectedResponseMessageType);
-
-      String _getLocalHostName();
+          CIMRequestMessage* request,
+          Uint32 expectedResponseMessageType);
 
       Monitor* _monitor;
       HTTPConnector* _httpConnector;
@@ -176,7 +171,19 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 
       Uint32 _timeoutMilliseconds;
       Boolean _connected;
+      /**
+          The CIMExportClient uses a lazy reconnect algorithm.  A reconnection
+          is necessary when the server (listener) sends a Connection: Close
+          header in the HTTP response or when a connection timeout occurs
+          while waiting for a response.  In these cases, a disconnect is
+          performed immediately and the _doReconnect flag is set.  The
+          connection is re-established only when required to perform another
+          operation.  Note that in the case of a connection timeout, the
+          challenge status must be reset in the ClientAuthenticator to allow
+          authentication to be performed properly on the new connection.
+      */
       Boolean _doReconnect;
+
       CIMExportResponseDecoder* _responseDecoder;
       CIMExportRequestEncoder* _requestEncoder;
       ClientAuthenticator _authenticator;

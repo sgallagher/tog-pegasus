@@ -54,25 +54,24 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The constant represeting the authentication challenge header.
+    Constant representing the authentication challenge header.
 */
-static const String WWW_AUTHENTICATE            = "WWW-Authenticate";
+static const String WWW_AUTHENTICATE = "WWW-Authenticate";
 
 /**
     Constant representing the Basic authentication header.
 */
-static const String BASIC_AUTH_HEADER           = "Authorization: Basic ";
+static const String BASIC_AUTH_HEADER = "Authorization: Basic ";
 
 /**
     Constant representing the Digest authentication header.
 */
-static const String DIGEST_AUTH_HEADER          = "Authorization: Digest ";
+static const String DIGEST_AUTH_HEADER = "Authorization: Digest ";
 
 /**
     Constant representing the local authentication header.
 */
-static const String LOCAL_AUTH_HEADER           =
-                             "PegasusAuthorization: Local";
+static const String LOCAL_AUTH_HEADER = "PegasusAuthorization: Local";
 
 
 ClientAuthenticator::ClientAuthenticator()
@@ -82,15 +81,15 @@ ClientAuthenticator::ClientAuthenticator()
 
 ClientAuthenticator::~ClientAuthenticator()
 {
-
 }
 
 void ClientAuthenticator::clear()
 {
     _requestMessage.reset();
-    _userName = String::EMPTY;
-    _password = String::EMPTY;
-    _realm = String::EMPTY;
+    _userName.clear();
+    _password.clear();
+    _localAuthFile.clear();
+    _localAuthFileContent.clear();
     _challengeReceived = false;
     _authType = ClientAuthenticator::NONE;
 }
@@ -165,9 +164,9 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
                    return false;
                }
            }
-       }
 
-       _realm = authRealm;
+           _localAuthFile = authRealm;
+       }
 
        return true;
    }
@@ -176,7 +175,7 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
 
 String ClientAuthenticator::buildRequestAuthHeader()
 {
-    String challengeResponse = String::EMPTY;
+    String challengeResponse;
 
     switch (_authType)
     {
@@ -279,11 +278,11 @@ Message* ClientAuthenticator::getRequestMessage()
     return _requestMessage.get();
 }
 
-void ClientAuthenticator::clearReconnect()
+void ClientAuthenticator::resetChallengeStatus()
 {
-    _requestMessage.reset();
-    _realm = String::EMPTY;
     _challengeReceived = false;
+    _localAuthFile.clear();
+    _localAuthFileContent.clear();
 }
 
 Message* ClientAuthenticator::releaseRequestMessage()
@@ -321,49 +320,49 @@ ClientAuthenticator::AuthType ClientAuthenticator::getAuthType()
     return (_authType);
 }
 
-String ClientAuthenticator::_getFileContent(String filePath)
+String ClientAuthenticator::_getFileContent(const String& filePath)
 {
-    String challenge = String::EMPTY;
-
-    FileSystem::translateSlashes(filePath);
+    String translatedFilePath = filePath;
+    FileSystem::translateSlashes(translatedFilePath);
 
     //
     // Check whether the file exists or not
     //
-    if (!FileSystem::exists(filePath))
+    if (!FileSystem::exists(translatedFilePath))
     {
-        throw NoSuchFile(filePath);
+        throw NoSuchFile(translatedFilePath);
     }
 
     //
     // Open the challenge file and read the challenge data
     //
 #if defined(PEGASUS_OS_OS400)
-    ifstream ifs(filePath.getCString(), PEGASUS_STD(_CCSID_T(1208)) );
+    ifstream ifs(translatedFilePath.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-    ifstream ifs(filePath.getCString());
+    ifstream ifs(translatedFilePath.getCString());
 #endif
     if (!ifs)
     {
-       //ATTN: Log error message
-        return (challenge);
+        //ATTN: Log error message
+        return String::EMPTY;
     }
 
+    String fileContent;
     String line;
 
     while (GetLine(ifs, line))
     {
-        challenge.append(line);
+        fileContent.append(line);
     }
 
     ifs.close();
 
-    return (challenge);
+    return fileContent;
 }
 
 String ClientAuthenticator::_buildLocalAuthResponse()
 {
-    String authResponse = String::EMPTY;
+    String authResponse;
 
     if (_challengeReceived)
     {
@@ -372,27 +371,31 @@ String ClientAuthenticator::_buildLocalAuthResponse()
         //
         // Append the file path that is in the realm sent by the server
         //
-        authResponse.append(_realm);
+        authResponse.append(_localAuthFile);
 
         authResponse.append(":");
 
-        //
-        // Read and append the challenge file content
-        //
-        String fileContent = String::EMPTY;
-        try
+        if (_localAuthFileContent.size() == 0)
         {
-            fileContent = _getFileContent(_realm);
+            //
+            // Read the challenge file content
+            //
+            try
+            {
+                _localAuthFileContent = _getFileContent(_localAuthFile);
+            }
+            catch (NoSuchFile&)
+            {
+                //ATTN-NB-04-20000305: Log error message to log file
+            }
         }
-        catch (NoSuchFile&)
-        {
-            //ATTN-NB-04-20000305: Log error message to log file
-        }
-        authResponse.append(fileContent);
+
+        authResponse.append(_localAuthFileContent);
     }
+
     authResponse.append("\"");
 
-    return (authResponse);
+    return authResponse;
 }
 
 Boolean ClientAuthenticator::_parseAuthHeader(

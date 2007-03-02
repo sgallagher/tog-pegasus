@@ -75,8 +75,6 @@ public:
     */
     Message* getRequestMessage();
 
-    void clearReconnect();
-
     /** Get the request message saved for resending on a challenge and
         release memory ownership for the message.
     */
@@ -86,6 +84,11 @@ public:
         from the earlier request.
     */
     void clear();
+
+    /**
+        Reset the challenge status for the connection.
+    */
+    void resetChallengeStatus();
 
     /** Set the user name
     */
@@ -111,7 +114,7 @@ private:
 
     String _buildLocalAuthResponse();
 
-    String _getFileContent(String filePath);
+    String _getFileContent(const String& filePath);
 
     Boolean _parseAuthHeader(
         const String authHeader,
@@ -124,13 +127,13 @@ private:
 
     AutoPtr<Message> _requestMessage;
 
-    Boolean  _challengeReceived;
+    Boolean _challengeReceived;
 
-    String   _userName;
+    String _userName;
+    String _password;
 
-    String   _password;
-
-    String   _realm;
+    String _localAuthFile;
+    String _localAuthFileContent;
 
     AuthType _authType;
 };

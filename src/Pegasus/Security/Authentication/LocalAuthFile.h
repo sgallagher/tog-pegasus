@@ -68,9 +68,9 @@ public:
     */
     Boolean remove();
 
-    /** Get the string that was created as a challenge string
+    /** Get the string that was created as a secret string
     */
-    String getChallengeString();
+    String getSecretString();
 
 private:
 
@@ -83,7 +83,7 @@ private:
 
     String  _authFilePath;
 
-    String  _challenge;
+    String  _secret;
 };
 
 PEGASUS_NAMESPACE_END

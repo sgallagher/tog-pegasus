@@ -46,8 +46,7 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     :
     _authUser(String::EMPTY),
     _authPassword(String::EMPTY),
-    _authChallenge(String::EMPTY),
-    _authSecret(String::EMPTY),
+    _localAuthSecret(String::EMPTY),
     _authType(String::EMPTY),
     _authStatus(NEW_REQUEST),
     _wasRemotePrivilegedUserAccessChecked(false)
@@ -97,22 +96,12 @@ void   AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
     PEG_METHOD_EXIT();
 }
 
-void   AuthenticationInfoRep::setAuthChallenge(const String& challenge)
+void   AuthenticationInfoRep::setLocalAuthSecret(const String& secret)
 {
     PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthChallenge");
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setLocalAuthSecret");
 
-    _authChallenge = challenge;
-
-    PEG_METHOD_EXIT();
-}
-
-void   AuthenticationInfoRep::setAuthSecret(const String& secret)
-{
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthSecret");
-
-    _authSecret = secret;
+    _localAuthSecret = secret;
 
     PEG_METHOD_EXIT();
 }

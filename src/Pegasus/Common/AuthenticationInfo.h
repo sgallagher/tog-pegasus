@@ -192,40 +192,22 @@ public:
         _rep->setAuthenticatedPassword(password);
     }
 
-    /** Get the authentication challenge that was sent to the client
-        @return string containing the authentication challenge
-    */
-    String getAuthChallenge() const
-    {
-        _checkRep();
-        return _rep->getAuthChallenge();
-    }
-
-    /** Sets the authentication challenge to the specified challenge
-        @param challenge - string containing the authentication challenge
-    */
-    void   setAuthChallenge(const String& challenge)
-    {
-        _checkRep();
-        _rep->setAuthChallenge(challenge);
-    }
-
-    /** Get the authentication secret that was sent to client
+    /** Get the local authentication secret that was sent to client
         @return string containing the authentication secret
     */
-    String getAuthSecret() const
+    String getLocalAuthSecret() const
     {
         _checkRep();
-        return _rep->getAuthSecret();
+        return _rep->getLocalAuthSecret();
     }
 
-    /** Set the authentication secret to the specified secret
+    /** Set the local authentication secret to the specified secret
         @param secret - string containing the authentication secret
     */
-    void   setAuthSecret(const String& secret)
+    void   setLocalAuthSecret(const String& secret)
     {
         _checkRep();
-        _rep->setAuthSecret(secret);
+        _rep->setLocalAuthSecret(secret);
     }
 
     /** Is the request authenticated

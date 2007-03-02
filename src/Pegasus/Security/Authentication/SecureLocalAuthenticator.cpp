@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -137,7 +133,7 @@ Boolean SecureLocalAuthenticator::validateUser (const String& userName)
 String SecureLocalAuthenticator::getAuthResponseHeader(
     const String& authType, 
     const String& userName, 
-    String& challenge)
+    String& secret)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureLocalAuthenticator::getAuthResponseHeader()");
@@ -153,10 +149,9 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
     String filePath  = localAuthFile.create();
 
     //
-    // get the challenge string
+    // get the secret string
     //
-    String temp = localAuthFile.getChallengeString();
-    challenge = temp;
+    secret = localAuthFile.getSecretString();
 
     // 
     // build response header with file path and challenge string.

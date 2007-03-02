@@ -222,7 +222,7 @@ void testLocalAuthSuccess()
     authHeader.append(":");
     authHeader.append(filePath);
     authHeader.append(":");
-    authHeader.append(authInfo->getAuthChallenge());
+    authHeader.append(authInfo->getLocalAuthSecret());
     authHeader.append("\"");
 
     if (verbose) cout << "Local Resp AuthHeader: " << authHeader << endl;

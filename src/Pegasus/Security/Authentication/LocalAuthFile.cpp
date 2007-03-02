@@ -100,9 +100,7 @@ static Mutex sequenceCountLock;
 
 
 LocalAuthFile::LocalAuthFile(const String& userName)
-    : _userName(userName),
-      _filePathName(String::EMPTY),
-      _challenge(String::EMPTY)
+    : _userName(userName)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::LocalAuthFile()");
 
@@ -153,7 +151,7 @@ String LocalAuthFile::create()
     sprintf(extension,"_%u_%u", mySequenceNumber, milliSecs);
     extension[strlen(extension)] = 0;
 
-    String filePath = String::EMPTY;
+    String filePath;
 
 	//Check to see whether a domain was specified. If so, strip the domain from the
 	//local auth file name, since the backslash and '@' are invalid filename characters.
@@ -345,7 +343,7 @@ String LocalAuthFile::create()
         throw CannotOpenFile (filePath);
     }
 
-    _challenge = randomToken;
+    _secret = randomToken;
 
     _filePathName = filePath;
 
@@ -397,15 +395,15 @@ Boolean LocalAuthFile::remove()
 }
 
 //
-// Get the string that was created as a challenge string
+// Get the string that was created as a secret string
 //
-String LocalAuthFile::getChallengeString()
+String LocalAuthFile::getSecretString()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::getChallengeString()");
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::getSecretString()");
 
     PEG_METHOD_EXIT();
 
-    return(_challenge);
+    return(_secret);
 }
 
 
@@ -417,7 +415,7 @@ String LocalAuthFile::_generateRandomTokenString()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthFile::_generateRandomTokenString()");
 
-    String randomToken = String::EMPTY;
+    String randomToken;
 
     String randFile = String(DEV_URANDOM);
     FILE *fh;

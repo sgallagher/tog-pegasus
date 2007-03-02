@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -60,9 +56,9 @@ String authType = "Local";
 
 String testUser = System::getEffectiveUserName();
 
-String challenge = String::EMPTY;
+String secret;
 
-String filePath = String::EMPTY;
+String filePath;
 
 AuthenticationInfo* authInfo = 0;
 
@@ -77,7 +73,7 @@ void testAuthHeader()
     if (verbose) cout << "respHeader= " << respHeader << endl;
 #endif
     
-    challenge = authInfo->getAuthChallenge();
+    secret = authInfo->getLocalAuthSecret();
 
     PEGASUS_TEST_ASSERT(respHeader.size() != 0);
 
@@ -97,7 +93,7 @@ void testAuthHeader()
 //
 void testAuthenticationFailure_1()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     LocalAuthenticationHandler  localAuthHandler;
@@ -107,7 +103,7 @@ void testAuthenticationFailure_1()
     //
     authHeader = testUser;
     authHeader.append(filePath);
-    authHeader.append(challenge);
+    authHeader.append(secret);
 
     authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
@@ -126,7 +122,7 @@ void testAuthenticationFailure_1()
 //
 void testAuthenticationFailure_2()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     LocalAuthenticationHandler  localAuthHandler;
@@ -154,7 +150,7 @@ void testAuthenticationFailure_2()
 //
 void testAuthenticationFailure_3()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     LocalAuthenticationHandler  localAuthHandler;
@@ -181,7 +177,7 @@ void testAuthenticationFailure_3()
 //
 void testAuthenticationFailure_4()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     LocalAuthenticationHandler  localAuthHandler;
@@ -209,7 +205,7 @@ void testAuthenticationFailure_4()
 //
 void testAuthenticationSuccess()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
 
     LocalAuthenticationHandler  localAuthHandler;
 
@@ -217,7 +213,7 @@ void testAuthenticationSuccess()
     authHeader.append(":");
     authHeader.append(filePath);
     authHeader.append(":");
-    authHeader.append(challenge);
+    authHeader.append(secret);
 
     Boolean authenticated =
         localAuthHandler.authenticate(authHeader, authInfo);

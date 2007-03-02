@@ -134,7 +134,7 @@ Boolean LocalAuthenticationHandler::authenticate(
     authInfo->setRemotePrivilegedUserAccessChecked();
 
     authenticated = _localAuthenticator->authenticate(filePath, 
-        secretReceived, authInfo->getAuthChallenge());
+        secretReceived, authInfo->getLocalAuthSecret());
 
     PEG_AUDIT_LOG(logLocalAuthentication(
                      userName,
@@ -163,8 +163,8 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthenticationHandler::getAuthResponseHeader()");
 
-    String challenge = String::EMPTY;
-    String authResp = String::EMPTY;
+    String secret;
+    String authResp;
 
     //
     // Check if the user is a valid system user
@@ -175,9 +175,9 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
         return ( authResp );
     }
 
-    authResp = _localAuthenticator->getAuthResponseHeader(authType, userName, challenge);
+    authResp = _localAuthenticator->getAuthResponseHeader(authType, userName, secret);
 
-    authInfo->setAuthChallenge(challenge);
+    authInfo->setLocalAuthSecret(secret);
 
     PEG_METHOD_EXIT();
 

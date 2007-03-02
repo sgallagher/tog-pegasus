@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -62,7 +58,7 @@ int main(int argc, char** argv)
 
     String fileName = localAuthFile.create();
 
-    String challenge = localAuthFile.getChallengeString();
+    String secret = localAuthFile.getSecretString();
 
     Boolean isDelete = localAuthFile.remove();
 

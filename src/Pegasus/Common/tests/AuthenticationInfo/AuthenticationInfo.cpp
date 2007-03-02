@@ -71,12 +71,12 @@ void test01()
 
     /**
 	    Added to cover the Function
-        void AuthenticationInfo::setAuthSecret(const String& secret)
+        void AuthenticationInfo::setLocalAuthSecret(const String& secret)
     */
 #define TEST_SECRET "My Test Secret"
-    PEGASUS_TEST_ASSERT(authInfo.getAuthSecret() == String::EMPTY);
-    authInfo.setAuthSecret(TEST_SECRET);
-    String ret_setAuthSecret = authInfo.getAuthSecret();
+    PEGASUS_TEST_ASSERT(authInfo.getLocalAuthSecret() == String::EMPTY);
+    authInfo.setLocalAuthSecret(TEST_SECRET);
+    String ret_setAuthSecret = authInfo.getLocalAuthSecret();
     PEGASUS_TEST_ASSERT(ret_setAuthSecret == TEST_SECRET);
 
     /**
@@ -87,16 +87,6 @@ void test01()
     authInfo.setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
     String ret_setauthtype = authInfo.getAuthType();
     PEGASUS_TEST_ASSERT(ret_setauthtype == AuthenticationInfoRep::AUTH_TYPE_SSL);
-
-    /**
-        Added to cover the Function
-        void AuthenticationInfo::setAuthChallenge(const String& challenge)
-    */
-#define TEST_CHALLENGE "My Test Challenge"
-    PEGASUS_TEST_ASSERT(authInfo.getAuthChallenge() == String::EMPTY);
-    authInfo.setAuthChallenge(TEST_CHALLENGE);
-    String ret_setauthchallenge = authInfo.getAuthChallenge();
-    PEGASUS_TEST_ASSERT(ret_setauthchallenge == TEST_CHALLENGE);
 
     /**
         Added to cover the Function

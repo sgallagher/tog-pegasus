@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SecureLocalAuthenticator_h
@@ -82,13 +77,13 @@ public:
     /** Construct and return the Peagaus Local authentication challenge header
         @param authType String containing the authentication type
         @param userName String containing the user name
-        @param challenge String to store the authentication challenge secret
+        @param secret   String to store the authentication secret
         @return A string containing the authentication challenge header.
     */
     String getAuthResponseHeader(
         const String& authType, 
         const String& userName, 
-        String& challenge);
+        String& secret);
 };
 
 

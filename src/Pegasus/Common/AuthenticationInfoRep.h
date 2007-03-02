@@ -90,19 +90,12 @@ public:
 
     void   setAuthenticatedPassword(const String& password);
 
-    String getAuthChallenge() const
+    String getLocalAuthSecret() const
     {
-        return _authChallenge;
+        return _localAuthSecret;
     }
 
-    void   setAuthChallenge(const String& challenge);
-
-    String getAuthSecret() const
-    {
-        return _authSecret;
-    }
-
-    void   setAuthSecret(const String& secret);
+    void   setLocalAuthSecret(const String& secret);
 
     Boolean isAuthenticated() const
     {
@@ -164,8 +157,7 @@ private:
 
     String  _authUser;
     String  _authPassword;
-    String  _authChallenge;
-    String  _authSecret;
+    String  _localAuthSecret;
     String  _authType;
     AuthStatus _authStatus;
     String  _ipAddress;

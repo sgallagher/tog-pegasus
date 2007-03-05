@@ -33,23 +33,12 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-XMLSCRIPTS = EnumerateInstances51003
-
-# Note: this is done because the server on windows returns 3 digits
-# for the exponent of a real32 or real64, while other platforms return 2.
-ifeq ($(OS_TYPE),windows)
-XMLSCRIPTS += \
-              EnumerateInstancesAlt51000 \
-	      DeepLocalTFAlt51005 \
-	      DeepLocalFFAlt51007 \
-              DeepLocalTFAlt51008
-else
-XMLSCRIPTS += \
+XMLSCRIPTS = \
+              EnumerateInstances51003 \
               EnumerateInstances51000 \
 	      DeepLocalTF51005 \
 	      DeepLocalFF51007 \
               DeepLocalTF51008
-endif
 
 ifndef SECURITY_ENABLED
 XMLSCRIPTS += \

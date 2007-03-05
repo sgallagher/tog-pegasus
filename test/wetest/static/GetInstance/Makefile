@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,14 +33,13 @@ ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-XMLSCRIPTS = GetInstance52000 GetInstance52001 GetInstance52002 GetInstance52003 GetInstance52005 GetInstance52006
-
-# Note: this is done because the server on windows returns 3 digits
-# for the exponent of a real32 or real64, while other platforms return 2.
-ifeq ($(OS_TYPE),windows)
-XMLSCRIPTS += GetInstanceAlt52004
-else
-XMLSCRIPTS += GetInstance52004
-endif
+XMLSCRIPTS = GetInstance52000 \
+             GetInstance52001 \
+             GetInstance52002 \
+             GetInstance52003 \
+             GetInstance52004 \
+             GetInstance52005 \
+             GetInstance52006 \
+             GetInstance52007
 
 include $(ROOT)/test/configend.mak

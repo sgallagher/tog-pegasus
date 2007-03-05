@@ -420,6 +420,29 @@ inline void _xmlWritter_appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
         _xmlWritter_appendSpecialChar(os, *str++);
 }
 
+// On windows sprintf outputs 3 digit precision exponent prepending
+// zeros. Make it 2 digit precision if first digit is zero in the exponent.
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+inline void _xmlWriter_normalizeRealValueString(char *str)
+{
+    // skip initial sign value...
+    if (*str == '-' || *str == '+')
+    {
+        ++str;
+    }
+    while (*str && *str != '+' && *str != '-')
+    {
+        ++str;
+    }
+    if (*str && * ++str == '0')
+    {
+        *str = *(str+1);
+        *(str+1) = *(str+2);
+        *(str+2) = 0;
+    }
+}
+#endif
+
 void XmlWriter::append(Buffer& out, const Char16& x)
 {
     _xmlWritter_appendChar(out, x);
@@ -465,6 +488,9 @@ void XmlWriter::append(Buffer& out, Real32 x)
     // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
     // (4 byte IEEE floating point)
     sprintf(buffer, "%.7e", x);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    _xmlWriter_normalizeRealValueString(buffer);
+#endif
     append(out, buffer);
 }
 
@@ -475,6 +501,9 @@ void XmlWriter::append(Buffer& out, Real64 x)
     // with the format given in the CIM/XML spec, and the precision required
     // by the CIM 2.2 spec (8 byte IEEE floating point)
     sprintf(buffer, "%.16e", x);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    _xmlWriter_normalizeRealValueString(buffer);
+#endif
     append(out, buffer);
 }
 

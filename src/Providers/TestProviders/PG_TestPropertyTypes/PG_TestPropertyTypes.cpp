@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -177,6 +177,52 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 
         instance2.setPath(objectPath);
     }
+
+    	// instance3 to check for negative floating point and exponents
+	CIMInstance instance3("PG_TestPropertyTypes");
+
+	instance3.addProperty(CIMProperty("CreationClassName",
+			String("PG_TestPropertyTypes")));   // key
+	instance3.addProperty(CIMProperty("InstanceId", Uint64(3))); //key
+	instance3.addProperty(CIMProperty("PropertyString",
+				String("PG_TestPropertyTypes_Instance3")));
+	instance3.addProperty(CIMProperty("PropertyUint8", Uint8(120)));
+	instance3.addProperty(CIMProperty("PropertyUint16", Uint16(1600)));
+	instance3.addProperty(CIMProperty("PropertyUint32", Uint32(3200)));
+	instance3.addProperty(CIMProperty("PropertyUint64", Uint64(6400)));
+	instance3.addProperty(CIMProperty("PropertySint8", Sint8(-120)));
+	instance3.addProperty(CIMProperty("PropertySint16", Sint16(-1600)));
+	instance3.addProperty(CIMProperty("PropertySint32", Sint32(-3200)));
+	instance3.addProperty(CIMProperty("PropertySint64", Sint64(-6400)));
+	instance3.addProperty(CIMProperty("PropertyBoolean", Boolean(0)));
+	instance3.addProperty(CIMProperty("PropertyReal32", Real32(-1.12345670123)));
+	instance3.addProperty(CIMProperty("PropertyReal64", Real64(0.000000012345)));
+	instance3.addProperty(CIMProperty("PropertyDatetime",
+			      CIMDateTime("20060301104354.000000:000")));
+
+    // update object path
+    {
+        CIMObjectPath objectPath = instance3.getPath();
+
+        Array<CIMKeyBinding> keys;
+
+        {
+            CIMProperty keyProperty = instance3.getProperty(instance3.findProperty("CreationClassName"));
+
+            keys.append(CIMKeyBinding(keyProperty.getName(), keyProperty.getValue()));
+        }
+
+        {
+            CIMProperty keyProperty = instance3.getProperty(instance3.findProperty("InstanceId"));
+
+            keys.append(CIMKeyBinding(keyProperty.getName(), keyProperty.getValue()));
+        }
+
+        objectPath.setKeyBindings(keys);
+
+        instance3.setPath(objectPath);
+    }
+    realValueTestInstance = instance3;
 }
 
 void PG_TestPropertyTypes::terminate(void)
@@ -192,7 +238,9 @@ void PG_TestPropertyTypes::getInstance(
 	InstanceResponseHandler & handler)
 {
 	// synchronously get references
-	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
+	//Get extra instance created for testing negative realValues.
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context,
+	                                  instanceReference);
 
 	// ensure the InstanceId key is valid
 	Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
@@ -215,20 +263,37 @@ void PG_TestPropertyTypes::getInstance(
 	{
 		throw CIMException(CIM_ERR_INVALID_CLASS);
 	}
-
+        Boolean testRealValue = false;
 	// ensure the request object exists
 	Uint32 index = findObjectPath(references, instanceReference);
 	if (index == PEG_NOT_FOUND)
 	{
-		throw CIMException(CIM_ERR_NOT_FOUND);
+	    CIMClass cimclass = _cimom.getClass(context,
+	                               instanceReference.getNameSpace(),
+	                               instanceReference.getClassName(),
+	                               false, true, true, CIMPropertyList());
+	    CIMObjectPath tempRef =
+	             realValueTestInstance.buildPath(cimclass);
+            tempRef.setHost(instanceReference.getHost());
+	    tempRef.setNameSpace(instanceReference.getNameSpace());
+	    if (instanceReference != tempRef)
+	    {
+	        throw CIMException(CIM_ERR_NOT_FOUND);
+	    }
+	    testRealValue = true;
 	}
 
 	// begin processing the request
 	handler.processing();
-
-	// instance index corresponds to reference index
-	handler.deliver(_instances[index]);
-
+        if (testRealValue)
+        {
+            handler.deliver(realValueTestInstance);
+        }
+        else
+        {
+	    // instance index corresponds to reference index
+	    handler.deliver(_instances[index]);
+	}
 	// complete processing the request
 	handler.complete();
 }

@@ -56,7 +56,7 @@ FLAGS = -O3 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),floa
 PR_FLAGS = -O3 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),FLOAT(IEEE),goff" -W "l,XPLINK,dll,EDIT=NO"
 endif
 
-PEGASUS_ZOS_BUILD_DATE := $(shell date '+m%d')
+PEGASUS_ZOS_BUILD_DATE := $(shell date '+%Y%m%d+')
 
 ifdef PEGASUS_ZOS_SERVICE_STRING
        FLAGS += -W "c,SERVICE($(PEGASUS_ZOS_SERVICE_STRING)$(PEGASUS_ZOS_BUILD_DATE))"

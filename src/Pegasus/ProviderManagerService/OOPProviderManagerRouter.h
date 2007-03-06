@@ -66,7 +66,6 @@ public:
 
     virtual Message* processMessage(Message* message);
 
-    virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
 
 private:

@@ -54,14 +54,6 @@ public:
     virtual Message* processMessage(Message* message) = 0;
 
     /**
-        Indicates whether any of the active ProviderManagers managed by this
-        ProviderManagerRouter has an active (e.g., loaded/initialized)
-        provider.  If no providers are active, this ProviderManagerRouter
-        may be destructed without harm.
-     */
-    virtual Boolean hasActiveProviders() = 0;
-
-    /**
         Unload idle providers in all active ProviderManagers.
         Note: This operation may take a long time to complete and should
         be called on a non-critical thread.

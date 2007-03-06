@@ -61,7 +61,13 @@ public:
 
     virtual Message* processMessage(Message* message);
 
-    virtual Boolean hasActiveProviders();
+    /**
+        Indicates whether any of the active ProviderManagers managed by this
+        ProviderManagerRouter has an active (e.g., loaded/initialized)
+        provider.  If no providers are active, this ProviderManagerRouter
+        may be destructed without harm.
+     */
+    Boolean hasActiveProviders();
 
     virtual void unloadIdleProviders();
 

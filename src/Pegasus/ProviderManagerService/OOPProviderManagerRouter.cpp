@@ -1860,28 +1860,6 @@ CIMResponseMessage* OOPProviderManagerRouter::_forwardRequestToAllAgents(
     return response;
 }
 
-Boolean OOPProviderManagerRouter::hasActiveProviders()
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "OOPProviderManagerRouter::hasActiveProviders");
-
-    // Iterate through the _providerAgentTable looking for initialized agents
-    AutoMutex lock(_providerAgentTableMutex);
-    ProviderAgentTable::Iterator i = _providerAgentTable.start();
-    for (; i != 0; i++)
-    {
-        if (i.value()->isInitialized())
-        {
-            PEG_METHOD_EXIT();
-            return true;
-        }
-    }
-
-    // No initialized Provider Agents were found
-    PEG_METHOD_EXIT();
-    return false;
-}
-
 void OOPProviderManagerRouter::unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,

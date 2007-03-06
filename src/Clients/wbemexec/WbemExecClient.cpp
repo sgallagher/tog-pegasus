@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +61,6 @@ static const char PASSWORD_BLANK []  =
 static const Uint32 MAX_PW_RETRIES =  3;
 
 
-#ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-// This callback is used when using SSL for a "local" connection.
 static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 {
     //
@@ -76,16 +76,16 @@ static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
         return false;
     }
 }
-#endif
 
 WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     :
     MessageQueue(PEGASUS_QUEUENAME_WBEMEXECCLIENT),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
-    _isRemote(false)
+    _isRemote( false ),
+    _password(String::EMPTY)
 {
-    // CAUTION:
+    // CAUTION: 
     //    Using private AutoPtr<> data members for these objects causes linker
     //    errors on some SOLARIS_SPARC_CC platforms.
 
@@ -119,7 +119,6 @@ void WbemExecClient::_connect()
         _connectHost,
         _connectPortNumber,
         _connectSSLContext.get(),
-        _timeoutMilliseconds,
         this);
 
     _connected = true;
@@ -219,7 +218,6 @@ void WbemExecClient::connectLocal()
     }
     catch (CannotConnectException&)
     {
-#ifdef PEGASUS_HAS_SSL
         //
         // Look up the WBEM HTTPS port number for the local system
         //
@@ -240,7 +238,7 @@ void WbemExecClient::connectLocal()
         String certpath = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-        String randFile;
+        String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
@@ -251,11 +249,8 @@ void WbemExecClient::connectLocal()
             new SSLContext(certpath, verifyServerCertificate, randFile));
 
         _connect();
-#else
-        throw;
-#endif // PEGASUS_HAS_SSL
     }
-#endif // PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+#endif
     _isRemote = false;
 }
 
@@ -293,31 +288,33 @@ void WbemExecClient::_reconnect()
  */
 String WbemExecClient::_promptForPassword()
 {
-    //
-    // Password is not set, prompt for the old password once
-    //
-    String pw;
-    Uint32 retries = 1;
-    do
+  //
+  // Password is not set, prompt for the old password once
+  //
+  String pw = String::EMPTY;
+  Uint32 retries = 1;
+  do
     {
-        pw = System::getPassword(PASSWORD_PROMPT);
+      pw = System::getPassword( PASSWORD_PROMPT );
 
-        if (pw == String::EMPTY)
+      if ( pw == String::EMPTY || pw == "" )
+    {
+      if( retries < MAX_PW_RETRIES )
         {
-            if (retries < MAX_PW_RETRIES)
-            {
-                retries++;
-            }
-            else
-            {
-                break;
-            }
-            cerr << PASSWORD_BLANK << endl;
-            continue;
+          retries++;
+
         }
+      else
+        {
+          break;
+        }
+      cerr << PASSWORD_BLANK << endl;
+      pw = String::EMPTY;
+      continue;
     }
-    while (pw == String::EMPTY);
-    return pw;
+    }
+  while ( pw == String::EMPTY );
+  return( pw );
 }
 
 
@@ -329,13 +326,6 @@ Buffer WbemExecClient::issueRequest(const Buffer& request)
     }
 
     HTTPMessage* httpRequest = new HTTPMessage(request);
-
-    // Note:  A historical defect in the calculation of the Content-Length
-    // header makes it possible that wbemexec input files exist with a
-    // Content-Length value one larger than the actual content size.  Adding
-    // and extra newline character to the end of the message keeps those old
-    // scripts working.
-    httpRequest->message << "\n";
 
     _authenticator.setRequestMessage(httpRequest);
 
@@ -449,7 +439,8 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
         // Find the separator between the start line and the headers, so we
         // can add the authorization header there.
 
-        const char* messageStart = httpMessage->message.getData();
+        httpMessage->message.append('\0');
+        char* messageStart = (char*) httpMessage->message.getData();
         char* headerStart =
             (char*)memchr(messageStart, '\n', httpMessage->message.size());
 
@@ -473,7 +464,7 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
             Buffer newMessageBuffer;
             newMessageBuffer << messageStart << HTTP_CRLF;
             newMessageBuffer << authHeader << HTTP_CRLF;
-            newMessageBuffer << headerStart;
+            newMessageBuffer << headerStart << HTTP_CRLF;
 
             HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
             delete httpMessage;

@@ -316,3 +316,37 @@ instance of PG_ProviderCapabilities
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
+
+// ===================================================================
+// IndicationStressTest Provider
+// ===================================================================
+
+instance of PG_ProviderModule
+{
+    Description = "Sample Pegasus CMPI Provider for stress testing Indications";
+    Caption = "Sample Pegasus CMPI Provider for stress testing Indications";
+    Name = "TestCMPIIndicationStressTestProviderModule";
+    Vendor = "OpenPegasus";
+    Version = "2.0.0";
+    InterfaceType = "CMPI";
+    InterfaceVersion = "2.0.0";
+    Location = "cmpiIndicationStressTestProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "TestCMPIIndicationStressTestProviderModule";
+    Name = "TestCMPIIndicationStressTestProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "TestCMPIIndicationStressTestProviderModule";
+    ProviderName = "TestCMPIIndicationStressTestProvider";
+    CapabilityID = "1";
+    ClassName = "TestCMPI_IndicationStressTestClass";
+    Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndicationNormal"};
+};

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,15 +31,15 @@
 
 Qualifier EmbeddedInstance : string,
     Scope(property, method, parameter),
-    Flavor(DisableOverride); 
+    Flavor(DisableOverride);
 
 [Indication]
-class TestCMPI_Indication 
+class TestCMPI_Indication
 {
     string PropertyA;
     string PropertyB;
 
-    string s; 
+    string s;
     char16 c;
     uint64 n64;
     uint32 n32;
@@ -65,7 +65,7 @@ class TestCMPI_Instance : TestCMPI_Parent
     [key]
     string ElementName;
 
-    string s; 
+    string s;
     char16 c;
     uint64 n64;
     uint32 n32;
@@ -140,4 +140,13 @@ class TestCMPI_Error : TestCMPI_Parent
 	  [OUT, Description (
 		" The result of what the operation carried out.")]
 			string Result);
+};
+
+
+// Class for IndicationStressTest Provider
+class TestCMPI_IndicationStressTestClass : CIM_Indication
+{
+  uint64 IndicationSequenceNumber;
+  [Static]
+  uint32 SendTestIndicationNormal(uint32 indicationSendCount);
 };

@@ -313,8 +313,6 @@ private:
 
     void _disconnect();
 
-    void _reconnect();
-
     Message* _doRequest(
         AutoPtr<CIMRequestMessage>& request,
         const Uint32 expectedResponseMessageType);
@@ -327,6 +325,19 @@ private:
 
     Uint32 _timeoutMilliseconds;
     Boolean _connected;
+    /**
+        The CIMClient uses a lazy reconnect algorithm.  A reconnection
+        is necessary when the server (listener) sends a Connection: Close
+        header in the HTTP response or when a connection timeout occurs
+        while waiting for a response.  In these cases, a disconnect is
+        performed immediately and the _doReconnect flag is set.  The
+        connection is re-established only when required to perform another
+        operation.  Note that in the case of a connection timeout, the
+        challenge status must be reset in the ClientAuthenticator to allow
+        authentication to be performed properly on the new connection.
+    */
+    Boolean _doReconnect;
+
     AutoPtr<CIMOperationResponseDecoder> _responseDecoder;
     AutoPtr<CIMOperationRequestEncoder> _requestEncoder;
     ClientAuthenticator _authenticator;

@@ -51,6 +51,7 @@
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include "CIMExportRequestEncoder.h"
 #include "CIMExportResponseDecoder.h"
@@ -76,6 +77,7 @@ CIMExportClient::CIMExportClient(
    _httpConnection(0),
    _timeoutMilliseconds(timeoutMilliseconds),
    _connected(false),
+   _doReconnect(false),
    _responseDecoder(0),
    _requestEncoder(0)
 {
@@ -134,6 +136,8 @@ void CIMExportClient::_connect()
 
     _responseDecoder->setEncoderQueue(_requestEncoder);    
 
+    _doReconnect = false;
+
     _connected = true;
 
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
@@ -177,15 +181,13 @@ void CIMExportClient::_disconnect()
 
         _connected = false;
     }
-    PEG_METHOD_EXIT();
-}
 
-void CIMExportClient::_reconnect()
-{
-    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_reconnect()");
-    _disconnect();
+    // Reconnect no longer applies
+    _doReconnect = false;
+
+    // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
-    _connect();
+
     PEG_METHOD_EXIT();
 }
 
@@ -326,19 +328,43 @@ void CIMExportClient::exportIndication(
 }
 
 Message* CIMExportClient::_doRequest(
-    CIMRequestMessage * request,
+    CIMRequestMessage* pRequest,
     const Uint32 expectedResponseMessageType
 )
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_doRequest()");
 
-    if (!_connected)
+    AutoPtr<CIMRequestMessage> request(pRequest);
+
+    if (!_connected && !_doReconnect)
     {
-       delete request;
        PEG_METHOD_EXIT();
        throw NotConnectedException();
     }
-    
+
+    if (_doReconnect)
+    {
+        try
+        {
+            _connect();
+            _doReconnect = false;
+        }
+        catch (const Exception& e)
+        {
+            PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
+                "Failed to connect to indication listener: " + e.getMessage());
+            PEG_METHOD_EXIT();
+            throw;
+        }
+        catch (...)
+        {
+            PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
+                "Failed to connect to indication listener.");
+            PEG_METHOD_EXIT();
+            throw;
+        }
+    }
+
     String messageId = XmlWriter::getNextMessageId();
     const_cast<String &>(request->messageId) = messageId;
 
@@ -352,7 +378,7 @@ Message* CIMExportClient::_doRequest(
     //
     request->setHttpMethod (HTTP_METHOD__POST);
 
-    _requestEncoder->enqueue(request);
+    _requestEncoder->enqueue(request.release());
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;
@@ -369,33 +395,37 @@ Message* CIMExportClient::_doRequest(
 	// Check to see if incoming queue has a message
 	//
 
-	Message* response = dequeue();
+	AutoPtr<Message> response(dequeue());
 
-	if (response)
+	if (response.get())
 	{
             // Shouldn't be any more messages in our queue
             PEGASUS_ASSERT(getCount() == 0);
 
             //
-            //  Future:  If M-POST is used and HTTP response is 501 Not
-            //  Implemented or 510 Not Extended, retry with POST method
-            //
+            // Close the connection if response contained a "Connection: Close"
+            // header (e.g. at authentication challenge)
             //
 
             // Reconnect to reset the connection
             // if Server response contained a Connection: Close Header
             //
-            if (response->getCloseConnect() == true){
-                _reconnect();
+            if (response->getCloseConnect() == true)
+            {
+                _disconnect();
+                _doReconnect = true;
                 response->setCloseConnect(false);
             }
 
+            //
+            //  Future:  If M-POST is used and HTTP response is 501 Not
+            //  Implemented or 510 Not Extended, retry with POST method
+            //
 
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {
                 Exception* clientException =
-                    ((ClientExceptionMessage*)response)->clientException;
-                delete response;
+                    ((ClientExceptionMessage*)response.get())->clientException;
                 PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Client Exception Message received.");
 
                 AutoPtr<Exception> d(clientException);
@@ -445,7 +475,8 @@ Message* CIMExportClient::_doRequest(
             {
                 PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, 
                     "Received expected indication response message.");
-                CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
+                CIMResponseMessage* cimResponse =
+                    (CIMResponseMessage*)response.get();
                 if (cimResponse->messageId != messageId)
                 {
 		  // l10n
@@ -462,7 +493,6 @@ Message* CIMExportClient::_doRequest(
 
 		  CIMClientResponseException responseException(mlString);
 
-		  delete response;
                   PEG_METHOD_EXIT();
 		  throw responseException;
                 }
@@ -473,17 +503,25 @@ Message* CIMExportClient::_doRequest(
                     CIMException cimException(
                         cimResponse->cimException.getCode(),
                         cimResponse->cimException.getMessage());
-                    delete response;
                     PEG_METHOD_EXIT();
 	            throw cimException;
                 }
                 PEG_METHOD_EXIT();
-                return response;
+                return response.release();
             }
-            else if (dynamic_cast<CIMRequestMessage*>(response) != 0)
+            else if (dynamic_cast<CIMRequestMessage*>(response.get()) != 0)
             {
-                // Respond to an authentication challenge
-                _requestEncoder->enqueue(response);
+                //
+                // Respond to an authentication challenge.
+                // Reconnect if the connection was closed.
+                //
+                if (_doReconnect)
+                {
+                    _connect();
+                }
+
+                _requestEncoder->enqueue(response.release());
+
                 nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
                 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
                 continue;
@@ -501,8 +539,6 @@ Message* CIMExportClient::_doRequest(
 	      
 	      CIMClientResponseException responseException(mlString);
 
-	      delete response;
-
               PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, mlString);
 
               PEG_METHOD_EXIT();
@@ -517,20 +553,18 @@ Message* CIMExportClient::_doRequest(
     //
     // Reconnect to reset the connection (disregard late response)
     //
-    try
-    {
-        PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Doing a _reconnect()...");
-        _reconnect();
-    }
-    catch (...)
-    {
-    }
 
-    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Connection to the listener timed out.");
-    PEG_METHOD_EXIT();
+    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+        "Connection to the listener timed out.");
+
+    _disconnect();
+    _authenticator.resetChallengeStatus();
+    _doReconnect = true;
+
     //
     // Throw timed out exception:
     //
+    PEG_METHOD_EXIT();
     throw ConnectionTimeoutException();
 }
 

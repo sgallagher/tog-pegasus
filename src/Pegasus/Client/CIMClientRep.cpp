@@ -76,7 +76,8 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     :
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
     _timeoutMilliseconds(timeoutMilliseconds),
-    _connected(false)
+    _connected(false),
+    _doReconnect(false)
 {
     //
     // Create Monitor and HTTPConnector
@@ -188,6 +189,7 @@ void CIMClientRep::_connect()
     _requestEncoder->setDataStorePointer(&perfDataStore);
     _responseDecoder->setDataStorePointer(&perfDataStore);
 
+    _doReconnect = false;
     _connected = true;
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
@@ -219,13 +221,12 @@ void CIMClientRep::_disconnect()
 
         _connected = false;
     }
-}
 
-void CIMClientRep::_reconnect()
-{
-    _disconnect();
-    _authenticator.clearReconnect();
-    _connect();
+    // Reconnect no longer applies
+    _doReconnect = false;
+
+    // Let go of the cached request message if we have one
+    _authenticator.setRequestMessage(0);
 }
 
 void CIMClientRep::connect(
@@ -1065,10 +1066,15 @@ Message* CIMClientRep::_doRequest(
     const Uint32 expectedResponseMessageType
 )
 {
-    if (!_connected)
+    if (!_connected && !_doReconnect)
     {
-        request.reset();
         throw NotConnectedException();
+    }
+
+    if (_doReconnect)
+    {
+        _connect();
+        _doReconnect = false;
     }
 
     String messageId = XmlWriter::getNextMessageId();
@@ -1119,19 +1125,21 @@ Message* CIMClientRep::_doRequest(
         // Check to see if incoming queue has a message
         //
 
-        Message* response = dequeue();
+        AutoPtr<Message> response(dequeue());
 
-        if (response)
+        if (response.get())
         {
             // Shouldn't be any more messages in our queue
             PEGASUS_ASSERT(getCount() == 0);
 
             //
-            // Reconnect to reset the connection
-            // if Server response contained a Connection: Close Header
+            // Close the connection if response contained a "Connection: Close"
+            // header (e.g. at authentication challenge)
             //
-            if (response->getCloseConnect() == true){
-                _reconnect();
+            if (response->getCloseConnect() == true)
+            {
+                _disconnect();
+                _doReconnect = true;
                 response->setCloseConnect(false);
             }
 
@@ -1144,8 +1152,7 @@ Message* CIMClientRep::_doRequest(
             {
 
                 Exception* clientException =
-                    ((ClientExceptionMessage*)response)->clientException;
-                delete response;
+                    ((ClientExceptionMessage*)response.get())->clientException;
 
                 AutoPtr<Exception> d(clientException);
 
@@ -1198,7 +1205,8 @@ Message* CIMClientRep::_doRequest(
             }
             else if (response->getType() == expectedResponseMessageType)
             {
-                CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
+                CIMResponseMessage* cimResponse =
+                    (CIMResponseMessage*)response.get();
 
                 if (cimResponse->messageId != messageId)
                 {
@@ -1218,7 +1226,6 @@ Message* CIMClientRep::_doRequest(
 
                     CIMClientResponseException responseException(mlString);
 
-                    delete response;
                     throw responseException;
                 }
 
@@ -1235,7 +1242,6 @@ Message* CIMClientRep::_doRequest(
                         cimResponse->cimException.getCode(),
                         cimResponse->cimException.getMessage());
                     cimException.setContentLanguages(responseContentLanguages);
-                    delete response;
                     throw cimException;
                 }
 
@@ -1256,12 +1262,20 @@ Message* CIMClientRep::_doRequest(
                    perfDataStore.handler_prt->handleClientOpPerformanceData(item);
 
                 }//end of if statmet that call the callback method
-                return response;
+                return response.release();
             }
-            else if (dynamic_cast<CIMRequestMessage*>(response) != 0)
+            else if (dynamic_cast<CIMRequestMessage*>(response.get()) != 0)
             {
-                // Respond to an authentication challenge
-                _requestEncoder->enqueue(response);
+                //
+                // Respond to an authentication challenge.
+                // Reconnect if the connection was closed.
+                //
+                if (_doReconnect)
+                {
+                    _connect();
+                }
+
+                _requestEncoder->enqueue(response.release());
                 nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
                 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
                 continue;
@@ -1279,7 +1293,6 @@ Message* CIMClientRep::_doRequest(
 
                 CIMClientResponseException responseException(mlString);
 
-                delete response;
                 throw responseException;
             }
         }
@@ -1291,13 +1304,10 @@ Message* CIMClientRep::_doRequest(
     //
     // Reconnect to reset the connection (disregard late response)
     //
-    try
-    {
-        _reconnect();
-    }
-    catch (...)
-    {
-    }
+
+    _disconnect();
+    _authenticator.resetChallengeStatus();
+    _doReconnect = true;
 
     //
     // Throw timed out exception:

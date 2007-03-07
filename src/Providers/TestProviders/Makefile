@@ -74,7 +74,7 @@ DIRS = \
 	TestAggregationOutputProvider \
 	TestAggregationOutputProvider/testclient
 
-ifdef PEGASUS_BUILD_INTEROP 
+ifdef PEGASUS_BUILD_INTEROP
 DIRS += \
 	TestServerProfileProviders
 endif
@@ -104,7 +104,9 @@ DIRS += \
 	CMPI/TestProviderThreaded \
 	CMPI/TestProviderThreaded/tests \
 	CMPI/TestAssociation \
-	CMPI/TestAssociation/tests
+	CMPI/TestAssociation/tests \
+	CMPI/TestIndicationStressTestProvider \
+	CMPI/TestIndicationStressTestProvider/tests
 
 ifndef PEGASUS_DISABLE_CQL
 DIRS += \

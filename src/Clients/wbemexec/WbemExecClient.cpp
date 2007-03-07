@@ -127,43 +127,27 @@ void WbemExecClient::handleEnqueue()
 
 }
 
-void WbemExecClient::_connect(
-    const String& host,
-    const Uint32 portNumber,
-    AutoPtr<SSLContext>& sslContext
-) throw(CannotCreateSocketException, CannotConnectException,
-        InvalidLocatorException)
+void WbemExecClient::_connect()
 {
     //
     // Attempt to establish a connection:
     //
-    //try
-    //{
     _httpConnection = _httpConnector->connect(
-         host, portNumber, sslContext.get(), this);
-    sslContext.release();
-
-    //}
-    // Could catch CannotCreateSocketException, CannotConnectException,
-    // or InvalidLocatorException
-    //catch (Exception& e)
-    //{
-    //    throw;
-    //}
+         _connectHost,
+         _connectPortNumber,
+         _connectSSLContext.get(),
+         this);
 
     _connected = true;
-    _isRemote  = true;
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
 
 void WbemExecClient::connect(
     const String& host,
-    const Uint32 portNumber,
-    AutoPtr<SSLContext>& sslContext,
+    Uint32 portNumber,
+    const SSLContext* sslContext,
     const String& userName,
-    const String& password
-) throw(AlreadyConnectedException, InvalidLocatorException,
-        CannotCreateSocketException, CannotConnectException)
+    const String& password)
 {
     //
     // If already connected, bail out!
@@ -193,17 +177,26 @@ void WbemExecClient::connect(
     if (password.size())
     {
         _authenticator.setPassword(password);
-    _password = password;
+        _password = password;
     }
 
-    _connect(hostName, portNumber, sslContext);
-    _isRemote  = true;
+    if (sslContext)
+    {
+        _connectSSLContext.reset(new SSLContext(*sslContext));
+    }
+    else
+    {
+        _connectSSLContext.reset();
+    }
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    _connect();
+    _isRemote = true;
 }
 
 
 void WbemExecClient::connectLocal()
-    throw(AlreadyConnectedException, InvalidLocatorException,
-          CannotCreateSocketException, CannotConnectException)
 {
     //
     // If already connected, bail out!
@@ -211,18 +204,17 @@ void WbemExecClient::connectLocal()
     if (_connected)
         throw AlreadyConnectedException();
 
-    String host = String::EMPTY;
-    Uint32 portNumber = 0;
-
     //
     // Set authentication type
     //
     _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
-    AutoPtr<SSLContext>  sslContext;
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-    _connect(host, portNumber, sslContext);
+    _connectSSLContext.reset();
+    _connectHost = String::EMPTY;
+    _connectPortNumber = 0;
+    _connect();
 #else
 
     try
@@ -230,28 +222,30 @@ void WbemExecClient::connectLocal()
         //
         // Look up the WBEM HTTP port number for the local system
         //
-        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
+        _connectPortNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
             WBEM_DEFAULT_HTTP_PORT);
 
         //
         //  Assign host
         //
-        host.assign(_getLocalHostName());
+        _connectHost.assign(System::getHostName());
 
-        _connect(host, portNumber, sslContext);
+        _connectSSLContext.reset();
+
+        _connect();
     }
     catch(CannotConnectException &)
     {
         //
         // Look up the WBEM HTTPS port number for the local system
         //
-        portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
+        _connectPortNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
             WBEM_DEFAULT_HTTPS_PORT);
 
         //
         //  Assign host
         //
-        host.assign(_getLocalHostName());
+        _connectHost.assign(System::getHostName());
 
         //
         // Create SSLContext
@@ -269,9 +263,10 @@ void WbemExecClient::connectLocal()
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-        AutoPtr<SSLContext> sslContext(new SSLContext(certpath, verifyServerCertificate, randFile));//PEP101
+        _connectSSLContext.reset(
+            new SSLContext(certpath, verifyServerCertificate, randFile));
 
-        _connect(host, portNumber, sslContext);
+        _connect();
     }
 #endif
     _isRemote = false;
@@ -291,6 +286,15 @@ void WbemExecClient::disconnect()
 
         _connected = false;
     }
+}
+
+void WbemExecClient::_reconnect()
+{
+    PEGASUS_ASSERT(_connected);
+    _httpConnector->disconnect(_httpConnection);
+    _httpConnection = 0;
+    _connected = false;
+    _connect();
 }
 
 /**
@@ -332,9 +336,7 @@ String WbemExecClient::_promptForPassword()
 }
 
 
-Buffer WbemExecClient::issueRequest(
-    const Buffer& request
-)
+Buffer WbemExecClient::issueRequest(const Buffer& request)
 {
     if (!_connected)
     {
@@ -345,10 +347,10 @@ Buffer WbemExecClient::issueRequest(
 
     _authenticator.setRequestMessage(httpRequest);
 
-    Boolean finished = false;
-    Boolean challenge = false;
+    Boolean haveBeenChallenged = false;
     HTTPMessage* httpResponse;
-    do
+    
+    while (1)
     {
         HTTPMessage* httpRequestCopy =
             new HTTPMessage(*(HTTPMessage*)_authenticator.getRequestMessage());
@@ -358,25 +360,44 @@ Buffer WbemExecClient::issueRequest(
         PEGASUS_ASSERT(response->getType() == HTTP_MESSAGE);
         httpResponse = (HTTPMessage*)response;
 
-        finished = !_checkNeedToResend(httpResponse);
-        if (!finished)
+        // If we've already been challenged or if the response does not
+        // contain a challenge, there is nothing more to do.
+
+        String startLine;
+        Array<HTTPHeader> headers;
+        Uint32 contentLength;
+
+        httpResponse->parse(startLine, headers, contentLength);
+
+        if (haveBeenChallenged || !_checkNeedToResend(headers))
         {
-            if (!challenge)
-            {
-                challenge = true;
-        if( ( _password == String::EMPTY ) && _isRemote )
-          {
-            _password = _promptForPassword();
-            _authenticator.setPassword( _password );
-          }
-            }
-            else
-            {
-                break;
-            }
-            delete httpResponse;
+            break;
         }
-    } while (!finished);
+
+        // If the challenge contains a Connection: Close header, reestablish
+        // the connection.
+
+        String connectionHeader;
+
+        if (HTTPMessage::lookupHeader(
+                headers, "Connection", connectionHeader, false))
+        {
+            if (String::equalNoCase(connectionHeader, "Close"))
+            {
+                _reconnect();
+            }
+        }
+
+        // Prompt for a password, if necessary
+
+        if ((_password == String::EMPTY) && _isRemote)
+        {
+            _password = _promptForPassword();
+            _authenticator.setPassword(_password);
+        }
+        haveBeenChallenged = true;
+        delete httpResponse;
+    }
 
     AutoPtr<HTTPMessage> origRequest(
         (HTTPMessage*)_authenticator.releaseRequestMessage());
@@ -425,18 +446,6 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
     throw ConnectionTimeoutException();
 }
 
-String WbemExecClient::_getLocalHostName()
-{
-    static String hostname;
-
-    if (!hostname.size())
-    {
-        hostname.assign(System::getHostName());
-    }
-
-    return hostname;
-}
-
 void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
 {
     //
@@ -478,21 +487,11 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
     }
 }
 
-Boolean WbemExecClient::_checkNeedToResend(HTTPMessage* httpMessage)
+Boolean WbemExecClient::_checkNeedToResend(const Array<HTTPHeader>& httpHeaders)
 {
-    //
-    // Parse the HTTP message:
-    //
-
-    String startLine;
-    Array<HTTPHeader> headers;
-    Uint32 contentLength;
-
-    httpMessage->parse(startLine, headers, contentLength);
-
     try
     {
-        return _authenticator.checkResponseHeaderForChallenge(headers);
+        return _authenticator.checkResponseHeaderForChallenge(httpHeaders);
     }
     catch(InvalidAuthHeader&)
     {

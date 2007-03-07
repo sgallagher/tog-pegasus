@@ -104,7 +104,7 @@ protected:
 	CIMOMHandle         _cimom;
 	
 	Array<CIMInstance>	_instances;
-        CIMInstance   realValueTestInstance;
+
 private:
 	void _testPropertyTypesValue(const CIMInstance & instanceObject);
 

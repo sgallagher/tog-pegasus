@@ -52,6 +52,7 @@ endif
 LOCAL_DEFINES += -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestIndicationStressTest
+PROGRAM2 = $(PROGRAM) IndicationStressTestClass test/TestProvider
 
 SOURCES = IndicationStressTest.cpp
 
@@ -63,6 +64,19 @@ tests:
 
 ## poststarttests: wql_10_1  cql_10_1 wql_10_10 cql_10_10 wql_10_100 cql_10_100 wql_100_10 cql_100_10
 
+## Note: cmpitests and rcmpitests targets are used by the CMPI version of
+## Indication stress-test testcase Makefile from the directory
+## TestProviders/CMPI/TestIndicationStressTestProvider/tests . 
+cmpitests:
+	$(MAKE) poststarttests PROGRAM2=$(PROGRAM) \
+			PROGRAM2+=TestCMPI_IndicationStressTestClass \
+			PROGRAM2+=test/TestProvider
+
+rcmpitests:
+	$(MAKE) poststarttests PROGRAM2=$(PROGRAM) \
+			PROGRAM2+=TestCMPI_IndicationStressTestClass \
+			PROGRAM2+=test/Remote/Localhost
+
 poststarttests:
 	$(MAKE) wql_10_1
 	$(MAKE) cql_10_1
@@ -71,10 +85,10 @@ poststarttests:
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 
 wql_10_1:
-	$(PROGRAM) setup$L WQL $p 
-	$(PROGRAM) run 1 1 $I 
-	$(PROGRAM) run 10 1
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L WQL $p 
+	$(PROGRAM2) run 1 1 $I 
+	$(PROGRAM2) run 10 1
+	$(PROGRAM2) cleanup
 
 ## use the cql_i_t and wql_i_t rule as follows:
 ## 
@@ -100,74 +114,74 @@ wql_10_1:
 ## setupCL, or SL the Server-resident Listener, setupSL. 
 
 cql_i_t:
-	$(PROGRAM) setup$L DMTF:CQL $p
-	$(PROGRAM) run $i $t $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L DMTF:CQL $p
+	$(PROGRAM2) run $i $t $I
+	$(PROGRAM2) cleanup
 
 wql_i_t: 
-	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run $i $t $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L WQL $p
+	$(PROGRAM2) run $i $t $I
+	$(PROGRAM2) cleanup
 
 
 wql_10_10:
-	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 10 10 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L WQL $p
+	$(PROGRAM2) run 10 10 $I
+	$(PROGRAM2) cleanup
 
 wql_10_100:
-	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 10 100 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L WQL $p
+	$(PROGRAM2) run 10 100 $I
+	$(PROGRAM2) cleanup
 
 wql_100_10:
-	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 100 10 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L WQL $p
+	$(PROGRAM2) run 100 10 $I
+	$(PROGRAM2) cleanup
 
 wql_100_100:
-	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 100 100 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L WQL $p
+	$(PROGRAM2) run 100 100 $I
+	$(PROGRAM2) cleanup
 
 wql_1000_100:
-	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 1000 100 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L WQL $p
+	$(PROGRAM2) run 1000 100 $I
+	$(PROGRAM2) cleanup
 
 cql_10_1:
-	$(PROGRAM) setup$L DMTF:CQL $p 
-	$(PROGRAM) run 1 1 $I
-	$(PROGRAM) run 10 1
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L DMTF:CQL $p 
+	$(PROGRAM2) run 1 1 $I
+	$(PROGRAM2) run 10 1
+	$(PROGRAM2) cleanup
 
 cql_10_10:
-	$(PROGRAM) setup$L DMTF:CQL $p
-	$(PROGRAM) run 10 10 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L DMTF:CQL $p
+	$(PROGRAM2) run 10 10 $I
+	$(PROGRAM2) cleanup
 
 cql_10_100:
-	$(PROGRAM) setup$L DMTF:CQL $p
-	$(PROGRAM) run 10 100 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L DMTF:CQL $p
+	$(PROGRAM2) run 10 100 $I
+	$(PROGRAM2) cleanup
 
 cql_100_10:
-	$(PROGRAM) setup$L DMTF:CQL $p
-	$(PROGRAM) run 100 10 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L DMTF:CQL $p
+	$(PROGRAM2) run 100 10 $I
+	$(PROGRAM2) cleanup
 
 cql_100_100:
-	$(PROGRAM) setup$L DMTF:CQL $p
-	$(PROGRAM) run 100 100 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L DMTF:CQL $p
+	$(PROGRAM2) run 100 100 $I
+	$(PROGRAM2) cleanup
 
 cql_1000_100:
-	$(PROGRAM) setup$L DMTF:CQL $p
-	$(PROGRAM) run 1000 100 $I
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup$L DMTF:CQL $p
+	$(PROGRAM2) run 1000 100 $I
+	$(PROGRAM2) cleanup
 
 testsclean:
-	$(PROGRAM) cleanup
+	$(PROGRAM2) cleanup
 
 run_TS1_AuthenticationEnabled: testsclean run_TS1_INTERNAL run_TS1_HTTPS_VERIFY_USER
 	@ $(ECHO) run_TS1_AuthenticationEnabled  +++++ passed all test
@@ -176,29 +190,29 @@ run_TS1_AuthenticationDisabled: testsclean run_TS1_INTERNAL run_TS1_HTTP run_TS1
 	@ $(ECHO) run_TS1_AuthenticationDisabled  +++++ passed all test
 
 run_TS1_INTERNAL:
-	$(PROGRAM) setup WQL
-	$(PROGRAM) run 10 1
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup WQL
+	$(PROGRAM2) run 10 1
+	$(PROGRAM2) cleanup
 
 run_TS1_HTTP:
-	$(PROGRAM) setup WQL HTTP
-	$(PROGRAM) run 10 1
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup WQL HTTP
+	$(PROGRAM2) run 10 1
+	$(PROGRAM2) cleanup
 
 run_TS1_HTTPS:
 ifdef PEGASUS_HAS_SSL
 ifdef PEGASUS_TEST_USER_DEFINED
-	$(PROGRAM) setup WQL HTTPS
-	$(PROGRAM) run 10 1
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup WQL HTTPS
+	$(PROGRAM2) run 10 1
+	$(PROGRAM2) cleanup
 endif
 endif
 
 run_TS1_HTTPS_VERIFY_USER:
 ifdef PEGASUS_HAS_SSL
 ifdef PEGASUS_TEST_USER_DEFINED
-	$(PROGRAM) setup WQL HTTPS
-	$(PROGRAM) run 10 1 $(PEGASUS_TEST_USER_ID)
-	$(PROGRAM) cleanup
+	$(PROGRAM2) setup WQL HTTPS
+	$(PROGRAM2) run 10 1 $(PEGASUS_TEST_USER_ID)
+	$(PROGRAM2) cleanup
 endif
 endif

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//
-// Modified By: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4400
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -56,8 +51,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("test/TestProvider");
+CIMNamespaceName sourceNamespace;
+String indicationClassName;
 
+const CIMNamespaceName INDICATION_CONSUMER_NAMESPACE = 
+          CIMNamespaceName ("test/TestProvider");
 const String INDICATION_CONSUMER_CLASS_NAME = "PG_IndicationStressTestConsumer";
 const String INDICATION_CLASS_NAME = String ("IndicationStressTestClass");
 
@@ -147,7 +145,7 @@ void MyIndicationConsumer::consumeIndication(
   // Increment the count of indications received
   //
   receivedIndicationCount++;
-  PEGASUS_TEST_ASSERT(indicationInstance.getClassName().getString() == INDICATION_CLASS_NAME);
+  PEGASUS_TEST_ASSERT(indicationInstance.getClassName().getString() == indicationClassName);
   if (receivedIndicationCount.get() % 200 == 0)
     cout << "+++++     received indications = " 
          << receivedIndicationCount.get() 
@@ -428,7 +426,7 @@ CIMObjectPath _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
         String (qlang)));
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
-        SOURCE_NAMESPACE.getString ()));
+        sourceNamespace.getString ()));
 
     return(client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filterInstance));
 }
@@ -461,12 +459,14 @@ void _sendTestIndication(CIMClient* client, const CIMName & methodName, Uint32 i
 
     CIMValue sendCountValue(indicationSendCount);
     inParams.append(CIMParamValue(String("indicationSendCount"), CIMValue(indicationSendCount)));
+    inParams.append(CIMParamValue(String("namespace"),
+                 CIMValue(sourceNamespace.getString () ) ) );
 
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
-        CIMName ("IndicationStressTestClass"), keyBindings);
+        CIMName (indicationClassName), keyBindings);
 
     CIMValue retValue = client->invokeMethod
-        (SOURCE_NAMESPACE,
+        (sourceNamespace,
         className,
         methodName,
         inParams,
@@ -517,7 +517,8 @@ void _usage ()
 {
    cerr << endl
         << "Usage:" << endl
-        << "    TestIndicationStressTest [setup | setupCL | setupSL]\n"
+        << "    TestIndicationStressTest ClassName Namespace\n"
+        << "                  [setup | setupCL | setupSL]\n"
         << "                  [ WQL | DMTF:CQL ]\n"
         << "                  [INTERNAL | HTTP | HTTPS]\n"
         << "    where: " << endl
@@ -562,7 +563,7 @@ void _getTestResults(
     Array<CIMParamValue> outParams;
 
     CIMValue retValue = client.invokeMethod(
-        SOURCE_NAMESPACE,
+        INDICATION_CONSUMER_NAMESPACE.getString (),
         classPath,
         CIMName("getTestResults"),
         inParams,
@@ -651,7 +652,7 @@ void _setupServerResidentListener(CIMClient &client,
          CIMValue(expectedSenderIdentity)));
 
     CIMValue retValue = client.invokeMethod(
-        SOURCE_NAMESPACE,
+        INDICATION_CONSUMER_NAMESPACE.getString (),
         classPath,
         CIMName("setupTestConfiguration"),
         inParams,
@@ -679,9 +680,10 @@ void _setup (CIMClient & client, String& qlang,
     try
     {
         instanceAlreadyExists = false;
+        String query ("SELECT * FROM ");
+        query.append (indicationClassName);
         filterObjectPath = _createFilterInstance (client, FILTER_NAME,
-            String ("SELECT * FROM IndicationStressTestClass"),
-            qlang);
+                                                  query, qlang);
     }
     catch (CIMException& e)
     {
@@ -1416,7 +1418,7 @@ int main (int argc, char** argv)
         return -1;
     }
 
-    if (argc <= 1)
+    if (argc <= 3)
     {
         cerr << "Invalid argument count: " << argc << endl;
         _usage();
@@ -1424,24 +1426,24 @@ int main (int argc, char** argv)
     }
     else
     {
-        const char * opt = argv[1];
+        const char * opt = argv[3];
         const char * optTwo;
         const char * optThree;
         const char * optFour;
 
-        if (argc == 5) {
-            optTwo = argv[2];
-            optThree = argv[3];
-            optFour = argv[4];
+        if (argc == 7) {
+            optTwo = argv[4];
+            optThree = argv[5];
+            optFour = argv[6];
         }
             
-        else if (argc == 4) {
-            optTwo = argv[2];
-            optThree = argv[3];
+        else if (argc == 6) {
+            optTwo = argv[4];
+            optThree = argv[5];
             optFour = NULL;
         }
-        else if (argc == 3) {
-            optTwo = argv[2];
+        else if (argc == 5) {
+            optTwo = argv[4];
             optThree = NULL;
             optFour = NULL;
         }
@@ -1450,7 +1452,10 @@ int main (int argc, char** argv)
             optThree = NULL;
             optFour = NULL;
         }
-
+        indicationClassName = argv[1];
+        sourceNamespace = CIMNamespaceName (argv[2]);
+        cout << "++++ Testing with class " << indicationClassName
+             << " and Namespace " << sourceNamespace.getString () << endl;
         try
         {
             int rc = _beginTest(workClient, opt, optTwo, optThree, optFour);

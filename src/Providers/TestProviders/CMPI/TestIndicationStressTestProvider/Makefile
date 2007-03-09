@@ -30,7 +30,7 @@
 #//==============================================================================
 ROOT = ../../../../..
 
-DIR = Providers/TestProviders/IndicationStressTestProvider/CMPI
+DIR = Providers/TestProviders/CMPI/TestIndicationStressTestProvider
 
 
 include $(ROOT)/mak/config.mak

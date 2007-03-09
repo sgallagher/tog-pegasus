@@ -115,7 +115,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderAuthorizeFilter(
                                            const CMPISelectExp * se,
                                            const char *ns,
                                            const CMPIObjectPath * op,
-                                           CMPIBoolean firstActivation)
+                                           const char *user)
 {
     if (strcmp (ns, _IndClassName) )
     {
@@ -175,9 +175,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderEnableIndications(
     CMReturn (CMPI_RC_OK);
 }
 
-// We should return CMPIStatus here according to CMPI specification, returning
-// void for compatibility with older versions. See Bug 4985
-void TestCMPIIndicationStressTestProviderDisableIndications(
+CMPIStatus TestCMPIIndicationStressTestProviderDisableIndications(
                                                CMPIIndicationMI * mi,
                                                const CMPIContext * ctx)
 {
@@ -185,6 +183,7 @@ void TestCMPIIndicationStressTestProviderDisableIndications(
     {
         _enabled = CMPI_false;
     }
+    CMReturn (CMPI_RC_OK);
 }
 
 

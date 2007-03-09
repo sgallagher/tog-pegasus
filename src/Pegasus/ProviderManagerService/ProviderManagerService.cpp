@@ -386,14 +386,14 @@ void ProviderManagerService::handleCimRequest(
                 requestedOperationContextContainers);
         }
 
-        Boolean sslCertificateContainerRequested = true;
+        Boolean sslCertificateContainerRequested = false;
 
         for (Uint32 i=0; i<requestedOperationContextContainers.size(); i++)
         {
-            if (requestedOperationContextContainers[i] !=
+            if (requestedOperationContextContainers[i] ==
                 PEGASUS_SSL_CERTIFICATE_CHAIN)
             {
-                sslCertificateContainerRequested = false;
+                sslCertificateContainerRequested = true;
             }
         }
 
@@ -403,8 +403,12 @@ void ProviderManagerService::handleCimRequest(
                 remove the SSL client certificate container unless the
                 provider explicitly registered for it.
             */
-            request->operationContext.remove(
-                SSLCertificateChainContainer::NAME);
+            if(request->operationContext.contains(
+                SSLCertificateChainContainer::NAME)
+            {
+                request->operationContext.remove(
+                    SSLCertificateChainContainer::NAME);
+            }
         }
 
         //

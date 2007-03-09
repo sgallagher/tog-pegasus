@@ -170,6 +170,8 @@ String System::getHostName()
     if (0 == _hostname.size())
     {
         char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
+        //initialize the buffer to handle the case where gethostname fails.
+        hostname[0] = 0;
         gethostname(hostname, sizeof(hostname));
         hostname[sizeof(hostname)-1] = 0;
         _hostname.assign(hostname);

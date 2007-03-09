@@ -190,8 +190,6 @@ private:
         The connection is closed and outstanding requests are completed
         with an error result.
 
-        Note: The caller must lock the _agentMutex.
-
         @param cleanShutdown Indicates whether the provider agent process
         exited cleanly.  A value of true indicates that responses have been
         sent for all requests that have been processed.  A value of false
@@ -887,21 +885,21 @@ Boolean ProviderAgentContainer::isInitialized()
     return _isInitialized;
 }
 
-// Note: Caller must lock _agentMutex
 void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::_uninitialize");
 
-    if (!_isInitialized)
-    {
-        PEGASUS_ASSERT(0);
-        PEG_METHOD_EXIT();
-        return;
-    }
+#if defined(PEGASUS_HAS_SIGNALS)
+    pid_t pid;
+#endif
 
     try
     {
+        AutoMutex lock(_agentMutex);
+
+        PEGASUS_ASSERT(_isInitialized);
+
         // Close the connection with the Provider Agent
         _pipeFromAgent.reset();
         _pipeToAgent.reset();
@@ -914,19 +912,8 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         }
 
 #if defined(PEGASUS_HAS_SIGNALS)
-        // Harvest the status of the agent process to prevent a zombie
-        pid_t status = 0;
-        do
-        {
-            status = waitpid(_pid, 0, 0);
-        } while ((status == -1) && (errno == EINTR));
-
-        if (status == -1)
-        {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ProviderAgentContainer::_uninitialize(): "
-                    "waitpid failed; errno = %d.", errno);
-        }
+        // Save the _pid so we can use it after we've released the _agentMutex
+        pid = _pid;
 #endif
 
         _isInitialized = false;
@@ -976,6 +963,23 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Ignoring _uninitialize() exception.");
     }
+
+#if defined(PEGASUS_HAS_SIGNALS)
+    // Harvest the status of the agent process to prevent a zombie.  Do not
+    // hold the _agentMutex during this operation.
+    pid_t status = 0;
+    do
+    {
+        status = waitpid(pid, 0, 0);
+    } while ((status == -1) && (errno == EINTR));
+
+    if (status == -1)
+    {
+        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "ProviderAgentContainer::_uninitialize(): "
+                "waitpid failed; errno = %d.", errno);
+    }
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -1325,7 +1329,6 @@ void ProviderAgentContainer::_processResponses()
             if ((readStatus == AnonymousPipe::STATUS_ERROR) ||
                 (readStatus == AnonymousPipe::STATUS_CLOSED))
             {
-                AutoMutex lock(_agentMutex);
                 _uninitialize(false);
                 return;
             }
@@ -1334,7 +1337,6 @@ void ProviderAgentContainer::_processResponses()
             // finished its processing and is ready to exit.
             if (message == 0)
             {
-                AutoMutex lock(_agentMutex);
                 _uninitialize(true);
                 return;
             }
@@ -1897,12 +1899,23 @@ void OOPProviderManagerRouter::unloadIdleProviders()
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "OOPProviderManagerRouter::unloadIdleProviders");
 
-    // Iterate through the _providerAgentTable unloading idle providers
-    AutoMutex lock(_providerAgentTableMutex);
-    ProviderAgentTable::Iterator i = _providerAgentTable.start();
-    for(; i != 0; i++)
+    // Get a list of the ProviderAgentContainers.  We need our own array copy
+    // because we cannot hold the _providerAgentTableMutex while calling
+    // ProviderAgentContainer::unloadIdleProviders().
+    Array<ProviderAgentContainer*> paContainerArray;
     {
-        i.value()->unloadIdleProviders();
+        AutoMutex tableLock(_providerAgentTableMutex);
+        for (ProviderAgentTable::Iterator i = _providerAgentTable.start();
+             i != 0; i++)
+        {
+            paContainerArray.append(i.value());
+        }
+    }
+
+    // Iterate through the _providerAgentTable unloading idle providers
+    for (Uint32 j = 0; j < paContainerArray.size(); j++)
+    {
+        paContainerArray[j]->unloadIdleProviders();
     }
 
     PEG_METHOD_EXIT();

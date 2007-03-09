@@ -125,9 +125,9 @@ POSTSTARTTEST_CMDS = \
    $(PEGASUS_TEST_DIR)/bin/TestClient@@-local \
    $(PEGASUS_TEST_DIR)/bin/TestClientOSProvider \
    $(PEGASUS_TEST_DIR)/bin/TestPegClientInvokeMethod2 \
-   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@setup@@WQL \
-   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@run@@100@@1 \
-   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@cleanup
+   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@setup@@WQL \
+   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@run@@100@@1 \
+   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@cleanup
 
 ifdef PEGASUS_USE_NET_SNMP
    POSTSTARTTEST_CMDS += \

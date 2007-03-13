@@ -368,9 +368,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             buffer.reserveCapacity(messageLength + 1);
             messageStart = (char *) buffer.getData();
             messageStart[messageLength] = 0;
-            Tracer::trace(
-                TRC_XML_IO,
-                Tracer::LEVEL2, "<!-- Response: queue id: %u -->\n%s",
+            Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+                "<!-- Response: queue id: %u -->\n%s",
                 getQueueId(),
                 buffer.getData());
             if (isFirst == true)
@@ -920,8 +919,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
                 if (traceTrailer)
                 {
-                    Tracer::trace(TRC_XML_IO,Tracer::LEVEL2,
-                        "<!-- Trailer: queue id: %u -->\n%s \n",
+                    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+                        "<!-- Trailer: queue id: %u -->\n%s",
                         getQueueId(),
                         trailer.getData());
                 }
@@ -1854,9 +1853,6 @@ void HTTPConnection::_handleReadEventFailure(
     message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,
         httpDetail);
     HTTPMessage* httpMessage = new HTTPMessage(message);
-    Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
-        httpMessage->message.getData(),
-        httpMessage->message.size());
 
     // this is common error code. If we are the server side, we want to send
     // back the error to the client, but if we are the client side, then we
@@ -1875,6 +1871,10 @@ void HTTPConnection::_handleReadEventFailure(
     else
     {
         // else server side processing error - send back to client
+        Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+            "<!-- Error response: queue id: %u -->\n%s",
+            getQueueId(),
+            httpMessage->message.getData());
         handleEnqueue(httpMessage);
     }
     _closeConnection();
@@ -2052,6 +2052,14 @@ void HTTPConnection::_handleReadEvent()
 
         // add any content languages
         message->contentLanguages = contentLanguages;
+
+        if (_isClient() == false)
+        {
+            Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+                "<!-- Request: queue id: %u -->\n%s",
+                getQueueId(),
+                _incomingBuffer.getData());
+        }
 
         //
         // increment request count

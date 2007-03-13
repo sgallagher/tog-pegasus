@@ -104,10 +104,10 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
             // reconnect and then resend next request.
             cimReconnect=true;
         }
-
-        Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
-            httpMessage->message.getData());
     }
+
+    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
+        httpMessage->message.getData());
 
     //
     //  Parse HTTP message status line

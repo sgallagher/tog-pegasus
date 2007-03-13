@@ -209,9 +209,6 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String httpVersion;
    HttpMethod httpMethod = HTTP_METHOD__POST;
 
-   Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
-                 httpMessage->message.getData());
-
    // ATTN-RK-P3-20020404: The requestUri may need to be pruned of the host
    // name.  All we care about at this point is the path.
    HTTPMessage::parseRequestLine(

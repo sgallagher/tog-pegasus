@@ -226,9 +226,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     String httpVersion;
     HttpMethod httpMethod = HTTP_METHOD__POST;
 
-    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
-        httpMessage->message.getData());
-
     HTTPMessage::parseRequestLine(
         startLine, methodName, requestUri, httpVersion);
 

@@ -612,6 +612,12 @@ void ConfigManager::mergeConfigFiles(
 
     _configFileHandler.reset(new ConfigFileHandler(currentFile, plannedFile));
 
+    //
+    // copy the contents of planned config file over
+    // the current config file
+    //
+    _configFileHandler->copyPlannedFileOverCurrentFile();
+
     _loadConfigProperties();
 }
 
@@ -621,6 +627,25 @@ void ConfigManager::mergeConfigFiles(
     with the properties in the default current config file.
 */
 void ConfigManager::mergeConfigFiles()
+{
+    PEGASUS_ASSERT(useConfigFiles);
+
+    _configFileHandler.reset(new ConfigFileHandler());
+
+    //
+    // copy the contents of planned config file over
+    // the current config file
+    //
+    _configFileHandler->copyPlannedFileOverCurrentFile();
+
+    _loadConfigProperties();
+}
+
+
+/**
+Load the config properties from the current and planned files.
+*/
+void ConfigManager::loadConfigFiles()
 {
     PEGASUS_ASSERT(useConfigFiles);
 
@@ -674,12 +699,6 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
 void ConfigManager::_loadConfigProperties()
 {
     PEGASUS_ASSERT(useConfigFiles);
-
-    //
-    // copy the contents of planned config file over
-    // the current config file
-    //
-    _configFileHandler->copyPlannedFileOverCurrentFile();
 
     //
     // load all the properties from the current and planned

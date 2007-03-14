@@ -353,23 +353,13 @@ int JMPIjvm::initJVM ()
 
       DDD(PEGASUS_STD(cerr) << "--- JMPIjvm::initJVM(): No CLASSPATH environment variable found" << PEGASUS_STD(endl));
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-      throw PEGASUS_CIM_EXCEPTION_L(
-                 CIM_ERR_FAILED,
-                 MessageLoaderParms(
-                     "ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS",
-                     "Could not get CLASSPATH from environment."
-                     " Either CLASSPATH is longer than 255 characters"
-                     " or not set at all.")
-                 );
-#else
       throw PEGASUS_CIM_EXCEPTION_L(
                  CIM_ERR_FAILED,
                  MessageLoaderParms(
                      "ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.STANDARD",
                      "Could not get CLASSPATH from environment.")
                  );
-#endif
+
       return -1;
    }
 

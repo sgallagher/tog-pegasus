@@ -31,8 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef PegasusRepository_Repository_h
-#define PegasusRepository_Repository_h
+#ifndef Pegasus_Repository_h
+#define Pegasus_Repository_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMClass.h>
@@ -40,7 +40,6 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/CIMRepositoryBase.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
@@ -57,7 +56,7 @@ class compilerDeclContext;
 /** This class provides a simple implementation of a CIM repository.
     Concurrent access is controlled by an internal lock.
 */
-class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMRepositoryBase
+class PEGASUS_REPOSITORY_LINKAGE CIMRepository
 {
 public:
 
@@ -290,6 +289,9 @@ public:
     /// enumerateQualifiers
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
         const CIMNamespaceName& nameSpace);
+
+    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
+        NameSpaceAttributes;
 
     /** CIMMethod createNameSpace - Creates a new namespace in the repository
         @param String with the name of the namespace
@@ -601,5 +603,4 @@ protected:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* PegasusRepository_Repository_h */
-
+#endif /* Pegasus_Repository_h */

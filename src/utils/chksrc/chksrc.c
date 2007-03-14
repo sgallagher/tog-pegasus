@@ -121,7 +121,7 @@ int isSourceFile(const char* path)
         }
     }
 
-    // Not a source file.
+    /* Not a source file. */
     return 0;
 }
 

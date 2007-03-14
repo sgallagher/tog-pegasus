@@ -2445,6 +2445,13 @@ not be valid."}
         */
         Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED:string {"PGS06414: Too few objects delivered."}
 
+        /**
+        * @note  PGS06415:
+        * Substitution {0} is providerType of type int.
+        * Substitution {1} is ProviderModuleName of type string.
+        */
+        Server.ProviderRegistrationManager.ProviderRegistrationManager.UNSUPPORTED_PROVIDER_TYPE:string {"PGS06415: Unsupported ProviderType \"{0}\" in ProviderModule \"{1}\"."}
+
         // ==========================================================
         // Messages for OptionManager
         //  Please use message prefix "PGS06600"

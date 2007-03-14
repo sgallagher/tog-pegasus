@@ -513,7 +513,6 @@ Thread *ThreadPool::_initializeThread()
         return 0;
     }
     _currentThreads++;
-    Threads::yield();
 
     PEG_METHOD_EXIT();
     return th;

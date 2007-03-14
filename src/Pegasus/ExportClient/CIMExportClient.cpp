@@ -513,7 +513,6 @@ Message* CIMExportClient::_doRequest(
         }
 
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
-        Threads::yield();
     }
 
     //

@@ -138,9 +138,6 @@ void DynamicConsumer::initialize()
 
     if (!_initialized)
     {
-        // yield before a potentially lengthy operation.
-        Threads::yield();
-
         try
         {
             //there is no cimom handle in the listener, so pass null
@@ -194,9 +191,6 @@ void DynamicConsumer::terminate(void)
 
     if (_initialized)
     {
-        // yield before a potentially lengthy operation.
-        Threads::yield();
-
         //terminate consumer
         try
         {

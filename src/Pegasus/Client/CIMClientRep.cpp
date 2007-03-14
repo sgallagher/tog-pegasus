@@ -1240,7 +1240,6 @@ Message* CIMClientRep::_doRequest(
         }
 
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
-        Threads::yield();
     }
 
     //

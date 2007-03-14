@@ -190,6 +190,11 @@ static const char MODULE_NAME_NOT_FOUND[] = "Missing ProviderModuleName which is
 static const char PROVIDER_NAME_NOT_FOUND_KEY[] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME";
 static const char PROVIDER_NAME_NOT_FOUND[] = "Missing ProviderName which is key in PG_ProviderCapabilities class.";
 
+static const char UNSUPPORTED_PROVIDER_TYPE_KEY[] = 
+    "Server.ProviderRegistrationManager.ProviderRegistrationManager."
+    "UNSUPPORTED_PROVIDER_TYPE";
+static const char UNSUPPORTED_PROVIDER_TYPE[] = 
+    "Unsupported ProviderType \"$0\" in ProviderModule \"$1\".";
 /**
    Provider status
 */
@@ -1877,7 +1882,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "ProviderRegistrationManager::_initialRegistrationTable()");
-
     try
     {
         //
@@ -2393,9 +2397,15 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                         //
                         //  Error condition: provider type not supported
                         //
+                        String providerModuleName;
+                        instance.getProperty(instance.findProperty
+                            (_PROPERTY_PROVIDERMODULENAME)).getValue().
+                            get(providerModuleName);
                         PEG_METHOD_EXIT();
-                        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                                    String::EMPTY);
+                        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                            MessageLoaderParms(UNSUPPORTED_PROVIDER_TYPE_KEY,
+                            UNSUPPORTED_PROVIDER_TYPE, providerType[j],
+                            providerModuleName));
                         break;
                 }
             }

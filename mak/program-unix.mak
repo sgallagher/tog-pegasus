@@ -48,15 +48,9 @@ endif
 
 TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
 
-ifeq ($(OS_TYPE),windows)
-S_OBJECTS = $(TMP_OBJECTS:.s=.obj)
-CPP_OBJECTS = $(S_OBJECTS:.cpp=.obj)
-OBJECTS = $(CPP_OBJECTS:.c=.obj)
-else
 S_OBJECTS = $(TMP_OBJECTS:.s=.o)
 CPP_OBJECTS = $(S_OBJECTS:.cpp=.o)
 OBJECTS = $(CPP_OBJECTS:.c=.o)
-endif
 
 FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 

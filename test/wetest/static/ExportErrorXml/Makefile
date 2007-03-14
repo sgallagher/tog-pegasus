@@ -37,7 +37,6 @@ XMLSCRIPTS = \
     BadCimVersion01 \
     BadCimVersion02 \
     BadCimVersion03 \
-    BadCimVersion04 \
     BadDtdVersion01 \
     BadDtdVersion02 \
     BadDtdVersion03 \

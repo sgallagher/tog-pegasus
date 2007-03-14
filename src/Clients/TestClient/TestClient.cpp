@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//         Mike Day (mdday@us.ibm.com)
-//         Jenny Yu (jenny_yu@hp.com)
-//         Bapu Patil ( bapu_patil@hp.com )
-//         Warren Otsuka (warren_otsuka@hp.com)
-//         Nag Boranna(nagaraja_boranna@hp.com)
-//         Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
-//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//         Aruran, IBM (ashanmug@in.ibm.com) for Bug# 2628
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Thread.h>
@@ -1639,13 +1626,14 @@ int main(int argc, char** argv)
             clientThreads.append(runTests(clientConnections[i], repeatTestCount, activeTest, verboseTest, i));
         }
 
-        elapsedTime.stop();
-        testEnd(elapsedTime.getElapsed());
-
         for(Uint32 i=0; i< clientThreads.size(); i++)
         {
             clientThreads[i]->join();
         }
+      
+        cout << "+++++ Overall time taken for the operation +++++" << endl;
+        elapsedTime.stop();
+        testEnd(elapsedTime.getElapsed());
 
         // clean up
         for(Uint32 i=0; i< clientConnections.size(); i++){

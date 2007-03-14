@@ -242,13 +242,29 @@ ConfigManager*    configManager;
 void GetOptions(
     ConfigManager* cm,
     int& argc,
-    char** argv)
+    char** argv,
+    const Boolean& shutdownOption)
 {
     try
     {
-        cm->mergeConfigFiles();
+
+        if (shutdownOption)
+        {
+            cm->loadConfigFiles();
+        }
+        else
+        {
+            cm->mergeConfigFiles();
+        }
+
+        // Temporarily disable updates to the current configuration
+        // file if shutdownOption is true
+        cm->useConfigFiles = (shutdownOption==false);
 
         cm->mergeCommandLine(argc, argv);
+
+        // Enable updates again
+        cm->useConfigFiles = true;
     }
     catch (NoSuchFile&)
     {
@@ -879,7 +895,9 @@ int CIMServerProcess::cimserver_run(
 #ifdef PEGASUS_OS_OS400
     if (os400StartupOption == false)
 #endif
-        GetOptions(configManager, argc, argv);
+        // If current process is "cimserver -s" (shutdown option = true) the contents
+        // of current config should not be overwriten by planned config
+        GetOptions(configManager, argc, argv, shutdownOption);
     }
     catch (Exception& e)
     {

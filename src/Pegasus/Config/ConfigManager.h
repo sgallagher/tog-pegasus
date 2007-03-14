@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +50,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/HostAddress.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 
@@ -61,10 +62,6 @@
 #include <Pegasus/Config/FileSystemPropertyOwner.h>
 #include <Pegasus/Config/ProviderDirPropertyOwner.h>
 #include <Pegasus/Config/NormalizationPropertyOwner.h>
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-#include <Pegasus/Config/IndicationServicePropertyOwner.h>
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -80,7 +77,7 @@ private:
         Refers to the singleton ConfigManager instance.  If no ConfigManager
         instance has been constructed, this value is null.
      */
-    static AutoPtr<ConfigManager> _instance;
+    static ConfigManager* _instance;
 
     /** Constructor. */
     ConfigManager();
@@ -115,13 +112,6 @@ private:
         table
     */
     void _initPropertyTable();
-
-    /**
-        Check for fixed value and return the fixed value as String if
-        Initializes the two config properties hostName and
-        fullyQualifiedHostname when defined as fixed values
-    */
-    Boolean _fixedValueCheck(const String& name,String & value) const;
 
     /**
         HashTable used to identify owners.
@@ -177,29 +167,25 @@ public:
         Property Owners
 
         When a new property owner is created be sure to add static
-        variable pointers for the new property owner.
+        variable pointers for each of the new property owner.
     */
-    static TracePropertyOwner traceOwner;
+    static TracePropertyOwner* traceOwner;
 
-    static LogPropertyOwner logOwner;
+    static LogPropertyOwner* logOwner;
 
-    static DefaultPropertyOwner defaultOwner;
+    static DefaultPropertyOwner* defaultOwner;
 
-    static SecurityPropertyOwner securityOwner;
+    static SecurityPropertyOwner* securityOwner;
 
-    static RepositoryPropertyOwner repositoryOwner;
+    static RepositoryPropertyOwner* repositoryOwner;
 
-    static ShutdownPropertyOwner shutdownOwner;
+    static ShutdownPropertyOwner* shutdownOwner;
 
-    static FileSystemPropertyOwner fileSystemOwner;
+    static FileSystemPropertyOwner* fileSystemOwner;
 
-    static ProviderDirPropertyOwner providerDirOwner;
+    static ProviderDirPropertyOwner* providerDirOwner;
 
-    static NormalizationPropertyOwner normalizationOwner;
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    static IndicationServicePropertyOwner indicationServiceOwner;
-#endif
+    static NormalizationPropertyOwner* normalizationOwner;
 
     /**
         Boolean indicating whether configuration data should be read from
@@ -218,6 +204,11 @@ public:
         ConfigManager instance exists, construct one.
     */
     static ConfigManager* getInstance();
+
+    /**
+        Terminate the ConfigManager.
+    */
+    static void destroy();
 
     /**
         Initialize the current value of a config property.
@@ -241,8 +232,6 @@ public:
             (e.g., "httpPort").
         @param propertyValue The new value of the property.  If the value is
             null, the property should be reset to its default value.
-        @param userName User requesting update.
-        @timeoutSeconds Timeout in seconds to complete the update.
         @param unset Specifies whether the property should be updated or unset.
         @return true if the property found and updated, else false.
 
@@ -253,8 +242,6 @@ public:
     Boolean updateCurrentValue(
         const String& name,
         const String& value,
-        const String& userName,
-        Uint32 timeoutSeconds,
         Boolean unset);
 
     /**
@@ -328,16 +315,6 @@ public:
     void getPropertyInfo(const String& name, Array<String>& propertyInfo) const;
 
     /**
-        Get the help on the specified property.
-
-        @param name The name of the property.
-        @param propertyInfo List containing the property info.
-
-        @exception UnrecognizedConfigProperty if property is not defined.
-    */
-    void getPropertyHelp(const String& name, String& propertyInfo) const;
-
-    /**
         Get a list of all the property names.
 
         @param propertyNames List containing all the property names.
@@ -389,19 +366,18 @@ public:
     void mergeConfigFiles();
 
     /**
-        Load the config properties from the current and planned files.
+    Load the config properties from the current and planned files.
 
-        @exception NoSuchFile  if the default config file does not exist.
-        @exception FileNotReadable  if the default config file is not readable.
-        @exception CannotRenameFile  if failed to rename the config file.
-        @exception CannotOpenFile if failed to set permissions on the config
-            file.
-        @exception ConfigFileSyntaxError  if there are synatx error
-            while parsing the config files.
-        @exception InvalidPropertyValue if validation fails for a config
-            property in either file.
-        @exception UnrecognizedConfigProperty if a config property specified in
-            either file is not defined.
+    @exception NoSuchFile  if the default config file does not exist.
+    @exception FileNotReadable  if the default config file is not readable.
+    @exception CannotRenameFile  if failed to rename the config file.
+    @exception CannotOpenFile if failed to set permissions on the config file.
+    @exception ConfigFileSyntaxError  if there are synatx error
+                            while parsing the config files.
+    @exception InvalidPropertyValue if validation fails for a config property
+        in either file.
+    @exception UnrecognizedConfigProperty if a config property specified in
+        either file is not defined.
     */
     void loadConfigFiles();
 
@@ -442,30 +418,6 @@ public:
             a boolean value of "true", false otherwise.
     */
     static Boolean parseBooleanValue(const String& propertyValue);
-
-    /**
-        Validates a boolean configuration property value.
-        @param propertyValue A String containing a boolean configuration
-            property value.
-        @return True if the specified configuration property value is a valid
-            boolean value of 'true' or 'false'
-    */
-    static Boolean isValidBooleanValue(const String& propertyValue);
-   /**
-        get the ip addresses to listen on for connection
-        @param propertyValue A String containing a comma separated list of ips
-        @return an array of ip adress specified for configuration property
-            listenAdrress
-    */
-    static Array<HostAddress> getListenAddress(const String& propertyValue);
-
-
-    /**
-     * gets the Internationalized string for "dynamic" or "static"
-     */
-
-    String getDynamicAttributeStatus(const String& name);
-
 };
 
 PEGASUS_NAMESPACE_END

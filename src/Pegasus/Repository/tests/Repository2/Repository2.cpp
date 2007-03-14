@@ -396,7 +396,6 @@ void TestCreateClass(Uint32 mode)
 
     PEGASUS_TEST_ASSERT(namedInstances[0].identical(inst1));
     
-#ifndef PEGASUS_DISABLE_REPOSITORY_INSTANCE_FILTER
     //
     // Test enumerating with classOrigin false
     //
@@ -607,8 +606,6 @@ void TestCreateClass(Uint32 mode)
 	    PEGASUS_TEST_ASSERT(namedInstances[i].getPropertyCount() == 2);
         }
     }
-
-#endif // PEGASUS_DISABLE_REPOSITORY_INSTANCE_FILTER 
 
 
     //

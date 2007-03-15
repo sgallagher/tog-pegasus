@@ -497,33 +497,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
             throw XmlValidationError(parser.getLine(), mlParms);
         }
 
-
-        //
-        // This code for checking the protocol version was taken from the
-        // server code.
-        //
-        Boolean protocolVersionAccepted = false;
-
-        if ((protocolVersion.size() >= 3) &&
-           (protocolVersion[0] == '1') &&
-           (protocolVersion[1] == '.'))
-        {
-           // Verify that all characters after the '.' are digits
-           Uint32 index = 2;
-           while ((index < protocolVersion.size()) &&
-                  (protocolVersion[index] >= '0') &&
-                  (protocolVersion[index] <= '9'))
-           {
-              index++;
-           }
-
-           if (index == protocolVersion.size())
-           {
-              protocolVersionAccepted = true;
-           }
-        }
-
-        if (!protocolVersionAccepted)
+        // test for valid protocolVersion
+        if (!XmlReader::isSupportedProtocolVersion(protocolVersion))
         {
             MessageLoaderParms mlParms(
                 "Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL",

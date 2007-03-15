@@ -332,7 +332,8 @@ void HTTPExportResponseDecoder::decodeExportResponse(
         //
         // Check for unsupported protocol version
         //
-        if (!String::equalNoCase(protocolVersion, "1.0"))
+
+        if (!XmlReader::isSupportedProtocolVersion(protocolVersion))
         {
             MessageLoaderParms mlParms(
                 "ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL",

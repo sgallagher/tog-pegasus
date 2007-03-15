@@ -4719,4 +4719,134 @@ Boolean XmlReader::getReturnValueElement(
     return true;
 }
 
+//-----------------------------------------------------------------------------
+//
+// The following is a common set of version tests used by the different
+// Pegasus Request and Response Decoders
+// 
+//------------------------------------------------------------------------------
+//
+// isSupportedCIMVersion()
+// tests for valid CIMVersion number
+//
+// Reject cimVersion not in 2.[0-9]+
+// 
+// CIMXML Secification, Version 2.2 Final, Sect 3.2.1.1
+// The CIMVERSION attribute defines the version of the CIM Specification to 
+// which the XML Document conforms.  It MUST be in the form of "M.N".  Where 
+// M is the Major Version of the specification in numeric form and N is the 
+// minor version of the specification in numeric form.  For example, "2.0", 
+// "2.1".  Implementations must only validate the major version as all minor 
+// versions are backward compatible.  Implementations may look at the minor 
+// version to determine additional capabilites.  
+//
+//------------------------------------------------------------------------------
+Boolean XmlReader::isSupportedCIMVersion(
+    const char* cimVersion)
+{
+    Boolean cimVersionAccepted = false;
+    //printf("testCIMVersion %s \n", cimVersion);
+    if ((cimVersion[0] == '2') &&
+        (cimVersion[1] == '.') &&
+        (cimVersion[2] != 0))
+    {
+        // Verify that all characters after the '.' are digits
+        Uint32 index = 2;
+        while (isdigit(cimVersion[index]))
+        {
+            index++;
+        }
+
+        if (cimVersion[index] == 0)
+        {
+           cimVersionAccepted = true;
+        }
+    }
+    return cimVersionAccepted;
+}
+
+//------------------------------------------------------------------------------
+//
+// isSupportedProtocolVersion()
+// tests for valid ProtocolVersion number
+//
+// Reject ProtocolVersion not 1.[0-9]
+//
+// cimxml spec 2.2 Final Section 3261
+// The PROTOCOLVERSION attribute defines the version of the CIM Operations to
+// which this message conforms.  It MUST be in the form of  "M.N". Where M is
+// the Major Version of the specification in numeric form and N is the minor
+// version of the specification in numeric form.  For example, "1.0", "1.1".
+// Implementations must only validate the major version as all minor versions
+// are backward compatible. Implementations may look at the minor version to
+// determine additional capabilites.
+// 
+//------------------------------------------------------------------------------
+Boolean XmlReader::isSupportedProtocolVersion(
+    const String& protocolVersion)
+{
+    Boolean protocolVersionAccepted = false;
+
+    //cout << "testProtocolVersion " << protocolVersion << endl;
+    if ((protocolVersion.size() >= 3) &&
+        (protocolVersion[0] == '1') &&
+        (protocolVersion[1] == '.'))
+    {
+        // Verify that all characters after the '.' are digits
+        Uint32 index = 2;
+        while ((index < protocolVersion.size()) &&
+               (protocolVersion[index] >= '0') &&
+               (protocolVersion[index] <= '9'))
+        {
+            index++;
+        }
+
+        if (index == protocolVersion.size())
+        {
+            protocolVersionAccepted = true;
+        }
+    }
+    return protocolVersionAccepted;
+}
+
+//------------------------------------------------------------------------------
+//
+// isSupportedDTDVersion()
+// Tests for Valid dtdVersion number
+// We accept DTD version 2.[0-9]+ (see Bugzilla 1556)//
+// 
+// CIM/XML Specification, V 2.2 Final, Section 3.2.1.1
+// The DTDVERSION attribute defines the version of the CIM XML Mapping to 
+// which the XML Document conforms.  It MUST be in the form of "M.N".  Where 
+// M is the Major Version of the specification in numeric form and N is the 
+// minor version of the specification in numeric form.  For example, "2.0", 
+// "2.1".  Implementations must only validate the major version as all minor 
+// versions are backward compatible.  Implementations may look at the minor 
+// version to determine additional capabilites. 
+//
+//------------------------------------------------------------------------------
+Boolean XmlReader::isSupportedDTDVersion(
+    const char* dtdVersion)
+{
+    Boolean dtdVersionAccepted = false;
+
+    //printf("testDTDVersion %s \n", dtdVersion);
+    if ((dtdVersion[0] == '2') &&
+        (dtdVersion[1] == '.') &&
+        (dtdVersion[2] != 0))
+    {
+        // Verify that all characters after the '.' are digits
+        Uint32 index = 2;
+        while (isdigit(dtdVersion[index]))
+        {
+            index++;
+        }
+
+        if (dtdVersion[index] == 0)
+        {
+           dtdVersionAccepted = true;
+        }
+    }
+    return dtdVersionAccepted;
+}
 PEGASUS_NAMESPACE_END

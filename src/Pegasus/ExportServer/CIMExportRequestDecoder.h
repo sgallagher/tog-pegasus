@@ -56,8 +56,8 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
       typedef MessageQueueService Base;
   
       CIMExportRequestDecoder(
-	 MessageQueueService* outputQueue,
-	 Uint32 returnQueueId);
+     MessageQueueService* outputQueue,
+     Uint32 returnQueueId);
 
       ~CIMExportRequestDecoder();
 
@@ -99,16 +99,16 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
           const String& ipAddress,
           const AcceptLanguageList& httpAcceptLanguages,
           const ContentLanguageList& httpContentLanguages,
-          Boolean closeConnect);	 
+          Boolean closeConnect);     
 
       CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
-	 Uint32 queueId,
-	 XmlParser& parser, 
-	 const String& messageId,
-	 const String& nameSpace);
+     Uint32 queueId,
+     XmlParser& parser, 
+     const String& messageId,
+     const String& nameSpace);
 
       /** Sets the flag to indicate whether or not the CIMServer is 
-	  shutting down.
+      shutting down.
       */
       void setServerTerminating(Boolean flag);
 

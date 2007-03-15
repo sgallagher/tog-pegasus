@@ -122,9 +122,9 @@ void CIMExportRequestDecoder::handleEnqueue(Message *message)
 
    switch (message->getType())
    {
-      case HTTP_MESSAGE:
-	 handleHTTPMessage((HTTPMessage*)message);
-	 break;
+        case HTTP_MESSAGE:
+            handleHTTPMessage((HTTPMessage*)message);
+            break;
 
         default:
             PEGASUS_ASSERT(0);
@@ -177,9 +177,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Bug #351:
    if ( httpMessage->message.size() == 0 )
    {
-	// The message is empty; just drop it. The connection has
-	// probably closed.
-	return;
+        // The message is empty; just drop it. The connection has
+        // probably closed.
+        return;
    }
    // </bug>
    if ( httpMessage->authInfo->isAuthenticated() )
@@ -191,7 +191,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    Tracer::trace(
        TRC_HTTP,
        Tracer::LEVEL3,
-       "CIMOperationRequestDecoder::handleHTTPMessage()- httpMessage->getCloseConnect() returned %d",httpMessage->getCloseConnect());
+       "CIMOperationRequestDecoder::handleHTTPMessage()-"
+            " httpMessage->getCloseConnect() returned %d",
+       httpMessage->getCloseConnect());
 
    // Parse the HTTP message:
 
@@ -226,7 +228,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    //<Bug #351>
    //PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
    if( methodName != "M-POST" && methodName != "POST" )
-    {
+   {
        sendHttpError(
            queueId,
            HTTP_STATUS_NOTIMPLEMENTED,
@@ -237,7 +239,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    }
    //</bug>
    //
-   // Not true: "Mismatch of method and version is caught in HTTPAuthenticatorDelegator", bug #351 fixes this:
+   // Not true: "Mismatch of method and version is caught in 
+   // HTTPAuthenticatorDelegator", bug #351 fixes this:
    //
    //PEGASUS_ASSERT (!((httpMethod == HTTP_METHOD_M_POST) &&
    //                  (httpVersion == "HTTP/1.0")));
@@ -303,7 +306,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // PEGASUS_ASSERT(exportHeaderFound);
    if (!exportHeaderFound)
    {
-	sendHttpError(
+       sendHttpError(
             queueId,
             HTTP_STATUS_BADREQUEST,
             "Export header not found",
@@ -377,58 +380,58 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       }
    }
 
-// l10n start
    AcceptLanguageList acceptLanguages;
    ContentLanguageList contentLanguages;
    try
    {
-	if(httpMessage->acceptLanguagesDecoded){
-		acceptLanguages = httpMessage->acceptLanguages;
-	}else{
-		// Get and validate the Accept-Language header, if set
-		String acceptLanguageHeader;
-		if (HTTPMessage::lookupHeader(
-		      headers,
-	    	  "Accept-Language",
-		      acceptLanguageHeader,
-	    	  false) == true)
-	    {
-	        acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
-	            acceptLanguageHeader);
-	    }
-	}
+    if(httpMessage->acceptLanguagesDecoded){
+        acceptLanguages = httpMessage->acceptLanguages;
+    }else{
+        // Get and validate the Accept-Language header, if set
+        String acceptLanguageHeader;
+        if (HTTPMessage::lookupHeader(
+              headers,
+              "Accept-Language",
+              acceptLanguageHeader,
+              false) == true)
+        {
+            acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
+                acceptLanguageHeader);
+        }
+    }
 
-	if(httpMessage->contentLanguagesDecoded){
-		contentLanguages = httpMessage->contentLanguages;
-	}else{
-		// Get and validate the Content-Language header, if set
-		String contentLanguageHeader;
-		if (HTTPMessage::lookupHeader(
-		      headers,
-	    	  "Content-Language",
-		      contentLanguageHeader,
-	    	  false) == true)
-	    {
-	        contentLanguages = LanguageParser::parseContentLanguageHeader(
-	            contentLanguageHeader);
-	    }
-	}
+    if(httpMessage->contentLanguagesDecoded){
+        contentLanguages = httpMessage->contentLanguages;
+    }else{
+        // Get and validate the Content-Language header, if set
+        String contentLanguageHeader;
+        if (HTTPMessage::lookupHeader(
+              headers,
+              "Content-Language",
+              contentLanguageHeader,
+              false) == true)
+        {
+            contentLanguages = LanguageParser::parseContentLanguageHeader(
+                contentLanguageHeader);
+        }
+    }
 
    }
    catch (Exception &e)
    {
-	Thread::clearLanguages();
-	MessageLoaderParms msgParms("ExportServer.CIMExportRequestDecoder.REQUEST_NOT_VALID","request-not-valid");
-	String msg(MessageLoader::getMessage(msgParms));
-	sendHttpError(
+    Thread::clearLanguages();
+    MessageLoaderParms msgParms("ExportServer.CIMExportRequestDecoder."
+            "REQUEST_NOT_VALID",
+            "request-not-valid");
+    String msg(MessageLoader::getMessage(msgParms));
+    sendHttpError(
             queueId,
             HTTP_STATUS_BADREQUEST,
             msg,
             e.getMessage(),
             closeConnect);
-       	return;
+        return;
    }
-// l10n end
 
    // Zero-terminate the message:
 
@@ -445,9 +448,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Validate the "Content-Type" header:
 
    Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
-							      "Content-Type",
-							      cimContentType,
-							      true);
+                                  "Content-Type",
+                                  cimContentType,
+                                  true);
 
    // ATTN: Bug 5928: Need to validate that the content type is text/xml or
    // application/xml, and the encoding is utf-8 (or compatible)
@@ -468,23 +471,22 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        Uint32 count = 0;
        while(count<contentLength)
        {
-	   if (!(isUTF8((char *)&content[count])))
-	   {
-	       sendHttpError(
+       if (!(isUTF8((char *)&content[count])))
+       {
+           sendHttpError(
                    queueId,
                    HTTP_STATUS_BADREQUEST,
                    "request-not-valid",
                    "Invalid UTF-8 character detected.",
                    closeConnect);
-	       return;
-	   }
-	   UTF8_NEXT(content,count);
+           return;
+       }
+       UTF8_NEXT(content,count);
        }
    }
 
    // If it is a method call, then dispatch it to be handled:
 
-// l10n
    handleMethodRequest(
        queueId,
        httpMethod,
@@ -513,11 +515,10 @@ void CIMExportRequestDecoder::handleMethodRequest(
     const ContentLanguageList& httpContentLanguages,
     Boolean closeConnect)
 {
-// l10n
-	// Set the Accept-Language into the thread for this service.
-	// This will allow all code in this thread to get
-	// the languages for the messages returned to the client.
-	Thread::setLanguages(new AcceptLanguageList(httpAcceptLanguages));
+    // Set the Accept-Language into the thread for this service.
+    // This will allow all code in this thread to get
+    // the languages for the messages returned to the client.
+    Thread::setLanguages(new AcceptLanguageList(httpAcceptLanguages));
 
    //
    // If CIM Listener is shutting down, return error response
@@ -560,10 +561,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
-      // Reject cimVersion not in 2.0 to 2.3
-
-      if ((cimVersion[0] != '2') || (cimVersion[1] != '.') ||
-          ((cimVersion[2] < '0') || (cimVersion[2] > '3')))
+      if (!XmlReader::isSupportedCIMVersion(cimVersion))
       {
          sendHttpError(
              queueId,
@@ -574,28 +572,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
          return;
       }
 
-      // We accept DTD version 2.x (see Bugzilla 1556)
-
-      Boolean dtdVersionAccepted = false;
-
-      if ((dtdVersion[0] == '2') &&
-          (dtdVersion[1] == '.') &&
-          (dtdVersion[2] != 0))
-      {
-         // Verify that all characters after the '.' are digits
-         Uint32 index = 2;
-         while (isdigit(dtdVersion[index]))
-         {
-            index++;
-         }
-
-         if (dtdVersion[index] == 0)
-         {
-            dtdVersionAccepted = true;
-         }
-      }
-
-      if (!dtdVersionAccepted)
+      if (!XmlReader::isSupportedDTDVersion(dtdVersion))
       {
          sendHttpError(
              queueId,
@@ -609,20 +586,18 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Expect <MESSAGE ...>
 
       String protocolVersion;
-
       if (!XmlReader::getMessageStartTag(
-	     parser, messageId, protocolVersion))
+         parser, messageId, protocolVersion))
       {
 
-	// l10n
+    // throw XmlValidationError(
+    // parser.getLine(), "expected MESSAGE element");
 
-	// throw XmlValidationError(
-	// parser.getLine(), "expected MESSAGE element");
+     MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder."
+             "EXPECTED_MESSAGE_ELEMENT",
+             "expected MESSAGE element");
 
-	 MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder.EXPECTED_MESSAGE_ELEMENT",
-				   "expected MESSAGE element");
-
-	 throw XmlValidationError(parser.getLine(), mlParms);
+     throw XmlValidationError(parser.getLine(), mlParms);
       }
 
       // Validate that the protocol version in the header matches the XML
@@ -698,15 +673,14 @@ void CIMExportRequestDecoder::handleMethodRequest(
       if (!XmlReader::getEMethodCallStartTag(parser, cimExportMethodName))
       {
 
-	// l10n
+    // throw XmlValidationError(parser.getLine(),
+    //        "expected EXPMETHODCALL element");
 
-	// throw XmlValidationError(parser.getLine(),
-	//		  "expected EXPMETHODCALL element");
+    MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder."
+            "EXPECTED_EXPMETHODCALL_ELEMENT",
+            "expected EXPMETHODCALL element");
 
-	MessageLoaderParms mlParms("ExportServer.CIMExportRequestDecoder.EXPECTED_EXPMETHODCALL_ELEMENT",
-				   "expected EXPMETHODCALL element");
-
-	 throw XmlValidationError(parser.getLine(), mlParms);
+     throw XmlValidationError(parser.getLine(), mlParms);
       }
 
       // The Specification for CIM Operations over HTTP reads:
@@ -763,20 +737,23 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
          if (System::strcasecmp(cimExportMethodName, "ExportIndication") == 0)
          {
-            request.reset(decodeExportIndicationRequest(queueId, parser, messageId, requestUri));
+            request.reset(decodeExportIndicationRequest(
+                        queueId, parser, messageId, requestUri));
          }
          else
          {
 
-	   // l10n
+       // l10n
 
-	   // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-	   // String("Unrecognized export method: ") + cimExportMethodName);
+       // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+       // String("Unrecognized export method: ") + cimExportMethodName);
 
             throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-					   MessageLoaderParms("ExportServer.CIMExportRequestDecoder.UNRECOGNIZED_EXPORT_METHOD",
-							      "Unrecognized export method: $0",
-							      cimExportMethodName));
+                       MessageLoaderParms(
+                           "ExportServer.CIMExportRequestDecoder."
+                               "UNRECOGNIZED_EXPORT_METHOD",
+                           "Unrecognized export method: $0",
+                           cimExportMethodName));
          }
       }
       catch (CIMException& e)
@@ -811,7 +788,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
    catch (XmlValidationError& e)
    {
        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-		   "CIMExportRequestDecoder::handleMethodRequest - XmlValidationError exception has occurred. Message: $0",e.getMessage());
+           "CIMExportRequestDecoder::handleMethodRequest - "
+           "XmlValidationError exception has occurred. Message: $0",
+           e.getMessage());
 
       sendHttpError(
           queueId,
@@ -824,7 +803,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
    catch (XmlSemanticError& e)
    {
        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-		   "CIMExportRequestDecoder::handleMethodRequest - XmlSemanticError exception has occurred. Message: $0",e.getMessage());
+           "CIMExportRequestDecoder::handleMethodRequest - "
+           "XmlSemanticError exception has occurred. Message: $0",
+           e.getMessage());
       // ATTN-RK-P2-20020404: Is this the correct response for these errors?
       sendHttpError(
           queueId,
@@ -837,7 +818,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
    catch (XmlException& e)
    {
        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-		   "CIMExportRequestDecoder::handleMethodRequest - XmlException has occurred. Message: $0",e.getMessage());
+           "CIMExportRequestDecoder::handleMethodRequest - "
+           "XmlException has occurred. Message: $0",e.getMessage());
 
       sendHttpError(
           queueId,
@@ -874,18 +856,18 @@ void CIMExportRequestDecoder::handleMethodRequest(
       return;
    }
 
-//l10n start
 // l10n TODO - might want to move A-L and C-L to Message
 // to make this more maintainable
-	// Add the language headers to the request.
-	// Note: Since the text of an export error response will be ignored
-	// by the export client, ignore Accept-Language in the export request.
-	// This will cause any export error response message to be sent in the
-	// default language.
-	request->operationContext.insert(IdentityContainer(userName));
-	request->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
-	request->operationContext.set(AcceptLanguageListContainer(AcceptLanguageList()));
-// l10n end
+    // Add the language headers to the request.
+    // Note: Since the text of an export error response will be ignored
+    // by the export client, ignore Accept-Language in the export request.
+    // This will cause any export error response message to be sent in the
+    // default language.
+    request->operationContext.insert(IdentityContainer(userName));
+    request->operationContext.set(
+            ContentLanguageListContainer(httpContentLanguages));
+    request->operationContext.set(
+            AcceptLanguageListContainer(AcceptLanguageList()));
 
    request->ipAddress = ipAddress;
 
@@ -894,7 +876,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
    _outputQueue->enqueue(request.release());
 }
 
-CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicationRequest(
+CIMExportIndicationRequestMessage* 
+CIMExportRequestDecoder::decodeExportIndicationRequest(
    Uint32 queueId,
    XmlParser& parser,
    const String& messageId,
@@ -902,13 +885,14 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
 {
    CIMInstance instanceName;
 
-   String destStr = requestUri.subString(requestUri.find ("/CIMListener") + 12, PEG_NOT_FOUND);
+   String destStr = requestUri.subString(requestUri.find (
+               "/CIMListener") + 12, PEG_NOT_FOUND);
 
    for (const char* name; XmlReader::getEParamValueTag(parser, name);)
    {
       if (System::strcasecmp(name, "NewIndication") == 0)
       {
-	 XmlReader::getInstanceElement(parser, instanceName);
+     XmlReader::getInstanceElement(parser, instanceName);
       }
       else
       {
@@ -922,7 +906,8 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
       XmlReader::expectEndTag(parser, "EXPPARAMVALUE");
    }
 
-   CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(
+   CIMExportIndicationRequestMessage* request = 
+       new CIMExportIndicationRequestMessage(
       messageId,
       destStr,
       instanceName,

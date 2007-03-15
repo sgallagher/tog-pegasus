@@ -241,6 +241,38 @@ static void testGetInstanceElement2(const char* testDataFile)
     }
 }
 
+void testVersionFunctions()
+{
+    // Test DTDVersion function for legal input
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedDTDVersion("2.0"));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedDTDVersion("2.1"));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedDTDVersion("2.9"));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedDTDVersion("2.99"));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedDTDVersion("2.A"));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedDTDVersion("2."));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedDTDVersion("2"));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedDTDVersion("1.1"));
+    // Test protocolVersion Function
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedProtocolVersion(String("1.0")));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedProtocolVersion(String("1.1")));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedProtocolVersion(String("1.9")));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedProtocolVersion(String("1.99")));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedProtocolVersion(String("1.A")));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedProtocolVersion(String("1.")));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedProtocolVersion(String("2.0")));
+
+    // Test cimVersion
+
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedCIMVersion("2.0"));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedCIMVersion("2.1"));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedCIMVersion("2.9"));
+    PEGASUS_TEST_ASSERT (XmlReader::isSupportedCIMVersion("2.99"));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedCIMVersion("2.A"));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedCIMVersion("2."));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedCIMVersion("2"));
+    PEGASUS_TEST_ASSERT (!XmlReader::isSupportedCIMVersion("1.1"));
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -270,6 +302,11 @@ int main(int argc, char** argv)
         if (verbose)
             cout << "Testing EmbeddedObject VALUE.ARRAY Property with <![CDATA[...]]> escaping." << endl;
         testGetInstanceElement2("./getInstanceElementCDATA2.xml");
+
+        // Test the three version functions
+        if (verbose)
+            cout << "Testing VersionFunctions" << endl;
+        testVersionFunctions();
     }
     catch(Exception& e)
     {

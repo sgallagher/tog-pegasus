@@ -442,6 +442,14 @@ public:
         XmlParser& parser,
         CIMValue& returnValue);
 
+    static Boolean isSupportedCIMVersion(
+        const char* cimVersion);
+
+    static Boolean isSupportedProtocolVersion(
+        const String& protocolVersion);
+
+    static Boolean isSupportedDTDVersion(
+        const char* dtdVersion);
 private:
 
     XmlReader()

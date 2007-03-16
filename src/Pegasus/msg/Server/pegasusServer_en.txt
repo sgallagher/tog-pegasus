@@ -6437,6 +6437,9 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.STANDARD:string {"PGS18603: Could not get CLASSPATH from environment."}
         
+        /**
+        * This message is no longer used in Pegasus 2.6.1. 
+        */
         ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS:string {"PGS18603: Could not get CLASSPATH from environment. Either CLASSPATH is longer than 255 characters or not set at all."}
 
         

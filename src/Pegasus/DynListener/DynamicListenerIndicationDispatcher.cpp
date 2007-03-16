@@ -112,7 +112,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
 
                 } catch (...)
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Exception getting consumer: Unknown");
+                    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Exception getting consumer: Unknown");
                     cimException = CIMException(CIM_ERR_FAILED, "Unknown exception");
 
                     Logger::put(

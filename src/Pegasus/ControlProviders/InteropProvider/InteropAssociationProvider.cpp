@@ -74,7 +74,7 @@ void InteropProvider::associators(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associators()");
     initProvider();
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s associators. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
@@ -84,7 +84,7 @@ void InteropProvider::associators(
         (const char *)resultRole.getCString(),
                       boolToString(includeQualifiers),
                       boolToString(includeClassOrigin),
-        (const char *)propertyListToString(propertyList).getCString());
+        (const char *)propertyListToString(propertyList).getCString()));
 
     handler.processing();
     String originRole = role;
@@ -130,14 +130,14 @@ void InteropProvider::associatorNames(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::associatorNames()");
     initProvider();
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),
         (const char *)resultClass.getString().getCString(),
         (const char *)role.getCString(),
-        (const char *)resultRole.getCString());
+        (const char *)resultRole.getCString()));
 
     handler.processing();
         String originRole = role;
@@ -180,7 +180,7 @@ void InteropProvider::references(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::references()");
     initProvider();
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
@@ -188,7 +188,7 @@ void InteropProvider::references(
         (const char *)role.getCString(),
                       boolToString(includeQualifiers),
                       boolToString(includeClassOrigin),
-        (const char *)propertyListToString(propertyList).getCString());
+        (const char *)propertyListToString(propertyList).getCString()));
 
     handler.processing();
     String tmpRole = role;

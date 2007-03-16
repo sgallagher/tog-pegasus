@@ -56,7 +56,7 @@ WMIString::WMIString(const BSTR & s)
 	}
 	catch(...) 
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMIString::WMIString(const BSTR & s) - Constructor failed");
 	}
 }

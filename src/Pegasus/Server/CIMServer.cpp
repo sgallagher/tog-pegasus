@@ -165,7 +165,7 @@ void* waitForStopCommand(void*)
 
         if (rc != 0)
         {
-            PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
                 "Failed to issue __console command");
             break;
         }
@@ -208,7 +208,7 @@ Boolean handleShutdownSignal = false;
 void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info, void* sig)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "shutdownSignalHandler");
-    Tracer::trace(TRC_SERVER, Tracer::LEVEL2, "Signal %d received.", s_n);
+    PEG_TRACE((TRC_SERVER, Tracer::LEVEL2, "Signal %d received.", s_n));
 
     CIMServer::shutdownSignal();
 
@@ -734,7 +734,7 @@ void CIMServer::runForever()
 
         if (handleShutdownSignal)
         {
-            Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+            PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
                 "CIMServer::runForever - signal received.  Shutting down.");
             ShutdownService::getInstance(this)->shutdown(true, 10, false);
             // Set to false must be after call to shutdown.  See
@@ -768,7 +768,7 @@ void CIMServer::stopClientConnection()
     // for the wait here is to make sure that the Monitor entries
     // are updated before closing the connection sockets.
     //
-    // PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
+    // PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL4, "Wait 150 milliseconds.");
     //  Threads::sleep(150);  not needed anymore due to the semaphore
     // in the monitor
 
@@ -1049,7 +1049,7 @@ SSLContext* CIMServer::_getSSLContext()
     //
     if (String::equal(verifyClient, "required"))
     {
-        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
             "SSL Client verification REQUIRED.");
 
         _sslContextMgr->createSSLContext(
@@ -1057,7 +1057,7 @@ SSLContext* CIMServer::_getSSLContext()
     }
     else if (String::equal(verifyClient, "optional"))
     {
-        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
             "SSL Client verification OPTIONAL.");
 
         _sslContextMgr->createSSLContext(
@@ -1066,7 +1066,7 @@ SSLContext* CIMServer::_getSSLContext()
     else if (String::equal(verifyClient, "disabled") ||
              verifyClient == String::EMPTY)
     {
-        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
             "SSL Client verification DISABLED.");
 
         _sslContextMgr->createSSLContext(

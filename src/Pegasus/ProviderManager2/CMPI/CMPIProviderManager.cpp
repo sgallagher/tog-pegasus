@@ -327,7 +327,7 @@ void CMPIProviderManager::unloadIdleProviders()
         handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); \
     } \
     catch(...) \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
                 "Exception: Unknown"); \
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
@@ -2954,7 +2954,7 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
         }
         catch(...)
         {
-            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "Unknown error in handleSubscriptionInitCompleteRequest");
         }
     }
@@ -3526,7 +3526,7 @@ void CMPIProviderManager::_callEnableIndications
     }
     catch(...)
     {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected error in _callEnableIndications");
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
@@ -3626,7 +3626,7 @@ void CMPIProviderManager::_callDisableIndications
     }
     catch(...)
     {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected error in _callDisableIndications");
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,

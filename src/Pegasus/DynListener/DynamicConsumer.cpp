@@ -147,7 +147,7 @@ void DynamicConsumer::initialize()
             updateIdleTimer();
             _initialized = true;
 
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Successfully initialized consumer.");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Successfully initialized consumer.");
 
         } catch (...)
         {
@@ -249,10 +249,10 @@ void DynamicConsumer::reset()
     _module = 0;    // do not delete it, that is taken care of in ConsumerModule itself 
     _consumer = 0;  // ATTN: attempting to delete this causes an exception -- why??
 
-    Tracer::trace(__FILE__,__LINE__,TRC_LISTENER,Tracer::LEVEL4,
+    PEG_TRACE((__FILE__,__LINE__,TRC_LISTENER,Tracer::LEVEL4,
                   "Deleting %d outstanding requests for %s",
                   _eventqueue.size(),
-                  (const char*)_name.getCString());
+                  (const char*)_name.getCString()));
 
     //delete outstanding requests
     IndicationDispatchEvent* event = 0;
@@ -271,7 +271,7 @@ void DynamicConsumer::enqueueEvent(IndicationDispatchEvent* event)
 
     if (!isLoaded())
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Error: The consumer is not loaded and therefore cannot handle events.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Error: The consumer is not loaded and therefore cannot handle events.");
         return;
     }
 
@@ -355,7 +355,7 @@ Boolean DynamicConsumer::isIdle()
 
     if (!isLoaded())
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer is not loaded.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer is not loaded.");
         return false;
     }
 
@@ -438,7 +438,7 @@ Array<IndicationDispatchEvent> DynamicConsumer::_retrieveOutstandingIndications(
         temp = _eventqueue.front();
         while (temp)
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
 			indications.append(*temp);
             temp = _eventqueue.next_of(temp);
         }
@@ -446,7 +446,7 @@ Array<IndicationDispatchEvent> DynamicConsumer::_retrieveOutstandingIndications(
 
     } catch (...)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Unknown Exception");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Unknown Exception");
     }
 
     PEG_METHOD_EXIT();
@@ -509,7 +509,7 @@ Uint32 IndicationDispatchEvent::getRetries()
 
 void IndicationDispatchEvent::increaseRetries()
 {
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Increasing retries\n");
+    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Increasing retries\n");
     _retries++;
     _lastAttemptTime = CIMDateTime::getCurrentDateTime();
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Last attempt time " + _lastAttemptTime.toString());

@@ -386,7 +386,7 @@ void _removeAllQualifiers(CIMInstance& cimInstance)
 */
 void _removeClassOrigins(CIMInstance& cimInstance)
 {
-    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
+    PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
 
     Uint32 propertyCount = cimInstance.getPropertyCount();
     for (Uint32 i = 0; i < propertyCount ; i++)
@@ -455,8 +455,7 @@ void _LoadObject(
 
     if (!FileSystem::existsNoCase(path, realPath))
     {
-        String traceString = path + " does not exist.";
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, traceString);
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, path + " does not exist.");
         PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
     }
@@ -985,7 +984,7 @@ CIMClass CIMRepository::_getClass(
     // by setting the property to Null.
     if (!includeClassOrigin)
     {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
             "Remove Class Origins");
 
         Uint32 propertyCount = cimClass.getPropertyCount();
@@ -1546,7 +1545,7 @@ void CIMRepository::_createAssocInstEntries(
                     if ((fromRef.getHost() != String::EMPTY) &&
                         (System::isLocalHost(fromRef.getHost())))
                     {
-                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
                             "_createAssocInstEntries() - Stripping off local "
                                 "hostName from fromRef");
                        fromRef.setHost(String::EMPTY);
@@ -1557,7 +1556,7 @@ void CIMRepository::_createAssocInstEntries(
                     if ((fromRef.getHost() == String::EMPTY) &&
                         (fromRef.getNameSpace() == nameSpace))
                     {
-                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
                             "_createAssocInstEntries() - Stripping off "
                                 "local nameSpace from fromRef");
                         fromRef.setNameSpace(CIMNamespaceName());
@@ -1568,7 +1567,7 @@ void CIMRepository::_createAssocInstEntries(
                     if ((toRef.getHost() != String::EMPTY) &&
                         (System::isLocalHost(toRef.getHost())))
                     {
-                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
                             "_createAssocInstEntries() - Stripping off "
                                 "local hostName from toRef");
                         toRef.setHost(String::EMPTY);
@@ -1579,7 +1578,7 @@ void CIMRepository::_createAssocInstEntries(
                     if ((toRef.getHost() == String::EMPTY) &&
                         (toRef.getNameSpace() == nameSpace))
                     {
-                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                       PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
                            "_createAssocInstEntries() - Stripping off "
                                "local nameSpace from toRef");
                        toRef.setNameSpace(CIMNamespaceName());

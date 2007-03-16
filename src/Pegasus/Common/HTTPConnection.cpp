@@ -148,7 +148,7 @@ static void _throwEventFailure(const String &status, const String &detail,
     const char *file , Uint32 line)
 {
     String message = status + httpDetailDelimiter + detail;
-    Tracer::trace(file, line, TRC_HTTP, Tracer::LEVEL2, message);
+    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2, message);
     if (status == httpStatusInternal)
         throw AssertionFailureException(file, line, message);
     else throw Exception(message);
@@ -163,10 +163,10 @@ static void _throwEventFailure(const String &status, const String &detail,
 #define _socketWriteError()                                                   \
     do                                                                        \
     {                                                                         \
-        Tracer::trace(__FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2, \
+        PEG_TRACE((__FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2,     \
             "Socket write failed with error %d; could not write response "    \
                 "to client.  (Client may have timed out.)",                   \
-            getSocketError());                                                \
+            getSocketError()));                                                \
         throw Exception("socket write error");                                \
     }                                                                         \
     while (0)
@@ -300,7 +300,7 @@ void HTTPConnection::handleEnqueue(Message *message)
     {
         case SOCKET_MESSAGE:
         {
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
             SocketMessage* socketMessage = (SocketMessage*)message;
             if (socketMessage->events & SocketMessage::READ)
@@ -310,7 +310,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 
         case HTTP_MESSAGE:
         {
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
 
             _handleWriteEvent(*message);
@@ -368,10 +368,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             buffer.reserveCapacity(messageLength + 1);
             messageStart = (char *) buffer.getData();
             messageStart[messageLength] = 0;
-            Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
                 "<!-- Response: queue id: %u -->\n%s",
                 getQueueId(),
-                buffer.getData());
+                buffer.getData()));
             if (isFirst == true)
             {
                 _incomingBuffer.clear();
@@ -742,7 +742,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         } // if not a client
 
-        Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+        PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
                 "HTTPConnection::_handleWriteEvent: Server write event.");
 
         SignalHandler::ignore(PEGASUS_SIGPIPE);
@@ -763,7 +763,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             // dont include header terminator yet
             Uint32 headerLength = bytesToWrite;
             bytesToWrite -= headerLineTerminatorLength;
-            Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
               "HTTPConnection::_handleWriteEvent: "
               "Sending header for chunked reponses.");
 
@@ -782,7 +782,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             sendStart = (char *) trailer.getData();
             bytesToWrite = trailer.size();
 
-            Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
                     "HTTPConnection::_handleWriteEvent: "
                     "Sending trailer header for chunked responses.");
 
@@ -798,7 +798,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             bytesToWrite = headerLineTerminatorLength;
             sendStart = messageStart + headerLength - bytesToWrite;
 
-            Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
                     "HTTPConnection::_handleWriteEvent: "
                     "Sending header terminator for chunked responses.");
 
@@ -828,7 +828,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 sendStart = chunkLine;
                 Sint32 chunkBytesToWrite = (Sint32)strlen(sendStart);
 
-                Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
                         "HTTPConnection::_handleWriteEvent: "
                         "Sending chunk with chunk line terminator.");
 
@@ -854,7 +854,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
               sendStart = messageStart + messageLength - bytesRemaining;
               bytesToWrite = _Min(httpTcpBufferSize, bytesRemaining);
 
-              Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+              PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
                       "HTTPConnection::_handleWriteEvent: "
                       "Sending non-chunked data.");
 
@@ -919,15 +919,15 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
                 if (traceTrailer)
                 {
-                    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+                    PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
                         "<!-- Trailer: queue id: %u -->\n%s",
                         getQueueId(),
-                        trailer.getData());
+                        trailer.getData()));
                 }
                 sendStart = (char *) trailer.getData();
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
 
-                Tracer::trace(TRC_HTTP,Tracer::LEVEL4, 
+                PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
                         "HTTPConnection::_handleWriteEvent: "
                         "Sending the last chunk with chunk body terminator ");
 
@@ -948,8 +948,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     catch (...)
     {
         httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
-        String message("Unknown internal error");
-        Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL2, "Unknown internal error"));
     }
 
     if (isLast == true)
@@ -976,8 +975,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 "A total of %d requests have been processed on this "
                     "connection.";
 
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
-                messageLength, _requestCount.get(), _connectionRequestCount);
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
+                messageLength, _requestCount.get(), _connectionRequestCount));
         }
 
         //
@@ -989,17 +988,17 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             // Check for message to close
             if (message.getCloseConnect()== true)
             {
-                Tracer::trace(
+                PEG_TRACE((
                     TRC_HTTP,
                     Tracer::LEVEL3,
                     "HTTPConnection::_handleWriteEvent - Connection: Close "
                         "in client message.");
-                    _closeConnection();
+                    _closeConnection());
             }
             else
             {
-                Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-                    "Now setting state to %d", _MonitorEntry::IDLE);
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                    "Now setting state to %d", _MonitorEntry::IDLE));
                 _monitor->setState (_entry_index, _MonitorEntry::IDLE);
                 _monitor->tickle();
             }
@@ -1282,11 +1281,11 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                     }
                     catch (...)
                     {
-                        Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
                             "HTTPConnection: ERROR: contentLanguages had "
                                 "parsing failure. clearing languages. error "
                                 "data=%s",
-                            (const char *)contentLanguagesString.getCString());
+                            (const char *)contentLanguagesString.getCString()));
                         contentLanguages.clear();
                     }
                 }
@@ -1384,24 +1383,24 @@ void HTTPConnection::_closeConnection()
     {
         if (_responsePending == true)
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "HTTPConnection::_closeConnection - Close connection "
                     "requested while responses are still expected on this "
                     "connection. connection=0x%p, socket=%d\n",
-                (void*)this, getSocket());
+                (void*)this, getSocket()));
 
         }
 
         // still set to DYING
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
-            "Now setting state to %d", _MonitorEntry::DYING);
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+            "Now setting state to %d", _MonitorEntry::DYING));
         _monitor->setState (_entry_index, _MonitorEntry::DYING);
         _monitor->tickle();
     }
 
     if (_connectionRequestCount == 0)
     {
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::_closeConnection - Connection being closed "
                 "without receiving any requests.");
     }
@@ -1740,12 +1739,12 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                         }
                         catch (...)
                         {
-                            Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+                            PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
                                 "HTTPConnection: ERROR: contentLanguages had "
                                     "parsing failure. clearing languages. "
                                     "error data=%s",
                                 (const char *)contentLanguagesString.
-                                    getCString());
+                                    getCString()));
                             contentLanguages.clear();
                         }
                     }
@@ -1844,7 +1843,7 @@ void HTTPConnection::_handleReadEventFailure(
             delimiterFound + httpDetailDelimiter.size());
     }
 
-    Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
         httpStatus + httpDetailDelimiter + httpDetail +
             httpDetailDelimiter + cimError);
 
@@ -1871,10 +1870,10 @@ void HTTPConnection::_handleReadEventFailure(
     else
     {
         // else server side processing error - send back to client
-        Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+        PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
             "<!-- Error response: queue id: %u -->\n%s",
             getQueueId(),
-            httpMessage->message.getData());
+            httpMessage->message.getData()));
         handleEnqueue(httpMessage);
     }
     _closeConnection();
@@ -1893,7 +1892,7 @@ void HTTPConnection::_handleReadEvent()
 
         if (socketAcceptStatus < 0)
         {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "HTTPConnection: SSL_accept() failed");
             _closeConnection();
             PEG_METHOD_EXIT();
@@ -1902,7 +1901,7 @@ void HTTPConnection::_handleReadEvent()
         else if (socketAcceptStatus == 0)
         {
             // Not enough data yet to complete the SSL handshake
-            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
                 "HTTPConnection: SSL_accept() pending");
             PEG_METHOD_EXIT();
             return;
@@ -2015,9 +2014,9 @@ void HTTPConnection::_handleReadEvent()
 #endif
     }
 
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
         "Total bytesRead = %d; Bytes read this iteration = %d",
-        _incomingBuffer.size(), bytesRead);
+        _incomingBuffer.size(), bytesRead));
 
     try
     {
@@ -2055,10 +2054,10 @@ void HTTPConnection::_handleReadEvent()
 
         if (_isClient() == false)
         {
-            Tracer::trace(TRC_XML_IO, Tracer::LEVEL2,
+            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
                 "<!-- Request: queue id: %u -->\n%s",
                 getQueueId(),
-                _incomingBuffer.getData());
+                _incomingBuffer.getData()));
         }
 
         //
@@ -2069,8 +2068,8 @@ void HTTPConnection::_handleReadEvent()
             _requestCount++;
             _connectionRequestCount++;
         }
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "_requestCount = %d", _requestCount.get());
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+            "_requestCount = %d", _requestCount.get()));
         message->dest = _outputMessageQueue->getQueueId();
 //        SendForget(message);
 
@@ -2079,8 +2078,8 @@ void HTTPConnection::_handleReadEvent()
         //
         if (_isClient() == false && !_connectionClosePending)
         {
-            Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-                "Now setting state to %d", _MonitorEntry::BUSY);
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                "Now setting state to %d", _MonitorEntry::BUSY));
             _monitor->setState (_entry_index, _MonitorEntry::BUSY);
             _monitor->tickle();
         }
@@ -2099,7 +2098,7 @@ void HTTPConnection::_handleReadEvent()
 
         if (bytesRead == 0)
         {
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                 "HTTPConnection::_handleReadEvent - bytesRead == 0 - "
                     "Connection being closed.");
             _closeConnection();
@@ -2107,8 +2106,8 @@ void HTTPConnection::_handleReadEvent()
             //
             // decrement request count
             //
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                "_requestCount = %d", _requestCount.get());
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                "_requestCount = %d", _requestCount.get()));
 
             PEG_METHOD_EXIT();
             return;
@@ -2148,7 +2147,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
             }
             catch (...)
             {
-                Tracer::trace(
+                PEG_TRACE_CSTRING(
                     TRC_DISCARDED_DATA, 
                     Tracer::LEVEL2,
                     "HTTPConnection::run handleEnqueue(msg) failure");

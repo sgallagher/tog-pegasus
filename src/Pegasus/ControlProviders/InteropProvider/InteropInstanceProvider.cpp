@@ -84,10 +84,10 @@ void InteropProvider::createInstance(
     initProvider();
     AutoMutex autoMut(changeControlMutex);
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s createInstance. InstanceReference= %s",
         thisProvider,
-        (const char *) instanceReference.toString().getCString());
+        (const char *) instanceReference.toString().getCString()));
 
     // test for legal namespace for this provider. Exception if not
     //namespaceSupported(instanceReference);
@@ -157,10 +157,10 @@ void InteropProvider::deleteInstance(
 #ifndef PEGASUS_OS_OS400
     AutoMutex autoMut(changeControlMutex);
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s deleteInstance. instanceName= %s",
         thisProvider,
-        (const char *) instanceName.toString().getCString());
+        (const char *) instanceName.toString().getCString()));
 
     if(instClassName == PEGASUS_CLASSNAME_PGNAMESPACE)
     {
@@ -274,12 +274,12 @@ void InteropProvider::modifyInstance(
 
     AutoMutex autoMut(changeControlMutex);
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s modifyInstance. instanceReference= %s, includeQualifiers= %s, PropertyList= %s",
         thisProvider,
         (const char *) (instanceReference.toString().getCString()),
         boolToString(includeQualifiers),
-        (const char *) (propertyListToString(propertyList).getCString()));
+        (const char *) (propertyListToString(propertyList).getCString())));
 
     // test for legal namespace for this provider. Exception if not
     //namespaceSupported(instanceReference);
@@ -322,10 +322,10 @@ void InteropProvider::enumerateInstanceNames(
 
     initProvider();
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s enumerateInstanceNames. classReference= %s",
         thisProvider,
-        (const char *) classReference.toString().getCString());
+        (const char *) classReference.toString().getCString()));
 
     // test for legal namespace for this provider. Exception if not
     // namespaceSupported(classReference);

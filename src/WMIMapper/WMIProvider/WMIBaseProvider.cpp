@@ -404,8 +404,8 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 		sQuery += qChar(Q_SCHEMA);
 	}
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIBaseProvider::getQueryString() - Query is %s", (LPCTSTR)sQuery); 
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMIBaseProvider::getQueryString() - Query is %s", (LPCTSTR)sQuery));
 
 	String s = (LPCTSTR)sQuery;
 	return s;
@@ -451,9 +451,9 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 	sObjNameLower = sObjName;
 	sObjNameLower.toLower();
 		
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMIBaseProvider::getObjectName() - ObjectName: %s", 
-        sObjName.getCString()); 		
+        sObjName.getCString()));
 
 	Uint32 pos;
 
@@ -524,9 +524,9 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 		}
 	}
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMIBaseProvider::getObjectName() - ObjectName: %s", 
-        sObjName.getCString()); 		
+        sObjName.getCString()));
 	
 	PEG_METHOD_EXIT();
 

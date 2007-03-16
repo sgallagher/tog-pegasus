@@ -122,7 +122,7 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, e.getMessage());
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, e.getMessage());
 
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                       Logger::WARNING,
@@ -132,7 +132,7 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Snmp Indication Handler failed to pack a CIM "
                 "Property into the SNMP PDU: Unknown exception.");
     }
@@ -330,7 +330,7 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             }
             catch (CIMException& e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     e.getMessage());
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
@@ -376,7 +376,7 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             {
                 String errMsg = snmp_api_errstring(retCode);
 
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "Failed to add sysUpTime to pdu: " + errMsg);
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
@@ -398,7 +398,7 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             {
                 String errMsg = snmp_api_errstring(retCode);
 
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "Failed to add snmp trap to pdu: " + errMsg);
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,

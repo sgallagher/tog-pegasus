@@ -53,16 +53,9 @@ PEGASUS_FORK_SAFE_MUTEX(writeMutex)
 
 #if defined(PEGASUS_OS_VMS)
 
-void TraceFileHandler::handleMessage(
-    const char *message,
-    const char *fmt, va_list argList)
+void TraceFileHandler::prepareFileHandle(void)
 {
     Sint32 retCode;
-    Sint32 fileDesc;
-
-    // Do not add Trace calls in the Critical section
-    // ---- BEGIN CRITICAL SECTION
-
     // Check if the file has been deleted, if so re-open the file and
     // continue
     if (!System::exists(_fileName))
@@ -101,11 +94,22 @@ void TraceFileHandler::handleMessage(
             return;
         }
     }
-
     // Seek to the end of File
-
     retCode = fseek(_fileHandle, 0, SEEK_END);
+}
 
+void TraceFileHandler::handleMessage(
+    const char *message,
+    const char *fmt, va_list argList)
+{
+    Sint32 retCode;
+    Sint32 fileDesc;
+
+    // Do not add Trace calls in the Critical section
+    // ---- BEGIN CRITICAL SECTION
+
+    prepareFileHandle();
+    
     // Write the message to the file
 
     retCode = fprintf(_fileHandle, "%s", message);
@@ -123,23 +127,36 @@ void TraceFileHandler::handleMessage(
     return;
 }
 
-#else /* PEGASUS_OS_VMS */
-
-void TraceFileHandler::handleMessage(
-    const char *message,
-    const char *fmt, va_list argList)
+void TraceFileHandler::handleMessage(const char *message)
 {
-    if (!_fileHandle)
-    {
-        // The trace file is not open, which means an earlier fopen() was
-        // unsuccessful.  Stop now to avoid logging duplicate error messages.
-        return;
-    }
+    Sint32 retCode;
+    Sint32 fileDesc;
 
     // Do not add Trace calls in the Critical section
     // ---- BEGIN CRITICAL SECTION
-    AutoMutex writeLock(writeMutex);
 
+    prepareFileHandle();
+    
+    // Write the message to the file
+
+    retCode = fprintf(_fileHandle, "%s\n", message);
+    retCode = fflush(_fileHandle);
+    fileDesc = fileno(_fileHandle);
+    retCode = fsync(fileDesc);
+    _wroteToLog = false;
+    // retCode = fclose(_fileHandle);
+    // _fileHandle = 0;
+
+    // ---- END CRITICAL SECTION
+
+    return;
+}
+
+
+#else /* PEGASUS_OS_VMS */
+
+void TraceFileHandler::prepareFileHandle(void)
+{
     // If the file has been deleted, re-open it and continue
     if (!System::exists(_fileName))
     {
@@ -184,13 +201,52 @@ void TraceFileHandler::handleMessage(
         }
     }
 # endif
+}
 
+void TraceFileHandler::handleMessage(
+    const char *message,
+    const char *fmt, va_list argList)
+{
+    if (!_fileHandle)
+    {
+        // The trace file is not open, which means an earlier fopen() was
+        // unsuccessful.  Stop now to avoid logging duplicate error messages.
+        return;
+    }
+
+    // Do not add Trace calls in the Critical section
+    // ---- BEGIN CRITICAL SECTION
+    AutoMutex writeLock(writeMutex);
+
+    prepareFileHandle();
     // Write the message to the file
     fprintf(_fileHandle, "%s", message);
     vfprintf(_fileHandle, fmt, argList);
     fprintf(_fileHandle, "\n");
     fflush(_fileHandle);
+    // ---- END CRITICAL SECTION
 }
+
+void TraceFileHandler::handleMessage(const char *message)
+{
+    if (!_fileHandle)
+    {
+        // The trace file is not open, which means an earlier fopen() was
+        // unsuccessful.  Stop now to avoid logging duplicate error messages.
+        return;
+    }
+
+    // Do not add Trace calls in the Critical section
+    // ---- BEGIN CRITICAL SECTION
+    AutoMutex writeLock(writeMutex);
+
+    prepareFileHandle();
+    // Write the message to the file
+    fprintf(_fileHandle, "%s\n", message);
+    fflush(_fileHandle);
+    // ---- END CRITICAL SECTION
+}
+
 
 #endif /* !PEGASUS_OS_VMS */
 

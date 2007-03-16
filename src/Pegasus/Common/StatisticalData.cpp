@@ -108,9 +108,9 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
 {
     if (type >= NUMBER_OF_TYPES)
     {
-         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
              "StatData: Statistical Data Discarded.  "
-                 "Invalid Request Type =  %u", type);
+                 "Invalid Request Type =  %u", type));
          return;
     }
 
@@ -122,43 +122,43 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
             case PEGASUS_STATDATA_SERVER:
                 numCalls[type] += 1;
                 cimomTime[type] += value;
-                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
                     "StatData: SERVER: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d",
                     (const char *)requestName[type].getCString(), type,
-                    numCalls[type], value, cimomTime[type]);
+                    numCalls[type], value, cimomTime[type]));
                 break;
             case PEGASUS_STATDATA_PROVIDER:
                 providerTime[type] += value;
-                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
                     "StatData: PROVIDER: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d",
                     (const char *)requestName[type].getCString(), type,
-                    numCalls[type], value, providerTime[type]);
+                    numCalls[type], value, providerTime[type]));
                 break;
         case PEGASUS_STATDATA_BYTES_SENT:
                 responseSize[type] += value;
-                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
                     "StatData: BYTES_SENT: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d",
                     (const char *)requestName[type].getCString(), type,
-                    numCalls[type], value, responseSize[type]);
+                    numCalls[type], value, responseSize[type]));
                 break;
         case PEGASUS_STATDATA_BYTES_READ:
                 requestSize[type] += value;
-                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
                     "StatData: BYTES_READ: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d",
                     (const char *)requestName[type].getCString(), type,
-                    numCalls[type], value, requestSize[type]);
+                    numCalls[type], value, requestSize[type]));
                 break;
         }
     }

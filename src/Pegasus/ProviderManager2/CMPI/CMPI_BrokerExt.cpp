@@ -135,9 +135,9 @@ extern "C" {
 	 		Threads::yield();
 		else
 	    {
-			Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
+			PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
                 "Could not allocate provider thread (%p) for %s provider.",
-				t,  (const char *)broker->name.getCString());
+				t,  (const char *)broker->name.getCString()));
 			broker->provider->removeThreadFromWatch(t);
 			delete t; t = 0;
 			break;
@@ -145,9 +145,9 @@ extern "C" {
       }
      if (rtn == PEGASUS_THREAD_OK)
      {
-   	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
 			"Started provider thread (%p) for %s.", 
-			t, (const char *)broker->name.getCString());
+			t, (const char *)broker->name.getCString()));
      }
       return (CMPI_THREAD_TYPE)t;
    }

@@ -271,8 +271,8 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 			}
 			catch(...)
 			{
-				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-					"WMIValue::WMIValue - Constructor failed; setting NULL string");
+				PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+					"WMIValue::WMIValue - Constructor failed; setting NULL string"));
 					val.setNullValue(CIMTYPE_STRING, false, 0);
 			}
 
@@ -413,8 +413,8 @@ CIMValue WMIValue::getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE 
 				str = (LPCTSTR)_bstr_t(bs, FALSE);
                 SysFreeString(bs);
 
-				Tracer::trace(TRC_WMIPROVIDER,Tracer::LEVEL3,
-					"WMIValue::getValue() - Date is %s", (LPCSTR)str.getCString());
+				PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+					"WMIValue::getValue() - Date is %s", (LPCSTR)str.getCString()));
 			}
 			else
 			{
@@ -624,8 +624,8 @@ CIMValue getArrayValueAux(LPSAFEARRAY psa, VARTYPE vt, const CIMTYPE Type, T*)
 	}
 	else
 	{
-		Tracer::trace(TRC_WMIPROVIDER,Tracer::LEVEL3,
-			"WMIValue::getArrayValueAux() - SafeArray result is %x",  hr);
+		PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+			"WMIValue::getArrayValueAux() - SafeArray result is %x",  hr));
 		throw CIMException(CIM_ERR_FAILED, "getArrayValueAux()");
 	}
 }

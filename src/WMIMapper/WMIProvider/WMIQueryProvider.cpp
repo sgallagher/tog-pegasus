@@ -231,13 +231,13 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 	if (pObjEnum)
 		pObjEnum.Release();
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIQueryProvider::execQuery() - Result count is %d", lCount); 
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMIQueryProvider::execQuery() - Result count is %d", lCount)); 
 
 	if (lCount == 0)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIQueryProvider::execQuery() - hResult value is %x", hr); 
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIQueryProvider::execQuery() - hResult value is %x", hr)); 
 	}
 
 	PEG_METHOD_EXIT();

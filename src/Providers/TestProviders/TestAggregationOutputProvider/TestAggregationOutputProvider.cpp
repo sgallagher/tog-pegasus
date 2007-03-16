@@ -448,7 +448,7 @@ void TestAggregationOutputProvider::initialize(CIMOMHandle & cimom)
 
 void TestAggregationOutputProvider::terminate(void)
 {
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Terminate");
+    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Terminate");
     delete this;
 }
 

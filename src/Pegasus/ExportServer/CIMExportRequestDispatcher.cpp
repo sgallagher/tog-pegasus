@@ -90,9 +90,9 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
         }
         else
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMExportRequestDispatcher::_handle_async_request got "
-                    "unexpected legacy message type '%u'", legacy->getType());
+                    "unexpected legacy message type '%u'", legacy->getType()));
 	    _make_response(req, async_results::CIM_NAK);
             delete legacy;
         }
@@ -119,11 +119,11 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
                 _handleExportIndicationRequest(
                     (CIMExportIndicationRequestMessage*) message);
 
-            Tracer::trace(
+            PEG_TRACE((
                 TRC_HTTP,
                 Tracer::LEVEL3,
                 "_CIMExportRequestDispatcher::handleEnqueue(message) - message->getCloseConnect() returned %d",
-                message->getCloseConnect());
+                message->getCloseConnect()));
 
             response->setCloseConnect(message->getCloseConnect());
 

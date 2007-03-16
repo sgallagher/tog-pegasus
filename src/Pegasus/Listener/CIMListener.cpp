@@ -316,7 +316,7 @@ CIMListenerService::_listener_routine(void *param)
     }
     catch(...)
     {
-        Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
                       "Unknown exception thrown in _listener_routine.");
     }
 
@@ -454,7 +454,7 @@ void CIMListenerRep::start()
                 Logger::TRACE,
                 "Not enough threads to start CIMListernerService.");
 
-            Tracer::trace(
+            PEG_TRACE_CSTRING(
                 TRC_SERVER, 
                 Tracer::LEVEL2,
                 "Could not allocate thread for "

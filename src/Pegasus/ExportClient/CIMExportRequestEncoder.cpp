@@ -118,11 +118,10 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
       params);
 
    HTTPMessage* httpMessage = new HTTPMessage(buffer);
-   Tracer::traceBuffer(
+   PEG_TRACE_CSTRING(
        TRC_XML_IO,
        Tracer::LEVEL2,
-       httpMessage->message.getData(),
-       httpMessage->message.size());
+       httpMessage->message.getData());
 
    _outputQueue->enqueue(httpMessage);
    PEG_METHOD_EXIT();

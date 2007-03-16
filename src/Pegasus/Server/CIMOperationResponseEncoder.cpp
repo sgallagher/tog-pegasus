@@ -85,19 +85,19 @@ void CIMOperationResponseEncoder::sendResponse(
     response->queueIds.pop();
 
     Boolean closeConnect = response->getCloseConnect();
-    Tracer::trace(
+    PEG_TRACE((
         TRC_HTTP,
         Tracer::LEVEL3,
         "CIMOperationResponseEncoder::sendResponse()- "
             "response->getCloseConnect() returned %d",
-        closeConnect);
+        closeConnect));
 
     MessageQueue* queue = MessageQueue::lookup(queueId);
 
     if (!queue)
     {
-        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "ERROR: non-existent queueId = %u, response not sent.", queueId);
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "ERROR: non-existent queueId = %u, response not sent.", queueId));
         PEG_METHOD_EXIT();
         return;
     }
@@ -106,9 +106,9 @@ void CIMOperationResponseEncoder::sendResponse(
 
     if (! httpQueue)
     {
-        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "ERROR: Unknown queue type. queueId = %u, response not sent.",
-            queueId);
+            queueId));
         PEG_METHOD_EXIT();
         return;
     }
@@ -310,12 +310,12 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
         Thread::setLanguages(langs.release());
     }
 
-    Tracer::trace(
+    PEG_TRACE((
         TRC_HTTP,
         Tracer::LEVEL3,
         "CIMOperationResponseEncoder::handleEnque()- "
             "message->getCloseConnect() returned %d",
-        message->getCloseConnect());
+        message->getCloseConnect()));
 
     switch (message->getType())
     {

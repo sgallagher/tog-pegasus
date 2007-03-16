@@ -108,11 +108,11 @@ CIMInstance InteropProvider::localGetInstance(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::localGetInstance");
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s getInstance. instanceName= %s , PropertyList= %s",
         thisProvider,
         (const char *)instanceName.toString().getCString(),
-        (const char *)propertyListToString(propertyList).getCString());
+        (const char *)propertyListToString(propertyList).getCString()));
 
     // Test if we're looking for something outside of our namespace. This will
     // happen during associators calls from PG_RegisteredProfile instances
@@ -184,11 +184,11 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::localEnumerateInstances()");
     const CIMName & className = ref.getClassName();
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s enumerateInstances. referenc= %s , PropertyList= %s",
         thisProvider,
         (const char *)className.getString().getCString(),
-        (const char *)propertyListToString(propertyList).getCString());
+        (const char *)propertyListToString(propertyList).getCString()));
 
     // Verify that ClassName is correct and get its enum value
     TARGET_CLASS classEnum  = translateClassInput(className);

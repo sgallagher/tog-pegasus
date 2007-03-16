@@ -197,7 +197,7 @@ void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
 	    	    Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::TRACE,
 				"Not enough threads to allocate a worker to deliver the event. ");
 
-	    	    Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
+	    	    PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
 				"Could not allocate thread to deliver event. Instead using current thread.");
 		    delete event;
 		    throw Exception(MessageLoaderParms("Listener.CIMListenerIndicationDispatcher.CANNOT_ALLOCATE_THREAD",

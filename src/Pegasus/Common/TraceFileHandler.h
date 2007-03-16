@@ -88,6 +88,13 @@ public:
      */
     void handleMessage(const char* message,const char* fmt,va_list argList);
 
+    /** Writes message to file.
+        Implementation of this function is platform specific
+        @param    message  message to be written
+     */
+    void handleMessage(const char* message);
+
+
     /** Sets the filename to the given filename and opens the file in append
         mode
         @param    fileName full path of the file
@@ -106,6 +113,13 @@ public:
     TraceFileHandler();
 
     ~TraceFileHandler();
+
+private:
+
+    /** Prepares write of message to file.
+        Implementation of this function is platform specific
+     */
+    void prepareFileHandle(void);
 
 };
 

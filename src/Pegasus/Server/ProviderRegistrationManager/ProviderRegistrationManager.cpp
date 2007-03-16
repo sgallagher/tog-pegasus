@@ -317,7 +317,7 @@ void ProviderRegistrationManager::initializeProviders(void)
     }
     catch(...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: Unknown");
     }
 #endif
@@ -392,7 +392,7 @@ void ProviderRegistrationManager::initializeProviders(
     }
     catch(...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: Unknown");
         PEG_METHOD_EXIT();
         throw;
@@ -457,7 +457,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (providerCapability==0 && !_registrationTable->table.lookup(
                   capabilityKey, providerCapability))
         {
-            Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 CAPABILITY_NOT_REGISTERED);
             PEG_METHOD_EXIT();
             return false;
@@ -469,7 +469,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
 
         if (pos == PEG_NOT_FOUND)
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 PROVIDER_NAME_NOT_FOUND);
             PEG_METHOD_EXIT();
             return false;
@@ -487,7 +487,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
             (CIMName (_PROPERTY_PROVIDERMODULENAME));
         if (pos2 == PEG_NOT_FOUND)
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 MODULE_NAME_NOT_FOUND);
             PEG_METHOD_EXIT();
             return false;
@@ -510,7 +510,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
               PROVIDER_NOT_FOUND);
             PEG_METHOD_EXIT();
             return false;
@@ -524,7 +524,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 MODULE_NOT_FOUND);
             PEG_METHOD_EXIT();
             return false;
@@ -1887,7 +1887,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         // get all instances of providerModule class
         //
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "nameSpace = %s; className = %s",
             (const char *)
                 PEGASUS_NAMESPACENAME_INTEROP.getString().getCString(),
@@ -1899,11 +1899,11 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             false,
             false,
             false,
-            CIMPropertyList());
+            CIMPropertyList()));
 
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "PG_ProviderModule class has = %d instances",
-                      cimNamedInstances.size());
+                      cimNamedInstances.size()));
 
         for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
         {
@@ -2121,9 +2121,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             false,
             false,
             CIMPropertyList());
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "PG_Provider class has = %d instances",
-                      cimNamedInstances.size());
+                      cimNamedInstances.size()));
 
         for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
         {
@@ -2161,9 +2161,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             false,
             false,
             CIMPropertyList());
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "PG_ConsumerCapabilities class has = %d instances",
-                      cimNamedInstances.size());
+                      cimNamedInstances.size()));
 
         for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
         {
@@ -3592,7 +3592,7 @@ void ProviderRegistrationManager::_addInstancesToTable(
 
     if (!_registrationTable->table.insert(key,elementInfo))
     {
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
         //ATTN-YZ-P3-20020301:Is this proper exception
         PEG_METHOD_EXIT();
@@ -3637,7 +3637,7 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
 
     if (!_registrationTable->table.insert(key,elementInfo))
     {
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
 
 

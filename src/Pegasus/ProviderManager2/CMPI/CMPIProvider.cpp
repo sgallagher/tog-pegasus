@@ -331,9 +331,9 @@ void CMPIProvider::_terminate(Boolean terminating)
 	  // Check the thread list to make sure the thread has been de-allocated
 	  if (_threadWatchList.size() != 0)
 	  {
-	 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+	 	PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
 			  "There are %d provider threads in %s that have to be cleaned up.",
-			_threadWatchList.size(), (const char *)getName().getCString());
+			_threadWatchList.size(), (const char *)getName().getCString()));
 
 		// Walk through the list and terminate the threads. After they are
 		// terminated, put them back on the watch list, call the cleanup function

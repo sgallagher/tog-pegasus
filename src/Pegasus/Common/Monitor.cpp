@@ -86,12 +86,12 @@ Monitor::~Monitor()
 {
     uninitializeTickler();
     Socket::uninitializeInterface();
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
 }
 void Monitor::uninitializeTickler()
 {
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
+    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
 
     try
     {
@@ -110,7 +110,7 @@ void Monitor::uninitializeTickler()
     }
     catch (...)
     {
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                   "Failed to close tickle sockets");
     }
 
@@ -406,11 +406,11 @@ void Monitor::run(Uint32 milliseconds)
 
             if (h._responsePending == true)
             {
-                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                     "Monitor::run - Ignoring connection delete request "
                         "because responses are still pending. "
                         "connection=0x%p, socket=%d\n",
-                    (void *)&h, h.getSocket());
+                    (void *)&h, h.getSocket()));
                 continue;
             }
             h._connectionClosePending = false;
@@ -490,8 +490,8 @@ void Monitor::run(Uint32 milliseconds)
 
     if (events == PEGASUS_SOCKET_ERROR)
     {
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "Monitor::run - errorno = %d has occurred on select.", errno);
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+            "Monitor::run - errorno = %d has occurred on select.", errno));
         // The EBADF error indicates that one or more or the file
         // descriptions was not valid. This could indicate that
         // the entries structure has been corrupted or that
@@ -501,10 +501,10 @@ void Monitor::run(Uint32 milliseconds)
     }
     else if (events)
     {
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
             "Monitor::run select event received events = %d, monitoring %d "
                 "idle entries",
-            events, _idleEntries);
+            events, _idleEntries));
         for (int indx = 0; indx < (int)entries.size(); indx++)
         {
             // The Monitor should only look at entries in the table that are
@@ -513,19 +513,19 @@ void Monitor::run(Uint32 milliseconds)
                 (FD_ISSET(entries[indx].socket, &fdread)))
             {
                 MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
-                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                     "Monitor::run indx = %d, queueId =  %d, q = %p",
-                    indx, entries[indx].queueId, q);
+                    indx, entries[indx].queueId, q));
                 PEGASUS_ASSERT(q !=0);
 
                 try
                 {
                     if (entries[indx]._type == Monitor::CONNECTION)
                     {
-                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                             "entries[indx].type for indx = %d is "
                                 "Monitor::CONNECTION",
-                            indx);
+                            indx));
                         static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
                         // Do not update the entry just yet. The entry gets
@@ -538,7 +538,7 @@ void Monitor::run(Uint32 milliseconds)
                         if (!MessageQueueService::get_thread_pool()->
                                 allocate_and_awaken((void *)q, _dispatch))
                         {
-                            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                                 "Monitor::run: Insufficient resources to "
                                     "process request.");
                             entries[indx]._status = _MonitorEntry::IDLE;
@@ -548,12 +548,12 @@ void Monitor::run(Uint32 milliseconds)
 // Added for PEP 183
                         HTTPConnection *dst =
                             reinterpret_cast<HTTPConnection *>(q);
-                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                             "Monitor::_dispatch: entering run() for "
                                 "indx = %d, queueId = %d, q = %p",
                             dst->_entry_index,
                             dst->_monitor->_entries[dst->_entry_index].queueId,
-                            dst);
+                            dst));
 
                         try
                         {
@@ -561,12 +561,12 @@ void Monitor::run(Uint32 milliseconds)
                         }
                         catch (...)
                         {
-                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                                 "Monitor::_dispatch: exception received");
                         }
-                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                             "Monitor::_dispatch: exited run() for index %d",
-                            dst->_entry_index);
+                            dst->_entry_index));
 
                         // It is possible the entry status may not be set to
                         // busy.  The following will fail in that case.
@@ -608,7 +608,7 @@ void Monitor::run(Uint32 milliseconds)
                         if (amt == PEGASUS_SOCKET_ERROR &&
                             getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
                         {
-                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                                 "Monitor::run: Tickler socket got an IO error. "
                                     "Going to re-create Socket and wait for "
                                     "TCP/IP restart.");
@@ -622,10 +622,10 @@ void Monitor::run(Uint32 milliseconds)
                     }
                     else
                     {
-                        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                             "Non-connection entry, indx = %d, has been "
                                 "received.",
-                            indx);
+                            indx));
                         int events = 0;
                         events |= SocketMessage::READ;
                         Message* msg = new SocketMessage(
@@ -759,12 +759,12 @@ void Monitor::unsolicitSocketMessages(SocketHandle socket)
 ThreadReturnType PEGASUS_THREAD_CDECL Monitor::_dispatch(void* parm)
 {
     HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
         "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, "
             "q = %p",
         dst->_entry_index,
         dst->_monitor->_entries[dst->_entry_index].queueId,
-        dst);
+        dst));
 
     try
     {
@@ -772,11 +772,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL Monitor::_dispatch(void* parm)
     }
     catch (...)
     {
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
             "Monitor::_dispatch: exception received");
     }
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-        "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+        "Monitor::_dispatch: exited run() for index %d", dst->_entry_index));
 
     PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() ==
         _MonitorEntry::BUSY);

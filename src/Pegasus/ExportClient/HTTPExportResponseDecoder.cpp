@@ -106,8 +106,8 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
         }
     }
 
-    Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
-        httpMessage->message.getData());
+    PEG_TRACE_CSTRING(TRC_XML_IO, Tracer::LEVEL2,
+                      httpMessage->message.getData());
 
     //
     //  Parse HTTP message status line

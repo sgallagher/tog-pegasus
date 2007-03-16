@@ -125,9 +125,9 @@ void SystemLogListenerDestination::handleIndication(
 
                     default:
                     {
-                        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+                        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
                             "PerceivedSeverity = %d is not a valid value."
-                            " Using default severity.", perceivedSeverity);
+                            " Using default severity.", perceivedSeverity));
                         break;
                     }
                 }
@@ -139,21 +139,21 @@ void SystemLogListenerDestination::handleIndication(
     }
     catch (CIMException& c)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception&e)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to deliver indication to system log file.");
         PEG_METHOD_EXIT();
 

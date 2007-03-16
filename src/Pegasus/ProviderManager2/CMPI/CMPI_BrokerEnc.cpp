@@ -796,7 +796,7 @@ extern "C" {
          traceString.append( text );
 	   }
 
-	Tracer::trace(traceComponent, traceLevel, traceString.getCString());
+	PEG_TRACE_STRING(traceComponent, traceLevel, traceString);
     CMReturn ( CMPI_RC_OK);
   }
 #endif

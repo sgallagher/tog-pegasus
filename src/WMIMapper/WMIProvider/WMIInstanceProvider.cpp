@@ -113,21 +113,21 @@ CIMInstance WMIInstanceProvider::getInstance(
 
 	setup(nameSpace, userName, password);
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"getInstance - localOnly %x, includeQualifiers %x, includeClassOrigin %x", 
 		localOnly, 
 		includeQualifiers, 
-		includeClassOrigin);
+		includeClassOrigin));
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"getInstance - classname - %s, namespace - %s, instancename - %s",  
-		sClassName, nameSpace ,sInstanceName );
+		sClassName, nameSpace ,sInstanceName));
 
 	if (!m_bInitialized)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMIInstanceProvider::getInstance - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized);
+			m_bInitialized));
 
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Collector initialation failed.");
 	}
@@ -199,13 +199,13 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
 
 	setup(nameSpace, userName, password);
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"enumerateInstances - deepInheritance %x, localOnly %x, includeQualifiers %x, includeClassOrigin %x", 
-		deepInheritance, localOnly, includeQualifiers, includeClassOrigin);
+		deepInheritance, localOnly, includeQualifiers, includeClassOrigin));
 	
 	if (!m_bInitialized)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"enumerateInstances - m_bInitialized is false; throw exception"); 
 
 		throw CIMException(CIM_ERR_FAILED);
@@ -274,13 +274,13 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
 	if (pInstEnum)
 		pInstEnum.Release();
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIInstanceProvider::enumerateInstances() - Instance count is %d", lCount); 
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMIInstanceProvider::enumerateInstances() - Instance count is %d", lCount)); 
 
 	if (lCount == 0)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIInstanceProvider::enumerateInstances() - hResult value is %x", hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIInstanceProvider::enumerateInstances() - hResult value is %x", hr));
 	}
 
 	PEG_METHOD_EXIT();
@@ -313,9 +313,9 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 
 	if (!m_bInitialized)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMIInstanceProvider::enumerateInstanceNames - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized);
+			m_bInitialized));
 
 		throw CIMException(CIM_ERR_FAILED);
 	}
@@ -365,17 +365,17 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 	if (pInstEnum)
 		pInstEnum.Release();
 
-	Tracer::trace(TRC_WMIPROVIDER, 
+	PEG_TRACE((TRC_WMIPROVIDER, 
 		          Tracer::LEVEL3,
 				  "WMIInstanceProvider::enumerateInstanceNames() - Instance count is %d", 
-				  lCount); 
+				  lCount));
 
 	if (lCount == 0)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, 
+		PEG_TRACE((TRC_WMIPROVIDER, 
 			          Tracer::LEVEL3,
 					  "WMIInstanceProvider::enumerateInstanceNames() - hResult value is %x", 
-					  hr); 
+					  hr));
 	}
 
 	PEG_METHOD_EXIT();
@@ -464,17 +464,17 @@ void WMIInstanceProvider::setProperty(
 
 	setup(nameSpace, userName, password);
 
-	Tracer::trace(TRC_WMIPROVIDER, 
+	PEG_TRACE((TRC_WMIPROVIDER, 
 		          Tracer::LEVEL3,
 				  "setProperty() - setting property %s in %s", 
 				  propertyName, 
-				  sInstanceName);
+				  sInstanceName));
 
 	if (!m_bInitialized)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMIInstanceProvider::setProperty - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized);
+			m_bInitialized));
 
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Collector initialization failed.");
 	}
@@ -538,10 +538,10 @@ void WMIInstanceProvider::setProperty(
 			case WBEM_E_TYPE_MISMATCH:
 				throw CIMException(CIM_ERR_TYPE_MISMATCH);
 			default:
-				Tracer::trace(TRC_WMIPROVIDER, 
+				PEG_TRACE((TRC_WMIPROVIDER, 
 							  Tracer::LEVEL3,
 							  "setProperty() - Put failed, hr = %x", 
-							  hr);
+							  hr));
 
 				throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "WMI Put property failed.");				
 		}
@@ -564,10 +564,10 @@ void WMIInstanceProvider::setProperty(
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER, 
+		PEG_TRACE((TRC_WMIPROVIDER, 
 			          Tracer::LEVEL3,
 					  "setProperty() - PutInstance failed, hr = %x", 
-					  hr);
+					  hr));
 
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "WMI Put instance failed.");
 	}
@@ -597,17 +597,17 @@ void WMIInstanceProvider::modifyInstance(
 
 	setup(nameSpace, userName, password);
 
-	Tracer::trace(TRC_WMIPROVIDER, 
+	PEG_TRACE((TRC_WMIPROVIDER, 
 		          Tracer::LEVEL3,
 				  "ModifyInstance() - nameSpace %s, userName %s",
 				  nameSpace.getCString(),
-				  userName.getCString());
+				  userName.getCString()));
 
 	if (!m_bInitialized)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMIInstanceProvider::ModifyInstance - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized);
+			m_bInitialized));
 
 		throw CIMException(CIM_ERR_FAILED);
 	}
@@ -719,10 +719,10 @@ void WMIInstanceProvider::modifyInstance(
 	// otherwise throw invalid parameter error
 	if(!bPropertySet)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, 
+		PEG_TRACE((TRC_WMIPROVIDER, 
 			          Tracer::LEVEL3,
 					  "modifyInstance() - Put Failed hr=0x%x.", 
-					  hr);
+					  hr));
 
 		throw CIMException(CIM_ERR_FAILED);
 	}
@@ -785,11 +785,11 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 	
 	setup(nameSpace, userName, password);
 
-	Tracer::trace(TRC_WMIPROVIDER, 
+	PEG_TRACE((TRC_WMIPROVIDER, 
 		          Tracer::LEVEL3,
 				  "createInstance() - nameSpace %s, userName %s",
 				  nameSpace.getCString(),
-				  userName.getCString());
+				  userName.getCString()));
 
 	if (!m_bInitialized)
 	{

@@ -105,8 +105,8 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER,Tracer::LEVEL3,
-			"WMIQualifierSet::WMIQualifierSet - %s result is %x", sMessage, hr);
+		PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+			"WMIQualifierSet::WMIQualifierSet - %s result is %x", sMessage, hr));
 		
 		throw CIMException(CIM_ERR_FAILED);
 	}

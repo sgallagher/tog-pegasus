@@ -54,8 +54,8 @@ AnonymousPipe::AnonymousPipe()
 
     if (!CreatePipe(&thePipe[0], &thePipe[1], &saAttr, 0))
     {
-        Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            "Failed to create pipe.  Error code: %d", GetLastError());
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "Failed to create pipe.  Error code: %d", GetLastError()));
         PEG_METHOD_EXIT();
 
         MessageLoaderParms mlp("Common.AnonymousPipe.CREATE_PIPE_FAILED",
@@ -87,8 +87,8 @@ AnonymousPipe::AnonymousPipe(
     {
         if (sscanf(readHandle, "%p", &_readHandle) != 1)
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                "Failed to create pipe: invalid read handle %s", readHandle);
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to create pipe: invalid read handle %s", readHandle));
             PEG_METHOD_EXIT();
 
             MessageLoaderParms mlp("Common.AnonymousPipe.CREATE_PIPE_FAILED",
@@ -102,8 +102,8 @@ AnonymousPipe::AnonymousPipe(
     {
         if (sscanf(writeHandle, "%p", &_writeHandle) != 1)
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                "Failed to create pipe: invalid write handle %s", writeHandle);
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "Failed to create pipe: invalid write handle %s", writeHandle));
             PEG_METHOD_EXIT();
 
             MessageLoaderParms mlp("Common.AnonymousPipe.CREATE_PIPE_FAILED",
@@ -142,7 +142,7 @@ AnonymousPipe::Status AnonymousPipe::writeBuffer(
     //
     if (!_writeOpen)
     {
-        Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to write to pipe whose write handle is not open");
         return STATUS_CLOSED;
     }
@@ -163,17 +163,17 @@ AnonymousPipe::Status AnonymousPipe::writeBuffer(
 
         if (!returnValue)
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to write buffer to pipe.  Error code: %d",
-                GetLastError());
+                GetLastError()));
             return STATUS_ERROR;
         }
 
         if (bytesWritten < 0)
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to write buffer to pipe.  Error code: %d",
-                GetLastError());
+                GetLastError()));
 
             if ((GetLastError() == ERROR_PIPE_NOT_CONNECTED) ||
                 (GetLastError() == ERROR_BROKEN_PIPE))
@@ -202,7 +202,7 @@ AnonymousPipe::Status AnonymousPipe::readBuffer(
     //
     if (!_readOpen)
     {
-        Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to read from pipe whose read handle is not open");
         return STATUS_CLOSED;
     }
@@ -218,9 +218,9 @@ AnonymousPipe::Status AnonymousPipe::readBuffer(
 
         if (!returnValue)
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to read buffer from pipe.  Error code: %d",
-                GetLastError());
+                GetLastError()));
             if ((GetLastError() == ERROR_PIPE_NOT_CONNECTED) ||
                 (GetLastError() == ERROR_BROKEN_PIPE))
             {
@@ -235,16 +235,16 @@ AnonymousPipe::Status AnonymousPipe::readBuffer(
             //
             //  Connection closed
             //
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to read buffer from pipe: connection closed");
             return STATUS_CLOSED;
         }
 
         if (bytesRead < 0)
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to read buffer from pipe.  Error code: %d",
-                GetLastError());
+                GetLastError()));
 
             //
             //  Error reading from pipe
@@ -285,9 +285,9 @@ void AnonymousPipe::closeReadHandle()
     {
         if (!CloseHandle(_readHandle))
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to close read handle.  Error code: %d",
-                GetLastError());
+                GetLastError()));
         }
         else
         {
@@ -296,7 +296,7 @@ void AnonymousPipe::closeReadHandle()
     }
     else
     {
-        Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to close read handle that was not open");
     }
 
@@ -311,9 +311,9 @@ void AnonymousPipe::closeWriteHandle()
     {
         if (!CloseHandle(_writeHandle))
         {
-            Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                 "Failed to close write handle.  Error code: %d",
-                GetLastError());
+                GetLastError()));
         }
         else
         {
@@ -322,7 +322,7 @@ void AnonymousPipe::closeWriteHandle()
     }
     else
     {
-        Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "Attempted to close write handle that was not open");
     }
 

@@ -143,7 +143,7 @@ Boolean PAMBasicAuthenticator::authenticate(
         //
         // Mutex to Serialize Authentication calls.
         //
-        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
            "Authentication Mutex lock.");
         AutoMutex lock(_authSerializeMutex);
         authenticated = _pamBasicAuthenticatorStandAlone.authenticate(
@@ -176,9 +176,9 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
     pconv.appdata_ptr = &mydata;
 
 //    WARNING: Should only be uncommented for debugging in a secure environment.
-//    Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+//    PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL4,
 //       "PAMBasicAuthenticator::_authenticateByPAM() - userName = %s; userPassword = %s",
-//       (const char *)userName.getCString(), (const char *)password.getCString());
+//       (const char *)userName.getCString(), (const char *)password.getCString()));
 
     //
     //Call pam_start since you need to before making any other PAM calls
@@ -187,8 +187,8 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
                        (const char *)userName.getCString(), &pconv, &phandle);
     if ( rc != PAM_SUCCESS ) 
     {
-        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-           "PAMBasicAuthenticator::_authenticateByPAM() - pam_start failed! %d", rc);
+        PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::_authenticateByPAM() - pam_start failed! %d", rc));
         PEG_METHOD_EXIT();
         return (authenticated);
     }
@@ -199,7 +199,7 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
     rc = pam_authenticate(phandle, 0);
     if ( rc == PAM_SUCCESS ) 
     {
-       Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+       PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
          "pam_authenticate successful.");
         //
         //Call pam_acct_mgmt, to check if the user account is valid. This includes 
@@ -209,20 +209,20 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
         rc = pam_acct_mgmt(phandle, 0);
         if ( rc == PAM_SUCCESS ) 
         {
-           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+           PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
               "pam_acct_mgmt successful.");
             authenticated = true;
         }
         else
         {
-           Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-              "PAMBasicAuthenticator::_authenticateByPAM() - pam_acct_mgmt failed! %d", rc);
+           PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL4,
+              "PAMBasicAuthenticator::_authenticateByPAM() - pam_acct_mgmt failed! %d", rc));
         }
     }
     else
     {
-        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-           "PAMBasicAuthenticator::_authenticateByPAM() - pam_authenticate failed! %d", rc);
+        PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::_authenticateByPAM() - pam_authenticate failed! %d", rc));
     }
 
     //
@@ -259,8 +259,8 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
                        (const char *)userName.getCString(), &pconv, &phandle);
     if ( rc != PAM_SUCCESS ) 
     {
-        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-           "PAMBasicAuthenticator::validateUser() - pam_start failed! %d", rc);
+        PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::validateUser() - pam_start failed! %d", rc));
         PEG_METHOD_EXIT();
         return (authenticated);
     }
@@ -277,8 +277,8 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
     }
     else
     {
-        Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
-           "PAMBasicAuthenticator::validateUser() - pam_acct_mgmt failed! %d", rc);
+        PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "PAMBasicAuthenticator::validateUser() - pam_acct_mgmt failed! %d", rc));
     }
 
     //
@@ -290,7 +290,7 @@ Boolean PAMBasicAuthenticator::validateUser(const String& userName)
     //
     // Mutex to Serialize Authentication calls.
     //
-    Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
            "Authentication Mutex lock.");
     AutoMutex lock(_authSerializeMutex);
     authenticated = _pamBasicAuthenticatorStandAlone.validateUser(

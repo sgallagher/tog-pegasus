@@ -184,7 +184,7 @@ Message* DefaultProviderManager::processMessage(Message* message)
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: Unknown");
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
@@ -264,7 +264,7 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception: Unknown");
         cimException = PEGASUS_CIM_EXCEPTION_L(
             CIM_ERR_FAILED,
@@ -608,8 +608,8 @@ Boolean DefaultProviderManager::hasActiveProviders()
     try
     {
         AutoMutex lock(_providerTableMutex);
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Number of providers in _providers table = %d", _providers.size());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Number of providers in _providers table = %d", _providers.size()));
 
         // Iterate through the _providers table looking for an active provider
         for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
@@ -624,7 +624,7 @@ Boolean DefaultProviderManager::hasActiveProviders()
     catch (...)
     {
         // Unexpected exception; do not assume that no providers are loaded
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected Exception in hasActiveProviders.");
         PEG_METHOD_EXIT();
         return true;
@@ -685,7 +685,7 @@ void DefaultProviderManager::unloadIdleProviders()
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Caught unexpected exception in unloadIdleProviders.");
     }
 
@@ -701,8 +701,8 @@ void DefaultProviderManager::_shutdownAllProviders()
     {
         AutoMutex lock(_providerTableMutex);
 
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "providers in cache = %d", _providers.size());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "providers in cache = %d", _providers.size()));
 
         for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
         {
@@ -719,7 +719,7 @@ void DefaultProviderManager::_shutdownAllProviders()
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Unexpected Exception in _shutdownAllProviders().");
     }
 
@@ -758,7 +758,7 @@ Sint16 DefaultProviderManager::_disableProvider(const String& providerName)
     // There are still pending requests, do not disable
     if (pr->status.numCurrentOperations() > 0)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Disable failed since there are pending requests.");
         PEG_METHOD_EXIT();
         return 0;

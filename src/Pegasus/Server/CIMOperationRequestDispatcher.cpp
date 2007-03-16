@@ -254,7 +254,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
                 _totalReceivedExpected,
                 _totalReceived,
                 _totalReceivedErrors));
-            Tracer::trace(
+            PEG_TRACE((
                 __FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "All completed responses (%u) for current request "
                     "have been accounted for but expected count (%u) does "
@@ -262,7 +262,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
                 _totalReceivedComplete,
                 _totalReceivedExpected,
                 _totalReceived,
-                _totalReceivedErrors);
+                _totalReceivedErrors));
         }
 
         // If all of the errors received were NOT_SUPPORTED and
@@ -2499,12 +2499,12 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
     response->dest = request->queueIds.top();
     // Use the same key,setHTTPMethod and closeConnect as used in the request:
     response->syncAttributes(request);
-    Tracer::trace(
+    PEG_TRACE((
         TRC_HTTP,
         Tracer::LEVEL3,
         "_CIMOperationRequestDispatcher::_enqueueResponse - "
             "request->getCloseConnect() returned %d",
-        request->getCloseConnect());
+        request->getCloseConnect()));
 
     _logOperation(request, response);
 
@@ -4324,7 +4324,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
                       "Associators executing Class request");
 
         AutoPtr<CIMAssociatorsResponseMessage> response(
@@ -4394,8 +4394,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             return;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
-                      "providerCount = %u.", providerCount);
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                      "providerCount = %u.", providerCount));
 
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
@@ -4460,10 +4460,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Associators repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->cimObjects.size());
+                    response->cimObjects.size()));
         }
 
         //
@@ -4625,7 +4625,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
                       "AssociatorNames executing Class request");
 
         AutoPtr<CIMAssociatorNamesResponseMessage> response(
@@ -4692,8 +4692,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             return;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
-                      "providerCount = %u.", providerCount);
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                      "providerCount = %u.", providerCount));
 
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
@@ -4755,10 +4755,10 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "AssociatorNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->objectNames.size());
+                    response->objectNames.size()));
         }
 
         //
@@ -4907,7 +4907,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
                       "References executing Class request");
 
         AutoPtr<CIMReferencesResponseMessage> response(
@@ -4975,8 +4975,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             return;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
-                      "providerCount = %u.", providerCount);
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                      "providerCount = %u.", providerCount));
 
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
@@ -5039,10 +5039,10 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "References repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->cimObjects.size());
+                    response->cimObjects.size()));
         }
 
         //
@@ -5190,7 +5190,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
                       "ReferenceNames executing Class request");
 
         AutoPtr<CIMReferenceNamesResponseMessage> response(
@@ -5255,8 +5255,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             return;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
-                      "providerCount = %u.", providerCount);
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                      "providerCount = %u.", providerCount));
 
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
@@ -5316,10 +5316,10 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "ReferenceNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->objectNames.size());
+                    response->objectNames.size()));
         }
 
         //

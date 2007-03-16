@@ -148,7 +148,7 @@ void ProviderAgent::run()
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                 "Unexpected exception from _readAndProcessRequest().");
             _terminating = true;
         }
@@ -170,7 +170,7 @@ void ProviderAgent::run()
             {
                 if (!_providerManagerRouter.hasActiveProviders())
                 {
-                    PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+                    PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                         "No active providers.  Exiting.");
                     _terminating = true;
                 }
@@ -182,7 +182,7 @@ void ProviderAgent::run()
             catch (...)
             {
                 // Do not terminate the agent on this exception
-                PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                     "Unexpected exception from hasActiveProviders()");
             }
         }
@@ -212,7 +212,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
     // Read operation was interrupted
     if (readStatus == AnonymousPipe::STATUS_INTERRUPT)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Read operation was interrupted.");
         PEG_METHOD_EXIT();
         return false;
@@ -221,7 +221,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
     if (readStatus == AnonymousPipe::STATUS_CLOSED)
     {
         // The CIM Server connection is closed
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "CIMServer connection closed. Exiting.");
         _terminating = true;
         PEG_METHOD_EXIT();
@@ -230,7 +230,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
     if (readStatus == AnonymousPipe::STATUS_ERROR)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Error reading from pipe. Exiting.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.ProviderAgent.ProviderAgent."
@@ -245,7 +245,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
     // A "wake up" message means we should unload idle providers
     if (request == 0)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL4,
             "Got a wake up message.");
         try
         {
@@ -254,7 +254,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
         catch (...)
         {
             // Ignore exceptions from idle provider unloading
-            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                 "Ignoring exception from _unloadIdleProviders()");
         }
         PEG_METHOD_EXIT();
@@ -300,7 +300,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
     if (!_isInitialised &&
         (request->getType() != CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE))
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Provider Agent was not yet initialised,"
             " prior to receiving a request message.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
@@ -354,7 +354,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
         _providerManagerRouter.setSubscriptionInitComplete 
             (_subscriptionInitComplete);
 
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Processed the agent initialization message.");
 
         // Notify the cimserver that the provider agent is initialized.
@@ -482,7 +482,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                     "Not enough threads to process agent request.");
  
-                Tracer::trace(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                     "Could not allocate thread to process agent request.");
 
                 AutoPtr<CIMResponseMessage> response(request->buildResponse());
@@ -532,7 +532,7 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Caught exception while processing request.");
         CIMResponseMessage* cimResponse = request->buildResponse();
         cimResponse->cimException = PEGASUS_CIM_EXCEPTION(
@@ -564,7 +564,7 @@ void ProviderAgent::_writeResponse(Message* message)
 
         if (writeStatus != AnonymousPipe::STATUS_SUCCESS)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                 "Error writing response to pipe.");
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
                 "ProviderManager.ProviderAgent.ProviderAgent."
@@ -577,7 +577,7 @@ void ProviderAgent::_writeResponse(Message* message)
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Caught exception while writing response.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.ProviderAgent.ProviderAgent."
@@ -620,7 +620,7 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Caught unrecognized exception.  "
                 "Exiting _processRequestAndWriteResponse.");
     }
@@ -680,7 +680,7 @@ void ProviderAgent::_unloadIdleProviders()
          Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
              "Not enough threads to unload idle providers.");
  
-         Tracer::trace(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
              "Could not allocate thread to unload idle providers.");
     }
     PEG_METHOD_EXIT();
@@ -703,7 +703,7 @@ ProviderAgent::_unloadIdleProvidersHandler(void* arg) throw()
         catch (...)
         {
             // Ignore errors
-            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                 "Unexpected exception in _unloadIdleProvidersHandler");
         }
 
@@ -714,7 +714,7 @@ ProviderAgent::_unloadIdleProvidersHandler(void* arg) throw()
         // Ignore errors
         try
         {
-            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                 "Unexpected exception in _unloadIdleProvidersHandler");
         }
         catch (...)

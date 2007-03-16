@@ -106,8 +106,8 @@ bool WMICollector::setup()
 	{
 		hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::setup() - return from CoInitializeEx() is %x", hr); 
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::setup() - return from CoInitializeEx() is %x", hr));
 
 		m_bInitialized = (SUCCEEDED(hr));
 
@@ -146,21 +146,21 @@ bool WMICollector::Connect(IWbemServices **ppServices)
 	// get the Locator object
 	hr = pLocator.CoCreateInstance(CLSID_WbemLocator);
 	
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMICollector::Connect() - return from CoCreateInstance() is %x", hr);
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMICollector::Connect() - return from CoCreateInstance() is %x", hr));
 
 	if (SUCCEEDED(hr))	
 	{
 		if(m_bIsLocalNamespace)
 		{
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"WMICollector::Connect() - m_bIsLocalNamespace is true");
 			
 			//Does not impersonate if is being called from a client app
 			//Impersonate if it is being called from the Mapper service
 			if (!m_bLocalConnection)
 			{
-				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+				PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 					"WMICollector::Connect() - m_bLocalConnection is false, call logonUser()");
 				logonUser();
 			}
@@ -174,7 +174,7 @@ bool WMICollector::Connect(IWbemServices **ppServices)
 		else
 		{
 
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"WMICollector::Connect() - m_bIsLocalNamespace is false");
 			//---------------------------------------------------
 			//by Jair
@@ -193,25 +193,25 @@ bool WMICollector::Connect(IWbemServices **ppServices)
 										 &pServices);
 		}
 
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::Connect() - return from ConnectServer() is %x", hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::Connect() - return from ConnectServer() is %x", hr));
 		
 		if (FAILED(hr))	
 		{
 			switch(hr)
 			{
 				case E_ACCESSDENIED:
-					Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+					PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 						"WMICollector::Connect() connectServer() - throw CIM_ERR_ACCESS_DENIED for E_ACCESSDENIED error");
 					throw CIMException(CIM_ERR_ACCESS_DENIED); 
 					break;
 				case WBEM_E_ACCESS_DENIED: 
-					Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+					PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 						"WMICollector::Connect() - connectServer() - throw CIM_ERR_ACCESS_DENIED error");
 					throw CIMException(CIM_ERR_ACCESS_DENIED); 
 					break;
 				default: 
-					Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+					PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 						"WMICollector::Connect() - connectServer() - throw CIM_ERR_INVALID_NAMESPACE error");
 					throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 			}
@@ -262,7 +262,7 @@ bool WMICollector::getInstanceEnum(
 
 	if (!bConnected)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMICollector::getInstanceEnum,() - bConnected is false - throw Connect failed error");
 		
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Connect failed.");
@@ -279,8 +279,8 @@ bool WMICollector::getInstanceEnum(
 		NULL,
 		&p_inst);
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getInstanceEnum() return from CreateInstanceEnum()- hr value is %x", hr); 
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getInstanceEnum() return from CreateInstanceEnum()- hr value is %x", hr));
 
     if (SUCCEEDED(hr))	
 	{
@@ -292,8 +292,8 @@ bool WMICollector::getInstanceEnum(
 	else	
 	{
 		*ppInstances = NULL;
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getInstanceEnum() - hr value is %x", hr); 
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getInstanceEnum() - hr value is %x", hr));
 
 		switch(hr)
 		{
@@ -333,7 +333,7 @@ bool WMICollector::getClassEnum(
 
 	if (!bConnected)
 	{
-        Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMICollector::getClassEnum,() - bConnected is false - throw Connect failed error");
 
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Connect failed.");
@@ -368,8 +368,8 @@ bool WMICollector::getClassEnum(
 			&p_class);
 	}
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMICollector::getClassEnum() returns from CreateClassEnum() - hr value is %x", hr);
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMICollector::getClassEnum() returns from CreateClassEnum() - hr value is %x", hr));
 
 	if (SUCCEEDED(hr))	
 	{
@@ -382,23 +382,23 @@ bool WMICollector::getClassEnum(
 	{
 		*ppClasses = NULL;
 
-        Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getClassEnum() - hr value is %x", hr);
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getClassEnum() - hr value is %x", hr));
 		
 		switch(hr)
 		{
 			case WBEM_E_ACCESS_DENIED: 
-				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+				PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 					"WMICollector::getClassEnum() - createClassEnum() returns ACCESS_DENIED- throw CIM_ERROR_ACCESS_DENIED error");
 				throw CIMException(CIM_ERR_ACCESS_DENIED); 
 				break;
 			case WBEM_E_INVALID_CLASS: 
-				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+				PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 					"WMICollector::getClassEnum() - createClassEnum() returns INVALID_CLASS- throw CIM_INVALID_CLASS error");
 				throw CIMException(CIM_ERR_INVALID_CLASS); 
 				break; 
 			default: 
-				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+				PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 					"WMICollector::getClassEnum() - createClassEnum() returns default - throw getClassEnum general error");
 				throw CIMException(CIM_ERR_FAILED, "[getClassEnum] general"); 
 		}
@@ -431,7 +431,7 @@ bool WMICollector::getQueryResult(
 
 	if (!bConnected)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMICollector::getQueryResult,() - bConnected is false - throw Connect failed error");
 		
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Connect failed.");
@@ -455,8 +455,8 @@ bool WMICollector::getQueryResult(
 		NULL,
 		&p_inst);
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getQueryResult(), return from ExecQuery - hr value is %x", hr); 
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getQueryResult(), return from ExecQuery - hr value is %x", hr));
 
 	if (SUCCEEDED(hr))	
 	{
@@ -469,8 +469,8 @@ bool WMICollector::getQueryResult(
 	{
 		*ppInstances = NULL;
 
-        Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getQueryResult() - hr value is %x", hr); 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getQueryResult() - hr value is %x", hr));
 
 		switch(hr)
 		{
@@ -504,7 +504,7 @@ bool WMICollector::getObject(IWbemClassObject **ppObject,
 
 	if (!bConnected)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMICollector::getObject,() - bConnected is false - throw Connect failed error");
 
 		throw CIMException(CIM_ERR_ACCESS_DENIED);
@@ -521,8 +521,8 @@ bool WMICollector::getObject(IWbemClassObject **ppObject,
 		&p_obj, 
 		NULL);
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMICollector::getObject() - GetObject result is %x", hr); 
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+		"WMICollector::getObject() - GetObject result is %x", hr));
 
     if (SUCCEEDED(hr))
 	{
@@ -535,8 +535,8 @@ bool WMICollector::getObject(IWbemClassObject **ppObject,
 	{
 		*ppObject = NULL;
 
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getObject() - GetObject result is %x", hr); 
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getObject() - GetObject result is %x", hr));
 
 		//generate error
 		switch(hr)
@@ -602,10 +602,10 @@ void getProperties(IWbemClassObject *pClass,
 		if (SUCCEEDED(hr))
 		{
 
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"getProperties() - CIMTYPE[%x] - WMITYPE[%x]",
 				type, 
-				vValue.vt);
+				vValue.vt));
 
 			bool bPropagated = (lFlavor & WBEM_FLAVOR_ORIGIN_PROPAGATED) ? true : false;
 
@@ -620,9 +620,9 @@ void getProperties(IWbemClassObject *pClass,
 				// ATTN:
 				// unsupported for now - do some tracing...
 				String sClass = WMICollector::getClassName(pClass);
-				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+				PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 					"getProperties() - Ignoring invalid type for %s in %s.  %s, unsupported WMI CIM type is %x",
-					sPropName, sClass, e.getMessage(), type);
+					sPropName, sClass, e.getMessage(), type));
 
 				continue;
 			}
@@ -630,9 +630,9 @@ void getProperties(IWbemClassObject *pClass,
 			
 			if (bPropagated && localOnly)
 			{
-				Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+				PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 					"getProperties() - Property %s was defined in a superclass", 
-					(LPCTSTR)sPropName.getCString());
+					(LPCTSTR)sPropName.getCString()));
 			}
 
 			else
@@ -645,14 +645,14 @@ void getProperties(IWbemClassObject *pClass,
 				catch( AlreadyExistsException& e )
 				{
 					// ignore this
-					Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-						"getProperties() - Property %s is already defined. %s", sPropName, e.getMessage());
+					PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+						"getProperties() - Property %s is already defined. %s", sPropName, e.getMessage()));
 				}
 				catch( Exception & e )
 				{
 					// ignore this
-					Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-						"getAllProperties() - Ignoring AddedReferenceToClass.  %s", e.getMessage());
+					PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+						"getAllProperties() - Ignoring AddedReferenceToClass.  %s", e.getMessage()));
 
 				}
 				catch(... ) 
@@ -664,8 +664,8 @@ void getProperties(IWbemClassObject *pClass,
 		}
 		else if (WBEM_E_NOT_FOUND == hr)
 		{	// we are supposed to keep going...
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"getProperties() - %s property not found", (LPCTSTR)sPropName.getCString());
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"getProperties() - %s property not found", (LPCTSTR)sPropName.getCString()));
 
 			//reset
 			throw CIMException(CIM_ERR_FAILED, "[getProperties] Property Not Found");
@@ -676,8 +676,8 @@ void getProperties(IWbemClassObject *pClass,
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"getProperties() - failed, return result is %x", hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"getProperties() - failed, return result is %x", hr));
 
         throw CIMException(CIM_ERR_FAILED, "[getProperties] general 2");
 	}
@@ -731,10 +731,10 @@ bool getAllProperties(IWbemClassObject *pClass,
 			break;
 		}
 
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"getAllProperties() - CIMTYPE[%x] - WMITYPE[%x]",
 				type, 
-				vValue.vt);
+				vValue.vt));
 
 		bFound = true;
 
@@ -753,9 +753,9 @@ bool getAllProperties(IWbemClassObject *pClass,
 			// ATTN:
 			// unsupported for now - do some tracing...
 			String sClass = WMICollector::getClassName(pClass);
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"getAllProperties() - Ignoring invalid type for %s in %s.  %s, unsupported WMI CIM type is %x",
-				(LPCTSTR)sPropName, sClass, e.getMessage(), type);
+				(LPCTSTR)sPropName, sClass, e.getMessage(), type));
 
 			bsName.Empty();
 			vValue.Clear();
@@ -773,16 +773,16 @@ bool getAllProperties(IWbemClassObject *pClass,
 		catch( AlreadyExistsException& e )
 		{
 			// ignore this
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"getAllProperties() - Property %s is already defined", (LPCTSTR)sPropName);
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3, "getAllProperties() - %s", e.getMessage());
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"getAllProperties() - Property %s is already defined", (LPCTSTR)sPropName));
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3, "getAllProperties() - %s", e.getMessage()));
 
 		}
 		catch( Exception & e )
 		{
 			// ignore this
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"getAllProperties() - Ignoring AddedReferenceToClass.  %s", e.getMessage());
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"getAllProperties() - Ignoring AddedReferenceToClass.  %s", e.getMessage()));
 
 		}
 		catch(... ) 
@@ -801,8 +801,8 @@ bool getAllProperties(IWbemClassObject *pClass,
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"getAllProperties() - %s result is %x", sMessage.getCString(), hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"getAllProperties() - %s result is %x", sMessage.getCString(), hr));
 		throw CIMException(CIM_ERR_FAILED, "[getAllProperties] general 2");
 	}
 
@@ -862,9 +862,9 @@ bool getAllMethods(IWbemClassObject *pClass,
 			break;
 		}
 
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"getAllMethods() - name [%S]",
-				bsName);
+				bsName));
 
 		bFound = true;
 
@@ -889,16 +889,16 @@ bool getAllMethods(IWbemClassObject *pClass,
 		catch( AlreadyExistsException& e )
 		{
 			// ignore this
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"getAllMethods() - Method %s is already defined", (LPCTSTR)sMethodName);
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3, "getAllMethods() - %s", e.getMessage());
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"getAllMethods() - Method %s is already defined", (LPCTSTR)sMethodName));
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3, "getAllMethods() - %s", e.getMessage()));
 
 		}
 		catch( Exception & e )
 		{
 			// ignore this
-			Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"getAllMethods() - Ignoring AddedReferenceToClass.  %s", e.getMessage());
+			PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"getAllMethods() - Ignoring AddedReferenceToClass.  %s", e.getMessage()));
 
 		}
 		catch(... ) 
@@ -927,8 +927,8 @@ bool getAllMethods(IWbemClassObject *pClass,
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"getAllMethods() - %s result is %x", sMessage.getCString(), hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"getAllMethods() - %s result is %x", sMessage.getCString(), hr));
 		throw CIMException(CIM_ERR_FAILED, "[getAllMethods] general 2");
 	}
 
@@ -1019,8 +1019,8 @@ void getClassQualifiers(IWbemClassObject *pClass,
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"getClassQualifiers() - %s result is %x", sMessage.getCString(), hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"getClassQualifiers() - %s result is %x", sMessage.getCString(), hr));
 
 		throw CIMException(CIM_ERR_FAILED);
 	}
@@ -1194,15 +1194,15 @@ String WMICollector::getStringProperty(IWbemClassObject *pObject,
 			}
 		}
 
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMICollector::getStringProperty() - Value for %s is %s", 
-			(LPCTSTR)name, (LPCTSTR)s);
+			(LPCTSTR)name, (LPCTSTR)s));
 	}
 	else
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMICollector::getStringProperty() - get result for %s is %x", 
-			(LPCTSTR)name, hr);
+			(LPCTSTR)name, hr));
 	}
 
 	PEG_METHOD_EXIT();
@@ -1288,9 +1288,9 @@ CIMProperty WMICollector::getProperty(IWbemClassObject *pClass,
 	CMyString sPropName; sPropName = bsName;
 	long iSize = sPropName.GetLength();
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMICollector::getProperty() - Property Name is %s, type is %x, CIMTYPE is %x", 
-		(LPCTSTR)sPropName, vValue.vt, type);
+		(LPCTSTR)sPropName, vValue.vt, type));
 
 	// put this in to check XP - @bbp
 	if (VT_BSTR == vValue.vt)
@@ -1300,9 +1300,9 @@ CIMProperty WMICollector::getProperty(IWbemClassObject *pClass,
 		bs.Append(vValue.bstrVal);
 		sPropName = bs;
 		iSize = sPropName.GetLength();
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 			"WMICollector::getProperty() - Property Value is %s, size is %x", 
-			(LPCTSTR)sPropName, iSize);
+			(LPCTSTR)sPropName, iSize));
 	}
 
 	CComPtr<IWbemQualifierSet> pQualifiers;
@@ -1342,8 +1342,8 @@ CIMProperty WMICollector::getProperty(IWbemClassObject *pClass,
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getProperty() - %s result is %x", sMessage, hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getProperty() - %s result is %x", sMessage, hr));
 
 		throw CIMException(CIM_ERR_FAILED);
 	}
@@ -1399,9 +1399,9 @@ CIMMethod WMICollector::getMethod(IWbemClassObject *pClass,
 	CMyString sMethodName; sMethodName = bsName;
 	long iSize = sMethodName.GetLength();
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 		"WMICollector::getMethod() - Method Name is %s", 
-		(LPCTSTR)sMethodName);
+		(LPCTSTR)sMethodName));
 
 
 	CComPtr<IWbemQualifierSet> pQualifiers;
@@ -1441,8 +1441,8 @@ CIMMethod WMICollector::getMethod(IWbemClassObject *pClass,
 
 	if (FAILED(hr))
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::getMethod() - %s result is %x", sMessage, hr);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::getMethod() - %s result is %x", sMessage, hr));
 
 		throw CIMException(CIM_ERR_FAILED);
 	}
@@ -1469,14 +1469,14 @@ void WMICollector::setNamespace(const String & sNamespace)
 
 	if (m_bIsLocalNamespace)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::setNamespace() - Namespace %s is local", sNamespace.getCString());
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::setNamespace() - Namespace %s is local", sNamespace.getCString()));
 		s = sNamespace;
 	}
 	else
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::setNamespace() - Namespace %s is remote", sNamespace.getCString());
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::setNamespace() - Namespace %s is remote", sNamespace.getCString()));
 
 		// by Jair 
 		// adjust the namespace to accept DNS fully qualified names
@@ -1548,9 +1548,9 @@ void WMICollector::setUserName(const String & sUserName)
 		sUser.remove(0, pos + 1);
 	}
 
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"WMICollector::setUserName() - UserName [%s], Domain [%s]", 
-				sUser.getCString(), sDomain.getCString());
+				sUser.getCString(), sDomain.getCString()));
 
 	m_bsUserName = sUser.getCString();
 	m_bsDomain = sDomain.getCString();
@@ -1563,8 +1563,8 @@ void WMICollector::setUserName(const String & sUserName)
 // ///////////////////////////////////////////////////////////////////////////
 void WMICollector::setPassword(const String & sPassword)
 {
-	Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"WMICollector::setPassword() - Password %s", sPassword.getCString());
+	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"WMICollector::setPassword() - Password %s", sPassword.getCString()));
 
 	m_bsPassword = sPassword.getCString();
 }
@@ -1582,7 +1582,7 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
 
 	if(m_bIsLocalNamespace)
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"WMICollector::setProxySecurity() - m_bIsLocalNamespace is true");
 
         hr = CoSetProxyBlanket(
@@ -1598,7 +1598,7 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
 	}
 	else
 	{
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
 				"WMICollector::setProxySecurity() - m_bIsLocalNamespace is false");
 
         // set security attributes on pProxy
@@ -1627,8 +1627,8 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
                             // so going back to EOC_NONE for this case only.
 	}
 
-    Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMICollector::setProxySecurity() - return from CoSetProxyBlanket() is %x", hr); 
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMICollector::setProxySecurity() - return from CoSetProxyBlanket() is %x", hr));
 
 	PEG_METHOD_EXIT();
 	return SUCCEEDED(hr);
@@ -1656,8 +1656,8 @@ void WMICollector::logonUser()
 	{
 		DWORD error = GetLastError();
 		
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"WMICollector::logonUser() - return from RevertToSelf() is %d", error);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"WMICollector::logonUser() - return from RevertToSelf() is %d", error));
 
 		throw CIMException(CIM_ERR_ACCESS_DENIED, "RevertToSelf()");
 	}
@@ -1672,8 +1672,8 @@ void WMICollector::logonUser()
 	{
 		DWORD error = GetLastError();
 	
-		Tracer::trace(TRC_WMIPROVIDER, Tracer::LEVEL3,
-				"WMICollector::logonUser() - return from LogonUser() is %d", error);
+		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+				"WMICollector::logonUser() - return from LogonUser() is %d", error));
 				
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                     "Failed to login user \"$0/$1\". Invalid username or password.",

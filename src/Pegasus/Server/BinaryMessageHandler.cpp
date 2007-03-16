@@ -69,7 +69,7 @@ void BinaryMessageHandler::handleEnqueue(Message* message)
 
     message->_async = 0;
 
-    PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
         "Converting legacy message to AsyncLegacyOperationStart");
     op = this->get_op();
     asyncRequest = new AsyncLegacyOperationStart(
@@ -93,7 +93,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
     if (request->getType() == async_messages::ASYNC_LEGACY_OP_START ||
         request->getType() == async_messages::ASYNC_LEGACY_OP_RESULT)
     {
-        PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Processing ASYNC_LEGACY_OP_* Message.");
         request->op->processing();
 
@@ -103,7 +103,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
         }
         catch (ListFull&)
         {
-            PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
                 "List Full.");
             Base::_handle_async_request(request);
             PEG_METHOD_EXIT();
@@ -111,14 +111,14 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
                 "List Error.");
             Base::_handle_async_request(request);
             PEG_METHOD_EXIT();
             return;
         }
 
-        PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Allocating pooled thread to handle binary message.");
         if (_thread_pool->allocate_and_awaken(
                 (void*)this, BinaryMessageHandler::handle_binary_message) !=
@@ -127,23 +127,23 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 "Not enough threads to handle binary message.");
 
-            Tracer::trace(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
+            PEG_TRACE((TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
                 "Could not allocate thread for %s. " \
                 "Queue has %d messages waiting. ",
                 getQueueName(),
-                _msg_q.count());
+                _msg_q.count()));
         }
     }
     else if (request->getType() == async_messages::CIMSERVICE_STOP)
     {
-        PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Handling CIMServer Stop Message");
         Base::_handle_async_request(request);
     }
     else
     {
         // pass all other operations to the default handler
-        PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Passing message to parent.");
 #ifdef BINARYMESSAGEHANDLER_DEBUG
         PEGASUS_STD(cout) << "Unexpected Message: type " <<
@@ -173,7 +173,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
             "Internal DQueue Error.");
         PEG_METHOD_EXIT();
         return 0;
@@ -201,7 +201,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             // there is no response so there has to be a request
             if (op->_request.get() == 0)
             {
-                PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
                     "Received OpNode with no messages.");
                 PEG_METHOD_EXIT();
                 return 0;
@@ -419,7 +419,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
             case CIM_DELETE_CLASS_REQUEST_MESSAGE:
             case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-                PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
                     "Received Unexpected legacy request message.");
                 myself->_handleRequest(op, legacy);
                 break;
@@ -442,7 +442,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
                 break;
             case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
             default:
-                PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
                     "Received Unexpected legacy response message.");
                 myself->_handleResponse(op, legacy);
                 break;
@@ -450,7 +450,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
         }
         else
         {
-            PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
                 "Damaged or uninitialized AsyncOpNode received.");
         }
     }
@@ -462,7 +462,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
     }
     catch (...)
     {
-       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+       PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
            "Caught unrecognized exception.  Exiting handle_binary_message.");
     }
 
@@ -490,7 +490,7 @@ void BinaryMessageHandler::_handleRequest(
     {
         // Should this exception really just be ignored?
         // It seems like binary_message_handler should catch it.
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Unrecognized exception caught and ignored by _handleRequest().");
     }
 
@@ -520,7 +520,7 @@ void BinaryMessageHandler::_handleResponse(
         MessageQueue::lookup(((CIMRequestMessage*)msg)->queueIds.top());
     if (dest == 0)
     {
-        PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Bad or non-existent Queue ID for desination in legacy message.");
         delete msg;
     }
@@ -534,7 +534,7 @@ void BinaryMessageHandler::_handleResponse(
         {
             // Should this exception really just be ignored?
             // It seems like binary_message_handler should catch it.
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "Unrecognized exception caught and ignored by "
                     "_handleResponse().");
         }

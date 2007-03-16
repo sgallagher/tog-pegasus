@@ -767,7 +767,7 @@ String System::getEffectiveUserName()
          // L10N TODO - This message needs to be added.
          //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
          //  "getpwuid_r failure, user may have been removed just after login");
-         Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+         PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
              "getpwuid_r failure, user may have been removed just after login");
     }
     else
@@ -957,7 +957,7 @@ static void _initPrivilegedUserName()
     }
     else
     {
-        Tracer::trace (
+        PEG_TRACE_CSTRING(
             TRC_OS_ABSTRACTION, Tracer::LEVEL4, "Could not find entry.");
         PEGASUS_ASSERT(0);
     }
@@ -1102,7 +1102,7 @@ Boolean System::lookupUserId(
 
     if (result == 0)
     {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "getpwnam_r failed.");
         return false;
     }
@@ -1117,9 +1117,9 @@ Boolean System::changeUserContext(
     const PEGASUS_UID_T& uid,
     const PEGASUS_GID_T& gid)
 {
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL4,
         "Changing user context to: uid = %d, gid = %d",
-        (int)uid, (int)gid);
+        (int)uid, (int)gid));
 
     if (setgid(gid) != 0)
     {
@@ -1474,17 +1474,17 @@ AutoFileLock::AutoFileLock(const char* fileName)
 
         if (rc == -1)
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "AutoFileLock: Failed to lock file '%s', error code %d.",
-                fileName, errno);
+                fileName, errno));
             _fd = -1;
         }
     }
     else
     {
-        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "AutoFileLock: Failed to open lock file '%s', error code %d.",
-            fileName, errno);
+            fileName, errno));
     }
 #endif
 }
@@ -1498,9 +1498,9 @@ AutoFileLock::~AutoFileLock()
         int rc = fcntl(_fd, F_SETLK, &_fl);
         if (rc == -1)
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "AutoFileLock: Failed to unlock file, error code %d.",
-                errno);
+                errno));
         }
         close(_fd);
     }

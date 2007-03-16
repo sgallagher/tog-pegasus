@@ -326,7 +326,7 @@ String buildNamespacePath(
             "Invalid CIM_Namespace key property: " + propertyName.getString());
     }
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "CIM_Namespace Keys Valid");
 
     Array<CIMKeyBinding> keyBindings;

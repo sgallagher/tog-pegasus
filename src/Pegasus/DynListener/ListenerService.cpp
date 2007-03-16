@@ -105,7 +105,7 @@ Boolean ListenerService::initializeListener(Uint32 portNumber, Boolean useSSL, S
 
     if (_initialized)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Warning: The listener is already initialized.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Warning: The listener is already initialized.");
         return true;
     }
 
@@ -121,7 +121,7 @@ Boolean ListenerService::initializeListener(Uint32 portNumber, Boolean useSSL, S
 
     if (!_useSSL && _sslContext)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Warning: An SSLContext was specified for a non-SSL configuration.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Warning: An SSLContext was specified for a non-SSL configuration.");
     }
 
     _dispatcher = new DynamicListenerIndicationDispatcher(_consumerManager);
@@ -244,7 +244,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_listener_routine(void *p
          }
     }
 
-    PEG_TRACE_STRING(TRC_LISTENER, 
+    PEG_TRACE_CSTRING(TRC_LISTENER, 
                      Tracer::LEVEL4,
                      "ListenerService::Stopping _listener_routine");
     PEG_METHOD_EXIT();
@@ -275,7 +275,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_polling_routine(void *pa
         } catch (TimeOut&)
         {
             //time to check for idle consumers
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Unloading idle consumers");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Unloading idle consumers");
             listenerService->_consumerManager->unloadIdleConsumers();
         }
     }
@@ -290,7 +290,7 @@ Boolean ListenerService::shutdownListener()
 
     if (!_running)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Warning: The listener is not currently running.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Warning: The listener is not currently running.");
 
         return true;
     }
@@ -303,7 +303,7 @@ Boolean ListenerService::shutdownListener()
     _acceptor->closeConnectionSocket();
 
     //allow client threads to complete, wait 10 sec max
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Waiting for outstanding requests...");
+    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Waiting for outstanding requests...");
     Uint32 reqCount;
     Uint32 countDown = SHUTDOWN_TIMEOUT;
     for (; countDown > 0; countDown--)
@@ -319,11 +319,11 @@ Boolean ListenerService::shutdownListener()
         }
     }
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Finished waiting for outstanding requests.");
+    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Finished waiting for outstanding requests.");
 
     if (reqCount > 0)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "ListenerService::Did not successfully process all incoming requests to the acceptor.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "ListenerService::Did not successfully process all incoming requests to the acceptor.");
         gracefulShutdown = false;
     }
 
@@ -347,7 +347,7 @@ Boolean ListenerService::shutdownListener()
 
     } catch (...)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Did not successfully stop monitor thread");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Did not successfully stop monitor thread");
         gracefulShutdown = false;
     }
 
@@ -362,7 +362,7 @@ Boolean ListenerService::shutdownListener()
 
         } catch (...)
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Did not successfully stop polling thread");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Did not successfully stop polling thread");
             gracefulShutdown = false;
         }
     }
@@ -375,7 +375,7 @@ Boolean ListenerService::shutdownListener()
     delete _monitor;
     _monitor = 0;
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Listener stopped.");
+    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Listener stopped.");
 
     //reset status values
     _running = false;
@@ -383,7 +383,7 @@ Boolean ListenerService::shutdownListener()
 
 	if (gracefulShutdown)
 	{
-		PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Listener shutdown gracefully");
+		PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Listener shutdown gracefully");
 	} 
 
     PEG_METHOD_EXIT();

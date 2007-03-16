@@ -110,21 +110,10 @@ Tracer::~Tracer()
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_trace(
     const Uint32 traceComponent,
-    const Uint32 traceLevel,
     const char* fmt,
     va_list argList)
 {
-    if (traceLevel == LEVEL1)
-    {
-        trace(traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG);
-    }
-    else
-    {
-        if (_isTraceEnabled(traceComponent, traceLevel))
-        {
-            _trace(traceComponent, "", fmt, argList);
-        }
-    }
+    _trace(traceComponent, "", fmt, argList);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,142 +123,56 @@ void Tracer::_trace(
     const char* fileName,
     const Uint32 lineNum,
     const Uint32 traceComponent,
-    const Uint32 traceLevel,
     const char* fmt,
     va_list argList)
 {
     char* message;
+    //
+    // Allocate memory for the message string
+    // Needs to be updated if additional info is added
+    //
+    message = new char[strlen(fileName) +
+        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
+    sprintf(
+       message,
+       "[%d:%s:%s:%u]: ",
+       System::getPID(),
+       Threads::id().buffer,
+       fileName,
+       lineNum);
 
-    if (traceLevel == LEVEL1)
-    {
-        trace(traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG);
-    }
-    else
-    {
-        if (_isTraceEnabled(traceComponent,traceLevel))
-        {
-            //
-            // Allocate memory for the message string
-            // Needs to be updated if additional info is added
-            //
-            message = new char[strlen(fileName) +
-                _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
-            sprintf(
-               message,
-               "[%d:%s:%s:%u]: ",
-               System::getPID(),
-               Threads::id().buffer,
-               fileName,
-               lineNum);
-
-            _trace(traceComponent, message, fmt, argList);
-            delete [] message;
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//Traces the given buffer
-////////////////////////////////////////////////////////////////////////////////
-void Tracer::_traceBuffer(
-    const Uint32 traceComponent,
-    const Uint32 traceLevel,
-    const char*  data,
-    const Uint32 size)
-{
-    if (traceLevel == LEVEL1)
-    {
-        trace(traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG);
-    }
-    else
-    {
-        if (_isTraceEnabled(traceComponent, traceLevel))
-        {
-            char* tmpBuf = new char[size+1];
-
-            strncpy(tmpBuf, data, size);
-            tmpBuf[size] = '\0';
-            trace(traceComponent, traceLevel, "%s", tmpBuf);
-
-            delete [] tmpBuf;
-        }
-    }
-}
-////////////////////////////////////////////////////////////////////////////////
-//Traces the given buffer - Overloaded for including FileName and Line number
-////////////////////////////////////////////////////////////////////////////////
-void Tracer::_traceBuffer(
-    const char* fileName,
-    const Uint32 lineNum,
-    const Uint32 traceComponent,
-    const Uint32 traceLevel,
-    const char*  data,
-    const Uint32 size)
-{
-    if (traceLevel == LEVEL1)
-    {
-        trace(traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG);
-    }
-    else
-    {
-        if (_isTraceEnabled(traceComponent, traceLevel))
-        {
-            char* tmpBuf = new char[size+1];
-
-            strncpy( tmpBuf, data, size );
-            tmpBuf[size] = '\0';
-            trace(fileName, lineNum, traceComponent, traceLevel, "%s", tmpBuf);
-
-            delete [] tmpBuf;
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//Traces the given string
-////////////////////////////////////////////////////////////////////////////////
-void Tracer::_traceString(
-    const Uint32 traceComponent,
-    const Uint32 traceLevel,
-    const String& traceString)
-{
-    if (traceLevel == LEVEL1)
-    {
-        trace(traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG);
-    }
-    else
-    {
-        if (_isTraceEnabled(traceComponent,traceLevel))
-        {
-            trace(traceComponent, traceLevel, "%s",
-                       (const char *)traceString.getCString());
-        }
-    }
+    _trace(traceComponent, message, fmt, argList);
+    delete [] message;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //Traces the given string - Overloaded to include the fileName and line number
 //of trace origin.
 ////////////////////////////////////////////////////////////////////////////////
-void Tracer::_traceString(
+void Tracer::_traceCString(
     const char* fileName,
     const Uint32 lineNum,
     const Uint32 traceComponent,
-    const Uint32 traceLevel,
-    const String& traceString)
+    const char* cstring)
 {
-    if (traceLevel == LEVEL1)
-    {
-        trace(traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG);
-    }
-    else
-    {
-        if (_isTraceEnabled(traceComponent, traceLevel))
-        {
-            trace(fileName, lineNum, traceComponent, traceLevel, "%s",
-                     (const char *)traceString.getCString());
-        }
-    }
+    char* message;
+
+    //
+    // Allocate memory for the message string
+    // Needs to be updated if additional info is added
+    //
+    message = new char[strlen(fileName) +
+        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
+    sprintf(
+       message,
+       "[%d:%s:%s:%u]: ",
+       System::getPID(),
+       Threads::id().buffer,
+       fileName,
+       lineNum);
+
+    _traceCString(traceComponent, message, cstring);
+    delete [] message;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -277,105 +180,50 @@ void Tracer::_traceString(
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_traceCIMException(
     const Uint32 traceComponent,
-    const Uint32 traceLevel,
     const CIMException& cimException)
-{
-    if (traceLevel == LEVEL1)
-    {
-        trace(traceComponent, Tracer::LEVEL4, "%s", _LOG_MSG);
-    }
-    else
-    {
-        if (_isTraceEnabled(traceComponent, traceLevel))
-        {
-            // get the CIMException trace message string
-            String traceMsg =
-                TraceableCIMException(cimException).getTraceDescription();
-
-            // trace the string
-            _traceString(traceComponent, traceLevel, traceMsg);
-        }
-    }
+{        
+       // get the CIMException trace message string
+       CString traceMsg = TraceableCIMException(cimException).getTraceDescription().getCString();
+       // trace the string
+       _traceCString(traceComponent, "", (const char*) traceMsg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//Traces method entry
+//Traces method entry and exit
 ////////////////////////////////////////////////////////////////////////////////
-void Tracer::_traceEnter(
+void Tracer::_traceMethod(
     const char* fileName,
     const Uint32 lineNum,
     const Uint32 traceComponent,
-    const char* fmt,
-    ...)
+    const char* methodEntryExit,
+    const char* method)
 {
-    va_list argList;
     char* message;
 
-    if (_isTraceEnabled(traceComponent, LEVEL1))
-    {
+    //
+    // Allocate memory for the message string
+    // Needs to be updated if additional info is added
+    //
+    // assume Method entry/exit string 15 characters long
+    // +1 space character
+    message = new char[ strlen(fileName) +
+        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 
+        + 16];
 
-        va_start(argList, fmt);
+    sprintf(
+       message,
+       "[%d:%s:%s:%u]: %s ",
+       System::getPID(),
+       Threads::id().buffer,
+       fileName,
+       lineNum,
+       methodEntryExit);
+        
+    _traceCString(traceComponent, message, method);
 
-        //
-        // Allocate memory for the message string
-        // Needs to be updated if additional info is added
-        //
-        message = new char[ strlen(fileName) +
-            _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
-
-        sprintf(
-           message,
-           "[%d:%s:%s:%u]: ",
-           System::getPID(),
-           Threads::id().buffer,
-           fileName,
-           lineNum);
-
-        _trace(traceComponent, message, fmt, argList);
-
-        va_end(argList);
-        delete [] message;
-    }
+    delete [] message;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//Traces method exit
-////////////////////////////////////////////////////////////////////////////////
-void Tracer::_traceExit(
-    const char* fileName,
-    const Uint32 lineNum,
-    const Uint32 traceComponent,
-    const char* fmt
-    ...)
-{
-    va_list argList;
-    char* message;
-
-    if (_isTraceEnabled(traceComponent, LEVEL1))
-    {
-        va_start(argList, fmt);
-
-        //
-        // Allocate memory for the message string
-        // Needs to be updated if additional info is added
-        //
-        message = new char[strlen(fileName) +
-            _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
-
-        sprintf(
-           message,
-           "[%d:%s:%s:%u]: ",
-           System::getPID(),
-           Threads::id().buffer,
-           fileName,
-           lineNum);
-
-        _trace(traceComponent, message, fmt, argList);
-        va_end(argList);
-
-        delete [] message;
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //Checks if trace is enabled for the given component and level
@@ -394,7 +242,8 @@ Boolean Tracer::_isTraceEnabled(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//Called by all trace interfaces to log message to trace file
+//Called by all trace interfaces with variable arguments
+//to log message to trace file
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_trace(
     const Uint32 traceComponent,
@@ -413,8 +262,6 @@ void Tracer::_trace(
     // Needs to be updated if additional info is added
     //
 
-
-
     // Construct the message header
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
@@ -432,7 +279,7 @@ void Tracer::_trace(
     else
     {
         //
-        // Since the message is blank form a string using the pid and tid
+        // Since the message is blank, form a string using the pid and tid
         //
         char* tmpBuffer;
 
@@ -457,6 +304,72 @@ void Tracer::_trace(
 
     delete [] msgHeader;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//Called by all trace interfaces using a character string without format string
+//to log message to trace file
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::_traceCString(
+    const Uint32 traceComponent,
+    const char* message,
+    const char* cstring)
+{
+    char* completeMessage;
+
+    // Get the current system time and prepend to message
+    String currentTime = System::getCurrentASCIITime();
+    CString timeStamp = currentTime.getCString();
+    //
+    // Allocate completeMessage.
+    // Needs to be updated if additional info is added
+    //
+
+    // Construct the message header
+    // The message header is in the following format
+    // timestamp: <component name> [file name:line number]
+    if (*message != '\0')
+    {
+       // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used
+       // in this format string
+       completeMessage = new char [strlen(message) +
+           strlen(TRACE_COMPONENT_LIST[traceComponent]) +
+           strlen(timeStamp) + _STRLEN_MAX_PID_TID + 5 +
+           strlen(cstring) ];
+
+        sprintf(completeMessage, "%s: %s %s%s", (const char*)timeStamp,
+            TRACE_COMPONENT_LIST[traceComponent], message, cstring);
+    }
+    else
+    {
+        //
+        // Since the message is blank, form a string using the pid and tid
+        //
+        char* tmpBuffer;
+
+        //
+        // Allocate messageHeader.
+        // Needs to be updated if additional info is added
+        //
+        tmpBuffer = new char[2 * _STRLEN_MAX_PID_TID + 6];
+        sprintf(tmpBuffer, "[%u:%s]: ",
+            System::getPID(), Threads::id().buffer);
+
+        completeMessage = new char[strlen(timeStamp) +
+            strlen(TRACE_COMPONENT_LIST[traceComponent]) +
+            strlen(tmpBuffer) + 1  + 5 +
+            strlen(cstring)];
+
+        sprintf(completeMessage, "%s: %s %s %s", (const char*)timeStamp,
+            TRACE_COMPONENT_LIST[traceComponent], tmpBuffer, cstring);
+        delete [] tmpBuffer;
+    }
+
+    // Call trace file handler to write message
+    _getInstance()->_traceHandler->handleMessage(completeMessage);
+
+    delete [] completeMessage;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //Validate the trace file
@@ -729,41 +642,18 @@ void Tracer::setTraceComponents(const String& traceComponents)
 
 void Tracer::traceEnter(
     TracerToken& token,
-    Uint32 traceComponent,
-    const char* method)
-{
-    if (_traceOn)
-    {
-        token.component = traceComponent;
-        token.method = method;
-
-        _traceEnter(
-            "unknown", 0, traceComponent, "%s %s", _METHOD_ENTER_MSG, method);
-    }
-}
-
-void Tracer::traceExit(TracerToken& token)
-{
-    if (_traceOn)
-        _traceExit(
-            "unknown",0, token.component, "%s %s",
-            _METHOD_EXIT_MSG, token.method);
-}
-
-void Tracer::traceEnter(
-    TracerToken& token,
     const char* file,
     size_t line,
     Uint32 traceComponent,
     const char* method)
 {
-    if (_traceOn)
+    token.component = traceComponent;
+    token.method = method;
+    
+    if (_isTraceEnabled(traceComponent, LEVEL1))
     {
-        token.component = traceComponent;
-        token.method = method;
-
-        _traceEnter(
-            file, (Uint32)line, traceComponent, "%s %s",
+        _traceMethod(
+            file, (Uint32)line, traceComponent, 
             _METHOD_ENTER_MSG, method);
     }
 }
@@ -773,35 +663,10 @@ void Tracer::traceExit(
     const char* file,
     size_t line)
 {
-    if (_traceOn)
-        _traceExit(
-            file, (Uint32)line, token.component, "%s %s",
+    if (_isTraceEnabled(token.component, LEVEL1))
+        _traceMethod(
+            file, (Uint32)line, token.component,
             _METHOD_EXIT_MSG, token.method);
-}
-
-void Tracer::traceBuffer(
-    const Uint32 traceComponent,
-    const Uint32 traceLevel,
-    const char*  data,
-    const Uint32 size)
-{
-    if (_traceOn)
-        _traceBuffer(traceComponent, traceLevel, data, size);
-}
-
-void Tracer::traceBuffer(
-    const char*  fileName,
-    const Uint32 lineNum,
-    const Uint32 traceComponent,
-    const Uint32 traceLevel,
-    const char*  data,
-    const Uint32 size)
-{
-    if (_traceOn)
-    {
-        _traceBuffer(
-            fileName, lineNum, traceComponent, traceLevel, data, size);
-    }
 }
 
 void Tracer::trace(
@@ -810,12 +675,12 @@ void Tracer::trace(
     const char *fmt,
     ...)
 {
-    if (_traceOn)
+    PEGASUS_ASSERT(traceLevel != LEVEL1);
+    if (_isTraceEnabled(traceComponent, traceLevel))
     {
         va_list argList;
-
         va_start(argList,fmt);
-        _trace(traceComponent,traceLevel,fmt,argList);
+        _trace(traceComponent,fmt,argList);
         va_end(argList);
     }
 }
@@ -828,27 +693,44 @@ void Tracer::trace(
     const char* fmt,
     ...)
 {
-    if (_traceOn)
+    PEGASUS_ASSERT(traceLevel != LEVEL1);
+    if (_isTraceEnabled(traceComponent, traceLevel))
     {
         va_list argList;
 
         va_start(argList,fmt);
-        _trace(fileName,lineNum,traceComponent,traceLevel,fmt,argList);
+        _trace(fileName,lineNum,traceComponent,fmt,argList);
         va_end(argList);
     }
 }
 
-void Tracer::trace(
+void Tracer::traceString(
     const char* fileName,
     const Uint32 lineNum,
     const Uint32 traceComponent,
     const Uint32 traceLevel,
-    const String& traceString)
+    const String& string)
 {
-    if (_traceOn)
+    PEGASUS_ASSERT(traceLevel != LEVEL1);
+    if (_isTraceEnabled(traceComponent, traceLevel))
     {
-        _traceString(
-            fileName, lineNum, traceComponent, traceLevel, traceString);
+        _traceCString(
+            fileName, lineNum, traceComponent, (const char*) string.getCString());
+    }
+}
+
+void Tracer::traceCString(
+    const char* fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 traceLevel,
+    const char* cstring)
+{
+    PEGASUS_ASSERT(traceLevel != LEVEL1);
+    if (_isTraceEnabled(traceComponent, traceLevel))
+    {
+        _traceCString(
+            fileName, lineNum, traceComponent, cstring);
     }
 }
 
@@ -857,18 +739,11 @@ void Tracer::traceCIMException(
     const Uint32 traceLevel,
     const CIMException& cimException)
 {
-    if (_traceOn)
+    PEGASUS_ASSERT(traceLevel != LEVEL1);
+    if (_isTraceEnabled(traceComponent, traceLevel))
     {
-        _traceCIMException(traceComponent, traceLevel, cimException);
+        _traceCIMException(traceComponent, cimException);
     }
-}
-
-void Tracer::trace(
-    const Uint32 traceComponent,
-    const Uint32 level,
-    const String& string)
-{
-    trace("unknown", 0, traceComponent, level, string);
 }
 
 #endif /* !PEGASUS_REMOVE_TRACE */

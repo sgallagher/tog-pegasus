@@ -105,7 +105,7 @@ void SSLContextManager::createSSLContext(
 
     if ( !_sslContext )
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "Creating the Server SSL Context.");
 
         //
@@ -152,7 +152,7 @@ void SSLContextManager::reloadTrustStore()
     }
     else
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
           "Could not reload the trust store, SSL Context is not initialized.");
 
         MessageLoaderParms parms(
@@ -166,7 +166,7 @@ void SSLContextManager::reloadTrustStore()
 
     if (trustStore == String::EMPTY)
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "Could not reload the trust store, the trust store is not "
                 "configured.");
 
@@ -196,7 +196,7 @@ void SSLContextManager::reloadCRLStore()
 
     if (!_sslContext)
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
         "Could not reload the crl store, SSL Context is not initialized.");
 
         MessageLoaderParms parms(
@@ -212,7 +212,7 @@ void SSLContextManager::reloadCRLStore()
 
     if (crlPath == String::EMPTY)
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "Could not reload the crl store, the crl store is not configured.");
 
         MessageLoaderParms parms(
@@ -264,7 +264,7 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
         {
             X509_STORE_free(newStore);
 
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                 "Could not reload the trust or crl store.");
 
             MessageLoaderParms parms(
@@ -285,7 +285,7 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
         {
             X509_STORE_free(newStore);
 
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                 "Could not reload the trust or crl store.");
 
             MessageLoaderParms parms(
@@ -300,7 +300,7 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
     }
     else
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "Could not reload the trust or crl store, configured store "
                 "not found.");
 

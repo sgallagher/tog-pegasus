@@ -78,8 +78,8 @@ MessageQueue::MessageQueue(
     _name = new char[strlen(name) + 1];
     strcpy(_name, name);
 
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::MessageQueue  name = %s, queueId = %u", name, queueId);
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        "MessageQueue::MessageQueue  name = %s, queueId = %u", name, queueId));
 
     //
     // Insert into queue table:
@@ -95,8 +95,8 @@ MessageQueue::~MessageQueue()
 {
     // ATTN-A: thread safety!
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::~MessageQueue()");
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::~MessageQueue queueId = %i, name = %s", _queueId, _name);
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        "MessageQueue::~MessageQueue queueId = %i, name = %s", _queueId, _name));
 
     {
         AutoMutex autoMut(q_table_mut);
@@ -120,11 +120,13 @@ void MessageQueue::enqueue(Message* message)
 
     PEGASUS_ASSERT(message != 0);
 
-    PEG_TRACE_STRING(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        String("Queue name: ") + getQueueName());
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        "Queue name: %s",
+        getQueueName()));
+
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "Message: [%s]",
-        MessageTypeToString(message->getType()));
+        MessageTypeToString(message->getType())));
 
     _messageList.insert_back(message);
 
@@ -160,8 +162,8 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId)
 
     // Not found!
 
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::lookup failure queueId = %u", queueId);
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        "MessageQueue::lookup failure queueId = %u", queueId));
 
     return 0;
 }
@@ -183,8 +185,8 @@ MessageQueue* MessageQueue::lookup(const char *name)
         }
     }
 
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::lookup failure - name = %s", name);
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        "MessageQueue::lookup failure - name = %s", name));
 
     return 0;
 }

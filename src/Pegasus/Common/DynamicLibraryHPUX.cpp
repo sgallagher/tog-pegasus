@@ -104,8 +104,8 @@ Boolean DynamicLibrary::_load()
 
     CString cstr = _fileName.getCString();
 
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-        "Attempting to load library %s", (const char*)cstr);
+    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        "Attempting to load library %s", (const char*)cstr));
 
     if (System::bindVerbose)
     {
@@ -117,9 +117,9 @@ Boolean DynamicLibrary::_load()
         _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
     }
 
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
         "After loading lib %s, error code is %d",
-        (const char*)cstr, (_handle == (void *)0)?errno:0);
+        (const char*)cstr, (_handle == (void *)0)?errno:0));
 
     if (_handle != 0)
     {

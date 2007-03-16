@@ -259,7 +259,7 @@ void snmpIndicationHandler::handleIndication(
                 }
                 else
                 {
-                    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                         "Qualifier MappingStrings can not be found.");
                     PEG_METHOD_EXIT();
                     MessageLoaderParms parms(
@@ -314,7 +314,7 @@ void snmpIndicationHandler::handleIndication(
         }
         else
         {
-            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                 "Invalid IndicationHandlerSNMPMapper instance.");
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
@@ -338,7 +338,7 @@ void snmpIndicationHandler::handleIndication(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to deliver trap.");
         PEG_METHOD_EXIT();
 

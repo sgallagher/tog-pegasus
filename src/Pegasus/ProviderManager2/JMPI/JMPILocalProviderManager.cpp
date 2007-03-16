@@ -86,7 +86,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case GET_PROVIDER:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                              Tracer::LEVEL2,
                              "_provider_ctrl::GET_PROVIDER");
 
@@ -171,7 +171,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
                    if (0 == newModule)
                    {
-                       PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                       PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                                         Tracer::LEVEL4,
                                         "new JMPIProviderModule is NULL!");
                        DDD(PEGASUS_STD(cout)
@@ -233,7 +233,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                newProvider = new JMPIProvider(providerName, module, &base);
                if (0 == newProvider)
                {
-                   PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                                     Tracer::LEVEL4,
                                     "new JMPIProvider is NULL!");
                    DDD(PEGASUS_STD(cout)
@@ -248,7 +248,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
                if (0 == (provider->_cimom_handle = new CIMOMHandle()))
                {
-                   PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                                     Tracer::LEVEL4,
                                     "_cimom_handle is NULL!");
                    DDD(PEGASUS_STD(cout)
@@ -308,7 +308,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                   }
                   catch(...)
                   {
-                      PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                                        Tracer::LEVEL4,
                                        "Exception caught calling initialize!");
                       DDD(PEGASUS_STD(cout)
@@ -366,7 +366,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case LOOKUP_PROVIDER:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                              Tracer::LEVEL2,
                              "_provider_ctrl::LOOKUP_PROVIDER");
             DDD(PEGASUS_STD(cout)
@@ -401,7 +401,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case LOOKUP_MODULE:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                              Tracer::LEVEL2,
                              "_provider_ctrl::LOOKUP_MODULE");
             DDD(PEGASUS_STD(cout)
@@ -426,7 +426,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case INSERT_PROVIDER:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                              Tracer::LEVEL2,
                              "_provider_ctrl::INSERT_PROVIDER");
             DDD(PEGASUS_STD(cout)
@@ -445,7 +445,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case INSERT_MODULE:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                              Tracer::LEVEL2,
                              "_provider_ctrl::INSERT_MODULE");
             DDD(PEGASUS_STD(cout)
@@ -464,7 +464,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case REMOVE_PROVIDER:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                              Tracer::LEVEL2,
                              "_provider_ctrl::REMOVE_PROVIDER");
             DDD(PEGASUS_STD(cout)
@@ -482,7 +482,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case REMOVE_MODULE:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER,
                              Tracer::LEVEL2,
                              "_provider_ctrl::REMOVE_MODULE");
             DDD(PEGASUS_STD(cout)
@@ -633,7 +633,7 @@ void JMPILocalProviderManager::unloadIdleProviders()
     }
     catch(...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Caught unexpected exception from UNLOAD_IDLE_PROVIDERS.");
     }
 
@@ -652,8 +652,8 @@ JMPILocalProviderManager::getIndicationProvidersToEnable ()
     {
         AutoMutex lock (_providerTableMutex);
 
-        Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Number of providers in _providers table = %d", _providers.size ());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Number of providers in _providers table = %d", _providers.size ()));
 
         //
         // Iterate through the _providers table
@@ -682,13 +682,13 @@ JMPILocalProviderManager::getIndicationProvidersToEnable ()
     }
     catch (...)
     {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Unexpected error in getIndicationProvidersToEnable");
     }
 
-    Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "Number of indication providers to enable = %d",
-        enableProviders.size ());
+        enableProviders.size ()));
 
     PEG_METHOD_EXIT ();
     return enableProviders;

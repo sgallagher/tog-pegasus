@@ -134,13 +134,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                         "Not enough threads to process this request. "
                             "Skipping.");
 
-                    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+                    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
                         "Could not allocate thread for %s.  Queue has %d "
                             "messages waiting and %d threads servicing."
                             "Skipping the service for right now. ",
                         service->getQueueName(),
                         service->_incoming.count(),
-                        service->_threads.get());
+                        service->_threads.get()));
 
                     Threads::yield();
                     service = NULL;
@@ -190,8 +190,8 @@ MessageQueueService::MessageQueueService(
         max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_LIMIT;
     }
 
-    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
-       "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue);
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+       "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue));
 
     AutoMutex autoMut(_meta_dispatcher_mutex);
 
@@ -372,7 +372,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
             catch (ListClosed&)
             {
                 // ATTN: This appears to be a common loop exit path.
-                //PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                //PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 //    "Caught ListClosed exception.  Exiting _req_proc.");
                 break;
             }
@@ -392,7 +392,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Caught unrecognized exception.  Exiting _req_proc.");
     }
     service->_threads--;

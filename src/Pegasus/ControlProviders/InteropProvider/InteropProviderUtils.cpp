@@ -350,7 +350,7 @@ Boolean validateRequiredProperty(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::_validateRequiredProperty()");
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Validate "
+    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Validate "
         + propertyName.getString());
 
     Uint32 pos;

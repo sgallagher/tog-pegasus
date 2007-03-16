@@ -61,7 +61,7 @@ public:
         }
         catch (AlreadyLocked &)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "AlreadyLocked Exception, throwing CIMException");
             throw CIMException(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
                 "Provider.CIMOMHandle.RECURSIVE_USE_CIMOMHANDLE",
@@ -75,7 +75,7 @@ public:
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "Unexpected exception");
             throw;
         }
@@ -95,7 +95,7 @@ public:
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "Ignoring unknown exception");
         }
     }
@@ -131,7 +131,7 @@ public:
         //
         if (client == 0)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "Creating CIMClient connection");
             client = new CIMClient();
             client->connectLocal();
@@ -223,7 +223,7 @@ public:
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "Ignoring unknown exception");
         }
     }

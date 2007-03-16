@@ -126,19 +126,19 @@ void EmailListenerDestination::handleIndication(
     }
     catch (CIMException& c)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to deliver indication via e-mail.");
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
@@ -171,8 +171,8 @@ void EmailListenerDestination::_sendViaEmail(
     // Check for proper execute permissions for sendmail
     if (access(SENDMAIL_CMD, X_OK) < 0)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
-            "Cannot execute %s: %s.", SENDMAIL_CMD, strerror(errno));
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+            "Cannot execute %s: %s.", SENDMAIL_CMD, strerror(errno)));
 
         MessageLoaderParms parms(
             "Handler.EmailListenerDestination.EmailListenerDestination."
@@ -222,7 +222,7 @@ void EmailListenerDestination::_sendViaEmail(
         status = mail$send_begin(&send_context, &nulllist, &nulllist);
         if (status != SS$_NORMAL)
         {
-            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                 "Routine mail$send_begin failed.");
             PEG_METHOD_EXIT();
 
@@ -249,7 +249,7 @@ void EmailListenerDestination::_sendViaEmail(
 
 #else
 
-    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                          "sendmail is not supported.");
     PEG_METHOD_EXIT();
 
@@ -309,7 +309,7 @@ void EmailListenerDestination::_buildMailHeader(
         &nulllist);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_add_attribute failed.");
         PEG_METHOD_EXIT();
 
@@ -329,7 +329,7 @@ void EmailListenerDestination::_buildMailHeader(
     status = mail$send_add_bodypart(&send_context, bodypart_itmlst, 0);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_add_bodypart failed..");
         PEG_METHOD_EXIT();
 
@@ -403,7 +403,7 @@ String EmailListenerDestination::_buildMailAddrStr(
             &nulllist);
         if (status != SS$_NORMAL)
         {
-            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                 "Routine mail$send_add_address failed.");
             PEG_METHOD_EXIT();
 
@@ -452,7 +452,7 @@ String EmailListenerDestination::_buildMailAddrCcStr(
             &nulllist);
         if (status != SS$_NORMAL)
         {
-            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                 "Routine mail$send_add_address failed (cc).");
             PEG_METHOD_EXIT();
 
@@ -480,10 +480,10 @@ void EmailListenerDestination::_writeStrToFile(
 
     if (fprintf(filePtr, "%s\n", (const char *) mailHdrStr.getCString()) < 0)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to write the %s to the file: %s.",
             (const char *) mailHdrStr.getCString(),
-            strerror(errno));
+            strerror(errno)));
 
         MessageLoaderParms parms(
             "Handler.EmailListenerDestination.EmailListenerDestination."
@@ -515,10 +515,10 @@ void EmailListenerDestination::_sendMsg(
     // Checks the existence of the temp mail file
     if (!System::exists(mailFile))
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "File %s does not exist: %s.",
             mailFile,
-            strerror(errno));
+            strerror(errno)));
 
         MessageLoaderParms parms(
             "Handler.EmailListenerDestination.EmailListenerDestination."
@@ -538,10 +538,10 @@ void EmailListenerDestination::_sendMsg(
     // problems for sendmail()
     if (stat(mailFile, &statBuf) != 0)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "Can not get file %s status: %s.",
             mailFile,
-            strerror(errno));
+            strerror(errno)));
 
         MessageLoaderParms parms(
             "Handler.EmailListenerDestination.EmailListenerDestination."
@@ -559,9 +559,9 @@ void EmailListenerDestination::_sendMsg(
 
     if (statBuf.st_size == 0)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "File %s does not contain any data.",
-            mailFile);
+            mailFile));
 
         MessageLoaderParms parms(
             "Handler.EmailListenerDestination.EmailListenerDestination."
@@ -583,7 +583,7 @@ void EmailListenerDestination::_sendMsg(
     status = mail$send_message(&send_context, nulllist, nulllist);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_message failed.");
         PEG_METHOD_EXIT();
 
@@ -599,7 +599,7 @@ void EmailListenerDestination::_sendMsg(
     status = mail$send_end(&send_context, nulllist, nulllist);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_end failed.");
         PEG_METHOD_EXIT();
 
@@ -615,7 +615,7 @@ void EmailListenerDestination::_sendMsg(
     // Open the pipe to send the message
     if ((sendmailPtr = popen(sendmailCmd, "r")) == NULL)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "popen of sendmail failed.");
 
         MessageLoaderParms parms(
@@ -634,7 +634,7 @@ void EmailListenerDestination::_sendMsg(
     Sint32 retCode = pclose(sendmailPtr);
     if (retCode < 0)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "No associated stream with this popen command.");
 
         MessageLoaderParms parms(
@@ -650,7 +650,7 @@ void EmailListenerDestination::_sendMsg(
     }
     else if (retCode == SH_EXECUTE_FAILED)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "/usr/bin/sh could not be executed.");
 
         MessageLoaderParms parms(
@@ -684,9 +684,9 @@ void EmailListenerDestination::_openFile(
 #endif
     if (*filePtr == NULL)
     {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "fopen of %s failed: %s.", mailFile,
-            strerror(errno));
+            strerror(errno)));
 
         MessageLoaderParms parms(
             "Handler.EmailListenerDestination.EmailListenerDestination."

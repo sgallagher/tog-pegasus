@@ -82,9 +82,9 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
         }
         else
         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "IndicationHandlerService::_handle_async_request got "
-                    "unexpected legacy message type '%u'", legacy->getType());
+                    "unexpected legacy message type '%u'", legacy->getType()));
             _make_response(req, async_results::CIM_NAK);
         }
     }

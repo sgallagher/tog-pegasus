@@ -109,7 +109,7 @@ public:
 
             PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
 
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
                 "indication: Destination property missing");
 
@@ -136,7 +136,7 @@ public:
 
             PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
 
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
                 "indication: Destination property type mismatch");
 
@@ -323,7 +323,7 @@ public:
             if (useHttps)
             {
 #ifdef PEGASUS_HAS_SSL
-                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                     "Build SSL Context...");
 
                 SSLContext sslcontext(trustPath,

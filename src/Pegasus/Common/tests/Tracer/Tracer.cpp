@@ -251,26 +251,6 @@ Uint32 test7()
 
 //
 // Description:
-// Trace level is set to LEVEL1 for a non entry/exit message
-// should not log a trace message, should log an error
-//
-// Type:
-// Negative 
-//
-// return 0 if the test passed
-// return 1 if the test failed
-//
-Uint32 test8()
-{
-    const char* METHOD_NAME = "test8";
-    Tracer::setTraceLevel(Tracer::LEVEL1);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL1,"%s",
-        "Test Message for Level4");
-    return(compare(FILE1,"Test Message for Level2 in test6"));
-}
-
-//
-// Description:
 // Changes the trace file to FILE2 
 //
 // Type:
@@ -484,35 +464,9 @@ Uint32 test18()
     const char* METHOD_NAME = "test18";
     Tracer::setTraceComponents("Config,InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::traceBuffer(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
-        "This Message should appear in",4);
-    Tracer::traceBuffer(TRC_CONFIG,Tracer::LEVEL4,
-        "This Message should appear in",4);
-    return(compare(FILE3,"This"));
-}
-
-//
-// Description:
-// calls the isValid call 
-// should not log a trace message
-//
-// Type:
-// Positive
-//
-// return 0 if the test passed
-// return 1 if the test failed
-//
-
-Uint32 test19()
-{
-    const char* METHOD_NAME = "test18";
-    Tracer::setTraceComponents("Config,InvalidComp");
-    Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::traceBuffer(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
-        "This Message should appear in",4);
-    Tracer::traceBuffer(TRC_CONFIG,Tracer::LEVEL4,
-        "This Message should appear in",4);
-    return(compare(FILE3,"This"));
+    Tracer::traceCString(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
+        "This Message should appear in");
+    return(compare(FILE3,"This Message should appear in"));
 }
 
 //
@@ -603,6 +557,31 @@ Uint32 test22()
     return(compare(FILE4,"Test message for Level4 in test22."));
 }
 
+//
+// Description:
+// Trace a character string using macro.
+// should log a trace message
+//
+// Type:
+// Positive
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test23()
+{
+    const char* METHOD_NAME = "test23";
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+
+    PEG_METHOD_ENTER(TRC_CONFIG, METHOD_NAME);
+
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,"Test message for Level4 in test23.");
+
+    return(compare(FILE4,"Test message for Level4 in test23."));
+}
+
 int main(int argc, char** argv)
 {
 
@@ -670,11 +649,6 @@ int main(int argc, char** argv)
        cout << "Tracer test (test7) failed" << endl;
        exit(1);
     }
-    if (test8() != 0)
-    {
-       cout << "Tracer test (test8) failed" << endl;
-       exit(1);
-    }
     if (test9() != 0)
     {
        cout << "Tracer test (test9) failed" << endl;
@@ -731,11 +705,6 @@ int main(int argc, char** argv)
        cout << "Tracer test (test18) failed" << endl;
        exit(1);
     }
-    if (test19() != 0)
-    {
-       cout << "Tracer test (test19) failed" << endl;
-       exit(1);
-    }
     if (test20() != 0)
     {
        cout << "Tracer test (test20) failed" << endl;
@@ -749,6 +718,11 @@ int main(int argc, char** argv)
     if (test22() != 0)
     {
        cout << "Tracer test (test22) failed" << endl;
+       exit(1);
+    }
+    if (test23() != 0)
+    {
+       cout << "Tracer test (test23) failed" << endl;
        exit(1);
     }
     cout << argv[0] << " +++++ passed all tests" << endl;

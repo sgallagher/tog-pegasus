@@ -160,7 +160,7 @@ Boolean SecureBasicAuthenticator::authenticate(
 		else
 		{
 			authenticated = false;
-			PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,"Authentication failed.");
+			PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL4,"Authentication failed.");
 		}
 #else
     //

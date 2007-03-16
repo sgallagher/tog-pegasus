@@ -230,7 +230,7 @@ void DynamicIndicationProvider::invokeMethod(
                 ((inParameters[2]).getValue()).get(description);
         
                 sprintf(buf, "severity:!%d!, classname!%s! description!%s!\n", severity, (const char*)classname.getCString(), (const char*)description.getCString());
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, buf);
+                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, buf);
             } catch (...)
             {
                 throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -279,7 +279,7 @@ void DynamicIndicationProvider::sendIndication(int severity, String classname, S
     Buffer buffer;
     MofWriter::appendInstanceElement(buffer, instance);
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, buffer.getData());
+    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, buffer.getData());
     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, instance.getPath().toString());
 
     CIMIndication cimIndication(instance);

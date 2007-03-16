@@ -189,7 +189,7 @@ void ShutdownService::shutdown(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL4,
             "Unexpected error occurred during CIMServer shutdown. ");
     }
 

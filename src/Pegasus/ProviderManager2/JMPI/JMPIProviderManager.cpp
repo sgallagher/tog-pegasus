@@ -548,7 +548,7 @@ void JMPIProviderManager::unloadIdleProviders()
         handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); \
     } \
     catch(...) \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
                 "Exception: Unknown"); \
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
@@ -6927,7 +6927,7 @@ Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest (const Mess
         }
         catch(...)
         {
-            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "Unknown error in handleSubscriptionInitCompleteRequest");
         }
     }

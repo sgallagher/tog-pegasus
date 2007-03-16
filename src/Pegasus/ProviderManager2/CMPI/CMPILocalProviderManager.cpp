@@ -108,7 +108,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
     case GET_PROVIDER:
       {
 
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::GET_PROVIDER");
 
         String providerName = *(parms->providerName);
@@ -147,7 +147,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
     case UNLOAD_PROVIDER:
       {
 
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::UNLOAD_PROVIDER");
         CMPIProvider *pr = 0;
 	pr = _lookupProvider (*(parms->providerName));
@@ -175,7 +175,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
     case LOOKUP_PROVIDER:
       {
 
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::LOOKUP_PROVIDER");
 
         AutoMutex lock (_providerTableMutex);
@@ -206,7 +206,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
     case LOOKUP_MODULE:
       {
 
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::LOOKUP_MODULE");
 
         AutoMutex lock (_providerTableMutex);
@@ -227,7 +227,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
     case INSERT_PROVIDER:
       {
 
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::INSERT_PROVIDER");
 
         AutoMutex lock (_providerTableMutex);
@@ -240,7 +240,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
       }
     case INSERT_MODULE:
       {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::INSERT_MODULE");
         AutoMutex lock (_providerTableMutex);
         if (false == _modules.insert (*(parms->fileName),
@@ -252,7 +252,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
 
     case UNLOAD_ALL_PROVIDERS:
       {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::UNLOAD_ALL_PROVIDERS");
         CMPILocalProviderManager *myself =
           reinterpret_cast < CMPILocalProviderManager * >(parm);
@@ -260,8 +260,8 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
         // Locked provider mutex.
         AutoMutex lock (_providerTableMutex);
 
-        Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "providers in cache = %d", myself->_providers.size ());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                       "providers in cache = %d", myself->_providers.size ()));
         ProviderTable::Iterator i = myself->_providers.start ();
         try
         {
@@ -287,14 +287,14 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
         }
         catch (...)
         {
-          PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+          PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                             "Unexpected Exception in UNLOAD_ALL_PROVIDERS.");
         }
         break;
       }
     case UNLOAD_IDLE_PROVIDERS:
       {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::UNLOAD_IDLE_PROVIDERS");
         AutoMutex lock (_providerTableMutex);
 
@@ -414,7 +414,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
             }
             catch (...)
             {
-              PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+              PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                 "Unexpected Exception in UNLOAD_IDLE_PROVIDERS.");
             }
             delete [] unloadProviderArray;
@@ -498,17 +498,14 @@ CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
 	 		Threads::yield();
 		else
 	    {
-			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
+			PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
                 "Could not allocate thread to take care of deleting user threads. ");
 			delete _reaperThread; _reaperThread = 0;
 			return;
 	    }		
       }
-    }/*
-  Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
-			"Cleaning up provider thread (%p) from provider %s.", 
-			t, (const char *)p->getName().getCString());*/
-  // Wake up the reaper.
+    }
+   // Wake up the reaper.
   _pollingSem.signal();
 
 }
@@ -646,8 +643,8 @@ CMPILocalProviderManager::hasActiveProviders ()
   try
   {
     AutoMutex lock (_providerTableMutex);
-    Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "providers in _providers table = %d", _providers.size ());
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                   "providers in _providers table = %d", _providers.size ()));
 
     // Iterate through the _providers table looking for an active provider
     for (ProviderTable::Iterator i = _providers.start (); i != 0; i++)
@@ -662,7 +659,7 @@ CMPILocalProviderManager::hasActiveProviders ()
   catch (...)
   {
     // Unexpected exception; do not assume that no providers are loaded
-    PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+    PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                       "Unexpected Exception in hasActiveProviders.");
     PEG_METHOD_EXIT ();
     return true;
@@ -685,7 +682,7 @@ CMPILocalProviderManager::unloadIdleProviders (void)
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Caught unexpected exception from UNLOAD_IDLE_PROVIDERS.");
     }
 
@@ -700,9 +697,9 @@ Array <
 
   Array < CMPIProvider * >enableProviders;
 
-  Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+  PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                  "Number of providers in _providers table = %d",
-                 _providers.size ());
+                 _providers.size ()));
 
   try
   {
@@ -738,13 +735,13 @@ Array <
   }
   catch (...)
   {
-    PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+    PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
                       "Unexpected error in getIndicationProvidersToEnable");
   }
 
-  Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+  PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                  "Number of indication providers to enable = %d",
-                 enableProviders.size ());
+                 enableProviders.size ()));
 
   PEG_METHOD_EXIT ();
   return enableProviders;

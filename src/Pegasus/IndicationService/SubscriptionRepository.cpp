@@ -377,7 +377,7 @@ Boolean SubscriptionRepository::getState (
             (stateIndex).getValue ();
         if (stateValue.isNull ())
         {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+            PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
                 Tracer::LEVEL2,
                 "Null SubscriptionState property value");
 
@@ -412,7 +412,7 @@ Boolean SubscriptionRepository::getState (
     }
     else
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+        PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
             Tracer::LEVEL2,
             "Missing SubscriptionState property");
 

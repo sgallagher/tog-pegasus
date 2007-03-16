@@ -92,8 +92,12 @@ void ARM_zOS::Register(void)
     rc = __osname(&uts);
     if(rc < 0)
     {
-        Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
-                         "Failed to issue __osname() command: rc=%d, errno=%d, reason=%08X", rc,errno,__errno2());
+        PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+                   "Failed to issue __osname() command:"
+                   " rc=%d, errno=%d, reason=%08X",
+                   rc,
+                   errno,
+                   __errno2()));
         ARM_zOS_Status = NOT_REGISTERED;
         return;
     }
@@ -110,8 +114,9 @@ void ARM_zOS::Register(void)
     arm_elemname[ARM_ELEMNAME_SIZE-1] = '\0';
 
 
-    Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
-                     "About to register the CIM server with element name \'%s\' with ARM.", arm_elemname);
+    PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+               "About to register the CIM server with element name \'%s\' with ARM.",
+               arm_elemname));
 
     // CIM server is running in ASCII and the assembler module needs the module in EBCDIC
     __atoe(arm_elemname); 
@@ -151,8 +156,9 @@ void ARM_zOS::Register(void)
         __ready_arm(arm_buffer, &arm_ret, &arm_res);
         if(arm_ret != 0)
         {
-            Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
-                             "Failed to set the CIM server ready with ARM: ret=%02X reason=%04X.", arm_ret,arm_res);
+            PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+                       "Failed to set the CIM server ready with ARM: ret=%02X reason=%04X.",
+                       arm_ret,arm_res));
             ARM_zOS_Status = NOT_REGISTERED;
         }
 
@@ -205,11 +211,12 @@ void ARM_zOS::DeRegister(void)
         if(arm_ret != 0)
         {
             // write out errormessage from de-register with ARM
-            Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
-                             "Failed to de-register CIM Server with ARM: ret=%02X reason=%04X.", arm_ret,arm_res);
+            PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+                       "Failed to de-register CIM Server with ARM: ret=%02X reason=%04X.",
+                       arm_ret,arm_res));
         } else {
 
-            Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
                              "CIM Server sucessfully de-reginster with ARM.");
 
         }

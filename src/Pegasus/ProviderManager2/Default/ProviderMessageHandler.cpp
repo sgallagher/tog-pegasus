@@ -73,7 +73,7 @@
     }                                                                  \
     catch (...)                                                        \
     {                                                                  \
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,          \
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,         \
             "Provider Exception: Unknown");                            \
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");           \
     }
@@ -272,7 +272,7 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: Unknown");
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
@@ -1311,7 +1311,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateSubscriptionRequest(
     //
     if (status.testIfZeroAndIncrementSubscriptions())
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "First accepted subscription");
 
         //

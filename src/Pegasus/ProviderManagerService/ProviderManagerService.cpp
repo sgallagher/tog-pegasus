@@ -210,9 +210,9 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                     "Not enough threads to service provider manager.");
 
-                Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Could not allocate thread for %s.",
-                    getQueueName());
+                    getQueueName()));
                 break;
            }
         }
@@ -247,7 +247,7 @@ ProviderManagerService::handleCimOperation(void* arg)
     {
         if (service->_incomingQueue.size() == 0)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "ProviderManagerService::handleCimOperation() called with no "
                     "op node in queue");
 
@@ -304,7 +304,7 @@ ProviderManagerService::handleCimOperation(void* arg)
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Unexpected exception in handleCimOperation.");
     }
 
@@ -630,7 +630,7 @@ void ProviderManagerService::responseChunkCallback(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Exception in ProviderManagerService::responseChunkCallback.  "
                 "Chunk not delivered.");
     }
@@ -721,7 +721,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             request->operationContext.get(ProviderIdContainer::NAME);
             if (pidc1.isRemoteNameSpace() )
             {
-                Tracer::trace ( TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                 "Processing Remote NameSpace request ");
                 response = _basicProviderManagerRouter->processMessage(request);
                 return response;
@@ -776,9 +776,9 @@ void ProviderManagerService::unloadIdleProviders()
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "Not enough threads to unload idle providers.");
 
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Could not allocate thread for %s to unload idle providers.",
-            getQueueName());
+            getQueueName()));
 
         // If we fail to allocate a thread, don't retry now.
         _unloadIdleProvidersBusy--;
@@ -812,7 +812,7 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
             catch (...)
             {
                 // Ignore errors
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Unexpected exception from "
                         "BasicProviderManagerRouter::_unloadIdleProviders");
             }
@@ -827,7 +827,7 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
             catch (...)
             {
                 // Ignore errors
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Unexpected exception from "
                         "OOPProviderManagerRouter::_unloadIdleProviders");
             }
@@ -839,7 +839,7 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
     catch (...)
     {
         // Ignore errors
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected exception in _unloadIdleProvidersHandler");
 
         myself->_unloadIdleProvidersBusy--;

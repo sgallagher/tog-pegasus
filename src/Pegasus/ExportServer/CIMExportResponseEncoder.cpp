@@ -76,8 +76,8 @@ void CIMExportResponseEncoder::sendResponse(
    }
    else
    {
-      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-         "Invalid queueId = %i, response not sent.", queueId);
+      PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+         "Invalid queueId = %i, response not sent.", queueId));
    }
 }
 
@@ -148,11 +148,11 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
 {
 
    Boolean closeConnect = response->getCloseConnect();
-   Tracer::trace(
+   PEG_TRACE((
        TRC_HTTP,
        Tracer::LEVEL3,
        "CIMExportResponseEncoder::handleEnqueue()- response>getCloseConnect() returned %d",
-       response->getCloseConnect());
+       response->getCloseConnect()));
 
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {

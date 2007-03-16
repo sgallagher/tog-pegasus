@@ -1593,7 +1593,7 @@ String IndicationFormatter::_getArrayValues(
         {
             arrayValues.append("UNKNOWN");
 
-            PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
                 "Unknown CIMType: " + type);
 
             break;
@@ -1747,13 +1747,13 @@ String IndicationFormatter::_localizeDateTime(
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4, e.getMessage());
+        PEG_TRACE_CSTRING(TRC_IND_FORMATTER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
         return dateTimeValue.toString();
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
         "Caught General Exception During DateFormat::createDateTimeInstance");
 
         PEG_METHOD_EXIT();
@@ -1762,7 +1762,7 @@ String IndicationFormatter::_localizeDateTime(
 
     if (fmt == 0)
     {
-        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
             "Memory allocation error creating DateTime instance.");
         PEG_METHOD_EXIT();
         return dateTimeValue.toString();

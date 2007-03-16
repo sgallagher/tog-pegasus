@@ -92,7 +92,7 @@ public:
         }
         else
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "ProviderManagerModule load failed.");
         }
 

@@ -187,9 +187,9 @@ int main(int argc, char** argv)
             Tracer::setTraceComponents(traceComponents);
             Tracer::setTraceLevel(traceLevelArg);
 
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Testing trace LEVEL2");
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Testing trace LEVEL3");
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Testing trace LEVEL4");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Testing trace LEVEL2");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Testing trace LEVEL3");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Testing trace LEVEL4");
         }
 
         //ATTN: Need to handle SSL cases

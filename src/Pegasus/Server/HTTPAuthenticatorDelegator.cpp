@@ -211,7 +211,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
 
     if (deleteMessage)
     {
-        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                     "Deleting Message in HTTPAuthenticator::handleEnqueue");
 
         delete message;
@@ -274,7 +274,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     {
         if (String::equalNoCase(connectClose, "Close"))
         {
-            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                 "Header in HTTP Message Contains a Connection: Close");
             closeConnect = true;
             httpMessage->setCloseConnect(closeConnect);
@@ -339,7 +339,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             (String::equal(httpMessage->authInfo->getAuthType(),
                 AuthenticationInfoRep::AUTH_TYPE_SSL)))
         {
-            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                 "Client was authenticated via trusted SSL certificate.");
 
             String trustStore = configManager->getCurrentValue("sslTrustStore");
@@ -347,7 +347,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             if (FileSystem::isDirectory(
                     ConfigManager::getHomedPath(trustStore)))
             {
-                PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                     "Truststore is a directory, lookup username");
 
                 // Get the client certificate chain to determine the correct
@@ -358,9 +358,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     httpMessage->authInfo->getClientCertificateChain();
                 SSLCertificateInfo* clientCertificate = NULL;
 
-                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                     "Client certificate chain length: %d.",
-                    clientCertificateChain.size());
+                    clientCertificateChain.size()));
 
                 Uint32 loopCount = clientCertificateChain.size() - 1;
                 for (Uint32 i = 0; i <= loopCount ; i++)
@@ -449,10 +449,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             }
 
                             // No user name is specified; continue up the chain
-                            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                                 "The certificate at level %u has no "
                                     "associated username, moving up the chain",
-                                i);
+                                i));
                         }
                         else
                         {
@@ -471,7 +471,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         // associated with it; continue up the chain
                         if (e.getCode() == CIM_ERR_NOT_FOUND)
                         {
-                            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                                 "No registration for this certificate, try "
                                     "next certificate in chain");
                             continue;
@@ -593,7 +593,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         }
     } //end enableAuthentication
 
-    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Exited authentication loop");
+    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "Exited authentication loop");
 
     AcceptLanguageList acceptLanguages;
     ContentLanguageList contentLanguages;

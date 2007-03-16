@@ -841,10 +841,11 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
      be outside the scope for the AutoMutex for the provider. */
   if (deleteProvider)
   {
-      // delete the cimom handle
-      delete provider->_cimom_handle;
-      // set provider status to UNINITIALIZED
-      provider->reset ();
+      // Note: The deleting of the cimom handle is being
+      // moved after the call to unloadModule() based on
+      // a previous fix for bug 3669 and consistency with
+      // other provider managers. Do not move it back before
+      // the call to unloadModule().
 
       // unload provider module
       if (moduleLoaded)
@@ -852,6 +853,11 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
           module->unloadModule();
       }
 
+      // delete the cimom handle
+      delete provider->_cimom_handle;
+      // set provider status to UNINITIALIZED
+      provider->reset ();
+      
       AutoMutex lock (_providerTableMutex);
       _providers.remove (provider->_name);
       delete provider;

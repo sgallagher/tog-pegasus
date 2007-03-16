@@ -1828,7 +1828,7 @@ void RepositoryUpgrade::_addInstances(void)
                         instances = _oldRepository->enumerateInstancesForClass(
                                             oldNamespaces[i],
                                             oldClassNames[ctr],
-                                            true,
+                                            false,
                                             true,
                                             true);
 

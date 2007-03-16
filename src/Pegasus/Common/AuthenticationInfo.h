@@ -63,11 +63,11 @@ class PEGASUS_COMMON_LINKAGE AuthenticationInfo
 {
 public:
 
-    /** Constructor - Creates an uninitiated new AuthenticationInfo
-        object reprenting a AuthenticationInfo class. The class object
+    /** Constructor - Creates an uninitialized new AuthenticationInfo
+        object representing an AuthenticationInfo class. The class object
         created by this constructor can only be used in an operation such as the
-        copy constructor.  It cannot be used to do method calls like
-        setAuthStatus, getAuthType, etc. since it is unitiated.
+        copy constructor.  It cannot be used to do method calls such as
+        getAuthType, since it is uninitialized.
 
         Use one of the other constructors to create an initiated new
         AuthenticationInfo class object. Throws an exception
@@ -137,23 +137,14 @@ public:
         PEG_METHOD_EXIT();
     }
 
-    /** Get the authentication status of the request
-        @return the current authentication status
-    */
-    AuthenticationInfoRep::AuthStatus getAuthStatus() const
-    {
-        _checkRep();
-        return _rep->getAuthStatus();
-    }
-
-    /** Sets the authentication status of the request to the status
-        specified.
+    /** Sets the connection authentication status of the request to the 
+        status specified.
         @param status - the new authentication status
     */
-    void   setAuthStatus(AuthenticationInfoRep::AuthStatus status)
+    void   setConnectionAuthenticated(Boolean status)
     {
         _checkRep();
-        _rep->setAuthStatus(status);
+        _rep->setConnectionAuthenticated(status);
     }
 
     /** Get the previously authenticated user name
@@ -215,10 +206,10 @@ public:
     /** Returns the authentication status of the current connection.
         @return true if the connection was authenticated, false otherwise
     */
-    Boolean isAuthenticated() const
+    Boolean isConnectionAuthenticated() const
     {
         _checkRep();
-        return _rep->isAuthenticated();
+        return _rep->isConnectionAuthenticated();
     }
 
     /** Set the authentication type to the specified type

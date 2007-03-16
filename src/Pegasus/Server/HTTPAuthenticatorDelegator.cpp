@@ -286,7 +286,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     ConfigManager* configManager = ConfigManager::getInstance();
     Boolean enableAuthentication = false;
-    Boolean authenticated = false;
+
+    Boolean isRequestAuthenticated = 
+        httpMessage->authInfo->isConnectionAuthenticated();
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     CIMKerberosSecurityAssociation* sa = NULL;
@@ -318,24 +320,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             !HTTPMessage::lookupHeader(
                  headers, "Authorization", authstr, false))
         {
-            authenticated = true;
+            isRequestAuthenticated = true;
         }
-
-        if (!sa)
-        {
-            authenticated = httpMessage->authInfo->isAuthenticated();
-        }
-#else
-        // Client may have already authenticated via SSL.
-        // In this case, no further attempts to authenticate the client are made
-        authenticated = httpMessage->authInfo->isAuthenticated();
 #endif
 
         // Get the user name associated with the certificate (using the
         // certificate chain, if necessary).
 
         String certUserName;
-        if (authenticated &&
+        if (isRequestAuthenticated &&
             (String::equal(httpMessage->authInfo->getAuthType(),
                 AuthenticationInfoRep::AUTH_TYPE_SSL)))
         {
@@ -703,7 +696,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
         httpMessage->message.append('\0');
 
-        if (!authenticated && enableAuthentication)
+        if (!isRequestAuthenticated && enableAuthentication)
         {
             //
             // Search for Authorization header:
@@ -719,12 +712,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     //
                     // Do pegasus/local authentication
                     //
-                    authenticated =
+                    isRequestAuthenticated =
                         _authenticationManager->performPegasusAuthentication(
                             authorization,
                             httpMessage->authInfo);
 
-                    if (!authenticated)
+                    if (!isRequestAuthenticated)
                     {
                         String authChallenge;
                         String authResp;
@@ -777,14 +770,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 //
                 // Do http authentication if not authenticated already
                 //
-                if (!authenticated)
+                if (!isRequestAuthenticated)
                 {
-                    authenticated =
+                    isRequestAuthenticated =
                         _authenticationManager->performHttpAuthentication(
                             authorization,
                             httpMessage->authInfo);
 
-                    if (!authenticated)
+                    if (!isRequestAuthenticated)
                     {
                         //ATTN: the number of challenges get sent for a
                         //      request on a connection can be pre-set.
@@ -885,7 +878,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         }
 #endif
 
-        if (authenticated || !enableAuthentication)
+        if (isRequestAuthenticated || !enableAuthentication)
         {
             // Final bastion to ensure the remote privileged user access
             // check is done as it should be
@@ -1012,7 +1005,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 PEG_METHOD_EXIT();
                 return;
             } // bad request
-        } // authenticated and enableAuthentication check
+        } // isRequestAuthenticated and enableAuthentication check
         else
         {  // client not authenticated; send challenge
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION

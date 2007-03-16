@@ -29,24 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
-//              (sushma_fernandes@hp.com)
-//              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Jair F. T. Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//				Seema Gupta (gseema@in.ibm.com) for PEP135
-//				Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -217,14 +199,11 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    String userName;
    String password;
-   String authType = String::EMPTY;
+   String authType;
 
-   if ( httpMessage->authInfo->isAuthenticated() )
-   {
-      userName = httpMessage->authInfo->getAuthenticatedUser();
-	  password = httpMessage->authInfo->getAuthenticatedPassword();  
-      authType = httpMessage->authInfo->getAuthType();
-   }
+   userName = httpMessage->authInfo->getAuthenticatedUser();
+   password = httpMessage->authInfo->getAuthenticatedPassword();  
+   authType = httpMessage->authInfo->getAuthType();
 
    // Parse the HTTP message:
 

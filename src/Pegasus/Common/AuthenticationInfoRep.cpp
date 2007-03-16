@@ -48,7 +48,7 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _authPassword(String::EMPTY),
     _localAuthSecret(String::EMPTY),
     _authType(String::EMPTY),
-    _authStatus(NEW_REQUEST),
+    _connectionAuthenticated(false),
     _wasRemotePrivilegedUserAccessChecked(false)
 {
     PEG_METHOD_ENTER(
@@ -66,12 +66,13 @@ AuthenticationInfoRep::~AuthenticationInfoRep()
     PEG_METHOD_EXIT();
 }
 
-void   AuthenticationInfoRep::setAuthStatus(AuthStatus status)
+void   AuthenticationInfoRep::setConnectionAuthenticated(
+    Boolean connectionAuthenticated)
 {
     PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthStatus");
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setConnectionAuthenticated");
 
-    _authStatus = status;
+    _connectionAuthenticated = connectionAuthenticated;
 
     PEG_METHOD_EXIT();
 }

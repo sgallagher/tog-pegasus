@@ -165,8 +165,6 @@ Boolean AuthenticationManager::performHttpAuthentication
 
     if ( authenticated )
     {
-        authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
-
         authInfo->setAuthType(authType);
     }
 
@@ -194,8 +192,8 @@ Boolean AuthenticationManager::performPegasusAuthentication
     String cookie = String::EMPTY;
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		"AuthenticationManager:: performPegasusAuthentication - Authority Header: $0",
-		authHeader); 
+        "AuthenticationManager:: performPegasusAuthentication "
+        "- Authority Header: $0", authHeader); 
 
     //
     // Parse the pegasus authentication header authentication information
@@ -206,36 +204,15 @@ Boolean AuthenticationManager::performPegasusAuthentication
         return false;
     }
 
-    if ( String::equalNoCase(authType, "Local") )
-    {
-        if (authInfo->isAuthenticated() &&
-            String::equal(userName, authInfo->getAuthenticatedUser()))
-        {
-            PEG_METHOD_EXIT();
-            return true;
-        }
-    }
-    else
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    //
-    // Check if the authentication information is present
-    //
-    if ( String::equal(cookie, String::EMPTY) )
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
+    // The HTTPAuthenticatorDelegator ensures only local authentication
+    // requests get here.
+    PEGASUS_ASSERT(authType == "Local");
 
     authenticated = 
         _localAuthHandler->authenticate(cookie, authInfo);
 
     if ( authenticated )
     {
-        authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
         authInfo->setAuthType(authType);
     }
 

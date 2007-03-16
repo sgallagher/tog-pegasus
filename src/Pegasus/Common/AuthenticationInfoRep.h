@@ -56,7 +56,6 @@ class AuthenticationInfo;
 class PEGASUS_COMMON_LINKAGE AuthenticationInfoRep :  public Sharable
 {
 public:
-    enum AuthStatus { NEW_REQUEST, CHALLENGE_SENT, AUTHENTICATED };
 
     //ATTN: we should be using an enumeration for the authtype instead of a
     //string.
@@ -69,12 +68,7 @@ public:
 
     ~AuthenticationInfoRep();
 
-    AuthStatus getAuthStatus() const
-    {
-        return _authStatus;
-    }
-
-    void   setAuthStatus(AuthStatus status);
+    void   setConnectionAuthenticated(Boolean connectionAuthenticated);
 
     String getAuthenticatedUser() const
     {
@@ -97,9 +91,9 @@ public:
 
     void   setLocalAuthSecret(const String& secret);
 
-    Boolean isAuthenticated() const
+    Boolean isConnectionAuthenticated() const
     {
-        return (_authStatus == AUTHENTICATED) ? true : false;
+        return _connectionAuthenticated; 
     }
 
     String getAuthType() const
@@ -159,7 +153,7 @@ private:
     String  _authPassword;
     String  _localAuthSecret;
     String  _authType;
-    AuthStatus _authStatus;
+    Boolean _connectionAuthenticated;
     String  _ipAddress;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101

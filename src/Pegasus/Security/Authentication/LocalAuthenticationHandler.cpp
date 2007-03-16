@@ -74,15 +74,13 @@ Boolean LocalAuthenticationHandler::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthenticationHandler::authenticate()");
 
-    Boolean authenticated   = false; 
-
     // Look for ':' seperator
     Uint32 colon1 = authHeader.find(':');
 
     if ( colon1 == PEG_NOT_FOUND )
     {
         PEG_METHOD_EXIT();
-        return ( authenticated );
+        return false;
     }
 
     String userName = authHeader.subString(0, colon1);
@@ -108,12 +106,35 @@ Boolean LocalAuthenticationHandler::authenticate(
     }
 
     //
+    // Check if the authentication information is present
+    //
+    if (secretReceived.size() == 0 || userName.size() == 0)
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    String authenticatedUsername = authInfo->getAuthenticatedUser();
+
+    // 
+    // If this connection has been previously authenticated then ensure 
+    // the username passed with the current request matches the 
+    // username previously authenticated.
+    //
+    if (authenticatedUsername.size() != 0 &&
+        userName != authenticatedUsername)
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    //
     // Check if the user is a valid system user
     //
     if ( !System::isSystemUser( userName.getCString() ) )
     {
         PEG_METHOD_EXIT();
-        return (authenticated);
+        return false;
     }
 
     // Check if the user is authorized to CIMSERV
@@ -125,7 +146,7 @@ Boolean LocalAuthenticationHandler::authenticate(
             ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
             "Request UserID $0 doesn't have READ permission to profile CIMSERV CL(WBEM).",
             userName);
-        return (authenticated);
+        return false;
     }
 #endif
 
@@ -133,7 +154,7 @@ Boolean LocalAuthenticationHandler::authenticate(
     // set the flag to "check done"
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    authenticated = _localAuthenticator->authenticate(filePath, 
+    Boolean authenticated = _localAuthenticator->authenticate(filePath, 
         secretReceived, authInfo->getLocalAuthSecret());
 
     PEG_AUDIT_LOG(logLocalAuthentication(

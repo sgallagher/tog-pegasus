@@ -182,10 +182,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         return;
    }
    // </bug>
-   if ( httpMessage->authInfo->isAuthenticated() )
-   {
-      userName = httpMessage->authInfo->getAuthenticatedUser();
-   }
+   userName = httpMessage->authInfo->getAuthenticatedUser();
 
    Boolean closeConnect = httpMessage->getCloseConnect();
    PEG_TRACE((

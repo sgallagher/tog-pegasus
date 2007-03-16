@@ -243,7 +243,7 @@ HTTPConnection::HTTPConnection(
         if (_socket->isPeerVerificationEnabled() &&
             _socket->isCertificateVerified())
         {
-            _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+            _authInfo->setConnectionAuthenticated(true);
             _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
             _authInfo->setClientCertificateChain(
                 _socket->getPeerCertificateChain());
@@ -251,7 +251,7 @@ HTTPConnection::HTTPConnection(
 #else
         if (_socket->isClientAuthenticated())
         {
-            _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+            _authInfo->setConnectionAuthenticated(true);
             _authInfo->setAuthenticatedUser(_socket->getAuthenticatedUser());
         }
 #endif
@@ -1915,8 +1915,7 @@ void HTTPConnection::_handleReadEvent()
                 if (_socket->isPeerVerificationEnabled() &&
                     _socket->isCertificateVerified())
                 {
-                    _authInfo->setAuthStatus(
-                        AuthenticationInfoRep::AUTHENTICATED);
+                    _authInfo->setConnectionAuthenticated(true);
                     _authInfo->setAuthType(
                         AuthenticationInfoRep::AUTH_TYPE_SSL);
                     _authInfo->setClientCertificateChain(
@@ -1925,8 +1924,7 @@ void HTTPConnection::_handleReadEvent()
 #else
                 if (_socket->isClientAuthenticated())
                 {
-                    _authInfo->setAuthStatus(
-                        AuthenticationInfoRep::AUTHENTICATED);
+                    _authInfo->setConnectionAuthenticated(true);
                     _authInfo->setAuthenticatedUser(
                         _socket->getAuthenticatedUser());
                 }

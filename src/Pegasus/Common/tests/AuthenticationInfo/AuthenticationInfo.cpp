@@ -90,13 +90,11 @@ void test01()
 
     /**
         Added to cover the Function
-        void AuthenticationInfo::setAuthStatus(AuthStatus status)
+        void AuthenticationInfo::setConnectionAuthenticated(Boolean connectionAuthenticated)
     */
-    PEGASUS_TEST_ASSERT(authInfo.getAuthStatus() == AuthenticationInfoRep::NEW_REQUEST);
-    PEGASUS_TEST_ASSERT(authInfo.isAuthenticated() == false);
-    authInfo.setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
-    PEGASUS_TEST_ASSERT(authInfo.getAuthStatus() == AuthenticationInfoRep::AUTHENTICATED);
-    PEGASUS_TEST_ASSERT(authInfo.isAuthenticated() == true);
+    PEGASUS_TEST_ASSERT(authInfo.isConnectionAuthenticated() == false);
+    authInfo.setConnectionAuthenticated(true);
+    PEGASUS_TEST_ASSERT(authInfo.isConnectionAuthenticated() == true);
 
     /**
         Added to cover the Function
@@ -120,13 +118,11 @@ void test01()
     AuthenticationInfo authInfo1;
     AuthenticationInfo authInfo2 (authInfo);
 
-    PEGASUS_TEST_ASSERT(authInfo2.getAuthStatus() == AuthenticationInfoRep::AUTHENTICATED);
-    PEGASUS_TEST_ASSERT(authInfo2.isAuthenticated() == true);
+    PEGASUS_TEST_ASSERT(authInfo2.isConnectionAuthenticated() == true);
 
     authInfo1 = authInfo;
 
-    PEGASUS_TEST_ASSERT(authInfo1.getAuthStatus() == AuthenticationInfoRep::AUTHENTICATED);
-    PEGASUS_TEST_ASSERT(authInfo1.isAuthenticated() == true);
+    PEGASUS_TEST_ASSERT(authInfo1.isConnectionAuthenticated() == true);
 }
 
 int main( int argc, char *argv[] )

@@ -1892,14 +1892,15 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             (const char *)
                 PEGASUS_NAMESPACENAME_INTEROP.getString().getCString(),
             (const char *)
-                PEGASUS_CLASSNAME_PROVIDERMODULE.getString().getCString());
+                PEGASUS_CLASSNAME_PROVIDERMODULE.getString().getCString()));
+
         cimNamedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERMODULE,
             false,
             false,
             false,
-            CIMPropertyList()));
+            CIMPropertyList());
 
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "PG_ProviderModule class has = %d instances",

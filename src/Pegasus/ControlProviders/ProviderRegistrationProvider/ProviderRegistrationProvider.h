@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_ProviderRegistrationProvider_h
+#define Pegasus_ProviderRegistrationProvider_h
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/Linkage.h>
 
@@ -193,3 +195,4 @@ protected:
 };
 
 PEGASUS_NAMESPACE_END
+#endif

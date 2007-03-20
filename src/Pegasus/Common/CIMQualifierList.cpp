@@ -163,14 +163,20 @@ void CIMQualifierList::resolve(
             nameSpace, q.getName());
 
         if (qd.isUninitialized())
+        {
+            PEG_METHOD_EXIT();
             throw UndeclaredQualifier(q.getName().getString ());
+        }
 
         //----------------------------------------------------------------------
         // 2. Check the type and isArray.  Must be the same:
         //----------------------------------------------------------------------
 
         if (!(q.getType() == qd.getType() && q.isArray() == qd.isArray()))
+        {
+            PEG_METHOD_EXIT();
             throw BadQualifierType(q.getName().getString ());
+        }
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         //----------------------------------------------------------------------
@@ -187,6 +193,7 @@ void CIMQualifierList::resolve(
             {
                 String embeddedInstType("EmbeddedInstance(\"");
                 embeddedInstType = embeddedInstType + className + "\")";
+                PEG_METHOD_EXIT();
                 throw BadQualifierType(embeddedInstType);
             }
         }
@@ -200,8 +207,11 @@ void CIMQualifierList::resolve(
         // ks Mar 2002. Reinstalled 23 March 2002 to test.
 
         if (!(qd.getScope().hasScope (scope)))
+        {
+            PEG_METHOD_EXIT();
             throw BadQualifierScope
                 (qd.getName().getString (), scope.toString ());
+        }
 
         //----------------------------------------------------------------------
         // Resolve the qualifierflavor. Since Flavors are a combination of
@@ -250,7 +260,10 @@ void CIMQualifierList::resolve(
             // Do not allow change from disable override to enable override.
             if ((!qd.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE))
                   && (q.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE)))
+            {
+                PEG_METHOD_EXIT();
                 throw BadQualifierOverride(q.getName().getString ());
+            }
 
             Resolver::resolveQualifierFlavor(
                 q, CIMFlavor (qd.getFlavor ()), false);
@@ -261,7 +274,10 @@ void CIMQualifierList::resolve(
             // don't allow change override to notoverride.
             if (!(iq.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE))
                   && q.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE))
+            {
+                PEG_METHOD_EXIT();
                 throw BadQualifierOverride(q.getName().getString ());
+            }
 
             if (!(iq.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE))
                   && iq.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS))
@@ -271,6 +287,7 @@ void CIMQualifierList::resolve(
                 CIMValue iqv = iq.getValue();
                 if (!(qv == iqv))
                 {
+                    PEG_METHOD_EXIT();
                     throw BadQualifierOverride(q.getName().getString());
                 }
             }
@@ -314,6 +331,7 @@ void CIMQualifierList::resolve(
         q.setPropagated(true);
         _qualifiers.prepend(q);
     }
+    PEG_METHOD_EXIT();
 }
 
 void CIMQualifierList::toXml(Buffer& out) const

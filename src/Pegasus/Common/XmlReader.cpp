@@ -3549,16 +3549,16 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, CIMMethod& method)
 
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
-    CIMName name = getCimNameAttribute(parser.getLine(), entry, "PROPERTY");
+    CIMName name = getCimNameAttribute(parser.getLine(), entry, "METHOD");
 
     CIMType type;
-    getCimTypeAttribute(parser.getLine(), entry, type, "PROPERTY");
+    getCimTypeAttribute(parser.getLine(), entry, type, "METHOD");
 
     CIMName classOrigin =
-        getClassOriginAttribute(parser.getLine(), entry, "PROPERTY");
+        getClassOriginAttribute(parser.getLine(), entry, "METHOD");
 
     Boolean propagated = getCimBooleanAttribute(
-        parser.getLine(), entry, "PROPERTY", "PROPAGATED", false, false);
+        parser.getLine(), entry, "METHOD", "PROPAGATED", false, false);
 
     method = CIMMethod(name, type, classOrigin, propagated);
 

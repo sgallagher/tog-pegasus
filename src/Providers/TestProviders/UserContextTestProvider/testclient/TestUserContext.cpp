@@ -249,21 +249,10 @@ int main(int argc, char** argv)
             return 0;
         }
 
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
         testUserContextRequestor();
-#endif
-
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
         testUserContextPrivileged();
-#endif
-
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
         testUserContextDesignated();
-#endif
-
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
         testUserContextCIMServer();
-#endif
 
 // The "guest" tests are disabled.  See Bug 3043.
 #if 0
@@ -275,21 +264,10 @@ int main(int argc, char** argv)
         }
         else
         {
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
             testUserContextRequestor();
-#endif
-
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
             testUserContextPrivileged();
-#endif
-
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
             testUserContextDesignated();
-#endif
-
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
             testUserContextCIMServer();
-#endif
         }
 #endif
     }

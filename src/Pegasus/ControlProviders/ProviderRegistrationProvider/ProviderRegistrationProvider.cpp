@@ -525,20 +525,10 @@ void ProviderRegistrationProvider::createInstance(
             Uint16 userContext;
             userContextValue.get(userContext);
 
-            if (!(
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-                  (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
-# endif
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+            if (!((userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
                   (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
-# endif
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
                   (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
-# endif
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
-                  (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
-# endif
-                  0))
+                  (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER)))
             {
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                     MessageLoaderParms(

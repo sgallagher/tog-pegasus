@@ -2340,21 +2340,8 @@ void _test (CIMClient & client, char * argv0)
     _testScenarios (client, 0);
 
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
-    _testScenarios (client, PG_PROVMODULE_USERCTXT_PRIVILEGED);
-#else
-    cout << argv0 <<
-        ": Privileged user context test scenarios skipped because "
-        "PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED is defined" << endl;
-#endif
-
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-    _testScenarios (client, PG_PROVMODULE_USERCTXT_REQUESTOR);
-#else
-    cout << argv0 <<
-        ": Requestor user context test scenarios skipped because "
-        "PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR is defined" << endl;
-#endif
+    _testScenarios(client, PG_PROVMODULE_USERCTXT_PRIVILEGED);
+    _testScenarios(client, PG_PROVMODULE_USERCTXT_REQUESTOR);
 #else
     cout << argv0 <<
         ": user context test scenarios skipped because "
@@ -2376,13 +2363,7 @@ int main (int argc, char** argv)
         if ((argc == 2) && !strcmp(argv[1], "inita"))
         {
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-            _testISInita (client);
-#else
-            cout << argv[0] << 
-                ": Indication Service initialization tests skipped because"
-                " PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR is defined" << endl;
-#endif
+            _testISInita(client);
 #else
             cout << argv[0] << 
                 ": Indication Service initialization tests skipped because"
@@ -2393,13 +2374,7 @@ int main (int argc, char** argv)
         else if ((argc == 2) && !strcmp(argv[1], "initb"))
         {
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-            _testISInitb (client);
-#else
-            cout << argv [0] << 
-                ": Indication Service initialization tests skipped because"
-                " PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR is defined" << endl;
-#endif
+            _testISInitb(client);
 #else
             cout << argv [0] << 
                 ": Indication Service initialization tests skipped because"
@@ -2410,13 +2385,7 @@ int main (int argc, char** argv)
         else if ((argc == 2) && !strcmp(argv[1], "restarta"))
         {
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-            _testCSRestarta (client);
-#else
-            cout << argv [0] << 
-                ": CIM Server restart tests skipped because"
-                " PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR is defined" << endl;
-#endif
+            _testCSRestarta(client);
 #else
             cout << argv [0] << 
                 ": CIM Server restart tests skipped because"
@@ -2427,13 +2396,7 @@ int main (int argc, char** argv)
         else if ((argc == 2) && !strcmp(argv[1], "restartb"))
         {
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-            _testCSRestartb (client);
-#else
-            cout << argv [0] << 
-                ": CIM Server restart tests skipped because"
-                " PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR is defined" << endl;
-#endif
+            _testCSRestartb(client);
 #else
             cout << argv [0] << 
                 ": CIM Server restart tests skipped because"

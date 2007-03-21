@@ -156,18 +156,10 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
 
 	@ $(ECHO) +++++ Registering UserContextTestProvider ...
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" UserContextRequestorR.mof
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" UserContextPrivilegedR.mof
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" UserContextDesignatedR.mof
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" UserContextCIMServerR.mof
-endif
 endif
 	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
@@ -263,18 +255,10 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	@ cimmof "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
 
 	@ $(ECHO) +++++ Registering UserContextTestProvider ...
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
 	@ cimmof "-n$(INTEROPNS)" UserContextRequestorR.mof
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
 	@ cimmof "-n$(INTEROPNS)" UserContextPrivilegedR.mof
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
 	@ cimmof "-n$(INTEROPNS)" UserContextDesignatedR.mof
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	@ cimmof "-n$(INTEROPNS)" UserContextCIMServerR.mof
-endif
 endif
 	@ $(ECHO) +++++ Loading OOPModuleFailureTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof "-n$(TESTPROVIDERNS)" FailureTestIndication.mof
@@ -341,18 +325,10 @@ ifdef PEGASUS_ENABLE_EXECQUERY
 endif
 endif 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
 	cimprovider -r -m UserContextRequestorModule
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
 	cimprovider -r -m UserContextPrivilegedModule
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
 	cimprovider -r -m UserContextDesignatedModule
-endif
-ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 	cimprovider -r -m UserContextCIMServerModule
-endif
 endif
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)

@@ -2007,21 +2007,11 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 || (userContextSpecified)
 #else
                 || (userContextSpecified &&
-                    !(
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-                      (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
-# endif
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+                    !((userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
                       (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
-# endif
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
                       (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
-# endif
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
-                      (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
-# endif
-                      0)) ||
-                   ((userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) &&
+                      (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER)))
+                || ((userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) &&
                     ((posDesignatedUser == PEG_NOT_FOUND) ||
                      (instance.getProperty(posDesignatedUser).getValue().
                           isNull())))

@@ -126,13 +126,13 @@ void EmailListenerDestination::handleIndication(
     }
     catch (CIMException& c)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }

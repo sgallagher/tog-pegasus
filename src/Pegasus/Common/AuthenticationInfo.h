@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +46,7 @@
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
+
 
 /**
     This class keeps the authentication information of a connection
@@ -113,12 +116,12 @@ public:
     /** Constructor - Instantiates a AuthenticationInfo object.
     @param flag - used only to distinguish from the default constructor.
     */
-    AuthenticationInfo(Boolean)
+    AuthenticationInfo(Boolean flag)
     {
         PEG_METHOD_ENTER(
             TRC_AUTHENTICATION, "AuthenticationInfo::AuthenticationInfo");
 
-        _rep = new AuthenticationInfoRep();
+        _rep = new AuthenticationInfoRep(flag);
 
         PEG_METHOD_EXIT();
     }
@@ -134,13 +137,13 @@ public:
         PEG_METHOD_EXIT();
     }
 
-    /** Sets the connection authentication status of the request to the
+    /** Sets the connection authentication status of the request to the 
         status specified.
         @param status - the new authentication status
     */
     void   setConnectionAuthenticated(Boolean status)
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setConnectionAuthenticated(status);
     }
 
@@ -149,7 +152,7 @@ public:
     */
     String getAuthenticatedUser() const
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->getAuthenticatedUser();
     }
 
@@ -158,47 +161,16 @@ public:
     */
     void   setAuthenticatedUser(const String& userName)
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setAuthenticatedUser(userName);
     }
-
-#ifdef PEGASUS_OS_ZOS
-
-    /** The connection user is for z/OS only.
-        On z/OS Unix Local Domain Sockets and sockets
-        protected by AT-TLS are able to get the user ID of
-        the connected user.
-        This information is needed for later authentication
-        steps.
-     */
-
-    /** Get the connection user name
-        @return the connection user name
-    */
-    String getConnectionUser() const
-    {
-        CheckRep(_rep);
-        return _rep->getConnectionUser();
-    }
-
-    /** Sets the connection user name
-        @param userName - string containing the user name
-                           provided by the connection
-    */
-    void   setConnectionUser(const String& userName)
-    {
-        CheckRep(_rep);
-        _rep->setConnectionUser(userName);
-    }
-
-#endif
 
     /** Get the previously authenticated password
         @return the authenticated password
     */
     String getAuthenticatedPassword() const
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->getAuthenticatedPassword();
     }
 
@@ -207,44 +179,62 @@ public:
     */
     void   setAuthenticatedPassword(const String& password)
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setAuthenticatedPassword(password);
     }
 
-    /** Get the local authentication file path that was sent to client
-        @return string containing the authentication file path
+    /** Get the authentication challenge that was sent to the client
+        @return string containing the authentication challenge
     */
-    String getLocalAuthFilePath() const
+    String getAuthChallenge() const
     {
-        CheckRep(_rep);
-        return _rep->getLocalAuthFilePath();
+        _checkRep();
+        return _rep->getAuthChallenge();
     }
 
-    /** Set the local authentication file path to the specified file path
-        @param filePath String containing the authentication file path
+    /** Sets the authentication challenge to the specified challenge
+        @param challenge - string containing the authentication challenge
     */
-    void setLocalAuthFilePath(const String& filePath)
+    void   setAuthChallenge(const String& challenge)
     {
-        CheckRep(_rep);
-        _rep->setLocalAuthFilePath(filePath);
+        _checkRep();
+        _rep->setAuthChallenge(challenge);
     }
 
-    /** Get the local authentication secret that was sent to client
+    /** Get the authentication secret that was sent to client
         @return string containing the authentication secret
     */
-    String getLocalAuthSecret() const
+    String getAuthSecret() const
     {
-        CheckRep(_rep);
-        return _rep->getLocalAuthSecret();
+        _checkRep();
+        return _rep->getAuthSecret();
     }
 
-    /** Set the local authentication secret to the specified secret
+    /** Set the authentication secret to the specified secret
         @param secret - string containing the authentication secret
     */
-    void   setLocalAuthSecret(const String& secret)
+    void   setAuthSecret(const String& secret)
     {
-        CheckRep(_rep);
-        _rep->setLocalAuthSecret(secret);
+        _checkRep();
+        _rep->setAuthSecret(secret);
+    }
+
+    /** Returns the connection type of the previous authenticated request
+        @return true if the connection is privileged, false otherwise
+    */
+    Boolean isPrivileged() const
+    {
+        _checkRep();
+        return _rep->isPrivileged();
+    }
+
+    /** Set the privileged flag to the specified value
+        @param privileged - boolean flag indicating the connection type
+    */
+    void   setPrivileged(Boolean privileged)
+    {
+        _checkRep();
+        _rep->setPrivileged(privileged);
     }
 
     /** Is the request authenticated
@@ -254,7 +244,7 @@ public:
     */
     Boolean isConnectionAuthenticated() const
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->isConnectionAuthenticated();
     }
 
@@ -263,7 +253,7 @@ public:
     */
     void   setAuthType(const String& authType)
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setAuthType(authType);
     }
 
@@ -272,7 +262,7 @@ public:
     */
     String getAuthType() const
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->getAuthType();
     }
 
@@ -282,7 +272,7 @@ public:
     */
     void setIpAddress(const String& ipAddress)
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setIpAddress(ipAddress);
     }
 
@@ -296,7 +286,7 @@ public:
     */
     String getIpAddress() const
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->getIpAddress();
     }
 
@@ -307,7 +297,7 @@ public:
     */
     CIMKerberosSecurityAssociation* getSecurityAssociation() const
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->getSecurityAssociation();
     }
 
@@ -317,20 +307,20 @@ public:
     */
     void setSecurityAssociation()
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setSecurityAssociation();
     }
 #endif
 
     Array<SSLCertificateInfo*> getClientCertificateChain()
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->getClientCertificateChain();
     }
 
     void setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setClientCertificateChain(clientCertificate);
     }
 
@@ -339,7 +329,7 @@ public:
     */
     void setRemotePrivilegedUserAccessChecked()
     {
-        CheckRep(_rep);
+        _checkRep();
         _rep->setRemotePrivilegedUserAccessChecked();
     }
 
@@ -349,44 +339,8 @@ public:
     */
     Boolean getRemotePrivilegedUserAccessChecked()
     {
-        CheckRep(_rep);
+        _checkRep();
         return _rep->getRemotePrivilegedUserAccessChecked();
-    }
-
-    void setAuthHandle(const AuthHandle & authHandle)
-    {
-        CheckRep(_rep);
-        _rep->setAuthHandle(authHandle);
-    }
-
-    AuthHandle getAuthHandle()
-    {
-        CheckRep(_rep);
-        return _rep->getAuthHandle();
-    }
-
-    void setUserRole(const String & userRole)
-    {
-        CheckRep(_rep);
-        _rep->setUserRole(userRole);
-    }
-
-    String getUserRole()
-    {
-        CheckRep(_rep);
-        return _rep->getUserRole();
-    }
-
-    void setExpiredPassword(Boolean status)
-    {
-        CheckRep(_rep);
-        _rep->setExpiredPassword(status);
-    }
-
-    Boolean isExpiredPassword() const
-    {
-        CheckRep(_rep);
-        return _rep->isExpiredPassword();
     }
 
 private:
@@ -394,6 +348,12 @@ private:
     AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)
     {
 
+    }
+
+    void _checkRep() const
+    {
+        if (!_rep)
+            throw UninitializedObjectException();
     }
 
     AuthenticationInfoRep* _rep;

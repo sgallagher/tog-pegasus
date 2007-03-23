@@ -1,33 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
-//
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 /**
     This file has testcases that are added to cover the functions defined in
@@ -59,8 +61,7 @@ void test01()
 
     /**
         Added to cover the Function
-        void AuthenticationInfo::setAuthenticatedPassword(
-         const String& password)
+        void AuthenticationInfo::setAuthenticatedPassword(const String& password)
     */
 #define TEST_PASSWORD "My Test Password"
     PEGASUS_TEST_ASSERT(authInfo.getAuthenticatedPassword() == String::EMPTY);
@@ -69,24 +70,22 @@ void test01()
     PEGASUS_TEST_ASSERT(ret_setAuthenticatedPassword == TEST_PASSWORD);
 
     /**
-        Added to cover the Function
-        void AuthenticationInfo::setLocalAuthFilePath(const String& secret)
-    */
-#define TEST_FILEPATH "/tmp/localauthfilename.txt"
-    PEGASUS_TEST_ASSERT(authInfo.getLocalAuthFilePath() == String::EMPTY);
-    authInfo.setLocalAuthFilePath(TEST_FILEPATH);
-    String ret_setAuthFilePath = authInfo.getLocalAuthFilePath();
-    PEGASUS_TEST_ASSERT(ret_setAuthFilePath == TEST_FILEPATH);
-
-    /**
-        Added to cover the Function
-        void AuthenticationInfo::setLocalAuthSecret(const String& secret)
+	    Added to cover the Function
+        void AuthenticationInfo::setAuthSecret(const String& secret)
     */
 #define TEST_SECRET "My Test Secret"
-    PEGASUS_TEST_ASSERT(authInfo.getLocalAuthSecret() == String::EMPTY);
-    authInfo.setLocalAuthSecret(TEST_SECRET);
-    String ret_setAuthSecret = authInfo.getLocalAuthSecret();
+    PEGASUS_TEST_ASSERT(authInfo.getAuthSecret() == String::EMPTY);
+    authInfo.setAuthSecret(TEST_SECRET);
+    String ret_setAuthSecret = authInfo.getAuthSecret();
     PEGASUS_TEST_ASSERT(ret_setAuthSecret == TEST_SECRET);
+
+    /**
+	    Added to cover the Function
+        void AuthenticationInfo::setPrivileged(Boolean privileged)
+    */
+    PEGASUS_TEST_ASSERT(authInfo.isPrivileged() == false);
+    authInfo.setPrivileged(true);
+    PEGASUS_TEST_ASSERT(authInfo.isPrivileged() == true);
 
     /**
         Added to cover the Function
@@ -95,13 +94,21 @@ void test01()
     PEGASUS_TEST_ASSERT(authInfo.getAuthType() == String::EMPTY);
     authInfo.setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
     String ret_setauthtype = authInfo.getAuthType();
-    PEGASUS_TEST_ASSERT(
-        ret_setauthtype == AuthenticationInfoRep::AUTH_TYPE_SSL);
+    PEGASUS_TEST_ASSERT(ret_setauthtype == AuthenticationInfoRep::AUTH_TYPE_SSL);
 
     /**
         Added to cover the Function
-        void AuthenticationInfo::setConnectionAuthenticated(
-            Boolean connectionAuthenticated)
+        void AuthenticationInfo::setAuthChallenge(const String& challenge)
+    */
+#define TEST_CHALLENGE "My Test Challenge"
+    PEGASUS_TEST_ASSERT(authInfo.getAuthChallenge() == String::EMPTY);
+    authInfo.setAuthChallenge(TEST_CHALLENGE);
+    String ret_setauthchallenge = authInfo.getAuthChallenge();
+    PEGASUS_TEST_ASSERT(ret_setauthchallenge == TEST_CHALLENGE);
+
+    /**
+        Added to cover the Function
+        void AuthenticationInfo::setConnectionAuthenticated(Boolean connectionAuthenticated)
     */
     PEGASUS_TEST_ASSERT(authInfo.isConnectionAuthenticated() == false);
     authInfo.setConnectionAuthenticated(true);
@@ -123,8 +130,7 @@ void test01()
     */
     Array<SSLCertificateInfo*> clientCertificate;
     authInfo.setClientCertificateChain(clientCertificate);
-    Array<SSLCertificateInfo*> ret_clientCertificate =
-        authInfo.getClientCertificateChain();
+    Array<SSLCertificateInfo*> ret_clientCertificate=authInfo.getClientCertificateChain();
     PEGASUS_TEST_ASSERT(clientCertificate == ret_clientCertificate);
 
     AuthenticationInfo authInfo1;
@@ -137,7 +143,7 @@ void test01()
     PEGASUS_TEST_ASSERT(authInfo1.isConnectionAuthenticated() == true);
 }
 
-int main(int, char *argv[] )
+int main( int argc, char *argv[] )
 {
     try
     {
@@ -145,13 +151,11 @@ int main(int, char *argv[] )
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cout) << "Exception: " << e.getMessage()
-            << PEGASUS_STD(endl);
+        PEGASUS_STD (cout) << "Exception: " << e.getMessage() << PEGASUS_STD(endl);
         exit(1);
     }
 
-    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests"
-        << PEGASUS_STD (endl);
+    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD (endl);
     return 0;
 }
 

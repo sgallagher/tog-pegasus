@@ -204,11 +204,8 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         "httpMessage->getCloseConnect() returned %d",
         closeConnect));
 
-    if (httpMessage->authInfo->isAuthenticated())
-    {
-        userName = httpMessage->authInfo->getAuthenticatedUser();
-        authType = httpMessage->authInfo->getAuthType();
-    }
+    userName = httpMessage->authInfo->getAuthenticatedUser();
+    authType = httpMessage->authInfo->getAuthType();
 
     // Parse the HTTP message:
 

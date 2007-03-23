@@ -127,141 +127,158 @@ void CQLFactory::cleanupArray(Array<CQLObjectPtr>& arr, FactoryType type){
 void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
   //printf("CQLFactory::makeObject(identifier)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLIdentifier");
+	void *cqlIdentifier = NULL;
 	_CQLObjectPtr._ptr = new CQLChainedIdentifier(*obj);
         _makeObjectChainedIdentifiers.append(_CQLObjectPtr);
 	switch(target){
 	  case ChainedIdentifier:
-		return _makeObjectChainedIdentifiers[_makeObjectChainedIdentifiers.size()-1]._ptr;
+		cqlIdentifier = _makeObjectChainedIdentifiers[_makeObjectChainedIdentifiers.size()-1]._ptr;
 		break;
 	  case Identifier:
-		return NULL;
+		cqlIdentifier = NULL;
 		break;
           default:
-		return makeObject((CQLChainedIdentifier*)(_CQLObjectPtr._ptr), target);
+		cqlIdentifier = makeObject((CQLChainedIdentifier*)(_CQLObjectPtr._ptr), target);
 		break;
         }
 PEG_METHOD_EXIT();
+return cqlIdentifier;
 }
 void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
 //printf("CQLFactory::makeObject(chainedidentifier)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLChainedIdentifier");
+        
+	void *cqlChainedIdentifier = NULL;
 	_CQLObjectPtr._ptr = new CQLValue(*obj);
 	CQLValue* _val = (CQLValue*)_CQLObjectPtr._ptr;
         _makeObjectValues.append(_CQLObjectPtr);
 	switch(target){
           case Value:
-                return _makeObjectValues[_makeObjectValues.size()-1]._ptr;
+                cqlChainedIdentifier = _makeObjectValues[_makeObjectValues.size()-1]._ptr;
                 break;
           case ChainedIdentifier:
-                return NULL;
+                cqlChainedIdentifier = NULL;
                 break;
           default:
-                return makeObject((CQLValue*)(_CQLObjectPtr._ptr), target);
+                cqlChainedIdentifier = makeObject((CQLValue*)(_CQLObjectPtr._ptr), target);
                 break;
         }
 PEG_METHOD_EXIT();
+return cqlChainedIdentifier;
 }
 void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
 //printf("CQLFactory::makeObject(value)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLValue");
+	void *cqlValue = NULL;
 	_CQLObjectPtr._ptr = new CQLFactor(*obj);
         _makeObjectFactors.append(_CQLObjectPtr);
 	switch(target){
           case Factor:
-                return _makeObjectFactors[_makeObjectFactors.size()-1]._ptr;
+                cqlValue = _makeObjectFactors[_makeObjectFactors.size()-1]._ptr;
                 break;
           case Value:
-                return NULL;
+                cqlValue = NULL;
                 break;
           default:
-                return makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
+                cqlValue = makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
                 break;
         }
 PEG_METHOD_EXIT();
+return cqlValue;
 }
 void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
 //printf("CQLFactory::makeObject(function)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFunction");
+	void *cqlFunction = NULL;
 	_CQLObjectPtr._ptr = new CQLFactor(*obj);
         _makeObjectFactors.append(_CQLObjectPtr);
         switch(target){
           case Factor:
-                return _makeObjectFactors[_makeObjectFactors.size()-1]._ptr;
+                cqlFunction = _makeObjectFactors[_makeObjectFactors.size()-1]._ptr;
                 break;
           default:
-                return makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
+                cqlFunction = makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
                 break;
         }
 PEG_METHOD_EXIT();
+return cqlFunction;
 }
 void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
 //printf("CQLFactory::makeObject(factor)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFactor");
+	void *cqlFactor = NULL;
 	_CQLObjectPtr._ptr = new CQLTerm(*obj);
         _makeObjectTerms.append(_CQLObjectPtr);
 	switch(target){
           case Term:
-                return _makeObjectTerms[_makeObjectTerms.size()-1]._ptr;
+                cqlFactor = _makeObjectTerms[_makeObjectTerms.size()-1]._ptr;
                 break;
           case Factor:
-                return NULL;
+                cqlFactor = NULL;
                 break;
           default:
-                return makeObject((CQLTerm*)(_CQLObjectPtr._ptr), target);
+                cqlFactor = makeObject((CQLTerm*)(_CQLObjectPtr._ptr), target);
                 break;
         }
 PEG_METHOD_EXIT();
+return cqlFactor;
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
 //printf("CQLFactory::makeObject(term)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLTerm");
+	void *cqlTerm = NULL;
 	_CQLObjectPtr._ptr = new CQLExpression(*obj);
         _makeObjectExpressions.append(_CQLObjectPtr);
 	switch(target){
           case Expression:
-                return _makeObjectExpressions[_makeObjectExpressions.size()-1]._ptr;
+                cqlTerm = _makeObjectExpressions[_makeObjectExpressions.size()-1]._ptr;
                 break;
           case Term:
-                return NULL;
+                cqlTerm = NULL;
                 break;
           default:
-                return makeObject((CQLExpression*)(_CQLObjectPtr._ptr), target);
+                cqlTerm = makeObject((CQLExpression*)(_CQLObjectPtr._ptr), target);
                 break;
         }
 PEG_METHOD_EXIT();
+return cqlTerm;
 }
 void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
 //printf("CQLFactory::makeObject(expression)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLExpression");
+	void *cqlExpression = NULL;
 	_CQLObjectPtr._ptr = new CQLSimplePredicate(*obj);
 	_makeObjectSimplePredicates.append(_CQLObjectPtr);
 	switch(target){
           case SimplePredicate:
-                return _makeObjectSimplePredicates[_makeObjectSimplePredicates.size()-1]._ptr;
+                cqlExpression = _makeObjectSimplePredicates[_makeObjectSimplePredicates.size()-1]._ptr;
                 break;
           case Expression:
-                return NULL;
+                cqlExpression = NULL;
                 break;
           default:
-                return makeObject((CQLSimplePredicate*)(_CQLObjectPtr._ptr), target);
+                cqlExpression = makeObject((CQLSimplePredicate*)(_CQLObjectPtr._ptr), target);
                 break;
         }
 PEG_METHOD_EXIT();
+return cqlExpression;
 }
 void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
 //printf("CQLFactory::makeObject(simplepredicate)\n");
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLSimplePredicate");
+	void *cqlSimplePredicate = NULL;
 	_CQLObjectPtr._ptr = new CQLPredicate(*obj);
 	_makeObjectPredicates.append(_CQLObjectPtr);
 	switch(target){
           case Predicate:
-                return _makeObjectPredicates[_makeObjectPredicates.size()-1]._ptr;
+                cqlSimplePredicate = _makeObjectPredicates[_makeObjectPredicates.size()-1]._ptr;
                 break;
           default:
-                return NULL;
+                cqlSimplePredicate = NULL;
                 break;
         }
 PEG_METHOD_EXIT();
+return cqlSimplePredicate;
 }
 
 void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryType targetType){

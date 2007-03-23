@@ -55,6 +55,8 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 String MessageLoader::getMessage(MessageLoaderParms& parms)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
+    PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL2, "Message ID = " + parms.msg_id);
+
     String msg;
 
     try
@@ -199,7 +201,8 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
         if (U_SUCCESS(status))
         {
             UErrorCode _status = U_ZERO_ERROR;
-            PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4, "Using process locale:");
+            PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4,
+                "Using process locale:");
             PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4,
                 ures_getLocale(parms._resbundl, &_status));
             if (status == U_USING_FALLBACK_WARNING ||
@@ -217,8 +220,8 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
 #else
             String localeStr(_locale);
 #endif
-			// The "root" locale indicates that an ICU message bundle is not present
-			// for the current locale setting.
+            // The "root" locale indicates that an ICU message bundle is not
+            // present for the current locale setting.
             if (localeStr != "root")
             {
                 parms.contentlanguages.append(LanguageTag(
@@ -330,8 +333,8 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
                     String localeStr(_locale);
 #endif
 
-					// The "root" locale indicates that an ICU message bundle is not present
-					// for the current locale setting.
+                    // The "root" locale indicates that an ICU message bundle
+                    // is not present for the current locale setting.
                     if (localeStr != "root")
                     {
                         parms.contentlanguages.append(LanguageTag(
@@ -428,8 +431,8 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
 #endif
             }
 
-			// The "root" locale indicates that an ICU message bundle is not present
-			// for the current locale setting.
+            // The "root" locale indicates that an ICU message bundle is not
+            // present for the current locale setting.
             if (localeStr != "root")
             {
                 parms.contentlanguages.append(LanguageTag(

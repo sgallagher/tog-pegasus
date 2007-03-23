@@ -383,7 +383,6 @@ void WbemExecCommand::_printContent(
         //
         //  Print XML response to the ostream
         //
-        ((Buffer&) responseMessage).append ('\0');
         const char* content = responseMessage.getData () + contentOffset;
         XmlWriter::indentedPrint (oStream, content, 0);
     }
@@ -552,7 +551,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //  Check that file is not empty
         //
         FileSystem::getFileSize (_inputFilePath, size);
-        if (size <= 0)
+        if (size == 0)
         {
             throw WbemExecException(WbemExecException::NO_INPUT);
         }
@@ -563,7 +562,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         try
         {
             FileSystem::loadFileToMemory (content, _inputFilePath);
-            content.append ('\0');
         }
         catch (const CannotOpenFile&)
         {
@@ -584,9 +582,8 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         {
             content << line << '\n';
         }
-        content.append ('\0');
 
-        if (content.size () <= 1)
+        if (content.size () == 0)
         {
             //
             //  No input

@@ -439,7 +439,6 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
         // Find the separator between the start line and the headers, so we
         // can add the authorization header there.
 
-        httpMessage->message.append('\0');
         char* messageStart = (char*) httpMessage->message.getData();
         char* headerStart =
             (char*)memchr(messageStart, '\n', httpMessage->message.size());
@@ -464,7 +463,14 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
             Buffer newMessageBuffer;
             newMessageBuffer << messageStart << HTTP_CRLF;
             newMessageBuffer << authHeader << HTTP_CRLF;
-            newMessageBuffer << headerStart << HTTP_CRLF;
+            newMessageBuffer << headerStart;
+            // Note:  It is not necessary to add a newline character at the
+            // end of the message.  However, a historical defect in the
+            // calculation of the Content-Length header makes it possible that
+            // wbemexec input files exist with a Content-Length value one
+            // larger than the actual content size.  Adding this character to
+            // the end keeps those old scripts working.
+            newMessageBuffer << "\n";
 
             HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
             delete httpMessage;

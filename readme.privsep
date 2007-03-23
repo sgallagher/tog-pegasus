@@ -1,0 +1,41 @@
+Using Pegasus Privilege Separation Functionality
+
+Privilege separation was added to Pegasus starting with Pegasus 2.7.  This 
+is a security feature. It allows separation of the functionality so that 
+only a minimal set of code runs as a privileged user (ex.  root) in a 
+separate process (the executor).  The majority of pegasus runs as a 
+nonprivileged user (the cim server).  The CIM Server makes requests on the 
+executor for functions that require root privilege.  
+
+The privilege separation functionality is documented in PEP 286.
+
+cimserver is the executor program (see src/Executor)
+cimservermain is the server program (see src/Server and src/Pegasus/ExecutorClient)
+
+Privilege separation is build-time optional functionality. To enable privilege
+separation, define the following environment variable before compiling.
+
+    PEGASUS_ENABLE_PRIVILEGE_SEPARATION=true
+
+If this build variable is not set, the cimserver runs as the user under which
+it was started and all privelege separation functionality is disabled.
+
+The nonprivileged user for privilege separation is the user under which the
+cimservermain component executes.  
+
+Upon startup the cimserver uses the config parameter "serverUser" to determine
+this user name.
+
+This user name is defined as follows:
+
+1. optional serverUser=<user name> on the cimserver commandline
+2. optional value of serverUser config parameter
+3. default of "pegasus" if the the config parameter is not found in the
+   commandline or planned config file.
+
+The defined user MUST exist or cimserver will terminate immediatly.
+
+12/30/2006
+
+
+

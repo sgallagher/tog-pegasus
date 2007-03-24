@@ -572,7 +572,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
         XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
-        if (strcmp(cimVersion, "2.0") != 0)
+        if (!XmlReader::isSupportedCIMVersion(cimVersion))
         {
             MessageLoaderParms parms(
                 "Server.CIMOperationRequestDecoder.CIM_VERSION_NOT_SUPPORTED",
@@ -588,28 +588,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
         }
 
-        // We accept DTD version 2.x (see Bugzilla 1556)
-
-        Boolean dtdVersionAccepted = false;
-
-        if ((dtdVersion[0] == '2') &&
-            (dtdVersion[1] == '.') &&
-            (dtdVersion[2] != 0))
-        {
-            // Verify that all characters after the '.' are digits
-            Uint32 index = 2;
-            while (isdigit(dtdVersion[index]))
-            {
-                index++;
-            }
-
-            if (dtdVersion[index] == 0)
-            {
-               dtdVersionAccepted = true;
-            }
-        }
-
-        if (!dtdVersionAccepted)
+        if (!XmlReader::isSupportedDTDVersion(dtdVersion))
         {
             MessageLoaderParms parms(
                 "Server.CIMOperationRequestDecoder.DTD_VERSION_NOT_SUPPORTED",
@@ -640,7 +619,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
         }
 
         // Validate that the protocol version in the header matches the XML
-
         if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
         {
             MessageLoaderParms parms(
@@ -660,30 +638,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
         }
 
-        // We accept protocol version 1.x (see Bugzilla 1556)
-
-        Boolean protocolVersionAccepted = false;
-
-        if ((protocolVersion.size() >= 3) &&
-            (protocolVersion[0] == '1') &&
-            (protocolVersion[1] == '.'))
-        {
-            // Verify that all characters after the '.' are digits
-            Uint32 index = 2;
-            while ((index < protocolVersion.size()) &&
-                   (protocolVersion[index] >= '0') &&
-                   (protocolVersion[index] <= '9'))
-            {
-                index++;
-            }
-
-            if (index == protocolVersion.size())
-            {
-                protocolVersionAccepted = true;
-            }
-        }
-
-        if (!protocolVersionAccepted)
+        // Accept protocol version 1.x (see Bugzilla 1556)
+        if (!XmlReader::isSupportedProtocolVersion(protocolVersion))
         {
             // See Specification for CIM Operations over HTTP section 4.3
             MessageLoaderParms parms(

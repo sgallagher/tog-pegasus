@@ -195,20 +195,6 @@ static const char UNSUPPORTED_PROVIDER_TYPE_KEY[] =
     "UNSUPPORTED_PROVIDER_TYPE";
 static const char UNSUPPORTED_PROVIDER_TYPE[] = 
     "Unsupported ProviderType \"$0\" in ProviderModule \"$1\".";
-/**
-   Provider status
-*/
-static const Uint16 _PROVIDER_OK        = 2;
-
-static const Uint16 _PROVIDER_STOPPING   = 9;
-
-static const Uint16 _PROVIDER_STOPPED   = 10;
-
-/**
-   Module status
-*/
-static const Uint16 _MODULE_ERROR        = 6;
-
 
 ProviderRegistrationManager::ProviderRegistrationManager(CIMRepository* repository)
     : _repository(repository)
@@ -2018,7 +2004,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 #endif
                )
             {
-                status.append(_MODULE_ERROR);
+                status.append(CIM_MSE_OPSTATUS_VALUE_ERROR);
                 _setStatus(status, instance);
             }
 
@@ -2036,7 +2022,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             //
             if (status.size() == 0)
             {
-                status.append(_PROVIDER_OK);
+                status.append(CIM_MSE_OPSTATUS_VALUE_OK);
                 _setStatus(status, instance);
 
             }
@@ -2056,11 +2042,11 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                         status[j] = CIM_MSE_OPSTATUS_VALUE_OK;
                         statusModified = true;
                     }
-                    else if (status[j] == _PROVIDER_STOPPING)
+                    else if (status[j] == CIM_MSE_OPSTATUS_VALUE_STOPPING)
                     {
                         // if operational status is stopping
                         // change module status to be Stopped
-                        status[j] = _PROVIDER_STOPPED;
+                        status[j] = CIM_MSE_OPSTATUS_VALUE_STOPPED;
                         stoppingFound = true;
                         statusModified = true;
                     }

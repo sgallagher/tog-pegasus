@@ -76,7 +76,10 @@ private:
     BasicProviderManagerRouter(const BasicProviderManagerRouter&);
     BasicProviderManagerRouter& operator=(const BasicProviderManagerRouter&);
 
-    ProviderManager* _getProviderManager(const String& interfaceType);
+   // providerModuleName is used to report the error when ProviderManager 
+   // can not be found for the interfaceType.
+    ProviderManager* _getProviderManager(const String& interfaceType,
+        const String& providerModuleName);
     ProviderManager* _lookupProviderManager(const String& interfaceType);
 
     Array<ProviderManagerContainer*> _providerManagerTable;

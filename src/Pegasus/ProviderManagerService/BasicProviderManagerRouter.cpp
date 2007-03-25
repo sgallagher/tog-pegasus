@@ -55,6 +55,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+static const char UNSUPPORTED_INTERFACE_TYPE_KEY [] =
+    "ProviderManager.BasicProviderManagerRouter.UNSUPPORTED_INTERFACE_TYPE";
+static const char UNSUPPORTED_INTERFACE_TYPE [] =
+    "Unsupported InterfaceType \"$0\" in ProviderModule \"$1\".";
+
 class ProviderManagerContainer
 {
 public:
@@ -312,13 +317,17 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         CIMValue itValue = providerModule.getProperty(
             providerModule.findProperty("InterfaceType")).getValue();
         itValue.get(interfaceType);
-
+        // Get ProviderModule name.
+        String providerModuleName;
+        CIMValue nameValue = providerModule.getProperty(
+            providerModule.findProperty("Name")).getValue();
+        nameValue.get(providerModuleName); 
         ProviderManager* pm = 0;
         Boolean gotError = false;
         try
         {
             // Look up the appropriate ProviderManager by InterfaceType
-            pm = _getProviderManager(interfaceType);
+            pm = _getProviderManager(interfaceType, providerModuleName);
         }
         catch (const CIMException& e)
         {
@@ -328,7 +337,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
             gotError = true;
         }
 
-        if (remoteNameSpaceRequest && !pm->supportsRemoteNameSpaces())
+        if (!gotError && remoteNameSpaceRequest && 
+            !pm->supportsRemoteNameSpaces())
         {
             CIMResponseMessage* resp = request->buildResponse();
             resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
@@ -355,7 +365,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
 // ATTN: May need to add interfaceVersion parameter to further constrain lookup
 ProviderManager* BasicProviderManagerRouter::_getProviderManager(
-    const String& interfaceType)
+    const String& interfaceType, const String& providerModuleName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "BasicProviderManagerRouter::_getProviderManager");
@@ -447,9 +457,20 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
     }
 
     // Error: ProviderManager not found for the specified interface type
-    PEGASUS_ASSERT(0);
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      "Failed to get ProviderManager for interface type\"" 
+                   + interfaceType + "\".");
+
+    Logger::put_l(
+        Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+        UNSUPPORTED_INTERFACE_TYPE_KEY,
+        UNSUPPORTED_INTERFACE_TYPE, interfaceType, providerModuleName);
+
     PEG_METHOD_EXIT();
-    return 0;
+
+    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+          UNSUPPORTED_INTERFACE_TYPE_KEY,
+          UNSUPPORTED_INTERFACE_TYPE, interfaceType, providerModuleName));
 }
 
 // NOTE: The caller must lock _providerManagerTableLock before calling this

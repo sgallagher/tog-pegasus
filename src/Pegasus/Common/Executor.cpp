@@ -337,7 +337,7 @@ public:
 
             // Fork process:
 
-#if !defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_VMS)
             pid = (int)vfork();
 #else
             pid = (int)fork();

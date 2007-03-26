@@ -410,7 +410,7 @@ void ProviderAgentContainer::_startAgentProcess()
         TRC_PROVIDERMANAGER, "ProviderAgentContainer::_startAgentProcess");
 
     PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
-    PEGASUS_GID_T newGid = (PEGASUS_UID_T)-1;
+    PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
 
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT
 

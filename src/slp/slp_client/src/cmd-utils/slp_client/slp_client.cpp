@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *               					
+ *
  *  Copyright (c) 2001 - 2004  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
  *
@@ -91,7 +91,7 @@
 */
 #define DEBUG_ENTER  1
 #define DEBUG_EXIT   2
-#define DEBUG_LEVEL1 4 
+#define DEBUG_LEVEL1 4
 #define DEBUG_LEVEL2 8
 #define DEBUG_LEVEL3 16
 #define DEBUG_LEVEL4 32
@@ -109,10 +109,10 @@ int DEBUG_PRINT_CONTROL = ALL;
 ** DEBUG_PRINT (DC, FS, AS)
 **
 ** args:
-**    DC = Debug Control 
+**    DC = Debug Control
 **    FS = Format String
-**    AS = Arg String 
-** 
+**    AS = Arg String
+**
 ** examples:
 **  DEBUG_PRINT((DEBUG_ENTER, "function name"));
 **  DEBUG_PRINT((DEBUG_ENTER, "function name arg1=%d arg2=%s", arg1, arg2));
@@ -138,7 +138,7 @@ static void _debug_print(int dc, const char* format, ...)
           fprintf(fdout, " ENTER -- ");
 	else if (DEBUG_EXIT & dc)
           fprintf(fdout, " EXIT  -- ");
-	else 
+	else
           fprintf(fdout, " DATA --------\n");
 
         vfprintf(fdout, format, ap);
@@ -830,7 +830,11 @@ void prepare_pr_buf(struct slp_client *client, const char *address)
   if(address == NULL || client == NULL )
     return;;
   if(client->_pr_buf_len > LSLP_MTU)
-    abort();
+  {
+     printf("Memory allocation failed in file %s at Line number %d\n",
+             __FILE__, __LINE__);
+     exit(1);
+  }
 
   if(client->_pr_buf_len > 0 && client->_pr_buf_len < (LSLP_MTU - 2))
     client->_pr_buf[client->_pr_buf_len - 1] = ',';
@@ -888,7 +892,7 @@ void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, char response,
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
             ptr_addr++;
         } // end of while loop around all local network interfaces
-#endif            
+#endif
     }
 }
 
@@ -1098,19 +1102,19 @@ BOOL prepare_attr_query( struct slp_client *client,
       len = (int16) strlen(scopeptr);
       if(total_len + 2 + len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, len, 0 );
-	
+
 	if(len)
 	  memcpy(bptr + 2, scopeptr, len);
-	
+
       	total_len += (2 + len);
 	bptr += (2 + len);
-	
+
 	/* if there is room, set the tag list length and copy the tag list */
 	if(tags != NULL)
 	  len = (int16) strlen(tags);
 	else
 	  len = 0;
-	
+
 	if(total_len + 2 + len < LSLP_MTU) {
 	  _LSLP_SETSHORT(bptr + 2, len, 0);
 	  if(len)
@@ -1121,7 +1125,7 @@ BOOL prepare_attr_query( struct slp_client *client,
 	  /* leave the spi length at zero - spi will be deprecated in next version of SLP */
 	  /* length needs to account for the spi string length */
 	  total_len += 2;
-	
+
 	  /* now go back and set the length for the entire message */
 	  _LSLP_SETLENGTH(client->_msg_buf, total_len );
 	  DEBUG_PRINT((DEBUG_EXIT, "prepare_attr_query:ok "));
@@ -1584,7 +1588,12 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
 
   /* marshall the header data */
   reply = alloc_slp_msg(FALSE);
-  if(reply == NULL) abort();
+  if(reply == NULL)
+  {
+     printf("Memory allocation failed in file %s at Line number %d\n",
+             __FILE__, __LINE__);
+     exit(1);
+  }
   reply->hdr.ver = _LSLP_GETVERSION(bptr);
   reply->type = (msgTypes) (reply->hdr.msgid = _LSLP_GETFUNCTION(bptr));
   reply->hdr.len = purported_len;
@@ -1606,7 +1615,12 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
       total_len += 4;
       bptr += 4;
       reply->msg.attrRep.attrList = (char *)calloc(1, reply->msg.attrRep.attrListLen + 1);
-      if(reply->msg.attrRep.attrList == NULL) abort();
+      if(reply->msg.attrRep.attrList == NULL)
+      {
+         printf("Memory allocation failed in file %s at Line number %d\n",
+                 __FILE__, __LINE__);
+         exit(1);
+      }
       memcpy(reply->msg.attrRep.attrList, bptr, reply->msg.attrRep.attrListLen);
       /* ignore auth blocks, they will be deprecated in next version of protocol */
 
@@ -1678,7 +1692,7 @@ void decode_msg( struct slp_client *client,
   case LSLP_DAADVERT:
     decode_daadvert( client, remote );
     DEBUG_PRINT((DEBUG_EXIT, "decode_msg %s", "LSLP_DAADVERT "));
-    return;		
+    return;
   case LSLP_SRVRQST:
     decode_srvreq( client, remote );
     DEBUG_PRINT((DEBUG_EXIT, "decode_msg %s", "LSLP_SRVRQST "));
@@ -1760,17 +1774,17 @@ void decode_srvreg(struct slp_client *client,
 	  /* adjust pointers and size variables */
 	  bptr += (2 + str_len);
 	  total_len += (2 + str_len);
-	
+
 	  /* decode the scope list */
 	  if((total_len + 2 + (str_len = _LSLP_GETSHORT(bptr, 0))) < purported_len) {
 	    if(NULL != (scopes = (char *)malloc(str_len + 1))) {
 	      memcpy(scopes, bptr + 2, str_len);
 	      *(scopes + str_len) = 0x00;
-	
+
 	      /* adjust pointers and size variables */
 	      bptr += (2 + str_len);
 	      total_len += (2 + str_len);
-	
+
 	      /* decode the attr list */
 	      if((total_len + 2 + (str_len = _LSLP_GETSHORT(bptr, 0))) < purported_len) {
 		if(NULL != (attr_string = (char *)malloc(str_len + 1))) {
@@ -1779,7 +1793,7 @@ void decode_srvreg(struct slp_client *client,
 		  /* adjust pointers and size variables */
 		  bptr += (2 + str_len);
 		  total_len += (2 + str_len);
-		
+
 		  /* decode the auth block list */
 		  /* lslpUnstuffAuthList( ) */
 		  __srv_reg_local(client, url_string, attr_string, type_string, scopes, lifetime);
@@ -1827,7 +1841,12 @@ void decode_srvrply( struct slp_client *client,
 
   /* marshall the header data */
   reply = alloc_slp_msg(FALSE);
-  if(reply == NULL) abort();
+  if(reply == NULL)
+  {
+      printf("Memory allocation failed in file %s at Line number %d\n",
+	          __FILE__, __LINE__);
+      exit(1);
+  }
   reply->hdr.ver = _LSLP_GETVERSION(bptr);
   reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
   reply->type = (msgTypes) reply->hdr.msgid;
@@ -1856,10 +1875,19 @@ void decode_srvrply( struct slp_client *client,
     if( count ){
       lslpURL *url;
       if( NULL == (reply->msg.srvRply.urlList = lslpAllocURLList()))
-	abort();
-      if(NULL != xtptr) {
-	if( NULL == (reply->msg.srvRply.attr_list = lslpAllocAtomList()))
-	  abort();
+      {
+         printf("Memory allocation failed in file %s at Line number %d\n",
+	             __FILE__, __LINE__);
+         exit(1);
+      }
+      if(NULL != xtptr)
+      {
+    	if( NULL == (reply->msg.srvRply.attr_list = lslpAllocAtomList()))
+	{
+           printf("Memory allocation failed in file %s at Line number %d\n",
+                   __FILE__, __LINE__);
+           exit(1);
+        }
       }
 
       buf_len = LSLP_MTU - total_len;
@@ -1889,7 +1917,7 @@ void decode_srvrply( struct slp_client *client,
       while((NULL != xtptr) && (xtptr + 9 < xtn_limit )) {
 	next_ext = _LSLP_GET3BYTES(xtptr, 2);
 	if(0x0002 == _LSLP_GETSHORT(xtptr, 0)) {
-	
+
 	  //BOOL lslp_pattern_match(const char *string, const char *pattern, BOOL case_sensitive)
 	  /* find the correct url to associate this attribute extension. */
 	  lslpURL *rply_url = reply->msg.srvRply.urlList;
@@ -1898,7 +1926,12 @@ void decode_srvrply( struct slp_client *client,
 	    int16 url_len = _LSLP_GETSHORT(xtptr, 5);
 	    rply_url = rply_url->next;
 	    url_buf = (char *)calloc(1, url_len + 1);
-	    if(url_buf == 0 ) abort();
+	    if(url_buf == 0 )
+	    {
+	       printf("Memory allocation failed in file %s at Line number %d\n",
+	             __FILE__, __LINE__);
+	       exit(1);
+	    }
 	    memcpy(url_buf, xtptr + 7, url_len);
 	    while(! _LSLP_IS_HEAD(rply_url)) {
 	      if(TRUE == lslp_pattern_match(url_buf, rply_url->url, FALSE)) {
@@ -1956,7 +1989,12 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
   bptr += (total_len = _LSLP_HDRLEN(bptr));
   if(total_len < purported_len) {
     struct da_list *adv = alloc_da_node(FALSE);
-    if(adv == NULL) abort();
+    if(adv == NULL)
+    {
+        printf("Memory allocation failed in file %s at Line number %d\n",
+	             __FILE__, __LINE__);
+        exit(1);
+    }
     adv->function = LSLP_DAADVERT;
     adv->err = _LSLP_GETSHORT(bptr, 0);
     adv->stateless_boot = _LSLP_GETLONG(bptr, 2);
@@ -1964,7 +2002,11 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
     if(total_len < purported_len) {
       /* decode and capture the url  - note: this is a string, not a url-entry structure */
       if(NULL == (adv->url = (char *)malloc(str_len + 1)))
-	abort();
+      {
+          printf("Memory allocation failed in file %s at Line number %d\n",
+	             __FILE__, __LINE__);
+          exit(1);
+      }
       memcpy(adv->url, bptr + 8, str_len);
       *((adv->url) + str_len) = 0x00;
       /* advance the pointer past the url string */
@@ -1973,7 +2015,11 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
       if(total_len < purported_len) {
 	if(str_len > 0) {
 	  if(NULL == (adv->scope = (char *)malloc(str_len + 1)))
-	    abort();
+	  {
+             printf("Memory allocation failed in file %s at Line number %d\n",
+	             __FILE__, __LINE__);
+	     exit(1);
+      }
 	  memcpy(adv->scope, bptr + 2, str_len);
 	  *((adv->scope) + str_len) = 0x00;
 	}
@@ -1982,8 +2028,11 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 	total_len += (2 + (str_len = _LSLP_GETSHORT(bptr, 0)));
 	if(total_len < purported_len) {
 	  if(str_len > 0) {
-	    if(NULL == (adv->attr = (char *)malloc(str_len + 1)))
-	      abort();
+	    if(NULL == (adv->attr = (char *)malloc(str_len + 1))) {
+	        printf("Memory allocation failed in file %s at Line number %d\n",
+	             __FILE__, __LINE__);
+	       exit(1);
+	    }
 	    memcpy(adv->attr, bptr + 2, str_len);
 	    *((adv->attr) + str_len) = 0x00;
 	  }
@@ -1992,18 +2041,21 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 	  total_len += (2 + (str_len = _LSLP_GETSHORT(bptr, 0)));
 	  if(total_len < purported_len) {
 	    struct da_list * exists;
-	
+
 	    if(str_len > 0 ) {
-	      if(NULL == (adv->spi = (char *)malloc(str_len + 1)))
-		abort();
+	      if(NULL == (adv->spi = (char *)malloc(str_len + 1))) {
+	         printf("Memory allocation failed in file %s at Line number %d\n",
+	                __FILE__, __LINE__);
+	         exit(1);
+	      }
 	      memcpy(adv->spi, bptr + 2, str_len);
 	      *((adv->spi) + str_len) = 0x00;
 	    } /*  if there is an spi  */
-		
+
 	    /* advance the pointer past the spi string  */
 	    bptr += (str_len + 2);
 	    adv->auth_blocks = _LSLP_GETBYTE(bptr, 0);
-	
+
 	    // if we already know about this da, remove the existing
 	    // entry from our cache and insert this new entry
 	    // maybe the stateless boot field changed or the da
@@ -2071,14 +2123,14 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	      *(rq->srvcType + str_len) = 0x00;
 	      bptr += 2 + str_len;
 	      total_len += 2 + str_len;
-	
+
 	      bptrSave = bptr;
 	      buf_len = LSLP_MTU - total_len;
 	      rq->scopeList = lslpUnstuffScopeList(&bptr, &buf_len, &err);
 	      total_len += _LSLP_GETSHORT(bptrSave, 0);
 	      if (TRUE == lslp_scope_intersection(client->_scopes, rq->scopeList) ) {
 		/* continue marshalling data */
-		
+
 		if(total_len < LSLP_MTU - 2){
 		  /* get the predicate */
 		  rq->predicateLen = (str_len = _LSLP_GETSHORT(bptr, 0));
@@ -2089,7 +2141,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 		      *(rq->predicate + str_len) = 0x00;
 		    }
 		  } /* predicate */
-		
+
 		  bptr += str_len + 2;
 		  total_len += str_len + 2;
 		  /* get the spi list */
@@ -2108,7 +2160,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 		  /* initialize the scratch buffer before processing the srvrq */
 		  /* that way we can know if there are extensions if the first 5 bytes changed */
 		  memset(client->_scratch, 0x00, LSLP_MTU);
-		
+
 		  _LSLP_SETSHORT(client->_scratch, 0x0000, 0);
 		  _LSLP_SET3BYTES(client->_scratch, 0x00000000, 2);
 		  rp_out = _lslpProcessSrvReq(client, rq, 0);
@@ -2190,7 +2242,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	    /* adjust the pointers */
 	    ext_offset += ext_len;
 	    next_extptr = client->_msg_buf + ext_offset + 2;
-	
+
 	    /* minimum length of attr extension is 10 bytes - see if we should continue */
 	    if(total_len + 10 >= LSLP_MTU) {
 	      /* no room, set next ext field in this extension to zero */
@@ -2208,7 +2260,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	/* terminate the last extension */
 	_LSLP_SET3BYTES(next_extptr_save, 0x00000000, 0);
       } /* if there is at least one extension */
-	
+
       // ok, now we can set the length
       _LSLP_SETLENGTH(client->_msg_buf, total_len );
 
@@ -2230,7 +2282,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	int err = 1;
 #ifndef NUCLEUS
 	_LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
-#endif	
+#endif
 	local.sin_family = AF_INET;
 	local.sin_port = client->_target_port ;
 	local.sin_addr.s_addr = local_address;
@@ -2246,7 +2298,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
             ptr_addr++;
         } // end of while loop around all local network interfaces
-#endif            
+#endif
     } // we must respond to this request
 
     /* free resources */
@@ -2299,7 +2351,7 @@ BOOL  srv_reg(struct slp_client *client,
   _LSLP_SETXID(bptr, client->_xid);
   _LSLP_SETLAN(bptr, LSLP_EN_US, LSLP_EN_US_LEN);
   bptr += (len =  _LSLP_HDRLEN(bptr) ) ;
-	
+
   /* construct a url-entry  */
 
   url_entry = (lslpURL *)calloc(1, sizeof(lslpURL));
@@ -2330,7 +2382,7 @@ BOOL  srv_reg(struct slp_client *client,
       if(scopes == NULL)
 	str_len = 0;
       else
-	str_len = (int16)strlen(scopes);	
+	str_len = (int16)strlen(scopes);
       if(len + 2 + str_len < LSLP_MTU) {
 	_LSLP_SETSHORT(bptr, str_len, 0);
 	if(str_len)
@@ -2346,7 +2398,7 @@ BOOL  srv_reg(struct slp_client *client,
 	  _LSLP_SETSHORT(bptr, str_len, 0);
 	  if(str_len)
 	    memcpy(bptr + 2, attributes, str_len);
-		
+
 	  len += ( 2 + str_len);
 	  bptr += (2 + str_len);
 
@@ -2359,7 +2411,7 @@ BOOL  srv_reg(struct slp_client *client,
 	  len += 1;
 	  /* set the length field in the header */
 	  _LSLP_SETLENGTH( client->_msg_buf, len );
-	
+
 	  retries = client->_retries;
 	  while( --retries ) {
 	    if(TRUE == send_rcv_udp(client, TRUE)) {
@@ -2799,8 +2851,11 @@ void __srv_reg_local ( struct slp_client *client,
 	 service_type != NULL && scopes != NULL);
 
   url_copy = strdup(url);
-  if(url_copy == NULL)
-    abort();
+  if(url_copy == NULL) {
+      printf("Memory allocation failed in file %s at Line number %d\n",
+	           __FILE__, __LINE__);
+      exit(1);
+  }
 
   /* update the attributes if an existing registration */
   reg   = client->regs.next;
@@ -2826,8 +2881,11 @@ void __srv_reg_local ( struct slp_client *client,
        DEBUG_PRINT((DEBUG_ENTER, "srv_reg_local %s", "2 "));
        return;
     }
-    if(NULL == (reg->url = lslpAllocURL()))
-      abort();
+    if(NULL == (reg->url = lslpAllocURL())) {
+       printf("Memory allocation failed in file %s at Line number %d\n",
+	           __FILE__, __LINE__);
+       exit(1);
+    }
     reg->directoryTime = lifetime + time(NULL);
     reg->url->atomized = _lslpDecodeURLs(&url_copy, 1);
     reg->url->url = url_copy;
@@ -3139,7 +3197,7 @@ void *decode_opaque(char *buffer)
 	/* adjust the encoded length to reflect that we consumed the header */
 	encoded_length -= 3;
 	srcptr += 3;
-	
+
 	while(encoded_length && alloc_length){
 	  char accumulator = 0;
 	  if(*srcptr == 0x5c){
@@ -3229,7 +3287,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 	/* decode the url */
 	str_len = _LSLP_GETSHORT(bptr, 0);
 	bptr += 2;
-	
+
 	if( (str_len + total_len + 2) < purported_len ) {
 	  if(NULL != (url = lslpAllocURL())) {
 	    if(NULL != (url->url = (char *)calloc(str_len + 1, sizeof(char)))) {
@@ -3255,7 +3313,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 
 		 regs = client->regs.next;
 		 attr_return = NULL;
-		
+
 		 while(! _LSLP_IS_HEAD(regs) ){
 		   if( ! lslp_string_compare(regs->url->url, url->url)) {
 		     /* we have a hit on the url, see if the scopes intersect */
@@ -3267,7 +3325,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		   }
 		   regs = regs->next;
 		 }
-		
+
 		 /* stuff the attribute reply */
 
 		 _LSLP_SETVERSION(client->_msg_buf, LSLP_PROTO_VER);
@@ -3279,15 +3337,15 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		 _LSLP_SETLAN(client->_msg_buf, LSLP_EN_US, LSLP_EN_US_LEN);
 		 total_len = _LSLP_HDRLEN(client->_msg_buf);
 
-		
+
 		 bptr = client->_msg_buf + total_len;
 		 _LSLP_SETSHORT(bptr, err, 0);
 		 bptr += 2;
 		 total_len += 2;
-		
+
 		 buf_len = LSLP_MTU - (total_len + 1);
 		 bptrSave = bptr;
-		
+
 		 /* stuff the attr list */
 
 		 if( FALSE == lslpStuffAttrList(&bptr, &buf_len, attr_return, attr_tags)){
@@ -3300,15 +3358,15 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		 /* for now don't support auth blocks */
 
 		 _LSLP_SETBYTE(bptr, 0, 0);
-		
+
 		 /* to calculate the length, re-read the attr list length */
 		 total_len +=(2 + _LSLP_GETSHORT(bptrSave, 0));
 		 /* add the length of the auth block (zero plus the number of auths) */
 		 total_len += 1;
-		
+
 		// ok, now we can set the length
 		_LSLP_SETLENGTH(client->_msg_buf, total_len );
-		
+
 /* 		client->_msg_buf is stuffed with the attr reply. now we need  */
 /* 		to allocate a socket and send it back to the requesting node  */
 
@@ -3326,7 +3384,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		    int err = 1;
 #ifndef NUCLEUS
 		    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
-#endif		
+#endif
 		    local.sin_family = AF_INET;
 		    local.sin_port = client->_target_port ;
 		    local.sin_addr.s_addr = local_address;
@@ -3337,17 +3395,17 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		    _LSLP_CLOSESOCKET(sock);
 		  } /* successfully opened this socket */
 //		}
-		
+
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
             ptr_addr++;
         } // end of while loop around all local network interfaces
-#endif            
+#endif
 		if(attr_tags)
 		  lslpFreeAttrList(attr_tags, TRUE);
 	       } /* scopes intersect */
 	       if(scopes)
 		 lslpFreeScopeList(scopes);
-	
+
 	     } /* url string allocated */
 	     if(url)
 	       lslpFreeURL(url);
@@ -3398,7 +3456,7 @@ char *lslp_foldString(char *s)
 
 BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list, lslpAttrList *include)
 {
-		
+
   lslpAttrList *attrs, *included;
   int16 attrLen = 0, lenSave;
   char *bptr;
@@ -3626,7 +3684,7 @@ lslpURL *lslpAllocURL(void)
   lslpURL *url = (lslpURL *)calloc(1, sizeof(lslpURL));
 
   return(url);
-}	
+}
 
 lslpURL *lslpAllocURLList(void)
 {
@@ -3637,8 +3695,8 @@ lslpURL *lslpAllocURLList(void)
       head->isHead = TRUE;
       return(head);
     }
-  return(NULL);	
-}	
+  return(NULL);
+}
 
 /* url MUST be unlinked from list */
 void lslpFreeURL(lslpURL *url)
@@ -3654,10 +3712,10 @@ void lslpFreeURL(lslpURL *url)
     lslpFreeAtomList(url->attrs, LSLP_DESTRUCTOR_DYNAMIC);
   free(url);
   return;
-}	
+}
 
 void lslpFreeURLList(lslpURL *list)
-{								
+{
   lslpURL *temp;
 
   PEGASUS_ASSERT(list != NULL);
@@ -3670,7 +3728,7 @@ void lslpFreeURLList(lslpURL *list)
     }
   lslpFreeURL(list);
   return;
-}	
+}
 
 
 /* for protected scopes, we need to change stuff URL so that it */
@@ -3920,7 +3978,7 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
 	    filter->logical_value = lslpEvaluateAttributes(filter->attrs.next, attrs, filter->_operator );
 	}
 	else { break; } /* did not find a matching attribute */
-	
+
 	/* if we found a match, exit the comparison loop */
 	if(filter->logical_value == TRUE)
 	  break;
@@ -4028,8 +4086,8 @@ BOOL lslpStuffScopeList(char **buf, int16 *len, lslpScopeList *list)
       memset(*buf, 0x00, *len);
     }
   return(ccode);
-	
-}	
+
+}
 
 
 lslpScopeList *lslpUnstuffScopeList(char **buf, int16 *len, int16 *err)
@@ -4179,10 +4237,10 @@ lslpScopeList *lslpAllocScopeList(void)
   if (NULL != (head = lslpAllocScope()))
     {
       head->next = head->prev = head;
-      head->isHead = TRUE;	
+      head->isHead = TRUE;
     }
   return(head);
-}	
+}
 
 void lslpFreeScope(lslpScopeList *s)
 {
@@ -4190,7 +4248,7 @@ void lslpFreeScope(lslpScopeList *s)
   if (s->scope != NULL)
     free(s->scope);
   free(s);
-}	
+}
 
 void lslpFreeScopeList(lslpScopeList *head)
 {
@@ -4205,7 +4263,7 @@ void lslpFreeScopeList(lslpScopeList *head)
     }
   lslpFreeScope(head);
   return;
-}	
+}
 
 
 
@@ -4228,7 +4286,7 @@ lslpSrvRegList *lslpAllocSrvReg(void)
     free(l);
   }
   return(NULL);
-}	
+}
 
 lslpSrvRegHead *lslpAllocSrvRegList(void)
 {
@@ -4239,7 +4297,7 @@ lslpSrvRegHead *lslpAllocSrvRegList(void)
     return(head);
   }
   return(NULL);
-}	
+}
 
 void lslpFreeSrvReg(lslpSrvRegList *s)
 {
@@ -4255,7 +4313,7 @@ void lslpFreeSrvReg(lslpSrvRegList *s)
   if(s->authList != NULL)
     lslpFreeAuthList(s->authList);
   free(s);
-}	
+}
 
 void lslpFreeSrvRegList(lslpSrvRegHead *head)
 {
@@ -4268,13 +4326,13 @@ void lslpFreeSrvRegList(lslpSrvRegHead *head)
       _LSLP_UNLINK(temp);
       lslpFreeSrvReg(temp);
     }
-}	
+}
 
 
 lslpAuthBlock *lslpAllocAuthBlock(void)
 {
   return((lslpAuthBlock *)calloc(1, sizeof(lslpAuthBlock)));
-}	
+}
 
 lslpAuthBlock *lslpAllocAuthList(void)
 {
@@ -4288,7 +4346,7 @@ lslpAuthBlock *lslpAllocAuthList(void)
   return(NULL);
 }
 
-	
+
 /* NOTE: be CERTAIN block is not linked to a list !!! */
 void lslpFreeAuthBlock(lslpAuthBlock *auth)
 {
@@ -4297,11 +4355,11 @@ void lslpFreeAuthBlock(lslpAuthBlock *auth)
   if (auth->block != NULL)
     free(auth->block);
   free(auth);
-  return;		
-}	
+  return;
+}
 
 void lslpFreeAuthList(lslpAuthBlock *list)
-{								
+{
   lslpAuthBlock *temp;
 
   PEGASUS_ASSERT(list != NULL);
@@ -4314,7 +4372,7 @@ void lslpFreeAuthList(lslpAuthBlock *list)
     }
   lslpFreeAuthBlock(list);
   return;
-}	
+}
 
 /* for protected scopes, we need to change this routine (or add another one) */
 /* that uses an SPI list as an input and stuffs only auth only stuffs  auth blocks*/
@@ -4375,7 +4433,7 @@ BOOL lslpStuffAuthList(char **buf, int16 *len, lslpAuthBlock *list)
       _LSLP_SETBYTE(bptr, numAuths, 0);
     }
   return(ccode);
-}	
+}
 
 lslpAuthBlock *lslpUnstuffAuthList(char **buf, int16 *len, int16 *err)
 {
@@ -4471,13 +4529,13 @@ uint32 lslpCheckSum(char *s, int16 l)
 	_LSLP_SETSHORT((uint8 *)&c, a, 0 );
 	_LSLP_SETSHORT((uint8 *)&c, a, 2 );
 	return(c);
-}	
+}
 
 
 lslpHdr * lslpAllocHdr(void)
 {
   return((lslpHdr *)calloc(1, sizeof(lslpHdr)));
-}	
+}
 
 void lslpFreeHdr(lslpHdr *hdr)
 {
@@ -4485,7 +4543,7 @@ void lslpFreeHdr(lslpHdr *hdr)
   if (hdr->data != NULL)
     free(hdr->data);
   free(hdr);
-}	
+}
 
 void lslpDestroySrvReq(struct lslp_srv_req *r, char flag)
 {
@@ -4502,7 +4560,7 @@ void lslpDestroySrvReq(struct lslp_srv_req *r, char flag)
     lslpFreeSPIList(r->spiList);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-}	
+}
 
 void lslpDestroySrvRply(struct lslp_srv_rply *r, char flag)
 {
@@ -4513,7 +4571,7 @@ void lslpDestroySrvRply(struct lslp_srv_rply *r, char flag)
     lslpFreeAtomList(r->attr_list, LSLP_DESTRUCTOR_DYNAMIC);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-}	
+}
 
 void lslpDestroySrvReg(struct lslp_srv_reg *r, char flag)
 {
@@ -4530,14 +4588,14 @@ void lslpDestroySrvReg(struct lslp_srv_reg *r, char flag)
     lslpFreeAuthList(r->attrAuthList);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-}	
+}
 
 void lslpDestroySrvAck(struct lslp_srv_ack *r, char flag)
 {
   PEGASUS_ASSERT(r != NULL);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-}	
+}
 
 void lslpDestroyDAAdvert(struct lslp_da_advert *r, char flag)
 {
@@ -4554,7 +4612,7 @@ void lslpDestroyDAAdvert(struct lslp_da_advert *r, char flag)
     lslpFreeAuthList(r->authBlocks);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-}	
+}
 
 void lslpDestroySAAdvert(struct lslp_sa_advert *r, char flag)
 {
@@ -4569,7 +4627,7 @@ void lslpDestroySAAdvert(struct lslp_sa_advert *r, char flag)
     lslpFreeAuthList(r->authBlocks);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-}	
+}
 
 void lslpDestroySrvTypeReq(struct lslp_srvtype_req *r, char flag)
 {
@@ -4583,7 +4641,7 @@ void lslpDestroySrvTypeReq(struct lslp_srvtype_req *r, char flag)
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
   return;
-}	
+}
 
 void lslpDestroySrvTypeReply(struct lslp_srvtype_rep *r, char flag)
 {
@@ -4592,8 +4650,8 @@ void lslpDestroySrvTypeReply(struct lslp_srvtype_rep *r, char flag)
     free(r->srvTypeList);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-  return;	
-}	
+  return;
+}
 
 void lslpDestroyAttrReq(struct lslp_attr_req *r, char flag)
 {
@@ -4607,11 +4665,11 @@ void lslpDestroyAttrReq(struct lslp_attr_req *r, char flag)
   if (r->tagList != NULL)
     free(r->tagList);
   if (r->spiList != NULL)
-    lslpFreeSPIList(r->spiList);			
+    lslpFreeSPIList(r->spiList);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-  return;	
-}	
+  return;
+}
 
 void lslpDestroyAttrReply(struct lslp_attr_rep *r, char flag)
 {
@@ -4622,9 +4680,9 @@ void lslpDestroyAttrReply(struct lslp_attr_rep *r, char flag)
     lslpFreeAuthList(r->authBlocks);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-  return;	
-	
-}	
+  return;
+
+}
 
 void lslpDestroySrvDeReg(struct lslp_srv_dereg *r, char flag)
 {
@@ -4637,8 +4695,8 @@ void lslpDestroySrvDeReg(struct lslp_srv_dereg *r, char flag)
     free(r->tagList);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
-  return;	
-}	
+  return;
+}
 
 
 lslpMsg *alloc_slp_msg(BOOL head)
@@ -4699,7 +4757,7 @@ void lslpDestroySLPMsg(lslpMsg *msg, char flag)
   if (msg->dynamic == LSLP_DESTRUCTOR_DYNAMIC)
     free(msg);
   return;
-}	
+}
 
 /* a is an attribute list, while b is a string representation of an ldap filter  */
 BOOL lslp_predicate_match(lslpAttrList *a, char *b)
@@ -4794,7 +4852,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	      break;
 	  } /* while traversing extensions */
 	} /* if there is an extension */
-	
+
 
 	reg = client->regs.next;
 	extptr = client->_scratch;
@@ -4980,7 +5038,7 @@ BOOL lslp_pattern_match(const char *string, const char *pattern, BOOL case_sensi
 	    break;
 	  }
 	} else if (start == s) {
-	
+
 	  break;
 	}
       }
@@ -5047,12 +5105,12 @@ void lslp_print_srv_rply(lslpMsg *srvrply)
 
       url_list = srvrply->msg.srvRply.urlList->next;
       while( ! _LSLP_IS_HEAD(url_list)){
-	
+
 	if(NULL != url_list->url)
 	  printf("URL: %s\n", url_list->url);
 	else
 	  printf("URL: \n");
-	
+
 	/* see if there are attributes to print */
 	if(NULL != url_list->attrs && ! _LSLP_IS_HEAD(url_list->attrs->next)){
 	  lslpAtomList *attrs = url_list->attrs->next;
@@ -5062,7 +5120,7 @@ void lslp_print_srv_rply(lslpMsg *srvrply)
 	  } /* while traversing attr list */
 	} /* if attr list */
 	url_list = url_list->next;
-	
+
       } /* while traversing url list */
     } /* if there are urls to print */
     /* print the record separator */
@@ -5090,12 +5148,12 @@ void lslp_print_srv_rply_parse(lslpMsg *srvrply, char fs, char rs)
 
       url_list = srvrply->msg.srvRply.urlList->next;
       while( ! _LSLP_IS_HEAD(url_list)) {
-	
+
 	if(NULL != url_list->url)
 	  printf("%s%c", url_list->url, fs);
 	else
 	  printf("%c", fs);
-	
+
 	/* see if there are attributes to print */
 	if(NULL != url_list->attrs && ! _LSLP_IS_HEAD(url_list->attrs->next)) {
 	  lslpAtomList *attrs = url_list->attrs->next;
@@ -5109,15 +5167,15 @@ void lslp_print_srv_rply_parse(lslpMsg *srvrply, char fs, char rs)
 	} else {  /* if no attr list, print the record separator  */
 	  printf("%c", rs);
 	  dont_print_extra_rs = TRUE;
-	
+
 	}
-	
+
 	url_list = url_list->next;
 	/* if there is another url, print a record separator */
 	/* also print the first four fields so the consuming program's */
 	/* parser doesn't get upset */
 	if( ! _LSLP_IS_HEAD(url_list) && dont_print_extra_rs == FALSE) {
-	
+
 	  printf("%c", rs);
 	  printf("%d%c%d%c%d%c",
 		 srvrply->msg.srvRply.errCode,
@@ -5127,7 +5185,7 @@ void lslp_print_srv_rply_parse(lslpMsg *srvrply, char fs, char rs)
 		 srvrply->msg.srvRply.urlLen,
 		 fs);
 	}
-	
+
       } /* while traversing url list */
 
     } /* if there are urls to print */
@@ -5171,10 +5229,15 @@ SLP_STORAGE_DECL BOOL test_service_type(char *type)
 {
   char * temp;
   BOOL ccode;
-  temp = strdup(type);
+
   if(type == NULL || ! strlen(type))
     return FALSE;
-  if(temp == NULL) abort();
+  temp = strdup(type);
+  if(temp == NULL) {
+     printf("Memory allocation failed in file %s at Line number %d\n",
+             __FILE__, __LINE__);
+     exit(1);
+  }
   ccode = lslp_pattern_match( "service:*", temp, FALSE);
   free(temp);
     return ccode;
@@ -5189,7 +5252,12 @@ SLP_STORAGE_DECL BOOL test_service_type_reg(char *type)
   if(type == NULL || ! strlen(type))
     return FALSE;
   temp = strdup(type);
-  if(temp == NULL) abort();
+  if(temp == NULL)
+  {
+     printf("Memory allocation failed in file %s at Line number %d\n",
+             __FILE__, __LINE__);
+     exit(1);
+  }
   ccode = lslp_pattern_match(temp, "service:*", FALSE);
   free(temp);
     return ccode;
@@ -5205,7 +5273,12 @@ SLP_STORAGE_DECL BOOL test_url(char *url)
   if(url == NULL)
     return FALSE;
   temp = strdup(url);
-  if(temp == NULL) abort();
+  if(temp == NULL)
+  {
+      printf("Memory allocation failed in file %s at Line number %d\n",
+             __FILE__, __LINE__);
+      exit(1);
+  }
   aurl = _lslpDecodeURLs(&temp, 1);
   free(temp);
   if(aurl != NULL){
@@ -5226,8 +5299,12 @@ SLP_STORAGE_DECL BOOL test_attribute(char *attr)
     return TRUE;
 
   temp = strdup(attr);
-  if(temp == NULL) abort();
-
+  if(temp == NULL)
+  {
+     printf("Memory allocation failed in file %s at Line number %d\n",
+            __FILE__, __LINE__);
+     exit(1);
+  }
   attr_list = _lslpDecodeAttrString(temp);
   free(temp);
 
@@ -5252,7 +5329,12 @@ SLP_STORAGE_DECL BOOL test_scopes(char *scopes)
     return TRUE;
 
   temp = strdup(scopes);
-  if(temp == 0 ) abort();
+  if(temp == 0 )
+  {
+      printf("Memory allocation failed in file %s at Line number %d\n",
+             __FILE__, __LINE__);
+      exit(1);
+  }
   ccode = lslp_islegal_scope(temp);
   free(temp);
 
@@ -5271,7 +5353,12 @@ SLP_STORAGE_DECL BOOL test_predicate(char *predicate)
     return TRUE;
 
   temp = strdup(predicate);
-  if(temp == 0) abort();
+  if(temp == 0)
+  {
+      printf("Memory allocation failed in file %s at Line number %d\n",
+             __FILE__, __LINE__);
+      exit(1);
+  }
   filter = _lslpDecodeLDAPFilter(temp);
   free(temp);
   if(filter != NULL) {

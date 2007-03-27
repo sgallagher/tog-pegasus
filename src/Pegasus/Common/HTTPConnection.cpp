@@ -379,7 +379,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _transferEncodingChunkOffset = 0;
                 _mpostPrefix.clear();
                 cimException = CIMException();
-                _responsePending = true;
             }
             else
             {
@@ -962,6 +961,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         //
 
         _requestCount--;
+        _responsePending = false;
 
         if (httpStatus.size() == 0)
         {
@@ -989,7 +989,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     Tracer::LEVEL3,
                     "HTTPConnection::_handleWriteEvent - Connection: Close "
                         "in client message.");
-                    _closeConnection();
+                _closeConnection();
             }
             else
             {
@@ -998,7 +998,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _monitor->setState (_entry_index, _MonitorEntry::IDLE);
                 _monitor->tickle();
             }
-            _responsePending = false;
             cimException = CIMException();
         }
     }
@@ -1936,15 +1935,12 @@ void HTTPConnection::_handleReadEvent()
 
     // -- Append all data waiting on socket to incoming buffer:
 
-    String httpStatus;
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
 
     for (;;)
     {
-        // save one for null
-        char buffer[httpTcpBufferSize+1];
-        buffer[sizeof(buffer)-1] = 0;
+        char buffer[httpTcpBufferSize];
 
         Sint32 n = _socket->read(buffer, sizeof(buffer)-1);
 
@@ -1973,22 +1969,14 @@ void HTTPConnection::_handleReadEvent()
 
         try
         {
-            buffer[n] = 0;
-            // important: always keep message buffer null terminated for easy
-            // string parsing!
-            Uint32 size = _incomingBuffer.size() + n;
-            _incomingBuffer.reserveCapacity(size + 1);
+            _incomingBuffer.reserveCapacity(_incomingBuffer.size() + n);
             _incomingBuffer.append(buffer, n);
-            // put a null on it. This is safe sice we have reserved an
-            // extra byte
-            char *data = (char *)_incomingBuffer.getData();
-            data[size] = 0;
         }
         catch (...)
         {
             static const char detailP[] =
                 "Unable to append the request to the input buffer";
-            httpStatus =
+            String httpStatus =
                 HTTP_STATUS_REQUEST_TOO_LARGE + httpDetailDelimiter + detailP;
             _handleReadEventFailure(httpStatus);
             PEG_METHOD_EXIT();
@@ -2020,12 +2008,7 @@ void HTTPConnection::_handleReadEvent()
     }
     catch (Exception& e)
     {
-        httpStatus = e.getMessage();
-    }
-
-    if (httpStatus.size() > 0)
-    {
-        _handleReadEventFailure(httpStatus);
+        _handleReadEventFailure(e.getMessage());
         PEG_METHOD_EXIT();
         return;
     }
@@ -2039,12 +2022,32 @@ void HTTPConnection::_handleReadEvent()
         (_contentLength != -1 && _contentOffset != -1 &&
         (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset)))
     {
+        // If no message was received, just close the connection
+        if (_incomingBuffer.size() == 0)
+        {
+            _clearIncoming();
+
+            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
+                "<!-- No request message received; connection closed: "
+                    "queue id: %u -->",
+                getQueueId()));
+            _closeConnection();
+
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                "_requestCount = %d", _requestCount.get()));
+
+            PEG_METHOD_EXIT();
+            return;
+        }
+
+        // A message was received, so process it.  If the connection was
+        // closed, we will handle that in the next iteration.
+
         HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
         message->ipAddress = _ipAddress;
-
-        // add any content languages
         message->contentLanguages = contentLanguages;
+        message->dest = _outputMessageQueue->getQueueId();
 
         if (_isClient() == false)
         {
@@ -2057,15 +2060,12 @@ void HTTPConnection::_handleReadEvent()
         //
         // increment request count
         //
-        if (bytesRead > 0)
-        {
-            _requestCount++;
-            _connectionRequestCount++;
-        }
+        _requestCount++;
+        _connectionRequestCount++;
+        _responsePending = true;
+
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "_requestCount = %d", _requestCount.get());
-        message->dest = _outputMessageQueue->getQueueId();
-//        SendForget(message);
 
         //
         // Set the entry status to BUSY.
@@ -2077,6 +2077,7 @@ void HTTPConnection::_handleReadEvent()
             _monitor->setState (_entry_index, _MonitorEntry::BUSY);
             _monitor->tickle();
         }
+
         try
         {
             _outputMessageQueue->enqueue(message);
@@ -2089,23 +2090,6 @@ void HTTPConnection::_handleReadEvent()
         }   
 
         _clearIncoming();
-
-        if (bytesRead == 0)
-        {
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
-                "HTTPConnection::_handleReadEvent - bytesRead == 0 - "
-                    "Connection being closed.");
-            _closeConnection();
-
-            //
-            // decrement request count
-            //
-            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                "_requestCount = %d", _requestCount.get());
-
-            PEG_METHOD_EXIT();
-            return;
-        }
     }
     PEG_METHOD_EXIT();
 }
@@ -2119,7 +2103,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 {
     Boolean handled_events = false;
     int events = 0;
-    fd_set fdread; // , fdwrite;
+    fd_set fdread;
     struct timeval tv = { 0, 1 };
     FD_ZERO(&fdread);
     FD_SET(getSocket(), &fdread);

@@ -239,16 +239,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
-    deleteMessage = true;
+    PEGASUS_ASSERT(httpMessage->message.size() != 0);
 
-    // ATTN-RK-P3-20020408: This check probably shouldn't be necessary, but
-    // we're getting an empty message when the client closes the connection
-    if (httpMessage->message.size() == 0)
-    {
-        // The message is empty; just drop it
-        PEG_METHOD_EXIT();
-        return;
-    }
+    deleteMessage = true;
 
     //
     // Save queueId:

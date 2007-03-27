@@ -327,6 +327,13 @@ Buffer WbemExecClient::issueRequest(const Buffer& request)
 
     HTTPMessage* httpRequest = new HTTPMessage(request);
 
+    // Note:  A historical defect in the calculation of the Content-Length
+    // header makes it possible that wbemexec input files exist with a
+    // Content-Length value one larger than the actual content size.  Adding
+    // and extra newline character to the end of the message keeps those old
+    // scripts working.
+    httpRequest->message << "\n";
+
     _authenticator.setRequestMessage(httpRequest);
 
     Boolean haveBeenChallenged = false;
@@ -464,13 +471,6 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
             newMessageBuffer << messageStart << HTTP_CRLF;
             newMessageBuffer << authHeader << HTTP_CRLF;
             newMessageBuffer << headerStart;
-            // Note:  It is not necessary to add a newline character at the
-            // end of the message.  However, a historical defect in the
-            // calculation of the Content-Length header makes it possible that
-            // wbemexec input files exist with a Content-Length value one
-            // larger than the actual content size.  Adding this character to
-            // the end keeps those old scripts working.
-            newMessageBuffer << "\n";
 
             HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
             delete httpMessage;

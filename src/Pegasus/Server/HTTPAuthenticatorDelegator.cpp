@@ -826,7 +826,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // The following is processing to unwrap (decrypt) the request
             // from the client when using kerberos authentication.
             sa->unwrapRequestMessage(
-                httpMessage->message, contentLength, authenticated, sendAction);
+                httpMessage->message, 
+                contentLength, 
+                isRequestAuthenticated, 
+                sendAction);
 
             if (sendAction)  // send success or send response
             {

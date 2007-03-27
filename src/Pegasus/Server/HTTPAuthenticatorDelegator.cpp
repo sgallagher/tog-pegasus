@@ -687,8 +687,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "HTTPAuthenticatorDelegator - M-POST/POST processing start"));
 
-        httpMessage->message.append('\0');
-
         if (!isRequestAuthenticated && enableAuthentication)
         {
             //

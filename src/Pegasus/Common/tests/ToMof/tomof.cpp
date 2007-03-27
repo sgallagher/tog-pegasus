@@ -53,9 +53,8 @@ static Boolean verbose;
 
 // Local function to compare created buffer and a result char array
 
-bool resultTest(Buffer& buffer, const char * result)
+bool resultTest(const Buffer& buffer, const char * result)
 {
-    buffer.append('\0');
     if (strcmp(buffer.getData(), result) == 0)
     {
         return true;
@@ -117,7 +116,6 @@ void test03()
         // Test the mof creation for instance definition
         Buffer tmp1;
         MofWriter::appendPropertyElement(false, tmp1, p1);
-        tmp1.append('\0');
         const char * instanceCompare = "\nmessage = \"Hi There\";";
 
         PEGASUS_TEST_ASSERT(resultTest(tmp1,instanceCompare));

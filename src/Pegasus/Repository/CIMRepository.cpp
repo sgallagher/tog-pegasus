@@ -455,7 +455,8 @@ void _LoadObject(
 
     if (!FileSystem::existsNoCase(path, realPath))
     {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, path + " does not exist.");
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            path + " does not exist.");
         PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
     }
@@ -466,15 +467,9 @@ void _LoadObject(
 
     Buffer data;
 
-    _LoadFileToMemory(data, realPath);    // PEP214
-
-    data.append('\0');
+    _LoadFileToMemory(data, realPath);
 
     streamer->decode(data, 0, object);
-
-    //XmlParser parser((char*)data.getData());
-
-    //XmlReader::getObject(parser, object);
 
     PEG_METHOD_EXIT();
 }

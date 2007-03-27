@@ -553,9 +553,6 @@ void outputFormatInstance(const OutputType format, CIMInstance& instance)
 
         Buffer x;
         MofWriter::appendInstanceElement(x, instance);
-
-        x.append('\0');
-
         mofFormat(cout, x.getData(), 4);
     }
 }
@@ -605,9 +602,6 @@ void outputFormatClass(const OutputType format, CIMClass& myClass)
         }
         Buffer x;
         MofWriter::appendClassElement(x, myClass);
-
-        x.append('\0');
-
         mofFormat(cout, x.getData(), 4);
     }
     else
@@ -639,9 +633,6 @@ void outputFormatQualifierDecl(const OutputType format, const CIMQualifierDecl& 
     {
         Buffer x;
         MofWriter::appendQualifierDeclElement(x, myQualifierDecl);
-
-        x.append('\0');
-
         mofFormat(cout, x.getData(), 4);
     }
     else
@@ -660,9 +651,6 @@ void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
     {
         Buffer x;
         MofWriter::appendValueElement(x, myValue);
-
-        x.append('\0');
-
         mofFormat(cout, x.getData(), 4);
     }
     else

@@ -894,18 +894,14 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 #ifdef PEGASUS_CLIENT_TRACE_ENABLE
     if (_showOutput & 1)
     {
-        buffer.append('\0');
         XmlWriter::indentedPrint(cout, buffer.getData());
         cout << endl;
-        buffer.remove(buffer.size() - 1);
     }
     if (_showOutput & 2)
     {
-        buffer.append('\0');
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "CIMOperationRequestEncoder::SendRequest, XML content: $1",
             buffer.getData());
-        buffer.remove(buffer.size() - 1);
     }
 #endif
 

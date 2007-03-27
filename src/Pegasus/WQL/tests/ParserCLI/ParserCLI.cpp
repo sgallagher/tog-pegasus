@@ -119,8 +119,6 @@ int main(int argc, char** argv)
     	    text.append("\n", 1);
     }
 
-    text.append('\0');
-
     if (verbose)
         cout << text.getData() << endl;
 

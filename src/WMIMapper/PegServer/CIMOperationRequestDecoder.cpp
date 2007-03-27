@@ -382,16 +382,11 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       }
    }
 
-   // Zero-terminate the message:
-
-   httpMessage->message.append('\0');
-
    // Calculate the beginning of the content from the message size and
-   // the content length.  Subtract 1 to take into account the null
-   // character we just added to the end of the message.
+   // the content length.
 
    content = (char *) httpMessage->message.getData() +
-   httpMessage->message.size() - contentLength - 1;
+       httpMessage->message.size() - contentLength;
 
    // Validate the "Content-Type" header:
 

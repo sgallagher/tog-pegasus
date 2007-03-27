@@ -194,7 +194,6 @@ String CIMObject::toString() const
 
     _checkRep();
     _rep->toXml(out);
-    out.append('\0');
 
     return out.getData();
 }
@@ -359,7 +358,6 @@ String CIMConstObject::toString() const
 
     _checkRep();
     _rep->toXml(out);
-    out.append('\0');
 
     return out.getData();
 }

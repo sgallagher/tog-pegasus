@@ -182,17 +182,11 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
     if (_showInput & 2)
     {
-        Uint32 size = httpMessage->message.size();
-        char* tmpBuf = new char[size+1];
-
-        strncpy( tmpBuf, httpMessage->message.getData(), size );
-        tmpBuf[size] = '\0';
         Logger::put(Logger::STANDARD_LOG,
             System::CIMSERVER,
             Logger::TRACE,
             "CIMOperationRequestDecoder::Response, XML content: $1",
-            tmpBuf);
-        delete []tmpBuf;
+            httpMessage->message.getData());
     }
 #endif
 
@@ -405,17 +399,11 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
 
 
-    //
-    // Zero-terminate the message:
-    //
-    httpMessage->message.append('\0');
-
     // Calculate the beginning of the content from the message size and
-    // the content length.  Subtract 1 to take into account the null
-    // character we just added to the end of the message.
+    // the content length.
 
     content = (char *) httpMessage->message.getData() +
-        httpMessage->message.size() - contentLength - 1;
+        httpMessage->message.size() - contentLength;
 
     //
     // If it is a method response, then dispatch it to be handled:

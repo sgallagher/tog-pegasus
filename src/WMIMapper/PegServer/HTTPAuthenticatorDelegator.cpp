@@ -303,12 +303,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "HTTPAuthenticatorDelegator - M-POST/POST processing start");
 
-        httpMessage->message.append('\0');
-
         //
         // Search for Authorization header:
         //
-        String authorization = String::EMPTY;
+        String authorization;
 
         //
         // Do not require authentication for indication delivery 
@@ -522,28 +520,16 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // terminates the headers so the headers and content can be
             // easily separated.
 
-            // IMPORTANT - NOTE NOTE NOTE - IMPORTANT
-            // Need to increase the content size by one because earlier a
-            // NULL terminator was added causing the unwrap to think that the
-            // wrapped message has a bad signature.  Anything that was added
-            // to the content portion must be handled otherwise unwrap will
-            // return an error.  So if additional characters are added in the
-            // future the content size needs to be adjusted.
-            int charsAdded = 1; // increase by the number of chars added to content
-            contentLength = contentLength + charsAdded;
-
             // Extract the unwrapped headers
-            for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength); i++)
+            for (Uint32 i = 0; i < httpMessage->message.size() - contentLength;
+                 i++)
             {
                 header_buffer.append(httpMessage->message[i]);
             }
 
             // Extract the wrapped content
-            // Note: Need to decrease the message size by the number of
-            // characters added to content.  See important note above
-            // regarding content size.
-            for (Uint32 i = (httpMessage->message.size()-contentLength);
-                 i < (httpMessage->message.size()-charsAdded); i++)
+            for (Uint32 i = httpMessage->message.size() - contentLength;
+                 i < httpMessage->message.size(); i++)
             {
                 inWrappedMessage.append(httpMessage->message[i]);
             }

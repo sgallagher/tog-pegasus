@@ -69,7 +69,7 @@ void test01()
 	"WHERE x > 5 AND y < 25 AND z > 1.2";
 
     //
-    //  Will test WQLParser::parse(const Array<Sint8>&, WQLSelectStatement&)
+    //  Will test WQLParser::parse(const Buffer&, WQLSelectStatement&)
     //  and WQLParser::parse(const char*, WQLSelectStatement&) forms
     //
     Buffer text;

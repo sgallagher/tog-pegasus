@@ -669,7 +669,6 @@ void PrintClass(
     cout << "<pre>";
     Buffer x;
     MofWriter::appendClassElement(x, cimClass);
-    x.append('\0');
 
     mofFormat(cout, x.getData(), 4);
 
@@ -723,7 +722,6 @@ const CIMNamespaceName& nameSpace,
     cout << "<pre>";
     Buffer x;
     MofWriter::appendInstanceElement(x, cimInstance);
-    x.append('\0');
 
     mofFormat(cout, x.getData(), 4);
 
@@ -1073,7 +1071,6 @@ void PrintGetQualifier(
     cout << "<pre>";
     Buffer x;
     MofWriter::appendQualifierDeclElement(x, qualifierDecl);
-    x.append('\0');
     mofFormat(cout, x.getData(), 4);
     cout << "</pre>\n";
 
@@ -1626,7 +1623,6 @@ static void EnumerateInstances(const CGIQueryString& qs)
             cout << "<pre>";
             Buffer x;
             MofWriter::appendInstanceElement(x, instances[i]);
-            x.append('\0');
 
             mofFormat(cout, x.getData(), 4);
             cout << "</pre><br><br>";

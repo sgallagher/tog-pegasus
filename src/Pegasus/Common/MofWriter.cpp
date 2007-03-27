@@ -569,7 +569,6 @@ void MofWriter::printClassElement(
 {
     Buffer tmp;
     appendClassElement(tmp, cimclass);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 

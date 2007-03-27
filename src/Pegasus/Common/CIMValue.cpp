@@ -1773,8 +1773,6 @@ String CIMValue::toString() const
         }
     }
 
-    out.append('\0');
-
     return out.getData();
 }
 

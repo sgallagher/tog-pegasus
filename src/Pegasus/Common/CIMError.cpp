@@ -590,7 +590,6 @@ void CIMError::print() const
 {
     Buffer buf;
     MofWriter::appendInstanceElement(buf, _inst);
-    buf.append('\0');
     printf("%.*s\n", int(buf.size()), buf.getData());
 }
 

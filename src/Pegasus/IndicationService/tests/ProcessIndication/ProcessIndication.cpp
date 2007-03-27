@@ -144,7 +144,6 @@ Boolean _checkIndicationLog
         {
             Buffer contents;
             FileSystem::loadFileToMemory (contents, indicationLogFileName);
-            contents.append ('\0');
             const char * theLog = contents.getData ();
             String log (theLog);
             Uint32 newline;

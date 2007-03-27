@@ -358,9 +358,6 @@ int main(int argc, char** argv)
         {
         Buffer x;
         MofWriter::appendInstanceElement(x, instance);
-
-        x.append('\0');
-
         mofFormat(cout, x.getData(), 4);
         }
 

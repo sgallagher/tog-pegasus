@@ -58,7 +58,6 @@ static void testGetErrorElement()
     CIMException cimException;
     Buffer text;
     FileSystem::loadFileToMemory(text, "./getErrorElement.xml");
-    text.append('\0');
 
     CIMStatusCode errorCode = CIM_ERR_NO_SUCH_PROPERTY;
     String errorDescription = " The specified Property does not exist.";
@@ -103,7 +102,6 @@ static void testGetInstanceElement(const char* testDataFile)
     CIMInstance cimInstance;
     Buffer text;
     FileSystem::loadFileToMemory(text, testDataFile);
-    text.append('\0');
 
     XmlParser parser((char*)text.getData());
 
@@ -173,7 +171,6 @@ static void testGetInstanceElement2(const char* testDataFile)
     CIMInstance cimInstance;
     Buffer text;
     FileSystem::loadFileToMemory(text, testDataFile);
-    text.append('\0');
 
     XmlParser parser((char*)text.getData());
 

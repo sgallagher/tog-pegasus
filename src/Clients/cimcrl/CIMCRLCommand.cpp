@@ -420,17 +420,14 @@ Buffer CIMCRLCommand::_readCRLContent(const String &certFilePath)
     //  Check that cert file exists
     //
     if (!FileSystem::exists (certFilePath))
-
     {
-        NoSuchFile e (certFilePath);
-        throw e;
+        throw NoSuchFile(certFilePath);
     }
 
     //
     //  Load file context to memory
     //
     FileSystem::loadFileToMemory (content, certFilePath);
-    content.append ('\0');
 
     return content;
 }
@@ -529,7 +526,7 @@ void CIMCRLCommand::_listCRL (
     ostream&     outPrintWriter)
 {
     Array<CIMInstance> crlNamedInstances;
-    Boolean	       issuerFound = false;
+    Boolean issuerFound = false;
 
     //
     // get all the instances of class PG_SSLCertificateRevocationList

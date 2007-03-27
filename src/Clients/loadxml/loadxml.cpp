@@ -206,7 +206,6 @@ static void _processFile(const char* xmlFileName,
     Array<Sint8> text;
     text.reserve(1024 * 1024);
     FileSystem::loadFileToMemory(text, xmlFileName);
-    text.append('\0');
     XmlParser parser((char*)text.getData());
 
     CIMRepository repository(repositoryRoot);

@@ -55,7 +55,6 @@ void PutClass(const char* filename, const CIMClass& cimClass)
     Buffer out;
     XmlStreamer stream;
     stream.encode(out, cimClass);
-    out.append('\0');
 
     FILE* fp = fopen(filename, "wb");
     PEGASUS_TEST_ASSERT(fp != NULL);

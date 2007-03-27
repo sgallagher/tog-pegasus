@@ -51,7 +51,6 @@ static void _processFile(const char* fileName)
 {
     Buffer text;
     FileSystem::loadFileToMemory(text, fileName);
-    text.append('\0');
 
     XmlParser parser((char*)text.getData());
     XmlEntry entry;

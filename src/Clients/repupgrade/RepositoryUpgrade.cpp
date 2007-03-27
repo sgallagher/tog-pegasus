@@ -1988,7 +1988,6 @@ void RepositoryUpgrade::_logRequestToFile(
                 //
                 //  Print XML response to the ostream
                 //
-                data.append('\0');
                 const char* content = data.getData() + contentOffset;
 
                 ofstream outFile(fileName.getCString(), ios::app);

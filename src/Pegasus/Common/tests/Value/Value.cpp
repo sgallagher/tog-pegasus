@@ -121,7 +121,6 @@ void test01(const T& x)
         Buffer mofout;
         mofout.clear();
         MofWriter::appendValueElement(mofout, v);
-        mofout.append('\0');
 
         // Test toXml
         Buffer out;
@@ -161,11 +160,9 @@ void test01(const T& x)
         String valueString2 = v.toString();
         Buffer xmlBuffer;
         XmlWriter::appendValueElement(xmlBuffer, v);
-        xmlBuffer.append('\0');
 
         Buffer mofOutput2;
         MofWriter::appendValueElement(mofOutput2, v);
-        mofOutput2.append('\0');
 #ifdef IO
         if (verbose)
         {
@@ -240,7 +237,6 @@ void test02(const Array<T>& x)
         // Test toMof
         Buffer mofOutput;
         MofWriter::appendValueElement(mofOutput, va);
-        mofOutput.append('\0');
 
 
         // Test toXml
@@ -282,11 +278,9 @@ void test02(const Array<T>& x)
         String valueString2 = va.toString();
         Buffer xmlBuffer;
         XmlWriter::appendValueElement(xmlBuffer, va);
-        xmlBuffer.append('\0');
 
         Buffer mofOutput2;
         MofWriter::appendValueElement(mofOutput2, va);
-        mofOutput2.append('\0');
 #ifdef IO
         if (verbose)
         {

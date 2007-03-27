@@ -617,34 +617,23 @@ Buffer CIMTrustCommand::_readCertificateContent(const String &certFilePath)
     //
     //  Check that cert file exists
     //
-    if (!FileSystem::exists (certFilePath))
-
+    if (!FileSystem::exists(certFilePath))
     {
-        NoSuchFile e (certFilePath);
-        throw e;
+        throw NoSuchFile(certFilePath);
     }
 
     //
     //  Check that cert file is readable
     //
-    if (!FileSystem::canRead (certFilePath))
+    if (!FileSystem::canRead(certFilePath))
     {
-        FileNotReadable e (certFilePath);
-        throw e;
+        throw FileNotReadable(certFilePath);
     }
 
     //
     //  Load file content to memory
     //
-    try
-    {
-        FileSystem::loadFileToMemory (content, certFilePath);
-        content.append ('\0');
-    }
-    catch (const CannotOpenFile&)
-    {
-        throw;
-    }
+    FileSystem::loadFileToMemory(content, certFilePath);
 
     return content;
 }

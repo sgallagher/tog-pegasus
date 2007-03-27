@@ -375,7 +375,6 @@ void CIMQualifierList::print(PEGASUS_STD(ostream) &os) const
 {
     Buffer tmp;
     toXml(tmp);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 

@@ -767,7 +767,7 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
             XmlWriter::appendValueNamedInstanceElement(buffer, cimInstance);
 		}
 
-        XmlWriter::append(buffer, "</IRETURNVALUE>\0");
+        XmlWriter::append(buffer, "</IRETURNVALUE>");
 
         fputs((const char*)buffer.getData(), fileHandle);
 
@@ -803,7 +803,6 @@ Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndicatio
         try
         {
             FileSystem::loadFileToMemory(text, fileName);  //ATTN: Is this safe to use; what about CRLFs?
-            text.append('\0');
 
             //parse the file
             XmlParser parser((char*)text.getData());

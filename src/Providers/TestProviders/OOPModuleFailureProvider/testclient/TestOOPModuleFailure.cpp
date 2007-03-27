@@ -446,10 +446,9 @@ Sint16 _verifyIndication (
     try
     {
         Buffer contents;
-        FileSystem::loadFileToMemory (contents, indicationLogFileName);
-        contents.append ('\0');
-        const char * theLog = contents.getData ();
-        String log (theLog);
+        FileSystem::loadFileToMemory(contents, indicationLogFileName);
+        const char* theLog = contents.getData();
+        String log(theLog);
         Uint32 newline;
         newline = log.find ('\n');
         if (newline == PEG_NOT_FOUND)

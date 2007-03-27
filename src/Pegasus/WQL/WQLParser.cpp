@@ -101,13 +101,8 @@ void WQLParser::parse(
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
 
-    if (text.size() == 0 || text[text.size() - 1] != '\0')
-    {
-        PEG_METHOD_EXIT();
-	throw MissingNullTerminator();
-    }
-
     parse(text.getData(), statement);
+
     PEG_METHOD_EXIT();
 }
 

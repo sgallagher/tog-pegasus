@@ -363,17 +363,13 @@ int main(int argc, char** argv)
         CIMInstance instance = client.getInstance(nameSpace, reference);
 
         if(isXMLOutput)
-        XmlWriter::printInstanceElement(instance, cout);
+            XmlWriter::printInstanceElement(instance, cout);
         else
         {
-        Buffer x;
-        MofWriter::appendInstanceElement(x, instance);
-
-                x.append('\0');
-
-                mofFormat(cout, x.getData(), 4);
-            }
-
+            Buffer x;
+            MofWriter::appendInstanceElement(x, instance);
+            mofFormat(cout, x.getData(), 4);
+        }
     }
     catch(Exception& e)
     {

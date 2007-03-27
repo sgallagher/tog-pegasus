@@ -1406,7 +1406,6 @@ void XmlWriter::printValueElement(
 {
     Buffer tmp;
     appendValueElement(tmp, value);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1501,7 +1500,6 @@ void XmlWriter::printValueReferenceElement(
 {
     Buffer tmp;
     appendValueReferenceElement(tmp, reference, true);
-    tmp.append('\0');
     indentedPrint(os, tmp.getData());
 }
 
@@ -1551,7 +1549,6 @@ void XmlWriter::printClassElement(
 {
     Buffer tmp;
     appendClassElement(tmp, cimclass);
-    tmp.append('\0');
     indentedPrint(os, tmp.getData(), 4);
 }
 
@@ -1580,7 +1577,6 @@ void XmlWriter::printInstanceElement(
 {
     Buffer tmp;
     appendInstanceElement(tmp, instance);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1651,7 +1647,6 @@ void XmlWriter::printPropertyElement(
 {
     Buffer tmp;
     appendPropertyElement(tmp, property);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1683,7 +1678,6 @@ void XmlWriter::printMethodElement(
 {
     Buffer tmp;
     appendMethodElement(tmp, method);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1729,7 +1723,6 @@ void XmlWriter::printParameterElement(
 {
     Buffer tmp;
     appendParameterElement(tmp, parameter);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1757,7 +1750,6 @@ void XmlWriter::printParamValueElement(
 {
     Buffer tmp;
     appendParamValueElement(tmp, paramValue);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1788,7 +1780,6 @@ void XmlWriter::printQualifierElement(
 {
     Buffer tmp;
     appendQualifierElement(tmp, qualifier);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1820,7 +1811,6 @@ void XmlWriter::printQualifierDeclElement(
 {
     Buffer tmp;
     appendQualifierDeclElement(tmp, qualifierDecl);
-    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 

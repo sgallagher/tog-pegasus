@@ -45,86 +45,88 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestEncoder::CIMExportRequestEncoder(
-   MessageQueue* outputQueue,
-   const String& hostName,
-   ClientAuthenticator* authenticator)
-   : 
-   MessageQueue(PEGASUS_QUEUENAME_EXPORTREQENCODER),
-   _outputQueue(outputQueue),
-   _hostName(hostName.getCString()),
-   _authenticator(authenticator)
+    MessageQueue* outputQueue,
+    const String& hostName,
+    ClientAuthenticator* authenticator)
+    : MessageQueue(PEGASUS_QUEUENAME_EXPORTREQENCODER),
+      _outputQueue(outputQueue),
+      _hostName(hostName.getCString()),
+      _authenticator(authenticator)
 {
-    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::CIMExportRequestEncoder()");
+    PEG_METHOD_ENTER(TRC_EXPORT_CLIENT,
+        "CIMExportRequestEncoder::CIMExportRequestEncoder()");
     PEG_METHOD_EXIT();
 }
 
 CIMExportRequestEncoder::~CIMExportRequestEncoder()
 {
-    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::~CIMExportRequestEncoder()");
-     _authenticator.release();
+    PEG_METHOD_ENTER(TRC_EXPORT_CLIENT,
+        "CIMExportRequestEncoder::~CIMExportRequestEncoder()");
+    _authenticator.release();
     PEG_METHOD_EXIT();
 }
 
 void CIMExportRequestEncoder::handleEnqueue()
 {
-   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::handleEnqueue()");
-   Message* message = dequeue();
+    PEG_METHOD_ENTER(TRC_EXPORT_CLIENT,
+        "CIMExportRequestEncoder::handleEnqueue()");
+    Message* message = dequeue();
 
-   PEGASUS_ASSERT(message != 0);
+    PEGASUS_ASSERT(message != 0);
 
-   _authenticator->setRequestMessage(message);
+    _authenticator->setRequestMessage(message);
 
-   switch (message->getType())
-   {
-      case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-	 _encodeExportIndicationRequest((CIMExportIndicationRequestMessage*)message);
-	 break;
+    switch (message->getType())
+    {
+        case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+            _encodeExportIndicationRequest(
+                (CIMExportIndicationRequestMessage*)message);
+            break;
         default:
             PEGASUS_ASSERT(0);
             break;
-   }
+    }
 
-   //ATTN: Do not delete the message here.
-   //
-   // ClientAuthenticator needs this message for resending the request on
-   // authentication challenge from the server. The message is deleted in
-   // the decoder after receiving the valid response from the server.
-   //
-   //delete message;
-   PEG_METHOD_EXIT();
+    //ATTN: Do not delete the message here.
+    //
+    // ClientAuthenticator needs this message for resending the request on
+    // authentication challenge from the server. The message is deleted in
+    // the decoder after receiving the valid response from the server.
+    //
+    //delete message;
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportRequestEncoder::_encodeExportIndicationRequest(
-   CIMExportIndicationRequestMessage* message)
+    CIMExportIndicationRequestMessage* message)
 {
-   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::_encodeExportIndicationRequest()");
-   Buffer params;
+    PEG_METHOD_ENTER(TRC_EXPORT_CLIENT,
+        "CIMExportRequestEncoder::_encodeExportIndicationRequest()");
+    Buffer params;
 
-   XmlWriter::appendInstanceEParameter(
-      params, "NewIndication", message->indicationInstance);
-	
-// l10n
-   // Note:  Accept-Language will not be set in the request	
-   // We will accept the default language of the export server.
-   Buffer buffer = XmlWriter::formatSimpleEMethodReqMessage(
-      message->destinationPath.getCString(),
-      _hostName,
-      CIMName ("ExportIndication"), 
-      message->messageId, 
-      message->getHttpMethod(),
-      _authenticator->buildRequestAuthHeader(),
-      AcceptLanguageList(),
-	 ((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
-      params);
+    XmlWriter::appendInstanceEParameter(
+        params, "NewIndication", message->indicationInstance);
 
-   HTTPMessage* httpMessage = new HTTPMessage(buffer);
-   PEG_TRACE_CSTRING(
-       TRC_XML_IO,
-       Tracer::LEVEL2,
-       httpMessage->message.getData());
+    // Note:  Accept-Language will not be set in the request
+    // We will accept the default language of the export server.
+    Buffer buffer = XmlWriter::formatSimpleEMethodReqMessage(
+        message->destinationPath.getCString(),
+        _hostName,
+        CIMName("ExportIndication"),
+        message->messageId,
+        message->getHttpMethod(),
+        _authenticator->buildRequestAuthHeader(),
+        AcceptLanguageList(),
+        ((ContentLanguageListContainer)message->operationContext.get(
+            ContentLanguageListContainer::NAME)).getLanguages(),
+        params);
 
-   _outputQueue->enqueue(httpMessage);
-   PEG_METHOD_EXIT();
+    HTTPMessage* httpMessage = new HTTPMessage(buffer);
+    PEG_TRACE_CSTRING(TRC_XML_IO, Tracer::LEVEL2,
+        httpMessage->message.getData());
+
+    _outputQueue->enqueue(httpMessage);
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

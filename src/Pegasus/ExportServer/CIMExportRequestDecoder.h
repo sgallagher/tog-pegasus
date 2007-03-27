@@ -48,80 +48,79 @@ class XmlParser;
 
 /** This class decodes CIM operation requests and passes them down-stream.
  */
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder 
-   : public MessageQueueService
+class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder :
+    public MessageQueueService
 {
-   public:
+public:
 
-      typedef MessageQueueService Base;
-  
-      CIMExportRequestDecoder(
-     MessageQueueService* outputQueue,
-     Uint32 returnQueueId);
+    typedef MessageQueueService Base;
 
-      ~CIMExportRequestDecoder();
+    CIMExportRequestDecoder(
+        MessageQueueService* outputQueue,
+        Uint32 returnQueueId);
 
-      void sendResponse(
-          Uint32 queueId, 
-          Buffer& message,
-          Boolean closeConnect);
+    ~CIMExportRequestDecoder();
 
-      void sendEMethodError(
-          Uint32 queueId, 
-          HttpMethod httpMethod,
-          const String& messageId,
-          const String& methodName,
-          const CIMException& cimException,
-          Boolean closeConnect);
+    void sendResponse(
+        Uint32 queueId,
+        Buffer& message,
+        Boolean closeConnect);
 
-      void sendHttpError(
-          Uint32 queueId,
-          const String& status,
-          const String& cimError = String::EMPTY,
-          const String& messageBody = String::EMPTY,
-          Boolean closeConnect = false);
+    void sendEMethodError(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        const String& methodName,
+        const CIMException& cimException,
+        Boolean closeConnect);
 
-      virtual void handleEnqueue(Message *);
+    void sendHttpError(
+        Uint32 queueId,
+        const String& status,
+        const String& cimError = String::EMPTY,
+        const String& messageBody = String::EMPTY,
+        Boolean closeConnect = false);
 
-      virtual void handleEnqueue();
+    virtual void handleEnqueue(Message *);
 
-      void handleHTTPMessage(HTTPMessage* httpMessage);
+    virtual void handleEnqueue();
 
-// l10n
-      void handleMethodRequest(
-          Uint32 queueId,
-          HttpMethod httpMethod,
-          char* content,
-          const String& requestUri,
-          const String& cimProtocolVersionInHeader,
-          const String& cimExportMethodInHeader,
-          const String& userName,
-          const String& ipAddress,
-          const AcceptLanguageList& httpAcceptLanguages,
-          const ContentLanguageList& httpContentLanguages,
-          Boolean closeConnect);     
+    void handleHTTPMessage(HTTPMessage* httpMessage);
 
-      CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
-     Uint32 queueId,
-     XmlParser& parser, 
-     const String& messageId,
-     const String& nameSpace);
+    void handleMethodRequest(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        char* content,
+        const String& requestUri,
+        const String& cimProtocolVersionInHeader,
+        const String& cimExportMethodInHeader,
+        const String& userName,
+        const String& ipAddress,
+        const AcceptLanguageList& httpAcceptLanguages,
+        const ContentLanguageList& httpContentLanguages,
+        Boolean closeConnect);
 
-      /** Sets the flag to indicate whether or not the CIMServer is 
-      shutting down.
-      */
-      void setServerTerminating(Boolean flag);
+    CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
+        Uint32 queueId,
+        XmlParser& parser,
+        const String& messageId,
+        const String& nameSpace);
 
-   private:
+    /**
+        Sets the flag to indicate whether or not the CIMServer is
+        shutting down.
+    */
+    void setServerTerminating(Boolean flag);
 
-      MessageQueue* _outputQueue;
+private:
 
-      // Queue where responses should be enqueued.
-      Uint32 _returnQueueId;
+    MessageQueue* _outputQueue;
 
-      // Flag to indicate whether or not the CIMServer is shutting down.
-      Boolean _serverTerminating;
+    // Queue where responses should be enqueued.
+    Uint32 _returnQueueId;
 
+    // Flag to indicate whether or not the CIMServer is shutting down.
+    Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

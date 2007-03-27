@@ -68,9 +68,9 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     String startLine;
     String connectClose;
 
-    //    
-    //  Check for empty HTTP response message    
-    //    
+    //
+    //  Check for empty HTTP response message
+    //
     if (httpMessage->message.size() == 0)
     {
         MessageLoaderParms mlParms(
@@ -274,7 +274,7 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
         valid = false;
 
         PEG_METHOD_EXIT();
-        return; 
+        return;
     }
 
     PEG_METHOD_EXIT();
@@ -386,7 +386,7 @@ void HTTPExportResponseDecoder::decodeExportResponse(
                     "Unrecognized ExpMethodResponse name \"$0\"",
                     expMethodResponseName);
                 String mlString(MessageLoader::getMessage(mlParms));
-   
+
                 PEG_METHOD_EXIT();
                 throw XmlValidationError(parser.getLine(), mlString);
             }
@@ -409,7 +409,7 @@ void HTTPExportResponseDecoder::decodeExportResponse(
                     "EXPECTED_EXPMETHODRESPONSE_ELEMENT",
                 "expected EXPMETHODRESPONSE element");
             String mlString(MessageLoader::getMessage(mlParms));
-  
+
             PEG_METHOD_EXIT();
             throw XmlValidationError(parser.getLine(), mlString);
         }

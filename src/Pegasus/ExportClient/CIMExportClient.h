@@ -56,47 +56,53 @@ class Monitor;
 class CIMExportResponseDecoder;
 class CIMExportRequestEncoder;
 
-/** This class provides the interface that a client uses to communicate
+/**
+    This class provides the interface that a client uses to communicate
     with a CIMOM.
 */
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 {
-   public:
+public:
 
-      /** Constructor for a CIM Export Client object.
-      */
-      CIMExportClient(
-         Monitor* monitor,
-         HTTPConnector* httpConnector,
-         Uint32 timeoutMilliseconds = 
-                PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+    /**
+        Constructor for a CIM Export Client object.
+    */
+    CIMExportClient(
+        Monitor* monitor,
+        HTTPConnector* httpConnector,
+        Uint32 timeoutMilliseconds =
+            PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
-      // Destructor for a CIM Export Client object.
-      ~CIMExportClient();
+    // Destructor for a CIM Export Client object.
+    ~CIMExportClient();
 
-      /** Gets the timeout in milliseconds for the CIMExportClient.
-          Default is 20 seconds (20000 milliseconds).
-      */
-      Uint32 getTimeout() const
-      {
-         return _timeoutMilliseconds;
-      }
+    /**
+        Gets the timeout in milliseconds for the CIMExportClient.
+        Default is 20 seconds (20000 milliseconds).
+    */
+    Uint32 getTimeout() const
+    {
+        return _timeoutMilliseconds;
+    }
 
-      /** Sets the timeout in milliseconds for the CIMExportClient.
+    /**
+        Sets the timeout in milliseconds for the CIMExportClient.
         @param timeoutMilliseconds Defines the number of milliseconds the
         CIMExportClient will wait for a response to an outstanding request.
         If a request times out, the connection gets reset (disconnected and
         reconnected).  Default is 20 seconds (20000 milliseconds).
-      */
-      void setTimeout(Uint32 timeoutMilliseconds)
-      {
-         _timeoutMilliseconds = timeoutMilliseconds;
-         if ((_connected) && (_httpConnection != 0)) 
-           _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+    */
+    void setTimeout(Uint32 timeoutMilliseconds)
+    {
+        _timeoutMilliseconds = timeoutMilliseconds;
+        if ((_connected) && (_httpConnection != 0))
+        {
+            _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+        }
+    }
 
-      }
-
-      /** Creates an HTTP connection with the server
+    /**
+        Creates an HTTP connection with the server
         defined by the host and portNumber.
         @param host String defining the server to which the client should
         connect.
@@ -110,86 +116,88 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
             If a socket cannot be created.
         @exception CannotConnectException
             If the socket connection fails.
-      */
-      void connect(
-          const String& host,
-          const Uint32 portNumber);
+    */
+    void connect(
+        const String& host,
+        const Uint32 portNumber);
 
-      /** Creates an HTTP connection with a Listener defined by
-          the host and portNumber.
-          @param host String defining the hostname of the listener.
-          @param portNumber Uint32 defining the port number of the listener.
-          @param sslContext SSL context to use for this connection.
-          @exception AlreadyConnectedException
-              If a connection has already been established.
-          @exception InvalidLocatorException
-              If the specified address is improperly formed.
-          @exception CannotCreateSocketException
-              If a socket cannot be created.
-          @exception CannotConnectException
-              If the socket connection fails.
-      */
-      void connect(
-          const String& host,
-          const Uint32 portNumber,
-          const SSLContext& sslContext);
+    /**
+        Creates an HTTP connection with a Listener defined by
+        the host and portNumber.
+        @param host String defining the hostname of the listener.
+        @param portNumber Uint32 defining the port number of the listener.
+        @param sslContext SSL context to use for this connection.
+        @exception AlreadyConnectedException
+            If a connection has already been established.
+        @exception InvalidLocatorException
+            If the specified address is improperly formed.
+        @exception CannotCreateSocketException
+            If a socket cannot be created.
+        @exception CannotConnectException
+            If the socket connection fails.
+    */
+    void connect(
+        const String& host,
+        const Uint32 portNumber,
+        const SSLContext& sslContext);
 
 
-      /** Closes the connection with the server if the connection
+    /**
+        Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
         expected to use this method to close the open connection before
         opening a new connection.
-      */
-      void disconnect();
+    */
+    void disconnect();
 
-// l10n
-      /** Send indication message to the destination where the url input
+    /**
+        Send indication message to the destination where the url input
         parameter defines the destination.
 
         @param url String defining the destination of the indication to be sent.
         @param instance CIMInstance is the indication instance which needs to
         be sent to the destination.
         @param contentLanguages The language of the indication
-      */
-      virtual void exportIndication(
-         const String& url,
-         const CIMInstance& instance,
-         const ContentLanguageList& contentLanguages = ContentLanguageList());
+    */
+    virtual void exportIndication(
+        const String& url,
+        const CIMInstance& instance,
+        const ContentLanguageList& contentLanguages = ContentLanguageList());
 
-   private:
+private:
 
-      void _connect();
-      void _disconnect();
+    void _connect();
+    void _disconnect();
 
-      Message* _doRequest(
-          CIMRequestMessage* request,
-          Uint32 expectedResponseMessageType);
+    Message* _doRequest(
+        CIMRequestMessage* request,
+        Uint32 expectedResponseMessageType);
 
-      Monitor* _monitor;
-      HTTPConnector* _httpConnector;
-      HTTPConnection* _httpConnection;
+    Monitor* _monitor;
+    HTTPConnector* _httpConnector;
+    HTTPConnection* _httpConnection;
 
-      Uint32 _timeoutMilliseconds;
-      Boolean _connected;
-      /**
-          The CIMExportClient uses a lazy reconnect algorithm.  A reconnection
-          is necessary when the server (listener) sends a Connection: Close
-          header in the HTTP response or when a connection timeout occurs
-          while waiting for a response.  In these cases, a disconnect is
-          performed immediately and the _doReconnect flag is set.  The
-          connection is re-established only when required to perform another
-          operation.  Note that in the case of a connection timeout, the
-          challenge status must be reset in the ClientAuthenticator to allow
-          authentication to be performed properly on the new connection.
-      */
-      Boolean _doReconnect;
+    Uint32 _timeoutMilliseconds;
+    Boolean _connected;
+    /**
+        The CIMExportClient uses a lazy reconnect algorithm.  A reconnection
+        is necessary when the server (listener) sends a Connection: Close
+        header in the HTTP response or when a connection timeout occurs
+        while waiting for a response.  In these cases, a disconnect is
+        performed immediately and the _doReconnect flag is set.  The
+        connection is re-established only when required to perform another
+        operation.  Note that in the case of a connection timeout, the
+        challenge status must be reset in the ClientAuthenticator to allow
+        authentication to be performed properly on the new connection.
+    */
+    Boolean _doReconnect;
 
-      CIMExportResponseDecoder* _responseDecoder;
-      CIMExportRequestEncoder* _requestEncoder;
-      ClientAuthenticator _authenticator;
-      String _connectHost;
-      Uint32 _connectPortNumber;
-      AutoPtr<SSLContext> _connectSSLContext;
+    CIMExportResponseDecoder* _responseDecoder;
+    CIMExportRequestEncoder* _requestEncoder;
+    ClientAuthenticator _authenticator;
+    String _connectHost;
+    Uint32 _connectPortNumber;
+    AutoPtr<SSLContext> _connectSSLContext;
 };
 
 PEGASUS_NAMESPACE_END

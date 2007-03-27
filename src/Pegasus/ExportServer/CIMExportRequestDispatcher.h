@@ -46,31 +46,31 @@ PEGASUS_NAMESPACE_BEGIN
     The CIMExportRequestDispatcher receives Export Indication requests and
     dispatches them to the Provider Manager.
  */
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
-   : public MessageQueueService
+class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher :
+    public MessageQueueService
 {
-   public:
+public:
 
-      typedef MessageQueueService Base;
+    typedef MessageQueueService Base;
 
-      CIMExportRequestDispatcher();
+    CIMExportRequestDispatcher();
 
-      virtual ~CIMExportRequestDispatcher();
+    virtual ~CIMExportRequestDispatcher();
 
-   protected:
+protected:
 
-      virtual void _handle_async_request(AsyncRequest *req);
+    virtual void _handle_async_request(AsyncRequest *req);
 
-      virtual void handleEnqueue(Message *);
-      
-      virtual void handleEnqueue();
-      
-      AtomicInt dienow;
+    virtual void handleEnqueue(Message *);
 
-   private:
+    virtual void handleEnqueue();
 
-      CIMExportIndicationResponseMessage* _handleExportIndicationRequest(
-         CIMExportIndicationRequestMessage* request);
+    AtomicInt dienow;
+
+private:
+
+    CIMExportIndicationResponseMessage* _handleExportIndicationRequest(
+        CIMExportIndicationRequestMessage* request);
 };
 
 PEGASUS_NAMESPACE_END

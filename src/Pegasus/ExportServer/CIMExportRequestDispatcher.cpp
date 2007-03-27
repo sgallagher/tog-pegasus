@@ -64,14 +64,14 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::_handle_async_request");
 
-    PEGASUS_ASSERT(req != 0 && req->op != 0 );
+    PEGASUS_ASSERT(req != 0 && req->op != 0);
 
-    if ( req->getType() == async_messages::CIMSERVICE_STOP )
+    if (req->getType() == async_messages::CIMSERVICE_STOP)
     {
         req->op->processing();
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
-    else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
+    else if (req->getType() == async_messages::ASYNC_LEGACY_OP_START)
     {
         req->op->processing();
         Message *legacy =
@@ -93,7 +93,7 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMExportRequestDispatcher::_handle_async_request got "
                     "unexpected legacy message type '%u'", legacy->getType()));
-	    _make_response(req, async_results::CIM_NAK);
+            _make_response(req, async_results::CIM_NAK);
             delete legacy;
         }
     }
@@ -106,14 +106,14 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
 
 void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 {
-   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
-      "CIMExportRequestDispatcher::handleEnqueue");
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+        "CIMExportRequestDispatcher::handleEnqueue");
 
     PEGASUS_ASSERT(message != 0);
 
     switch (message->getType())
     {
-	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         {
             CIMExportIndicationResponseMessage* response =
                 _handleExportIndicationRequest(
@@ -122,13 +122,14 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
             PEG_TRACE((
                 TRC_HTTP,
                 Tracer::LEVEL3,
-                "_CIMExportRequestDispatcher::handleEnqueue(message) - message->getCloseConnect() returned %d",
+                "_CIMExportRequestDispatcher::handleEnqueue(message) - "
+                    "message->getCloseConnect() returned %d",
                 message->getCloseConnect()));
 
             response->setCloseConnect(message->getCloseConnect());
 
             SendForget(response);
-	    break;
+            break;
         }
 
         default:
@@ -146,8 +147,8 @@ void CIMExportRequestDispatcher::handleEnqueue()
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::handleEnqueue");
 
-   Message *message = dequeue();
-   if(message)
+   Message* message = dequeue();
+   if (message)
       handleEnqueue(message);
 
    PEG_METHOD_EXIT();
@@ -159,7 +160,7 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMExportIndicationRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
-      "CIMExportRequestDispatcher::_handleExportIndicationRequest");
+        "CIMExportRequestDispatcher::_handleExportIndicationRequest");
 
     OperationContext context;
 
@@ -169,14 +170,14 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &serviceIds);
     PEGASUS_ASSERT(serviceIds.size() != 0);
 
-    AsyncOpNode * op = this->get_op();
+    AsyncOpNode* op = this->get_op();
 
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
-	    op,
-	    serviceIds[0],
-	    new CIMExportIndicationRequestMessage(*request),
-	    this->getQueueId());
+            op,
+            serviceIds[0],
+            new CIMExportIndicationRequestMessage(*request),
+            this->getQueueId());
 
     asyncRequest->dest = serviceIds[0];
 

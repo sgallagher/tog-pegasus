@@ -49,45 +49,43 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportResponseEncoder::CIMExportResponseEncoder()
-   : Base(PEGASUS_QUEUENAME_EXPORTRESPENCODER)
+    : Base(PEGASUS_QUEUENAME_EXPORTRESPENCODER)
 {
-
 }
 
 CIMExportResponseEncoder::~CIMExportResponseEncoder()
 {
-
 }
 
 void CIMExportResponseEncoder::sendResponse(
-   Uint32 queueId, 
-   Buffer& message,
-   Boolean closeConnect)
+    Uint32 queueId,
+    Buffer& message,
+    Boolean closeConnect)
 {
-   MessageQueue* queue = MessageQueue::lookup(queueId);
+    MessageQueue* queue = MessageQueue::lookup(queueId);
 
-   if (queue)
-   {
-      HTTPMessage* httpMessage = new HTTPMessage(message);
+    if (queue)
+    {
+        HTTPMessage* httpMessage = new HTTPMessage(message);
 
-       httpMessage->setCloseConnect(closeConnect);
+        httpMessage->setCloseConnect(closeConnect);
 
-      queue->enqueue(httpMessage);
-   }
-   else
-   {
-      PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-         "Invalid queueId = %i, response not sent.", queueId));
-   }
+        queue->enqueue(httpMessage);
+    }
+    else
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Invalid queueId = %i, response not sent.", queueId));
+    }
 }
 
 void CIMExportResponseEncoder::sendEMethodError(
-    Uint32 queueId, 
+    Uint32 queueId,
     HttpMethod httpMethod,
     const String& messageId,
     const String& eMethodName,
     const CIMException& cimException,
-    Boolean closeConnect) 
+    Boolean closeConnect)
 {
     Buffer message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
@@ -104,76 +102,75 @@ void CIMExportResponseEncoder::sendEMethodError(
     const String& cimMethodName,
     Boolean closeConnect)
 {
-   Uint32 queueId = response->queueIds.top();
-   response->queueIds.pop();
+    Uint32 queueId = response->queueIds.top();
+    response->queueIds.pop();
 
-   sendEMethodError(
-       queueId,
-       response->getHttpMethod(),
-       response->messageId, 
-       cimMethodName, 
-       response->cimException,
-       closeConnect);
+    sendEMethodError(
+        queueId,
+        response->getHttpMethod(),
+        response->messageId,
+        cimMethodName,
+        response->cimException,
+        closeConnect);
 }
 
 void CIMExportResponseEncoder::handleEnqueue(Message *message)
 {
-   PEGASUS_ASSERT(message != 0);
+    PEGASUS_ASSERT(message != 0);
 
-   switch (message->getType())
-   {
-      case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
-	 encodeExportIndicationResponse(
-	    (CIMExportIndicationResponseMessage*)message);
-	 break;
+    switch (message->getType())
+    {
+        case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
+            encodeExportIndicationResponse(
+                (CIMExportIndicationResponseMessage*)message);
+            break;
 
         default:
             PEGASUS_ASSERT(0);
             break;
-   }
-   
-   delete message;
+    }
+
+    delete message;
 }
 
 
 void CIMExportResponseEncoder::handleEnqueue()
 {
-   Message* message = dequeue();
-   if(message)
-      handleEnqueue(message);
+    Message* message = dequeue();
+    if (message)
+        handleEnqueue(message);
 }
 
 void CIMExportResponseEncoder::encodeExportIndicationResponse(
     CIMExportIndicationResponseMessage* response)
 {
+    Boolean closeConnect = response->getCloseConnect();
+    PEG_TRACE((
+        TRC_HTTP,
+        Tracer::LEVEL3,
+        "CIMExportResponseEncoder::handleEnqueue() - "
+            "response>getCloseConnect() returned %d",
+        response->getCloseConnect()));
 
-   Boolean closeConnect = response->getCloseConnect();
-   PEG_TRACE((
-       TRC_HTTP,
-       Tracer::LEVEL3,
-       "CIMExportResponseEncoder::handleEnqueue()- response>getCloseConnect() returned %d",
-       response->getCloseConnect()));
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      sendEMethodError(response, "ExportIndication",closeConnect);
-      return;
-   }
+    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+        sendEMethodError(response, "ExportIndication",closeConnect);
+        return;
+    }
 
 
-   Buffer body;
-    
-// l10n
-   // Note: Content-Language will not be set in the response. 
-   // Export responses are sent in the default language of the
-   // ExportServer.
-   Buffer message = XmlWriter::formatSimpleEMethodRspMessage(
-      CIMName ("ExportIndication"), response->messageId, 
-      response->getHttpMethod(),
-      ContentLanguageList(),
-      body);
+    Buffer body;
 
-   sendResponse(response->queueIds.top(), message,closeConnect);
+    // Note: Content-Language will not be set in the response.
+    // Export responses are sent in the default language of the
+    // ExportServer.
+    Buffer message = XmlWriter::formatSimpleEMethodRspMessage(
+       CIMName ("ExportIndication"), response->messageId,
+       response->getHttpMethod(),
+       ContentLanguageList(),
+       body);
+
+    sendResponse(response->queueIds.top(), message,closeConnect);
 }
 
 PEGASUS_NAMESPACE_END

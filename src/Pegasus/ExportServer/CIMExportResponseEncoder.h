@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMExportResponseEncoder_h
@@ -48,41 +43,40 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** This class encodes CIM operation requests and passes them up-stream.
  */
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-   : public MessageQueueService
+class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder :
+    public MessageQueueService
 {
-   public:
-      typedef MessageQueueService Base;
-      
-      CIMExportResponseEncoder();
-      
-      ~CIMExportResponseEncoder();
-      
-      void sendResponse(
-          Uint32 queueId,
-          Buffer& message,
-          Boolean closeConnect);
-      
-      void sendEMethodError(
-          Uint32 queueId, 
-          HttpMethod httpMethod,
-          const String& messageId,
-          const String& methodName,
-          const CIMException& cimException,
-          Boolean closeConnect);
+public:
+    typedef MessageQueueService Base;
 
-      void sendEMethodError(
-          CIMResponseMessage* response,
-          const String& cimMethodName,
-          Boolean closeConnect);
+    CIMExportResponseEncoder();
 
-      virtual void handleEnqueue(Message *);
+    ~CIMExportResponseEncoder();
 
-      virtual void handleEnqueue();
+    void sendResponse(
+        Uint32 queueId,
+        Buffer& message,
+        Boolean closeConnect);
 
-      void encodeExportIndicationResponse(
-          CIMExportIndicationResponseMessage* response);
+    void sendEMethodError(
+        Uint32 queueId,
+        HttpMethod httpMethod,
+        const String& messageId,
+        const String& methodName,
+        const CIMException& cimException,
+        Boolean closeConnect);
 
+    void sendEMethodError(
+        CIMResponseMessage* response,
+        const String& cimMethodName,
+        Boolean closeConnect);
+
+    virtual void handleEnqueue(Message *);
+
+    virtual void handleEnqueue();
+
+    void encodeExportIndicationResponse(
+        CIMExportIndicationResponseMessage* response);
 };
 
 PEGASUS_NAMESPACE_END

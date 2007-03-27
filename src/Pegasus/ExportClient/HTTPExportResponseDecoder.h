@@ -145,7 +145,7 @@ public:
         @param  content           INPUT   char* containing message content
         @param  cimReconnect      INPUT   Boolean indicating whether close and
                                             reconnect are necessary
-        @param  responseMessage   OUTPUT  Message* response containing either 
+        @param  responseMessage   OUTPUT  Message* response containing either
                                             export indication response, or
                                             exception when error is detected
      */

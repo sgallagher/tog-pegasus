@@ -52,7 +52,8 @@ class XmlParser;
     The CIMExportResponseDecoder class receives HTTP messages and decodes them
     into CIM Export Response messages which it places on its output queue.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueue
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :
+    public MessageQueue
 {
 
    public:
@@ -77,12 +78,11 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
 
    private:
 
-      void _handleHTTPMessage(
-         HTTPMessage* message);
+      void _handleHTTPMessage(HTTPMessage* message);
 
-      AutoPtr<MessageQueue>        _outputQueue; //PEP101
-      AutoPtr<MessageQueue>        _encoderQueue; //PEP101
-      AutoPtr<ClientAuthenticator> _authenticator; //PEP101
+      AutoPtr<MessageQueue> _outputQueue;
+      AutoPtr<MessageQueue> _encoderQueue;
+      AutoPtr<ClientAuthenticator> _authenticator;
 };
 
 PEGASUS_NAMESPACE_END

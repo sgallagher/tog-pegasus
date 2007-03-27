@@ -992,8 +992,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     TRC_HTTP,
                     Tracer::LEVEL3,
                     "HTTPConnection::_handleWriteEvent - Connection: Close "
-                        "in client message.");
-                _closeConnection());
+                        "in client message."));
+                _closeConnection();
             }
             else
             {

@@ -207,7 +207,7 @@ int MP_Socket::ATTLS_zOS_query()
        case(TTLS_SEC_SRV_CA_REQD):
        {
            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-               "---> ATTLS Securtiy Type is valid but no SAFCHK.");
+               "---> ATTLS Security Type is valid but no SAFCHK.");
            PEG_METHOD_EXIT();
            return 1;
        }
@@ -219,7 +219,7 @@ int MP_Socket::ATTLS_zOS_query()
            _username[ioc.TTLSi_UserID_Len]=0;   // null terminated string
            __etoa(_username);                   // the user name is in EBCDIC !
            PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
-               "---> ATTLS Securtiy Type is SAFCHK. Resolved user ID \'%s\'",
+               "---> ATTLS Security Type is SAFCHK. Resolved user ID \'%s\'",
                _username));
            PEG_METHOD_EXIT();
            return 1;

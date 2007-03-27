@@ -947,7 +947,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     catch (...)
     {
         httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
-        PEG_TRACE((TRC_HTTP, Tracer::LEVEL2, "Unknown internal error"));
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2, "Unknown internal error");
     }
 
     if (isLast == true)

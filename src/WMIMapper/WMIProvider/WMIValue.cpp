@@ -271,8 +271,8 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 			}
 			catch(...)
 			{
-				PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-					"WMIValue::WMIValue - Constructor failed; setting NULL string"));
+				PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
+					"WMIValue::WMIValue - Constructor failed; setting NULL string");
 					val.setNullValue(CIMTYPE_STRING, false, 0);
 			}
 

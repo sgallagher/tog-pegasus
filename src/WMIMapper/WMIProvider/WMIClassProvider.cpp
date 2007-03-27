@@ -677,8 +677,8 @@ void WMIClassProvider::performInitialCheck(const CIMClass& newClass,
 	// check if class already exists, just for createClass calls
 	if ((classAlreadyExists(newClass.getClassName().getString())) && (!updateClass))
 	{
-		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIClassProvider::performInitialCheck - class already exists, throw CIM_ERR_ALREADY_EXISTS exception"));
+		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
+			"WMIClassProvider::performInitialCheck - class already exists, throw CIM_ERR_ALREADY_EXISTS exception");
 
 		throw CIMException(CIM_ERR_ALREADY_EXISTS);
 	}

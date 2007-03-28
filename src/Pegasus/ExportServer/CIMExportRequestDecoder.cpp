@@ -163,23 +163,12 @@ void CIMExportRequestDecoder::handleEnqueue()
 
 void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 {
-    // Save queueId:
+    PEGASUS_ASSERT(httpMessage->message.size() != 0);
+
+    // Save queueId and userName
 
     Uint32 queueId = httpMessage->queueId;
-
-    // Save userName:
-
-    String userName;
-
-    // Bug #351:
-    if (httpMessage->message.size() == 0)
-    {
-        // The message is empty; just drop it. The connection has
-        // probably closed.
-        return;
-    }
-    // </bug>
-    userName = httpMessage->authInfo->getAuthenticatedUser();
+    String userName = httpMessage->authInfo->getAuthenticatedUser();
 
     Boolean closeConnect = httpMessage->getCloseConnect();
     PEG_TRACE((

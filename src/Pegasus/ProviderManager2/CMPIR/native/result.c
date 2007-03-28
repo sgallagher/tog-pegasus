@@ -114,6 +114,12 @@ static CMPIStatus __rft_returnData ( CONST CMPIResult * result,
         return rc;
     }
 
+    if (!val)
+    {
+        CMReturn (CMPI_RC_ERR_INVALID_PARAMETER);
+    }
+
+
     if ( r->current == 0 ) {
 
         CMPIStatus rc;

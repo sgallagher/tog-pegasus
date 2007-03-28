@@ -46,7 +46,6 @@
 #define PEGASUS_CMPIR_CHAR void
 #define PEGASUS_CMPIR_CLOSESOCKET(socket_hdl) close(socket_hdl)
 #define PEGASUS_CMPIR_ERROR(h_error) hstrerror(h_errno)
-#define PEGASUS_CMPIR_ERROR_AT_LINE  error_at_line
 #define PEGASUS_CMPIR_FREELIBRARY(libhandle) dlclose(libhandle)
 #define PEGAUSUS_CMPIR_GETGID() getgid()
 #define PEGASUS_CMPIR_GETPID() getpid()
@@ -89,8 +88,6 @@
 #define PEGASUS_CMPIR_GETUID() 1
 #define PEGASUS_CMPIR_INT int
 #define PEGASUS_CMPIR_INVALID_SOCKET INVALID_SOCKET
-#define PEGASUS_CMPIR_ERROR_AT_LINE(status,errno, __FILE__, \
-    __LINE__,format,value)  error_at_line(status, errno, __FILE__, __LINE__,format,value)
 #define PEGASUS_CMPIR_RECV(a,b,c,d) recv(a,b,c,d)
 #define PEGASUS_CMPIR_SEND(a,b,c,d) send(a,b,c,d)
 #define PEGASUS_CMPIR_SLEEP(duration) Sleep(duration)
@@ -98,13 +95,13 @@
 #define PEGASUS_CMPIR_STDCALL __stdcall
 #define PEGASUS_CMPIR_VSPRINTF(a, b, c,d)  vsprintf(a,c,d)
 #define PEGASUS_CMPIR_WSAGETLASTERROR WSAGetLastError()
+#define strcasecmp _stricmp
 
 typedef unsigned char Uint8;
 typedef unsigned int  Uint32;
 typedef size_t socklen_t;
 
 int gettimeofday (struct timeval *t,void * );
-int strcasecmp(const char* s1, const char* s2);
 
 #endif
 

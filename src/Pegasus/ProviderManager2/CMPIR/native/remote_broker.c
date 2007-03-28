@@ -844,7 +844,6 @@ CMPI_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers ( long timeout,
     c=CMPI_BrokerExt_Ftab->newCondition(0);
     m=CMPI_BrokerExt_Ftab->newMutex(0);
 
-
     do {
         TRACE_NORMAL(("Looking for remote providers "
                   "to be cleaned up."));
@@ -869,13 +868,11 @@ CMPI_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers ( long timeout,
 
         wait.tv_sec = t.tv_sec + check_interval;
         wait.tv_nsec = 0;
-
         CMPI_BrokerExt_Ftab->lockMutex(m);
         rc = CMPI_BrokerExt_Ftab->timedCondWait( c, m, &wait );
         CMPI_BrokerExt_Ftab->unlockMutex(m);
 
-
-    } while (  !rc );
+    } while (  rc );
 
 
     CMPI_BrokerExt_Ftab->destroyMutex(m);

@@ -209,7 +209,7 @@ static void __start_debugger ()
 }
 #endif
 
-#ifndef PEGASUS_OS_TYPE_UNIX
+#ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 static void error_at_line( int a_num, int error, char* filename, int line, char* message, ... )
 {
    va_list ap;

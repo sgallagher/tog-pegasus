@@ -119,7 +119,7 @@ static provider_comm * load_comm_library (
         }
         PEGASUS_CMPIR_FREELIBRARY( hLibrary );
     }
-    PEGASUS_CMPIR_ERROR_AT_LINE  ( 0, errno, __FILE__, __LINE__,
+    error_at_line ( 0, errno, __FILE__, __LINE__,
         "Unable to load/init communication-layer library.%s Error",id);
     TRACE_VERBOSE(("leaving function."));
     return NULL;

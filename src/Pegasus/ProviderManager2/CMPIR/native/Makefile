@@ -46,7 +46,6 @@ LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_CMPI_
 LIBRARY = CMPIRNative
 
 SOURCES = \
-   native_common.c \
    args.c \
    array.c \
    broker.c \

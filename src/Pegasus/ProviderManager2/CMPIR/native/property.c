@@ -123,7 +123,8 @@ static int __addProperty ( struct native_property ** prop,
 
 
 
-        if ( type != CMPI_null ) {
+        if ( type != CMPI_null && tmp->state != CMPI_nullValue)
+        {
 
             if ( mm_add == TOOL_MM_ADD ) {
 

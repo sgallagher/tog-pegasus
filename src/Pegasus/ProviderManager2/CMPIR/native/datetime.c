@@ -56,6 +56,8 @@
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #include <winsock2.h>
 #include <winbase.h>
+#include <sys/types.h>
+#include <sys/timeb.h>
 #else
 #include <sys/time.h>
 #endif
@@ -333,6 +335,21 @@ static struct native_datetime * __new_datetime ( int mm_add,
 
   \return a pointer to a native CMPIDateTime.
  */
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+
+int gettimeofday (struct timeval *tv, char *unUsed )
+{
+    struct _timeb timeBuffer;
+
+    _ftime( &timeBuffer );
+    tv->tv_sec = timeBuffer.time;
+    tv->tv_usec = ( timeBuffer.millitm * 1000 );
+
+    return 0;
+}
+#endif
+
 CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
 {
     struct timeval tv;

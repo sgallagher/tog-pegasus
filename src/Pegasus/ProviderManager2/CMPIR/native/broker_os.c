@@ -57,6 +57,8 @@
 #include <pthread.h>
 #endif
 
+PEGASUS_EXPORT CMPI_MUTEX_TYPE pegthreadOnceMutex=NULL;
+
 static char *resolveFileName (const char *filename)
 {
     char dlName[1024];
@@ -166,8 +168,7 @@ static CMPI_THREAD_TYPE newThread
     hThread = (HANDLE)_beginthread( (void *)_start_wrapper, 0, wparm);
     return (CMPI_THREAD_TYPE) hThread;
 #else
-   #error Platform no yet supported
-   #error Platform for Remote CMPI daemon no yet supported
+   #error Platform for Remote CMPI daemon not yet supported
 #endif
 }
 
@@ -182,10 +183,16 @@ static int threadOnce (int *once, void (*init)(void))
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
     return pthread_once ( once, init );
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-    if ((*once)++ == 0)
+    if(*once==0)
     {
-        (init)();
+     WaitForSingleObject(pegthreadOnceMutex,INFINITE);
+        if ((*once)++ == 0)
+        {
+            (init)();
+        }
+        ReleaseMutex(pegthreadOnceMutex);
     }
+
     return *once;
 #else
    #error Platform for Remote CMPI daemon not yet supported
@@ -334,7 +341,7 @@ static CMPI_COND_TYPE newCondition (int opt)
     return (CMPI_COND_TYPE) c;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     HANDLE c;
-    c = CreateEvent( NULL, TRUE, TRUE, NULL );
+    c = CreateEvent( NULL, FALSE, FALSE, NULL );
     return c;
 #else
    #error Platform for Remote CMPI daemon not yet supported
@@ -390,9 +397,11 @@ static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *w
     msec=(next.tv_sec-now.tv_sec)*1000;
     msec+=(next.tv_nsec/1000000)-(now.tv_usec/1000);
 
-    if((rc = SignalObjectAndWait(m,c,msec,FALSE))!=WAIT_FAILED)
+
+
+    if((rc = SignalObjectAndWait(m,c,msec,FALSE))==WAIT_OBJECT_0)
     {
-        if(WaitForSingleObject(m,msec)!=WAIT_FAILED)
+        if(WaitForSingleObject(m,INFINITE)==WAIT_OBJECT_0)
         {
             return 0;
         }
@@ -410,9 +419,9 @@ static int condWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
     return pthread_cond_wait((pthread_cond_t*)c, (pthread_mutex_t*)m);
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-if(SignalObjectAndWait(m,c,INFINITE,FALSE)!=WAIT_FAILED)
+if(SignalObjectAndWait(m,c,INFINITE,FALSE)!=WAIT_OBJECT_0)
     {
-        if(WaitForSingleObject(m,INFINITE)!=WAIT_FAILED)
+        if(WaitForSingleObject(m,INFINITE)!=WAIT_OBJECT_0)
         {
             return 0;
         }

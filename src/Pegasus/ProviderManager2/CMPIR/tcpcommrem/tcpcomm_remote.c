@@ -87,6 +87,8 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 
 int nativeSide=1;
 
+PEGASUS_IMPORT CMPI_MUTEX_TYPE pegthreadOnceMutex;
+
 /****************************************************************************/
 
 static int __broker_connect(CONST CMPIBroker *, CONST CMPIContext *, const char *);
@@ -2136,6 +2138,7 @@ CMPI_EXPORT int PEGASUS_CMPIR_CDECL start_remote_daemon()
 {
     static int __once = 0;
 
+    pegthreadOnceMutex=CreateMutex(NULL,FALSE,NULL);
     CMPI_BrokerExt_Ftab->threadOnce(&__once, (void*)__launch_remote_daemon);
 
     return 0;

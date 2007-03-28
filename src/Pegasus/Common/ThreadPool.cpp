@@ -348,7 +348,8 @@ ThreadStatus ThreadPool::allocate_and_awaken(
         Semaphore *sleep_sem = (Semaphore *) th->reference_tsd("sleep sem");
         PEGASUS_ASSERT(sleep_sem != 0);
 
-        PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4, "Signal thread to awaken");
+        PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
+            "Signal thread to awaken");
         sleep_sem->signal();
         th->dereference_tsd();
     }

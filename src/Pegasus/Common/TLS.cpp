@@ -330,7 +330,8 @@ Sint32 SSLSocket::accept()
             unsigned long rc = ERR_get_error ();
             char buff[120];
             SSL_load_error_strings();
-            ERR_error_string_n (rc, buff, sizeof (buff)); // added in OpenSSL 0.9.6
+            // added in OpenSSL 0.9.6:
+            ERR_error_string_n(rc, buff, sizeof(buff));
             PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Not accepted %d %s", ssl_rsn, buff ));
         }
@@ -431,36 +432,37 @@ redo_connect:
 
     if (ssl_rc < 0)
     {
-       ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-       if (Tracer::isTraceOn())
-       {
-           unsigned long rc = ERR_get_error ();
-           char buff[120];
-           SSL_load_error_strings();
-           ERR_error_string_n (rc, buff, sizeof (buff)); // added in OpenSSL 0.9.6
-           PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
-               "---> SSL: Not connected %d %s", ssl_rsn, buff));
-       }
+        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+        if (Tracer::isTraceOn())
+        {
+            unsigned long rc = ERR_get_error ();
+            char buff[120];
+            SSL_load_error_strings();
+            // added in OpenSSL 0.9.6:
+            ERR_error_string_n(rc, buff, sizeof(buff));
+            PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
+                "---> SSL: Not connected %d %s", ssl_rsn, buff));
+        }
 
-       if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
-           (ssl_rsn == SSL_ERROR_WANT_WRITE))
-       {
-           goto redo_connect;
-       }
-       else
-       {
-           PEG_METHOD_EXIT();
-           return -1;
-       }
+        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
+            (ssl_rsn == SSL_ERROR_WANT_WRITE))
+        {
+            goto redo_connect;
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            return -1;
+        }
     }
     else if (ssl_rc == 0)
     {
-       PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
-           "---> SSL: Shutdown SSL_connect()");
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-           "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
-       PEG_METHOD_EXIT();
-       return -1;
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
+            "---> SSL: Shutdown SSL_connect()");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
+        PEG_METHOD_EXIT();
+        return -1;
     }
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 

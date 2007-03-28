@@ -1586,7 +1586,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
                     mInstance,
                     QueueIdStack(_service->getQueueId()));
 
-            enable_req->operationContext.set(AcceptLanguageListContainer(al));;    
+            enable_req->operationContext.set(AcceptLanguageListContainer(al));
                 
             Array<Uint16> _opStatus;
             _opStatus = _sendEnableMessageToProviderManager(enable_req);

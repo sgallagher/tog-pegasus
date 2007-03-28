@@ -538,7 +538,8 @@ void Monitor::run(Uint32 milliseconds)
                         if (!MessageQueueService::get_thread_pool()->
                                 allocate_and_awaken((void *)q, _dispatch))
                         {
-                            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA,
+                                Tracer::LEVEL2,
                                 "Monitor::run: Insufficient resources to "
                                     "process request.");
                             entries[indx]._status = _MonitorEntry::IDLE;

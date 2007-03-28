@@ -51,6 +51,7 @@ class CIMIndicationConsumer
 public:
     ///  constructor
     CIMIndicationConsumer() { };
+
     ///
     virtual ~CIMIndicationConsumer() { };
 
@@ -61,9 +62,9 @@ public:
         @param indicationInstance
     */
     virtual void consumeIndication(
-	    const OperationContext& context,
-	    const String& url,
-	    const CIMInstance& indicationInstance) = 0;
+        const OperationContext& context,
+        const String& url,
+        const CIMInstance& indicationInstance) = 0;
 };
 
 PEGASUS_NAMESPACE_END

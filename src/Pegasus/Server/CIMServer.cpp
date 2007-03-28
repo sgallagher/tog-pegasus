@@ -73,7 +73,8 @@
 # include <Pegasus/Client/CIMClient.h>
 #endif
 
-// PEGASUS_SLP_REG_TIMEOUT is the time interval in minute for reregistration with SLP.
+// PEGASUS_SLP_REG_TIMEOUT is the time interval in minute for reregistration
+// with SLP.
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 #include "SLPAttrib.h"
 #include <slp/slp_client/src/cmd-utils/slp_client/lslp-common-defs.h>
@@ -1239,7 +1240,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
 
         _slpRegistrationComplete = true;
 
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED",
             "SLP Registration Initiated");
     }
@@ -1338,7 +1340,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
              {
                  Logger::put_l(
                      Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                     "Pegasus.Server.SLP."
+                         "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
                      "CIM Server registration with External SLP Failed.");
              }
 
@@ -1352,7 +1355,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
              {
                  Logger::put_l(
                      Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                     "Pegasus.Server.SLP."
+                         "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
                      "CIM Server registration with External SLP Failed.");
              }
          }
@@ -1360,7 +1364,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
 
      catch(Exception& e)
      {
-         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+         Logger::put_l(
+             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
              "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
              "CIM Server registration with External SLP Failed. Exception: $0",
              e.getMessage());
@@ -1368,7 +1373,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
 
      catch(...)
      {
-         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+         Logger::put_l(
+             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
              "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
              "CIM Server registration with External SLP Failed.");
      }
@@ -1401,7 +1407,7 @@ void PEGASUS_SERVER_LINKAGE unregisterPegasusFromSLP()
         return;
     }
 
-  // Get all the SLP attributes and data for the Pegasus cimserver.
+    // Get all the SLP attributes and data for the Pegasus cimserver.
     foundHttpProtocol = SLPHttpAttribObj.fillData("http");
     foundHttpsProtocol = SLPHttpsAttribObj.fillData("https");
     if (!foundHttpProtocol && !foundHttpsProtocol)
@@ -1437,14 +1443,24 @@ void PEGASUS_SERVER_LINKAGE unregisterPegasusFromSLP()
     {
         if (foundHttpProtocol)
         {
-            client->srv_reg_local(client, (const char*)httpUrl,
-                                  (const char*)httpAttrs, (const char*)type, scopes, 0);
+            client->srv_reg_local(
+                client,
+                (const char*)httpUrl,
+                (const char*)httpAttrs,
+                (const char*)type,
+                scopes,
+                0);
         }
 
         if (foundHttpsProtocol)
         {
-            client->srv_reg_local(client, (const char*)httpsUrl,
-                                   (const char*)httpsAttrs, (const char*)type, scopes, 0);
+            client->srv_reg_local(
+                client,
+                (const char*)httpsUrl,
+                (const char*)httpsAttrs,
+                (const char*)type,
+                scopes,
+                0);
         }
 
         destroy_slp_client(client);

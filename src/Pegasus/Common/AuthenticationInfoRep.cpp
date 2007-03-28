@@ -57,7 +57,6 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     PEG_METHOD_EXIT();
 }
 
-
 AuthenticationInfoRep::~AuthenticationInfoRep()
 {
     PEG_METHOD_ENTER(
@@ -66,18 +65,18 @@ AuthenticationInfoRep::~AuthenticationInfoRep()
     PEG_METHOD_EXIT();
 }
 
-void   AuthenticationInfoRep::setConnectionAuthenticated(
+void AuthenticationInfoRep::setConnectionAuthenticated(
     Boolean connectionAuthenticated)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setConnectionAuthenticated");
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationInfoRep::setConnectionAuthenticated");
 
     _connectionAuthenticated = connectionAuthenticated;
 
     PEG_METHOD_EXIT();
 }
 
-void   AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
+void AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthenticatedUser");
@@ -87,7 +86,7 @@ void   AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
     PEG_METHOD_EXIT();
 }
 
-void   AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
+void AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthenticatedPassword");
@@ -97,7 +96,7 @@ void   AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
     PEG_METHOD_EXIT();
 }
 
-void   AuthenticationInfoRep::setLocalAuthSecret(const String& secret)
+void AuthenticationInfoRep::setLocalAuthSecret(const String& secret)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setLocalAuthSecret");
@@ -107,7 +106,7 @@ void   AuthenticationInfoRep::setLocalAuthSecret(const String& secret)
     PEG_METHOD_EXIT();
 }
 
-void   AuthenticationInfoRep::setAuthType(const String& authType)
+void AuthenticationInfoRep::setAuthType(const String& authType)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthType");
@@ -118,7 +117,7 @@ void   AuthenticationInfoRep::setAuthType(const String& authType)
 }
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-void   AuthenticationInfoRep::setSecurityAssociation()
+void AuthenticationInfoRep::setSecurityAssociation()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setSecurityAssociation");
@@ -142,6 +141,5 @@ void AuthenticationInfoRep::setClientCertificateChain(
 
     PEG_METHOD_EXIT();
 }
-
 
 PEGASUS_NAMESPACE_END

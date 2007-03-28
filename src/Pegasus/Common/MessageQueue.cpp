@@ -96,7 +96,9 @@ MessageQueue::~MessageQueue()
     // ATTN-A: thread safety!
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::~MessageQueue()");
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::~MessageQueue queueId = %i, name = %s", _queueId, _name));
+        "MessageQueue::~MessageQueue queueId = %i, name = %s",
+        _queueId,
+        _name));
 
     {
         AutoMutex autoMut(q_table_mut);

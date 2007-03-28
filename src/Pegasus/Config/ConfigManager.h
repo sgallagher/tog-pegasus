@@ -371,11 +371,12 @@ public:
         @exception NoSuchFile  if the default config file does not exist.
         @exception FileNotReadable  if the default config file is not readable.
         @exception CannotRenameFile  if failed to rename the config file.
-        @exception CannotOpenFile if failed to set permissions on the config file.
+        @exception CannotOpenFile if failed to set permissions on the config
+            file.
         @exception ConfigFileSyntaxError  if there are synatx error
             while parsing the config files.
-        @exception InvalidPropertyValue if validation fails for a config property
-            in either file.
+        @exception InvalidPropertyValue if validation fails for a config
+            property in either file.
         @exception UnrecognizedConfigProperty if a config property specified in
             either file is not defined.
     */

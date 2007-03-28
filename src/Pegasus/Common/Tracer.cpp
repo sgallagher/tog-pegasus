@@ -182,10 +182,11 @@ void Tracer::_traceCIMException(
     const Uint32 traceComponent,
     const CIMException& cimException)
 {        
-       // get the CIMException trace message string
-       CString traceMsg = TraceableCIMException(cimException).getTraceDescription().getCString();
-       // trace the string
-       _traceCString(traceComponent, "", (const char*) traceMsg);
+    // get the CIMException trace message string
+    CString traceMsg =
+        TraceableCIMException(cimException).getTraceDescription().getCString();
+    // trace the string
+    _traceCString(traceComponent, "", (const char*) traceMsg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -715,7 +716,10 @@ void Tracer::traceString(
     if (_isTraceEnabled(traceComponent, traceLevel))
     {
         _traceCString(
-            fileName, lineNum, traceComponent, (const char*) string.getCString());
+            fileName,
+            lineNum,
+            traceComponent,
+            (const char*) string.getCString());
     }
 }
 

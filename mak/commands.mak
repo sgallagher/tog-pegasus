@@ -49,7 +49,7 @@ ifeq ($(OS_TYPE),windows)
     DIFF = mu compare
     SORT = mu sort
     REDIRECTERROR = 2>&1
-    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) -start
+    CIMSERVER_START_SERVICE = start "/K $(CIMSERVER_PATH) " cimserver $(CIMSERVER_CONFIG_OPTIONS) -start
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -stop
     SLEEP = mu sleep
     TIME_CMD =
@@ -62,6 +62,7 @@ ifeq ($(OS_TYPE),windows)
     ECHO = mu echo
     ECHO-E = mu echo-e
     COPY = mu copy
+    STARTCMD = start
     CHMOD =
     CHOWN =
     CHGRP =
@@ -319,7 +320,7 @@ ifeq ($(OS),darwin)
     DIFF = diff
     SORT = sort
     REDIRECTERROR = 2>&1
-    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
+    CIMSERVER_START_SERVICE =  $(CIMSERVER_PATH) cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
     SLEEP = sleep
     TIME_CMD = time
@@ -349,7 +350,7 @@ endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     ifeq ($(OS_TYPE),windows)
-        CMPIR_START_DAEMON = start $(CIMSERVER_PATH)CMPIRDaemon
+        CMPIR_START_DAEMON = start "/K $(CIMSERVER_PATH)" CMPIRDaemon
         CMPIR_STOP_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon --stop
     else
         CMPIR_START_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon
@@ -473,13 +474,10 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##
 runTestSuite: CMDSFORCE
 	-$(CIMSERVER_STOP_SERVICE)
-	-$(CMPIR_STOP_DAEMON)
 	$(CIMSERVER_START_SERVICE)
-	$(CMPIR_START_DAEMON)
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
 	$(CIMSERVER_STOP_SERVICE)
-	$(CMPIR_STOP_DAEMON)
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
   PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)

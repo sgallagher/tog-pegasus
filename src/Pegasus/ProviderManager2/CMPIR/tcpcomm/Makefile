@@ -48,7 +48,6 @@ LIBRARY = CMPIRTCPComm
 LIBRARIES = CMPIRProxyProvider
 
 SOURCES = \
-   ../native/native_common.c \
    tcpcomm_proxy.c \
    tcpcomm_select_exp.c \
    proxy_attach.c \

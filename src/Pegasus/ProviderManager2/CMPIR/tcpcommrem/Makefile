@@ -49,7 +49,6 @@ LIBRARY = CMPIRTCPCommRemote
 
 
 SOURCES = \
-   ../native/native_common.c \
    tcpcomm_remote.c \
    ../socketcomm.c \
    ../ip.c \

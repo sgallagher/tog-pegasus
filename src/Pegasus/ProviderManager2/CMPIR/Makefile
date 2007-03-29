@@ -49,7 +49,6 @@ LIBRARIES = \
    CMPIProviderManager
 
 SOURCES = \
-   ./native/native_common.c \
    proxy_comm.c \
    proxy_provider.c \
    namespace_resolver.c \

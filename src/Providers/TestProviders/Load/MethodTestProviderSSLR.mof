@@ -46,7 +46,7 @@ instance of PG_Provider
 {
     ProviderModuleName = "MethodTestProviderSSLModule";
     Name = "MethodTestProviderSSL";
-//    RequestedOperationContextContainers = {0};
+    RequestedOperationContextContainers = {0};
 };
 
 instance of PG_ProviderCapabilities

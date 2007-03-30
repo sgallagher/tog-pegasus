@@ -139,10 +139,8 @@ Boolean BasicAuthenticationHandler::authenticate(
     }
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    SessionKey sessionKey;
-
     authenticated = 
-        _basicAuthenticator->authenticate(userName, password, sessionKey);
+        _basicAuthenticator->authenticate(userName, password);
 
     // Log audit message.
     PEG_AUDIT_LOG(logBasicAuthentication(
@@ -153,7 +151,6 @@ Boolean BasicAuthenticationHandler::authenticate(
     if (authenticated)
     {
         authInfo->setAuthenticatedUser(userName);
-        authInfo->setSessionKey(sessionKey);
     }
     else
     {

@@ -223,11 +223,6 @@ private:
         Indicates whether the write handle is open.
     */
     Boolean _writeOpen;
-
-    /** 
-        Session key assigned by executor if applicable.
-    */
-    SessionKey _sessionKey;
 };
 
 PEGASUS_NAMESPACE_END

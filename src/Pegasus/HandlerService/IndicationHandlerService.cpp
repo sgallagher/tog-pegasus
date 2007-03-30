@@ -216,7 +216,6 @@ IndicationHandlerService::_handleIndication(
                         String::EMPTY,
                         String::EMPTY));
 
-                exportmessage->sessionKey = request->sessionKey;
                 exportmessage->operationContext.insert(
                     IdentityContainer(String::EMPTY));
                 exportmessage->operationContext.set(

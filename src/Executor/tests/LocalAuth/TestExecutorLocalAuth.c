@@ -4,24 +4,23 @@
 
 int main()
 {
-    char path[EXECUTOR_BUFFER_SIZE];
-    char token[EXECUTOR_BUFFER_SIZE];
-    SessionKey key;
+    char challenge[EXECUTOR_BUFFER_SIZE];
+    char response[EXECUTOR_BUFFER_SIZE];
     FILE* is;
 
     /* Start authentication and get challenge. */
 
-    assert(StartLocalAuthentication("pegasus", path, &key) == 0);
+    assert(StartLocalAuthentication("pegasus", challenge) == 0);
 
-    /* Read token from file. */
+    /* Read response from file. */
 
-    is = fopen(path, "r");
+    is = fopen(challenge, "r");
     assert(is != NULL);
-    assert(fgets(token, sizeof(token), is) != NULL);
+    assert(fgets(response, sizeof(response), is) != NULL);
 
     /* Finish authentication. */
 
-    assert(FinishLocalAuthentication(&key, token) == 0);
+    assert(FinishLocalAuthentication(challenge, response) == 0);
 
     printf("+++++ passed all tests\n");
 

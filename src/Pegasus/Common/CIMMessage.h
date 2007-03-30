@@ -50,7 +50,6 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/SessionKey.h>
 
 /*   ProviderType should become part of Pegasus/Common     PEP# 99
    #include <Pegasus/ProviderManager2/ProviderType.h>
@@ -132,7 +131,6 @@ public:
 #endif
 
     QueueIdStack queueIds;
-    SessionKey sessionKey;
 };
 
 

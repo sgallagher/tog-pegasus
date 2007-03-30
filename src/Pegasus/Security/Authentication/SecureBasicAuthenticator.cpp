@@ -112,11 +112,8 @@ SecureBasicAuthenticator::~SecureBasicAuthenticator()
 
 Boolean SecureBasicAuthenticator::authenticate(
     const String & userName,
-    const String & password,
-    SessionKey & sessionKey)
+    const String & password)
 {
-    sessionKey.clear();
-
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureBasicAuthenticator::authenticate()");
 
@@ -195,7 +192,7 @@ Boolean SecureBasicAuthenticator::authenticate(
         if (Executor::detectExecutor() == 0)
         {
             if (Executor::authenticatePassword(
-                userName.getCString(), password.getCString(), sessionKey) == 0)
+                userName.getCString(), password.getCString()) == 0)
             {
                 authenticated = true;
             }

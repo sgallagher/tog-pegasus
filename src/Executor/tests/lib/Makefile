@@ -60,7 +60,6 @@ SOURCES = \
     ../../Policy.c \
     ../../Process.c \
     ../../Random.c \
-    ../../SessionKey.c \
     ../../Socket.c \
     ../../User.c
 

@@ -41,7 +41,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/SessionKey.h>
 
 #include <Pegasus/Security/Authentication/Linkage.h>
 
@@ -69,8 +68,7 @@ public:
     */
     virtual Boolean authenticate(
         const String& userName, 
-        const String& password,
-        SessionKey& sessionKey) = 0;
+        const String& password) = 0;
 
     /** Construct and return the HTTP Basic authentication challenge header
         @return A string containing the authentication challenge header.

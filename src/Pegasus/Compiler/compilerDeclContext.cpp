@@ -41,7 +41,6 @@
 
 
 #include "compilerDeclContext.h"
-#include "Policy.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -114,21 +113,7 @@ compilerDeclContext::addInstance(const CIMNamespaceName &nameSpace,
                                  CIMInstance &x)
 {
   if (_ot == compilerCommonDefs::USE_REPOSITORY)
-  {
     _repository->_createInstance(nameSpace, x);
-
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-
-    // If the class name is "PG_ProviderModule", then the policy file must
-    // be updated before asking the CIM server to create the instance.
-
-    String className = x.getClassName().getString();
-
-    if (String::equalNoCase(className, "PG_ProviderModule"))
-        UpdatePolicyFile(x);
-
-#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
-  }
 }
 
 void

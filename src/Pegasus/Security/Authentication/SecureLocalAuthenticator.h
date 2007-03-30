@@ -66,8 +66,7 @@ public:
     Boolean authenticate(
         const String& userName, 
         const String& secretReceived, 
-        const String& secretKept,
-        SessionKey& sessionKey);
+        const String& secretKept);
 
     /**
         Verify whether the user is valid.
@@ -87,7 +86,6 @@ public:
         const String& userName, 
         String& secret);
 };
-
 
 PEGASUS_NAMESPACE_END
 

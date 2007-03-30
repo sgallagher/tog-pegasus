@@ -43,7 +43,6 @@
 #define Pegasus_IndicationService_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/SessionKey.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
@@ -1249,13 +1248,6 @@ private:
     Array <CIMName> _supportedSNMPHandlerProperties;
     Array <CIMName> _supportedSyslogListenerDestinationProperties;
     Array <CIMName> _supportedEmailListenerDestinationProperties;
-
-private:
-
-    SessionKeyMap _sessionKeyMap;
-
-    // Assign a session key for this user. Return 0 on success, -1 on failure.
-    int _assignSessionKey(const String& userName, SessionKey& sessionKey);
 };
 
 PEGASUS_NAMESPACE_END

@@ -34,7 +34,6 @@
 #include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/SessionKey.h>
 
 #include "SecureLocalAuthenticator.h"
 #include "LocalAuthenticationHandler.h"
@@ -155,20 +154,15 @@ Boolean LocalAuthenticationHandler::authenticate(
     // set the flag to "check done"
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    SessionKey sessionKey;
-
     Boolean authenticated = _localAuthenticator->authenticate(filePath, 
-        secretReceived, authInfo->getLocalAuthSecret(), sessionKey);
+        secretReceived, authInfo->getLocalAuthSecret());
 
     PEG_AUDIT_LOG(logLocalAuthentication(
                      userName, 
                      authenticated));
 
     if (authenticated)
-    {
         authInfo->setAuthenticatedUser(userName);
-        authInfo->setSessionKey(sessionKey);
-    }
 
     PEG_METHOD_EXIT();
 

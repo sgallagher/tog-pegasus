@@ -92,8 +92,7 @@ PAMBasicAuthenticator::~PAMBasicAuthenticator()
 
 Boolean PAMBasicAuthenticator::authenticate(
     const String& userName, 
-    const String& password,
-    SessionKey& sessionKey) 
+    const String& password)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");

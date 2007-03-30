@@ -53,7 +53,6 @@ LIBRARY = pegcommon
 
 SOURCES1 = \
     Executor.cpp \
-    SessionKey.cpp \
     CIMError.cpp \
     PropertyAccessor.cpp \
     Once.cpp \

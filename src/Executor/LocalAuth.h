@@ -34,18 +34,16 @@
 #ifndef _Executor_LocalAuth_h
 #define _Executor_LocalAuth_h
 
-#include "SessionKey.h"
 #include "Defines.h"
 
 EXECUTOR_LINKAGE
 int StartLocalAuthentication(
     const char* user,
-    char path[EXECUTOR_BUFFER_SIZE],
-    SessionKey* key);
+    char challenge[EXECUTOR_BUFFER_SIZE]);
 
 EXECUTOR_LINKAGE
 int FinishLocalAuthentication(
-    const SessionKey* key,
-    const char* token);
+    const char* challenge,
+    const char* response);
 
 #endif /* _Executor_LocalAuth_h */

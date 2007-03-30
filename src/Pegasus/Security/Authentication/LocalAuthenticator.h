@@ -36,7 +36,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/SessionKey.h>
 
 #include <Pegasus/Security/Authentication/Linkage.h>
 
@@ -70,8 +69,7 @@ public:
     virtual Boolean authenticate(
         const String& userName, 
         const String& secretReceived, 
-        const String& secretKept,
-        SessionKey& sessionKey) = 0;
+        const String& secretKept) = 0;
 
     /** Construct and return the Peagaus Local authentication challenge header
         @param authType String containing the authentication type

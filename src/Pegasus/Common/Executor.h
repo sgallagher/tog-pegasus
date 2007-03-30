@@ -38,7 +38,6 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/SessionKey.h>
 #include <Executor/Defines.h>
 #include <cstdio>
 
@@ -144,25 +143,20 @@ public:
     /** Start a provider agent as the given user. The provider agent will
         load the given provider module.
 
-        @param sessionKey a valid session key.
         @param module name of provider module to be loaded.
         @param uid the UID to run the provider agent as.
         @param gid the GID to run the provider agent as.
         @param pid the PID of the new process (to be eventually passed to 
             reapProviderAgent()).
-        @param providerAgentSessionKey a newly generated providerAgentSessionKey
-            (to be eventually passed to reapProviderAgent()).
         @param readPipe pipe used to read data from provider agent.
         @param writePipe pipe used to write data from provider agent.
         @return 0=success, -1=failure
     */
     static int startProviderAgent(
-        const SessionKey& sessionKey,
         const char* module, 
         int uid,
         int gid, 
         int& pid,
-        SessionKey& providerAgentSessionKey,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe);
 
@@ -172,12 +166,10 @@ public:
     static int daemonizeExecutor();
 
     /** Wait for the provider agent to exit.
-        @param sessionKey the sessionKey obtained with startProviderAgent().
         @param pid the process id obtained with startProviderAgent().
         @return 0=success, -1=failure
     */
     static int reapProviderAgent(
-        const SessionKey& sessionKey,
         int pid);
 
     /** Check whether the password is correct for the given user, using an
@@ -185,14 +177,11 @@ public:
         file).
         @param username the name of a valid system user.
         @param password the clear text password for the given user.
-        @param sessionKey a new session key that may be passed to
-            startProviderAgent() and other methods.
         @return 0=success, -1=failure
     */
     static int authenticatePassword(
         const char* username,
-        const char* password,
-        SessionKey& sessionKey);
+        const char* password);
 
     /** Check whether the given user is valid for the underlying authentcation
         mechanism.
@@ -212,48 +201,24 @@ public:
         @param username name of user to be challenged.
         @param challenged the challenge to be forwared by the caller to the
             client (this is the path name of the secrets file mentioned above).
-        @param sessionKey a new session key that may be passed to the
-            startProviderAgent() and other methods.
         @return 0=success, -1=failure
     */
     static int challengeLocal(
         const char* username,
-        char challenge[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey);
+        char challenge[EXECUTOR_BUFFER_SIZE]);
 
     /** Authenticate the given *user* using the "local authentication"
         algorithm. The secret token is read from the file created by 
-        challengeLocal(). If it matches the *challengeResponse* argument, 
+        challengeLocal(). If it matches the *response* argument, 
         then the authentication is successful (returns zero).
-        @param sessionKey a session key obtained from challengeLocal().
-        @param challengeResponse the challenge response obtained from the
+        @param response the challenge response obtained from the
             authenticating user. This is the response to the challenge
             obtained from challengeLocal().
         @return 0=success, -1=failure
     */
     static int authenticateLocal(
-        const SessionKey& sessionKey,
-        const char* challengeResponse);
-
-    /** Generate a new sesion key for the given user. This method will be
-        limited as soon as the SSL certificate authentication scheme is
-        moved into the executor (it will cease to generate session keys
-        upon the very first client connection).
-        @param username user for whom to create a session key.
-        @param sessionKey new session key that may be passed to 
-            startProviderAgent() and other methods.
-        @return 0=success, -1=failure
-    */
-    static int newSessionKey(
-        const char username[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey);
-
-    /** Delete an existing session key.
-        @param sessionKey the session key that will be deleted.
-        @return 0=success, -1=failure
-    */
-    static int deleteSessionKey(
-        const SessionKey& sessionKey);
+        const char* challenge,
+        const char* response);
 
 private:
     // Private to prevent instantiation.

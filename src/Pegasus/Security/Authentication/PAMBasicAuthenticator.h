@@ -55,8 +55,7 @@ public:
 
     Boolean authenticate(
         const String& userName, 
-        const String& password,
-        SessionKey& sessionKey); 
+        const String& password);
 
     Boolean validateUser(const String& userName);
 

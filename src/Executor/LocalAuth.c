@@ -45,7 +45,6 @@
 #include "Strlcat.h"
 #include "User.h"
 #include "Random.h"
-#include "SessionKey.h"
 #include "Log.h"
 #include "User.h"
 
@@ -238,8 +237,7 @@ static void _destructor(long data)
 
 int StartLocalAuthentication(
     const char* user,
-    char path[EXECUTOR_BUFFER_SIZE],
-    SessionKey* key)
+    char challenge[EXECUTOR_BUFFER_SIZE])
 {
     /* Get uid: */
 
@@ -251,14 +249,8 @@ int StartLocalAuthentication(
 
     /* Create the local authentication file. */
 
-    if (CreateLocalAuthFile(user, path) != 0)
-    {
+    if (CreateLocalAuthFile(user, challenge) != 0)
         return -1;
-    }
-
-    /* Create the session key (associated with path). */
-
-    *key = NewSessionKey(uid, (long)strdup(path), _destructor, 0);
 
     return 0;
 }
@@ -274,32 +266,12 @@ int StartLocalAuthentication(
 */
 
 int FinishLocalAuthentication(
-    const SessionKey* key,
-    const char* token)
+    const char* challenge,
+    const char* response)
 {
-    long data = 0;
-
-    /* Get session key data (the path). */
-
-    if (GetSessionKeyData(key, &data) != 0)
-        return -1;
-
     /* Check token against the one in the file. */
 
-    if (CheckLocalAuthToken((const char*)data, token) != 0)
-    {
-        DeleteSessionKey(key);
-        return -1;
-    }
-
-    /* Delete session key data. */
-
-    if (DeleteSessionKeyData(key) != 0)
-        return -1;
-
-    /* Set authentication flag. */
-
-    if (SetSessionKeyAuthenticated(key) != 0)
+    if (CheckLocalAuthToken(challenge, response) != 0)
         return -1;
 
     return 0;

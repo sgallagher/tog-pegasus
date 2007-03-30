@@ -67,9 +67,7 @@ enum ExecutorMessageCode
     EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE,
     EXECUTOR_VALIDATE_USER_MESSAGE,
     EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
-    EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE,
-    EXECUTOR_NEW_SESSION_KEY_MESSAGE,
-    EXECUTOR_DELETE_SESSION_KEY_MESSAGE
+    EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE
 };
 
 /*
@@ -167,7 +165,6 @@ struct ExecutorRenameFileResponse
 
 struct ExecutorStartProviderAgentRequest
 {
-    char key[EXECUTOR_BUFFER_SIZE];
     char module[EXECUTOR_BUFFER_SIZE];
     int uid;
     int gid;
@@ -177,7 +174,6 @@ struct ExecutorStartProviderAgentResponse
 {
     int status;
     int pid;
-    char key[EXECUTOR_BUFFER_SIZE];
 };
 
 /*
@@ -203,7 +199,6 @@ struct ExecutorDaemonizeExecutorResponse
 
 struct ExecutorReapProviderAgentRequest
 {
-    char key[EXECUTOR_BUFFER_SIZE];
     int pid;
 };
 
@@ -229,7 +224,6 @@ struct ExecutorAuthenticatePasswordRequest
 struct ExecutorAuthenticatePasswordResponse
 {
     int status;
-    char key[EXECUTOR_BUFFER_SIZE];
 };
 
 /*
@@ -267,7 +261,6 @@ struct ExecutorChallengeLocalResponse
 {
     int status;
     char challenge[EXECUTOR_BUFFER_SIZE];
-    char key[EXECUTOR_BUFFER_SIZE];
 };
 
 /*
@@ -280,48 +273,11 @@ struct ExecutorChallengeLocalResponse
 
 struct ExecutorAuthenticateLocalRequest
 {
-    char key[EXECUTOR_BUFFER_SIZE];
-    char token[EXECUTOR_BUFFER_SIZE];
+    char challenge[EXECUTOR_BUFFER_SIZE];
+    char response[EXECUTOR_BUFFER_SIZE];
 };
 
 struct ExecutorAuthenticateLocalResponse
-{
-    int status;
-};
-
-/*
-**==============================================================================
-**
-** EXECUTOR_NEW_SESSION_KEY_MESSAGE
-**
-**==============================================================================
-*/
-
-struct ExecutorNewSessionKeyRequest
-{
-    char username[EXECUTOR_BUFFER_SIZE];
-};
-
-struct ExecutorNewSessionKeyResponse
-{
-    int status;
-    char key[EXECUTOR_BUFFER_SIZE];
-};
-
-/*
-**==============================================================================
-**
-** EXECUTOR_DELETE_SESSION_KEY_MESSAGE
-**
-**==============================================================================
-*/
-
-struct ExecutorDeleteSessionKeyRequest
-{
-    char key[EXECUTOR_BUFFER_SIZE];
-};
-
-struct ExecutorDeleteSessionKeyResponse
 {
     int status;
 };

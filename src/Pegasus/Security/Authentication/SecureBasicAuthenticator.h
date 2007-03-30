@@ -68,8 +68,7 @@ public:
     */
     Boolean authenticate(
         const String& userName, 
-        const String& password,
-        SessionKey& sessionKey);
+        const String& password);
 
     /**
         Verify whether the user is valid.

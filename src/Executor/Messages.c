@@ -46,8 +46,6 @@ static const char* _messageStrings[] =
     "ValidateUser",
     "ChallengeLocal",
     "AuthenticateLocal",
-    "NewSessionKey",
-    "DeleteSessionKey"
 };
 
 /*
@@ -62,7 +60,7 @@ static const char* _messageStrings[] =
 
 const char* MessageCodeToString(enum ExecutorMessageCode code)
 {
-    if ((int)code < 1 || code > EXECUTOR_DELETE_SESSION_KEY_MESSAGE)
+    if ((int)code < 1 || code > EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE)
         return "<unknown>";
 
     return _messageStrings[(int)code - 1];

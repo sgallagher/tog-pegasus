@@ -100,44 +100,32 @@ public:
         const char* path) = 0;
 
     virtual int startProviderAgent(
-        const SessionKey& sessionKey,
         const char* module, 
         int uid,
         int gid, 
         int& pid,
-        SessionKey& providerAgentSessionKey,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe) = 0;
 
     virtual int daemonizeExecutor() = 0;
 
     virtual int reapProviderAgent(
-        const SessionKey& sessionKey,
         int pid) = 0;
 
     virtual int authenticatePassword(
         const char* username,
-        const char* password,
-        SessionKey& sessionKey) = 0;
+        const char* password) = 0;
 
     virtual int validateUser(
         const char* username) = 0;
 
     virtual int challengeLocal(
         const char* username,
-        char challenge[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey) = 0;
+        char challenge[EXECUTOR_BUFFER_SIZE]) = 0;
 
     virtual int authenticateLocal(
-        const SessionKey& sessionKey,
-        const char* challengeResponse) = 0;
-
-    virtual int newSessionKey(
-        const char username[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey) = 0;
-
-    virtual int deleteSessionKey(
-        const SessionKey& sessionKey) = 0;
+        const char* challenge,
+        const char* response) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -202,12 +190,10 @@ public:
 
 
     virtual int startProviderAgent(
-        const SessionKey& sessionKey,
         const char* module, 
         int uid,
         int gid, 
         int& pid,
-        SessionKey& providerAgentSessionKey,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
     {
@@ -306,7 +292,6 @@ public:
 
         // Initialize output parameters in case of error.
 
-        providerAgentSessionKey.clear();
         pid = -1;
         readPipe = 0;
         writePipe = 0;
@@ -444,7 +429,6 @@ public:
     }
 
     virtual int reapProviderAgent(
-        const SessionKey& sessionKey,
         int pid)
     {
         int status;
@@ -457,16 +441,12 @@ public:
 
     virtual int authenticatePassword(
         const char* username,
-        const char* password,
-        SessionKey& sessionKey)
+        const char* password)
     {
-        sessionKey.clear();
-
 #if defined(PEGASUS_PAM_AUTHENTICATION)
         return PAMAuthenticate(username, password);
 #else
         // ATTN: not handled so don't call in this case.
-        sessionKey.clear();
         return -1;
 #endif
     }
@@ -484,33 +464,17 @@ public:
 
     virtual int challengeLocal(
         const char* username,
-        char challenge[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey)
+        char challenge[EXECUTOR_BUFFER_SIZE])
     {
         // ATTN: not handled so don't call in this case.
-        sessionKey.clear();
         return -1;
     }
 
     virtual int authenticateLocal(
-        const SessionKey& sessionKey,
-        const char* challengeResponse)
+        const char* challenge,
+        const char* response)
     {
         // ATTN: not handled so don't call in this case.
-        return -1;
-    }
-
-    virtual int newSessionKey(
-        const char username[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey)
-    {
-        sessionKey.clear();
-        return -1;
-    }
-
-    virtual int deleteSessionKey(
-        const SessionKey& sessionKey)
-    {
         return -1;
     }
 
@@ -710,18 +674,15 @@ public:
     }
 
     virtual int startProviderAgent(
-        const SessionKey& sessionKey,
         const char* module, 
         int uid,
         int gid, 
         int& pid,
-        SessionKey& providerAgentSessionKey,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
     {
         AutoMutex autoMutex(_mutex);
 
-        providerAgentSessionKey.clear();
         readPipe = 0;
         writePipe = 0;
 
@@ -744,7 +705,6 @@ public:
 
         ExecutorStartProviderAgentRequest request;
         memset(&request, 0, sizeof(request));
-        Strlcpy(request.key, sessionKey.data(), sizeof(request.key));
         memcpy(request.module, module, n);
         request.uid = uid;
         request.gid = gid;
@@ -758,11 +718,6 @@ public:
 
         if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
-
-        // Get the session key.
-
-        Strlcpy((char*)providerAgentSessionKey.data(), 
-            response.key, providerAgentSessionKey.size());
 
         // Check response status and pid.
 
@@ -821,7 +776,6 @@ public:
     }
 
     virtual int reapProviderAgent(
-        const SessionKey& sessionKey,
         int pid)
     {
         AutoMutex autoMutex(_mutex);
@@ -838,7 +792,6 @@ public:
 
         ExecutorReapProviderAgentRequest request;
         memset(&request, 0, sizeof(request));
-        Strlcpy(request.key, sessionKey.data(), sizeof(request.key));
         request.pid = pid;
 
         if (_send(_sock, &request, sizeof(request)) != sizeof(request))
@@ -856,12 +809,9 @@ public:
 
     virtual int authenticatePassword(
         const char* username,
-        const char* password,
-        SessionKey& sessionKey)
+        const char* password)
     {
         AutoMutex autoMutex(_mutex);
-
-        sessionKey.clear();
 
         // _send request header:
 
@@ -887,8 +837,6 @@ public:
 
         if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
-
-        Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
 
         return response.status;
     }
@@ -927,12 +875,9 @@ public:
 
     virtual int challengeLocal(
         const char* username,
-        char challenge[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey)
+        char challenge[EXECUTOR_BUFFER_SIZE])
     {
         AutoMutex autoMutex(_mutex);
-
-        sessionKey.clear();
 
         // _send request header:
 
@@ -958,15 +903,14 @@ public:
         if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
-        Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
         Strlcpy(challenge, response.challenge, EXECUTOR_BUFFER_SIZE);
 
         return response.status;
     }
 
     virtual int authenticateLocal(
-        const SessionKey& sessionKey,
-        const char* challengeResponse)
+        const char* challenge,
+        const char* response)
     {
         AutoMutex autoMutex(_mutex);
 
@@ -982,89 +926,20 @@ public:
 
         ExecutorAuthenticateLocalRequest request;
         memset(&request, 0, sizeof(request));
-        Strlcpy(request.key, (char*)sessionKey.data(), EXECUTOR_BUFFER_SIZE);
-        Strlcpy(request.token, challengeResponse, EXECUTOR_BUFFER_SIZE);
+        Strlcpy(request.challenge, challenge, EXECUTOR_BUFFER_SIZE);
+        Strlcpy(request.response, response, EXECUTOR_BUFFER_SIZE);
 
         if (_send(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
-        ExecutorAuthenticateLocalResponse response;
+        ExecutorAuthenticateLocalResponse response_;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (_recv(_sock, &response_, sizeof(response_)) != sizeof(response_))
             return -1;
 
-        return response.status;
-    }
-
-    virtual int newSessionKey(
-        const char username[EXECUTOR_BUFFER_SIZE],
-        SessionKey& sessionKey)
-    {
-        AutoMutex autoMutex(_mutex);
-
-        sessionKey.clear();
-
-        // _send request header:
-
-        ExecutorRequestHeader header;
-        header.code = EXECUTOR_NEW_SESSION_KEY_MESSAGE;
-
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
-            return -1;
-
-        // _send request body.
-
-        ExecutorNewSessionKeyRequest request;
-        memset(&request, 0, sizeof(request));
-        Strlcpy(request.username, username, sizeof(request.username));
-
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
-            return -1;
-
-        // Receive the response
-
-        ExecutorNewSessionKeyResponse response;
-
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
-            return -1;
-
-        Strlcpy((char*)sessionKey.data(), response.key, sessionKey.size());
-
-        return response.status;
-    }
-
-    virtual int deleteSessionKey(
-        const SessionKey& sessionKey)
-    {
-        AutoMutex autoMutex(_mutex);
-
-        // Send request header:
-
-        ExecutorRequestHeader header;
-        header.code = EXECUTOR_DELETE_SESSION_KEY_MESSAGE;
-
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
-            return -1;
-
-        // Send request body.
-
-        ExecutorDeleteSessionKeyRequest request;
-        memset(&request, 0, sizeof(request));
-        Strlcpy(request.key, sessionKey.data(), sizeof(request.key));
-
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
-            return -1;
-
-        // Receive the response
-
-        ExecutorDeleteSessionKeyResponse response;
-
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
-            return -1;
-
-        return response.status;
+        return response_.status;
     }
 
 private:
@@ -1200,17 +1075,15 @@ int Executor::removeFile(
 }
 
 int Executor::startProviderAgent(
-    const SessionKey& sessionKey,
     const char* module, 
     int uid,
     int gid, 
     int& pid,
-    SessionKey& providerAgentSessionKey,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
-    return _getImpl()->startProviderAgent(sessionKey, module, 
-        uid, gid, pid, providerAgentSessionKey, readPipe, writePipe);
+    return _getImpl()->startProviderAgent(module, 
+        uid, gid, pid, readPipe, writePipe);
 }
 
 int Executor::daemonizeExecutor()
@@ -1219,18 +1092,16 @@ int Executor::daemonizeExecutor()
 }
 
 int Executor::reapProviderAgent(
-    const SessionKey& sessionKey,
     int pid)
 {
-    return _getImpl()->reapProviderAgent(sessionKey, pid);
+    return _getImpl()->reapProviderAgent(pid);
 }
 
 int Executor::authenticatePassword(
     const char* username,
-    const char* password,
-    SessionKey& sessionKey)
+    const char* password)
 {
-    return _getImpl()->authenticatePassword(username, password, sessionKey);
+    return _getImpl()->authenticatePassword(username, password);
 }
 
 int Executor::validateUser(
@@ -1241,30 +1112,16 @@ int Executor::validateUser(
 
 int Executor::challengeLocal(
     const char* user,
-    char path[EXECUTOR_BUFFER_SIZE],
-    SessionKey& sessionKey)
+    char challenge[EXECUTOR_BUFFER_SIZE])
 {
-    return _getImpl()->challengeLocal(user, path, sessionKey);
+    return _getImpl()->challengeLocal(user, challenge);
 }
 
 int Executor::authenticateLocal(
-    const SessionKey& sessionKey,
-    const char* challengeResponse)
+    const char* challenge,
+    const char* response)
 {
-    return _getImpl()->authenticateLocal(sessionKey, challengeResponse);
-}
-
-int Executor::newSessionKey(
-    const char username[EXECUTOR_BUFFER_SIZE],
-    SessionKey& sessionKey)
-{
-    return _getImpl()->newSessionKey(username, sessionKey);
-}
-
-int Executor::deleteSessionKey(
-    const SessionKey& sessionKey)
-{
-    return _getImpl()->deleteSessionKey(sessionKey);
+    return _getImpl()->authenticateLocal(challenge, response);
 }
 
 PEGASUS_NAMESPACE_END

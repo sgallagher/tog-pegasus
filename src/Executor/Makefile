@@ -39,7 +39,6 @@ PROGRAM = cimserver
 
 SOURCES = \
     main.c \
-    SessionKey.c \
     Random.c \
     LocalAuth.c \
     User.c \

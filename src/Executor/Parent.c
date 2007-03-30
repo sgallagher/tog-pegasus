@@ -212,8 +212,6 @@ static void HandleStartProviderAgentRequest(int sock)
     int from[2];
     struct ExecutorStartProviderAgentResponse response;
     struct ExecutorStartProviderAgentRequest request;
-    SessionKey key;
-    char requestor[EXECUTOR_BUFFER_SIZE];
 
     memset(&response, 0, sizeof(response));
 
@@ -222,95 +220,10 @@ static void HandleStartProviderAgentRequest(int sock)
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
 
-    /* Get session key. */
-
-    Strlcpy(key.data, request.key, sizeof(key.data));
-
     /* Log request. */
 
     Log(LL_TRACE, "HandleStartProviderAgentRequest(): "
-        "key=%s module=%s gid=%d uid=%d",
-        key.data, request.module, request.gid, request.uid);
-
-    /* Check session key. */
-
-    if (globals.enableAuthentication)
-    {
-        int authenticated;
-
-        /* Check session key. */
-
-        authenticated = 0;
-
-        if (GetSessionKeyAuthenticated(&key, &authenticated) != 0)
-        {
-            Log(LL_SEVERE,
-                "attempted to start provider module \"%s\" as "
-                    "user ID \"%s\", using unknown session key",
-                request.module,
-                request.uid);
-        }
-        else if (!authenticated)
-        {
-            Log(LL_SEVERE,
-                "attempted to start provider module \"%s\" as "
-                    "user ID \"%s\", using unauthenticated session key",
-                request.module,
-                request.uid);
-        }
-
-        if (!authenticated)
-        {
-            response.status = -1;
-            response.pid = -1;
-            Strlcpy(
-                response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
-
-            if (SendNonBlock(
-                sock, &response, sizeof(response)) != sizeof(response))
-            {
-                Fatal(FL, "Failed to write response");
-            }
-
-            return;
-        }
-
-        /* Get requestor's username. */
-
-        if (GetSessionKeyUsername(&key, requestor) != 0)
-            Fatal(FL, "Failed to get requestor's username");
-    }
-    else
-        *requestor = '\0';
-
-    /* Check policy for this operation. */
-
-    if (globals.enableAuthentication)
-    {
-        char username[EXECUTOR_BUFFER_SIZE];
-
-        /* Get username to run provider agent as. */
-
-        if (GetUserName(request.uid, username) != 0)
-            Fatal(FL, "Failed to resolve username for uid=%d", request.uid);
-
-        if (CheckStartProviderAgentPolicy(
-            request.module, username, requestor) != 0)
-        {
-            response.status = -1;
-            response.pid = -1;
-            Strlcpy(
-                response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
-
-            if (SendNonBlock(
-                sock, &response, sizeof(response)) != sizeof(response))
-            {
-                Fatal(FL, "Failed to write response");
-            }
-
-            return;
-        }
-    }
+        "module=%s gid=%d uid=%d", request.module, request.gid, request.uid);
 
     /* Process request. */
 
@@ -431,14 +344,6 @@ static void HandleStartProviderAgentRequest(int sock)
 
     close(to[0]);
     close(from[1]);
-
-    /* Assign session key to this connection. */
-
-    {
-        SessionKey key;
-        key = NewSessionKey(request.uid, (long)pid, 0, 1);
-        Strlcat(response.key, key.data, sizeof(response.key));
-    }
 
     /* Send response. */
 
@@ -670,39 +575,6 @@ static void HandleReapProviderAgentRequest(int sock)
 
     do
     {
-        SessionKey key;
-        long data = 0;
-
-        /* Check session key. */
-
-        Strlcpy(key.data, request.key, sizeof(key.data));
-
-        if (GetSessionKeyData(&key, &data) != 0)
-        {
-            status = -1;
-            Log(LL_WARNING, "HandleReapProviderAgentRequest(): "
-                "unknown session key");
-            break;
-        }
-
-        /* Verify that the PID. */
-
-        if ((int)data != request.pid)
-        {
-            status = -1;
-            Log(LL_WARNING, "HandleReapProviderAgentRequest(): "
-                "request PID does not match PID cached with session key");
-            break;
-        } 
-
-        /* Delete the session key. */
-
-        if (DeleteSessionKey(&key) != 0)
-        {
-            Log(LL_WARNING, "HandleReapProviderAgentRequest(): "
-                "failed to delete session key");
-        }
-
         /* Wait on the PID. */
 
         EXECUTOR_RESTART(waitpid(request.pid, 0, 0), status);
@@ -735,7 +607,6 @@ static void HandleAuthenticatePasswordRequest(int sock)
     struct ExecutorAuthenticatePasswordResponse response;
     int gid;
     int uid;
-    SessionKey key;
 
     memset(&response, 0, sizeof(response));
 
@@ -789,10 +660,6 @@ static void HandleAuthenticatePasswordRequest(int sock)
             }
         }
 
-        /* Generate session key (set authenticated flag to true). */
-
-        key = NewSessionKey(uid, 0, 0, 1);
-
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
     }
     while (0);
@@ -811,11 +678,6 @@ static void HandleAuthenticatePasswordRequest(int sock)
     /* Send response message. */
 
     response.status = status;
-
-    if (status == 0)
-        Strlcpy(response.key, key.data, sizeof(response.key));
-    else
-        Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "Failed to write response");
@@ -899,8 +761,7 @@ static void HandleValidateUserRequest(int sock)
 
 static void HandleChallengeLocalRequest(int sock)
 {
-    char path[EXECUTOR_BUFFER_SIZE];
-    SessionKey key;
+    char challenge[EXECUTOR_BUFFER_SIZE];
     int status;
     struct ExecutorChallengeLocalRequest request;
     struct ExecutorChallengeLocalResponse response;
@@ -916,7 +777,7 @@ static void HandleChallengeLocalRequest(int sock)
 
     /* Peform operation. */
 
-    status = StartLocalAuthentication(request.user, path, &key);
+    status = StartLocalAuthentication(request.user, challenge);
 
     if (status != 0)
     {
@@ -929,12 +790,7 @@ static void HandleChallengeLocalRequest(int sock)
     response.status = status;
 
     if (status == 0)
-    {
-        Strlcpy(response.challenge, path, sizeof(response.challenge));
-        Strlcpy(response.key, key.data, sizeof(response.key));
-    }
-    else
-        Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
+        Strlcpy(response.challenge, challenge, sizeof(response.challenge));
 
     if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
         Fatal(FL, "Failed to write response");
@@ -950,7 +806,6 @@ static void HandleChallengeLocalRequest(int sock)
 
 static void HandleAuthenticateLocalRequest(int sock)
 {
-    SessionKey key;
     int status;
     struct ExecutorAuthenticateLocalRequest request;
     struct ExecutorAuthenticateLocalResponse response;
@@ -966,127 +821,14 @@ static void HandleAuthenticateLocalRequest(int sock)
 
     /* Peform operation. */
 
-    Strlcpy(key.data, request.key, sizeof(key.data));
-    status = FinishLocalAuthentication(&key, request.token);
+    status = FinishLocalAuthentication(request.challenge, request.response);
 
     /* Log result. */
 
-    if (status == 0)
-        SetSessionKeyAuthenticated(&key);
-    else
-    {
-        int uid;
-        GetSessionKeyUid(&key, &uid);
-
-        Log(LL_WARNING, "Local authentication failed for uid=%d", uid);
-    }
-
-    /* Send response. */
-
-    response.status = status;
-
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
-}
-
-/*
-**==============================================================================
-**
-** HandleNewSessionKeyRequest()
-**
-**==============================================================================
-*/
-
-static void HandleNewSessionKeyRequest(int sock)
-{
-    struct ExecutorNewSessionKeyRequest request;
-    struct ExecutorNewSessionKeyResponse response;
-    SessionKey key;
-    int status;
-
-    memset(&response, 0, sizeof(response));
-
-    /* Read the request. */
-
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
-
-    /* Log request. */
-
-    Log(LL_TRACE, "HandleNewSessionKeyRequest(): username=%s",request.username);
-
-    /* Perform operation. */
-
-    do
-    {
-        int uid;
-        int gid;
-
-        if (GetUserInfo(request.username, &uid, &gid) != 0)
-        {
-            Log(LL_WARNING, "GetUserInfo(%s, ...) failed", request.username);
-            status = -1;
-            break;
-        }
-
-        key = NewSessionKey(uid, 0, 0, 1);
-        status = 0;
-
-        Log(LL_TRACE, 
-            "create new session key for usr \"%s\"\n", request.username);
-    }
-    while (0);
-
-    /* Send response. */
-
-    response.status = status;
-
-    if (status == 0)
-        Strlcpy(response.key, key.data, sizeof(response.key));
-    else
-        Strlcpy(response.key, EXECUTOR_NULL_SESSION_KEY, sizeof(response.key));
-
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
-}
-
-/*
-**==============================================================================
-**
-** HandleDeleteSessionKeyRequest()
-**
-**==============================================================================
-*/
-
-static void HandleDeleteSessionKeyRequest(int sock)
-{
-    struct ExecutorDeleteSessionKeyRequest request;
-    struct ExecutorDeleteSessionKeyResponse response;
-    int status;
-
-    memset(&response, 0, sizeof(response));
-
-    /* Read the request. */
-
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
-
-    /* Log request. */
-
-    Log(LL_TRACE, "HandleDeleteSessionKeyRequest()");
-
-    /* Perform operation. */
-
-    {
-        SessionKey key;
-        Strlcpy(key.data, request.key, sizeof(key.data));
-        status = DeleteSessionKey(&key);
-    }
-
-    /* Log failure. */
-
     if (status != 0)
-        Log(LL_WARNING, "Failed to delete session key");
+    {
+        Log(LL_WARNING, "Local authentication failed");
+    }
 
     /* Send response. */
 
@@ -1204,22 +946,10 @@ void Parent(int sock, int childPid)
                 HandleAuthenticateLocalRequest(sock);
                 break;
 
-            case EXECUTOR_NEW_SESSION_KEY_MESSAGE:
-                HandleNewSessionKeyRequest(sock);
-                break;
-
-            case EXECUTOR_DELETE_SESSION_KEY_MESSAGE:
-                HandleDeleteSessionKeyRequest(sock);
-                break;
-
             default:
                 Fatal(FL, "Invalid request code: %d", header.code);
                 break;
         }
-
-        /* ATTN: consider timing out SessionKeys for which authentication 
-         * started but never finished.
-         */
     }
 
     /* Reached due to socket EOF, SIGTERM, or SIGINT. */

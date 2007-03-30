@@ -71,7 +71,6 @@
 #include "cimmofParser.h"
 #include <cstring>
 #include <iostream>
-#include "Policy.h"
 
 #define CHAR_PERIOD '.'
 #define EXPERIMENTAL "Experimental"
@@ -315,9 +314,6 @@ cimmofParser::enterInlineInclude(const String &filename) {
     
     if ( (f = fopen(s.getCString(), "r")) ) {
       _includefile = s;
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-      AddPath(s);
-#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
     }    
   }
    
@@ -333,9 +329,6 @@ cimmofParser::enterInlineInclude(const String &filename) {
 
         if ( (f = fopen(s.getCString(), "r")) ) {
           _includefile = s;
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-          AddPath(s);
-#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
           break;
         }
       }

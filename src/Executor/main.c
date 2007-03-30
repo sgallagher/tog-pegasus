@@ -355,10 +355,6 @@ int main(int argc, char** argv)
     if (options.shutdown)
         ExecShutdown();
 
-    /* Load the dynamic policy file. */
-
-    LoadDynamicPolicy();
-
     /* Process --policy and --macros options. */
 
     if (options.policy || options.macros)

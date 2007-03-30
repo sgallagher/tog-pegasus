@@ -68,7 +68,6 @@
 //
 
 #include "parser.h"
-#include "Policy.h"
 //#include <sstream>
 #include "parserExceptions.h"
 
@@ -97,9 +96,6 @@ parser::setInputBufferFromName(const String &filename) {
   FILE *f = fopen(filename.getCString(),"rt");
 #endif
   if (f) {
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    AddPath(filename);
-#endif /* defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
     set_current_filename(filename);
     set_lineno(1);
     return setInputBuffer(f, false);

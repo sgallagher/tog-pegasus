@@ -40,7 +40,6 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/SessionKey.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -141,16 +140,6 @@ public:
         return _wasRemotePrivilegedUserAccessChecked;
     }
 
-    void setSessionKey(const SessionKey& sessionKey)
-    {
-        _sessionKey = sessionKey;
-    }
-
-    const SessionKey& getSessionKey() const
-    {
-        return _sessionKey;
-    }
-
 private:
 
     /** Constructors  */
@@ -172,7 +161,6 @@ private:
     Boolean _wasRemotePrivilegedUserAccessChecked;
 
     Array<SSLCertificateInfo*> _clientCertificate;
-    SessionKey _sessionKey;
 };
 
 PEGASUS_NAMESPACE_END

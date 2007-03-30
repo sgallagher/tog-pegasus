@@ -24,9 +24,6 @@ int main()
     CHECK(EXECUTOR_VALIDATE_USER_MESSAGE, "ValidateUser");
     CHECK(EXECUTOR_CHALLENGE_LOCAL_MESSAGE, "ChallengeLocal");
     CHECK(EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE, "AuthenticateLocal");
-    CHECK(EXECUTOR_NEW_SESSION_KEY_MESSAGE, "NewSessionKey");
-    CHECK(EXECUTOR_DELETE_SESSION_KEY_MESSAGE, "DeleteSessionKey");
-    CHECK((enum ExecutorMessageCode)14, "<unknown>");
 
     printf("+++++ passed all tests\n");
 

@@ -129,7 +129,6 @@ class ProviderAgentContainer
 {
 public:
     ProviderAgentContainer(
-        const SessionKey& sessionKey,
         const String & moduleName,
         const String & userName,
         Uint16 userContext,
@@ -217,11 +216,6 @@ private:
         the Provider Agent state.
      */
     Mutex _agentMutex;
-
-    /**
-        Session key of the user on whose behalf this provider agent was loaded.
-    */
-    SessionKey _sessionKey;
 
     /**
         Name of the provider module served by this Provider Agent.
@@ -333,14 +327,6 @@ private:
         ProviderManagerRouter::_subscriptionInitComplete member variable.
      */
     Boolean _subscriptionInitComplete;
-
-    /** 
-        This SessionKey is used for processing upcalls from the out-of-process
-        provider module received from _pipeFromAgent. This session key was
-        assigned by Executor::startProviderAgent() as the 
-        providerAgentSessionKey output argument.
-    */
-    SessionKey _providerAgentSessionKey;
 };
 
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
@@ -352,7 +338,6 @@ CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
     reinterpret_cast<CIMResponseMessage*>(&_REQUEST_NOT_PROCESSED);
 
 ProviderAgentContainer::ProviderAgentContainer(
-    const SessionKey& sessionKey,
     const String & moduleName,
     const String & userName,
     Uint16 userContext,
@@ -361,7 +346,6 @@ ProviderAgentContainer::ProviderAgentContainer(
     PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback,
     Boolean subscriptionInitComplete)
     : 
-      _sessionKey(sessionKey),
       _moduleName(moduleName),
       _userName(userName),
       _userContext(userContext),
@@ -440,17 +424,14 @@ void ProviderAgentContainer::_startAgentProcess()
     // Start the provider agent.
 
     int pid;
-    SessionKey providerAgentSessionKey;
     AnonymousPipe* readPipe;
     AnonymousPipe* writePipe;
 
     int status = Executor::startProviderAgent(
-        _sessionKey,
         (const char*)_moduleName.getCString(),
         newUid,
         newGid,
         pid,
-        _providerAgentSessionKey,
         readPipe,
         writePipe);
 
@@ -558,14 +539,6 @@ void ProviderAgentContainer::_sendInitializationData()
 
     PEGASUS_ASSERT(message == 0);
 
-    // Request messages must bear the session key of the originating pipe.
-    {
-        CIMRequestMessage* m = dynamic_cast<CIMRequestMessage*>(message);
-
-        if (m)
-            m->sessionKey = _providerAgentSessionKey;
-    }
-
     PEG_METHOD_EXIT();
 }
 
@@ -647,8 +620,6 @@ void ProviderAgentContainer::_initialize()
     }
     catch (...)
     {
-        SessionKey sessionKey = _providerAgentSessionKey;
-
         // Closing the connection causes the agent process to exit
         _pipeToAgent.reset();
         _pipeFromAgent.reset();
@@ -657,7 +628,7 @@ void ProviderAgentContainer::_initialize()
         if (_isInitialized)
         {
             // Harvest the status of the agent process to prevent a zombie
-            pid_t status = Executor::reapProviderAgent(sessionKey, _pid);
+            pid_t status = Executor::reapProviderAgent(_pid);
 
             if (status == -1)
             {
@@ -693,8 +664,6 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::_uninitialize");
 
-    SessionKey sessionKey;
-
 #if defined(PEGASUS_HAS_SIGNALS)
     pid_t pid;
 #endif
@@ -704,8 +673,6 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         AutoMutex lock(_agentMutex);
 
         PEGASUS_ASSERT(_isInitialized);
-
-        sessionKey = _providerAgentSessionKey;
 
         // Close the connection with the Provider Agent
         _pipeFromAgent.reset();
@@ -772,7 +739,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 #if defined(PEGASUS_HAS_SIGNALS)
     // Harvest the status of the agent process to prevent a zombie.  Do not
     // hold the _agentMutex during this operation.
-    pid_t status = Executor::reapProviderAgent(sessionKey, _pid);
+    pid_t status = Executor::reapProviderAgent(_pid);
 
     if (status == -1)
     {
@@ -1136,16 +1103,6 @@ void ProviderAgentContainer::_processResponses()
             {
                 _uninitialize(true);
                 return;
-            }
-
-            // Request messages must bear the session key of the 
-            // originating pipe.
-            {
-                CIMRequestMessage* m = 
-                    dynamic_cast<CIMRequestMessage*>(message);
-
-                if (m)
-                    m->sessionKey = _providerAgentSessionKey;
             }
 
             // It is a CIM_PROCESS_INDICATION_REQUEST_MESSAGE?
@@ -1604,7 +1561,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
-            request->sessionKey, moduleName, userName, userContext,
+            moduleName, userName, userContext,
             _indicationCallback, _responseChunkCallback,
             _providerModuleFailCallback,
             _subscriptionInitComplete);

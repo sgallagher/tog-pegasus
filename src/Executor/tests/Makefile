@@ -13,7 +13,6 @@ DIRS = \
     Path \
     Process \
     Random \
-    SessionKey \
     Socket \
     Strlcat \
     Strlcpy \

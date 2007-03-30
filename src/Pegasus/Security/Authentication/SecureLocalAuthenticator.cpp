@@ -77,27 +77,20 @@ SecureLocalAuthenticator::~SecureLocalAuthenticator()
 Boolean SecureLocalAuthenticator::authenticate(
    const String& filePath, 
    const String& secretReceived, 
-   const String& secretKept,
-   SessionKey& sessionKey)
+   const String& secretKept)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureLocalAuthenticator::authenticate()");
 
     Boolean authenticated = false;
 
-    sessionKey.clear();
-
     // Use executor, if present.
 
     if (Executor::detectExecutor() == 0)
     {
-        Strlcpy(
-            (char*)sessionKey.data(),
-            (const char*)secretKept.getCString(), 
-            sessionKey.size());
-
         if (Executor::authenticateLocal(
-            sessionKey, (const char*)secretReceived.getCString()) == 0)
+            (const char*)secretKept.getCString(),
+            (const char*)secretReceived.getCString()) == 0)
         {
             authenticated = true;
         }
@@ -166,18 +159,15 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
 
     if (Executor::detectExecutor() == 0)
     {
-        char path[EXECUTOR_BUFFER_SIZE];
-        SessionKey sessionKey;
+        char challenge[EXECUTOR_BUFFER_SIZE];
 
-        if (Executor::challengeLocal(
-            userName.getCString(), path, sessionKey) != 0)
+        if (Executor::challengeLocal(userName.getCString(), challenge) != 0)
         {
-            throw CannotOpenFile(path);
+            throw CannotOpenFile(challenge);
         }
+        secret = challenge;
 
-        secret = sessionKey.data();
-
-        responseHeader.append(path);
+        responseHeader.append(challenge);
         responseHeader.append("\"");
     }
     else

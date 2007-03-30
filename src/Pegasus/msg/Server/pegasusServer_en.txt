@@ -4520,7 +4520,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {1} and {2} are hexadecimal numbers.
         *    Do not translate CIM and ARM since it is the name of a product.
         */
-        Common.ARM_zOS.ARM_FAIL:string {"PGS12533W: The CIM server failed to register with ARM using element name {0}: return code 0x{1}, reason code 0x{2}."}
+        Common.ARM_zOS.ARM_FAIL:string {"PGS12533I: The CIM server failed to register with ARM using element name {0}: return code 0x{1}, reason code 0x{2}."}
 
         /**
         * @note PGS12534:

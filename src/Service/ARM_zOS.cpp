@@ -170,7 +170,7 @@ void ARM_zOS::Register(void)
         sprintf(str_arm_ret,"%02X",arm_ret);
         char str_arm_res[8];
         sprintf(str_arm_res,"%04X",arm_res);
-        Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::WARNING,
+        Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
                       "Common.ARM_zOS.ARM_FAIL",
                       "The CIM server failed to register with ARM using element name $0: return code 0x$1, reason code 0x$2."
                       ,arm_elemname,str_arm_ret,str_arm_res);

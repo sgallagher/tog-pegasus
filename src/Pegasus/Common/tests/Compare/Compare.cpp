@@ -27,13 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
@@ -47,13 +43,13 @@ int main(int argc, char** argv)
 {
     try
     {
-	PEGASUS_TEST_ASSERT(FileSystem::compareFiles("file1.dat", "file2.dat"));
-	PEGASUS_TEST_ASSERT(!FileSystem::compareFiles("file1.dat", "file3.dat"));
+    PEGASUS_TEST_ASSERT(FileSystem::compareFiles("file1.dat", "file2.dat"));
+    PEGASUS_TEST_ASSERT(!FileSystem::compareFiles("file1.dat", "file3.dat"));
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
-	exit(1);
+    cerr << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

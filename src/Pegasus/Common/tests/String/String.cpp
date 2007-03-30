@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -421,7 +417,8 @@ int test(int argc, char** argv)
         PEGASUS_TEST_ASSERT(utf16string == utf16chr);
         PEGASUS_TEST_ASSERT(utf8string  == utf16chr);
 
-        PEGASUS_TEST_ASSERT(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
+        PEGASUS_TEST_ASSERT(memcmp(utf8string.getChar16Data(),
+                            utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
         PEGASUS_TEST_ASSERT(strcmp(utf8string.getCString(),utf8chr) == 0);
         PEGASUS_TEST_ASSERT(strcmp(utf16string.getCString(),utf8chr) == 0);
         PEGASUS_TEST_ASSERT(strcmp(tmp,utf8chr) == 0);
@@ -460,8 +457,10 @@ int test(int argc, char** argv)
         0x064A, 0x0648, 0x0646, 0x0650, 0x0643, 0x0648, 0x062F,
         0x092F, 0x0942, 0x0928, 0x093F, 0x0915, 0x094B, 0x0921,
         0x016A, 0x006E, 0x012D, 0x0063, 0x014D, 0x0064, 0x0065, 0x033D,
-        0x00E0, 0x248B, 0x0061, 0x2173, 0x0062, 0x1EA6, 0xFF21, 0x00AA, 0x0325, 0x2173, 0x249C, 0x0063,
-        0x02C8, 0x006A, 0x0075, 0x006E, 0x026A, 0x02CC, 0x006B, 0x006F, 0x02D0, 0x0064,
+        0x00E0, 0x248B, 0x0061, 0x2173, 0x0062, 0x1EA6, 0xFF21, 0x00AA,
+            0x0325, 0x2173, 0x249C, 0x0063,
+        0x02C8, 0x006A, 0x0075, 0x006E, 0x026A, 0x02CC, 0x006B, 0x006F,
+            0x02D0, 0x0064,
         0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9,
         0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E,
         0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
@@ -698,13 +697,17 @@ int test(int argc, char** argv)
         PEGASUS_TEST_ASSERT(String::match("This is a test", "* is a test"));
         PEGASUS_TEST_ASSERT(!String::match("Hello", "Goodbye"));
 
-        String tPattern = "When in the * of human*e??nts it be?ome[sS] [0-9] nec*";
+        String tPattern =
+            "When in the * of human*e??nts it be?ome[sS] [0-9] nec*";
 
 
         try
         {
             String x(reinterpret_cast<const char *>(0));
-            cerr << "Error: Exception not thrown on NULL passed to constructor(const char *)" << endl;
+            cerr <<
+                 "Error: Exception not thrown on NULL passed to"
+                 " constructor(const char *)" 
+                << endl;
         }
 
         catch ( const NullPointer & )
@@ -714,14 +717,20 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << "Error: Wrong exception thrown on NULL passed to constructor(const char *)" << endl;
+            cerr << 
+                "Error: Wrong exception thrown on NULL passed to"
+                " constructor(const char *)" 
+                << endl;
         }
 
 
         try
         {
             String x(reinterpret_cast<const Char16 *>(0));
-            cerr << "Error: Exception not thrown on NULL passed to constructor(const Char16 *)" << endl;
+            cerr << 
+                "Error: Exception not thrown on NULL passed to"
+                " constructor(const Char16 *)" 
+                << endl;
         }
 
         catch ( const NullPointer & )
@@ -731,7 +740,10 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << "Error: Wrong exception thrown on NULL passed to constructor(const Char16 *)" << endl;
+            cerr << 
+                "Error: Wrong exception thrown on NULL passed to"
+                " constructor(const Char16 *)" 
+                << endl;
         }
 
 
@@ -740,7 +752,10 @@ int test(int argc, char** argv)
             String x;
 
             x.assign(reinterpret_cast<const char *>(0));
-            cerr << "Error: Exception not thrown on NULL passed to assign(const char *)" << endl;
+            cerr << 
+                "Error: Exception not thrown on NULL passed to"
+                " assign(const char *)" 
+                << endl;
         }
 
         catch ( const NullPointer & )
@@ -750,7 +765,10 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << "Error: Wrong exception thrown on NULL passed to assign(const char *)" << endl;
+            cerr << 
+                "Error: Wrong exception thrown on NULL passed to"
+                " assign(const char *)" 
+                << endl;
         }
 
 
@@ -759,7 +777,10 @@ int test(int argc, char** argv)
             String x;
 
             x.assign(reinterpret_cast<const Char16 *>(0));
-            cerr << "Error: Exception not thrown on NULL passed to assign(const Char16 *)" << endl;
+            cerr << 
+                "Error: Exception not thrown on NULL passed to"
+                " assign(const Char16 *)" 
+                << endl;
         }
 
         catch ( const NullPointer & )
@@ -769,7 +790,10 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << "Error: Wrong exception thrown on NULL passed to assign(const Char16 *)" << endl;
+            cerr << 
+                "Error: Wrong exception thrown on NULL passed to"
+                " assign(const Char16 *)" 
+                << endl;
         }
 
 
@@ -778,7 +802,10 @@ int test(int argc, char** argv)
             String x;
 
             x.append(reinterpret_cast<const char *>(0));
-            cerr << "Error: Exception not thrown on NULL passed to append(const char *)" << endl;
+            cerr << 
+                "Error: Exception not thrown on NULL passed to"
+                " append(const char *)" 
+                << endl;
         }
 
         catch ( const NullPointer & )
@@ -788,7 +815,10 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << "Error: Wrong exception thrown on NULL passed to append(const char *)" << endl;
+            cerr << 
+                "Error: Wrong exception thrown on NULL passed to"
+                " append(const char *)" 
+                << endl;
         }
 
 
@@ -797,7 +827,10 @@ int test(int argc, char** argv)
             String x;
 
             x.append(reinterpret_cast<const Char16 *>(0));
-            cerr << "Error: Exception not thrown on NULL passed to append(const Char16 *)" << endl;
+            cerr << 
+                "Error: Exception not thrown on NULL passed to"
+                " append(const Char16 *)" 
+                << endl;
         }
 
         catch ( const NullPointer & )
@@ -807,7 +840,10 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << "Error: Wrong exception thrown on NULL passed to append(const Char16 *)" << endl;
+            cerr << 
+                "Error: Wrong exception thrown on NULL passed"
+                " to append(const Char16 *)" 
+                << endl;
         }
 
         // ATTN-RK-P3-20020603: This match code is broken
@@ -825,411 +861,411 @@ int test(int argc, char** argv)
 
     // string()
     {
-	String s;
-	PEGASUS_TEST_ASSERT(s.size() == 0);
-	PEGASUS_TEST_ASSERT(s[0] == '\0');
+    String s;
+    PEGASUS_TEST_ASSERT(s.size() == 0);
+    PEGASUS_TEST_ASSERT(s[0] == '\0');
     }
 
     // String(const String& s)
     {
-	const String s("hello");
-	const String t = s;
-	PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
-	PEGASUS_TEST_ASSERT(s == "hello");
-	PEGASUS_TEST_ASSERT(t.size() == strlen("hello"));
-	PEGASUS_TEST_ASSERT(t == "hello");
+    const String s("hello");
+    const String t = s;
+    PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
+    PEGASUS_TEST_ASSERT(s == "hello");
+    PEGASUS_TEST_ASSERT(t.size() == strlen("hello"));
+    PEGASUS_TEST_ASSERT(t == "hello");
     }
 
     // String(const char*)
     {
-	const String s("hello");
-	PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
-	PEGASUS_TEST_ASSERT(s == "hello");
+    const String s("hello");
+    PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
+    PEGASUS_TEST_ASSERT(s == "hello");
     }
 
     // reserve()
     {
-	String s;
-	s.reserveCapacity(100);
-	PEGASUS_TEST_ASSERT(s.size() == 0);
-	// PEGASUS_TEST_ASSERT(s.getCapacity() >= 100);
+    String s;
+    s.reserveCapacity(100);
+    PEGASUS_TEST_ASSERT(s.size() == 0);
+    // PEGASUS_TEST_ASSERT(s.getCapacity() >= 100);
 
-	String t("hello world");
-	PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
-	t.reserveCapacity(500);
-	PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
-	PEGASUS_TEST_ASSERT(t == "hello world");
+    String t("hello world");
+    PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
+    t.reserveCapacity(500);
+    PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
+    PEGASUS_TEST_ASSERT(t == "hello world");
     }
 
     // assign(const String&)
     {
-	String s("this is a test");
-	String t;
+    String s("this is a test");
+    String t;
 
-	t = s;
-	PEGASUS_TEST_ASSERT(s.size() == strlen("this is a test"));
-	PEGASUS_TEST_ASSERT(s == "this is a test");
-	PEGASUS_TEST_ASSERT(t.size() == strlen("this is a test"));
-	PEGASUS_TEST_ASSERT(t == "this is a test");
+    t = s;
+    PEGASUS_TEST_ASSERT(s.size() == strlen("this is a test"));
+    PEGASUS_TEST_ASSERT(s == "this is a test");
+    PEGASUS_TEST_ASSERT(t.size() == strlen("this is a test"));
+    PEGASUS_TEST_ASSERT(t == "this is a test");
 
-	s = t;
-	PEGASUS_TEST_ASSERT(s.size() == strlen("this is a test"));
-	PEGASUS_TEST_ASSERT(s == "this is a test");
-	PEGASUS_TEST_ASSERT(t.size() == strlen("this is a test"));
-	PEGASUS_TEST_ASSERT(t == "this is a test");
+    s = t;
+    PEGASUS_TEST_ASSERT(s.size() == strlen("this is a test"));
+    PEGASUS_TEST_ASSERT(s == "this is a test");
+    PEGASUS_TEST_ASSERT(t.size() == strlen("this is a test"));
+    PEGASUS_TEST_ASSERT(t == "this is a test");
     }
 
     // assign(const char*, size_t)
     {
-	const char MESSAGE[] = "x";
-	const size_t LENGTH = sizeof(MESSAGE) - 1;
-	String s;
-	s.assign(MESSAGE, LENGTH);
-	PEGASUS_TEST_ASSERT(s.size() == LENGTH);
-	PEGASUS_TEST_ASSERT(s == MESSAGE);
+    const char MESSAGE[] = "x";
+    const size_t LENGTH = sizeof(MESSAGE) - 1;
+    String s;
+    s.assign(MESSAGE, LENGTH);
+    PEGASUS_TEST_ASSERT(s.size() == LENGTH);
+    PEGASUS_TEST_ASSERT(s == MESSAGE);
 
-	String t("dummy", 5);
-	t.assign(MESSAGE, LENGTH);
-	PEGASUS_TEST_ASSERT(t.size() == LENGTH);
-	PEGASUS_TEST_ASSERT(t == MESSAGE);
+    String t("dummy", 5);
+    t.assign(MESSAGE, LENGTH);
+    PEGASUS_TEST_ASSERT(t.size() == LENGTH);
+    PEGASUS_TEST_ASSERT(t == MESSAGE);
     }
 
     // assign(const char*)
     {
-	const char MESSAGE[] = "x";
-	const size_t LENGTH = sizeof(MESSAGE) - 1;
-	String s;
-	s.assign(MESSAGE);
-	PEGASUS_TEST_ASSERT(s.size() == LENGTH);
-	PEGASUS_TEST_ASSERT(s == MESSAGE);
+    const char MESSAGE[] = "x";
+    const size_t LENGTH = sizeof(MESSAGE) - 1;
+    String s;
+    s.assign(MESSAGE);
+    PEGASUS_TEST_ASSERT(s.size() == LENGTH);
+    PEGASUS_TEST_ASSERT(s == MESSAGE);
 
-	String t("dummy", 5);
-	t.assign(MESSAGE);
-	PEGASUS_TEST_ASSERT(t.size() == LENGTH);
-	PEGASUS_TEST_ASSERT(t == MESSAGE);
+    String t("dummy", 5);
+    t.assign(MESSAGE);
+    PEGASUS_TEST_ASSERT(t.size() == LENGTH);
+    PEGASUS_TEST_ASSERT(t == MESSAGE);
     }
 
     // append(const String&)
     {
-	String s;
+    String s;
 
-	s.append(String("xxx"));
-	PEGASUS_TEST_ASSERT(s.size() == 3);
-	PEGASUS_TEST_ASSERT(s == "xxx");
+    s.append(String("xxx"));
+    PEGASUS_TEST_ASSERT(s.size() == 3);
+    PEGASUS_TEST_ASSERT(s == "xxx");
 
-	s.append(String("yyy"));
-	PEGASUS_TEST_ASSERT(s.size() == 6);
-	PEGASUS_TEST_ASSERT(s == "xxxyyy");
+    s.append(String("yyy"));
+    PEGASUS_TEST_ASSERT(s.size() == 6);
+    PEGASUS_TEST_ASSERT(s == "xxxyyy");
 
-	s.append(String("zzz"));
-	PEGASUS_TEST_ASSERT(s.size() == 9);
-	PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
+    s.append(String("zzz"));
+    PEGASUS_TEST_ASSERT(s.size() == 9);
+    PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
     }
 
     // append(const char*)
     {
-	String s;
+    String s;
 
-	s.append("xxx");
-	PEGASUS_TEST_ASSERT(s.size() == 3);
-	PEGASUS_TEST_ASSERT(s == "xxx");
+    s.append("xxx");
+    PEGASUS_TEST_ASSERT(s.size() == 3);
+    PEGASUS_TEST_ASSERT(s == "xxx");
 
-	s.append("yyy");
-	PEGASUS_TEST_ASSERT(s.size() == 6);
-	PEGASUS_TEST_ASSERT(s == "xxxyyy");
+    s.append("yyy");
+    PEGASUS_TEST_ASSERT(s.size() == 6);
+    PEGASUS_TEST_ASSERT(s == "xxxyyy");
 
-	s.append("zzz");
-	PEGASUS_TEST_ASSERT(s.size() == 9);
-	PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
+    s.append("zzz");
+    PEGASUS_TEST_ASSERT(s.size() == 9);
+    PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
     }
 
     // append(const char*)
     {
-	String s;
+    String s;
 
-	s.append("xxx");
-	PEGASUS_TEST_ASSERT(s.size() == 3);
-	PEGASUS_TEST_ASSERT(s == "xxx");
+    s.append("xxx");
+    PEGASUS_TEST_ASSERT(s.size() == 3);
+    PEGASUS_TEST_ASSERT(s == "xxx");
 
-	s.append("yyy");
-	PEGASUS_TEST_ASSERT(s.size() == 6);
-	PEGASUS_TEST_ASSERT(s == "xxxyyy");
+    s.append("yyy");
+    PEGASUS_TEST_ASSERT(s.size() == 6);
+    PEGASUS_TEST_ASSERT(s == "xxxyyy");
 
-	s.append("zzz");
-	PEGASUS_TEST_ASSERT(s.size() == 9);
-	PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
+    s.append("zzz");
+    PEGASUS_TEST_ASSERT(s.size() == 9);
+    PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
     }
 
     // append(char)
     {
-	String s;
+    String s;
 
-	for (int i = 'a'; i <= 'z'; i++)
-	{
-	    Char16 c = i;
-	    s.append(c);
-	}
+    for (int i = 'a'; i <= 'z'; i++)
+    {
+        Char16 c = i;
+        s.append(c);
+    }
 
-	PEGASUS_TEST_ASSERT(s.size() == 26);
-	PEGASUS_TEST_ASSERT(s == "abcdefghijklmnopqrstuvwxyz");
+    PEGASUS_TEST_ASSERT(s.size() == 26);
+    PEGASUS_TEST_ASSERT(s == "abcdefghijklmnopqrstuvwxyz");
     }
 
     // clear()
     {
-	String s("abc");
-	String t = s;
-	String u = s;
+    String s("abc");
+    String t = s;
+    String u = s;
 
-	s.clear();
-	PEGASUS_TEST_ASSERT(t.size() == 3);
-	PEGASUS_TEST_ASSERT(t == "abc");
-	PEGASUS_TEST_ASSERT(t[0] == 'a');
-	PEGASUS_TEST_ASSERT(u.size() == 3);
-	PEGASUS_TEST_ASSERT(u == "abc");
-	PEGASUS_TEST_ASSERT(u[0] == 'a');
-	PEGASUS_TEST_ASSERT(s.size() == 0);
-	PEGASUS_TEST_ASSERT(s[0] == '\0');
+    s.clear();
+    PEGASUS_TEST_ASSERT(t.size() == 3);
+    PEGASUS_TEST_ASSERT(t == "abc");
+    PEGASUS_TEST_ASSERT(t[0] == 'a');
+    PEGASUS_TEST_ASSERT(u.size() == 3);
+    PEGASUS_TEST_ASSERT(u == "abc");
+    PEGASUS_TEST_ASSERT(u[0] == 'a');
+    PEGASUS_TEST_ASSERT(s.size() == 0);
+    PEGASUS_TEST_ASSERT(s[0] == '\0');
 
-	t.clear();
-	PEGASUS_TEST_ASSERT(t.size() == 0);
-	PEGASUS_TEST_ASSERT(t[0] == '\0');
-	PEGASUS_TEST_ASSERT(t == "");
-	PEGASUS_TEST_ASSERT(u.size() == 3);
-	PEGASUS_TEST_ASSERT(u == "abc");
-	PEGASUS_TEST_ASSERT(u[0] == 'a');
-	PEGASUS_TEST_ASSERT(s.size() == 0);
-	PEGASUS_TEST_ASSERT(s == "");
-	PEGASUS_TEST_ASSERT(s[0] == '\0');
+    t.clear();
+    PEGASUS_TEST_ASSERT(t.size() == 0);
+    PEGASUS_TEST_ASSERT(t[0] == '\0');
+    PEGASUS_TEST_ASSERT(t == "");
+    PEGASUS_TEST_ASSERT(u.size() == 3);
+    PEGASUS_TEST_ASSERT(u == "abc");
+    PEGASUS_TEST_ASSERT(u[0] == 'a');
+    PEGASUS_TEST_ASSERT(s.size() == 0);
+    PEGASUS_TEST_ASSERT(s == "");
+    PEGASUS_TEST_ASSERT(s[0] == '\0');
 
-	u.clear();
-	PEGASUS_TEST_ASSERT(t.size() == 0);
-	PEGASUS_TEST_ASSERT(t == "");
-	PEGASUS_TEST_ASSERT(t[0] == '\0');
-	PEGASUS_TEST_ASSERT(u.size() == 0);
-	PEGASUS_TEST_ASSERT(u == "");
-	PEGASUS_TEST_ASSERT(u[0] == '\0');
-	PEGASUS_TEST_ASSERT(s.size() == 0);
-	PEGASUS_TEST_ASSERT(s == "");
-	PEGASUS_TEST_ASSERT(s[0] == '\0');
+    u.clear();
+    PEGASUS_TEST_ASSERT(t.size() == 0);
+    PEGASUS_TEST_ASSERT(t == "");
+    PEGASUS_TEST_ASSERT(t[0] == '\0');
+    PEGASUS_TEST_ASSERT(u.size() == 0);
+    PEGASUS_TEST_ASSERT(u == "");
+    PEGASUS_TEST_ASSERT(u[0] == '\0');
+    PEGASUS_TEST_ASSERT(s.size() == 0);
+    PEGASUS_TEST_ASSERT(s == "");
+    PEGASUS_TEST_ASSERT(s[0] == '\0');
     }
 
     // c_str()
     {
-	String s("abc");
-	String t("abc");
-	String u("def");
-	String v;
-	String w("");
+    String s("abc");
+    String t("abc");
+    String u("def");
+    String v;
+    String w("");
 
-	PEGASUS_TEST_ASSERT(s == "abc");
-	PEGASUS_TEST_ASSERT(t == "abc");
-	PEGASUS_TEST_ASSERT(u == "def");
-	PEGASUS_TEST_ASSERT(s == t);
-	PEGASUS_TEST_ASSERT(s != u);
-	PEGASUS_TEST_ASSERT(v == "");
-	PEGASUS_TEST_ASSERT(v[0] == '\0');
-	PEGASUS_TEST_ASSERT(v[0] == '\0');
-	PEGASUS_TEST_ASSERT(w.size() == 0);
-	PEGASUS_TEST_ASSERT(w[0] == '\0');
-	PEGASUS_TEST_ASSERT(w[0] == '\0');
+    PEGASUS_TEST_ASSERT(s == "abc");
+    PEGASUS_TEST_ASSERT(t == "abc");
+    PEGASUS_TEST_ASSERT(u == "def");
+    PEGASUS_TEST_ASSERT(s == t);
+    PEGASUS_TEST_ASSERT(s != u);
+    PEGASUS_TEST_ASSERT(v == "");
+    PEGASUS_TEST_ASSERT(v[0] == '\0');
+    PEGASUS_TEST_ASSERT(v[0] == '\0');
+    PEGASUS_TEST_ASSERT(w.size() == 0);
+    PEGASUS_TEST_ASSERT(w[0] == '\0');
+    PEGASUS_TEST_ASSERT(w[0] == '\0');
     }
 
     // set(size_t, char)
     {
-	String s("abcdefghijklmnopqrstuvwxyz");
+    String s("abcdefghijklmnopqrstuvwxyz");
 
-	for (int i = 0; i < 26; i++)
-	    s[i] = toupper(s[i]);
+    for (int i = 0; i < 26; i++)
+        s[i] = toupper(s[i]);
 
-	PEGASUS_TEST_ASSERT(s == "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    PEGASUS_TEST_ASSERT(s == "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     }
 
     // equal(const String&)
     {
-	String t("abc");
-	String u("abc");
-	String v("def");
-	String w("defg");
-	String x("");
-	String y("");
+    String t("abc");
+    String u("abc");
+    String v("def");
+    String w("defg");
+    String x("");
+    String y("");
 
-	PEGASUS_TEST_ASSERT(String::equal(t, t));
-	PEGASUS_TEST_ASSERT(String::equal(u, u));
-	PEGASUS_TEST_ASSERT(String::equal(v, v));
-	PEGASUS_TEST_ASSERT(String::equal(w, w));
-	PEGASUS_TEST_ASSERT(String::equal(x, x));
-	PEGASUS_TEST_ASSERT(String::equal(y, y));
+    PEGASUS_TEST_ASSERT(String::equal(t, t));
+    PEGASUS_TEST_ASSERT(String::equal(u, u));
+    PEGASUS_TEST_ASSERT(String::equal(v, v));
+    PEGASUS_TEST_ASSERT(String::equal(w, w));
+    PEGASUS_TEST_ASSERT(String::equal(x, x));
+    PEGASUS_TEST_ASSERT(String::equal(y, y));
 
-	PEGASUS_TEST_ASSERT(String::equal(t, u));
-	PEGASUS_TEST_ASSERT(String::equal(u, t));
+    PEGASUS_TEST_ASSERT(String::equal(t, u));
+    PEGASUS_TEST_ASSERT(String::equal(u, t));
 
-	PEGASUS_TEST_ASSERT(!String::equal(t, v));
-	PEGASUS_TEST_ASSERT(!String::equal(t, w));
-	PEGASUS_TEST_ASSERT(!String::equal(t, x));
-	PEGASUS_TEST_ASSERT(!String::equal(t, y));
-	PEGASUS_TEST_ASSERT(!String::equal(v, t));
-	PEGASUS_TEST_ASSERT(!String::equal(w, t));
-	PEGASUS_TEST_ASSERT(!String::equal(x, t));
-	PEGASUS_TEST_ASSERT(!String::equal(y, t));
+    PEGASUS_TEST_ASSERT(!String::equal(t, v));
+    PEGASUS_TEST_ASSERT(!String::equal(t, w));
+    PEGASUS_TEST_ASSERT(!String::equal(t, x));
+    PEGASUS_TEST_ASSERT(!String::equal(t, y));
+    PEGASUS_TEST_ASSERT(!String::equal(v, t));
+    PEGASUS_TEST_ASSERT(!String::equal(w, t));
+    PEGASUS_TEST_ASSERT(!String::equal(x, t));
+    PEGASUS_TEST_ASSERT(!String::equal(y, t));
 
-	PEGASUS_TEST_ASSERT(!String::equal(v, w));
-	PEGASUS_TEST_ASSERT(!String::equal(w, v));
-	PEGASUS_TEST_ASSERT(String::equal(x, y));
-	PEGASUS_TEST_ASSERT(String::equal(y, x));
+    PEGASUS_TEST_ASSERT(!String::equal(v, w));
+    PEGASUS_TEST_ASSERT(!String::equal(w, v));
+    PEGASUS_TEST_ASSERT(String::equal(x, y));
+    PEGASUS_TEST_ASSERT(String::equal(y, x));
     }
 
     // equal(const char*)
     {
-	String t("abc");
-	String u("abc");
-	String v("def");
-	String w("defg");
-	String x("");
-	String y("");
+    String t("abc");
+    String u("abc");
+    String v("def");
+    String w("defg");
+    String x("");
+    String y("");
 
-	PEGASUS_TEST_ASSERT(String::equal(t, "abc"));
-	PEGASUS_TEST_ASSERT(String::equal(u, "abc"));
-	PEGASUS_TEST_ASSERT(String::equal(v, "def"));
-	PEGASUS_TEST_ASSERT(String::equal(w, "defg"));
-	PEGASUS_TEST_ASSERT(String::equal(x, ""));
-	PEGASUS_TEST_ASSERT(String::equal(y, ""));
+    PEGASUS_TEST_ASSERT(String::equal(t, "abc"));
+    PEGASUS_TEST_ASSERT(String::equal(u, "abc"));
+    PEGASUS_TEST_ASSERT(String::equal(v, "def"));
+    PEGASUS_TEST_ASSERT(String::equal(w, "defg"));
+    PEGASUS_TEST_ASSERT(String::equal(x, ""));
+    PEGASUS_TEST_ASSERT(String::equal(y, ""));
 
-	PEGASUS_TEST_ASSERT(String::equal(t, "abc"));
-	PEGASUS_TEST_ASSERT(String::equal(u, "abc"));
+    PEGASUS_TEST_ASSERT(String::equal(t, "abc"));
+    PEGASUS_TEST_ASSERT(String::equal(u, "abc"));
 
-	PEGASUS_TEST_ASSERT(!String::equal(t, "def"));
-	PEGASUS_TEST_ASSERT(!String::equal(t, "defg"));
-	PEGASUS_TEST_ASSERT(!String::equal(t, ""));
-	PEGASUS_TEST_ASSERT(!String::equal(t, ""));
-	PEGASUS_TEST_ASSERT(!String::equal(v, "abc"));
-	PEGASUS_TEST_ASSERT(!String::equal(w, "abc"));
-	PEGASUS_TEST_ASSERT(!String::equal(x, "abc"));
-	PEGASUS_TEST_ASSERT(!String::equal(y, "abc"));
+    PEGASUS_TEST_ASSERT(!String::equal(t, "def"));
+    PEGASUS_TEST_ASSERT(!String::equal(t, "defg"));
+    PEGASUS_TEST_ASSERT(!String::equal(t, ""));
+    PEGASUS_TEST_ASSERT(!String::equal(t, ""));
+    PEGASUS_TEST_ASSERT(!String::equal(v, "abc"));
+    PEGASUS_TEST_ASSERT(!String::equal(w, "abc"));
+    PEGASUS_TEST_ASSERT(!String::equal(x, "abc"));
+    PEGASUS_TEST_ASSERT(!String::equal(y, "abc"));
 
-	PEGASUS_TEST_ASSERT(!String::equal(v, "defg"));
-	PEGASUS_TEST_ASSERT(!String::equal(w, "def"));
-	PEGASUS_TEST_ASSERT(String::equal(x, ""));
-	PEGASUS_TEST_ASSERT(String::equal(y, ""));
+    PEGASUS_TEST_ASSERT(!String::equal(v, "defg"));
+    PEGASUS_TEST_ASSERT(!String::equal(w, "def"));
+    PEGASUS_TEST_ASSERT(String::equal(x, ""));
+    PEGASUS_TEST_ASSERT(String::equal(y, ""));
     }
 
     // equali()
     {
-	String s("abc");
-	String t("abC");
-	String u("ABC");
-	String v("xyz");
-	String w("");
-	String x("");
-	PEGASUS_TEST_ASSERT(String::equalNoCase(s, t));
-	PEGASUS_TEST_ASSERT(String::equalNoCase(s, u));
-	PEGASUS_TEST_ASSERT(!String::equalNoCase(s, v));
-	PEGASUS_TEST_ASSERT(String::equalNoCase(w, x));
-	PEGASUS_TEST_ASSERT(!String::equalNoCase(w, s));
-	PEGASUS_TEST_ASSERT(!String::equalNoCase(w, t));
-	PEGASUS_TEST_ASSERT(!String::equalNoCase(w, v));
+    String s("abc");
+    String t("abC");
+    String u("ABC");
+    String v("xyz");
+    String w("");
+    String x("");
+    PEGASUS_TEST_ASSERT(String::equalNoCase(s, t));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(s, u));
+    PEGASUS_TEST_ASSERT(!String::equalNoCase(s, v));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(w, x));
+    PEGASUS_TEST_ASSERT(!String::equalNoCase(w, s));
+    PEGASUS_TEST_ASSERT(!String::equalNoCase(w, t));
+    PEGASUS_TEST_ASSERT(!String::equalNoCase(w, v));
     }
 
     {
 
-	String t;
-	const char MESSAGE[] = "hello";
-	const size_t LENGTH = sizeof(MESSAGE) - 1;
-	String s = String(MESSAGE);
-	t = s;
-	String u = String(t);
+    String t;
+    const char MESSAGE[] = "hello";
+    const size_t LENGTH = sizeof(MESSAGE) - 1;
+    String s = String(MESSAGE);
+    t = s;
+    String u = String(t);
 
-	PEGASUS_TEST_ASSERT(t.size() == LENGTH);
-	PEGASUS_TEST_ASSERT(t == MESSAGE);
-	PEGASUS_TEST_ASSERT(s.size() == LENGTH);
-	PEGASUS_TEST_ASSERT(s == MESSAGE);
-	PEGASUS_TEST_ASSERT(u.size() == LENGTH);
-	PEGASUS_TEST_ASSERT(u == MESSAGE);
+    PEGASUS_TEST_ASSERT(t.size() == LENGTH);
+    PEGASUS_TEST_ASSERT(t == MESSAGE);
+    PEGASUS_TEST_ASSERT(s.size() == LENGTH);
+    PEGASUS_TEST_ASSERT(s == MESSAGE);
+    PEGASUS_TEST_ASSERT(u.size() == LENGTH);
+    PEGASUS_TEST_ASSERT(u == MESSAGE);
 
-	PEGASUS_TEST_ASSERT(t[0] == 'h');
-	PEGASUS_TEST_ASSERT(t[1] == 'e');
-	PEGASUS_TEST_ASSERT(t[2] == 'l');
-	PEGASUS_TEST_ASSERT(t[3] == 'l');
-	PEGASUS_TEST_ASSERT(t[4] == 'o');
-	PEGASUS_TEST_ASSERT(t[5] == '\0');
+    PEGASUS_TEST_ASSERT(t[0] == 'h');
+    PEGASUS_TEST_ASSERT(t[1] == 'e');
+    PEGASUS_TEST_ASSERT(t[2] == 'l');
+    PEGASUS_TEST_ASSERT(t[3] == 'l');
+    PEGASUS_TEST_ASSERT(t[4] == 'o');
+    PEGASUS_TEST_ASSERT(t[5] == '\0');
 
-	t.append(" world");
-	PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
-	PEGASUS_TEST_ASSERT(t == "hello world");
-	PEGASUS_TEST_ASSERT(s != "hello world");
-	PEGASUS_TEST_ASSERT(s == "hello");
-	PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
+    t.append(" world");
+    PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
+    PEGASUS_TEST_ASSERT(t == "hello world");
+    PEGASUS_TEST_ASSERT(s != "hello world");
+    PEGASUS_TEST_ASSERT(s == "hello");
+    PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
 
-	t[0] = 'x';
-	PEGASUS_TEST_ASSERT(t == "xello world");
+    t[0] = 'x';
+    PEGASUS_TEST_ASSERT(t == "xello world");
     }
 
     // remove()
     {
-	String s("abcXYZdefLMNOP");
+    String s("abcXYZdefLMNOP");
 
-	s.remove(0,0);
-	PEGASUS_TEST_ASSERT(s.size() == 14);
-	PEGASUS_TEST_ASSERT(s == "abcXYZdefLMNOP");
+    s.remove(0,0);
+    PEGASUS_TEST_ASSERT(s.size() == 14);
+    PEGASUS_TEST_ASSERT(s == "abcXYZdefLMNOP");
 
-	s.remove(0, 3);
-	PEGASUS_TEST_ASSERT(s.size() == 11);
-	PEGASUS_TEST_ASSERT(s == "XYZdefLMNOP");
+    s.remove(0, 3);
+    PEGASUS_TEST_ASSERT(s.size() == 11);
+    PEGASUS_TEST_ASSERT(s == "XYZdefLMNOP");
 
-	s.remove(3, 3);
-	PEGASUS_TEST_ASSERT(s.size() == 8);
-	PEGASUS_TEST_ASSERT(s == "XYZLMNOP");
+    s.remove(3, 3);
+    PEGASUS_TEST_ASSERT(s.size() == 8);
+    PEGASUS_TEST_ASSERT(s == "XYZLMNOP");
 
-	s.remove(7, 1);
-	PEGASUS_TEST_ASSERT(s.size() == 7);
-	PEGASUS_TEST_ASSERT(s == "XYZLMNO");
+    s.remove(7, 1);
+    PEGASUS_TEST_ASSERT(s.size() == 7);
+    PEGASUS_TEST_ASSERT(s == "XYZLMNO");
 
-	s.remove(0, 1);
-	PEGASUS_TEST_ASSERT(s.size() == 6);
-	PEGASUS_TEST_ASSERT(s == "YZLMNO");
+    s.remove(0, 1);
+    PEGASUS_TEST_ASSERT(s.size() == 6);
+    PEGASUS_TEST_ASSERT(s == "YZLMNO");
 
-	s.remove(2, PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(s.size() == 2);
-	PEGASUS_TEST_ASSERT(s == "YZ");
+    s.remove(2, PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(s.size() == 2);
+    PEGASUS_TEST_ASSERT(s == "YZ");
 
-	s.remove(2, 0);
-	PEGASUS_TEST_ASSERT(s.size() == 2);
-	PEGASUS_TEST_ASSERT(s == "YZ");
+    s.remove(2, 0);
+    PEGASUS_TEST_ASSERT(s.size() == 2);
+    PEGASUS_TEST_ASSERT(s == "YZ");
 
-	s.remove(1, 1);
-	PEGASUS_TEST_ASSERT(s.size() == 1);
-	PEGASUS_TEST_ASSERT(s == "Y");
+    s.remove(1, 1);
+    PEGASUS_TEST_ASSERT(s.size() == 1);
+    PEGASUS_TEST_ASSERT(s == "Y");
 
-	s.remove(0, 1);
-	PEGASUS_TEST_ASSERT(s.size() == 0);
-	PEGASUS_TEST_ASSERT(s == "");
-	PEGASUS_TEST_ASSERT(s[0] == '\0');
+    s.remove(0, 1);
+    PEGASUS_TEST_ASSERT(s.size() == 0);
+    PEGASUS_TEST_ASSERT(s == "");
+    PEGASUS_TEST_ASSERT(s[0] == '\0');
 
-	s.remove(0,0);
-	PEGASUS_TEST_ASSERT(s.size() == 0);
-	PEGASUS_TEST_ASSERT(s == "");
-	PEGASUS_TEST_ASSERT(s[0] == '\0');
+    s.remove(0,0);
+    PEGASUS_TEST_ASSERT(s.size() == 0);
+    PEGASUS_TEST_ASSERT(s == "");
+    PEGASUS_TEST_ASSERT(s[0] == '\0');
     }
 
     // subString()
     {
-	String s("one two three");
-	PEGASUS_TEST_ASSERT(s.subString(0) == "one two three");
-	PEGASUS_TEST_ASSERT(s.subString(0, 3) == "one");
-	PEGASUS_TEST_ASSERT(s.subString(4, 3) == "two");
-	PEGASUS_TEST_ASSERT(s.subString(8, 5) == "three");
-	PEGASUS_TEST_ASSERT(s.subString(0, 0) == "");
-	PEGASUS_TEST_ASSERT(s.subString(13, 0) == "");
+    String s("one two three");
+    PEGASUS_TEST_ASSERT(s.subString(0) == "one two three");
+    PEGASUS_TEST_ASSERT(s.subString(0, 3) == "one");
+    PEGASUS_TEST_ASSERT(s.subString(4, 3) == "two");
+    PEGASUS_TEST_ASSERT(s.subString(8, 5) == "three");
+    PEGASUS_TEST_ASSERT(s.subString(0, 0) == "");
+    PEGASUS_TEST_ASSERT(s.subString(13, 0) == "");
     }
 
     // Overflow
     bool caught_bad_alloc = false;
     try
     {
-	String s("junk", Uint32(0xFFFFFFFF));
+    String s("junk", Uint32(0xFFFFFFFF));
     }
     catch(...)
     {
-	caught_bad_alloc = true;
+    caught_bad_alloc = true;
     }
     PEGASUS_TEST_ASSERT(caught_bad_alloc);
 

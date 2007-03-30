@@ -27,18 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//		Sean Keenan (sean.keenan@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/AnonymousPipe.h>

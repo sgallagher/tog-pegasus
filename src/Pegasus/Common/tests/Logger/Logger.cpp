@@ -27,11 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,13 +49,13 @@ int main(int argc, char** argv)
 #endif
 
     Logger::put(
-	Logger::TRACE_LOG,
-	"LoggerTest",
-	Logger::WARNING,
-	"X=$0, Y=$1, Z=$2", 
-	88, 
-	"Hello World", 
-	7.5);
+    Logger::TRACE_LOG,
+    "LoggerTest",
+    Logger::WARNING,
+    "X=$0, Y=$1, Z=$2", 
+    88, 
+    "Hello World", 
+    7.5);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

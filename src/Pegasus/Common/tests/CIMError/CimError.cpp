@@ -27,12 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Mike Brasher (m.brasher@inovadevelopment.com)
-// Modified by:
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMError.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -54,11 +51,11 @@ void test01()
     }
     try
     {
-	CIMError err1;
-	CIMError err2;
+    CIMError err1;
+    CIMError err2;
 
         CIMInstance myInstance = err1.getInstance();
-	//err2.setInstance(err1.getInstance());
+    //err2.setInstance(err1.getInstance());
         if (verbose)
         {
             cout << "test01: display of err1 CIMError instance" << endl;
@@ -68,11 +65,11 @@ void test01()
     catch(CIMException &e )
     {
         cout <<"CIMException test01: " << e.getMessage() << endl;
-	PEGASUS_TEST_ASSERT(0);
+    PEGASUS_TEST_ASSERT(0);
     }
 }
-/* This test creates an instance with the default constructor and tests the properties of the
-   created instance.
+/* This test creates an instance with the default constructor and tests 
+ * the properties of the created instance.
 */
 void test02()
 {
@@ -82,7 +79,7 @@ void test02()
     }
     try
     {
-	CIMError err1;
+    CIMError err1;
         //Set all of the required fields from the default constructor
 
         err1.setOwningEntity(PegasusOwningEntityName);
@@ -112,7 +109,8 @@ void test02()
 
         CIMError::ProbableCauseEnum tmp2;
         PEGASUS_TEST_ASSERT(err1.getProbableCause(tmp2));
-        PEGASUS_TEST_ASSERT(tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
+        PEGASUS_TEST_ASSERT(
+                tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
 
         CIMError::CIMStatusCodeEnum tmp3;
         PEGASUS_TEST_ASSERT(err1.getCIMStatusCode(tmp3));
@@ -135,9 +133,9 @@ void test02()
         PEGASUS_TEST_ASSERT(!err1.getOtherErrorSourceFormat(rtnString));
         PEGASUS_TEST_ASSERT(!err1.getCIMStatusCodeDescription(rtnString));
         // Test the set and get with the completed instance
-	CIMError err2;
+    CIMError err2;
 
-	err2.setInstance(err1.getInstance());
+    err2.setInstance(err1.getInstance());
 
         if (verbose)
         {
@@ -150,10 +148,11 @@ void test02()
     catch(CIMException &e )
     {
         cout <<"CIMException Test02: " << e.getMessage() << endl;
-	PEGASUS_TEST_ASSERT(0);
+    PEGASUS_TEST_ASSERT(0);
     }
 }
-/* Create a complete instance using the normal constructor and test the properties
+/* Create a complete instance using the normal constructor and test
+ * the properties
 */
 void test03()
 {
@@ -187,7 +186,8 @@ void test03()
         
         CIMError::ProbableCauseEnum tmp2;
         PEGASUS_TEST_ASSERT(err1.getProbableCause(tmp2));
-        PEGASUS_TEST_ASSERT(tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
+        PEGASUS_TEST_ASSERT(
+                tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
     
         CIMError::CIMStatusCodeEnum tmp3;
         PEGASUS_TEST_ASSERT(err1.getCIMStatusCode(tmp3));
@@ -241,7 +241,8 @@ void test03()
         
         CIMError::ProbableCauseEnum tmp2;
         PEGASUS_TEST_ASSERT(err2.getProbableCause(tmp2));
-        PEGASUS_TEST_ASSERT(tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
+        PEGASUS_TEST_ASSERT(
+                tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
     
         CIMError::CIMStatusCodeEnum tmp3;
         PEGASUS_TEST_ASSERT(err2.getCIMStatusCode(tmp3));
@@ -269,15 +270,16 @@ void test03()
     }
     catch(CIMException &e )
     {
-        cout <<"Unexpected CIMException test03 err2: " << e.getMessage() << endl;
-	PEGASUS_TEST_ASSERT(0);
+        cout <<"Unexpected CIMException test03 err2: " << e.getMessage()
+            << endl;
+    PEGASUS_TEST_ASSERT(0);
     }
 
 
     catch(Exception &e )
     {
         cout <<"Unexpected Exception test03: " << e.getMessage() << endl;
-	PEGASUS_TEST_ASSERT(0);
+    PEGASUS_TEST_ASSERT(0);
     }
     catch(...)
     {
@@ -335,7 +337,8 @@ void test04()
             // Test Extra properties for valid returns
             CIMError::ErrorTypeEnum errorType;
             PEGASUS_TEST_ASSERT(err1.getErrorType(errorType));
-            PEGASUS_TEST_ASSERT(errorType == CIMError::ERROR_TYPE_COMMUNICATIONS_ERROR);
+            PEGASUS_TEST_ASSERT(
+                    errorType == CIMError::ERROR_TYPE_COMMUNICATIONS_ERROR);
             PEGASUS_TEST_ASSERT(err1.getOtherErrorType(rtnString));
             PEGASUS_TEST_ASSERT(rtnString == "Some Other Type string");
     
@@ -347,15 +350,18 @@ void test04()
             PEGASUS_TEST_ASSERT(rtnString == "Probable Cause String");
             
             Array<String> recommendedActionsRtn;
-            PEGASUS_TEST_ASSERT(err1.getRecommendedActions(recommendedActionsRtn));
+            PEGASUS_TEST_ASSERT(
+                    err1.getRecommendedActions(recommendedActionsRtn));
             PEGASUS_TEST_ASSERT(recommendedActionsRtn == recommendedActionsIn);
     
             PEGASUS_TEST_ASSERT(err1.getErrorSource(rtnString));
             PEGASUS_TEST_ASSERT(rtnString == "Error Source String");
     
             CIMError::ErrorSourceFormatEnum errorSourceFormatRtn;
-            PEGASUS_TEST_ASSERT(err1.getErrorSourceFormat(errorSourceFormatRtn));
-            PEGASUS_TEST_ASSERT(errorSourceFormatRtn == CIMError::ERROR_SOURCE_FORMAT_UNKNOWN);
+            PEGASUS_TEST_ASSERT(
+                    err1.getErrorSourceFormat(errorSourceFormatRtn));
+            PEGASUS_TEST_ASSERT(
+                errorSourceFormatRtn == CIMError::ERROR_SOURCE_FORMAT_UNKNOWN);
     
     
             PEGASUS_TEST_ASSERT(err1.getOtherErrorSourceFormat(rtnString));
@@ -380,11 +386,13 @@ void test04()
             
             CIMError::ProbableCauseEnum tmp2;
             PEGASUS_TEST_ASSERT(err1.getProbableCause(tmp2));
-            PEGASUS_TEST_ASSERT(tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
+            PEGASUS_TEST_ASSERT(
+                    tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
         
             CIMError::CIMStatusCodeEnum tmp3;
             PEGASUS_TEST_ASSERT(err1.getCIMStatusCode(tmp3));
-            PEGASUS_TEST_ASSERT(tmp3 == CIMError::CIM_STATUS_CODE_CIM_ERR_FAILED);
+            PEGASUS_TEST_ASSERT(
+                    tmp3 == CIMError::CIM_STATUS_CODE_CIM_ERR_FAILED);
         }
 
         // copy to new CIMError and retest the properties.
@@ -395,7 +403,8 @@ void test04()
             // Test Extra properties for valid returns
             CIMError::ErrorTypeEnum errorType;
             PEGASUS_TEST_ASSERT(err2.getErrorType(errorType));
-            PEGASUS_TEST_ASSERT(errorType == CIMError::ERROR_TYPE_COMMUNICATIONS_ERROR);
+            PEGASUS_TEST_ASSERT(
+                    errorType == CIMError::ERROR_TYPE_COMMUNICATIONS_ERROR);
             PEGASUS_TEST_ASSERT(err2.getOtherErrorType(rtnString));
             PEGASUS_TEST_ASSERT(rtnString == "Some Other Type string");
     
@@ -407,15 +416,18 @@ void test04()
             PEGASUS_TEST_ASSERT(rtnString == "Probable Cause String");
     
             Array<String> recommendedActionsRtn;
-            PEGASUS_TEST_ASSERT(err2.getRecommendedActions(recommendedActionsRtn));
+            PEGASUS_TEST_ASSERT(
+                    err2.getRecommendedActions(recommendedActionsRtn));
             PEGASUS_TEST_ASSERT(recommendedActionsRtn == recommendedActionsIn);
     
             PEGASUS_TEST_ASSERT(err2.getErrorSource(rtnString));
             PEGASUS_TEST_ASSERT(rtnString == "Error Source String");
     
             CIMError::ErrorSourceFormatEnum errorSourceFormatRtn;
-            PEGASUS_TEST_ASSERT(err2.getErrorSourceFormat(errorSourceFormatRtn));
-            PEGASUS_TEST_ASSERT(errorSourceFormatRtn == CIMError::ERROR_SOURCE_FORMAT_UNKNOWN);
+            PEGASUS_TEST_ASSERT(
+                    err2.getErrorSourceFormat(errorSourceFormatRtn));
+            PEGASUS_TEST_ASSERT(
+                errorSourceFormatRtn == CIMError::ERROR_SOURCE_FORMAT_UNKNOWN);
     
     
             PEGASUS_TEST_ASSERT(err2.getOtherErrorSourceFormat(rtnString));
@@ -440,14 +452,17 @@ void test04()
     
             CIMError::ProbableCauseEnum tmp2;
             PEGASUS_TEST_ASSERT(err2.getProbableCause(tmp2));
-            PEGASUS_TEST_ASSERT(tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
+            PEGASUS_TEST_ASSERT(
+                    tmp2 == CIMError::PROBABLE_CAUSE_UNEXPECTED_INFORMATION);
     
             CIMError::CIMStatusCodeEnum tmp3;
             PEGASUS_TEST_ASSERT(err2.getCIMStatusCode(tmp3));
-            PEGASUS_TEST_ASSERT(tmp3 == CIMError::CIM_STATUS_CODE_CIM_ERR_FAILED);
+            PEGASUS_TEST_ASSERT(
+                    tmp3 == CIMError::CIM_STATUS_CODE_CIM_ERR_FAILED);
         }
 
-        // Set the extraProperties back to Null and confirm that they are Null and that the
+        // Set the extraProperties back to Null and confirm that they 
+        // are Null and that the
         // others are not.
 
         err1.setErrorType(CIMError::ERROR_TYPE_COMMUNICATIONS_ERROR, true);
@@ -468,15 +483,18 @@ void test04()
             PEGASUS_TEST_ASSERT(!err1.getOtherErrorType(rtnString));
     
             Array<String> messageArgumentsRtn;
-            PEGASUS_TEST_ASSERT(!err1.getMessageArguments(messageArgumentsRtn));
+            PEGASUS_TEST_ASSERT(
+                    !err1.getMessageArguments(messageArgumentsRtn));
             PEGASUS_TEST_ASSERT(!err1.getProbableCauseDescription(rtnString));
             
             Array<String> recommendedActionsRtn;
-            PEGASUS_TEST_ASSERT(!err1.getRecommendedActions(recommendedActionsRtn));
+            PEGASUS_TEST_ASSERT(
+                    !err1.getRecommendedActions(recommendedActionsRtn));
             PEGASUS_TEST_ASSERT(!err1.getErrorSource(rtnString));
     
             CIMError::ErrorSourceFormatEnum errorSourceFormatRtn;
-            PEGASUS_TEST_ASSERT(!err1.getErrorSourceFormat(errorSourceFormatRtn));
+            PEGASUS_TEST_ASSERT(
+                    !err1.getErrorSourceFormat(errorSourceFormatRtn));
     
             PEGASUS_TEST_ASSERT(!err1.getOtherErrorSourceFormat(rtnString));
             PEGASUS_TEST_ASSERT(!err1.getCIMStatusCodeDescription(rtnString));
@@ -485,7 +503,7 @@ void test04()
     catch(CIMException &e )
     {
         cout <<"Unexpected CIMException test04: " << e.getMessage() << endl;
-	PEGASUS_TEST_ASSERT(0);
+    PEGASUS_TEST_ASSERT(0);
     }
 
 }

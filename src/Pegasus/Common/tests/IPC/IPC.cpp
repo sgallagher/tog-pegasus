@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Markus Mueller (sedgewick_de@yahoo.de)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Condition.h>
 #include <Pegasus/Common/Thread.h>
@@ -135,7 +130,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
         message = mq->dequeue();
         while (!message) {
 #if defined PEGASUS_OS_SOLARIS && defined SUNOS_5_6
-	    Threads::sleep(1);
+        Threads::sleep(1);
 #endif
             message = mq->dequeue();
         }

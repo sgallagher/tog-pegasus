@@ -43,24 +43,24 @@ void test01()
     try
     {
         Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-	        
-	AtomicInt i,j,ii,jj;
+            
+    AtomicInt i,j,ii,jj;
 
-	if (verbose) {
-		cout << "Testing: i++, ++ii, i--, --i	"<< endl;
-	}
-	i = 5;
-	i++;
-	PEGASUS_TEST_ASSERT( i.get() == 6 );
-	i++;
-	PEGASUS_TEST_ASSERT( i.get() == 7 );
-	i--;
-	PEGASUS_TEST_ASSERT( i.get() == 6 );
-	i--;
-	PEGASUS_TEST_ASSERT( i.get() == 5 );
+    if (verbose) {
+        cout << "Testing: i++, ++ii, i--, --i   "<< endl;
+    }
+    i = 5;
+    i++;
+    PEGASUS_TEST_ASSERT( i.get() == 6 );
+    i++;
+    PEGASUS_TEST_ASSERT( i.get() == 7 );
+    i--;
+    PEGASUS_TEST_ASSERT( i.get() == 6 );
+    i--;
+    PEGASUS_TEST_ASSERT( i.get() == 5 );
 
-	if (verbose) 
-	    cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
+    if (verbose) 
+        cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
     }
     catch (Exception & e)
     {
@@ -78,24 +78,24 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
 
     for (;;)
     {
-	const size_t N = 100000;
+    const size_t N = 100000;
 
-	for (size_t i = 0; i < N; i++)
-	{
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1++;
-		_ai2++;
-	    }
+    for (size_t i = 0; i < N; i++)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+        _ai1++;
+        _ai2++;
+        }
 
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1.decAndTestIfZero();
-		_ai2.decAndTestIfZero();
-	    }
-	}
+        for (size_t i = 0; i < 3; i++)
+        {
+        _ai1.decAndTestIfZero();
+        _ai2.decAndTestIfZero();
+        }
+    }
 
-	break;
+    break;
     }
 
     return 0;

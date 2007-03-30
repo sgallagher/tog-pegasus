@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -56,45 +48,50 @@ int main(int argc, char** argv)
 
     try
     {
-	CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-	m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-	m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
-	m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
+    CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
+    m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
+    m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
+    m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
 
 
-	// Tests for Qualifiers
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 2);
+    // Tests for Qualifiers
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 2);
 
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
-	Uint32 posQualifier;
-	posQualifier = m1.findQualifier(CIMName ("stuff"));
-	PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(posQualifier < m1.getQualifierCount());
+    Uint32 posQualifier;
+    posQualifier = m1.findQualifier(CIMName ("stuff"));
+    PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(posQualifier < m1.getQualifierCount());
 
-	m1.removeQualifier(posQualifier);
-	PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 1);
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+    m1.removeQualifier(posQualifier);
+    PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
         // Tests for Parameters
-        PEGASUS_TEST_ASSERT(m1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(m1.findParameter(CIMName ("noparam"))  == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m1.findParameter(
+            CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m1.findParameter(
+            CIMName ("noparam"))  == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(m1.getParameterCount()  == 1);
-        CIMParameter cp = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
+        CIMParameter cp = m1.getParameter(
+            m1.findParameter(CIMName ("ipaddress")));
         PEGASUS_TEST_ASSERT(cp.getName() == CIMName ("ipaddress"));
 
-        m1.removeParameter (m1.findParameter (CIMName (CIMName ("ipaddress"))));
+        m1.removeParameter (m1.findParameter (
+            CIMName (CIMName ("ipaddress"))));
         PEGASUS_TEST_ASSERT (m1.getParameterCount ()  == 0);
-        m1.addParameter (CIMParameter (CIMName ("ipaddress"), CIMTYPE_STRING));
+        m1.addParameter (CIMParameter (CIMName ("ipaddress"),
+                                       CIMTYPE_STRING));
         PEGASUS_TEST_ASSERT (m1.getParameterCount ()  == 1);
  
         // throws OutOfBounds
@@ -125,14 +122,19 @@ int main(int argc, char** argv)
         PEGASUS_TEST_ASSERT(m2.getPropagated() == true);
 
         const CIMMethod cm1(m1);
-	PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(cm1.findQualifier(
+            CIMName ("stuff21")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(cm1.findQualifier(
+            CIMName ("stuf")) == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT((cm1.getParameterCount() != 3));
-        PEGASUS_TEST_ASSERT(cm1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(cm1.findParameter(
+            CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(cm1.findQualifier(
+            CIMName ("stuff")) == PEG_NOT_FOUND);
         
         CIMQualifier q = m1.getQualifier(posQualifier);
-        CIMConstParameter ccp = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
+        CIMConstParameter ccp = cm1.getParameter(
+                    cm1.findParameter(CIMName ("ipaddress")));
         PEGASUS_TEST_ASSERT(cm1.getName() == CIMName ("getHostName"));
         PEGASUS_TEST_ASSERT(cm1.getType() == CIMTYPE_STRING);
         PEGASUS_TEST_ASSERT(!(cm1.getClassOrigin() == CIMName ("test")));
@@ -142,15 +144,17 @@ int main(int argc, char** argv)
         // throws OutOfBounds
         try
         {
-            CIMConstParameter p = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
+            CIMConstParameter p = cm1.getParameter(cm1.findParameter(
+                                        CIMName ("ipaddress")));
         }
-        catch(IndexOutOfBoundsException&)
+            catch(IndexOutOfBoundsException&)
         {
         }
         // throws OutOfBounds
         try
         {
-            CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier(CIMName ("abstract")));
+            CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier(
+                                        CIMName ("abstract")));
         }
         catch(IndexOutOfBoundsException&)
         {
@@ -166,7 +170,7 @@ int main(int argc, char** argv)
         MofWriter::appendMethodElement(out, cm1);
 
         Boolean nullMethod = cm1.isUninitialized(); 
-	PEGASUS_TEST_ASSERT(!nullMethod);
+        PEGASUS_TEST_ASSERT(!nullMethod);
 
         CIMMethod m3 = m2.clone();
         m3 = cm1.clone();
@@ -183,8 +187,10 @@ int main(int argc, char** argv)
         PEGASUS_TEST_ASSERT(!ccm1.getPropagated() == true);
         PEGASUS_TEST_ASSERT(!(ccm1.getParameterCount() == 3));
         PEGASUS_TEST_ASSERT(ccm1.getQualifierCount() == 0);
-        PEGASUS_TEST_ASSERT(ccm1.findQualifier(CIMName ("Stuff")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findQualifier(
+            CIMName ("Stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findParameter(
+            CIMName ("ipaddress")) == PEG_NOT_FOUND);
 
         if (verbose)
         {
@@ -200,8 +206,10 @@ int main(int argc, char** argv)
         ccm3 = ccm1.clone();
         ccm1 = ccm3;
         PEGASUS_TEST_ASSERT(ccm1.identical(ccm3));
-        PEGASUS_TEST_ASSERT(ccm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findQualifier(
+            CIMName ("stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findParameter(
+            CIMName ("ipaddress")) == PEG_NOT_FOUND);
         
         nullMethod = ccm1.isUninitialized();
         PEGASUS_TEST_ASSERT(!nullMethod);
@@ -209,7 +217,8 @@ int main(int argc, char** argv)
         // throws OutOfBounds
         try
         {
-            //CIMParameter p = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
+            //CIMParameter p = m1.getParameter(
+            //     m1.findParameter(CIMName ("ipaddress")));
             CIMConstParameter p = ccm1.getParameter(0);
         }
         catch(IndexOutOfBoundsException&)
@@ -226,7 +235,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	cerr << "Exception: " << e.getMessage() << endl;
+    cerr << "Exception: " << e.getMessage() << endl;
     }
 
     // Test for add second qualifier with same name.

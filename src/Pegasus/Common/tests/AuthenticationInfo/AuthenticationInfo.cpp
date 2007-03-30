@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 /**
     This file has testcases that are added to cover the functions defined in
@@ -61,7 +61,8 @@ void test01()
 
     /**
         Added to cover the Function
-        void AuthenticationInfo::setAuthenticatedPassword(const String& password)
+        void AuthenticationInfo::setAuthenticatedPassword(
+         const String& password)
     */
 #define TEST_PASSWORD "My Test Password"
     PEGASUS_TEST_ASSERT(authInfo.getAuthenticatedPassword() == String::EMPTY);
@@ -70,7 +71,7 @@ void test01()
     PEGASUS_TEST_ASSERT(ret_setAuthenticatedPassword == TEST_PASSWORD);
 
     /**
-	    Added to cover the Function
+        Added to cover the Function
         void AuthenticationInfo::setLocalAuthSecret(const String& secret)
     */
 #define TEST_SECRET "My Test Secret"
@@ -86,11 +87,13 @@ void test01()
     PEGASUS_TEST_ASSERT(authInfo.getAuthType() == String::EMPTY);
     authInfo.setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
     String ret_setauthtype = authInfo.getAuthType();
-    PEGASUS_TEST_ASSERT(ret_setauthtype == AuthenticationInfoRep::AUTH_TYPE_SSL);
+    PEGASUS_TEST_ASSERT(
+        ret_setauthtype == AuthenticationInfoRep::AUTH_TYPE_SSL);
 
     /**
         Added to cover the Function
-        void AuthenticationInfo::setConnectionAuthenticated(Boolean connectionAuthenticated)
+        void AuthenticationInfo::setConnectionAuthenticated(
+            Boolean connectionAuthenticated)
     */
     PEGASUS_TEST_ASSERT(authInfo.isConnectionAuthenticated() == false);
     authInfo.setConnectionAuthenticated(true);
@@ -112,7 +115,8 @@ void test01()
     */
     Array<SSLCertificateInfo*> clientCertificate;
     authInfo.setClientCertificateChain(clientCertificate);
-    Array<SSLCertificateInfo*> ret_clientCertificate=authInfo.getClientCertificateChain();
+    Array<SSLCertificateInfo*> ret_clientCertificate =
+        authInfo.getClientCertificateChain();
     PEGASUS_TEST_ASSERT(clientCertificate == ret_clientCertificate);
 
     AuthenticationInfo authInfo1;
@@ -133,11 +137,13 @@ int main( int argc, char *argv[] )
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cout) << "Exception: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD (cout) << "Exception: " << e.getMessage() 
+            << PEGASUS_STD(endl);
         exit(1);
     }
 
-    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD (endl);
+    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests" 
+        << PEGASUS_STD (endl);
     return 0;
 }
 

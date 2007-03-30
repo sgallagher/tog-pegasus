@@ -27,11 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,11 +48,11 @@ static void _processFile(const char* fileName)
 
     try
     {
-	XmlWriter::indentedPrint(cout, text.getData());
+    XmlWriter::indentedPrint(cout, text.getData());
     }
     catch (Exception& e)
     {
-	cout << fileName << ": " << e.getMessage() << endl;
+    cout << fileName << ": " << e.getMessage() << endl;
     }
 }
 
@@ -64,21 +60,21 @@ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-	cerr << "Usage: " << argv[0] << " xml-filename ..." << endl;
-	exit(1);
+    cerr << "Usage: " << argv[0] << " xml-filename ..." << endl;
+    exit(1);
     }
 
     for (Uint32 i = 1; i < Uint32(argc); i++)
     {
-	try 
-	{ 
-	    _processFile(argv[i]); 
-	}
-	catch(Exception& e)
-	{
-	    cerr << "Error: " << e.getMessage() << endl;	
-	    exit(1);
-	}
+    try 
+    { 
+        _processFile(argv[i]); 
+    }
+    catch(Exception& e)
+    {
+        cerr << "Error: " << e.getMessage() << endl;    
+        exit(1);
+    }
     }
     cout << argv[0] << " +++++ passed all tests" << endl;
 

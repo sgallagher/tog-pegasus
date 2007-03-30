@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Vijay Eli, vijayeli@in.ibm.com, for #3101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -52,43 +46,43 @@ int main(int argc, char** argv)
 
     try
     {
-	const String NAMESPACE = "/zzz";
-	
-	// Create and populate a declaration context:
-
-	SimpleDeclContext* context = new SimpleDeclContext;
-
-	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl(
-	    CIMName ("abstract"), false, CIMScope::CLASS, 
-            CIMFlavor::OVERRIDABLE));
-
-	// Create some classes:
-
-	CIMClass class1(CIMName ("PeskySuperClass"));
-	class1.addQualifier(CIMQualifier(CIMName ("abstract"), true));
-
-	CIMClass class2(CIMName ("Class"), CIMName ("PeskySuperClass"));
-
-	Resolver::resolveClass (class1, context, NAMESPACE);
-	context->addClass(NAMESPACE, class1);
-
-	Resolver::resolveClass (class2, context, NAMESPACE);
-	context->addClass(NAMESPACE, class2);
-
-	// class1.print();
-	// class2.print();
-
-        // Create some methods:
-        CIMMethod meth1(CIMName ("getHostName"), CIMTYPE_STRING);
-        CIMConstMethod meth2(CIMName ("test"), CIMTYPE_STRING);
-        Resolver::resolveMethod ( meth1, context, NAMESPACE, meth2);
-
-	delete context;
+        const String NAMESPACE = "/zzz";
+        
+        // Create and populate a declaration context:
+    
+        SimpleDeclContext* context = new SimpleDeclContext;
+    
+        context->addQualifierDecl(NAMESPACE, CIMQualifierDecl(
+            CIMName ("abstract"), false, CIMScope::CLASS, 
+                CIMFlavor::OVERRIDABLE));
+    
+        // Create some classes:
+    
+        CIMClass class1(CIMName ("PeskySuperClass"));
+        class1.addQualifier(CIMQualifier(CIMName ("abstract"), true));
+    
+        CIMClass class2(CIMName ("Class"), CIMName ("PeskySuperClass"));
+    
+        Resolver::resolveClass (class1, context, NAMESPACE);
+        context->addClass(NAMESPACE, class1);
+    
+        Resolver::resolveClass (class2, context, NAMESPACE);
+        context->addClass(NAMESPACE, class2);
+    
+        // class1.print();
+        // class2.print();
+    
+            // Create some methods:
+            CIMMethod meth1(CIMName ("getHostName"), CIMTYPE_STRING);
+            CIMConstMethod meth2(CIMName ("test"), CIMTYPE_STRING);
+            Resolver::resolveMethod ( meth1, context, NAMESPACE, meth2);
+    
+        delete context;
     }
     catch (Exception& e)
     {
-	cout << "Exception: " << e.getMessage() << endl;
-	exit(1);
+        cout << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
     cout << argv[0] << " +++++ passed all tests" << endl;
 

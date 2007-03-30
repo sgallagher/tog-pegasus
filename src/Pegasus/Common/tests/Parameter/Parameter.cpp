@@ -46,7 +46,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static Boolean verbose;	  // controls IO from test
+static Boolean verbose;   // controls IO from test
 
 void test01()
 {
@@ -55,41 +55,41 @@ void test01()
 
     CIMParameter p1(CIMName ("message"), CIMTYPE_STRING);
     p1.addQualifier(CIMQualifier(CIMName ("in"), true));
-	if(verbose)
-		XmlWriter::printParameterElement(p1, cout);
+    if(verbose)
+        XmlWriter::printParameterElement(p1, cout);
 
     CIMParameter p2(CIMName ("message2"), CIMTYPE_STRING);
     p2.addQualifier(CIMQualifier(CIMName ("in"), true));
-	if(verbose)
-		XmlWriter::printParameterElement(p2, cout);
+    if(verbose)
+        XmlWriter::printParameterElement(p2, cout);
 
     CIMParameter p3(CIMName ("message3"), CIMTYPE_STRING);
     p3.setName(CIMName ("message3a"));
     PEGASUS_TEST_ASSERT(p3.getName() == CIMName ("message3a"));
-	if(verbose)
-		XmlWriter::printParameterElement(p3, cout);
+    if(verbose)
+        XmlWriter::printParameterElement(p3, cout);
     PEGASUS_TEST_ASSERT(p3.getType() == CIMTYPE_STRING);;
 
     //
     // clone
     //
     CIMParameter p1clone = p1.clone();
-	if(verbose)
-		XmlWriter::printParameterElement(p1clone, cout);
+    if(verbose)
+        XmlWriter::printParameterElement(p1clone, cout);
 
     //
     // toMof
     //
     Buffer mofOut;
-	if(verbose)
-		MofWriter::appendParameterElement(mofOut, p1);
+    if(verbose)
+        MofWriter::appendParameterElement(mofOut, p1);
 
     //
     // toXml
     //
     Buffer xmlOut;
-	if(verbose)
-		XmlWriter::appendParameterElement(xmlOut, p1);
+    if(verbose)
+        XmlWriter::appendParameterElement(xmlOut, p1);
 
     //
     // identical
@@ -170,15 +170,15 @@ void test01()
     CIMConstParameter cp3 = p3;
     CIMConstParameter cp4(CIMName ("message4"), CIMTYPE_STRING);
 
-	if(verbose)
-		XmlWriter::printParameterElement(cp1, cout);
+    if(verbose)
+        XmlWriter::printParameterElement(cp1, cout);
 
     PEGASUS_TEST_ASSERT(cp3.getName() == CIMName ("message3a"));
     PEGASUS_TEST_ASSERT(cp3.getType() == CIMTYPE_STRING);;
 
     const CIMParameter cp1clone = cp1.clone();
-	if(verbose)
-		XmlWriter::printParameterElement(cp1clone, cout);
+    if(verbose)
+        XmlWriter::printParameterElement(cp1clone, cout);
 
     XmlWriter::appendParameterElement(xmlOut, cp1);
 

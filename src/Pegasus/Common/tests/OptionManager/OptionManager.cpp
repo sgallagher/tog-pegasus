@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Vageesh Umesh (vagumesh@in.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -55,7 +53,8 @@ void test01()
         inDomainString.append("blue");
         inDomainString.append("green");
 
-        Option oobj(String::EMPTY, "blue" , false, Option::STRING, inDomainString);
+        Option oobj(String::EMPTY, "blue" , false, 
+                    Option::STRING, inDomainString);
 
         Boolean caughtException = false;
 
@@ -247,7 +246,8 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-        PEGASUS_STD(cout) << "Exception: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) << "Exception: " << e.getMessage() 
+            << PEGASUS_STD(endl);
         exit(1);
     }
 

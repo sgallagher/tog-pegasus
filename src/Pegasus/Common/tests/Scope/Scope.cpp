@@ -27,12 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By: 
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +53,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s0.toString () == String::EMPTY);
@@ -67,7 +62,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s1: " << s1.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s1.toString () == String::EMPTY);
@@ -79,7 +74,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s2: " << s2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s2.toString () == String::EMPTY);
@@ -88,7 +83,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s3: " << s3.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s3.toString () == "PROPERTY");
@@ -97,7 +92,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s4: " << s4.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s4.toString () == 
@@ -107,7 +102,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s5: " << s5.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s5.toString () == "CLASS ASSOCIATION");
@@ -119,7 +114,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s6: " << s6.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s6.toString () == String::EMPTY);
@@ -128,7 +123,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s7: " << s7.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s7.toString () == String::EMPTY);
@@ -137,7 +132,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s8: " << s8.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s8.toString () == "PROPERTY");
@@ -146,7 +141,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s9: " << s9.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s9.toString () == 
@@ -156,7 +151,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s10: " << s10.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s10.toString () == "CLASS ASSOCIATION");
@@ -168,7 +163,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s0.toString () == 
@@ -178,7 +173,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s0.toString () == "PROPERTY");
@@ -198,7 +193,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s0.toString () == "INDICATION PROPERTY");
@@ -207,7 +202,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s7: " << s7.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s7.toString () == "REFERENCE METHOD PARAMETER");
@@ -216,7 +211,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s4: " << s4.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s4.toString () == 
@@ -226,7 +221,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s10: " << s10.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s10.toString () == "CLASS ASSOCIATION");
@@ -235,7 +230,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s2: " << s2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (s2.toString () == 
@@ -245,9 +240,11 @@ void test01 ()
     //  Test hasScope (Uint32) 
     //
     PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION));
-    PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION + CIMScope::PROPERTY));
+    PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION
+                                      + CIMScope::PROPERTY));
     PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ASSOCIATION)));
-    PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ASSOCIATION + CIMScope::CLASS)));
+    PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ASSOCIATION
+                                        + CIMScope::CLASS)));
     PEGASUS_TEST_ASSERT (!(s0.hasScope (CIMScope::ANY)));
 
     PEGASUS_TEST_ASSERT (s7.hasScope (CIMScope::PARAMETER));

@@ -27,11 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -244,7 +240,8 @@ void testOverloadPool()
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)300, funcSleepSpecifiedMilliseconds);
-        PEGASUS_TEST_ASSERT(threadStarted == PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
+        PEGASUS_TEST_ASSERT(threadStarted == 
+                PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
         
         ThreadStatus rc = PEGASUS_THREAD_OK;
         while ( (rc =threadPool.allocate_and_awaken(
@@ -280,14 +277,14 @@ void testHighWorkload()
 
         for (Uint32 i = 0; i < 50; i++)
         {
-	    ThreadStatus rc = PEGASUS_THREAD_OK;
+        ThreadStatus rc = PEGASUS_THREAD_OK;
             while ( (rc =threadPool->allocate_and_awaken(
                 &counter, funcIncrementCounter)) != PEGASUS_THREAD_OK)
             {
-		if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-                	Threads::yield();
-	 	else
-			throw Exception("Coudl not allocate a thread for counter.");	
+        if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                    Threads::yield();
+        else
+            throw Exception("Coudl not allocate a thread for counter.");    
             }
         }
 
@@ -336,14 +333,16 @@ void testBlockingThread()
         struct timeval deallocateWait = { 5, 0 };
         ThreadPool threadPool(0, "test blocking", 0, 6, deallocateWait);
         Semaphore blocking(0);
-	ThreadStatus rt = PEGASUS_THREAD_OK;
+    ThreadStatus rt = PEGASUS_THREAD_OK;
         while ( (rt =threadPool.allocate_and_awaken(
-            (void*)16, funcSleepSpecifiedMilliseconds, &blocking)) != PEGASUS_THREAD_OK)
+            (void*)16, funcSleepSpecifiedMilliseconds, &blocking)) !=
+                PEGASUS_THREAD_OK)
         {
-	  if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+      if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             Threads::yield();
-	  else
-	   throw Exception("Could not allocate thread for funcSleepSpecifiedMilliseconds function.");
+      else
+       throw Exception("Could not allocate thread for"
+               " funcSleepSpecifiedMilliseconds function.");
         }
 
         blocking.wait();

@@ -27,13 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Yi Zhou (yi.zhou@hp.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -49,11 +45,13 @@ static Boolean verbose = false;
 
 CIMInstance _createSubscriptionInstance()
 {
-    CIMInstance subscriptionInstance (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION);
+    CIMInstance subscriptionInstance (
+            PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION);
+
     subscriptionInstance.addProperty (CIMProperty (CIMName ("Filter"), 
-	CIMValue((String) "filter1")));
+    CIMValue((String) "filter1")));
     subscriptionInstance.addProperty (CIMProperty (CIMName ("Handler"),
-	CIMValue((String) "handler1")));
+    CIMValue((String) "handler1")));
     return (subscriptionInstance);
 }
 
@@ -61,15 +59,17 @@ CIMInstance _createSubscriptionInstance
     (const String & textFormat,
      const Array<String> & textFormatParams)
 {
-    CIMInstance subscriptionInstance (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION);
+    CIMInstance subscriptionInstance (
+            PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION);
+
     subscriptionInstance.addProperty (CIMProperty (CIMName ("Filter"), 
-	CIMValue((String) "filter1")));
+    CIMValue((String) "filter1")));
     subscriptionInstance.addProperty (CIMProperty (CIMName ("Handler"),
-	CIMValue((String) "handler1")));
+    CIMValue((String) "handler1")));
     subscriptionInstance.addProperty (CIMProperty
-	(CIMName ("TextFormat"), textFormat));
+    (CIMName ("TextFormat"), textFormat));
     subscriptionInstance.addProperty (CIMProperty
-	(CIMName ("TextFormatParameters"), textFormatParams));
+    (CIMName ("TextFormatParameters"), textFormatParams));
 
     return (subscriptionInstance);
    
@@ -80,14 +80,14 @@ CIMInstance _createIndicationInstance1()
     CIMInstance indicationInstance("RT_TestIndication");
 
     indicationInstance.addProperty
-	(CIMProperty (CIMName ("IndicationTime"), CIMValue(
-	CIMDateTime("20050510143211.000000-420"))));
+    (CIMProperty (CIMName ("IndicationTime"), CIMValue(
+    CIMDateTime("20050510143211.000000-420"))));
     indicationInstance.addProperty
-	(CIMProperty (CIMName ("IndicationIdentifier"), CIMValue(Uint32(1))));
+    (CIMProperty (CIMName ("IndicationIdentifier"), CIMValue(Uint32(1))));
     indicationInstance.addProperty
-	(CIMProperty ("MethodName", CIMValue(String("testIndicationFormat"))));
+    (CIMProperty ("MethodName", CIMValue(String("testIndicationFormat"))));
     indicationInstance.addProperty
-	(CIMProperty (CIMName ("TestBoolean"), CIMValue(Boolean(true))));
+    (CIMProperty (CIMName ("TestBoolean"), CIMValue(Boolean(true))));
 
     return (indicationInstance);
 }
@@ -97,10 +97,10 @@ CIMInstance _createIndicationInstance2(CIMType type)
     CIMInstance indicationInstance("RT_TestIndication");
 
     indicationInstance.addProperty
-	(CIMProperty (CIMName ("IndicationTime"), CIMValue(
-	CIMDateTime("20050510143211.000000-420"))));
+    (CIMProperty (CIMName ("IndicationTime"), CIMValue(
+    CIMDateTime("20050510143211.000000-420"))));
     indicationInstance.addProperty
-	(CIMProperty (CIMName ("TestBoolean"), CIMValue(Boolean(true))));
+    (CIMProperty (CIMName ("TestBoolean"), CIMValue(Boolean(true))));
 
     switch (type)
     {
@@ -208,7 +208,7 @@ CIMInstance _createIndicationInstance2(CIMType type)
 
             break;
         }
-	case CIMTYPE_STRING:
+    case CIMTYPE_STRING:
         {
             Array<String> string_action;
             string_action.append("string_action1");
@@ -221,7 +221,7 @@ CIMInstance _createIndicationInstance2(CIMType type)
 
             break;
         }
-	case CIMTYPE_CHAR16:
+    case CIMTYPE_CHAR16:
         {
             Array<Char16> char16_action;
             char16_action.append('a');
@@ -234,7 +234,7 @@ CIMInstance _createIndicationInstance2(CIMType type)
 
             break;
         }
-	case CIMTYPE_BOOLEAN:
+    case CIMTYPE_BOOLEAN:
         {
             Array<Boolean> boolean_action;
             boolean_action.append(true);
@@ -248,11 +248,11 @@ CIMInstance _createIndicationInstance2(CIMType type)
             break;
         }
 
-	case CIMTYPE_REAL32:
-	case CIMTYPE_REAL64:
-	case CIMTYPE_DATETIME:
-	case CIMTYPE_REFERENCE:
-	case CIMTYPE_OBJECT:
+    case CIMTYPE_REAL32:
+    case CIMTYPE_REAL64:
+    case CIMTYPE_DATETIME:
+    case CIMTYPE_REFERENCE:
+    case CIMTYPE_OBJECT:
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     case CIMTYPE_INSTANCE:
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
@@ -273,7 +273,8 @@ void _checkSyntax(const String& textFormat)
 
     if (verbose)
     {
-        cout << "\n+++++ Test textFormat syntax: " << textFormat.getCString() << endl;
+        cout << "\n+++++ Test textFormat syntax: " << textFormat.getCString()
+            << endl;
     }
 
 
@@ -331,11 +332,13 @@ void _validateTextFormat()
 
     // tests a valid text format string
     String textFormat =
-	"The indication which is generated by {2,  string   } occurred at { 0 , datetime} with Indication ID { 1 }";
+    "The indication which is generated by {2,  string   } occurred at"
+        " { 0 , datetime} with Indication ID { 1 }";
 
     if (verbose)
     {
-        cout << "\n+++++ Test textFormat syntax: " << textFormat.getCString() << endl;
+        cout << "\n+++++ Test textFormat syntax: " << textFormat.getCString()
+            << endl;
     }
 
     try
@@ -350,88 +353,104 @@ void _validateTextFormat()
 
     // tests invalid text format strings
     textFormat =
-	"The indication which is generated by {2, string occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {2, string occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by 2, string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by 2, string} occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {this is a test, string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {this is a test, string} occurred"
+        " at {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {xxx1 , string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {xxx1 , string} occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {1  xxx , string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {1  xxx , string} occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {1 , xxxstring} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {1 , xxxstring} occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {1 , xxx  string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {1 , xxx  string} occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {1 , string  xxx} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {1 , string  xxx} occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {1[1 , string } occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {1[1 , string } occurred at"
+        " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     // tests property index out of bounds
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {4 , string  } occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {4 , string  } occurred at"
+    " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {-1 , string  } occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {-1 , string  } occurred at"
+    " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     // Invalid property type
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {1 , newtype} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {1 , newtype} occurred at"
+    " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     // Incorrect property type
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {1 , int32} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {1 , int32} occurred at"
+    " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     // Incorrect property type: array format, non-array property
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {2[] , string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {2[] , string} occurred at"
+    " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     // Incorrect property type: non-array format, array property
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {3 , string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {3 , string} occurred at"
+    " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
     // Invalid index
     textFormat.clear();
     textFormat =
-	"The indication which is generated by {3[x] , string} occurred at {0, datetime} with Indication ID {1, uint32}";
+    "The indication which is generated by {3[x] , string} occurred at"
+    " {0, datetime} with Indication ID {1, uint32}";
     _checkSyntax(textFormat);
 
 }
@@ -445,7 +464,7 @@ void _testDefaultFormat()
     String expectedIndicationText = "Indication (default format):";
 
     expectedIndicationText.append(
-	"IndicationTime = 20050510143211.000000-420,");
+    "IndicationTime = 20050510143211.000000-420,");
 
     if (verbose)
     {
@@ -453,18 +472,19 @@ void _testDefaultFormat()
     }
 
     expectedIndicationText.append(
-	" IndicationIdentifier = 1, MethodName = testIndicationFormat, TestBoolean = true");
+    " IndicationIdentifier = 1, MethodName = testIndicationFormat,"
+    " TestBoolean = true");
 
     CIMInstance subscriptionInstance = _createSubscriptionInstance();
 
     CIMInstance indicationInstance = _createIndicationInstance1();
 
     String formattedIndText =
-	IndicationFormatter::getFormattedIndText(subscriptionInstance,
-	indicationInstance, contentLangs);
+    IndicationFormatter::getFormattedIndText(subscriptionInstance,
+    indicationInstance, contentLangs);
 
     PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
-	expectedIndicationText) == 0);
+    expectedIndicationText) == 0);
 
 }
 
@@ -481,7 +501,8 @@ void _testFormat()
     }
 
     String textFormat =
-        "The prediction is {3, boolean }. A indication which is generated by {2, string} occurred at {0, datetime} with Indication ID {1, uint32}";
+        "The prediction is {3, boolean }. A indication which is generated by"
+        " {2, string} occurred at {0, datetime} with Indication ID {1, uint32}";
 
     Array<String> textFormatParams;
     textFormatParams.append("IndicationTime");
@@ -490,21 +511,21 @@ void _testFormat()
     textFormatParams.append("TestBoolean");
 
     String expectedIndicationText = 
-	"The prediction is true. A indication which is generated by " \
+    "The prediction is true. A indication which is generated by " \
         "testIndicationFormat occurred at 20050510143211.000000-420" \
         " with Indication ID 1";
 
     CIMInstance subscriptionInstance = 
-	_createSubscriptionInstance(textFormat, textFormatParams);
+    _createSubscriptionInstance(textFormat, textFormatParams);
 
     CIMInstance indicationInstance = _createIndicationInstance1();
 
     String formattedIndText;
     formattedIndText = IndicationFormatter::getFormattedIndText(
-	subscriptionInstance, indicationInstance, contentLangs);
+    subscriptionInstance, indicationInstance, contentLangs);
 
     PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
-	expectedIndicationText) == 0);
+    expectedIndicationText) == 0);
 
 }
 
@@ -517,7 +538,7 @@ void _checkIndicationText(
     const ContentLanguageList contentLangs)
 {
     CIMInstance subscriptionInstance = 
-	_createSubscriptionInstance(textFormat, textFormatParams);
+    _createSubscriptionInstance(textFormat, textFormatParams);
 
     CIMInstance indicationInstance = _createIndicationInstance2(type);
 
@@ -539,7 +560,9 @@ void _testArrayFormat()
 
     if (verbose)
     {
-        cout << "\n+++++ Test A Formatted Indication Text Message With An Array Property" << endl;
+        cout << "\n+++++ Test A Formatted Indication Text Message With"
+                " An Array Property"
+            << endl;
     }
 
     Array<String> textFormatParams;
@@ -547,12 +570,13 @@ void _testArrayFormat()
     textFormatParams.append("Action");
 
     String expectedText = 
-	"A UPS Alert occurred at 20050510143211.000000-420. " \
+    "A UPS Alert occurred at 20050510143211.000000-420. " \
         "The Following actions are recommended to resolve the alert: ";
-	
+    
     // test case 1: {1[], string}
     String textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], string}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], string}";
 
     String expectedIndicationText;
     String formattedIndText;
@@ -567,7 +591,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], string}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], string}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("string_action2");
 
@@ -578,7 +603,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], uint8}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], uint8}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[1,2,3,4]");
 
@@ -589,7 +615,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], uint8}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], uint8}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("2");
 
@@ -600,7 +627,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], uint16}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], uint16}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[16,26,36,46]");
 
@@ -611,7 +639,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], uint16}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], uint16}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("26");
 
@@ -622,7 +651,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], uint32}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], uint32}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[32,42,52,62]");
 
@@ -633,7 +663,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], uint32}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], uint32}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("42");
 
@@ -644,7 +675,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], uint64}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], uint64}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[64,74,84,94]");
 
@@ -655,7 +687,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], uint64}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], uint64}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("74");
 
@@ -666,7 +699,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], sint8}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], sint8}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[-1,-2,-3,-4]");
 
@@ -677,7 +711,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], sint8}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], sint8}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("-2");
 
@@ -688,7 +723,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], sint16}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], sint16}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[-16,-26,-36,-46]");
 
@@ -699,7 +735,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], sint16}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], sint16}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("-26");
 
@@ -710,7 +747,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], sint32}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], sint32}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[-32,-42,-52,-62]");
 
@@ -721,7 +759,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], sint32}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], sint32}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("-42");
 
@@ -732,7 +771,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], sint64}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], sint64}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[-64,-74,-84,-94]");
 
@@ -743,7 +783,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], sint64}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], sint64}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("-74");
 
@@ -754,7 +795,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], boolean}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], boolean}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[true,false,true,false]");
 
@@ -765,7 +807,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], boolean}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], boolean}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("false");
 
@@ -776,7 +819,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[], char16}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[], char16}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("[a,b,c,d]");
 
@@ -787,7 +831,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], char16}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], char16}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("b");
 
@@ -798,7 +843,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[1], boolean}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[1], boolean}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("false");
 
@@ -808,7 +854,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[-1], string}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[-1], string}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("UNKNOWN");
 
@@ -819,7 +866,8 @@ void _testArrayFormat()
     textFormat.clear();
     expectedIndicationText.clear();
     textFormat =
-        "A UPS Alert occurred at {0, datetime}. The Following actions are recommended to resolve the alert: {1[4], string}";
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[4], string}";
     expectedIndicationText.append(expectedText);
     expectedIndicationText.append("UNKNOWN");
 
@@ -833,13 +881,13 @@ int main(int argc, char** argv)
     // Check command line option
     if (argc > 2)
     {
-	cerr << "Usage: TestIndicationFormatter [-v]" << endl;
+    cerr << "Usage: TestIndicationFormatter [-v]" << endl;
         return 1;
     }
 
     if (argc == 2)
     {
-	const char *opt = argv[1];
+    const char *opt = argv[1];
         if (strcmp(opt, "-v") == 0)
         {
             verbose = true;
@@ -853,15 +901,15 @@ int main(int argc, char** argv)
 
     try
     {
-	_validateTextFormat();
+    _validateTextFormat();
         _testDefaultFormat();
         _testFormat();
-	_testArrayFormat();
+    _testArrayFormat();
     }
     catch (Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-	return -1;
+    cerr << "Error: " << e.getMessage() << endl;
+    return -1;
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By:
-//              Steve Hills (steve.hills@ncr.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Thread.h>
@@ -79,84 +73,88 @@ struct TestThreadData
 
 int main(int argc, char **argv)
 {
-	int i;
-	verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-	// cout << argv[0] << endl;
-	{
-	// Test return code
-	Thread t( test1_thread, 0, false );
-	t.run();
-	t.join();
-	if( t.get_exit() != (ThreadReturnType)32 )
-	{
-		cerr << "Error test return code" << endl;
-		return 1;
-	}
-	}
+    int i;
+    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+    // cout << argv[0] << endl;
+    {
+        // Test return code
+        Thread t( test1_thread, 0, false );
+        t.run();
+        t.join();
+        if( t.get_exit() != (ThreadReturnType)32 )
+        {
+            cerr << "Error test return code" << endl;
+            return 1;
+        }
+    }
 
-	{
-	// There shouldn't be a memory leak here
-	Thread* threads[THREAD_NR];
-	int max_threads = THREAD_NR;	
-	for( i = 0; i < THREAD_NR; i++ )
-	{
-		threads[i] = new Thread( test2_thread, 0, false );
-		TestThreadData* data = NULL;
-		try {
-			data = new struct TestThreadData;
-		} catch (bad_alloc&)
-		{
-			cerr << "Not enough memory. Changing the amount of threads used." << endl;
-			max_threads = i;
-			delete threads[i];
-			break;
-		}
-		data->chars[0] = 'B';
-		data->chars[1] = 'E';
-		threads[i]->put_tsd( "test2", thread_data::default_delete, 2, data );
-		if (threads[i]->run()!=PEGASUS_THREAD_OK)
-		{
-			cerr << "Not enough memory. Changing the amount of threads used." << endl;
-			max_threads = i;
-			delete threads[i];
-			break;
-		}
-	}
-	for( i = 0; i < max_threads; i++ )
-		threads[i]->join();
-	for( i = 0; i < max_threads; i++ )
-		delete threads[i];
-	// TODO: Programatically check
-	//Threads::sleep( 10000 );
-	}
+    {
+    // There shouldn't be a memory leak here
+    Thread* threads[THREAD_NR];
+    int max_threads = THREAD_NR;    
+    for( i = 0; i < THREAD_NR; i++ )
+    {
+        threads[i] = new Thread( test2_thread, 0, false );
+        TestThreadData* data = NULL;
+        try {
+            data = new struct TestThreadData;
+        } catch (bad_alloc&)
+        {
+            cerr << "Not enough memory. Changing the amount of threads used."
+                << endl;
+            max_threads = i;
+            delete threads[i];
+            break;
+        }
+        data->chars[0] = 'B';
+        data->chars[1] = 'E';
+        threads[i]->put_tsd( "test2", thread_data::default_delete, 2, data );
+        if (threads[i]->run()!=PEGASUS_THREAD_OK)
+        {
+            cerr << "Not enough memory. Changing the amount of threads used."
+                << endl;
+            max_threads = i;
+            delete threads[i];
+            break;
+        }
+    }
+    for( i = 0; i < max_threads; i++ )
+        threads[i]->join();
+    for( i = 0; i < max_threads; i++ )
+        delete threads[i];
+    // TODO: Programatically check
+    //Threads::sleep( 10000 );
+    }
 
-	// NOTE: see test3_thread() comments
-	//{
-	//// Test proper canceling/thread exit
-	//testval1 = 0;
-	//Thread t( test3_thread, 0, false );
-	//t.run();
-	//t.cancel();
-	//t.join();
-	//if( testval1.get() != 42 )
-	//{
-	//	cerr << "Thread probably incorrectly terminated!" << endl;
-	//	return 1;
-	//}
-	//}
+    // NOTE: see test3_thread() comments
+    //{
+    //// Test proper canceling/thread exit
+    //testval1 = 0;
+    //Thread t( test3_thread, 0, false );
+    //t.run();
+    //t.cancel();
+    //t.join();
+    //if( testval1.get() != 42 )
+    //{
+    //  cerr << "Thread probably incorrectly terminated!" << endl;
+    //  return 1;
+    //}
+    //}
 
 // Note: A glibc problem on some versions of Linux makes Thread::cancel unsafe
 #if !defined(PEGASUS_OS_LINUX)
-	{
-	// Test deadlocked thread handling
-	Thread t( test4_thread, 0, false );
-	t.run();
-	t.cancel();
-	if (verbose) cout << argv[0] << " - If this hangs here, there is a thread deadlock handling bug..." << endl;
-	t.join();
-	// Shouldn't hang forever
-	if (verbose) cout << argv[0] << " - Deadlock test finished." << endl;
-	}
+    {
+        // Test deadlocked thread handling
+        Thread t( test4_thread, 0, false );
+        t.run();
+        t.cancel();
+        if (verbose) cout << argv[0] << 
+            " - If this hangs here, there is a thread deadlock handling bug..."
+            << endl;
+        t.join();
+        // Shouldn't hang forever
+        if (verbose) cout << argv[0] << " - Deadlock test finished." << endl;
+    }
 #endif
 
    ReadWriteSem *rw = new ReadWriteSem();
@@ -240,7 +238,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
    
    const char *keys[] = 
       {
-	 "one", "two", "three", "four"
+     "one", "two", "three", "four"
       };
    
    try
@@ -279,7 +277,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       try 
       {
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-	 my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
+     my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
 #else
          my_handle->put_tsd(keys[i % 4], ::operator delete,
                             256, my_storage);              
@@ -287,22 +285,22 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       }
       catch(IPCException& e)
       {
-      e = e;
-
-      cout << "Exception while trying to put local storage: " 
-          << Threads::id(myself).buffer << endl;
-
-      abort();
+          e = e;
+    
+          cout << "Exception while trying to put local storage: " 
+              << Threads::id(myself).buffer << endl;
+    
+          abort();
       }
       try 
       {
-	 my_parm->wait_read(myself);
+          my_parm->wait_read(myself);
       }
-      catch(IPCException& e)
+          catch(IPCException& e)
       {
-	 e = e;
-	 cout << "Exception while trying to get a read lock" << endl;
-	 abort();
+         e = e;
+         cout << "Exception while trying to get a read lock" << endl;
+         abort();
       }
       
       read_count++;
@@ -311,58 +309,58 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
 
       try
       {
-	 my_handle->cleanup_push(deref , my_handle );
+          my_handle->cleanup_push(deref , my_handle );
       }
       catch(IPCException& e)
       {
-	 e = e;
-	 cout << "Exception while trying to push cleanup handler" << endl;
-	 abort();
+         e = e;
+         cout << "Exception while trying to push cleanup handler" << endl;
+         abort();
       }
 
       try 
       {
-	 my_handle->reference_tsd(keys[i % 4]);
+         my_handle->reference_tsd(keys[i % 4]);
       }
       
       catch(IPCException& e)
       {
-	 e = e;
-	 cout << "Exception while trying to reference local storage" << endl;
-	 abort();
+         e = e;
+         cout << "Exception while trying to reference local storage" << endl;
+         abort();
       }
       
       try
       {
-	 my_handle->cleanup_pop(true);
+         my_handle->cleanup_pop(true);
       }
             catch(IPCException& e)
       {
-	 e = e;
-	 cout << "Exception while trying to pop cleanup handler" << endl;
-	 abort();
+         e = e;
+         cout << "Exception while trying to pop cleanup handler" << endl;
+         abort();
       }
       try 
       {
-	 my_parm->unlock_read(myself);
+         my_parm->unlock_read(myself);
       }
       catch(IPCException& e)
-	{
-	 e = e;
-	 cout << "Exception while trying to release a read lock" << endl;
-	 abort();
+      {
+         e = e;
+         cout << "Exception while trying to release a read lock" << endl;
+         abort();
       }
       
       try 
       {
-	 my_handle->delete_tsd(keys[i % 4]);
+          my_handle->delete_tsd(keys[i % 4]);
       }
       catch(IPCException& e)
       {
-	 e = e;
-	 cout << "Exception while trying to delete local storage: " 
-             << Threads::id(myself).buffer << endl;
-	 abort();
+         e = e;
+         cout << "Exception while trying to delete local storage: " 
+                 << Threads::id(myself).buffer << endl;
+         abort();
       }
       i++;
    }
@@ -385,26 +383,26 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
    {
       try 
       {
-	 my_parm->wait_write(myself);
+         my_parm->wait_write(myself);
       }
       catch(IPCException& e)
       {
-	 e = e;
-	 cout << "Exception while trying to get a write lock" << endl;
-	 abort();
+         e = e;
+         cout << "Exception while trying to get a write lock" << endl;
+         abort();
       }
       write_count++;
       if (verbose) cout << "*";
       my_handle->sleep(1);
       try 
       {
-	 my_parm->unlock_write(myself);
+         my_parm->unlock_write(myself);
       }
       catch(IPCException& e)
       {
-	 e = e;
-	 cout << "Exception while trying to release a write  lock" << endl;
-	 abort();
+         e = e;
+         cout << "Exception while trying to release a write  lock" << endl;
+         abort();
       }
    }
 
@@ -414,28 +412,28 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
 
 ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm )
 {
-	Threads::sleep( 1000 );
-	return( (ThreadReturnType)32 );
+    Threads::sleep( 1000 );
+    return( (ThreadReturnType)32 );
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm )
 {
-	Thread* thread = (Thread*)parm;
-	TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
-	PEGASUS_TEST_ASSERT (data != NULL);
+    Thread* thread = (Thread*)parm;
+    TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
+    PEGASUS_TEST_ASSERT (data != NULL);
 
-	PEGASUS_TEST_ASSERT (data->chars[0] == 'B');
-	PEGASUS_TEST_ASSERT (data->chars[1] == 'E');
+    PEGASUS_TEST_ASSERT (data->chars[0] == 'B');
+    PEGASUS_TEST_ASSERT (data->chars[1] == 'E');
 
-	thread->dereference_tsd();	
+    thread->dereference_tsd();  
 
-	thread->exit_self( (ThreadReturnType)33 );
-	return( (ThreadReturnType)32 );
+    thread->exit_self( (ThreadReturnType)33 );
+    return( (ThreadReturnType)32 );
 }
 
 void test3_thread_cleanup1(void*)
 {
-	testval1 = 42;
+    testval1 = 42;
 }
 
 // NOTE: I don't think Thread::cleanup_push (and pop) will work
@@ -444,34 +442,34 @@ void test3_thread_cleanup1(void*)
 // thread without performing the Thread cleanup routines.
 //ThreadReturnType PEGASUS_THREAD_CDECL test3_thread( void* parm )
 //{
-//	Thread* thread = (Thread*)parm;
-//	while( true )
-//	{
-//		testval1 = 0;
-//		thread->cleanup_push( test3_thread_cleanup1, 0 );
-//		Threads::sleep( 2000 );
-//		thread->test_cancel();
-//		thread->cleanup_pop( false );
-//	}
-//	thread->exit_self( (ThreadReturnType)42 );
-//	return( (ThreadReturnType)42 );
+//  Thread* thread = (Thread*)parm;
+//  while( true )
+//  {
+//      testval1 = 0;
+//      thread->cleanup_push( test3_thread_cleanup1, 0 );
+//      Threads::sleep( 2000 );
+//      thread->test_cancel();
+//      thread->cleanup_pop( false );
+//  }
+//  thread->exit_self( (ThreadReturnType)42 );
+//  return( (ThreadReturnType)42 );
 //}
 
 ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
 {
-	Thread* thread = (Thread*)parm;
-	// Simulate a deadlocked thread
-	while( true )
-	{
+    Thread* thread = (Thread*)parm;
+    // Simulate a deadlocked thread
+    while( true )
+    {
 #if defined(PEGASUS_OS_DARWIN) || defined(PEGASUS_OS_VMS)
-           // 
-           // sleep is NOT a thread cancellation point
-           //  for VMS.
-           // 
-	   pthread_testcancel();
+       // 
+       // sleep is NOT a thread cancellation point
+       //  for VMS.
+       // 
+       pthread_testcancel();
 #endif
-	   Threads::sleep( 2000 );
-	}
-	PEGASUS_UNREACHABLE (thread->exit_self( (ThreadReturnType)52 );
-	return( (ThreadReturnType)52 );)
+       Threads::sleep( 2000 );
+    }
+    PEGASUS_UNREACHABLE (thread->exit_self( (ThreadReturnType)52 );
+    return( (ThreadReturnType)52 );)
 }

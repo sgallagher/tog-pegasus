@@ -48,29 +48,29 @@ int main(int argc, char** argv)
 
     try
     {
-	const String NAMESPACE = "/ggg";
+    const String NAMESPACE = "/ggg";
 
-	SimpleDeclContext context;
+    SimpleDeclContext context;
 
-	CIMClass x(CIMName ("X"));
-	x.addProperty(CIMProperty(CIMName ("one"), Uint32(111)));
-	x.addProperty(CIMProperty(CIMName ("two"), Real32(222.222)));
-	x.addProperty(CIMProperty(CIMName ("three"), String("Three")));
-	context.addClass(NAMESPACE, x);
-	Resolver::resolveClass (x, &context, NAMESPACE);
+    CIMClass x(CIMName ("X"));
+    x.addProperty(CIMProperty(CIMName ("one"), Uint32(111)));
+    x.addProperty(CIMProperty(CIMName ("two"), Real32(222.222)));
+    x.addProperty(CIMProperty(CIMName ("three"), String("Three")));
+    context.addClass(NAMESPACE, x);
+    Resolver::resolveClass (x, &context, NAMESPACE);
 
-	CIMClass y(CIMName ("Y"), CIMName ("X"));
-	y.addProperty(CIMProperty(CIMName ("three"), String("Three - Three")));
-	y.addProperty(CIMProperty(CIMName ("four"), Boolean(false)));
-	y.addProperty(CIMProperty(CIMName ("five"), Real32(555.555)));
-	context.addClass(NAMESPACE, y);
-	Resolver::resolveClass (y, &context, NAMESPACE);
+    CIMClass y(CIMName ("Y"), CIMName ("X"));
+    y.addProperty(CIMProperty(CIMName ("three"), String("Three - Three")));
+    y.addProperty(CIMProperty(CIMName ("four"), Boolean(false)));
+    y.addProperty(CIMProperty(CIMName ("five"), Real32(555.555)));
+    context.addClass(NAMESPACE, y);
+    Resolver::resolveClass (y, &context, NAMESPACE);
 
-	// y.print();
+    // y.print();
     }
     catch (Exception& e)
     {
-	cout << "Exception: " << e.getMessage() << endl;
+    cout << "Exception: " << e.getMessage() << endl;
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

@@ -54,18 +54,18 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try
     {
-	CIMObjectPath reference;
-	String instanceName;
-	
-	test("X.key1=\"Hello World\"");
-	test("X.key1=TRUE,key2=123");
-	test("X.key1=TRUE,key2=123,key3=\"Hello World\"");
-	test("X.x=0");
+    CIMObjectPath reference;
+    String instanceName;
+    
+    test("X.key1=\"Hello World\"");
+    test("X.key1=TRUE,key2=123");
+    test("X.key1=TRUE,key2=123,key3=\"Hello World\"");
+    test("X.x=0");
     }
     catch (Exception& e)
     {
-	cout << "Exception: " << e.getMessage() << endl;
-	exit(1);
+    cout << "Exception: " << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

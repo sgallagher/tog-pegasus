@@ -29,20 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <fstream>
 #include <iostream>
 #include <cstdio>
-
 
 #include <Pegasus/Common/FileSystem.h>
 
@@ -79,11 +71,11 @@ int main(int argc, char** argv)
 
     for (Uint32 i = 0; i < paths.size(); i++)
     {
-	if (String::equal(paths[i], "CVS"))
-	{
-	    paths.remove(i);
-	    break;
-	}
+        if (String::equal(paths[i], "CVS"))
+        {
+            paths.remove(i);
+            break;
+        }
     }
 
     String realName;
@@ -91,8 +83,9 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(String::equal(realName, "FileSystem.cpp"));
 
     PEGASUS_TEST_ASSERT(FileSystem::existsNoCase(
-	"../FileSystem/filesystem.cpp", realName));
-    PEGASUS_TEST_ASSERT(String::equal(realName, "../FileSystem/FileSystem.cpp"));
+    "../FileSystem/filesystem.cpp", realName));
+    PEGASUS_TEST_ASSERT(String::equal(realName,
+                                      "../FileSystem/FileSystem.cpp"));
 
     BubbleSort(paths);
     PEGASUS_TEST_ASSERT(paths.size() == 3);
@@ -104,15 +97,15 @@ int main(int argc, char** argv)
     // Go to testdir, test for file "a"
     // Then return and test for file
     {
-	String saveDir;
-	PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(saveDir));
-	PEGASUS_TEST_ASSERT(FileSystem::changeDirectory("testdir"));
-	PEGASUS_TEST_ASSERT(FileSystem::exists("a"));
-	FileSystem::changeDirectory(saveDir);
-	String newSaveDir;
-	PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(newSaveDir));
-	PEGASUS_TEST_ASSERT(saveDir == newSaveDir);
-	PEGASUS_TEST_ASSERT(FileSystem::exists("FileSystem.cpp"));
+        String saveDir;
+        PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(saveDir));
+        PEGASUS_TEST_ASSERT(FileSystem::changeDirectory("testdir"));
+        PEGASUS_TEST_ASSERT(FileSystem::exists("a"));
+        FileSystem::changeDirectory(saveDir);
+        String newSaveDir;
+        PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(newSaveDir));
+        PEGASUS_TEST_ASSERT(saveDir == newSaveDir);
+        PEGASUS_TEST_ASSERT(FileSystem::exists("FileSystem.cpp"));
     }
     // Test the Create and delete functions
     // Creates directories and files and deletes them.
@@ -128,57 +121,56 @@ int main(int argc, char** argv)
         tf1.append("/TestFile1.txt");
         CString f1 = tf1.getCString();
 
-	FileSystem::makeDirectory(t);
-	PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
-	FileSystem::removeDirectory(t);
-	PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
-
-	// Tests for remove hierarchy command
-	// ATTN: Removed following until next test ks
-	// because remove hiearchy does not work yet.
-	FileSystem::makeDirectory(t);
-
-	String save_cwd;
-	FileSystem::getCurrentDirectory(save_cwd);
-
-	// create some files in new directory
-	if (!FileSystem::changeDirectory(t))
-	    // ATTN: what is valid error return?
-	    return -1;
-
-  	ofstream of1(f);
-	of1 << "test" << endl;
-	of1.close();
-	PEGASUS_TEST_ASSERT(FileSystem::exists(tf));
-
-  	ofstream of2(f1);
-	of2 << "test" << endl;
-	of2.close();
-	PEGASUS_TEST_ASSERT(FileSystem::exists(tf1));
-
-	// Create a second level directory
-	FileSystem::makeDirectory(t1);
-
-	// Create files in this dir
-	if (!FileSystem::changeDirectory(t1))
-	    return -1;
-
-	ofstream of3("testfile3.txt");
-	of3 << "test" << endl;
-	of3.close();
-
-    	ofstream of4("testfile4.txt");
-	of4 << "test" << endl;
-	of4.close();
-
-	// Go back to top level directory
-
-	FileSystem::changeDirectory(save_cwd);
+        FileSystem::makeDirectory(t);
         PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
-	FileSystem::removeDirectoryHier(t);
-	// be sure directory is removed
-	PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
-        
+        FileSystem::removeDirectory(t);
+        PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
+    
+        // Tests for remove hierarchy command
+        // ATTN: Removed following until next test ks
+        // because remove hiearchy does not work yet.
+        FileSystem::makeDirectory(t);
+    
+        String save_cwd;
+        FileSystem::getCurrentDirectory(save_cwd);
+    
+        // create some files in new directory
+        if (!FileSystem::changeDirectory(t))
+            // ATTN: what is valid error return?
+            return -1;
+    
+        ofstream of1(f);
+        of1 << "test" << endl;
+        of1.close();
+        PEGASUS_TEST_ASSERT(FileSystem::exists(tf));
+    
+        ofstream of2(f1);
+        of2 << "test" << endl;
+        of2.close();
+        PEGASUS_TEST_ASSERT(FileSystem::exists(tf1));
+    
+        // Create a second level directory
+        FileSystem::makeDirectory(t1);
+    
+        // Create files in this dir
+        if (!FileSystem::changeDirectory(t1))
+            return -1;
+    
+        ofstream of3("testfile3.txt");
+        of3 << "test" << endl;
+        of3.close();
+    
+            ofstream of4("testfile4.txt");
+        of4 << "test" << endl;
+        of4.close();
+    
+        // Go back to top level directory
+    
+        FileSystem::changeDirectory(save_cwd);
+            PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
+        FileSystem::removeDirectoryHier(t);
+        // be sure directory is removed
+        PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
     }
     // Test renameFile:
     {
@@ -187,86 +179,91 @@ int main(int argc, char** argv)
         String FILE2 (tmpDir);
         FILE2.append("/file2.txt");
 
-  	ofstream of1(FILE1.getCString());
-	of1 << "test" << endl;
-	of1.close();
-	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
-
-	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
-	PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE2));
-	PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE1, FILE2));
-
-	PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE1));
-
-	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE2));
-	PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE2, FILE1));
-	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
-	PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE2));
+        ofstream of1(FILE1.getCString());
+        of1 << "test" << endl;
+        of1.close();
+        PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
+    
+        PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
+        PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE2));
+        PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE1, FILE2));
+    
+        PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE1));
+    
+        PEGASUS_TEST_ASSERT(FileSystem::exists(FILE2));
+        PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE2, FILE1));
+        PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
+        PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE2));
         PEGASUS_TEST_ASSERT(FileSystem::removeFile(FILE1));
         PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE1));
     }
      // Test getFileNameFromPath
     {
         FileSystem::changeDirectory(path);
-    	String pathName = FileSystem::getAbsoluteFileName("./testdir","a");
-	PEGASUS_TEST_ASSERT(pathName.size()!=0);	// It should be there.
-	pathName = FileSystem::getAbsoluteFileName("./testdir","#$@#(@$#!");
-	PEGASUS_TEST_ASSERT(pathName.size()==0);	// It should not be there.	
+        String pathName = FileSystem::getAbsoluteFileName("./testdir","a");
+        PEGASUS_TEST_ASSERT(pathName.size()!=0);    // It should be there.
+        pathName = FileSystem::getAbsoluteFileName("./testdir","#$@#(@$#!");
+        PEGASUS_TEST_ASSERT(pathName.size()==0);    // It should not be there.  
     }
 
     // Test changeFileOwner
-	    {
-	        String testUser;
-	        testUser.assign(System::getEffectiveUserName());
-	        String cd(tmpDir);
-	        cd.append("/TestFile.txt");
-	        ofstream of1(cd.getCString());
-	        of1 << "test" << endl;
-	        of1.close();
-	        //checking that the file exists
-	        PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
+    {
+        String testUser;
+        testUser.assign(System::getEffectiveUserName());
+        String cd(tmpDir);
+        cd.append("/TestFile.txt");
+        ofstream of1(cd.getCString());
+        of1 << "test" << endl;
+        of1.close();
+        //checking that the file exists
+        PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
 
-	        //testing changeFileOwner with valid username
-	        PEGASUS_TEST_ASSERT(FileSystem::changeFileOwner(cd,testUser));
+        //testing changeFileOwner with valid username
+        PEGASUS_TEST_ASSERT(
+            FileSystem::changeFileOwner(cd,testUser));
 
-	        //Added to test if file is owned by effective user for current process
-	        PEGASUS_TEST_ASSERT((System::verifyFileOwnership(cd.getCString()))==true);
-	#ifndef PEGASUS_OS_TYPE_WINDOWS
-	        //testing to fail changeFileOwner with an unusual username @@@###
-	        //on Windows changeFileOwner always returns true
-	        PEGASUS_TEST_ASSERT(!FileSystem::changeFileOwner(cd,"@@@###"));
-	#endif
-	    }
+        //Added to test if file is owned by effective user for
+        // current process
+        PEGASUS_TEST_ASSERT(
+            (System::verifyFileOwnership(cd.getCString()))==true);
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+        //testing to fail changeFileOwner with an unusual username @@@###
+        //on Windows changeFileOwner always returns true
+        PEGASUS_TEST_ASSERT(!FileSystem::changeFileOwner(cd,"@@@###"));
+#endif
+    }
 
-	    //Test changeFilePermissions
-	    {
-	        String cd(tmpDir);
-	        cd.append("/TestFile.txt");
-	        PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
-	#ifndef PEGASUS_OS_TYPE_WINDOWS
-	        PEGASUS_TEST_ASSERT(
-	            FileSystem::changeFilePermissions(cd,S_IRUSR|S_IRGRP|S_IROTH));
-	#else
-	        PEGASUS_TEST_ASSERT(
-	            FileSystem::changeFilePermissions(cd, _S_IREAD|_S_IWRITE));
-	#endif
-	        PEGASUS_TEST_ASSERT(FileSystem::canReadNoCase(cd));
+    //Test changeFilePermissions
+    {
+        String cd(tmpDir);
+        cd.append("/TestFile.txt");
+        PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+        PEGASUS_TEST_ASSERT(
+            FileSystem::changeFilePermissions(cd,S_IRUSR|S_IRGRP|S_IROTH));
+#else
+        PEGASUS_TEST_ASSERT(
+            FileSystem::changeFilePermissions(cd, _S_IREAD|_S_IWRITE));
+#endif
+        PEGASUS_TEST_ASSERT(FileSystem::canReadNoCase(cd));
 
-	        if (System::isPrivilegedUser(System::getEffectiveUserName()))
-	        {
-	            PEGASUS_TEST_ASSERT(FileSystem::canWrite(cd));
-	        }
-	
-        // While granting access permissions Windows seems to be not considering the privilege level 
-        // of the user (i.e. either admin or normal user).  In case of normal user also write permission
-        // is granted. Hence the below assert is failing. To avoid this failure, added ifndef.
-        #ifndef PEGASUS_OS_TYPE_WINDOWS
-	        else
-	        {
-	            PEGASUS_TEST_ASSERT(!FileSystem::canWrite(cd));
-	        }
-	    #endif
-	    }
+        if (System::isPrivilegedUser(System::getEffectiveUserName()))
+        {
+            PEGASUS_TEST_ASSERT(FileSystem::canWrite(cd));
+        }
+
+    // While granting access permissions Windows seems to be not  
+    // considering the privilege level of the user (i.e. either admin or 
+    // normaluser).  In case of normal user also write permission is
+    // granted. Hence the below assert is failing. To avoid this
+    // failure, added ifndef.
+    #ifndef PEGASUS_OS_TYPE_WINDOWS
+        else
+        {
+            PEGASUS_TEST_ASSERT(!FileSystem::canWrite(cd));
+        }
+    #endif
+    }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

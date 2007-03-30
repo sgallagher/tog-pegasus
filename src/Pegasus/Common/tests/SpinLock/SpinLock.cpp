@@ -27,11 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Konrad Rzeszutek, IBM Corp.
-// Modified by:
-//         Steve Hills (steve.hills@ncr.com)
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,15 +45,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
 {
     for (;;)
     {
-	const size_t N = 1000000;
+    const size_t N = 1000000;
 
-	for (size_t i = 0; i < N; i++)
-	{
-	    SpinLockLock(_lock);
-	    SpinLockUnlock(_lock);
-	}
+    for (size_t i = 0; i < N; i++)
+    {
+        SpinLockLock(_lock);
+        SpinLockUnlock(_lock);
+    }
 
-	break;
+    break;
     }
 
     return 0;
@@ -72,8 +68,8 @@ int main(int argc, char** argv)
 
     for (size_t i = 0; i < NUM_THREADS; i++)
     {
-	thread[i] = new Thread(test_thread, 0, false);
-	thread[i]->run();
+    thread[i] = new Thread(test_thread, 0, false);
+    thread[i]->run();
     }
 
     for (size_t i = 0; i < NUM_THREADS; i++)

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Karl Schopmeyer
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /* This program tests the generation and resolution of instances.  It creates
@@ -99,9 +91,12 @@ void test01()
         .addProperty(CIMProperty(CIMName("ratio"), Real32(1.5)));
 
     // Test
-    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        class1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        class1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        class1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
 
     Resolver::resolveClass(class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
@@ -122,11 +117,15 @@ void test01()
 
     instance1.addProperty(CIMProperty(CIMName("message"), String("Goodbye")));
 
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
 
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("ratio")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 1);
 
     if (verbose)
@@ -143,10 +142,14 @@ void test01()
 
     // Now test for properties after resolution.
 
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 3);
 
     // Now remove a property
@@ -155,10 +158,14 @@ void test01()
     posProperty = instance1.findProperty(CIMName("count"));
     instance1.removeProperty(posProperty);
 
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
 
     PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 2);
 
@@ -169,8 +176,10 @@ void test01()
 
     const CIMInstance instance2 = instance1.clone();
     PEGASUS_TEST_ASSERT(instance2.identical(instance1));
-    PEGASUS_TEST_ASSERT(instance1.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(instance2.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance1.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        instance2.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(instance1.getQualifierCount() != 4);
     PEGASUS_TEST_ASSERT(instance1.getQualifierCount() == 1);
     PEGASUS_TEST_ASSERT(instance2.getQualifierCount() == 1);
@@ -190,7 +199,8 @@ void test01()
     PEGASUS_TEST_ASSERT(cinstance1.getQualifierCount() == 1);
     CIMConstQualifier ccq = cinstance1.getQualifier(cinstance1.findQualifier(
         CIMName("classcounter")));
-    PEGASUS_TEST_ASSERT(cinstance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        cinstance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
     CIMConstProperty ccp =
         cinstance1.getProperty(cinstance1.findProperty(CIMName("message")));
 
@@ -240,9 +250,12 @@ void test02()
     cimInstance.addProperty(CIMProperty(CIMName("last"), String("Smith")));
     cimInstance.addProperty(CIMProperty(CIMName("age"), Uint8(101)));
 
-    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("first")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("last")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("age")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        cimInstance.findProperty(CIMName("first")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        cimInstance.findProperty(CIMName("last")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(
+        cimInstance.findProperty(CIMName("age")) != PEG_NOT_FOUND);
 
     PEGASUS_TEST_ASSERT(cimInstance.getPropertyCount() == 3);
 
@@ -435,10 +448,14 @@ void test04()
             XmlWriter::printInstanceElement(newInstance);
         }
 
-        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == class1.getPropertyCount());
-        PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == class1.getQualifierCount());
-        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.getPropertyCount() == class1.getPropertyCount());
+        PEGASUS_TEST_ASSERT(
+            newInstance.getQualifierCount() == class1.getQualifierCount());
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("message") != PEG_NOT_FOUND);
 
     }
 
@@ -450,9 +467,12 @@ void test04()
             class1.buildInstance(false, true, CIMPropertyList());
 
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
-        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == class1.getPropertyCount());
-        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.getPropertyCount() == class1.getPropertyCount());
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("message") != PEG_NOT_FOUND);
     }
 
     //
@@ -485,8 +505,10 @@ void test04()
         }
 
         PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 1);
-        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("message") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
     }
 
@@ -506,7 +528,8 @@ void test04()
         PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 1);
         PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.findProperty("blob") == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            newInstance.findProperty("message") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
     }
 
@@ -560,8 +583,10 @@ void test04()
         }
 
         PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(_propertyIdentical("ratio", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            _propertyIdentical("ratio", filterInstance, tstInstance));
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -588,8 +613,10 @@ void test04()
         }
 
         PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("message") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(_propertyIdentical("message", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            _propertyIdentical("message", filterInstance, tstInstance));
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -616,7 +643,8 @@ void test04()
         }
 
         PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("count") != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -637,7 +665,8 @@ void test04()
         filterInstance.filter(true, true, pl1);
 
         PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 0);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
             tstInstance.getQualifierCount());
     }
@@ -659,12 +688,18 @@ void test04()
         CIMInstance filterInstance = tstInstance.clone();
         filterInstance.filter(true, true, pl1);
 
-        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 2);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("message") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(_propertyIdentical("message", filterInstance, tstInstance));
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("count") != PEG_NOT_FOUND);
-        PEGASUS_TEST_ASSERT(_propertyIdentical("count", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(
+            filterInstance.getPropertyCount() == 2);
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            _propertyIdentical("message", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            _propertyIdentical("count", filterInstance, tstInstance));
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
@@ -682,7 +717,8 @@ void test04()
         filterInstance.filter(false, true, CIMPropertyList());
 
         PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
         for (Uint32 i = 0; i < filterInstance.getPropertyCount() ; i++)
         {
@@ -707,7 +743,8 @@ void test04()
         filterInstance.filter(false, true, pl1);
 
         PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 0);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
     }
 
@@ -733,7 +770,8 @@ void test04()
         filterInstance.filter(false, true, CIMPropertyList());
 
         PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
-        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
         for (Uint32 i = 0 ; i < filterInstance.getPropertyCount() ; i++)
         {

@@ -66,17 +66,17 @@ class test_request : public AsyncRequest
       typedef AsyncRequest Base;
       
       test_request(
-		   AsyncOpNode *op, 
-		   Uint32 destination, 
-		   Uint32 response,
-		   const char *message)
-	 : Base(0x04100000,
-		0, 
-		op, 
-		destination, 
-		response, 
-		true),
-	   greeting(message) 
+           AsyncOpNode *op, 
+           Uint32 destination, 
+           Uint32 response,
+           const char *message)
+     : Base(0x04100000,
+        0, 
+        op, 
+        destination, 
+        response, 
+        true),
+       greeting(message) 
       {   
       }
       
@@ -95,24 +95,24 @@ class test_response : public AsyncReply
       
 
       test_response(
-		    AsyncOpNode *op, 
-		    Uint32 result,
-		    Uint32 destination, 
-		    const char *message)
-	 : Base(0x04200000,
-		0, 
-		op, 
-		result, 
-		destination,
-		true), 
-	   greeting(message) 
+            AsyncOpNode *op, 
+            Uint32 result,
+            Uint32 destination, 
+            const char *message)
+     : Base(0x04200000,
+        0, 
+        op, 
+        result, 
+        destination,
+        true), 
+       greeting(message) 
       {  
-	 
+     
       }
       
       virtual ~test_response()
       {
-	 
+     
       }
       
       String greeting;
@@ -158,11 +158,11 @@ test_module::~test_module()
    {
       try 
       {
-	 _controller->deregister_module(_name);
+     _controller->deregister_module(_name);
       }
       catch(Permission &)
       {
-	 ;
+     ;
       }
    }
 }
@@ -177,10 +177,10 @@ Message *test_module::receive_msg(Message *msg, void *parm)
       
       myself->_msg_rx++;
       return new test_response(
-			   static_cast<AsyncRequest *>(msg)->op, 
-			   async_results::OK,  
-			   msg->dest, 
-			   "i am a test response"); 
+               static_cast<AsyncRequest *>(msg)->op, 
+               async_results::OK,  
+               msg->dest, 
+               "i am a test response"); 
    }
    return NULL;
 }
@@ -214,17 +214,17 @@ ModuleController *test_module::get_controller()
    {
       try 
       {
-	 
-	 _controller = &(ModuleController::register_module(_controller_name, 
-							   _name,
-							   this,
-							   receive_msg,
-							   async_callback,
-							   &_module_handle));
+     
+     _controller = &(ModuleController::register_module(_controller_name, 
+                               _name,
+                               this,
+                               receive_msg,
+                               async_callback,
+                               &_module_handle));
       }
       catch(AlreadyExistsException &)
       {
-	 ;
+     ;
       }
       
    }
@@ -237,17 +237,17 @@ RegisteredModuleHandle *test_module::get_mod_handle()
    {
       try 
       {
-	 
-	 _controller = &(ModuleController::register_module(_controller_name, 
-							   _name,
-							   this,
-							   receive_msg,
-							   async_callback,
-							   &_module_handle));
+     
+     _controller = &(ModuleController::register_module(_controller_name, 
+                               _name,
+                               this,
+                               receive_msg,
+                               async_callback,
+                               &_module_handle));
       }
       catch(AlreadyExistsException &)
       {
-	 ;
+     ;
       }
       
    }
@@ -284,12 +284,12 @@ class test_service : public MessageQueueService
 
 
 test_service::test_service(const char *name)
-      	 : Base(name, 0, 
-		MessageMask::type_cimom | 
-		MessageMask::type_service | 
-		MessageMask::ha_request | 
-		MessageMask::ha_reply | 
- 		MessageMask::ha_async ) 
+         : Base(name, 0, 
+        MessageMask::type_cimom | 
+        MessageMask::type_service | 
+        MessageMask::ha_request | 
+        MessageMask::ha_reply | 
+        MessageMask::ha_async ) 
 {
 }
 
@@ -306,13 +306,13 @@ void test_service::_handle_incoming_operation(AsyncOpNode *operation)
       PEGASUS_TEST_ASSERT(rq != 0 );
       if ( rq && (rq->getMask() & MessageMask::ha_async))
       {
-	 _handle_async_request(static_cast<AsyncRequest *>(rq));
+     _handle_async_request(static_cast<AsyncRequest *>(rq));
       }
       else 
       {
-	 delete rq;
-	 operation->release();
-	 return_op(operation);
+     delete rq;
+     operation->release();
+     return_op(operation);
       }
    }
    return;
@@ -332,11 +332,11 @@ void test_service::handle_test_request(AsyncRequest *msg)
    if( msg->getType() == 0x04100000 )
    {
       test_response *resp = 
-	 new test_response(
-			   msg->op, 
-			   async_results::OK,  
-			   msg->dest, 
-			   "i am a test response");
+     new test_response(
+               msg->op, 
+               async_results::OK,  
+               msg->dest, 
+               "i am a test response");
       _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
 
 
@@ -363,9 +363,9 @@ typedef struct _test_module_parms
           const char *peer,
           const char *me)
       {
-	 _controller = strdup(controller);
-	 _peer = strdup(peer);
-	 _me = strdup(me);
+     _controller = strdup(controller);
+     _peer = strdup(peer);
+     _me = strdup(me);
       }
       
       char *_controller;
@@ -373,9 +373,9 @@ typedef struct _test_module_parms
       char *_me;
       ~_test_module_parms()
       {
-	 delete _controller;
-	 delete _peer;
-	 delete _me;
+     delete _controller;
+     delete _peer;
+     delete _me;
       }
       
 } MODULE_PARMS;
@@ -391,7 +391,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
    my_module->get_mod_handle();
    
    Uint32 svc_qid = 
-      my_module->get_controller()->find_service(*(my_module->get_mod_handle()), SERVICE_NAME);
+      my_module->get_controller()->find_service(*(my_module->get_mod_handle())
+                                                , SERVICE_NAME);
    MessageQueue *svce = MessageQueue::lookup(svc_qid);
    if(svce)
       cout << "Found Service " << SERVICE_NAME << " at " << svce << endl;
@@ -399,10 +400,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
    do 
    {  
       peer_qid = 
-	 my_module->get_controller()->find_module_in_service(*(my_module->get_mod_handle()), String(parms->_peer));
+     my_module->get_controller()->find_module_in_service(
+         *(my_module->get_mod_handle()), String(parms->_peer));
 
       if((svce = MessageQueue::lookup(peer_qid)) == NULL)
-	 Threads::sleep(1);
+     Threads::sleep(1);
    } while( svce == NULL);
    
    cout << "Found Peer Module " << parms->_peer << " at " << svce << endl;
@@ -414,14 +416,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       svc_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               svc_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
 
-   AsyncMessage *response = my_module->get_controller()->ModuleSendWait(*(my_module->get_mod_handle()),
-									svc_qid,
-									req);
+   AsyncMessage *response = 
+       my_module->get_controller()->ModuleSendWait(
+                                *(my_module->get_mod_handle()),
+                                    svc_qid,
+                                    req);
    if(response && response->getType() == 0x04200000)
       cout << " ModuleSendWait to service successfull " << endl;
    
@@ -432,16 +436,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
    
  
-   response = my_module->get_controller()->ModuleSendWait(*(my_module->get_mod_handle()),
-							  peer_qid,
-							  String(parms->_peer),
-							  req);
+   response = my_module->get_controller()->
+                    ModuleSendWait(*(my_module->get_mod_handle()),
+                              peer_qid,
+                              String(parms->_peer),
+                              req);
    
    delete req; 
    delete response;
@@ -450,16 +455,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
    
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       svc_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               svc_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
 
-   success = my_module->get_controller()->ModuleSendAsync( (*my_module->get_mod_handle()),
-								   0, 
-								   svc_qid,
-								   req,
-								   my_module);
+   success = my_module->get_controller()->
+                    ModuleSendAsync( (*my_module->get_mod_handle()),
+                                   0, 
+                                   svc_qid,
+                                   req,
+                                   my_module);
    if(success == true )
       cout << "SendAsync to service successful" << endl;
 
@@ -467,18 +473,19 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
    Threads::sleep(1);
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
 
    
-   success = my_module->get_controller()->ModuleSendAsync( (*my_module->get_mod_handle()),
-							   0,  
-							   peer_qid,
-							   String(parms->_peer),
-							   req,
-							   my_module);
+   success = my_module->get_controller()->
+                        ModuleSendAsync( (*my_module->get_mod_handle()),
+                               0,  
+                               peer_qid,
+                               String(parms->_peer),
+                               req,
+                               my_module);
    
    delete req;
    
@@ -488,17 +495,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
 
    success = my_module->get_controller()->ClientSendAsync(
-							   0, 
-							   svc_qid,
-							   req,
-							   test_module::async_callback,
-							   my_module);
+                               0, 
+                               svc_qid,
+                               req,
+                               test_module::async_callback,
+                               my_module);
    
    delete req;
    if(success == true )
@@ -506,18 +513,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
    
    success = my_module->get_controller()->ClientSendAsync(
-							   0, 
-							   peer_qid,
-							   String(parms->_peer),
-							   req,
-							   test_module::async_callback,
-							   my_module);
+                               0, 
+                               peer_qid,
+                               String(parms->_peer),
+                               req,
+                               test_module::async_callback,
+                               my_module);
    
    delete req;
    if(success == true )
@@ -527,14 +534,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
    
-   success = my_module->get_controller()->ModuleSendForget( (*my_module->get_mod_handle()),
-							    svc_qid,
-							    req);
+   success = my_module->get_controller()->
+                        ModuleSendForget( (*my_module->get_mod_handle()),
+                                svc_qid,
+                                req);
    
    if(success == true )
       cout << "ModuleSendForget to service successful" << endl;
@@ -543,15 +551,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
    
-   success = my_module->get_controller()->ModuleSendForget( (*my_module->get_mod_handle()),
-							    peer_qid,
-							    String(parms->_peer),
-							    req);
+   success = my_module->get_controller()->ModuleSendForget(
+                        (*my_module->get_mod_handle()),
+                                peer_qid,
+                                String(parms->_peer),
+                                req);
    
    if(success == true )
       cout << "ModuleSendForget to module successful" << endl;
@@ -560,14 +569,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid,
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid,
+               my_module->get_controller()->getQueueId(),
+               "hello");
    
    success = my_module->get_controller()->ClientSendForget(
-							    svc_qid,
-							    req);
+                                svc_qid,
+                                req);
    
    if(success == true )
       cout << "ClientSendForget to service successful" << endl;
@@ -576,15 +585,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(
-		       0, //MessageQueueService::get_op(), 
-		       peer_qid, 
-		       my_module->get_controller()->getQueueId(),
-		       "hello");
+               0, //MessageQueueService::get_op(), 
+               peer_qid, 
+               my_module->get_controller()->getQueueId(),
+               "hello");
    
    success = my_module->get_controller()->ClientSendForget(
-							    peer_qid,
-							    String(parms->_peer),
-							    req);
+                                peer_qid,
+                                String(parms->_peer),
+                                req);
    
    if(success == true )
       cout << "ClientSendForget to module successful" << endl;

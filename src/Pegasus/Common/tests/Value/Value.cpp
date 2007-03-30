@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//                  20 Feb 2002 - Add tests for new constructor and extend array tests
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) for bug#3101
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for bug#3290
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -96,8 +82,8 @@ void test01(const T& x)
 #ifdef IO
     if (verbose)
     {
-	cout << "\n----------------------\n";
-	XmlWriter::printValueElement(v3, cout);
+    cout << "\n----------------------\n";
+    XmlWriter::printValueElement(v3, cout);
     }
 #endif
     try
@@ -109,7 +95,8 @@ void test01(const T& x)
         PEGASUS_TEST_ASSERT (!v2.isNull());
         PEGASUS_TEST_ASSERT(t == x);
         PEGASUS_TEST_ASSERT (v3.typeCompatible(v2));
-        // Confirm that the constructor created Null, not array and correct type
+        // Confirm that the constructor created Null, not array and
+        // correct type
         PEGASUS_TEST_ASSERT (v4.isNull());
         PEGASUS_TEST_ASSERT (!v4.isArray());
         PEGASUS_TEST_ASSERT (v4.typeCompatible(v));
@@ -220,7 +207,8 @@ void test02(const Array<T>& x)
         PEGASUS_TEST_ASSERT (!va3.isNull());
         PEGASUS_TEST_ASSERT (va3.isArray());
 
-        // Note that this test depends on what is built.  Everything has 2 entries.
+        // Note that this test depends on what is built.  Everything has
+        // 2 entries.
         PEGASUS_TEST_ASSERT (va.getArraySize() == 3);
 
         // Confirm that va4 (and va5) is Null, and array and zero length
@@ -309,10 +297,12 @@ void test03( Array<T1>& arrObj1, Array<T1>& arrObj2, T2 obj, T3 val1, T3 val2)
     arrObj2.append(obj,1);
     PEGASUS_TEST_ASSERT( 2 == arrObj2.size() && arrObj2[1] == val2 );
     arrObj1.appendArray(arrObj2);
-    PEGASUS_TEST_ASSERT( 12 == arrObj1.size() && arrObj1[10] == val1 && arrObj1[11] == val2);
+    PEGASUS_TEST_ASSERT( 12 == arrObj1.size() 
+            && arrObj1[10] == val1 && arrObj1[11] == val2);
     arrObj2.clear();
     PEGASUS_TEST_ASSERT( 0 == arrObj2.size() );
-    PEGASUS_TEST_ASSERT( 16 == arrObj1.getCapacity() && 8 == arrObj2.getCapacity() );
+    PEGASUS_TEST_ASSERT( 16 == arrObj1.getCapacity() 
+            && 8 == arrObj2.getCapacity() );
     arrObj2.grow(10,val1);
     PEGASUS_TEST_ASSERT( 10 == arrObj2.size() && arrObj2[5] == val1);
     arrObj2.insert(10,val2);
@@ -353,9 +343,9 @@ void testEmbeddedValue(const CIMInstance & instance)
     PEGASUS_TEST_ASSERT(propCount == 55);
     instance1.removeProperty(propIx);
     instance1.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
-	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
-	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+        .addQualifier(CIMQualifier(CIMName ("counter"), true))
+        .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+        .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
     EmbeddedType object2;
     v1.get(object2);
     CIMInstance instance1a(object2);
@@ -369,9 +359,9 @@ void testEmbeddedValue(const CIMInstance & instance)
     // not be affected (ie. tests clone() on CIMValue::get() ).
     instance1a.removeProperty(propIx);
     instance1a.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
-	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
-	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+        .addQualifier(CIMQualifier(CIMName ("counter"), true))
+        .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+        .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
     EmbeddedType object3;
     v1.get(object3);
     CIMInstance instance1b(object3);
@@ -425,7 +415,8 @@ void testEmbeddedValueArray(const CIMInstance & startInstance,
 
     CIMInstance instance3(CIMName ("MyClass"));
     instance3.addQualifier(CIMQualifier(CIMName ("classcounter"), false));
-    instance3.addProperty(CIMProperty(CIMName ("message"), String("Au Revoir")));
+    instance3.addProperty(CIMProperty(CIMName ("message"),
+                String("Au Revoir")));
     Resolver::resolveInstance (instance3, context, NAMESPACE, true);
 
     Array<EmbeddedType> arr16;
@@ -450,9 +441,9 @@ void testEmbeddedValueArray(const CIMInstance & startInstance,
     PEGASUS_TEST_ASSERT(propCount == 55);
     arr16[1].removeProperty(propIx);
     arr16[1].addProperty(CIMProperty(CIMName ("count"), Uint32(65))
-	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
-	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+        .addQualifier(CIMQualifier(CIMName ("counter"), true))
+        .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+        .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
     Array<EmbeddedType> object2array;
     v1array.get(object2array);
     CIMInstance instance2a(object2array[1]);
@@ -512,7 +503,7 @@ int main(int argc, char** argv)
 #ifdef IO
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     if (verbose)
-	cout << "Test CIMValue. To turn off display, compile with IO undefined\n";
+    cout << "Test CIMValue. To turn off display, compile with IO undefined\n";
 #endif
     // Test the primitive CIMValue types with test01
     test01(Boolean(true));
@@ -532,7 +523,8 @@ int main(int argc, char** argv)
     test01(Sint64(-123456789));
     test01(String("Hello world"));
     test01(CIMDateTime("19991224120000.000000+360"));
-    test01(CIMObjectPath("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
+    test01(CIMObjectPath(
+        "//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
 
     // Create and populate a declaration context:
 
@@ -541,36 +533,36 @@ int main(int argc, char** argv)
     SimpleDeclContext* context = new SimpleDeclContext;
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl(CIMName ("counter"), false, 
+    NAMESPACE, CIMQualifierDecl(CIMName ("counter"), false, 
         CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl(CIMName ("classcounter"), false, 
+    NAMESPACE, CIMQualifierDecl(CIMName ("classcounter"), false, 
         CIMScope::CLASS));
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl(CIMName ("min"), String(), 
+    NAMESPACE, CIMQualifierDecl(CIMName ("min"), String(), 
         CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl(CIMName ("max"), String(), 
+    NAMESPACE, CIMQualifierDecl(CIMName ("max"), String(), 
         CIMScope::PROPERTY));
 
     context->addQualifierDecl(NAMESPACE,
-	CIMQualifierDecl(CIMName ("Description"), String(), 
+    CIMQualifierDecl(CIMName ("Description"), String(), 
         CIMScope::PROPERTY));
 
     CIMClass class1(CIMName ("MyClass"));
 
     class1
-	.addProperty(CIMProperty(CIMName ("count"), Uint32(55))
-	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
-	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
-	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))))
-	.addProperty(CIMProperty(CIMName ("message"), String("Hello"))
-	    .addQualifier(CIMQualifier(CIMName ("description"), 
+    .addProperty(CIMProperty(CIMName ("count"), Uint32(55))
+        .addQualifier(CIMQualifier(CIMName ("counter"), true))
+        .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+        .addQualifier(CIMQualifier(CIMName ("max"), String("1"))))
+    .addProperty(CIMProperty(CIMName ("message"), String("Hello"))
+        .addQualifier(CIMQualifier(CIMName ("description"), 
                 String("My Message"))))
-	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
+    .addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
     
     Resolver::resolveClass (class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
@@ -679,9 +671,14 @@ int main(int argc, char** argv)
     test02(arr14);
 
     Array<CIMObjectPath> arr15;
-    arr15.append(CIMObjectPath("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
-    arr15.append(CIMObjectPath("//host2:88/root/static:Class2.keyA=\"keyAValue\",keyB=\"keyBValue\""));
-    arr15.append(CIMObjectPath("//host3:99/root/test/static:Class3.keyX=\"keyXValue\",keyY=\"keyYValue\""));
+    arr15.append(CIMObjectPath(
+        "//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
+    arr15.append(CIMObjectPath(
+        "//host2:88/root/static:Class2.keyA=\"keyAValue\",keyB="
+                "\"keyBValue\""));
+    arr15.append(CIMObjectPath(
+        "//host3:99/root/test/static:Class3.keyX=\"keyXValue\","
+                "keyY=\"keyYValue\""));
     test02(arr15);
 
     testEmbeddedValueArray<CIMObject>(instance1, NAMESPACE, context);
@@ -702,7 +699,8 @@ int main(int argc, char** argv)
     Array<CIMName> arrcimname1(10,cimname1);
     CIMName *cimname2 = new CIMName("yourName");
     Array<CIMName> arrcimname2(cimname2,1);
-    test03(arrcimname1, arrcimname2, cimname2, CIMName("yourName"), CIMName("myName"));
+    test03(arrcimname1, arrcimname2, cimname2, CIMName("yourName"),
+            CIMName("myName"));
     delete cimname2;
 
     CIMKeyBinding cimbind1(cimname1, "myKey", CIMKeyBinding::STRING);
@@ -716,10 +714,12 @@ int main(int argc, char** argv)
 
     CIMNamespaceName cimnamespace1("root/SampleProvider");
     Array<CIMNamespaceName> arrcimnamespace1(10,cimnamespace1);
-    CIMNamespaceName *cimnamespace2 = new CIMNamespaceName("root/SampleProvider");
+    CIMNamespaceName *cimnamespace2 = new CIMNamespaceName(
+            "root/SampleProvider");
     Array<CIMNamespaceName> arrcimnamespace2(cimnamespace2,1);
-    test03(arrcimnamespace1, arrcimnamespace2, cimnamespace2, CIMNamespaceName("root/SampleProvider"), 
-                                  CIMNamespaceName("root/SampleProvider2")); 
+    test03(arrcimnamespace1, arrcimnamespace2, cimnamespace2,
+            CIMNamespaceName("root/SampleProvider"), 
+            CIMNamespaceName("root/SampleProvider2")); 
     delete cimnamespace2;
 
     Array<Boolean> arrB1(10,true);
@@ -745,7 +745,8 @@ int main(int argc, char** argv)
     Real64 *creal642 = new Real64(20000.54321);
     Array<Real64> arrreal643(creal642,1);
     Array<Real64> arrreal644(arrreal641);
-    test03(arrreal642, arrreal643, creal642,Real64(20000.54321), Real64(30000.54321));
+    test03(arrreal642, arrreal643, creal642,Real64(20000.54321),
+            Real64(30000.54321));
     delete creal642;
 
     Array<Sint16> arrSint161(10);
@@ -763,7 +764,8 @@ int main(int argc, char** argv)
     Sint32 *cSint322 = new Sint32(-200000000);
     Array<Sint32> arrSint323(cSint322,1);
     Array<Sint32> arrSint324(arrSint321);
-    test03(arrSint322, arrSint323, cSint322, Sint32(-200000000), Sint32(-300000000));
+    test03(arrSint322, arrSint323, cSint322, Sint32(-200000000),
+            Sint32(-300000000));
     delete cSint322;
 
     Array<Sint64> arrSint641(10);

@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 #include <iostream>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/HashTable.h>
@@ -54,12 +54,12 @@ void test01()
 
     for (; i; i++)
     {
-	if (verbose)
+    if (verbose)
         {
             cout << "key[" << i.key() << "]" << endl;
             cout << "value[" << i.value() << "]" << endl;
         }
-	sum += i.value();
+    sum += i.value();
     }
 
     HT ht2;
@@ -68,12 +68,12 @@ void test01()
 
     for (HT::Iterator i = ht.start(); i; i++)
     {
-	if (verbose)
+    if (verbose)
         {
             cout << "key[" << i.key() << "]" << endl;
             cout << "value[" << i.value() << "]" << endl;
         }
-	sum += i.value();
+    sum += i.value();
     }
 
     PEGASUS_TEST_ASSERT(sum == 600);
@@ -101,8 +101,8 @@ void test02()
 
     for (Uint32 i = 0; i < N; i++)
     {
-	sum += 2 * i;
-	ht.insert(i, i);
+    sum += 2 * i;
+    ht.insert(i, i);
     }
 
     HT ht2 = ht;
@@ -114,8 +114,8 @@ void test02()
 
     for (HT::Iterator i = ht2.start(); i; i++)
     {
-	n++;
-	expectedSum += i.value() + i.key();
+    n++;
+    expectedSum += i.value() + i.key();
     }
 
     PEGASUS_TEST_ASSERT(expectedSum == sum);
@@ -131,7 +131,7 @@ void test03()
     Uint32 n = 0;
 
     for (HT::Iterator i = ht.start(); i; i++)
-	n++;
+    n++;
 
     PEGASUS_TEST_ASSERT(n == 0);
 }

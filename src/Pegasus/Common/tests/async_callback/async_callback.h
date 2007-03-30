@@ -27,13 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_async_callback_h
 #define Pegasus_async_callback_h
@@ -69,9 +65,9 @@ class async_start : public AsyncOperationStart
       typedef AsyncOperationStart Base;
 
       async_start(AsyncOpNode *op,
-		  Uint32 start_q,
-		  Uint32 completion_q,
-		  Message *op_data);
+          Uint32 start_q,
+          Uint32 completion_q,
+          Message *op_data);
 
       virtual ~async_start(void) { }
 
@@ -86,8 +82,8 @@ class async_complete: public AsyncOperationResult
       typedef AsyncOperationResult Base;
 
       async_complete(const async_start & start_op,
-		     Uint32 result,
-		     Message *result_data);
+             Uint32 result,
+             Message *result_data);
 
       virtual ~async_complete(void) {    delete _result_data; }
 
@@ -106,8 +102,8 @@ class test_async_queue : public MessageQueueService
 
       enum ROLE
       {
-	 CLIENT,
-	 SERVER
+     CLIENT,
+     SERVER
       };
 
       test_async_queue(ROLE role);
@@ -116,14 +112,14 @@ class test_async_queue : public MessageQueueService
       // pure virtuals that will go away eventually
       void handleEnqueue(void)
       {
-	 Message *msg = dequeue();
-	 if(msg)
-	    handleEnqueue(msg);
+     Message *msg = dequeue();
+     if(msg)
+        handleEnqueue(msg);
       }
 
       void handleEnqueue(Message *msg)
       {
-	 delete msg;
+     delete msg;
       }
 
       // static callback function

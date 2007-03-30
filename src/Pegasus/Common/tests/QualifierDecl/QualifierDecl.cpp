@@ -27,17 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
@@ -49,7 +41,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;	 // Flag to control test IO
+static Boolean verbose;  // Flag to control test IO
 
 void test01()
 {
@@ -60,7 +52,7 @@ void test01()
         CIMFlavor::TOINSTANCE);
 
     if(verbose)
-		XmlWriter::printQualifierDeclElement(qual1);
+        XmlWriter::printQualifierDeclElement(qual1);
 
     CIMQualifierDecl q2(CIMName ("Abstract"), true, CIMScope::CLASS);
     CIMQualifierDecl q3 = q2;
@@ -82,17 +74,17 @@ void test01()
     //
     PEGASUS_TEST_ASSERT(qual1.getScope().equal (CIMScope::PROPERTY));
     PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
-	// This should be the defaults if nothing specified.
+    // This should be the defaults if nothing specified.
     PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
     PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
-	CIMQualifierDecl q4(CIMName ("q4"), true, CIMScope::CLASS, 
+    CIMQualifierDecl q4(CIMName ("q4"), true, CIMScope::CLASS, 
             CIMFlavor::RESTRICTED);
     PEGASUS_TEST_ASSERT(!q4.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
     PEGASUS_TEST_ASSERT(!q4.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
     PEGASUS_TEST_ASSERT(q4.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
-	CIMQualifierDecl q5(CIMName ("q5"), true, CIMScope::CLASS, 
+    CIMQualifierDecl q5(CIMName ("q5"), true, CIMScope::CLASS, 
             CIMFlavor::DISABLEOVERRIDE);
     PEGASUS_TEST_ASSERT(!q5.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
     PEGASUS_TEST_ASSERT(q5.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
@@ -141,7 +133,7 @@ void test02()
         CIMFlavor::TOINSTANCE);
 
     if(verbose)
-		XmlWriter::printQualifierDeclElement(cq1);
+        XmlWriter::printQualifierDeclElement(cq1);
 
     CIMConstQualifierDecl cq2(CIMName ("Abstract"), true, CIMScope::CLASS);
     CIMConstQualifierDecl cq3;

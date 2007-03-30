@@ -27,13 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 #include "async_callback.h"
@@ -44,7 +40,8 @@ PEGASUS_USING_PEGASUS;
 
 static Boolean verbose;
 
-async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q, Message * op_data):Base (
+async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q,
+                          Message * op_data):Base (
       op,
       start_q, completion_q, false, op_data)
 {
@@ -71,8 +68,10 @@ async_complete::get_result_data (void)
 
 AtomicInt test_async_queue::msg_count (0);
 
-test_async_queue::test_async_queue (ROLE role):Base ((role == CLIENT) ? "client" : "server", getNextQueueId ()),
-_die_now (0), _role (role)
+test_async_queue::test_async_queue (ROLE role):Base (
+            (role == CLIENT) ? "client" : "server",
+            getNextQueueId ()),
+            _die_now (0), _role (role)
 {
 
 }
@@ -117,9 +116,9 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
                             response_data);
       _complete_op_node (rq->op, 0, 0, async_results::ASYNC_COMPLETE);
     } catch (const PEGASUS_STD(bad_alloc) &)
-	{
-		cerr <<" Out of memory!" << endl;
-	}
+    {
+        cerr <<" Out of memory!" << endl;
+    }
     }
   else if (rq->getType () == async_messages::CIMSERVICE_STOP)
     {
@@ -161,7 +160,8 @@ test_async_queue::async_handleEnqueue (AsyncOpNode * op,
       Message *cim_rq = rq->get_action ();
       Message *cim_rp = rp->get_result_data ();
 
-      PEGASUS_TEST_ASSERT (cim_rq->getType () == CIM_GET_INSTANCE_REQUEST_MESSAGE);
+      PEGASUS_TEST_ASSERT (cim_rq->getType () ==
+                           CIM_GET_INSTANCE_REQUEST_MESSAGE);
       PEGASUS_TEST_ASSERT (cim_rp->getType () ==
                       CIM_GET_INSTANCE_RESPONSE_MESSAGE);
       test_async_queue::msg_count++;
@@ -196,7 +196,7 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
   _completeAsyncResponse (stop, resp, ASYNC_OPSTATE_COMPLETE, 0);
   _die_now = 1;
   } catch (const PEGASUS_STD(bad_alloc) &) {
-	cerr << "Out of memory in _handle_stop.	Continuing tests .. " << endl;
+    cerr << "Out of memory in _handle_stop. Continuing tests .. " << endl;
   }
 }
 

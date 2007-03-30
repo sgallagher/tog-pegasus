@@ -27,11 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,15 +45,15 @@ void test01()
 
     for (Dir dir("testdir"); dir.more(); dir.next())
     {
-	String name = dir.getName();
+    String name = dir.getName();
 
-	if (String::equal(name, ".") || String::equal(name, "..") 
-	    || String::equal(name, "CVS"))
-	{
-	    continue;
-	}
+    if (String::equal(name, ".") || String::equal(name, "..") 
+        || String::equal(name, "CVS"))
+    {
+        continue;
+    }
 
-	names.append(name);
+    names.append(name);
     }
 
     BubbleSort(names);
@@ -71,22 +67,22 @@ int main(int argc, char** argv)
 {
     try
     {
-	test01();
+    test01();
     }
     catch (Exception& e)
     {
-	cout << e.getMessage() << endl;
-	exit(1);
+    cout << e.getMessage() << endl;
+    exit(1);
     }
 
     try 
     {
-	Dir dir("noSuchDirectory");
+    Dir dir("noSuchDirectory");
     }
     catch (CannotOpenDirectory&)
     {
-	cout << argv[0] << " +++++ passed all tests" << endl;
-	exit(0);
+    cout << argv[0] << " +++++ passed all tests" << endl;
+    exit(0);
     }
 
     PEGASUS_TEST_ASSERT(0);

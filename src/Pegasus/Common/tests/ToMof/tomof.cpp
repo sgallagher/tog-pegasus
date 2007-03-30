@@ -27,12 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +63,8 @@ bool resultTest(const Buffer& buffer, const char * result)
             cout << "Size diff error. str1 len = " << strlen(buffer.getData())
                  << " str2 len = " << strlen(result) << endl;
         }
-        cout << "Created Buffer\n<" << buffer.getData() << ">\nTest Result\n<" << result << ">" << endl;
+        cout << "Created Buffer\n<" << buffer.getData() 
+            << ">\nTest Result\n<" << result << ">" << endl;
         return(false);
     }
 }
@@ -109,7 +105,8 @@ void test03()
         MofWriter::appendPropertyElement(true, tmp, p1);
         const char * declCompare = "\nstring message = \"Hi There\";";
         if (verbose)
-            cout << "Property MOF = " << tmp.getData() << "\n out \n" << declCompare << endl;
+            cout << "Property MOF = " << tmp.getData() 
+                << "\n out \n" << declCompare << endl;
 
         PEGASUS_TEST_ASSERT(resultTest(tmp,declCompare));
 
@@ -203,12 +200,14 @@ void test04()
         Buffer tmp;
         MofWriter::appendQualifierDeclElement(tmp, qual1);
 
-        char cimTypeQualifierDecl[] = "\nQualifier CIMTYPE : string = \"\", Scope(property);\n";
+        char cimTypeQualifierDecl[] = "\nQualifier CIMTYPE :"
+                                      " string = \"\", Scope(property);\n";
         PEGASUS_TEST_ASSERT(resultTest(tmp, cimTypeQualifierDecl));
 
         Buffer tmp1;
         MofWriter::appendQualifierDeclElement(tmp1, q2);
-        char cimAbstractQualDecl[] = "\nQualifier Abstract : boolean = TRUE, Scope(class);\n";
+        char cimAbstractQualDecl[] = "\nQualifier Abstract :"
+                                     " boolean = TRUE, Scope(class);\n";
         PEGASUS_TEST_ASSERT(resultTest(tmp1, cimAbstractQualDecl));
     }
     catch(Exception& e)
@@ -254,7 +253,8 @@ boolean isActive(string hostname, uint32 port);\n\
         char classCompare[] = MESSAGE;
         PEGASUS_TEST_ASSERT(resultTest(tmp, classCompare));
 
-        CIMInstance instance1 = class1.buildInstance(false, false, CIMPropertyList());
+        CIMInstance instance1 = class1.buildInstance(false, false,
+                                                     CIMPropertyList());
         Buffer tmpInstance;
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
@@ -287,9 +287,12 @@ count = 77;\n\
             .addQualifier(CIMQualifier(CIMName ("association"), true))
             .addQualifier(CIMQualifier(CIMName ("q1"), Uint32(55)))
             .addQualifier(CIMQualifier(CIMName ("q2"), String("Hello")))
-            .addProperty(CIMProperty(CIMName ("message"), CIMValue(CIMTYPE_STRING, false)))
-            .addProperty(CIMProperty(CIMName ("count"), CIMValue(CIMTYPE_UINT32, false)))
-            .addProperty(CIMProperty(CIMName ("booltest"), CIMValue(CIMTYPE_BOOLEAN, false)))
+            .addProperty(CIMProperty(CIMName ("message"),
+                                     CIMValue(CIMTYPE_STRING, false)))
+            .addProperty(CIMProperty(CIMName ("count"),
+                                     CIMValue(CIMTYPE_UINT32, false)))
+            .addProperty(CIMProperty(CIMName ("booltest"),
+                                     CIMValue(CIMTYPE_BOOLEAN, false)))
             .addProperty(CIMProperty(CIMName ("arraytest"), v))
             .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
                 .addParameter(CIMParameter(CIMName ("hostname"), 
@@ -316,7 +319,8 @@ boolean isActive(string hostname, uint32 port);\n\
         char classCompare[] = MESSAGE2;
         PEGASUS_TEST_ASSERT(resultTest(tmp, classCompare));
 
-        CIMInstance instance1 = class1.buildInstance(false, false, CIMPropertyList());
+        CIMInstance instance1 = class1.buildInstance(false, false,
+                                                     CIMPropertyList());
         Buffer tmpInstance;
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
@@ -367,7 +371,8 @@ arraytest = {\"One\", \"Two\", \"Three\"};\n\
     
             .addProperty(CIMProperty(CIMName ("VolumeLabel"), String(" ")))
         
-                .addMethod(CIMMethod(CIMName ("NoParmsMethod"), CIMTYPE_BOOLEAN))
+                .addMethod(CIMMethod(CIMName ("NoParmsMethod"),
+                                                CIMTYPE_BOOLEAN))
             
             .addMethod(CIMMethod(CIMName ("OneParmmethod"), CIMTYPE_BOOLEAN)
                 .addParameter(CIMParameter(CIMName ("FastFormat"), 
@@ -377,18 +382,22 @@ arraytest = {\"One\", \"Two\", \"Three\"};\n\
                              )
                       )
     
-            .addMethod(CIMMethod(CIMName ("TwoParmMethod"), CIMTYPE_BOOLEAN)
+            .addMethod(CIMMethod(CIMName ("TwoParmMethod"),
+                                        CIMTYPE_BOOLEAN)
                 .addParameter(CIMParameter(CIMName ("FirstParam"), 
                         CIMTYPE_BOOLEAN)
-                           .addQualifier(CIMQualifier(CIMName ("Dangerous"), 
-                                   true))
-                           .addQualifier(CIMQualifier(CIMName ("in"),true)) 	     
+                           .addQualifier(CIMQualifier(
+                               CIMName ("Dangerous"), true))
+                           .addQualifier(CIMQualifier(
+                               CIMName ("in"),true))          
                             )
                 .addParameter(CIMParameter(CIMName ("SecondParam"), 
                         CIMTYPE_BOOLEAN)
-                            .addQualifier(CIMQualifier(CIMName ("Dangerous"), 
+                            .addQualifier(CIMQualifier(
+                                CIMName ("Dangerous"), 
                                     true))
-                            .addQualifier(CIMQualifier(CIMName ("in"),true)) 	     
+                            .addQualifier(CIMQualifier(
+                                CIMName ("in"),true))         
                             )
                      )
                      ;
@@ -399,8 +408,10 @@ arraytest = {\"One\", \"Two\", \"Three\"};\n\
 
 #define MESSAGE3 "\n//    Class SubClass\n\n\
 [abstract : DisableOverride, Restricted, \n\
-description (\"This is a Description of my class. This is part 2 of the string to make it longer. \
-This is part 3 of the same string for nothing.\") : DisableOverride, Restricted]\n\
+description (\"This is a Description of my class. This is part 2 \
+of the string to make it longer. \
+This is part 3 of the same string for nothing.\") \
+: DisableOverride, Restricted]\n\
 class SubClass : SuperClass\n\
 {\n\
 [read : DisableOverride, Restricted]\n\
@@ -410,9 +421,11 @@ Units (\"KiloBytes\") : DisableOverride, Restricted]\n\
 sint32 RawCapacity = 99;\n\
 string VolumeLabel = \" \";\n\
 boolean NoParmsMethod();\n\
-boolean OneParmmethod([Dangerous : DisableOverride, Restricted] boolean FastFormat);\n\
+boolean OneParmmethod([Dangerous : DisableOverride, Restricted] \
+boolean FastFormat);\n\
 boolean TwoParmMethod([Dangerous : DisableOverride, Restricted, \n\
-in : DisableOverride, Restricted] boolean FirstParam, [Dangerous : DisableOverride, Restricted, \n\
+in : DisableOverride, Restricted] boolean FirstParam, \
+[Dangerous : DisableOverride, Restricted, \n\
 in : DisableOverride, Restricted] boolean SecondParam);\n\
 };\n";
  
@@ -448,8 +461,10 @@ int main(int argc, char** argv)
     */
     test01(Uint64(123456789), "123456789");
     test01(Sint64(-123456789), "-123456789");
-    test01(CIMObjectPath("MyClass.key1=20,key2=\"my name\""), "\"MyClass.key1=20,key2=\\\"my name\\\"\"");
-    test01(CIMDateTime("19991224120000.000000-300"), "\"19991224120000.000000-300\"");
+    test01(CIMObjectPath("MyClass.key1=20,key2=\"my name\""),
+            "\"MyClass.key1=20,key2=\\\"my name\\\"\"");
+    test01(CIMDateTime("19991224120000.000000-300"),
+            "\"19991224120000.000000-300\"");
 
     // Test for array values generation of MOF.
     // Note that we do not test all types.

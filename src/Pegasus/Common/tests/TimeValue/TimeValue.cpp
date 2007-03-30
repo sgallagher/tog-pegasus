@@ -77,10 +77,14 @@ int main(int argc, char** argv)
 
     if (verbose)
     {
-        cout << "tv1 " << tv1.getSeconds() << " Seconds " << tv1.getMicroseconds()
-             << " microseconds " << tv1.toMilliseconds() << " total milliseconds" << endl;
-        cout << "tv2 " << tv2.getSeconds() << " Seconds " << tv2.getMicroseconds()
-             << " microseconds " << tv2.toMilliseconds() << " total milliseconds" <<  endl;
+        cout << "tv1 " << tv1.getSeconds() << " Seconds " 
+             << tv1.getMicroseconds()
+             << " microseconds " << tv1.toMilliseconds() 
+             << " total milliseconds" << endl;
+        cout << "tv2 " << tv2.getSeconds() << " Seconds " 
+             << tv2.getMicroseconds()
+             << " microseconds " << tv2.toMilliseconds() 
+             << " total milliseconds" <<  endl;
     }
 
     Uint32 milliseconds = tv2.toMilliseconds() - tv1.toMilliseconds();

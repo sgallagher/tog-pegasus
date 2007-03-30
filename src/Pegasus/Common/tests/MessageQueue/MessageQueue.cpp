@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/MessageQueue.h>
@@ -70,7 +70,7 @@ void TestMessageQueue1()
 
     for (Uint32 i = 1; i <= 4; i++)
     {
-	q.enqueue(new Alarm(i));
+    q.enqueue(new Alarm(i));
     }
 
     // Test dequeue:
@@ -103,8 +103,8 @@ void TestMessageQueue2()
 
     for (Uint32 i = 1; i <= 5; i++)
     {
-	q.enqueue(new Alarm(i));
-	sum += i;
+    q.enqueue(new Alarm(i));
+    sum += i;
     }
     PEGASUS_TEST_ASSERT(sum == 15);
 
@@ -122,8 +122,8 @@ void TestMessageQueue3()
 
     for (Uint32 i = 1; i <= 5; i++)
     {
-	q.enqueue(new Alarm(i));
-	sum += i;
+    q.enqueue(new Alarm(i));
+    sum += i;
     }
     PEGASUS_TEST_ASSERT(sum == 15);
 
@@ -156,15 +156,15 @@ int main()
 {
     try
     {
-	TestMessageQueue1();
-	TestMessageQueue2();
-	TestMessageQueue3();
-	TestMessageQueue4();
-	cout << "+++++ passed all tests" << endl;
+    TestMessageQueue1();
+    TestMessageQueue2();
+    TestMessageQueue3();
+    TestMessageQueue4();
+    cout << "+++++ passed all tests" << endl;
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
+    cerr << e.getMessage() << endl;
     }
     
     return 0;

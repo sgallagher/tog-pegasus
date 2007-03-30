@@ -28,13 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Karl Schopmeyer - Add reference object tests.
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//               David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
-//               Vijay Eli, IBM (vijayeli@in.ibm.com), bug#2556.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -94,78 +87,79 @@ void test01()
 
      // Test case independence and order independence of parameters.
     {
-	CIMObjectPath r1 = CIMObjectPath ("X.a=123,b=true");
-	CIMObjectPath r2 = CIMObjectPath ("x.B=TRUE,A=123");
-	PEGASUS_TEST_ASSERT(r1 == r2);
-	PEGASUS_TEST_ASSERT(r1.makeHashCode() == r2.makeHashCode());
+    CIMObjectPath r1 = CIMObjectPath ("X.a=123,b=true");
+    CIMObjectPath r2 = CIMObjectPath ("x.B=TRUE,A=123");
+    PEGASUS_TEST_ASSERT(r1 == r2);
+    PEGASUS_TEST_ASSERT(r1.makeHashCode() == r2.makeHashCode());
 
-	CIMObjectPath r3 = CIMObjectPath ("x.B=TRUE,A=123,c=FALSE");
-	PEGASUS_TEST_ASSERT(r1 != r3);
+    CIMObjectPath r3 = CIMObjectPath ("x.B=TRUE,A=123,c=FALSE");
+    PEGASUS_TEST_ASSERT(r1 != r3);
         String            keyValue;
 
         Array<CIMKeyBinding> kbArray;
-	{
-	    Boolean found = false;
-	    kbArray = r3.getKeyBindings();
-	    for (Uint32 i = 0; i < kbArray.size(); i++)
-	    {
-			if (verbose)
+    {
+        Boolean found = false;
+        kbArray = r3.getKeyBindings();
+        for (Uint32 i = 0; i < kbArray.size(); i++)
+        {
+            if (verbose)
             {
                 cout << "keyName= " <<  kbArray[i].getName() << " Value= "
-    				 << kbArray[i].getValue() << endl;
+                     << kbArray[i].getValue() << endl;
             }
-		if ( kbArray[i].getName() == CIMName ("B") )
-		{
-		    keyValue = kbArray[i].getValue();
-		    if(keyValue == "TRUE")
-			found = true;
-		}
-	    }
-	    if(!found)
-	    {
-			cerr << "Key Binding Test error " << endl;
-				exit(1);
-	    }
-		//ATTN: KS 12 May 2002 P3 DEFER - keybinding manipulation. too simplistic
-		// This code demonstrates that it is not easy to manipulate and
-		// test keybindings.  Needs better tool both in CIMObjectPath and
-		// separate.
-	}
+        if ( kbArray[i].getName() == CIMName ("B") )
+        {
+            keyValue = kbArray[i].getValue();
+            if(keyValue == "TRUE")
+            found = true;
+        }
+        }
+        if(!found)
+        {
+            cerr << "Key Binding Test error " << endl;
+                exit(1);
+        }
+        //ATTN: KS 12 May 2002 P3 DEFER - keybinding manipulation. too
+        // simplistic.
+        // This code demonstrates that it is not easy to manipulate and
+        // test keybindings.  Needs better tool both in CIMObjectPath and
+        // separate.
+    }
     }
 
 
     // Test building from component parts of CIM Reference.
     {
-	CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"),
+    CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"),
             CIMName ("TennisPlayer"));
-	CIMObjectPath r2 ("//atp:77/root/cimv25:TennisPlayer.");
-	//cout << "r1 " << r1.toString() << endl;
-	//cout << "r2 " << r2.toString() << endl;
+    CIMObjectPath r2 ("//atp:77/root/cimv25:TennisPlayer.");
+    //cout << "r1 " << r1.toString() << endl;
+    //cout << "r2 " << r2.toString() << endl;
 
-	PEGASUS_TEST_ASSERT(r1 == r2);
-	PEGASUS_TEST_ASSERT(r1.toString() == r2.toString());
+    PEGASUS_TEST_ASSERT(r1 == r2);
+    PEGASUS_TEST_ASSERT(r1.toString() == r2.toString());
 
     }
 
 
     {
-	String hostName = "atp:77";
-	String nameSpace = "root/cimv2";
-	String className = "tennisplayer";
+    String hostName = "atp:77";
+    String nameSpace = "root/cimv2";
+    String className = "tennisplayer";
 
-	CIMObjectPath r1;
-	r1.setHost(hostName);
-	r1.setNameSpace(nameSpace);
-	r1.setClassName(className);
-	PEGASUS_TEST_ASSERT(r1.getClassName().equal(CIMName ("TENNISPLAYER")));
-	PEGASUS_TEST_ASSERT(!r1.getClassName().equal(CIMName ("blob")));
+    CIMObjectPath r1;
+    r1.setHost(hostName);
+    r1.setNameSpace(nameSpace);
+    r1.setClassName(className);
+    PEGASUS_TEST_ASSERT(r1.getClassName().equal(CIMName ("TENNISPLAYER")));
+    PEGASUS_TEST_ASSERT(!r1.getClassName().equal(CIMName ("blob")));
 
 
-	String newHostName = r1.getHost();
-	//cout << "HostName = " << newHostName << endl;
+    String newHostName = r1.getHost();
+    //cout << "HostName = " << newHostName << endl;
 
-	CIMObjectPath r2 (hostName, nameSpace, className);
-	PEGASUS_TEST_ASSERT(r1 == r2);
+    CIMObjectPath r2 (hostName, nameSpace, className);
+    PEGASUS_TEST_ASSERT(r1 == r2);
      }
 
      // Test cases for the Hostname.  CIMObjectPaths allows the
@@ -416,7 +410,8 @@ void test02()
         ("MyClass.z=true,y=1234,x=\"Hello,,World\"");
 
     CIMObjectPath testr4 = CIMObjectPath
-        ("//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"");
+        ("//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones"
+         " long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"");
 
     // test cases with colon inside keybinding string value
 
@@ -525,11 +520,18 @@ void test03()
     kb6.setValue("true1");
     PEGASUS_TEST_ASSERT(!kb6.equal(Boolean(true)));
 
-    CIMKeyBinding kb7("test7", CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\""));
-    String path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
+    CIMKeyBinding kb7("test7",
+        CIMObjectPath("//atp:77/root/cimv25:TennisPlayer."
+                      "last=\"Rafter\",first=\"Patrick\""));
+
+    String path = "//atp:77/root/cimv25:TennisPlayer."
+                  "last=\"Rafter\",first=\"Patrick\"";
     PEGASUS_TEST_ASSERT(kb7.equal(CIMObjectPath(path)));
-    path = "//atp:77/root/cimv25:TennisPlayer.FIRST=\"Patrick\",LAST=\"Rafter\"";
+
+    path = "//atp:77/root/cimv25:TennisPlayer."
+           "FIRST=\"Patrick\",LAST=\"Rafter\"";
     PEGASUS_TEST_ASSERT(kb7.equal(CIMObjectPath(path)));
+
     path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"";
     PEGASUS_TEST_ASSERT(!kb7.equal(CIMObjectPath(path)));
 
@@ -559,7 +561,8 @@ void test03()
     PEGASUS_TEST_ASSERT(!kb10.equal(String("100")));
 
     CIMKeyBinding kb11("test11", String("+100"), CIMKeyBinding::NUMERIC);
-    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));  // Unsigned ints may not start with "+"
+    // Unsigned ints may not start with "+"
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));  
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint32(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint16(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint8(100)));
@@ -649,10 +652,12 @@ void test04()
     CIMObjectPath cPath2 ("", CIMNamespaceName (),
         cPath.getClassName (), keyBindings);
 
-    // Assert that the CIMObjectPaths for C from build path and direct from keybindings are equal.
+    // Assert that the CIMObjectPaths for C from build path and direct
+    // from keybindings are equal.
     PEGASUS_TEST_ASSERT (cPath.identical (cPath2));
 
-    // ATTN: KS 25 Feb 2003 P3 - Think we can extend these tests since this is creation of classes and
+    // ATTN: KS 25 Feb 2003 P3 - Think we can extend these tests
+    // since this is creation of classes and
     // instnaces for associations and referenced classes.
 }
 

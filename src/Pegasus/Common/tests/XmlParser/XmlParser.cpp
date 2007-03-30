@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ static void _parseFile(const char* fileName)
 
     XmlParser parser((char*)text.getData());
 
-	XmlEntry entry;
+    XmlEntry entry;
 
     // Get initial comment and ignore
     parser.next(entry, true);
@@ -84,21 +84,21 @@ int main(int argc, char** argv)
   
     if (argc < 2)
     {
-	cerr << "Usage: " << argv[0] << " xml-filename ..." << endl;
-	exit(1);
+    cerr << "Usage: " << argv[0] << " xml-filename ..." << endl;
+    exit(1);
     }
 
     for (Uint32 i = 1; i < Uint32(argc); i++)
     {
-	try 
-	{ 
-	    _parseFile(argv[i]); 
-	}
-	catch(Exception& e)
-	{
-	    cerr << "Error: " << e.getMessage() << endl;	
-	    exit(1);
-	}
+    try 
+    { 
+        _parseFile(argv[i]); 
+    }
+    catch(Exception& e)
+    {
+        cerr << "Error: " << e.getMessage() << endl;    
+        exit(1);
+    }
     }
     cout << argv[0] << " +++++ passed all tests" << endl;
 

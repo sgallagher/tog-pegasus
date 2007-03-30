@@ -27,12 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By: Sean Keenan (sean.keenan@hp.com)
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +50,7 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
 void test01 ()
 {
     #if defined(PEGASUS_OS_DARWIN) || defined (PEGASUS_OS_VMS)
-	static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
+    static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
     CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
     CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
     #endif
@@ -66,7 +61,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f0: " << f0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f0.toString () == String::EMPTY);
@@ -75,7 +70,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f1: " << f1.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f1.toString () == String::EMPTY);
@@ -87,7 +82,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f2: " << f2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f2.toString () == String::EMPTY);
@@ -96,7 +91,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f3: " << f3.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f3.toString () == "DISABLEOVERRIDE");
@@ -105,18 +100,19 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f4: " << f4.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f4.toString () == 
-   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
+   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE"
+        " RESTRICTED");
 
     CIMFlavor f5 = CIMFlavor 
         (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED);
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f5: " << f5.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f5.toString () == "DISABLEOVERRIDE RESTRICTED");
@@ -128,7 +124,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f6: " << f6.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f6.toString () == String::EMPTY);
@@ -137,7 +133,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f7: " << f7.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f7.toString () == String::EMPTY);
@@ -146,7 +142,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f8: " << f8.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f8.toString () == "DISABLEOVERRIDE");
@@ -155,17 +151,18 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f9: " << f9.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f9.toString () == 
-   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
+   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE"
+            " RESTRICTED");
 
     CIMFlavor f10 = CIMFlavor (f5);
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f10: " << f10.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f10.toString () == "DISABLEOVERRIDE RESTRICTED");
@@ -177,17 +174,18 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f0: " << f0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f0.toString () == 
-   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
+   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE"
+            " RESTRICTED");
 
     f0 = f3;
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f0: " << f0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f0.toString () == "DISABLEOVERRIDE");
@@ -207,7 +205,7 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f0: " << f0.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f0.toString () == "TRANSLATABLE DISABLEOVERRIDE");
@@ -218,26 +216,28 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f7: " << f7.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (f7.toString () == "TOSUBCLASS TOINSTANCE TRANSLATABLE");
+    PEGASUS_TEST_ASSERT (f7.toString () == 
+            "TOSUBCLASS TOINSTANCE TRANSLATABLE");
 
     f4.addFlavor (CIMFlavor::TRANSLATABLE);
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f4: " << f4.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f4.toString () == 
-   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
+   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE"
+        " RESTRICTED");
 
     f10.addFlavor (CIMFlavor::NONE);
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f10: " << f10.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f10.toString () == "DISABLEOVERRIDE RESTRICTED");
@@ -246,11 +246,12 @@ void test01 ()
 
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f2: " << f2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f2.toString () == 
-   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
+   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE"
+   " RESTRICTED");
 
     //
     //  Test hasFlavor (Uint32) 
@@ -259,11 +260,13 @@ void test01 ()
     PEGASUS_TEST_ASSERT (f0.hasFlavor 
         (CIMFlavor::TRANSLATABLE + CIMFlavor::DISABLEOVERRIDE));
     PEGASUS_TEST_ASSERT (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE)));
-    PEGASUS_TEST_ASSERT (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE + CIMFlavor::TOINSTANCE)));
+    PEGASUS_TEST_ASSERT (!(f0.hasFlavor (CIMFlavor::OVERRIDABLE + 
+                    CIMFlavor::TOINSTANCE)));
     PEGASUS_TEST_ASSERT (!(f0.hasFlavor (CIMFLAVOR_ALL)));
 
     PEGASUS_TEST_ASSERT (f7.hasFlavor (CIMFlavor::TOSUBCLASS));
-    PEGASUS_TEST_ASSERT (f7.hasFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE));
+    PEGASUS_TEST_ASSERT (f7.hasFlavor (CIMFlavor::TOSUBCLASS + 
+                CIMFlavor::TOINSTANCE));
     PEGASUS_TEST_ASSERT (!(f7.hasFlavor (CIMFlavor::RESTRICTED)));
     PEGASUS_TEST_ASSERT (!(f7.hasFlavor 
         (CIMFlavor::RESTRICTED + CIMFlavor::DISABLEOVERRIDE)));
@@ -271,7 +274,8 @@ void test01 ()
 
     PEGASUS_TEST_ASSERT (f4.hasFlavor (CIMFLAVOR_ALL));
     PEGASUS_TEST_ASSERT (f4.hasFlavor (CIMFlavor::OVERRIDABLE));
-    PEGASUS_TEST_ASSERT (f4.hasFlavor (CIMFlavor::OVERRIDABLE + CIMFlavor::TOSUBCLASS));
+    PEGASUS_TEST_ASSERT (f4.hasFlavor (CIMFlavor::OVERRIDABLE + 
+                CIMFlavor::TOSUBCLASS));
 
     //
     //  Test hasFlavor (CIMFlavor) 
@@ -288,7 +292,7 @@ void test01 ()
     f6.removeFlavor (CIMFLAVOR_ALL);
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f6: " << f6.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f6.toString () == String::EMPTY);
@@ -296,7 +300,7 @@ void test01 ()
     f6.removeFlavor (CIMFlavor::NONE);
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f6: " << f6.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f6.toString () == String::EMPTY);
@@ -304,16 +308,17 @@ void test01 ()
     f2.removeFlavor (CIMFlavor::NONE);
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f2: " << f2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f2.toString () == 
-   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE RESTRICTED");
+   "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE DISABLEOVERRIDE"
+   " RESTRICTED");
 
     f2.removeFlavor (CIMFlavor::TOINSTANCE);
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f2: " << f2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f2.toString () == 
@@ -322,15 +327,16 @@ void test01 ()
     f2.removeFlavor (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED);
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f2: " << f2.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (f2.toString () == "OVERRIDABLE TOSUBCLASS TRANSLATABLE");
+    PEGASUS_TEST_ASSERT (f2.toString () == "OVERRIDABLE TOSUBCLASS"
+            " TRANSLATABLE");
 
     f2.removeFlavor (CIMFLAVOR_ALL);
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f2: " << f2.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f2.toString () == String::EMPTY);
@@ -338,7 +344,7 @@ void test01 ()
     f8.removeFlavor (CIMFlavor::DISABLEOVERRIDE);
     if (verbose)
     {
-	PEGASUS_STD (cout) << "\n----------------------\n";
+    PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "f8: " << f8.toString () << PEGASUS_STD (endl);
     }
     PEGASUS_TEST_ASSERT (f8.toString () == String::EMPTY);
@@ -357,8 +363,9 @@ void test01 ()
     PEGASUS_TEST_ASSERT (sf7 == "TOSUBCLASS TOINSTANCE TRANSLATABLE");
 
     String sf4 = f4.toString ();
-    PEGASUS_TEST_ASSERT (sf4 == "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE "
-                       "DISABLEOVERRIDE RESTRICTED");
+    PEGASUS_TEST_ASSERT (sf4 == 
+            "OVERRIDABLE TOSUBCLASS TOINSTANCE TRANSLATABLE "
+            "DISABLEOVERRIDE RESTRICTED");
 }
 
 int main (int argc, char** argv)

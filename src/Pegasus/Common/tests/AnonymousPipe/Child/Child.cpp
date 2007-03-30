@@ -27,17 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
-//              David Dillard, VERITAS Software Corp.
-//		Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//                  (david.dillard@veritas.com)
-//              Vijay S Eli, IBM (vijayeli@in.ibm.com), for bug#3101 
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//=============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -189,12 +179,15 @@ int main (int argc, char * argv [])
         PEGASUS_TEST_ASSERT (request->propertyList.isNull ());
         PEGASUS_TEST_ASSERT (request->authType == String::EMPTY);
         PEGASUS_TEST_ASSERT (request->userName == String::EMPTY);
-        PEGASUS_TEST_ASSERT (((ContentLanguageListContainer)request->operationContext.get
-			(ContentLanguageListContainer::NAME)).getLanguages().size() == 0);
-        PEGASUS_TEST_ASSERT (((AcceptLanguageListContainer)request->operationContext.get
-			(AcceptLanguageListContainer::NAME)).getLanguages().size() == 0);
+        PEGASUS_TEST_ASSERT (
+            ((ContentLanguageListContainer)request->operationContext.get
+            (ContentLanguageListContainer::NAME)).getLanguages().size() == 0);
+        PEGASUS_TEST_ASSERT (
+            ((AcceptLanguageListContainer)request->operationContext.get
+            (AcceptLanguageListContainer::NAME)).getLanguages().size() == 0);
 
-        AcceptLanguageListContainer allc1(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        AcceptLanguageListContainer allc1(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
         PEGASUS_TEST_ASSERT ( allc1.getLanguages().size() == 0 );
         AcceptLanguageListContainer allc2(allc1);
         PEGASUS_TEST_ASSERT ( allc2.getLanguages().size() == 0 );

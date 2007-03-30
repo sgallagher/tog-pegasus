@@ -27,13 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/List.h>
@@ -56,7 +52,7 @@ public:
 
     static bool equal(const Person* person, const void* client_data)
     {
-	return *((String*)client_data) == person->name();
+    return *((String*)client_data) == person->name();
     }
 
 private:
@@ -85,42 +81,42 @@ int main(int argc, char** argv)
     // Print all elements of the list:
 
     {
-	PersonList::AutoLock autoLock(list);
+    PersonList::AutoLock autoLock(list);
 
-	for (Person* p = list.front(); p; p = list.next_of(p))
-	{
-	    // p->print();
-	}
+    for (Person* p = list.front(); p; p = list.next_of(p))
+    {
+        // p->print();
+    }
     }
 
     // Find "John":
 
     {
-	const String JOHN = "John";
-	Person* john = list.find(Person::equal, &JOHN);
-	assert(john);
-	// john->print();
+    const String JOHN = "John";
+    Person* john = list.find(Person::equal, &JOHN);
+    assert(john);
+    // john->print();
     }
 
     // Remove "John" and "Jane":
     {
-	const String JOHN = "John";
-	Person* john = list.remove(Person::equal, &JOHN);
-	assert(john->name() == "John");
-	delete john;
-	assert(list.size() == 3);
+    const String JOHN = "John";
+    Person* john = list.remove(Person::equal, &JOHN);
+    assert(john->name() == "John");
+    delete john;
+    assert(list.size() == 3);
 
-	const String JANE = "Jane";
-	Person* jane = list.remove(Person::equal, &JANE);
-	assert(jane->name() == "Jane");
-	delete jane;
-	assert(list.size() == 2);
+    const String JANE = "Jane";
+    Person* jane = list.remove(Person::equal, &JANE);
+    assert(jane->name() == "Jane");
+    delete jane;
+    assert(list.size() == 2);
     }
 
     // Clear the list:
     {
-	list.clear();
-	assert(list.size() == 0);
+    list.clear();
+    assert(list.size() == 0);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

@@ -27,11 +27,10 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Vageesh Umesh (vagumesh@in.ibm.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 /**
     This file has testcases that are added to cover the functions in
@@ -53,7 +52,7 @@ void test01()
     /**
         Function to cover
         const String& Attribute::getTag() const
-	*/
+    */
     Attribute attribute("dummy");
     const String  ret_tag=attribute.getTag();
     PEGASUS_TEST_ASSERT( ret_tag == "dummy" );
@@ -72,7 +71,8 @@ void test01()
 
     /**
         Function to cover
-        PEGASUS_STD(ostream)& operator<<( PEGASUS_STD(ostream)& os,const Attribute& attr)
+        PEGASUS_STD(ostream)& operator<<( 
+            PEGASUS_STD(ostream)& os,const Attribute& attr)
     */
     ofstream outputFile;
     outputFile.open ("test.txt", ofstream::out);
@@ -91,11 +91,13 @@ int main( int argc, char *argv[] )
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cout) << "Exception: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD (cout) << "Exception: " << e.getMessage() 
+            << PEGASUS_STD(endl);
         exit(1);
     }
 
-    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests" 
+        << PEGASUS_STD(endl);
     return 0;
 }
 

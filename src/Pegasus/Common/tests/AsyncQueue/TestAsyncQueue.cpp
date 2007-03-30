@@ -27,16 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com) 
-//
-// Modified By:
-//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/AsyncQueue.h>  
@@ -66,21 +59,21 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _reader(void* self_)
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
-	Message* message = queue->dequeue_wait();
-	PEGASUS_TEST_ASSERT(message);
+    Message* message = queue->dequeue_wait();
+    PEGASUS_TEST_ASSERT(message);
 
-	if (verbose)
-	{
-	    if (((i + 1) % 1000) == 0)
-		printf("iterations: %05u\n", message->x);
-	}
+    if (verbose)
+    {
+        if (((i + 1) % 1000) == 0)
+        printf("iterations: %05u\n", message->x);
+    }
 // special dish of the day for Sun Solaris
 // reports say that running as root causes
 // the thread not being scheduled-out
 // until this is resolved the yield()
 // will stay here just for Solaris
 #ifdef PEGASUS_OS_SOLARIS
-	Threads::yield();
+    Threads::yield();
 #endif
     }
 

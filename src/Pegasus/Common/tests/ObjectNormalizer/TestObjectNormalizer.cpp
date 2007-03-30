@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "LocalRepository.h"
@@ -164,7 +160,8 @@ void Test002a(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath =
+             normalizer.processClassObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
@@ -208,17 +205,20 @@ void Test002b(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("ClassBAD");  // use different case to test that too
+    // use different case to test that too
+    cimObjectPath.setClassName("ClassBAD");
 
     try
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath =
+             normalizer.processClassObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to detect class object path with incorrect class name.");
+        throw Exception("Failed to detect class object path with"
+                        " incorrect class name.");
     }
     catch(CIMException & e)
     {
@@ -266,11 +266,13 @@ void Test002c(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath =
+             normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to detect instance object path with incorrect class name.");
+        throw Exception("Failed to detect instance object path with"
+                        " incorrect class name.");
     }
     catch(CIMException & e)
     {
@@ -318,11 +320,13 @@ void Test002d(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath =
+             normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to detect instance object path with no key properties and no keys.");
+        throw Exception("Failed to detect instance object path with no key"
+                        " properties and no keys.");
     }
     catch(CIMException & e)
     {
@@ -370,7 +374,8 @@ void Test003a(void)
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath =
+         normalizer.processClassObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -410,19 +415,23 @@ void Test003b(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
+    // use lowercase. normalization should fix case
+    cimObjectPath.setClassName("classc");
 
     // fake keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("FakeProperty1", CIMValue(String("junk"))));
-    keys.append(CIMKeyBinding("FakeProperty2", CIMValue(String("more junk"))));
+    keys.append(CIMKeyBinding("FakeProperty1",
+                               CIMValue(String("junk"))));
+    keys.append(CIMKeyBinding("FakeProperty2",
+                               CIMValue(String("more junk"))));
 
     cimObjectPath.setKeyBindings(keys);
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath =
+         normalizer.processClassObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -459,20 +468,25 @@ void Test003c(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
+    // use lowercase. normalization should fix case
+    cimObjectPath.setClassName("classc");
 
     // simple keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003c"))));
-    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding(
+        "property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding(
+        "property2", CIMValue(String("Test Instance #003c"))));
+    keys.append(CIMKeyBinding(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath =
+         normalizer.processInstanceObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -509,14 +523,18 @@ void Test003d(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
+    // use lowercase. normalization should fix case
+    cimObjectPath.setClassName("classc");
 
     // keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-    //keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003d"))));
-    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1",
+                               CIMValue(Uint32(1))));
+    //keys.append(CIMKeyBinding("property2",
+    //  CIMValue(String("Test Instance #003d"))));
+    keys.append(CIMKeyBinding("property3",
+                               CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -524,7 +542,8 @@ void Test003d(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath =
+            normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
@@ -568,14 +587,18 @@ void Test003e(void)
 
     CIMObjectPath cimObjectPath;
 
-    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
+    // use lowercase. normalization should fix case
+    cimObjectPath.setClassName("classc");
 
     // simple keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003e"))));
-    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding(
+        "property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding(
+        "property2", CIMValue(String("Test Instance #003e"))));
+    keys.append(CIMKeyBinding(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     // fake keys
     keys.append(CIMKeyBinding("FakeProperty1", CIMValue(String("junk"))));
@@ -585,7 +608,8 @@ void Test003e(void)
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath = 
+        normalizer.processInstanceObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -634,11 +658,13 @@ void Test004a(void)
     {
         _stopwatch.start();
 
-        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance = 
+            normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to dected instance with no properties and no object path.");
+        throw Exception("Failed to dected instance with no properties"
+                        " and no object path.");
     }
     catch(CIMException & e)
     {
@@ -679,12 +705,16 @@ void Test004b(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // only populate keys, let the normalizer do the rest
-    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #004b"))));
-    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty(
+        "property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty(
+        "property2", CIMValue(String("Test Instance #004b"))));
+    cimInstance.addProperty(CIMProperty(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     // incorrect property type
-    cimInstance.addProperty(CIMProperty("property4", CIMValue(Uint32(0))));   // should be String
+    cimInstance.addProperty(CIMProperty(
+        "property4", CIMValue(Uint32(0))));   // should be String
 
     // no object path specified
 
@@ -692,7 +722,8 @@ void Test004b(void)
     {
         _stopwatch.start();
 
-        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance =
+             normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -741,10 +772,14 @@ void Test005a(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // only populate keys, let the normalizer do the rest
-    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005a"))));
-    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+    cimInstance.addProperty(CIMProperty(
+        "property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty(
+        "property2", CIMValue(String("Test Instance #005a"))));
+    cimInstance.addProperty(CIMProperty(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty(
+        "property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -753,9 +788,13 @@ void Test005a(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
-    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding(
+        "property2", CIMValue(String("Test Instance #005b"))));
+    // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -806,10 +845,14 @@ void Test005b(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // all properties
-    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005b"))));
-    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+    cimInstance.addProperty(CIMProperty(
+        "property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty(
+        "property2", CIMValue(String("Test Instance #005b"))));
+    cimInstance.addProperty(CIMProperty(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty(
+        "property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -818,9 +861,13 @@ void Test005b(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
-    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding(
+        "property2", CIMValue(String("Test Instance #005b"))));
+    // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -828,7 +875,8 @@ void Test005b(void)
 
     _stopwatch.start();
 
-    CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+    CIMInstance normalizedInstance =
+        normalizer.processInstance(cimInstance);
 
     _stopwatch.stop();
 
@@ -870,16 +918,24 @@ void Test005c(void)
 
     CIMInstance cimInstance(cimClass.getClassName());
 
-    cimInstance.addQualifier(CIMQualifier("Description", String("This object qualifier value comes from the instance")));
+    cimInstance.addQualifier(
+        CIMQualifier("Description", 
+             String("This object qualifier value comes from the instance")));
 
     // all properties
-    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005c"))));
-    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty(
+        "property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty(
+        "property2", CIMValue(String("Test Instance #005c"))));
+    cimInstance.addProperty(CIMProperty(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
-    CIMProperty property4("property4", CIMValue(String("Pegasus TestObjectNormalizer")));
+    CIMProperty property4("property4",
+                          CIMValue(String("Pegasus TestObjectNormalizer")));
 
-    property4.addQualifier(CIMQualifier("Description", String("This property qualifier value comes from the instance")));
+    property4.addQualifier(CIMQualifier(
+        "Description", 
+        String("This property qualifier value comes from the instance")));
 
     cimInstance.addProperty(property4);
 
@@ -890,9 +946,13 @@ void Test005c(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
-    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding(
+        "property2", CIMValue(String("Test Instance #005b"))));
+    // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -900,7 +960,8 @@ void Test005c(void)
 
     _stopwatch.start();
 
-    CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+    CIMInstance normalizedInstance =
+        normalizer.processInstance(cimInstance);
 
     _stopwatch.stop();
 
@@ -943,10 +1004,14 @@ void Test005d(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     // all properties
-    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005c"))));
-    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+    cimInstance.addProperty(CIMProperty(
+        "property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty(
+        "property2", CIMValue(String("Test Instance #005c"))));
+    cimInstance.addProperty(CIMProperty(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty(
+        "property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -955,9 +1020,13 @@ void Test005d(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
-    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding(
+        "property2", CIMValue(String("Test Instance #005b"))));
+    // slightly differnt value than property. who wins?
+    keys.append(CIMKeyBinding(
+        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -965,18 +1034,21 @@ void Test005d(void)
 
     _stopwatch.start();
 
-    CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+    CIMInstance normalizedInstance =
+        normalizer.processInstance(cimInstance);
 
     _stopwatch.stop();
 
     if(verbose)
     {
-        cout << normalizedInstance.getPath().toString() << endl;
+        cout << normalizedInstance.getPath().toString() 
+            << endl;
 
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() 
+          << " milliseconds.");
 }
 
 //
@@ -1016,15 +1088,19 @@ void Test100a(void)
         // simple keys
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
-        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        keys.append(CIMKeyBinding(
+            "property1", CIMValue(Uint32(1))));
+        keys.append(CIMKeyBinding(
+            "property2", CIMValue(String("Test Instance #005b"))));
+        keys.append(CIMKeyBinding(
+            "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
         cimObjectPath.setKeyBindings(keys);
 
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath =
+            normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
@@ -1065,10 +1141,17 @@ void Test101a(void)
         CIMInstance cimInstance(cimClass.getClassName());
 
         // all properties
-        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
-        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101a"))));
-        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+        cimInstance.addProperty(
+            CIMProperty("property1", CIMValue(Uint32(i))));
+        cimInstance.addProperty(
+            CIMProperty("property2",
+                        CIMValue(String("Test Instance #101a"))));
+        cimInstance.addProperty(
+            CIMProperty("property3",
+                        CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(
+            CIMProperty("property4",
+                        CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // complete object path
         CIMObjectPath cimObjectPath;
@@ -1077,9 +1160,13 @@ void Test101a(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
-        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101a"))));
-        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+        keys.append(CIMKeyBinding(
+            "property1", CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding(
+            "property2", CIMValue(String("Test Instance #101a"))));
+        // slightly differnt value than property. who wins?
+        keys.append(CIMKeyBinding(
+            "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1087,7 +1174,8 @@ void Test101a(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance =
+            normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -1133,10 +1221,18 @@ void Test101b(void)
         CIMInstance cimInstance(cimClass.getClassName());
 
         // only populate keys, let the normalizer do the rest
-        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
-        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101b"))));
-        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+        cimInstance.addProperty(
+            CIMProperty("property1",
+                        CIMValue(Uint32(i))));
+        cimInstance.addProperty(
+            CIMProperty("property2",
+                        CIMValue(String("Test Instance #101b"))));
+        cimInstance.addProperty(
+            CIMProperty("property3",
+                        CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(
+            CIMProperty("property4",
+                        CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // complete object path
         CIMObjectPath cimObjectPath;
@@ -1145,9 +1241,13 @@ void Test101b(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
-        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101b"))));
-        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+        keys.append(CIMKeyBinding("property1",
+                  CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2",
+                  CIMValue(String("Test Instance #101b"))));
+        // slightly differnt value than property. who wins?
+        keys.append(CIMKeyBinding("property3",
+                  CIMValue(CIMDateTime::getCurrentDateTime())));
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1155,7 +1255,8 @@ void Test101b(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance = 
+            normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -1201,10 +1302,14 @@ void Test101c(void)
         CIMInstance cimInstance(cimClass.getClassName());
 
         // only populate keys, let the normalizer do the rest
-        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
-        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101b"))));
-        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+        cimInstance.addProperty(CIMProperty("property1",
+                        CIMValue(Uint32(i))));
+        cimInstance.addProperty(CIMProperty("property2",
+                        CIMValue(String("Test Instance #101b"))));
+        cimInstance.addProperty(CIMProperty("property3",
+                        CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(CIMProperty("property4",
+                        CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // complete object path
         CIMObjectPath cimObjectPath;
@@ -1213,9 +1318,13 @@ void Test101c(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
-        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101c"))));
-        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+        keys.append(CIMKeyBinding("property1",
+                                  CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2",
+                                  CIMValue(String("Test Instance #101c"))));
+        // slightly differnt value than property. who wins?
+        keys.append(CIMKeyBinding("property3",
+                                  CIMValue(CIMDateTime::getCurrentDateTime())));
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1223,7 +1332,8 @@ void Test101c(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance =
+            normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -1298,7 +1408,8 @@ int main(int argc, char** argv)
     }
     catch(CIMException & e)
     {
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage() << endl;
+        cout << "CIMException: " << e.getCode() << " " << e.getMessage() 
+            << endl;
 
         return(1);
     }

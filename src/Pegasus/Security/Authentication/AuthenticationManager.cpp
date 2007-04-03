@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//                Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//              Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +41,6 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/HTTPMessage.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -81,192 +88,201 @@ AuthenticationManager::~AuthenticationManager()
     //
     // delete authentication handlers
     //
-    delete _localAuthHandler;
-    delete _httpAuthHandler;
+    if ( _localAuthHandler )
+    {
+        delete _localAuthHandler;
+    }
+    if ( _httpAuthHandler )
+    {
+        delete _httpAuthHandler;
+    }
 
     PEG_METHOD_EXIT();
-}
-
-Boolean AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
-        String & userName)
-{
-    //
-    // Reject access if the user is privileged and remote privileged user
-    // access is not enabled.
-    //
-    if (!ConfigManager::parseBooleanValue(ConfigManager::getInstance()->
-            getCurrentValue("enableRemotePrivilegedUserAccess"))
-        && System::isPrivilegedUser(userName))
-    {
-        Logger::put_l(
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Security.Authentication.BasicAuthenticationHandler."
-                    "PRIVILEGED_ACCESS_DISABLED",
-                "Authentication failed for user '$0' because "
-                    "enableRemotePrivilegedUserAccess is not set to 'true'.",
-                userName));
-        return false;
-    }
-    return true;
 }
 
 //
 // Perform http authentication
 //
-AuthenticationStatus AuthenticationManager::performHttpAuthentication(
+Boolean AuthenticationManager::performHttpAuthentication
+(
     const String& authHeader,
-    AuthenticationInfo* authInfo)
+    AuthenticationInfo* authInfo
+)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "AuthenticationManager::performHttpAuthentication()");
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationManager::performHttpAuthentication()");
 
-    String authType;
-    String cookie;
+    String authType = String::EMPTY;
+
+    String cookie = String::EMPTY;
+
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"AuthenticationManager:: performHttpAuthentication - Authority Header: $0", authHeader); 
 
     //
     // Parse the HTTP authentication header for authentication information
     //
-    if ( !HTTPMessage::parseHttpAuthHeader(authHeader, authType, cookie) )
+    if ( !_parseHttpAuthHeader(authHeader, authType, cookie) )
     {
-        PEG_TRACE((
-            TRC_DISCARDED_DATA,
-            Tracer::LEVEL1,
-            "HTTPAuthentication failed. "
-                "Malformed HTTP authentication header: %s",
-            (const char*)authHeader.getCString()));
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
+    Boolean authenticated = false;
 
     //
     // Check the authenticationinformation and do the authentication
     //
     if ( String::equalNoCase(authType, "Basic") &&
-         String::equal(_httpAuthType, "Basic") )
+         String::equalNoCase(_httpAuthType, "Basic") )
     {
-        authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
+        authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if ( String::equalNoCase(authType, "Negotiate") &&
-              String::equal(_httpAuthType, "Kerberos") )
+              String::equalNoCase(_httpAuthType, "Kerberos") )
     {
-        authStatus = _httpAuthHandler->authenticate(cookie, authInfo);
+        authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
 #endif
-    // FUTURE: Add code to check for "Digest" when digest
+    // FUTURE: Add code to check for "Digest" when digest 
     // authentication is implemented.
 
-    if ( authStatus.isSuccess() )
+    if ( authenticated )
     {
         authInfo->setAuthType(authType);
     }
 
     PEG_METHOD_EXIT();
 
-    return authStatus;
+    return ( authenticated );
 }
 
 //
 // Perform pegasus sepcific local authentication
 //
-AuthenticationStatus AuthenticationManager::performPegasusAuthentication(
+Boolean AuthenticationManager::performPegasusAuthentication
+(
     const String& authHeader,
-    AuthenticationInfo* authInfo)
+    AuthenticationInfo* authInfo
+)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "AuthenticationManager::performPegasusAuthentication()");
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationManager::performPegasusAuthentication()");
 
-    AuthenticationStatus authStatus(AUTHSC_UNAUTHORIZED);
+    Boolean authenticated = false;
 
-    String authType;
-    String userName;
-    String cookie;
+    String authType = String::EMPTY; 
+    String userName = String::EMPTY;
+    String cookie = String::EMPTY;
+
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "AuthenticationManager:: performPegasusAuthentication "
+        "- Authority Header: $0", authHeader); 
 
     //
     // Parse the pegasus authentication header authentication information
     //
-    if ( !HTTPMessage::parseLocalAuthHeader(authHeader,
-              authType, userName, cookie) )
+    if ( !_parseLocalAuthHeader(authHeader, authType, userName, cookie) )
     {
-        PEG_TRACE((
-            TRC_DISCARDED_DATA,
-            Tracer::LEVEL1,
-            "PegasusAuthentication failed. "
-                "Malformed Pegasus authentication header: %s",
-            (const char*)authHeader.getCString()));
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
+
+//
+// Note: Pegasus LocalPrivileged authentication is not being used, but the
+// code is kept here so that we can use it in the future if needed.
+//
+#if defined(PEGASUS_LOCAL_PRIVILEGED_AUTHENTICATION)
+    if ( String::equalNoCase(authType, "LocalPrivileged") )
+    {
+        if (authInfo->isAuthenticated() && authInfo->isPrivileged() &&
+            String::equal(userName, authInfo->getAuthenticatedUser()))
+        {
+            PEG_METHOD_EXIT();
+            return true;
+        }
+    }
+#endif
 
     // The HTTPAuthenticatorDelegator ensures only local authentication
     // requests get here.
     PEGASUS_ASSERT(authType == "Local");
 
-    authStatus = _localAuthHandler->authenticate(cookie, authInfo);
+    authenticated = 
+        _localAuthHandler->authenticate(cookie, authInfo);
 
-    if ( authStatus.isSuccess() )
+    if ( authenticated )
     {
+#if defined(PEGASUS_LOCAL_PRIVILEGED_AUTHENTICATION)
+        if ( String::equal(authType, "LocalPrivileged") )
+        {
+            authInfo->setPrivileged(true);
+        }
+        else
+        {
+            authInfo->setPrivileged(false);
+        }
+#endif
+
         authInfo->setAuthType(authType);
     }
 
     PEG_METHOD_EXIT();
 
-    return authStatus;
+    return ( authenticated );
 }
 
 //
 // Validate user.
 //
-AuthenticationStatus AuthenticationManager::validateUserForHttpAuth(
-    const String& userName,
-    AuthenticationInfo* authInfo)
+Boolean AuthenticationManager::validateUserForHttpAuth (const String& userName)
 {
-    return _httpAuthHandler->validateUser(userName,authInfo);
+    return _httpAuthHandler->validateUser(userName);
 }
 
 //
 // Get pegasus/local authentication response header
 //
-String AuthenticationManager::getPegasusAuthResponseHeader(
+String AuthenticationManager::getPegasusAuthResponseHeader
+(
     const String& authHeader,
-    AuthenticationInfo* authInfo)
+    AuthenticationInfo* authInfo
+)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "AuthenticationManager::getPegasusAuthResponseHeader()");
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationManager::getPegasusAuthResponseHeader()");
 
-    String respHeader;
+    String respHeader = String::EMPTY;
 
-    String authType;
-    String userName;
-    String cookie;
+    String authType = String::EMPTY;
+    String userName = String::EMPTY;
+    String cookie = String::EMPTY;
 
     //
     // Parse the pegasus authentication header authentication information
     //
-    if ( !HTTPMessage::parseLocalAuthHeader(authHeader,
-              authType, userName, cookie) )
+    if ( !_parseLocalAuthHeader(authHeader, authType, userName, cookie) )
     {
         PEG_METHOD_EXIT();
-        return respHeader;
+        return (respHeader);
     }
 
     //
-    // User name can not be empty
+    // User name can not be empty 
     //
-    if (String::equal(userName, String::EMPTY))
+    if ( String::equal(userName, String::EMPTY) )
     {
         PEG_METHOD_EXIT();
-        return respHeader;
+        return (respHeader);
     }
 
-    respHeader =
+    respHeader = 
         _localAuthHandler->getAuthResponseHeader(authType, userName, authInfo);
 
     PEG_METHOD_EXIT();
-    return respHeader;
+
+    return (respHeader);
 
 }
 
@@ -274,26 +290,118 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
 // Get HTTP authentication response header
 //
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-String AuthenticationManager::getHttpAuthResponseHeader(
-    AuthenticationInfo* authInfo)
-#else
+String AuthenticationManager::getHttpAuthResponseHeader( AuthenticationInfo* authInfo )
+#else		
 String AuthenticationManager::getHttpAuthResponseHeader()
 #endif
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "AuthenticationManager::getHttpAuthResponseHeader()");
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationManager::getHttpAuthResponseHeader()");
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     String respHeader = _httpAuthHandler->getAuthResponseHeader(
-        String::EMPTY, String::EMPTY, authInfo);
+	String::EMPTY, String::EMPTY, authInfo);
 #else
     String respHeader = _httpAuthHandler->getAuthResponseHeader();
 #endif
 
     PEG_METHOD_EXIT();
-    return respHeader;
+
+    return (respHeader);
 }
 
+//
+// parse the local authentication header
+//
+Boolean AuthenticationManager::_parseLocalAuthHeader(
+    const String& authHeader, String& authType, String& userName, String& cookie)
+{
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationManager::_parseLocalAuthHeader()");
+
+    //
+    // Extract the authentication type:
+    //
+    Uint32 space = authHeader.find(' ');
+
+    if ( space == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    authType = authHeader.subString(0, space);
+
+    Uint32 startQuote = authHeader.find(space, '"');
+
+    if ( startQuote == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false; 
+    }
+
+    Uint32 endQuote = authHeader.find(startQuote + 1, '"');
+
+    if ( endQuote == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    String temp = authHeader.subString(
+        startQuote + 1, (endQuote - startQuote - 1));
+
+    //
+    // Extract the user name and cookie:
+    //
+    Uint32 colon = temp.find(0, ':');
+
+    if ( colon == PEG_NOT_FOUND )
+    {
+        userName = temp;
+    }
+    else
+    {
+        userName = temp.subString(0, colon);
+        cookie = temp;
+    }
+
+    PEG_METHOD_EXIT();
+
+    return true;
+}
+
+//
+// parse the HTTP authentication header
+//
+Boolean AuthenticationManager::_parseHttpAuthHeader(
+    const String& authHeader, String& authType, String& cookie)
+{
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationManager::_parseHttpAuthHeader()");
+
+    //
+    // Extract the authentication type:
+    //
+    Uint32 space = authHeader.find(' ');
+
+    if ( space == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    authType = authHeader.subString(0, space);
+
+    //
+    // Extract the cookie:
+    //
+    cookie = authHeader.subString(space + 1);
+
+    PEG_METHOD_EXIT();
+
+    return true;
+}
 //
 // Get local authentication handler
 //
@@ -306,7 +414,7 @@ Authenticator* AuthenticationManager::_getLocalAuthHandler()
     //
     // create and return a local authentication handler.
     //
-    return new LocalAuthenticationHandler();
+    return (new LocalAuthenticationHandler());
 }
 
 
@@ -329,16 +437,15 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     //
     // create a authentication handler.
     //
-    if ( String::equal(_httpAuthType, "Basic") )
+    if ( String::equalNoCase(_httpAuthType, "Basic") )
     {
         handler.reset((Authenticator* ) new BasicAuthenticationHandler( ));
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if ( String::equal(_httpAuthType, "Kerberos") )
+    else if ( String::equalNoCase(_httpAuthType, "Kerberos") )
     {
-        handler.reset((Authenticator*) new KerberosAuthenticationHandler());
-        AutoPtr<KerberosAuthenticationHandler> kerberosHandler(
-            (KerberosAuthenticationHandler *)handler.get());
+        handler.reset((Authenticator* ) new KerberosAuthenticationHandler( ));
+        AutoPtr<KerberosAuthenticationHandler> kerberosHandler((KerberosAuthenticationHandler *)handler.get());
         int itFailed = kerberosHandler->initialize();
         kerberosHandler.release();
         if (itFailed)
@@ -347,35 +454,39 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
             {
                 handler.reset(0);
             }
-            MessageLoaderParms parms(
-                "Security.Authentication.AuthenticationManager."
-                    "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
-                "CIMOM server authentication handler for Kerberos failed to "
-                    "initialize properly.");
-            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                parms);
-            throw Exception(parms);
+            // L10N TODO DONE
+            //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, 
+                //"CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started.");
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, 
+            	"Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
+                "CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started.");
+            // end the server because Kerberos could not initialized.
+            MessageLoaderParms parms(           	"Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
+                "CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started.");
+	    throw Exception(parms);
         }
     }
 #endif
-    // FUTURE: uncomment these line when Digest authentication
+    // FUTURE: uncomment these line when Digest authentication 
     // is implemented.
     //
-    //else if (String::equal(_httpAuthType, "Digest"))
+    //else if (String::equalNoCase(_httpAuthType, "Digest"))
     //{
     //    handler = (Authenticator* ) new DigestAuthenticationHandler( );
     //}
-    else
+    else 
     {
         //
         // This should never happen. Gets here only if Security Config
         // property owner has not validated the configured http auth type.
         //
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+        PEGASUS_ASSERT(0);
     }
-
+    
     PEG_METHOD_EXIT();
-    return handler.release();
+    return ( handler.release() );
 }
 
+
 PEGASUS_NAMESPACE_END
+

@@ -1,31 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,86 +41,51 @@
 #include <Pegasus/Common/Tracer.h>
 #include "AuthenticationInfoRep.h"
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Executor.h>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 const String AuthenticationInfoRep::AUTH_TYPE_SSL = "SSL";
-const String AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET = "LDS";
-const String AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS = "ATTLS";
 
-AuthenticationInfoRep::AuthenticationInfoRep()
-    : _connectionAuthenticated(false),
-      _wasRemotePrivilegedUserAccessChecked(false),
-      _authHandle(),
-      _isExpiredPassword(false)
-{
+AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
+    : 
+    _authUser(String::EMPTY),
+    _authPassword(String::EMPTY),
+    _authChallenge(String::EMPTY),
+    _authSecret(String::EMPTY),
+    _privileged(false),
+    _authType(String::EMPTY),
+    _connectionAuthenticated(false),
+    _exportConnection(false)
+{ 
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
 
     PEG_METHOD_EXIT();
 }
 
+
 AuthenticationInfoRep::~AuthenticationInfoRep()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::~AuthenticationInfoRep");
 
-    // initiate the deletion of _localAuthFilePath.
-    if(FileSystem::exists(_localAuthFilePath))
-    {
-        // No response was received from the local client for the 
-        // authentication challenge. Hence deleting the file here.
-
-        // Use executor, if present.
-        if (Executor::detectExecutor() == 0)
-        {
-            Executor::removeFile(_localAuthFilePath.getCString());
-        }
-        else
-        {
-            FileSystem::removeFile(_localAuthFilePath);
-        }
-    }
-       
     PEG_METHOD_EXIT();
 }
 
-void AuthenticationInfoRep::setConnectionAuthenticated(
+void   AuthenticationInfoRep::setConnectionAuthenticated(
     Boolean connectionAuthenticated)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "AuthenticationInfoRep::setConnectionAuthenticated");
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setConnectionAuthenticated");
 
     _connectionAuthenticated = connectionAuthenticated;
 
     PEG_METHOD_EXIT();
 }
 
-#ifdef PEGASUS_OS_ZOS
-
-    // The connection user is for z/OS only.
-    // On z/OS Unix Local Domain Sockets and sockets
-    // protected by AT-TLS are able to get the user ID of
-    // the connected user.
-    // This information is needed for later authentication
-    // steps.
-
-void AuthenticationInfoRep::setConnectionUser(const String& userName)
-{
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setConnectionUser()");
-
-    _connectionUser = userName;
-
-    PEG_METHOD_EXIT();
-}
-#endif
-
-void AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
+void   AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthenticatedUser");
@@ -122,7 +95,7 @@ void AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
     PEG_METHOD_EXIT();
 }
 
-void AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
+void   AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthenticatedPassword");
@@ -132,27 +105,37 @@ void AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
     PEG_METHOD_EXIT();
 }
 
-void AuthenticationInfoRep::setLocalAuthFilePath(const String& filePath)
+void   AuthenticationInfoRep::setAuthChallenge(const String& challenge)
 {
     PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setLocalAuthFilePath");
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthChallenge");
 
-    _localAuthFilePath = filePath;
+    _authChallenge = challenge;
 
     PEG_METHOD_EXIT();
 }
 
-void AuthenticationInfoRep::setLocalAuthSecret(const String& secret)
+void   AuthenticationInfoRep::setAuthSecret(const String& secret)
 {
     PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationInfoRep::setLocalAuthSecret");
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthSecret");
 
-    _localAuthSecret = secret;
+    _authSecret = secret;
 
     PEG_METHOD_EXIT();
 }
 
-void AuthenticationInfoRep::setAuthType(const String& authType)
+void   AuthenticationInfoRep::setPrivileged(Boolean privileged)
+{
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setPrivileged");
+
+    _privileged = privileged;
+
+    PEG_METHOD_EXIT();
+}
+
+void   AuthenticationInfoRep::setAuthType(const String& authType)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthType");
@@ -163,7 +146,7 @@ void AuthenticationInfoRep::setAuthType(const String& authType)
 }
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-void AuthenticationInfoRep::setSecurityAssociation()
+void   AuthenticationInfoRep::setSecurityAssociation()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setSecurityAssociation");
@@ -177,8 +160,18 @@ void AuthenticationInfoRep::setSecurityAssociation()
 }
 #endif
 
-void AuthenticationInfoRep::setClientCertificateChain(
-    Array<SSLCertificateInfo*> clientCertificate)
+void   AuthenticationInfoRep::setExportConnection(Boolean exportConnection)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationInfoRep::setExportConnection");
+
+    _exportConnection = exportConnection;
+
+    PEG_METHOD_EXIT();
+}
+
+//PEP187
+void AuthenticationInfoRep::setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "AuthenticationInfoRep::setClientCertificateChain");
@@ -187,5 +180,6 @@ void AuthenticationInfoRep::setClientCertificateChain(
 
     PEG_METHOD_EXIT();
 }
+
 
 PEGASUS_NAMESPACE_END

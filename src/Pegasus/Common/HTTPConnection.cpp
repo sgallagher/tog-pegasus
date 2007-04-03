@@ -272,7 +272,7 @@ HTTPConnection::HTTPConnection(
 
         if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified())
         {
-            _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+            _authInfo->setConnectionAuthenticated(true);
             _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
             _authInfo->setClientCertificateChain(_socket->getPeerCertificateChain());
         }
@@ -1741,7 +1741,7 @@ void HTTPConnection::_handleReadEvent()
                 _socket->isPeerVerificationEnabled() &&
                 _socket->isCertificateVerified())
             {
-                _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+                _authInfo->setConnectionAuthenticated(true);
                 _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
                 _authInfo->setClientCertificateChain(_socket->getPeerCertificateChain());
             }

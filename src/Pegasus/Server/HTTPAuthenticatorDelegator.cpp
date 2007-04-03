@@ -287,6 +287,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
        }
     }
 
+    //
+    // Handle authentication:
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+    Boolean enableAuthentication = false;
+
+    Boolean isRequestAuthenticated = 
+        httpMessage->authInfo->isConnectionAuthenticated();
 
     //
     // Check if the request was received on the export connection.
@@ -338,7 +346,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // certificate (in SSLSocket) during SSL handshake. 
             // In this case, no further attempts to authenticate the client are made
             //
-            if ( httpMessage->authInfo->isAuthenticated() )
+            if (isRequestAuthenticated)
             {
                 PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
                     "httpMessage->authInfo->isAuthenticated() is true");
@@ -377,13 +385,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         }
     }
 
-    //
-    // Handle authentication:
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-    Boolean enableAuthentication = false;
-    Boolean authenticated = false;
-
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION   
     CIMKerberosSecurityAssociation *sa = NULL; 
 	// The presence of a Security Association indicates that Kerberos is being used
@@ -409,23 +410,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         if (sa && sa->getClientAuthenticated() &&
             !HTTPMessage::lookupHeader(headers, "Authorization", authstr, false)) 
         { 
-          authenticated = true; 
+            isRequestAuthenticated = true;
         } 
-        if (!sa)
-        { 
-          authenticated = httpMessage->authInfo->isAuthenticated();
-        } 
-#else 
-        // Client may have already authenticated via SSL.
-        // In this case, no further attempts to authenticate the client are made
-        authenticated = httpMessage->authInfo->isAuthenticated();
 #endif
 
         // Get the user name associated with the certificate (using the
         // certificate chain, if necessary).
 
         String certUserName;
-        if (authenticated && 
+        if (isRequestAuthenticated &&
             (String::equal(httpMessage->authInfo->getAuthType(),
                 AuthenticationInfoRep::AUTH_TYPE_SSL)))
         {
@@ -726,8 +719,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
 	httpMessage->message.append('\0');
 
-    if (!authenticated && enableAuthentication) 
-    {
+        if (!isRequestAuthenticated && enableAuthentication)
+        {
         //
         // Search for Authorization header:
         //
@@ -743,12 +736,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 //
                 // Do pegasus/local authentication
                 //
-                authenticated = 
+                isRequestAuthenticated =
                     _authenticationManager->performPegasusAuthentication(
                         authorization,
                         httpMessage->authInfo);
 
-                if (!authenticated)
+                if (!isRequestAuthenticated)
                 {
                     String authChallenge = String::EMPTY;
                     String authResp = String::EMPTY;
@@ -801,14 +794,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             //
             // Do http authentication if not authenticated already
             //
-            if (!authenticated)
+            if (!isRequestAuthenticated)
             {
-                authenticated =
+                isRequestAuthenticated =
                     _authenticationManager->performHttpAuthentication(
                         authorization,
                         httpMessage->authInfo);
 
-                if (!authenticated)
+                if (!isRequestAuthenticated)
                 {
                     //ATTN: the number of challenges get sent for a 
                     //      request on a connection can be pre-set.
@@ -844,7 +837,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 }
 	    }  // first not authenticated check
 	}  // "Authorization" header check
- } //end if(!authenticated && enableAuthentication)
+ } //end if (!isRequestAuthenticated && enableAuthentication)
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 	// The pointer to the sa is created in the authenticator so we need to also
 	// assign it here.
@@ -855,7 +849,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	    // The following is processing to unwrap (decrypt) the request from the
 	    // client when using kerberos authentication.
 	    sa->unwrapRequestMessage(httpMessage->message, contentLength,
-				     authenticated, sendAction);
+				     isRequestAuthenticated, sendAction);
 	    if (sendAction)  // send success or send response
 	    {
 		if (httpMessage->message.size() == 0)
@@ -895,7 +889,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
    
 
 
-        if ( authenticated || !enableAuthentication )
+        if (isRequestAuthenticated || !enableAuthentication)
         {
             //
             // Search for "CIMOperation" header:
@@ -987,7 +981,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 PEG_METHOD_EXIT();
                 return;
             } // bad request
-        } // authenticated and enableAuthentication check
+        } // isRequestAuthenticated and enableAuthentication check
         else
         {  // client not authenticated; send challenge
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION

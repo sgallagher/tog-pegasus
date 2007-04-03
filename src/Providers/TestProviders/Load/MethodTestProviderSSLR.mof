@@ -36,9 +36,9 @@ instance of PG_ProviderModule
     Caption = "Pegasus Method Test Provider SSL Module";
     Name = "MethodTestProviderSSLModule";
     Vendor = "OpenPegasus";
-    Version = "2.7.0";
+    Version = "2.5.0";
     InterfaceType = "C++Default";
-    InterfaceVersion = "2.7.0";
+    InterfaceVersion = "2.5.0";
     Location = "MethodTestProviderSSL";
 };
 
@@ -58,5 +58,5 @@ instance of PG_ProviderCapabilities
     Namespaces = { "test/TestProvider" };
     ProviderType = { 5 };
     SupportedProperties = NULL;
-    SupportedMethods = { "getIdentity", "Test1", "Test2"};
+    SupportedMethods = { "getIdentity", "Test1", "Test2", "Test3", "Test4" };
 };

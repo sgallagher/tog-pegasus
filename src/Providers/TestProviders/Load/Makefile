@@ -127,6 +127,13 @@ endif
 
 endif
 
+ifdef PEGASUS_HAS_SSL
+	@ $(ECHO) +++++ Loading MethodTestProviderSSL class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" MethodTestProviderSSL.mof
+	@ $(ECHO) +++++ Registering MethodTestProviderSSL ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" MethodTestProviderSSLR.mof
+endif
+
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	@ $(ECHO) +++++ Loading UserContextTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
@@ -221,6 +228,13 @@ ifdef PEGASUS_ENABLE_EXECQUERY
 	@ cimmof   "-n$(INTEROPNS)" TestCMPI_ProviderExecQueryRegistration.mof
 endif
 
+endif
+
+ifdef PEGASUS_HAS_SSL
+	@ $(ECHO) +++++ Loading MethodTestProviderSSL class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-n$(TESTPROVIDERNS)" MethodTestProviderSSL.mof
+	@ $(ECHO) +++++ Registering MethodTestProviderSSL ...
+	@ cimmof "-n$(INTEROPNS)" MethodTestProviderSSLR.mof
 endif
 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT

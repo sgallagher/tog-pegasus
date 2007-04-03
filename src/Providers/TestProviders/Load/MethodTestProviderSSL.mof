@@ -28,7 +28,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-[Version ("2.7.0")]
+[Version ("2.5.0")]
 class Test_MethodProviderSSLClass
 {
     [key]
@@ -45,4 +45,18 @@ class Test_MethodProviderSSLClass
         [in]  uint32 InParam2,
         [out] uint32 OutParam1,
         [out] uint32 OutParam2);
+
+    uint32 Test3(
+        [in]      CIM_ComputerSystem ref InParam1,
+        [in]      CIM_ComputerSystem ref InParam2,
+	[in, out] Boolean Recursed,
+	[out]     CIM_ComputerSystem ref Outparam1,
+	[out]     CIM_ComputerSystem ref Outparam2);
+
+
+    uint32 Test4(
+        [in]  CIM_ComputerSystem ref InParam1[],
+        [in]  CIM_ComputerSystem ref InParam2[],
+	[out] CIM_ComputerSystem ref Outparam1[],
+	[out] CIM_ComputerSystem ref Outparam2[]);
 };

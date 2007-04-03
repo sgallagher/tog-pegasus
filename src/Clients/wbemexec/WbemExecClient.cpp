@@ -82,8 +82,7 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     MessageQueue(PEGASUS_QUEUENAME_WBEMEXECCLIENT),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
-    _isRemote( false ),
-    _password(String::EMPTY)
+    _isRemote(false)
 {
     // CAUTION: 
     //    Using private AutoPtr<> data members for these objects causes linker
@@ -238,7 +237,7 @@ void WbemExecClient::connectLocal()
         String certpath = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-        String randFile = String::EMPTY;
+        String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
@@ -288,33 +287,31 @@ void WbemExecClient::_reconnect()
  */
 String WbemExecClient::_promptForPassword()
 {
-  //
-  // Password is not set, prompt for the old password once
-  //
-  String pw = String::EMPTY;
-  Uint32 retries = 1;
-  do
+    //
+    // Password is not set, prompt for the old password once
+    //
+    String pw;
+    Uint32 retries = 1;
+    do
     {
-      pw = System::getPassword( PASSWORD_PROMPT );
+        pw = System::getPassword(PASSWORD_PROMPT);
 
-      if ( pw == String::EMPTY || pw == "" )
-    {
-      if( retries < MAX_PW_RETRIES )
+        if (pw == String::EMPTY)
         {
-          retries++;
-
+            if (retries < MAX_PW_RETRIES)
+            {
+                retries++;
+            }
+            else
+            {
+                break;
+            }
+            cerr << PASSWORD_BLANK << endl;
+            continue;
         }
-      else
-        {
-          break;
-        }
-      cerr << PASSWORD_BLANK << endl;
-      pw = String::EMPTY;
-      continue;
     }
-    }
-  while ( pw == String::EMPTY );
-  return( pw );
+    while (pw == String::EMPTY);
+    return pw;
 }
 
 

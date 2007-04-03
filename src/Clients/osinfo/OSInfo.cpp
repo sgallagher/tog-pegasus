@@ -29,27 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//         Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//          Warren Otsuka (warren_otsuka@hp.com)
-//          Sushma Fernandes, Hewlett-Packard Company
-//              (sushma_fernandes@hp.com)
-//          Mike Day (mdday@us.ibm.com)
-//          Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//          Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
-//          Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
-//          Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//          Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//          Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//          Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
-//          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
-//          David Dillard, VERITAS Software Corp.
-//              (david.dillard@veritas.com)
-//          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -269,33 +248,31 @@ OSInfoCommand::OSInfoCommand ()
 
 String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
 {
-  //
-  // Password is not set, prompt for non-blank password
-  //
-  String pw = String::EMPTY;
-  Uint32 retries = 1;
-  do
+    //
+    // Password is not set, prompt for non-blank password
+    //
+    String pw;
+    Uint32 retries = 1;
+    do
     {
-      pw = System::getPassword( PASSWORD_PROMPT );
+        pw = System::getPassword(PASSWORD_PROMPT);
 
-      if ( pw == String::EMPTY || pw == "" )
+        if (pw == String::EMPTY)
         {
-          if( retries < MAX_PW_RETRIES )
+            if (retries < MAX_PW_RETRIES)
             {
-              retries++;
-
+                retries++;
             }
-          else
+            else
             {
-              break;
+                break;
             }
-          outPrintWriter << PASSWORD_BLANK << endl;
-          pw = String::EMPTY;
-          continue;
+            outPrintWriter << PASSWORD_BLANK << endl;
+            continue;
         }
     }
-  while ( pw == String::EMPTY );
-  return( pw );
+    while (pw == String::EMPTY);
+    return pw;
 }
 
 /**
@@ -375,7 +352,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
            String certpath = FileSystem::getAbsolutePath(
               pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-           String randFile = String::EMPTY;
+           String randFile;
 
            randFile = FileSystem::getAbsolutePath(
                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);

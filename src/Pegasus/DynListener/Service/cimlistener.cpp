@@ -302,7 +302,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
 //////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-    String pegasusHome  = String::EMPTY;
+    String pegasusHome;
     Boolean shutdownOption = false;
     Boolean debugOutputOption = false;
 
@@ -533,8 +533,8 @@ int CIMListenerProcess::cimserver_run(
     Boolean shutdownOption,
     Boolean debugOutputOption)
 {
-    String logsDirectory = String::EMPTY;
-	String homeDir = configManager->getListenerHome();
+    String logsDirectory;
+    String homeDir = configManager->getListenerHome();
 
     //
     // Get an instance of the Config Manager.

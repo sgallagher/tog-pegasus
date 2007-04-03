@@ -975,7 +975,7 @@ int main(int argc, char ** argv)
   MessageLoader::_useDefaultMsg = true;
 
   String testOption;
-  String className = String::EMPTY;
+  String className;
   String nameSpace;
 
   for(int i = 0; i < argc; i++){

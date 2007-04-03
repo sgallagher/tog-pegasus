@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Warren Otsuka (warren_otsuka@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -82,7 +77,7 @@ int main(int argc, char** argv)
 	  {
 	    if( outParams.size() > 0 )
 	      {
-		String outReply = String::EMPTY;
+		String outReply;
 		CIMValue paramVal = outParams[0].getValue();
 		paramVal.get( outReply );
 		if( outReply == GOODPARAM )

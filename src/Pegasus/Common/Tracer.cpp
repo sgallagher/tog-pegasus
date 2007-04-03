@@ -408,8 +408,8 @@ Boolean Tracer::isValidComponents(
 
     Uint32    position=0;
     Uint32    index=0;
-    String    componentName = String::EMPTY;
-    String    componentStr = String::EMPTY;
+    String    componentName;
+    String    componentStr;
     Boolean   validComponent=false;
     Boolean   retCode=true;
 
@@ -572,9 +572,9 @@ void Tracer::setTraceComponents(const String& traceComponents)
 {
     Uint32 position          = 0;
     Uint32 index             = 0;
-    String componentName     = String::EMPTY;
+    String componentName;
     String componentStr      = traceComponents;
-    String invalidComponents = String::EMPTY;
+    String invalidComponents;
 
     if (componentStr != String::EMPTY)
     {

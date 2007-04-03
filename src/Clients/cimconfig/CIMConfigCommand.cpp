@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#1794
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101, Bug#2756, Bug#3032
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -487,14 +475,12 @@ CIMConfigCommand::CIMConfigCommand ()
     */
     _operationType       = OPERATION_TYPE_UNINITIALIZED;
     _propertyName        = CIMName ();
-    _propertyValue       = String::EMPTY;
     _currentValueSet     = false;
     _plannedValueSet     = false;
     _defaultValueSet     = false;
 #ifdef PEGASUS_OS_OS400
      _defaultQuietSet     = false;
 #endif
-    _hostName            = String::EMPTY;
 
     /**
         Build the usage string for the config command.  
@@ -1021,10 +1007,10 @@ Uint32 CIMConfigCommand::execute (
     ostream& errPrintWriter)
 {
     Boolean   connected     = false;
-    String    defaultValue  = String::EMPTY;
-    String    currentValue  = String::EMPTY;
-    String    plannedValue  = String::EMPTY;
-    String    pegasusHome   = String::EMPTY;
+    String    defaultValue;
+    String    currentValue;
+    String    plannedValue;
+    String    pegasusHome;
     Boolean   gotCurrentValue = false;
     Boolean   gotPlannedValue = false;
 

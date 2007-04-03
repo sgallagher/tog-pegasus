@@ -29,24 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Mary Hinton (m.hinton@verizon.net)
-//              Sushma Fernandes (sushma_fernandes@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Tony Fiorentino (fiorentino_tony@emc.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Steve Hills (steve.hills@ncr.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032, 2031
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
 #include <process.h>    /* _beginthread, _endthread */
 #include <tchar.h>
 #include <direct.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
-#include <Pegasus/Common/Thread.h>  // l10n
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Thread.h>
 #include <Pegasus/Server/CIMServer.h>
 
 #include "Service.cpp"
@@ -436,7 +426,7 @@ static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue)
 //void ServerProcess::setHome(const String& home)
 String ServerProcess::getHome(void)
 {
-    String home = String::EMPTY;
+    String home;
 
   // Determine the absolute path to the running program
   char exe_pathname[_MAX_PATH] = {0};

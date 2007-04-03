@@ -118,7 +118,7 @@ void testHttpAuthHeader()
 //
 void testLocalAuthHeader_1()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
 
     AuthenticationManager  authManager;
 
@@ -140,7 +140,7 @@ void testLocalAuthHeader_1()
 //
 void testLocalAuthHeader_2()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
 
     AuthenticationManager  authManager;
 
@@ -164,7 +164,7 @@ void testLocalAuthHeader_2()
 //
 void testLocalAuthHeader_3()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
 
     AuthenticationManager  authManager;
 
@@ -189,7 +189,7 @@ void testLocalAuthHeader_3()
 //
 void testLocalAuthSuccess()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
 
     AuthenticationManager  authManager;
 
@@ -256,7 +256,7 @@ void testLocalAuthSuccess()
 //
 void testBasicAuthSuccess()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
 
     AuthenticationManager  authManager;
 

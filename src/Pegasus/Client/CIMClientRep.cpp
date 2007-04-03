@@ -111,7 +111,7 @@ void CIMClientRep::_connect()
     {
         input = envVar;
         input.toLower();
-        String io = String::EMPTY;
+        String io;
         Uint32 pos = input.find(':');
         if (pos == PEG_NOT_FOUND)
             pos = 0;
@@ -363,7 +363,7 @@ void CIMClientRep::connectLocal()
         const char* pegasusHome = getenv("PEGASUS_HOME");
 #endif
 
-        String randFile = String::EMPTY;
+        String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(

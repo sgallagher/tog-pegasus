@@ -29,21 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//         Warren Otsuka (warren_otsuka@hp.com)
-//         Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
-//         David Eger (dteger@us.ibm.com)
-//         Amit K Arora (amita@in.ibm.com) for PEP-101
-//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
-//         David Dillard, VERITAS Software Corp.
-//             (david.dillard@veritas.com)
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, #3424, Bug#3032
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // define asprintf used to implement ultostr on Linux
@@ -344,7 +329,7 @@ WbemExecCommand::WbemExecCommand ()
         String certpath = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-        String randFile = String::EMPTY;
+        String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
@@ -608,7 +593,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //  Encapsulate XML request in an HTTP request
         //
 
-        String hostName = String::EMPTY;
+        String hostName;
         if (_hostNameSet && _hostName.size())
         {
             hostName = _hostName + String(":") + _portNumberStr;

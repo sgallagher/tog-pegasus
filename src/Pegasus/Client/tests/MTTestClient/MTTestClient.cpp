@@ -196,7 +196,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_client(void *parm)
             String certpath = FileSystem::getAbsolutePath(
                                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-            String randFile = String::EMPTY;
+            String randFile;
 
             randFile = FileSystem::getAbsolutePath(
                         pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
@@ -308,33 +308,31 @@ MTTestClient::MTTestClient ()
 
 String MTTestClient::_promptForPassword( ostream& outPrintWriter )
 {
-  //
-  // Password is not set, prompt for non-blank password
-  //
-  String pw = String::EMPTY;
-  Uint32 retries = 1;
-  do
+    //
+    // Password is not set, prompt for non-blank password
+    //
+    String pw;
+    Uint32 retries = 1;
+    do
     {
-      pw = System::getPassword( PASSWORD_PROMPT );
+        pw = System::getPassword(PASSWORD_PROMPT);
 
-      if ( pw == String::EMPTY || pw == "" )
+        if (pw == String::EMPTY)
         {
-          if( retries < MAX_PW_RETRIES )
+            if( retries < MAX_PW_RETRIES )
             {
-              retries++;
-
+                retries++;
             }
-          else
+            else
             {
-              break;
+                break;
             }
-          outPrintWriter << PASSWORD_BLANK << endl;
-          pw = String::EMPTY;
-          continue;
+            outPrintWriter << PASSWORD_BLANK << endl;
+            continue;
         }
     }
-  while ( pw == String::EMPTY );
-  return( pw );
+    while (pw == String::EMPTY);
+    return pw;
 }
 
 /**

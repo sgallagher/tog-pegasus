@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Denise Eckstein, Hewlett-Packard Company <denise_eckstein@hp.com>
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
@@ -57,19 +51,11 @@ PEGASUS_USING_STD;
 /**  Constructor for DNSInfo Client
   */
 
-DNSInfo::DNSInfo(void)
+DNSInfo::DNSInfo()
 {
-   dnsSystemName = String::EMPTY;
-   dnsSystemCreationClassName = String::EMPTY;
-   dnsName = String::EMPTY;
-   dnsCreationClassName = String::EMPTY;
-   dnsCaption = String::EMPTY;
-   dnsDescription = String::EMPTY;
-   dnsSearchList = NULL;
-   dnsAddresses = NULL;
 }
 
-DNSInfo::~DNSInfo(void)
+DNSInfo::~DNSInfo()
 {
 }         
 

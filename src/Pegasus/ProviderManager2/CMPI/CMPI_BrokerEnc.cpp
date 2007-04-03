@@ -753,7 +753,7 @@ extern "C" {
 	if ( !component || !(text || string))
 		  CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
 
-	String traceString = String::EMPTY;
+	String traceString;
 	Uint32 traceComponent = TRC_PROVIDERMANAGER;
     Uint32 traceLevel = Tracer::LEVEL1;
 

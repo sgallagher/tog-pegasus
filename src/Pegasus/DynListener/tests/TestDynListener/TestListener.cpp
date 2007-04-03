@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
 int main(int argc, char** argv)
 {
     //set logging options
-    String currentDirectory = String::EMPTY;
+    String currentDirectory;
     FileSystem::getCurrentDirectory(currentDirectory);
     
     //you MUST translate slashes or the logger will fail on Windows

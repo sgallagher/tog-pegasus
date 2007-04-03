@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
 
-    String testUser = String::EMPTY;
+    String testUser;
 
     testUser.assign(System::getEffectiveUserName());
 

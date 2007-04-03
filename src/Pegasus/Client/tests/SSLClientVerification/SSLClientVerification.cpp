@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 		PEGASUS_STD(cerr) << "certPath is " << certPath << "\n";
 		PEGASUS_STD(cerr) << "keyPath is " << keyPath << "\n";
 
-		String randPath = String::EMPTY;
+		String randPath;
 #ifdef PEGASUS_SSL_RANDOMFILE
 		randPath = FileSystem::getAbsolutePath(pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif

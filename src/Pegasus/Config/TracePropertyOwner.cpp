@@ -409,7 +409,7 @@ Boolean TracePropertyOwner::isValid(
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
         String newValue          = value;
-        String invalidComponents = String::EMPTY;
+        String invalidComponents;
 
         //
         // Check if the trace components are valid

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -69,11 +64,8 @@ int main(int argc, char** argv)
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
 
-    CIMNamespaceName nameSpace = CIMNamespaceName ();
-
-    String testUser = String::EMPTY;
-
-    testUser.assign(System::getEffectiveUserName());
+    CIMNamespaceName nameSpace;
+    String testUser = System::getEffectiveUserName();
 
     // Create a test repository
     const char* tmpDir = getenv ("PEGASUS_TMP");

@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -73,19 +70,19 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    String certpath = String::EMPTY;
+    String certpath;
     if (strcmp(argv[1],"NONE") != 0)
     {
         certpath = argv[1];
     }
 
-    String keypath = String::EMPTY;
+    String keypath;
     if (strcmp(argv[2],"NONE") != 0)
     {
         keypath = argv[2];
     }
 
-    String randFile = String::EMPTY;
+    String randFile;
     if (argc >=4)
     {
         if (strcmp(argv[3],"CONFIG") == 0)
@@ -100,13 +97,13 @@ int main(int argc, char** argv)
         }
     }
 
-    String userName = String::EMPTY;
+    String userName;
     if (argc >=  5)
     {
         userName = argv[4];
     }
 
-    String password = String::EMPTY;
+    String password;
     if (argc >=  6)
     {
         password = argv[5];
@@ -114,7 +111,7 @@ int main(int argc, char** argv)
 
     expectedResultType expectedResult = NONE;
     expectedErrorType expectedError = ERROR_TYPE_NONE;
-    String expectedUserName = String::EMPTY;
+    String expectedUserName;
     if (argc >=  7)
     {
         if (strcmp(argv[6],"PASS") == 0)

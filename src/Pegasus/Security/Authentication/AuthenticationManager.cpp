@@ -118,21 +118,20 @@ Boolean AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
 //
 // Perform http authentication
 //
-Boolean AuthenticationManager::performHttpAuthentication
-(
+Boolean AuthenticationManager::performHttpAuthentication(
     const String& authHeader,
-    AuthenticationInfo* authInfo
-)
+    AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationManager::performHttpAuthentication()");
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationManager::performHttpAuthentication()");
 
-    String authType = String::EMPTY;
-
-    String cookie = String::EMPTY;
+    String authType;
+    String cookie;
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		"AuthenticationManager:: performHttpAuthentication - Authority Header: $0", authHeader); 
+        "AuthenticationManager:: performHttpAuthentication - "
+            "Authority Header: $0",
+        authHeader); 
 
     //
     // Parse the HTTP authentication header for authentication information
@@ -170,30 +169,29 @@ Boolean AuthenticationManager::performHttpAuthentication
 
     PEG_METHOD_EXIT();
 
-    return ( authenticated );
+    return authenticated;
 }
 
 //
 // Perform pegasus sepcific local authentication
 //
-Boolean AuthenticationManager::performPegasusAuthentication
-(
+Boolean AuthenticationManager::performPegasusAuthentication(
     const String& authHeader,
-    AuthenticationInfo* authInfo
-)
+    AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationManager::performPegasusAuthentication()");
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationManager::performPegasusAuthentication()");
 
     Boolean authenticated = false;
 
-    String authType = String::EMPTY; 
-    String userName = String::EMPTY;
-    String cookie = String::EMPTY;
+    String authType;
+    String userName;
+    String cookie;
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "AuthenticationManager:: performPegasusAuthentication "
-        "- Authority Header: $0", authHeader); 
+        "AuthenticationManager:: performPegasusAuthentication - "
+            "Authority Header: $0",
+        authHeader); 
 
     //
     // Parse the pegasus authentication header authentication information
@@ -218,7 +216,7 @@ Boolean AuthenticationManager::performPegasusAuthentication
 
     PEG_METHOD_EXIT();
 
-    return ( authenticated );
+    return authenticated;
 }
 
 //
@@ -232,20 +230,18 @@ Boolean AuthenticationManager::validateUserForHttpAuth (const String& userName)
 //
 // Get pegasus/local authentication response header
 //
-String AuthenticationManager::getPegasusAuthResponseHeader
-(
+String AuthenticationManager::getPegasusAuthResponseHeader(
     const String& authHeader,
-    AuthenticationInfo* authInfo
-)
+    AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationManager::getPegasusAuthResponseHeader()");
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationManager::getPegasusAuthResponseHeader()");
 
-    String respHeader = String::EMPTY;
+    String respHeader;
 
-    String authType = String::EMPTY;
-    String userName = String::EMPTY;
-    String cookie = String::EMPTY;
+    String authType;
+    String userName;
+    String cookie;
 
     //
     // Parse the pegasus authentication header authentication information
@@ -253,16 +249,16 @@ String AuthenticationManager::getPegasusAuthResponseHeader
     if ( !_parseLocalAuthHeader(authHeader, authType, userName, cookie) )
     {
         PEG_METHOD_EXIT();
-        return (respHeader);
+        return respHeader;
     }
 
     //
     // User name can not be empty 
     //
-    if ( String::equal(userName, String::EMPTY) )
+    if (String::equal(userName, String::EMPTY))
     {
         PEG_METHOD_EXIT();
-        return (respHeader);
+        return respHeader;
     }
 
     respHeader = 
@@ -270,7 +266,7 @@ String AuthenticationManager::getPegasusAuthResponseHeader
 
     PEG_METHOD_EXIT();
 
-    return (respHeader);
+    return respHeader;
 
 }
 
@@ -278,13 +274,14 @@ String AuthenticationManager::getPegasusAuthResponseHeader
 // Get HTTP authentication response header
 //
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-String AuthenticationManager::getHttpAuthResponseHeader( AuthenticationInfo* authInfo )
+String AuthenticationManager::getHttpAuthResponseHeader(
+    AuthenticationInfo* authInfo)
 #else		
 String AuthenticationManager::getHttpAuthResponseHeader()
 #endif
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationManager::getHttpAuthResponseHeader()");
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationManager::getHttpAuthResponseHeader()");
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     String respHeader = _httpAuthHandler->getAuthResponseHeader(
@@ -295,7 +292,7 @@ String AuthenticationManager::getHttpAuthResponseHeader()
 
     PEG_METHOD_EXIT();
 
-    return (respHeader);
+    return respHeader;
 }
 
 //

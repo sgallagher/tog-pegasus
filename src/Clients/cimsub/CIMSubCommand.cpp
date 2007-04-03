@@ -1878,7 +1878,7 @@ void CIMSubCommand::_printHandlersVerbose(
         {
             case _HANDLER_SNMP:
             {
-                String targetHost = String::EMPTY;
+                String targetHost;
                 pos = handlerInstance.findProperty(
                     PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
                 if (pos != PEG_NOT_FOUND)
@@ -2407,7 +2407,7 @@ void CIMSubCommand::_getHandlerDestination(
         PEGASUS_CLASSNAME_INDHANDLER_SNMP)
     {
         handlerTypeFound = _HANDLER_SNMP;
-        String targetHost = String::EMPTY;
+        String targetHost;
         pos = handlerInstance.findProperty(
             PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
         if (pos != PEG_NOT_FOUND)
@@ -2493,7 +2493,7 @@ void CIMSubCommand::_printSubscriptionsVerbose(
         {
             case _HANDLER_SNMP:
             {
-                String targetHost = String::EMPTY;
+                String targetHost;
                 Uint32 pos = handlerInstance.findProperty(
                     PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
                 if (pos != PEG_NOT_FOUND)
@@ -2534,7 +2534,7 @@ void CIMSubCommand::_printSubscriptionsVerbose(
             }
             case _HANDLER_CIMXML:
             {
-                String destination = String::EMPTY;
+                String destination;
                 Uint32 pos = handlerInstance.findProperty(
                     PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
                 if (pos != PEG_NOT_FOUND)

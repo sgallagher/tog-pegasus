@@ -582,7 +582,7 @@ String IndicationFormatter::getFormattedIndText(
         "IndicationFormatter::getFormattedIndText");
 
     String indicationText;
-    String textFormat = String::EMPTY;
+    String textFormat;
     CIMValue textFormatValue;
     CIMValue textFormatParamsValue;
 

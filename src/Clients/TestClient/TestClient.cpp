@@ -1101,7 +1101,7 @@ static void TestInvokeMethod(
                 PEGASUS_TEST_ASSERT(retValue.toString() == goodReply);
                 PEGASUS_TEST_ASSERT(outParams.size() == 1);
 
-                String outParam = String::EMPTY;
+                String outParam;
                 outParams[0].getValue().get(outParam);
                 PEGASUS_TEST_ASSERT(outParam == goodOutParam);
             }
@@ -1418,7 +1418,7 @@ void connectClient(
                 String trustpath = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-                String randFile = String::EMPTY;
+                String randFile;
 #ifdef PEGASUS_SSL_RANDOMFILE
                 randFile = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);

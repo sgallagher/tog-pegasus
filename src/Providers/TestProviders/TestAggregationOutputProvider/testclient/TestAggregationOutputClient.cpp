@@ -29,15 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Aruran, IBM (ashanmug@in.ibm.com)
-//
-// Modified By:
-//
 //%////////////////////////////////////////////////////////////////////////////
+
 //
 // This CIM client program is used to test the TestAggregationOutputProvider.
 //
-// ==========================================================================
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMStatusCode.h>
@@ -145,9 +141,9 @@ Uint32 _testAssociators(CIMClient& client,
         cout << "\nObject Name: " << instancePath.toString() << endl;
     }
 
-    CIMName resultClass = CIMName();
-    String role = String::EMPTY;
-    String resultRole = String::EMPTY;
+    CIMName resultClass;
+    String role;
+    String resultRole;
 
     // Get the CIM instances that are associated with the specified source
     // instance via an instance of the AssocClass
@@ -189,12 +185,11 @@ Uint32 _testAssociatorNames(CIMClient& client,
     // Get the names of the CIM instances that are associated to the
     // specified source instance via an instance of the AssocClass.
     //
-    CIMName resultClass = CIMName();
-    String role = String::EMPTY;
-    String resultRole = String::EMPTY;
-    Array<CIMObjectPath> resultObjectPaths =
-        client.associatorNames(NAMESPACE, instancePath,
-                                assocClass, resultClass, role, resultRole);
+    CIMName resultClass;
+    String role;
+    String resultRole;
+    Array<CIMObjectPath> resultObjectPaths = client.associatorNames(
+        NAMESPACE, instancePath, assocClass, resultClass, role, resultRole);
     return resultObjectPaths.size();
 }
 
@@ -214,7 +209,7 @@ Uint32 _testReferences(CIMClient& client,
 
     // get the association reference instances
     //
-    String role = String::EMPTY;
+    String role;
     Array<CIMObject> resultObjects = 
            client.references(NAMESPACE, instancePath, referenceClass,role);
     Uint32 size  = resultObjects.size();
@@ -249,7 +244,7 @@ Uint32 _testReferenceNames(CIMClient& client,
 
     // get the reference instance names
     //
-    String role = String::EMPTY;
+    String role;
 
     Array<CIMObjectPath> resultObjectPaths =
         client.referenceNames(NAMESPACE, instancePath, referenceClass, role);
@@ -593,7 +588,7 @@ int main(int argc, char** argv)
 {
     // Variables to collect the CIMServer properties.
     Array<String> propertyValues;
-    String    currentValue  = String::EMPTY;
+    String currentValue;
     CIMClient client;
 
     // Check command line option

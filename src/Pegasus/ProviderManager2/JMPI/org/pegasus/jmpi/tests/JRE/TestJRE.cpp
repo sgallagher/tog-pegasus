@@ -629,7 +629,7 @@ int testJVM ()
 
    {
       ConfigManager *manager      = ConfigManager::getInstance ();
-      String         pegasusHome  = String::EMPTY;
+      String pegasusHome;
 
 // BEGIN: Copy from src/Server/cimserver.cpp
 //        It would have been nice if this were part of ConfigManager.

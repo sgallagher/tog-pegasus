@@ -199,8 +199,8 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     //
     CIMRepository::NameSpaceAttributes attributes;
     repository->getNameSpaceAttributes(nameSpace, attributes);
-    String parent = String::EMPTY;
-    String name = String::EMPTY;
+    String parent;
+    String name;
     Boolean shareable = false;
     Boolean updatesAllowed = true;
     for (CIMRepository::NameSpaceAttributes::Iterator i = attributes.start();

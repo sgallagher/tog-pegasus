@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
@@ -52,17 +48,11 @@ PEGASUS_USING_STD;
 
 /**  Constructor
 */
-NISInfo::NISInfo(void)
+NISInfo::NISInfo()
 {
-   // Insert your additional code to initialize (do not remove)
-
-   nisSystemCreationClassName = String::EMPTY;
-   nisSystemName = String::EMPTY;
-   nisCreationClassName = String::EMPTY;
-   nisName = String::EMPTY;
 }
 
-NISInfo::~NISInfo(void)
+NISInfo::~NISInfo()
 {
 }         
 

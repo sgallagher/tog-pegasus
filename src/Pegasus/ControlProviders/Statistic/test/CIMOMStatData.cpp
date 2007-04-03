@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Willis White (whiwill@us.ibm.com)
-//
-// Modified By:
-//
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -176,26 +170,24 @@ Uint16 _validateClientRequest(CIMClient& cli)
 
 int main(int argc, char** argv)
 {
-//    verbose = getenv("PEGASUS_TEST_VERBOSE");
-
    Uint16 re_num;
 
    CIMClient client;
    String host = "localhost";
    Uint32 portNumber = 5988;
-   String userName = String::EMPTY;
-   String password = String::EMPTY;
+   String userName;
+   String password;
 
    try
    {
-      client.connect (host, portNumber,
-                      userName, password);
+      client.connect(host, portNumber, userName, password);
    }
    catch (Exception& e)
    {
       cerr << "Error: " << e.getMessage() <<  endl;
-	  cerr << "Exception occured in the Pegasus/ControlProviders/Statictic/test file" << endl;
-      return(1);
+      cerr << "Exception occured in the "
+          "Pegasus/ControlProviders/Statistic/test file" << endl;
+      return 1;
    }
    re_num = _validateClientRequest(client);
 

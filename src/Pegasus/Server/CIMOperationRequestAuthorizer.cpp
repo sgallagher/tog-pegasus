@@ -198,7 +198,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
         IdentityContainer::NAME))).getUserName();
     String authType = req->authType;
     CIMNamespaceName nameSpace = req->nameSpace;
-    String cimMethodName = String::EMPTY;
+    String cimMethodName;
 
     switch (req->getType())
     {
@@ -546,7 +546,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
 
     Array<String> authorizedGroups;
 
-    String groupNames = String::EMPTY;
+    String groupNames;
 
     //
     // Get a config manager instance
@@ -558,7 +558,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
     //
     // Check if the group name is empty
     //
-    if (groupNames == String::EMPTY || groupNames == "")
+    if (groupNames == String::EMPTY)
     {
         PEG_METHOD_EXIT();
         return authorizedGroups;

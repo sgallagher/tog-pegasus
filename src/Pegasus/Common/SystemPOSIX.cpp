@@ -729,7 +729,7 @@ String System::getPassword(const char* prompt)
 
 String System::getEffectiveUserName()
 {
-    String userName = String::EMPTY;
+    String userName;
     struct passwd* pwd = NULL;
 
 #if defined(PEGASUS_OS_SOLARIS) || \

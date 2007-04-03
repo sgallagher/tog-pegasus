@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
-//
-// Modified by: Robert Kieninger, IBM (kieningr@de.ibm.com) Bug#667
-//         Josephine Eskaline Joyce,IBM (jojustin@in.ibm.com) PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMClientConnection.h"
@@ -43,12 +38,8 @@ PEGASUS_NAMESPACE_BEGIN
 // class constructor
 CIMClientConnection::CIMClientConnection()
 {
-	_hostname = String::EMPTY;
-	_port = String::EMPTY;
-	_userid = String::EMPTY;
-	_passwd = String::EMPTY;
     _connectionHandle.reset(new CIMClientRep());
-	_resolvedIP = 0xFFFFFFFF;
+    _resolvedIP = 0xFFFFFFFF;
 }
 
 CIMClientConnection::CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd)

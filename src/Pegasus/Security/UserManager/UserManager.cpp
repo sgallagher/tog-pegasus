@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4421
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -420,7 +412,7 @@ String UserManager::getAuthorization(
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::getAuthorization");
 
-    String auth = String::EMPTY;
+    String auth;
 
     try
     {

@@ -143,7 +143,7 @@ void SSLContextManager::reloadTrustStore()
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::reloadTrustStore()");
 
     SSL_CTX* sslContext;
-    String trustStore = String::EMPTY;
+    String trustStore;
 
     if ( _sslContext )
     {

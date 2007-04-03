@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
-//               Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
-//               David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
-//               Aruran, IBM (ashanmug@in.ibm.com) for Bug#4295
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /* CGIClient - This is a CGI driven test program that
@@ -2494,7 +2484,7 @@ static void ReferenceNames(const CGIQueryString& qs)
             resultClass = CIMName (tempRC);
     }
 
-    String role = String::EMPTY;
+    String role;
     if ((tmp = qs.findValue("Role")))
     role = tmp;
 
@@ -2577,11 +2567,11 @@ static void AssociatorNames(const CGIQueryString& qs)
 
 
 
-    String role = String::EMPTY;
+    String role;
     if ((tmp = qs.findValue("ResultRole")))
     role = tmp;
 
-    String resultRole = String::EMPTY;
+    String resultRole;
     if ((tmp = qs.findValue("Role")))
     resultRole = tmp;
 
@@ -2926,11 +2916,11 @@ static void InvokeMethod(const CGIQueryString& qs)
 
     const char* tmp;
 
-    String methodName = String::EMPTY;
+    String methodName;
     if ((tmp = qs.findValue("MethodName")))
     methodName = tmp;
 
-    String argumentList = String::EMPTY;
+    String argumentList;
     if ((tmp = qs.findValue("ArgumentList")))
     argumentList = tmp;
 

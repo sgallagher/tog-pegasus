@@ -1192,7 +1192,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     CIMException cimException;
     CIMInstance cimInstance;
-    String aggregatedLangs = String::EMPTY;    // l10n
+    String aggregatedLangs;
 
 
     try
@@ -1246,7 +1246,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 // l10n start
             propIndex = enumInstances [i].findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
-            String contentLangs = String::EMPTY;
+            String contentLangs;
             if (propIndex != PEG_NOT_FOUND)
             {
                 enumInstances [i].getProperty(propIndex).getValue().get
@@ -3745,8 +3745,8 @@ Boolean IndicationService::_canCreate (
                   PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO)).getValue().get(mailTo);
 
         // Build mail address string
-        String mailAddrStr = String::EMPTY;
-            Uint32 mailAddrSize = mailTo.size();
+        String mailAddrStr;
+        Uint32 mailAddrSize = mailTo.size();
 
         for (Uint32 i=0; i < mailAddrSize; i++)
         {
@@ -5420,7 +5420,7 @@ String IndicationService::_getCondition
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getCondition");
 
-    String condition = String::EMPTY;
+    String condition;
 
     //
     //  Get condition substring from filter query
@@ -5473,7 +5473,7 @@ void IndicationService::_deleteReferencingSubscriptions (
         //  and authType is not set
         //
         CIMInstance instance = deletedSubscriptions [i];
-        String creator = String::EMPTY;
+        String creator;
         _getCreator (instance, creator);
 
 // l10n start

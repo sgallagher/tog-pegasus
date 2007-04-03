@@ -276,8 +276,6 @@ struct specialNameSpace
     specialNameSpace()
        : shared(false),
          parentSpace(NULL),
-         parent(String::EMPTY),
-         sharedDirName(String::EMPTY),
          remote(false)
     {
     }

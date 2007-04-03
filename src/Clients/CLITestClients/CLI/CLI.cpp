@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//          Mary Hinton (m.hinton@verizon.net)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Adrian Schuur (schuur@de.ibm.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4065,#4228
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -389,7 +381,7 @@ int main(int argc, char** argv)
 
             // Set up SSL port and flag for verbose display
             // if SSL included in build
-            String useSSL = String::EMPTY;
+            String useSSL;
 #ifdef PEGASUS_HAS_SSL
             if (opts.ssl)
             {

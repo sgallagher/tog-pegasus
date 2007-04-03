@@ -43,13 +43,8 @@ PEGASUS_NAMESPACE_BEGIN
 const String AuthenticationInfoRep::AUTH_TYPE_SSL = "SSL";
 
 AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
-    :
-    _authUser(String::EMPTY),
-    _authPassword(String::EMPTY),
-    _localAuthSecret(String::EMPTY),
-    _authType(String::EMPTY),
-    _connectionAuthenticated(false),
-    _wasRemotePrivilegedUserAccessChecked(false)
+    : _connectionAuthenticated(false),
+      _wasRemotePrivilegedUserAccessChecked(false)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");

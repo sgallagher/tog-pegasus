@@ -159,9 +159,9 @@ void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath insta
 
     try
     {
-        CIMName resultClass = CIMName();
-        String role = String::EMPTY;
-        String resultRole = String::EMPTY;
+        CIMName resultClass;
+        String role;
+        String resultRole;
 
         // Get the CIM instances that are associated with the specified source
         // instance via an instance of the AssocClass
@@ -200,9 +200,9 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
         // Get the names of the CIM instances that are associated to the
         // specified source instance via an instance of the AssocClass.
         //
-        CIMName resultClass = CIMName();
-        String role = String::EMPTY;
-        String resultRole = String::EMPTY;
+        CIMName resultClass;
+        String role;
+        String resultRole;
 
         Array<CIMObjectPath> resultObjectPaths =
             client.associatorNames(NAMESPACE, instancePath,
@@ -236,11 +236,11 @@ void _testReferences(CIMClient& client, CIMObjectPath instancePath, Uint32 numEx
         // get the association reference instances
         //
         Array<CIMObject> resultObjects;
-        CIMName resultClass = CIMName();
-        String role = String::EMPTY;
+        CIMName resultClass;
+        String role;
 
-        resultObjects = client.references(NAMESPACE, instancePath, resultClass,
-            role);
+        resultObjects =
+            client.references(NAMESPACE, instancePath, resultClass, role);
 
         // verify result
         _verifyResult(resultObjects.size(), numExpectedObjects);
@@ -270,8 +270,8 @@ void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath, Uint32 n
         // get the reference instance names
         //
         Array<CIMObjectPath> resultObjectPaths;
-        CIMName resultClass = CIMName();
-        String role = String::EMPTY;
+        CIMName resultClass;
+        String role;
 
         resultObjectPaths =
             client.referenceNames(NAMESPACE, instancePath, resultClass, role);
@@ -437,10 +437,10 @@ void _testAssociationClassOperations(CIMClient& client, CIMName className)
     Array<CIMObject> resultObjects;
     CIMObjectPath op(className.getString());
 
-    CIMName assocClass = CIMName();
-    CIMName resultClass = CIMName();
-    String role = String::EMPTY;
-    String resultRole = String::EMPTY;
+    CIMName assocClass;
+    CIMName resultClass;
+    String role;
+    String resultRole;
 
     // =======================================================================
     // associators
@@ -699,10 +699,10 @@ int main(int argc, char** argv)
     //
     // =======================================================================
 
-    String role = String::EMPTY;
-    String resultRole = String::EMPTY;
-    CIMName resultClass = CIMName();
-    CIMName assocClass = CIMName();
+    String role;
+    String resultRole;
+    CIMName resultClass;
+    CIMName assocClass;
     Uint32 numExpectedObjects = 0;
 
     // good filters
@@ -753,9 +753,9 @@ int main(int argc, char** argv)
     // Note:  since AssocClass is not specified, duplicate instances are
     //        returned.
     //
-    role = String::EMPTY;
-    resultRole = String::EMPTY;
-    resultClass = CIMName();
+    role;
+    resultRole;
+    resultClass;
     numExpectedObjects = 5;
 
     _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,

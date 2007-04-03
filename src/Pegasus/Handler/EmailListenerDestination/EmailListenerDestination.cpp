@@ -95,7 +95,7 @@ void EmailListenerDestination::handleIndication(
             PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO)).getValue().get(mailTo);
 
         // get MailSubject from handler instance
-        String mailSubject = String::EMPTY;
+        String mailSubject;
         handler.getProperty(handler.findProperty(
             PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT)).getValue().get(
                 mailSubject);
@@ -296,7 +296,7 @@ void EmailListenerDestination::_buildMailHeader(
     // Write the mailSubject string
     //
 
-    String mailSubjectStr = String::EMPTY;
+    String mailSubjectStr;
     mailSubjectStr.append(mailSubject);
     CString foo = mailSubjectStr.getCString();
 
@@ -341,7 +341,7 @@ void EmailListenerDestination::_buildMailHeader(
 
 #else
 
-    String mailHdrStr = String::EMPTY;
+    String mailHdrStr;
 
     // Write the mailToStr to file
     mailHdrStr.append("To: ");
@@ -358,7 +358,7 @@ void EmailListenerDestination::_buildMailHeader(
     _writeStrToFile(mailHdrStr, filePtr);
 
     // build from string
-    String fromStr = String::EMPTY;
+    String fromStr;
     fromStr.append("From: ");
     fromStr.append(System::getEffectiveUserName());
     fromStr.append("@");
@@ -368,7 +368,7 @@ void EmailListenerDestination::_buildMailHeader(
     _writeStrToFile(fromStr, filePtr);
 
     // Write the mailSubject string to file
-    String mailSubjectStr = String::EMPTY;
+    String mailSubjectStr;
     mailSubjectStr.append("Subject: ");
     mailSubjectStr.append(mailSubject);
     _writeStrToFile(mailSubjectStr, filePtr);
@@ -383,7 +383,7 @@ String EmailListenerDestination::_buildMailAddrStr(
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "EmailListenerDestination::_buildMailAddrStr");
 
-    String mailAddrStr = String::EMPTY;
+    String mailAddrStr;
     Uint32 mailAddrSize = mailAddr.size();
 
     for (Uint32 i = 0; i < mailAddrSize; i++)
@@ -434,7 +434,7 @@ String EmailListenerDestination::_buildMailAddrCcStr(
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "EmailListenerDestination::_buildMailAddrCcStr");
 
-    String mailAddrStr = String::EMPTY;
+    String mailAddrStr;
     Uint32 mailAddrSize = mailAddr.size();
 
     for (Uint32 i = 0; i < mailAddrSize; i++)

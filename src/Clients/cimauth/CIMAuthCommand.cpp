@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2311,#2333,#2351
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101, Bug#2756
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -473,10 +462,6 @@ CIMAuthCommand::CIMAuthCommand ()
         Initialize the instance variables.
     */
     _operationType       = OPERATION_TYPE_UNINITIALIZED;
-    _userName            = String::EMPTY;
-    _namespace           = String::EMPTY;
-    _authorizations      = String::EMPTY;
-    _hostName            = String::EMPTY;
     _namespaceSet        = false;
     _userNameSet         = false;
     _readFlagSet         = false;

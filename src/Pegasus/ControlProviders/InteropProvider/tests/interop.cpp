@@ -897,7 +897,7 @@ Boolean InteropTest::_validateNamespaces(Array<CIMNamespaceName>& namespaceNames
 Boolean _existsOld(CIMNamespaceName& name)
 {
     Uint32 pos;
-    String parent = String::EMPTY;
+    String parent;
     String child;
     String nameString = name.getString();
     if((pos = nameString.reverseFind('/')) != PEG_NOT_FOUND)
@@ -1144,10 +1144,10 @@ void InteropTest::_showNamespaceInfo(const String& title)
     Array<CIMNamespaceName> rtns;
     for (Uint32 i = 0 ; i < instances.size(); i++)
     {
-        String isSharable = String::EMPTY;
-        String updatesAllowed = String::EMPTY;
-        String parent = String::EMPTY;
-        String name = String::EMPTY;
+        String isSharable;
+        String updatesAllowed;
+        String parent;
+        String name;
 
         // get the namespace name from the name property.
         if ((instances[i].findProperty(NAMESPACE_PROPERTYNAME)) == 
@@ -2847,7 +2847,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
     
         // Test getting reference names.  Should match number of instances
     
-        String role = String::EMPTY;
+        String role;
         CIMObjectPath objectManagerPath = getObjMgrPath();
 
         testEnumAgainstEnumNames(PEGASUS_NAMESPACENAME_INTEROP,
@@ -2946,7 +2946,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
         //
 
         role = String::EMPTY;
-        String resultRole = String::EMPTY;
+        String resultRole;
         Array<CIMObject> associatorObjects = _client.associators(
                     PEGASUS_NAMESPACENAME_INTEROP,    // namespace
                     objectManagerPath,                // object manager instance

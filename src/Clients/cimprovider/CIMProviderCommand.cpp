@@ -561,9 +561,6 @@ CIMProviderCommand::CIMProviderCommand()
         Initialize the instance variables.
     */
     _operationType      = OPERATION_TYPE_UNINITIALIZED;
-    _hostName           = String::EMPTY;
-    _moduleName         = String::EMPTY;
-    _providerName       = String::EMPTY;
     _moduleSet          = false;
     _providerSet        = false;
     _statusSet          = false;

@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -123,7 +116,7 @@ void testAuthHeader()
 //
 void testAuthenticationFailure_1()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     BasicAuthenticationHandler  basicAuthHandler;
@@ -155,7 +148,7 @@ void testAuthenticationFailure_1()
 //
 void testAuthenticationFailure_2()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     BasicAuthenticationHandler  basicAuthHandler;
@@ -188,7 +181,7 @@ void testAuthenticationFailure_2()
 //
 void testAuthenticationFailure_3()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     BasicAuthenticationHandler  basicAuthHandler;
@@ -218,7 +211,7 @@ void testAuthenticationFailure_3()
 //
 void testAuthenticationFailure_4()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
     Boolean authenticated;
 
     BasicAuthenticationHandler  basicAuthHandler;
@@ -249,7 +242,7 @@ void testAuthenticationFailure_4()
 //
 void testAuthenticationSuccess()
 {
-    String authHeader = String::EMPTY;
+    String authHeader;
 
     BasicAuthenticationHandler  basicAuthHandler;
 

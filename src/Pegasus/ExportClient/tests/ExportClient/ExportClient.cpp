@@ -193,7 +193,7 @@ static void testSSLConnect()
         "cert.pem");
     String keyPath = FileSystem::getAbsolutePath(pegasusHome,
         "file.pem");
-    String randPath = String::EMPTY;
+    String randPath;
 #ifdef PEGASUS_SSL_RANDOMFILE
     randPath = FileSystem::getAbsolutePath(pegasusHome,
         PEGASUS_SSLCLIENT_RANDOMFILE);

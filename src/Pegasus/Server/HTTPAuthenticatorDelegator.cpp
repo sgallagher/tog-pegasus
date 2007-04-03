@@ -406,7 +406,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     CIMInstance cimInstance;
                     CIMValue value;
                     Uint32 pos;
-                    String userName = String::EMPTY;
+                    String userName;
 
                     //attempt to get the username registered to the certificate
                     try

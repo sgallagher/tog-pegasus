@@ -1901,8 +1901,8 @@ Array<ProviderInfo>
     // there are any
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        String serviceName = String::EMPTY;
-        String controlProviderName = String::EMPTY;
+        String serviceName;
+        String controlProviderName;
         ProviderInfo pi(classNames[i]);
         ProviderIdContainer* container=NULL;
 
@@ -1970,7 +1970,7 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
         "assocClass = " + assocClass.getString());
 
     Boolean hasProvider = false;
-    String providerName = String::EMPTY;
+    String providerName;
     // Check for class provided by an internal provider
     if (_lookupInternalProvider(
             nameSpace, assocClass, serviceName, controlProviderName))
@@ -2084,7 +2084,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
             {
                 ProviderIdContainer* providercontainer;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                String remoteInformation=String::EMPTY;
+                String remoteInformation;
                 Boolean isRemote=false;
                 isRemote = _repository->isRemoteNameSpace(
                     nameSpace, remoteInformation);

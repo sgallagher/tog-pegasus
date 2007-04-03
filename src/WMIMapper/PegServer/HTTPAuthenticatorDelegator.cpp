@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//              Jair F. T. dos Santos, Hewlett-Packard Company
-//                  (jair.santos@hp.com)
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//              Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
@@ -336,8 +328,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 if (!authenticated)
                 {
-                    String authChallenge = String::EMPTY;
-                    String authResp = String::EMPTY;
+                    String authChallenge;
+                    String authResp;
 
                     authResp =
                         _authenticationManager->getPegasusAuthResponseHeader(

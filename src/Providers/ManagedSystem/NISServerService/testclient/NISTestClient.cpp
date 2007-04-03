@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // Using the general CIMOM TestClient as an example, developed an
@@ -401,8 +397,8 @@ int main(int argc, char** argv)
     char 	   *ptr;
     Uint32     port = 0;
     String     host = "localhost:5988";
-    String     userName; // = String::EMPTY;
-    String     password; // = String::EMPTY;
+    String     userName;
+    String     password;
     Boolean    enumInst = true;
     Boolean    enumInstNames = true;
     Boolean    getInst = true;  

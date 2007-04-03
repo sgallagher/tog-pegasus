@@ -535,7 +535,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 //////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-    String pegasusHome  = String::EMPTY;
+    String pegasusHome;
     Boolean shutdownOption = false;
 
 //l10n
@@ -754,7 +754,7 @@ void CIMServerProcess::cimserver_stop()
 
 int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOption )
 {
-    String logsDirectory = String::EMPTY;
+    String logsDirectory;
     Boolean daemonOption = false;
 
     //

@@ -724,8 +724,8 @@ void JMPIjvm::checkException (JNIEnv *env)
                   jId  = NULL;
       int         code;
       const char *cp;
-      String      msg  = String::EMPTY,
-                  id   = String::EMPTY;
+      String      msg;
+      String      id;
       jthrowable  err  = env->ExceptionOccurred();
 
       DDD(env->ExceptionDescribe());

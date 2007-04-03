@@ -697,7 +697,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             // content can be easily separated.
 
                             Boolean authrecExists = false;
-                            String authorization = String::EMPTY;
+                            String authorization;
                             if (HTTPMessage::lookupHeader(
                                     headers, "WWW-Authenticate",
                                     authorization, false))

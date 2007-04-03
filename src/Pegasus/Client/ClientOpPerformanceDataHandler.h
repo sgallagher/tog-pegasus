@@ -154,8 +154,8 @@ int main(int argc, char** argv)
     Uint32 port = 5988;
 
     //Get user name and password
-    String userN = String::EMPTY;
-    String passW = String::EMPTY;
+    String userN;
+    String passW;
 
     // Connect to the server
 

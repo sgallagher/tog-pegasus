@@ -326,7 +326,7 @@ Boolean ConfigManager::updateCurrentValue(
     const String& value,
     Boolean unset)
 {
-    String prevValue = String::EMPTY;
+    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -386,7 +386,7 @@ Boolean ConfigManager::updatePlannedValue(
     const String& value,
     Boolean unset)
 {
-    String prevValue = String::EMPTY;
+    String prevValue;
 
     //
     // get property owner object from the config table.
@@ -872,7 +872,7 @@ void ConfigManager::setPegasusHome(const String& home)
 */
 String ConfigManager::getHomedPath(const String& value)
 {
-    String homedPath = String::EMPTY;
+    String homedPath;
 
     if (value != String::EMPTY)
     {

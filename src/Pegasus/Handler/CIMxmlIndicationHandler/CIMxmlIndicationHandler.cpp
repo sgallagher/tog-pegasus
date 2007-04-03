@@ -168,9 +168,8 @@ public:
                 configManager->getCurrentValue(
                     PROPERTY_NAME__SSLKEY_FILEPATH));
 
-            String trustPath = String::EMPTY;
-
-            String randFile = String::EMPTY;
+            String trustPath;
+            String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
             randFile =

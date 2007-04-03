@@ -162,9 +162,9 @@ void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath insta
 
     try
     {
-        CIMName resultClass = CIMName();
-        String role = String::EMPTY;
-        String resultRole = String::EMPTY;
+        CIMName resultClass;
+        String role;
+        String resultRole;
 
         // Get the CIM instances that are associated with the specified source
         // instance via an instance of the AssocClass
@@ -204,10 +204,10 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
         // Get the names of the CIM instances that are associated to the
         // specified source instance via an instance of the AssocClass.
         //
-        CIMName resultClass = CIMName();
+        CIMName resultClass;
    
-        String role = String::EMPTY;
-        String resultRole = String::EMPTY;
+        String role;
+        String resultRole;
 
         Array<CIMObjectPath> resultObjectPaths =
             client.associatorNames(providerNamespace, instancePath,
@@ -241,8 +241,8 @@ void _testReferences(CIMClient& client, CIMObjectPath instancePath,
         // get the association reference instances
         //
         Array<CIMObject> resultObjects;
-        CIMName resultClass = CIMName();
-        String role = String::EMPTY;
+        CIMName resultClass;
+        String role;
 
         resultObjects = client.references(providerNamespace, instancePath,
                                           resultClass,role);
@@ -275,8 +275,8 @@ void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath,
         // get the reference instance names
         //
         Array<CIMObjectPath> resultObjectPaths;
-        CIMName resultClass = CIMName();
-        String role = String::EMPTY;
+        CIMName resultClass;
+        String role;
 
         resultObjectPaths =
             client.referenceNames(providerNamespace, instancePath, resultClass, role);
@@ -303,10 +303,10 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
     Array<CIMObject> resultObjects;
     CIMObjectPath op(className.getString());
 
-    CIMName assocClass = CIMName();
-    CIMName resultClass = CIMName();
-    String role = String::EMPTY;
-    String resultRole = String::EMPTY;
+    CIMName assocClass;
+    CIMName resultClass;
+    String role;
+    String resultRole;
 
     // =======================================================================
     // associators

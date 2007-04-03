@@ -155,7 +155,7 @@ void UserAuthProvider::createInstance(
     //
     // verify user authorizations
     //
-    if ( user != String::EMPTY || user != "" )
+    if (user != String::EMPTY)
     {
         _verifyAuthorization(user);
     }
@@ -346,7 +346,7 @@ void UserAuthProvider::deleteInstance(
     //
     // verify user authorizations
     //
-    if ( user != String::EMPTY || user != "" )
+    if (user != String::EMPTY)
     {
         _verifyAuthorization(user);
     }
@@ -525,7 +525,7 @@ void UserAuthProvider::modifyInstance(
     //
     // verify user authorizations
     //
-    if ( user != String::EMPTY || user != "" )
+    if (user != String::EMPTY)
     {
         _verifyAuthorization(user);
     }
@@ -644,7 +644,7 @@ void UserAuthProvider::enumerateInstances(
     //
     // verify user authorizations
     //
-    if ( user != String::EMPTY || user != "" )
+    if (user != String::EMPTY)
     {
         _verifyAuthorization(user);
     }
@@ -723,7 +723,7 @@ void UserAuthProvider::enumerateInstanceNames(
     //
     // verify user authorizations
     //
-    if ( user != String::EMPTY || user != "" )
+    if (user != String::EMPTY)
     {
         _verifyAuthorization(user);
     }
@@ -845,7 +845,7 @@ void UserAuthProvider::invokeMethod(
     //
     // verify user authorizations
     //
-    if ( user != String::EMPTY || user != "" )
+    if (user != String::EMPTY)
     {
         _verifyAuthorization(user);
     }

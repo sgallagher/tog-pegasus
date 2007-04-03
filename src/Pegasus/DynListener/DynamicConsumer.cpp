@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "DynamicConsumer.h"
@@ -336,7 +332,7 @@ String DynamicConsumer::toString()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::toString");
 
-    String buffer = String::EMPTY;
+    String buffer;
     if (_initialized)
     {
         buffer.append("Consumer " + _name + " is initialized.\n");

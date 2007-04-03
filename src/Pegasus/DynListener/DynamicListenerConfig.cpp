@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -252,7 +248,7 @@ String DynamicListenerConfig::getHomedPath(const String& value)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerConfig::getHomedPath()");
 
-    String homedPath = String::EMPTY;
+    String homedPath;
 
     if (String::equal(value, String::EMPTY))
     {

@@ -139,10 +139,10 @@ int main(int argc, char** argv)
     Uint32                  numObjects;
     Array<CIMObjectPath>    resultObjectPaths;
     Array<CIMObject>        resultObjects;
-    CIMName                 assocClass = CIMName();
-    CIMName                 resultClass = CIMName();
-    String                  role = String::EMPTY;
-    String                  resultRole = String::EMPTY;
+    CIMName                 assocClass;
+    CIMName                 resultClass;
+    String                  role;
+    String                  resultRole;
 
     //
     // Check command line option  

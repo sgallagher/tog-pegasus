@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
-//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//              Amit K Arora, IBM (amita@in.ibm.com) - Bug#2311,#2333,#2351
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -514,10 +501,6 @@ CIMUserCommand::CIMUserCommand ()
         Initialize the instance variables.
     */
     _operationType       = OPERATION_TYPE_UNINITIALIZED;
-    _userName            = String::EMPTY;
-    _password            = String::EMPTY;
-    _newpassword         = String::EMPTY;
-    _hostName            = String::EMPTY;
     _passwordSet         = false;
     _newpasswordSet      = false;
     _userNameSet         = false;
@@ -903,24 +886,25 @@ void CIMUserCommand::setCommand (
             //
             // Password is not set, prompt for the password
             //
-            String pw = String::EMPTY;
+            String pw;
             do
             {
                 pw = System::getPassword(PASSWORD_PROMPT);
 
-                if (pw == String::EMPTY || pw == "")
+                if (pw == String::EMPTY)
                 {
-                    //l10n
-                    //errPrintWriter << PASSWORD_BLANK << endl;
-                    errPrintWriter << localizeMessage(MSG_PATH,PASSWORD_BLANK_KEY,PASSWORD_BLANK) << endl;
-                    pw = String::EMPTY;
+                    errPrintWriter << localizeMessage(
+                        MSG_PATH, PASSWORD_BLANK_KEY, PASSWORD_BLANK) << endl;
                     continue;
                 }
                 if (pw != System::getPassword(RE_ENTER_PROMPT))
                 {
-                    //l10n
-                    //errPrintWriter << PASSWORD_DOES_NOT_MATCH << endl;
-                    errPrintWriter << localizeMessage(MSG_PATH,PASSWORD_DOES_NOT_MATCH_KEY,PASSWORD_DOES_NOT_MATCH_KEY) << endl;
+                    errPrintWriter <<
+                        localizeMessage(
+                            MSG_PATH,
+                            PASSWORD_DOES_NOT_MATCH_KEY,
+                            PASSWORD_DOES_NOT_MATCH_KEY) <<
+                        endl;
                     pw = String::EMPTY;
                 }
             }
@@ -954,16 +938,14 @@ void CIMUserCommand::setCommand (
             //
             // Password is not set, prompt for the old password once
             //
-            String pw = String::EMPTY;
+            String pw;
             do
             {
                 pw = System::getPassword(OLD_PASSWORD_PROMPT);
-                if (pw == String::EMPTY || pw == "")
+                if (pw == String::EMPTY)
                 {
-                    //l10n
-                    //errPrintWriter << PASSWORD_BLANK << endl;
-                    errPrintWriter << localizeMessage(MSG_PATH,PASSWORD_BLANK_KEY,PASSWORD_BLANK) << endl;
-                    pw = String::EMPTY;
+                    errPrintWriter << localizeMessage(
+                        MSG_PATH, PASSWORD_BLANK_KEY, PASSWORD_BLANK) << endl;
                     continue;
                 }
             }
@@ -975,24 +957,25 @@ void CIMUserCommand::setCommand (
             //
             // Password is not set, prompt for the new password twice
             //
-            String newPw = String::EMPTY;
+            String newPw;
             do
             {
                 newPw = System::getPassword(NEW_PASSWORD_PROMPT);
-                if (newPw == String::EMPTY || newPw == "")
+                if (newPw == String::EMPTY)
                 {
-                    //l10n
-                    //errPrintWriter << PASSWORD_BLANK << endl;
-                    errPrintWriter << localizeMessage(MSG_PATH,PASSWORD_BLANK_KEY,PASSWORD_BLANK) << endl;
-                    newPw = String::EMPTY;
+                    errPrintWriter << localizeMessage(
+                        MSG_PATH, PASSWORD_BLANK_KEY, PASSWORD_BLANK) << endl;
                     continue;
                 }
 
                 if (newPw != System::getPassword(RE_ENTER_PROMPT))
                 {
-                    //l10n
-                    //errPrintWriter << PASSWORD_DOES_NOT_MATCH << endl;
-                    errPrintWriter << localizeMessage(MSG_PATH,PASSWORD_DOES_NOT_MATCH_KEY,PASSWORD_DOES_NOT_MATCH) << endl;
+                    errPrintWriter <<
+                        localizeMessage(
+                            MSG_PATH,
+                            PASSWORD_DOES_NOT_MATCH_KEY,
+                            PASSWORD_DOES_NOT_MATCH) <<
+                        endl;
                     newPw = String::EMPTY;
                 }
             }
@@ -1000,9 +983,9 @@ void CIMUserCommand::setCommand (
             _newpassword = newPw ;
             if (_newpassword == _password)
             {
-                //l10n
-                //cerr << PASSWORD_SAME_ERROR << endl;
-                cerr << localizeMessage(MSG_PATH,PASSWORD_SAME_ERROR_KEY, PASSWORD_SAME_ERROR) << endl;
+                cerr << localizeMessage(
+                    MSG_PATH, PASSWORD_SAME_ERROR_KEY, PASSWORD_SAME_ERROR) <<
+                    endl;
                 exit (-1);
             }
         }

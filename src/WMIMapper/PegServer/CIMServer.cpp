@@ -103,14 +103,14 @@ CIMServer::CIMServer(Monitor* monitor)
 }
 
 
-void CIMServer::tickle_monitor(){
+void CIMServer::tickle_monitor()
+{
     _monitor->tickle();
 }
-void CIMServer::_init(void)
+
+void CIMServer::_init()
 {
-
-    String repositoryRootPath = String::EMPTY;
-
+    String repositoryRootPath;
 
 #if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
     chdir( PEGASUS_CORE_DIR );
@@ -635,8 +635,8 @@ SSLContext* CIMServer::_getSSLContext()
     static const String PROPERTY_NAME__HTTP_ENABLED =
                                            "enableHttpConnection";
 
-    String verifyClient = String::EMPTY;
-    String trustStore = String::EMPTY;
+    String verifyClient;
+    String trustStore;
     SSLContext* sslContext = 0;
 
     //
@@ -674,7 +674,7 @@ SSLContext* CIMServer::_getSSLContext()
     //
     // Get the sslTrustStoreUserName property from the Config Manager.
     //
-    String trustStoreUserName = String::EMPTY;
+    String trustStoreUserName;
     trustStoreUserName = configManager->getCurrentValue(
                               PROPERTY_NAME__SSL_TRUST_STORE_USERNAME);
 
@@ -774,7 +774,7 @@ SSLContext* CIMServer::_getSSLContext()
     keyPath = ConfigManager::getHomedPath(
         configManager->getCurrentValue(PROPERTY_NAME__SSL_KEY_FILEPATH));
 
-    String randFile = String::EMPTY;
+    String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
     // NOTE: It is technically not necessary to set up a random file on

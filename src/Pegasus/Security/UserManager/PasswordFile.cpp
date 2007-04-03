@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1519
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#1791, Bug#3606
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -210,7 +204,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
         //
         // Get the userName
         //
-        String userName = String::EMPTY;
+        String userName;
 
         userName.append(*p++);
 
@@ -256,7 +250,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
         //
         // Get the password
         //
-        String password = String::EMPTY;
+        String password;
 
         while (*p)
         {

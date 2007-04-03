@@ -28,16 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
-//
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
-//               David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
-//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4551
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +65,6 @@ public:
     // constructor - Creates empty list
     classNameList()
     {
-    _nameSpace = String::EMPTY;
     //_cli = 0;
     _index = 0;
     }

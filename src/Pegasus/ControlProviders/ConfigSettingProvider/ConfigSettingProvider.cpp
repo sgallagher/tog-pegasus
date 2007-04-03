@@ -204,7 +204,7 @@ void ConfigSettingProvider::modifyInstance(
         //
         // verify user authorizations
         //
-        if ( userName != String::EMPTY || userName != "" )
+        if (userName != String::EMPTY)
         {
             _verifyAuthorization(userName);
         }
@@ -285,9 +285,9 @@ void ConfigSettingProvider::modifyInstance(
             }
         }
 
-        String preValue = String::EMPTY;
-        String currentValue = String::EMPTY;
-        String plannedValue = String::EMPTY;
+        String preValue;
+        String currentValue;
+        String plannedValue;
         Boolean currentValueIsNull = false;
         Boolean plannedValueIsNull = false;
 

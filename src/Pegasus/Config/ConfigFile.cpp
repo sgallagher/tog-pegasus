@@ -183,7 +183,7 @@ void ConfigFile::load(ConfigTable* confTable)
         //
         // Get the property name
         //
-        String name = String::EMPTY;
+        String name;
 
         if (!(isalpha(*p) || *p == '_'))
         {
@@ -228,7 +228,7 @@ void ConfigFile::load(ConfigTable* confTable)
         //
         // Get the value
         //
-        String value = String::EMPTY;
+        String value;
 
         while (*p)
         {

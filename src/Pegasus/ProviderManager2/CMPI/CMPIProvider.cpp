@@ -140,9 +140,9 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
         const OperationContext opc;
         CMPI_ContextOnStack eCtx(opc);
         CMPI_ThreadContext thr(&broker,&eCtx);
-	    CMPIStatus rc = {CMPI_RC_OK, NULL};
-		String error = String::EMPTY;
-  	    String realProviderName(name);
+        CMPIStatus rc = {CMPI_RC_OK, NULL};
+        String error;
+        String realProviderName(name);
 
         if (miVector.genericMode) {
            CString mName=realProviderName.getCString();

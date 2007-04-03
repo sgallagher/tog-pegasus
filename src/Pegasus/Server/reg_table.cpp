@@ -95,9 +95,7 @@ private:
 };
 
 reg_table_record::reg_table_record()
-    : class_name(String::EMPTY),
-      namespace_name(String::EMPTY),
-      type(0xffffffff),
+    : type(0xffffffff),
       extended_key(),
       flags(0xffffffff),
       extended_flags(),

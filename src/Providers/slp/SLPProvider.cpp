@@ -286,7 +286,7 @@ String _getValueQualifier(
     // validate the valueMap qualifiers in the Class Property
 
     Uint32 posValueMap;
-    String error = String::EMPTY;
+    String error;
     Array<String> va1;
     Array<String> va2;
 
@@ -592,9 +592,9 @@ String SLPProvider::getRegisteredProfileList()
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::getRegisteredProfileList()");
 
-    const CIMName          CLASSNAME = CIMName("CIM_RegisteredProfile");
-    String                  regitem = String::EMPTY;
-    String                  reglist = String::EMPTY;
+    const CIMName CLASSNAME = CIMName("CIM_RegisteredProfile");
+    String regitem;
+    String reglist;
 
     Array<CIMInstance>  cimInstances;
     CIMName registeredProfileClassName("CIM_RegisteredProfile");

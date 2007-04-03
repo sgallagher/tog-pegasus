@@ -63,7 +63,6 @@ public:
     /** Verify the authentication of the requesting user.
         @param userName String containing the user name
         @param password String containing the user password
-        @param sessionKey session key assigned by the executor.
         @return true on successful authentication, false otherwise
     */
     Boolean authenticate(

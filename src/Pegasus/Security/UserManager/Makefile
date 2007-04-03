@@ -39,11 +39,7 @@ LOCAL_DEFINES = -DPEGASUS_USERMANAGER_INTERNAL -DPEGASUS_INTERNALONLY
 STATIC=1
 LIBRARY = peguser
 
-
 include ./libraries.mak
-
-LIBRARIES +=
-
 
 SOURCES = \
 	PasswordFile.cpp \

@@ -158,11 +158,13 @@ Boolean LocalAuthenticationHandler::authenticate(
         secretReceived, authInfo->getLocalAuthSecret());
 
     PEG_AUDIT_LOG(logLocalAuthentication(
-                     userName, 
+                     userName,
                      authenticated));
 
     if (authenticated)
+    {
         authInfo->setAuthenticatedUser(userName);
+    }
 
     PEG_METHOD_EXIT();
 

@@ -29,7 +29,6 @@
 #include <Pegasus/Common/String.h>
 
 #include "InstanceProvider.h"
-#include "/root/inova/src/utils/cimreg/cimreg.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -43,9 +42,6 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & nam
 
 	return(0);
 }
-
-PEGASUS_MODULE("MyModule");
-PEGASUS_PROVIDER("MyProvider", "Sample_InstanceProviderClass", "Instance");
 
 PEGASUS_NAMESPACE_END
 

@@ -63,7 +63,6 @@ public:
         sent by the client.
         @param secretKept String containing the authentication secret that
         was sent to client as part of the challenge.
-        @param sessionKey session key assigned by the executor.
         @return true on successful authentication, false otherwise
     */
     virtual Boolean authenticate(

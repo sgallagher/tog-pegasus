@@ -1486,7 +1486,7 @@ MessageLoader::_useProcessLocale = false;
         //
 #endif
     }
-    catch(Exception& e)
+    catch(BindFailedException& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "src.Server.cimserver.SERVER_NOT_STARTED",
@@ -1500,6 +1500,25 @@ MessageLoader::_useProcessLocale = false;
 #endif
 
     //
+        // notify parent process (if there is a parent process) to terminate
+        //
+        if (daemonOption)
+                _cimServerProcess->notify_parent(1);
+
+        deleteCIMServer();
+        return 1;
+    }
+    catch(Exception& e)
+    {
+    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "src.Server.cimserver.ERROR",
+            "Error: $0", e.getMessage());
+#ifndef PEGASUS_OS_OS400
+    MessageLoaderParms parms("src.Server.cimserver.ERROR",
+                             "Error: $0", e.getMessage());
+    PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+#endif
+        //
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)

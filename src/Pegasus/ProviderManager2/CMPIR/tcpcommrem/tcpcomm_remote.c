@@ -2044,7 +2044,7 @@ static void __handle_MI_call(int socket)
     NULL,
     NULL, //&native_brokerEncFT,
     NULL, // CMPI_BrokerExt_Ftab
-//  NULL  // CMPI_BrokerMem_Ftab
+ // NULL  // CMPI_BrokerMem_Ftab
     };
     char *provider, *provider_module, *function, broker_address[256];
     comm_ticket ticket;
@@ -2138,7 +2138,10 @@ CMPI_EXPORT int PEGASUS_CMPIR_CDECL start_remote_daemon()
 {
     static int __once = 0;
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
     pegthreadOnceMutex=CreateMutex(NULL,FALSE,NULL);
+#endif
+
     CMPI_BrokerExt_Ftab->threadOnce(&__once, (void*)__launch_remote_daemon);
 
     return 0;

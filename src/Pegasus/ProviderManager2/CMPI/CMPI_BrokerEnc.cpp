@@ -747,56 +747,58 @@ extern "C" {
     CMReturn ( CMPI_RC_OK);
   }
 
-  CMPIStatus mbEncTracer      (const CMPIBroker*,int level,const char *component,const char *text,
-			      const CMPIString *string)
+  inline Uint32 mapTraceLevel(int level)
+  {
+      // There are no notion in CMPI spec about what 'level' means.
+      // So we are going to try to map . We don't want to map to LEVEL1
+      // as it requires the PEG_METHOD_ENTER and PEG_METHOD_EXIT macros.
+      switch(level)
+      {
+        case 1:
+        case 2:
+          return Tracer::LEVEL2;
+          break;
+        case 3:
+          return Tracer::LEVEL3;
+          break;
+        case 4:
+          return Tracer::LEVEL4;
+          break;
+        default:
+          return Tracer::LEVEL4;
+      }
+  }
+
+  inline const char* decideTraceString(const char *text, const CMPIString *string)
+  {
+      if (text)
+      {
+          return text;
+      }
+      return (const char*) CMGetCharsPtr(string,NULL);
+  }
+
+  CMPIStatus mbEncTracer(const CMPIBroker*,
+                         int level,
+                         const char *component,
+                         const char *text,
+                         const CMPIString *string)
   {
 	if ( !component || !(text || string))
 		  CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
 
-	String traceString;
-	Uint32 traceComponent = TRC_PROVIDERMANAGER;
-    Uint32 traceLevel = Tracer::LEVEL1;
+    // emptiness of component checked at begin of mbEncTracer
+    // don't have to expect a null pointer here
 
-    // There are no notion in CMPI spec about what 'level' means.
-	// So we are going to try to map . We don't want to map to LEVEL1
-	// as it requires the PEG_METHOD_ENTER and PEG_METHOD_EXIT macros.
-	if (level <= 2)
-			traceLevel = Tracer::LEVEL2;
-	else if (level == 3)
-			traceLevel = Tracer::LEVEL3;
-	else if (level == 4)
-			traceLevel = Tracer::LEVEL4;
+    // through the first check in mbEncTracer
+    // we know that return from decideTraceString is not null
+    PEG_TRACE( (TRC_CMPIPROVIDER, 
+               mapTraceLevel(level),
+               "%s: %s",
+               component,
+               decideTraceString(text, string))
+             );
 
-	// Next is figuring if 'component' maps to the Pegasus types;
-	{
-		Uint32 i =0;
-		Uint32 m =sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
-		for (; i < m; i++)
-		{
-			if (System::strcasecmp(component, TRACE_COMPONENT_LIST[i]) == 0)
-			{
-					traceComponent = i;
-					break;
-			}
-		}
-		// if not found, just use TRC_PROVIDERMANAGER and put the
-		// 'component' in the traceString.
-    	if ((m = i) && (traceComponent == TRC_PROVIDERMANAGER))
-		{
-			traceString=String(component);
-			traceString.append(":");
-		}
-	}
-	if (string)
-	   {
-         traceString.append( ( char*)CMGetCharsPtr(string,NULL));
-	   }
-	else
-	   {
-         traceString.append( text );
-	   }
-
-	PEG_TRACE_STRING(traceComponent, traceLevel, traceString);
     CMReturn ( CMPI_RC_OK);
   }
 #endif

@@ -129,7 +129,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "DiscardedData",
     "ProviderAgent",
     "IndicationFormatter",
-    "StatisticalData"
+    "StatisticalData",
+    "CMPIProvider"
 };
 /** Constants identifying the Trace components. These constants are used by
     the component to identify its Trace messages. The component ID needs to
@@ -193,7 +194,8 @@ enum TRACE_COMPONENT_ID
     TRC_DISCARDED_DATA,
     TRC_PROVIDERAGENT,
     TRC_IND_FORMATTER,
-    TRC_STATISTICAL_DATA
+    TRC_STATISTICAL_DATA,
+    TRC_CMPIPROVIDER
 };
 
 PEGASUS_NAMESPACE_END

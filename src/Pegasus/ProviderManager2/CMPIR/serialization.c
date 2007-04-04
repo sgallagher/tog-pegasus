@@ -149,11 +149,10 @@ static ssize_t __serialize_CMPIMsgFileHandle ( int, CMPIMsgFileHandle );
 static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle ( int, CONST CMPIBroker * );
 #endif
 
-
-
 /****************************************************************************/
 
-const struct BinarySerializerFT binarySerializerFT = {
+
+CMPI_EXPORT const struct BinarySerializerFT binarySerializerFT = {
     __serialize_UINT8,
     __deserialize_UINT8,
     __serialize_UINT16,
@@ -201,9 +200,12 @@ const struct BinarySerializerFT binarySerializerFT = {
 
 };
 
+
+
 /****************************************************************************/
 
- static ssize_t __serialize_UINT8 ( int fd, CMPIUint8 uint8 )
+
+static ssize_t __serialize_UINT8 ( int fd, CMPIUint8 uint8 )
 {
     if ( io_write_fixed_length ( fd,
                      &uint8,
@@ -1225,7 +1227,9 @@ static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle ( int fd, CONST CMPIBro
     return ((CMPIMsgFileHandle)__deserialize_UINT32 ( fd ));
 }
 
+
 #endif /* CMPI_VER_200 */
+
 
 /****************************************************************************/
 

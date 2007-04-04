@@ -47,7 +47,6 @@
 
 #include "cmpir_common.h"
 
-
 #ifndef CMPI_VER_100
 #define CMPI_VER_100
 #endif
@@ -61,7 +60,9 @@
 #endif
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
-struct  BinarySerializerFT {
+
+
+struct BinarySerializerFT {
     ssize_t (* serialize_UINT8) ( int, CMPIUint8 );
     CMPIUint8 (* deserialize_UINT8) ( int );
 
@@ -129,7 +130,11 @@ struct  BinarySerializerFT {
 
 };
 
-extern const struct BinarySerializerFT binarySerializerFT;
+#ifndef DAEMON
+CMPI_EXPORT const struct BinarySerializerFT binarySerializerFT;
+#else
+CMPI_IMPORT extern const struct BinarySerializerFT binarySerializerFT;
+#endif
 
 #endif
 

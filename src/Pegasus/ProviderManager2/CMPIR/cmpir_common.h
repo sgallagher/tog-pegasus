@@ -102,7 +102,7 @@ typedef unsigned int  Uint32;
 typedef size_t socklen_t;
 
 int gettimeofday (struct timeval *t,void * );
-
+//int getCurrentTimeZone(int&);
 #endif
 
 

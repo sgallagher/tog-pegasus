@@ -753,9 +753,9 @@ int main(int argc, char** argv)
     // Note:  since AssocClass is not specified, duplicate instances are
     //        returned.
     //
-    role;
-    resultRole;
-    resultClass;
+    role = String::EMPTY;
+    resultRole = String::EMPTY;
+    resultClass = CIMName();
     numExpectedObjects = 5;
 
     _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,

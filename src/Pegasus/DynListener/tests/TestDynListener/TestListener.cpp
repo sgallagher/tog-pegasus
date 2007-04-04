@@ -1,38 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 #include <string.h>
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/General/OptionManager.h>
+#include <Pegasus/Common/OptionManager.h>
 
 #include <Pegasus/DynListener/DynamicListener.h>
 #include <Pegasus/DynListener/DynamicListenerConfig.h>
@@ -40,26 +42,25 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+int main(int argc, char** argv)
 {
     //set logging options
-    String currentDirectory;
+    String currentDirectory = String::EMPTY;
     FileSystem::getCurrentDirectory(currentDirectory);
-
+    
     //you MUST translate slashes or the logger will fail on Windows
     FileSystem::translateSlashes(currentDirectory);
     Logger::setHomeDirectory(currentDirectory);
-
+    
     //must list these in descending order or the logger will fail
     Logger::setlogLevelMask("FATAL");
     Logger::setlogLevelMask("SEVERE");
     Logger::setlogLevelMask("WARNING");
 
-    //ATTN: Need to be able to specify a different conf file as cmdline arg
-    String configFile = "cimlistener.conf";
+    String configFile = "cimlistener.conf";  //ATTN: Need to be able to specify a different conf file as cmdline arg
 
     try
-    {
+    {   
         DynamicListenerConfig config;
 
         String test = FileSystem::getAbsolutePath("","");
@@ -79,10 +80,7 @@ int main()
         Uint32 traceLevel;
         String traceComponents;
 
-        printf(
-            "Home dir: %s\n",
-            (const char*)
-                DynamicListenerConfig::getListenerHome().getCString());
+        printf("Home dir: %s\n", (const char*)DynamicListenerConfig::getListenerHome().getCString());
 
         if (!config.lookupIntegerValue("listenerPort", listenerPort))
         {
@@ -97,9 +95,7 @@ int main()
             printf("Invalid key file path");
         }
 
-        if (!config.lookupValue(
-                 "sslCertificateFilePath",
-                 sslCertificateFilePath))
+        if (!config.lookupValue("sslCertificateFilePath", sslCertificateFilePath))
         {
             //ATTN:confirm path?
             printf("Invalid certificate file path");
@@ -119,9 +115,7 @@ int main()
 
         enableConsumerUnload = config.isTrue("enableConsumerUnload");
 
-        if (!config.lookupIntegerValue(
-                 "consumerIdleTimeout",
-                 consumerIdleTimeout))
+        if (!config.lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout))
         {
             printf("Invalid consumerIdleTimeout");
         }
@@ -131,16 +125,12 @@ int main()
             printf("Invalid directory");
         }
 
-        if (!config.lookupIntegerValue(
-                 "consumerIdleTimeout",
-                 consumerIdleTimeout))
+        if (!config.lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout))
         {
             printf("Invalid consumerIdleTimeout");
         }
 
-        if (!config.lookupIntegerValue(
-                 "shutdownTimeout",
-                 shutdownTimeout))
+        if (!config.lookupIntegerValue("shutdownTimeout", shutdownTimeout))
         {
             printf("Invalid consumerIdleTimeout");
         }
@@ -163,23 +153,18 @@ int main()
 
         //log startup options
         printf("Starting CIMListener with the following options\n");
-        printf("\tlistenerPort %u\n", listenerPort);
+        printf("\tlistenerPort %d\n", listenerPort);
         printf("\thttpsConnection %d\n", httpsConnection);
-        printf("\tsslKeyFilePath %s\n",
-               (const char*)sslKeyFilePath.getCString());
-        printf("\tsslCertificateFilePath %s\n",
-               (const char*)sslCertificateFilePath.getCString());
-        printf("\tconsumerDir %s\n",
-               (const char*)consumerDir.getCString());
-        printf("\tconsumerConfigDir %s\n",
-               (const char*)consumerConfigDir.getCString());
+        printf("\tsslKeyFilePath %s\n", (const char*)sslKeyFilePath.getCString());
+        printf("\tsslCertificateFilePath %s\n", (const char*)sslCertificateFilePath.getCString());
+        printf("\tconsumerDir %s\n", (const char*)consumerDir.getCString());
+        printf("\tconsumerConfigDir %s\n", (const char*)consumerConfigDir.getCString());
         printf("\tenableConsumerUnload %d\n", enableConsumerUnload);
-        printf("\tconsumerIdleTimeout %u\n", consumerIdleTimeout);
-        printf("\tshutdownTimeout %u\n", shutdownTimeout);
+        printf("\tconsumerIdleTimeout %d\n", consumerIdleTimeout);
+        printf("\tshutdownTimeout %d\n", shutdownTimeout);
         printf("\ttraceFilePath %s\n", (const char*)traceFile.getCString());
-        printf("\ttraceLevel %u\n", traceLevel);
-        printf("\ttraceComponents %s\n",
-               (const char*)traceComponents.getCString());
+        printf("\ttraceLevel %d\n", traceLevel);
+        printf("\ttraceComponents %s\n", (const char*)traceComponents.getCString());
         printf("\n\nType \"exit\" to shutdown the listener gracefully.\n");
 
         PEGASUS_STD(cout) << "Testing tracing\n";
@@ -202,29 +187,20 @@ int main()
             Tracer::setTraceComponents(traceComponents);
             Tracer::setTraceLevel(traceLevelArg);
 
-            PEG_TRACE_CSTRING(
-                TRC_LISTENER,
-                Tracer::LEVEL2,
-                "Testing trace LEVEL2");
-            PEG_TRACE_CSTRING(
-                TRC_LISTENER,
-                Tracer::LEVEL3,
-                "Testing trace LEVEL3");
-            PEG_TRACE_CSTRING(
-                TRC_LISTENER,
-                Tracer::LEVEL4,
-                "Testing trace LEVEL4");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Testing trace LEVEL2");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Testing trace LEVEL3");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Testing trace LEVEL4");
         }
 
         //ATTN: Need to handle SSL cases
 
         //create DynListener
-        DynamicListener listener(listenerPort,
+        DynamicListener listener(listenerPort, 
                                  consumerDir,
                                  consumerConfigDir,
                                  enableConsumerUnload,
                                  consumerIdleTimeout,
-                                 shutdownTimeout);
+                                 shutdownTimeout); 
 
         listener.start();
 
@@ -243,25 +219,19 @@ int main()
 
     } catch (OMConfigFileSyntaxError& cfs)
     {
-        printf("ConfigFileSyntaxError %s\n",
-               (const char*)cfs.getMessage().getCString());
+        printf("ConfigFileSyntaxError %s\n", (const char*)cfs.getMessage().getCString());
     } catch (OMUnrecognizedConfigFileOption& cfs)
     {
-        printf("OMUnrecognizedConfigFileOption %s\n",
-               (const char*)cfs.getMessage().getCString());
+        printf("OMUnrecognizedConfigFileOption %s\n", (const char*)cfs.getMessage().getCString());
     } catch (OMInvalidOptionValue& cfs)
     {
-        printf("OMInvalidOptionValue %s\n",
-               (const char*)cfs.getMessage().getCString());
+        printf("OMInvalidOptionValue %s\n", (const char*)cfs.getMessage().getCString());
     } catch (CIMException& ce)
     {
-        printf("CIMException %s\n",
-               (const char*)ce.getMessage().getCString());
-    }
+        printf("CIMException %s\n", (const char*)ce.getMessage().getCString());}
     catch (Exception e)
     {
-        printf("Exception %s\n",
-               (const char*)e.getMessage().getCString());
+        printf("Exception %s\n", (const char*)e.getMessage().getCString());
     }
 
     return 0;

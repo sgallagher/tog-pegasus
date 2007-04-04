@@ -132,7 +132,7 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Snmp Indication Handler failed to pack a CIM "
                 "Property into the SNMP PDU: Unknown exception.");
     }

@@ -1,54 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/AuditLogger.h>
 
 #include "TLS.h"
-
-#ifdef PEGASUS_HAS_SSL
-# define OPENSSL_NO_KRB5 1
-# include <openssl/err.h>
-# include <openssl/ssl.h>
-# include <openssl/rand.h>
-#else
-# define SSL_CTX void
-typedef void SSL_Context;
-#endif // end of PEGASUS_HAS_SSL
 
 #ifdef PEGASUS_OS_ZOS
 #include "SocketzOS_inline.h"
@@ -68,32 +58,28 @@ PEGASUS_NAMESPACE_BEGIN
 SSLSocket::SSLSocket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock,
-    const String& ipAddress)
+    ReadWriteSem * sslContextObjectLock)
    :
    _SSLConnection(0),
    _socket(socket),
    _SSLContext(sslcontext),
    _sslContextObjectLock(sslContextObjectLock),
-   _ipAddress(ipAddress),
+   _SSLCallbackInfo(0),
    _certificateVerified(false)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
-
-    SSL* sslConnection;
-    SharedPtr<X509_STORE, FreeX509STOREPtr> tmpCrlStore;
 
     _sslReadErrno = 0;
 
     //
     // create the SSLConnection area
     //
-    if (!(sslConnection = SSL_new(_SSLContext->_rep->getContext())))
+    if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
     {
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
             "Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA",
-            "Could not get SSL Connection Area.");
+            "Could not get SSL Connection Area");
         throw SSLException(parms);
     }
 
@@ -113,16 +99,16 @@ SSLSocket::SSLSocket(
         //
         // Create a new callback info for each new connection
         //
-#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-        tmpCrlStore = _SSLContext->_rep->getCRLStore();
-#endif
         _SSLCallbackInfo.reset(new SSLCallbackInfo(
-            _SSLContext->getSSLCertificateVerifyFunction(),
-            tmpCrlStore.get(),
-            _ipAddress ));
+            _SSLContext->getSSLCertificateVerifyFunction()
+#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+            , _SSLContext->getCRLStore()));
+#else
+            ));
+#endif
 
         if (SSL_set_ex_data(
-                sslConnection,
+                _SSLConnection,
                 SSLCallbackInfo::SSL_CALLBACK_INDEX,
                 _SSLCallbackInfo.get()))
         {
@@ -131,30 +117,27 @@ SSLSocket::SSLSocket(
         }
         else
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                 "--->SSL: Error setting callback info");
         }
 
         //
         // and connect the active socket with the ssl operation
         //
-        if (!(SSL_set_fd(sslConnection, _socket) ))
+        if (!(SSL_set_fd(_SSLConnection, _socket) ))
         {
             PEG_METHOD_EXIT();
             MessageLoaderParms parms(
                 "Common.TLS.COULD_NOT_LINK_SOCKET",
-                "Could not link socket to SSL Connection.");
+                "Could not link socket to SSL Connection");
             throw SSLException(parms);
         }
     }
     catch (...)
     {
-        SSL_free(sslConnection);
+        SSL_free(_SSLConnection);
         throw;
     }
-
-    _SSLConnection = sslConnection;
-    _crlStore = new SharedPtr<X509_STORE, FreeX509STOREPtr>(tmpCrlStore);
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");
 
@@ -165,9 +148,7 @@ SSLSocket::~SSLSocket()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::~SSLSocket()");
 
-    close();
-    delete static_cast<SharedPtr<X509_STORE, FreeX509STOREPtr>*>(_crlStore);
-    SSL_free(static_cast<SSL*>(_SSLConnection));
+    SSL_free(_SSLConnection);
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Deleted SSL socket");
 
@@ -175,35 +156,17 @@ SSLSocket::~SSLSocket()
 }
 
 
-Boolean SSLSocket::incompleteSecureReadOccurred(Sint32 retCode)
+Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
 {
-    Sint32 err = SSL_get_error(static_cast<SSL*>(_SSLConnection), retCode);
+    Sint32 err = SSL_get_error(_SSLConnection, retCode);
 
-    Boolean isIncompleteRead =
-        ((err == SSL_ERROR_SYSCALL) &&
-        (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
-        (err == SSL_ERROR_WANT_READ) ||
-        (err == SSL_ERROR_WANT_WRITE);
+    PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+        "In SSLSocket::incompleteReadOccurred : err = %d", err));
 
-    if (Tracer::isTraceOn())
-    {
-        unsigned long rc = ERR_get_error ();
-        char buff[256];
-        ERR_error_string_n (rc, buff, sizeof (buff)); // added in OpenSSL 0.9.6
-
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-            "In SSLSocket::incompleteSecureReadOccurred : err = %d %s",
-            err, buff));
-
-        if (!isIncompleteRead && retCode < 0)
-        {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL4,
-                "In SSLSocket::incompleteSecureReadOccurred : err = %d %s",
-                err, buff));
-        }
-    }
-
-    return isIncompleteRead;
+    return ((err == SSL_ERROR_SYSCALL) &&
+            (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
+           (err == SSL_ERROR_WANT_READ) ||
+           (err == SSL_ERROR_WANT_WRITE);
 }
 
 Sint32 SSLSocket::read(void* ptr, Uint32 size)
@@ -213,8 +176,8 @@ Sint32 SSLSocket::read(void* ptr, Uint32 size)
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-        SSL_state_string_long(static_cast<SSL*>(_SSLConnection)));
-    rc = SSL_read(static_cast<SSL*>(_SSLConnection), (char *)ptr, size);
+        SSL_state_string_long(_SSLConnection));
+    rc = SSL_read(_SSLConnection, (char *)ptr, size);
 
     _sslReadErrno = errno;
 
@@ -236,9 +199,8 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
   {
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (w) ");
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-        SSL_state_string_long(static_cast<SSL*>(_SSLConnection)));
-    bytesWritten =
-        SSL_write(static_cast<SSL*>(_SSLConnection), (char *)ptr, size);
+                     SSL_state_string_long(_SSLConnection) );
+    bytesWritten = SSL_write(_SSLConnection, (char *)ptr, size);
 
     // Some data written this cycle ?
     // Add it to the total amount of written data.
@@ -310,10 +272,15 @@ void SSLSocket::close()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::close()");
 
-    SSL_shutdown(static_cast<SSL*>(_SSLConnection));
+    SSL_shutdown(_SSLConnection);
     Socket::close(_socket);
 
     PEG_METHOD_EXIT();
+}
+
+void SSLSocket::enableBlocking()
+{
+    Socket::enableBlocking(_socket);
 }
 
 void SSLSocket::disableBlocking()
@@ -336,21 +303,22 @@ Sint32 SSLSocket::accept()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::accept()");
 
-    SSL* sslConnection = static_cast<SSL*>(_SSLConnection);
     Sint32 ssl_rc,ssl_rsn;
 
     //ATTN: these methods get implicitly done with the SSL_accept call
-    //SSL_do_handshake(sslConnection);
-    //SSL_set_accept_state(sslConnection);
+    //SSL_do_handshake(_SSLConnection);
+    //SSL_set_accept_state(_SSLConnection);
 
     // Make sure the SSLContext object is not updated during this operation.
     ReadLock rlock(*_sslContextObjectLock);
 
-    ssl_rc = SSL_accept(sslConnection);
+    ssl_rc = SSL_accept(_SSLConnection);
 
     if (ssl_rc < 0)
     {
-        ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
+        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
+            "---> SSL: Not accepted %d", ssl_rsn));
 
         if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
             (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -360,55 +328,17 @@ Sint32 SSLSocket::accept()
         }
         else
         {
-            if (Tracer::isTraceOn())
-            {
-                unsigned long rc = ERR_get_error ();
-                char buff[256];
-                // added in OpenSSL 0.9.6:
-                ERR_error_string_n(rc, buff, sizeof(buff));
-                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "---> SSL: Not accepted %d %s client IP address : %s",
-                    ssl_rsn, buff, (const char*)_ipAddress.getCString() ));
-            }
-
-            //
-            // If there was a verification error, create a audit log entry.
-            //
-            if (!(ssl_rsn == SSL_ERROR_SYSCALL ||
-                  ssl_rsn == SSL_ERROR_ZERO_RETURN) &&
-                _SSLContext->isPeerVerificationEnabled())
-            {
-                Array<SSLCertificateInfo*> certs =
-                    getPeerCertificateChain();
-                if (certs.size() > 0)
-                {
-                    SSLCertificateInfo* clientCert = certs[0];
-                    PEGASUS_ASSERT(clientCert != NULL);
-
-                    char serialNumberString[32];
-                    sprintf(serialNumberString, "%lu",
-                        (unsigned long)clientCert->getSerialNumber());
-
-                    PEG_AUDIT_LOG(logCertificateBasedAuthentication(
-                        clientCert->getIssuerName(),
-                        clientCert->getSubjectName(),
-                        serialNumberString,
-                        _ipAddress,
-                        false));
-                }
-            }
             PEG_METHOD_EXIT();
             return -1;
         }
     }
     else if (ssl_rc == 0)
     {
-       PEG_TRACE((
-           TRC_SSL,
-           Tracer::LEVEL1,
-           "Shutdown SSL_accept(). Error Code:  %d  Error string: %s",
-           SSL_get_error(sslConnection, ssl_rc),
-           ERR_error_string(ssl_rc, NULL)));
+       ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+       PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "Shutdown SSL_accept()");
+       PEG_TRACE((TRC_SSL, Tracer::LEVEL4, "Error Code:  %d", ssl_rsn ));
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+           "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
 
        PEG_METHOD_EXIT();
        return -1;
@@ -422,36 +352,39 @@ Sint32 SSLSocket::accept()
     //
     if (_SSLContext->isPeerVerificationEnabled())
     {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
             "Attempting to certify client");
 
         //
         // get client's certificate
         //
-        Array<SSLCertificateInfo*> certs = getPeerCertificateChain();
-        if (certs.size() > 0)
+        X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
+        if (client_cert != NULL)
         {
-            SSLCertificateInfo* clientCert = certs[0];
-            PEGASUS_ASSERT(clientCert != NULL);
-
             //
-            // get certificate verification result and create a audit log entry.
+            // get certificate verification result
             //
-            int verifyResult = SSL_get_verify_result(sslConnection);
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+            int verifyResult = SSL_get_verify_result(_SSLConnection);
+            PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
                 "Verification Result:  %d", verifyResult ));
-            _certificateVerified = (verifyResult == X509_V_OK);
 
-            char serialNumberString[32];
-            sprintf(serialNumberString, "%lu",
-                (unsigned long)clientCert->getSerialNumber());
+            if (verifyResult == X509_V_OK)
+            {
+                PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
+                    "---> SSL: Client Certificate verified.");
+                //
+                // set flag to indicate that the certificate was verified in
+                // the trust store.
+                //
+                _certificateVerified = true;
+            }
+            else
+            {
+                PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
+                     "---> SSL: Client Certificate not verified");
+            }
 
-            PEG_AUDIT_LOG(logCertificateBasedAuthentication(
-                clientCert->getIssuerName(),
-                clientCert->getSubjectName(),
-                serialNumberString,
-                _ipAddress,
-                _certificateVerified));
+            X509_free(client_cert);
         }
         else
         {
@@ -462,129 +395,59 @@ Sint32 SSLSocket::accept()
     else
     {
         PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
-            "---> SSL: Client certificate verification disabled");
+            "---> SSL: Client certification disabled");
     }
 
     PEG_METHOD_EXIT();
     return 1;
 }
 
-Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
+Sint32 SSLSocket::connect()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::connect()");
 
-    PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-        "Connection timeout in milliseconds is : %d", timeoutMilliseconds));
+    Sint32 ssl_rc,ssl_rsn;
 
-    SSL* sslConnection = static_cast<SSL*>(_SSLConnection);
-    SSL_set_connect_state(sslConnection);
+    SSL_set_connect_state(_SSLConnection);
 
-    while (1)
+redo_connect:
+
+    ssl_rc = SSL_connect(_SSLConnection);
+
+    if (ssl_rc < 0)
     {
-        int ssl_rc = SSL_connect(sslConnection);
+       ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+           "---> SSL: Not connected " + ssl_rsn);
 
-        if (ssl_rc > 0)
-        {
-            // Connected!
-            break;
-        }
-
-        if (ssl_rc == 0)
-        {
-            PEG_TRACE((
-                TRC_SSL,
-                Tracer::LEVEL1,
-                "---> SSL: Shutdown SSL_connect() failed. Error string: %s",
-                ERR_error_string(ssl_rc, NULL)));
-
-            PEG_METHOD_EXIT();
-            return -1;
-        }
-
-        // Error case:  ssl_rc < 0
-
-        int ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
-
-        if ((ssl_rsn == SSL_ERROR_SYSCALL) &&
-            ((errno == EAGAIN) || (errno == EINTR)))
-        {
-            // Temporary error; retry the SSL_connect()
-            continue;
-        }
-
-        if ((ssl_rsn != SSL_ERROR_WANT_READ) &&
-            (ssl_rsn != SSL_ERROR_WANT_WRITE))
-        {
-            // Error, connection failed
-            if (Tracer::isTraceOn())
-            {
-                unsigned long rc = ERR_get_error ();
-                char buff[256];
-                // added in OpenSSL 0.9.6:
-                ERR_error_string_n(rc, buff, sizeof(buff));
-                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "---> SSL: Not connected %d %s", ssl_rsn, buff));
-            }
-
-            PEG_METHOD_EXIT();
-            return -1;
-        }
-
-        // Wait until the socket is ready for reading or writing (as
-        // appropriate) and then retry the SSL_connect()
-
-        fd_set fd;
-        FD_ZERO(&fd);
-        FD_SET(_socket, &fd);
-        struct timeval timeoutValue =
-            { timeoutMilliseconds/1000, timeoutMilliseconds%1000*1000 };
-        int selectResult = -1;
-
-        if (ssl_rsn == SSL_ERROR_WANT_READ)
-        {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "---> SSL: Retry WANT_READ");
-            PEGASUS_RETRY_SYSTEM_CALL(
-                select(FD_SETSIZE, &fd, NULL, NULL, &timeoutValue),
-                selectResult);
-        }
-        else    // (ssl_rsn == SSL_ERROR_WANT_WRITE)
-        {
-            PEGASUS_ASSERT(ssl_rsn == SSL_ERROR_WANT_WRITE);
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "---> SSL: Retry WANT_WRITE");
-            PEGASUS_RETRY_SYSTEM_CALL(
-                select(FD_SETSIZE, NULL, &fd, NULL, &timeoutValue),
-                selectResult);
-        }
-
-        // Check the result of select.
-        if (selectResult == 0)
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "---> SSL: Failed to connect, connection timed out.");
-            PEG_METHOD_EXIT();
-            return -1;
-        }
-        else if (selectResult == PEGASUS_SOCKET_ERROR)
-        {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "---> SSL: Failed to connect, select error, return code = %d",
-                selectResult));
-            PEG_METHOD_EXIT();
-            return -1;
-        }
-        // else retry the SSL_connect()
+       if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
+           (ssl_rsn == SSL_ERROR_WANT_WRITE))
+       {
+           goto redo_connect;
+       }
+       else
+       {
+           PEG_METHOD_EXIT();
+           return -1;
+       }
     }
-
+    else if (ssl_rc == 0)
+    {
+       PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
+           "---> SSL: Shutdown SSL_connect()");
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+           "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
+       PEG_METHOD_EXIT();
+       return -1;
+    }
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 
     if (_SSLContext->isPeerVerificationEnabled())
     {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
            "Attempting to verify server certificate.");
 
-        X509* server_cert = SSL_get_peer_certificate(sslConnection);
+        X509* server_cert = SSL_get_peer_certificate(_SSLConnection);
         if (server_cert != NULL)
         {
             //
@@ -597,14 +460,14 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
             // transaction.  Otherwise, the handshake was already terminated.
             //
 
-            if (SSL_get_verify_result(sslConnection) == X509_V_OK)
+            if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
             {
-                 PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                 PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                      "--->SSL: Server Certificate verified.");
             }
             else
             {
-                PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                      "--->SSL: Server Certificate not verified, but the "
                          "callback overrode the default error.");
             }
@@ -613,7 +476,7 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
         }
         else
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                 "-->SSL: Server not certified, no certificate received.");
             PEG_METHOD_EXIT();
             return -1;
@@ -621,12 +484,12 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
             "---> SSL: Server certification disabled");
     }
 
     PEG_METHOD_EXIT();
-    return 1;
+    return ssl_rc;
 }
 
 Boolean SSLSocket::isPeerVerificationEnabled()
@@ -659,31 +522,27 @@ Boolean SSLSocket::isCertificateVerified()
 
 
 MP_Socket::MP_Socket(SocketHandle socket)
- : _socket(socket), _isSecure(false),
-   _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
+ : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock,
-    const String& ipAddress)
+    ReadWriteSem * sslContextObjectLock)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
     {
         _isSecure = true;
         _sslsock = new SSLSocket(
-            socket, sslcontext, sslContextObjectLock, ipAddress);
+            socket, sslcontext, sslContextObjectLock);
     }
     else
     {
         _isSecure = false;
         _socket = socket;
     }
-
-    // PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS
-    // seconds are the default for client timeouts
-    _socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
+     // 20 seconds are the default for client timeouts
+    _socketWriteTimeout = 20;
     PEG_METHOD_EXIT();
 }
 
@@ -699,11 +558,11 @@ MP_Socket::~MP_Socket()
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
-Boolean MP_Socket::incompleteSecureReadOccurred(Sint32 retCode)
+Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
 {
     if (_isSecure)
-        return _sslsock->incompleteSecureReadOccurred(retCode);
-    return false;
+        return _sslsock->incompleteReadOccurred(retCode);
+    return (retCode <=  0);
 }
 
 SocketHandle MP_Socket::getSocket()
@@ -738,6 +597,14 @@ void MP_Socket::close()
         Socket::close(_socket);
 }
 
+void MP_Socket::enableBlocking()
+{
+    if (_isSecure)
+        _sslsock->enableBlocking();
+    else
+        Socket::enableBlocking(_socket);
+}
+
 void MP_Socket::disableBlocking()
 {
     if (_isSecure)
@@ -755,10 +622,10 @@ Sint32 MP_Socket::accept()
     return 1;
 }
 
-Sint32 MP_Socket::connect(Uint32 timeoutMilliseconds)
+Sint32 MP_Socket::connect()
 {
     if (_isSecure)
-        if (_sslsock->connect(timeoutMilliseconds) < 0) return -1;
+        if (_sslsock->connect() < 0) return -1;
     return 0;
 }
 
@@ -805,29 +672,23 @@ PEGASUS_NAMESPACE_BEGIN
 #ifndef PEGASUS_OS_ZOS
 
 MP_Socket::MP_Socket(SocketHandle socket)
- : _socket(socket), _isSecure(false),
-   _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
+ : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
-    SSLContext *,
-    ReadWriteSem *,
-    const String&)
- : _socket(socket), _isSecure(false),
-   _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
+    SSLContext * sslcontext,
+    ReadWriteSem * sslContextObjectLock)
+ : _socket(socket), _isSecure(false), _socketWriteTimeout(20) {}
 
 #endif
 
-MP_Socket::~MP_Socket()
-{
-    close();
-}
+MP_Socket::~MP_Socket() {}
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
-Boolean MP_Socket::incompleteSecureReadOccurred(Sint32)
+Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
 {
-    return false;
+   return (retCode <= 0);
 }
 
 SocketHandle MP_Socket::getSocket()
@@ -848,6 +709,11 @@ Sint32 MP_Socket::write(const void * ptr, Uint32 size)
 void MP_Socket::close()
 {
     Socket::close(_socket);
+}
+
+void MP_Socket::enableBlocking()
+{
+    Socket::enableBlocking(_socket);
 }
 
 void MP_Socket::disableBlocking()
@@ -877,11 +743,6 @@ Sint32 MP_Socket::accept()
     }
     else
     {
-        // ********************************************************************
-        // If the socket is a UNIX Domain socket on z/OS, the local security
-        // credentials are read form the socket.
-        // ********************************************************************
-        LocalSocket_zOS_query();
         PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "---> Normal HTTP processing.");
         rc = 1;
@@ -891,7 +752,7 @@ Sint32 MP_Socket::accept()
 #endif
 }
 
-Sint32 MP_Socket::connect(Uint32) { return 0; }
+Sint32 MP_Socket::connect() { return 0; }
 
 Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +47,7 @@ typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
 static QueueTable _queueTable(256);
 static Mutex q_table_mut ;
 
-static IDFactory _qidFactory;
+static IDFactory _qidFactory(CIMOM_Q_ID + 1);
 
 Uint32 MessageQueue::getNextQueueId()
 {
@@ -54,11 +56,15 @@ Uint32 MessageQueue::getNextQueueId()
 
 void MessageQueue::putQueueId(Uint32 queueId)
 {
-    _qidFactory.putID(queueId);
+    if (queueId != CIMOM_Q_ID)
+        _qidFactory.putID(queueId);
 }
 
-MessageQueue::MessageQueue(const char* name)
-   : _queueId(getNextQueueId())
+MessageQueue::MessageQueue(
+    const char* name,
+    Boolean async,
+    Uint32 queueId)
+   : _queueId(queueId), _capabilities(0), _async(async)
 {
     //
     // Copy the name:
@@ -73,7 +79,7 @@ MessageQueue::MessageQueue(const char* name)
     strcpy(_name, name);
 
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::MessageQueue  name = %s, queueId = %u", name, _queueId));
+        "MessageQueue::MessageQueue  name = %s, queueId = %u", name, queueId));
 
     //
     // Insert into queue table:
@@ -90,9 +96,7 @@ MessageQueue::~MessageQueue()
     // ATTN-A: thread safety!
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::~MessageQueue()");
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::~MessageQueue queueId = %i, name = %s",
-        _queueId,
-        _name));
+        "MessageQueue::~MessageQueue queueId = %i, name = %s", _queueId, _name));
 
     {
         AutoMutex autoMut(q_table_mut);
@@ -117,8 +121,11 @@ void MessageQueue::enqueue(Message* message)
     PEGASUS_ASSERT(message != 0);
 
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "Queue name: [%s], Message: [%s]",
-        getQueueName(),
+        "Queue name: %s",
+        getQueueName()));
+
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+        "Message: [%s]",
         MessageTypeToString(message->getType())));
 
     _messageList.insert_back(message);
@@ -135,11 +142,6 @@ Message* MessageQueue::dequeue()
 
     PEG_METHOD_EXIT();
     return message;
-}
-
-Boolean MessageQueue::isActive()
-{
-    return true;
 }
 
 const char* MessageQueue::getQueueName() const
@@ -160,7 +162,7 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId)
 
     // Not found!
 
-    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::lookup failure queueId = %u", queueId));
 
     return 0;
@@ -183,7 +185,7 @@ MessageQueue* MessageQueue::lookup(const char *name)
         }
     }
 
-    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::lookup failure - name = %s", name));
 
     return 0;

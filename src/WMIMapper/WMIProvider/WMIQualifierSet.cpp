@@ -1,39 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:    Barbara Packard (barbara_packard@hp.com)
+// Modified By:	Barbara Packard (barbara_packard@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
 
@@ -46,72 +48,70 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIQualifierSet::WMIQualifierSet(const CIMQualifierList & cimQualifierList)
+WMIQualifierSet::WMIQualifierSet(const CIMQualifierList & cimQualifierList) : CIMQualifierList(cimQualifierList)
 {
-    cimQualifierList.cloneTo(*this);
 }
 
 WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 {
-    HRESULT hr;
-    String    sMessage;
+	HRESULT hr;
+	String	sMessage;
 
-    CComBSTR     bsName;    // of the qualifier
-    CComVariant     vValue;    // of the qualifier
-    long         lFlavor;    // of the qualifier
-    CIMQualifier qualifier;
+	CComBSTR	 bsName;	// of the qualifier
+	CComVariant	 vValue;	// of the qualifier
+	long		 lFlavor;	// of the qualifier
+	CIMQualifier qualifier;
+	
+ 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQualifierSet::WMIQualifierSet");
 
-     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQualifierSet::WMIQualifierSet");
+	hr = pObject->BeginEnumeration(0);
+	sMessage = "BeginEnumeration()";
 
-    hr = pObject->BeginEnumeration(0);
-    sMessage = "BeginEnumeration()";
+	if (SUCCEEDED(hr))
+	{
+		sMessage = "Next()";
+		hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
+	}
 
-    if (SUCCEEDED(hr))
-    {
-        sMessage = "Next()";
-        hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
-    }
+	// process each qualifier
+	while (SUCCEEDED(hr))
+	{
+		if (WBEM_S_NO_MORE_DATA == hr)
+		{
+			break;
+		}
 
-    // process each qualifier
-    while (SUCCEEDED(hr))
-    {
-        if (WBEM_S_NO_MORE_DATA == hr)
-        {
-            break;
-        }
+		try
+		{
+			add(WMIQualifier(bsName, vValue, lFlavor));
+		}
+		catch (...)
+		{
+			bsName.Empty();
+			vValue.Clear();
 
-        try
-        {
-            add(WMIQualifier(bsName, vValue, lFlavor));
-        }
-        catch (...)
-        {
-            bsName.Empty();
-            vValue.Clear();
+			throw CIMException(CIM_ERR_FAILED);
+		}
 
-            throw CIMException(CIM_ERR_FAILED);
-        }
+		bsName.Empty();
+		vValue.Clear();
 
-        bsName.Empty();
-        vValue.Clear();
+		hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
+	}
+	
+	bsName.Empty();
+	vValue.Clear();
+	pObject->EndEnumeration();
 
-        hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
-    }
+	if (FAILED(hr))
+	{
+		PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+			"WMIQualifierSet::WMIQualifierSet - %s result is %x", sMessage, hr));
+		
+		throw CIMException(CIM_ERR_FAILED);
+	}
 
-    bsName.Empty();
-    vValue.Clear();
-    pObject->EndEnumeration();
-
-    if (FAILED(hr))
-    {
-        PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL1,
-            "WMIQualifierSet::WMIQualifierSet - %s result is %x",
-            sMessage, hr));
-
-        throw CIMException(CIM_ERR_FAILED);
-    }
-
-    PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

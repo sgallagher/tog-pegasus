@@ -1,33 +1,34 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -38,8 +39,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
-//  namespace. There is a test on each operation that returns
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
+//  namespace. There is a test on each operation that returns 
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -49,7 +50,6 @@
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"
-#include <Pegasus/Common/ArrayIterator.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -91,7 +91,7 @@ static const CIMName PG_NAMESPACE_PROPERTY_PARENTNAMESPACE(
 Array<CIMInstance> InteropProvider::enumNamespaceInstances()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::enumNamespaceInstances()");
+        "InteropProvider::_getInstancesCIMNamespace()");
 
     Array<CIMNamespaceName> namespaceNames = repository->enumerateNameSpaces();
     Array<CIMInstance> instanceArray;
@@ -115,7 +115,7 @@ Array<CIMInstance> InteropProvider::enumNamespaceInstances()
 Array<CIMInstance> InteropProvider::enumNamespaceInManagerInstances()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::enumNamespaceInManagerInstances()");
+        "InteropProvider::buildInstancesNamespaceInManager");
 
     Array<CIMInstance> namespaceInstances = enumNamespaceInstances();
 
@@ -126,14 +126,14 @@ Array<CIMInstance> InteropProvider::enumNamespaceInManagerInstances()
 
     CIMInstance instanceskel = buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER, true, targetClass);
+        PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER, targetClass);
     // Build and instance for each namespace instance.
     for (Uint32 i = 0 ; i < namespaceInstances.size() ; i++)
     {
         CIMInstance instance = instanceskel.clone();
         setPropertyValue(instance, PROPERTY_ANTECEDENT, objectManagerPath);
         setPropertyValue(instance, PROPERTY_DEPENDENT,
-            namespaceInstances[i].getPath());
+            namespaceInstances[i].getPath()); 
 
         CIMObjectPath objPath = instance.buildPath(targetClass);
         objPath.setHost(hostName);
@@ -154,12 +154,12 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     const String & nameSpace)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::buildNamespaceInstance()");
+        "InteropProvider::buildInstancePGNamespace");
 
     CIMClass targetClass;
     CIMInstance instance = buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PGNAMESPACE,
-        true, targetClass);
+        targetClass);
 
     setCommonKeys(instance);
 
@@ -199,8 +199,8 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     //
     CIMRepository::NameSpaceAttributes attributes;
     repository->getNameSpaceAttributes(nameSpace, attributes);
-    String parent;
-    String name;
+    String parent = String::EMPTY;
+    String name = String::EMPTY;
     Boolean shareable = false;
     Boolean updatesAllowed = true;
     for (CIMRepository::NameSpaceAttributes::Iterator i = attributes.start();
@@ -238,13 +238,6 @@ CIMInstance InteropProvider::buildNamespaceInstance(
         {
             parent=value;
         }
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-        else if (String::equalNoCase(key,"remoteInfo"))
-        {
-            //ATTN: remoteInfo property is not part of PG_Namespace class,
-            // add the property to PG_Namespace instance once avilable.
-        }
-#endif
         else
         {
             PEG_METHOD_EXIT();
@@ -265,7 +258,7 @@ CIMInstance InteropProvider::buildNamespaceInstance(
 
     // ParentNamespace
     setPropertyValue(instance, PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, parent);
-    setPropertyValue(instance, PG_NAMESPACE_PROPERTY_NAME, name);
+	  setPropertyValue(instance, PG_NAMESPACE_PROPERTY_NAME, name);
 
     CIMObjectPath objPath = instance.buildPath(targetClass);
     objPath.setHost(hostName);
@@ -275,42 +268,9 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     return instance;
 }
 
-CIMInstance InteropProvider::getNameSpaceInstance(
-    const CIMObjectPath & ref)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "getNameSpaceInstance()");
-    Array<CIMKeyBinding> keyBindings = ref.getKeyBindings();
-    ConstArrayIterator<CIMKeyBinding> keyIter(keyBindings);
-    String name;
-
-    for (Uint32 i = 0; i < keyIter.size(); i++)
-    {
-        if (keyIter[i].getName().equal(CIM_NAMESPACE_PROPERTY_NAME))
-        {
-            name = keyIter[i].getValue();
-            break;
-        }
-    }
-
-    if(repository->nameSpaceExists(name)) 
-    {
-        CIMInstance newInst = buildNamespaceInstance(name);
-        if( newInst.getPath() != ref )
-        {
-            throw CIMObjectNotFoundException(ref.toString());
-        }
-        PEG_METHOD_EXIT();
-        return newInst;
-    }
-
-    PEG_METHOD_EXIT();
-    throw CIMObjectNotFoundException(ref.toString());
-}
-
 //
 // Function that takes an instance of the CIM_Namespace class, checks whether
-// the key properties are present,
+// the key properties are present, 
 //
 String buildNamespacePath(
     CIMObjectPath & namespacePath,
@@ -318,7 +278,7 @@ String buildNamespacePath(
     const String & objectManagerName)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "buildNamespacePath()");
+        "InteropProvider::buildNamespacePath");
 
     unsigned int propIndex = PEG_NOT_FOUND;
     CIMName propertyName;
@@ -359,9 +319,8 @@ String buildNamespacePath(
 
     if(propIndex == PEG_NOT_FOUND)
     {
-        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL1,
-            "Invalid CIM_Namespace Key Property %s",
-            (const char*)propertyName.getString().getCString()));
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+            "Invalid CIM_Namespace Key Property " +  propertyName.getString());
         PEG_METHOD_EXIT();
         throw CIMInvalidParameterException(
             "Invalid CIM_Namespace key property: " + propertyName.getString());
@@ -415,7 +374,7 @@ CIMNamespaceName validateNamespaceKeys(
     const String & objectManagerName)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "validateNamespaceKeys()");
+        "InteropProvider::validatePGNamespaceKeys");
 
     CIMName propertyName;
     if(!validateRequiredProperty(
@@ -468,8 +427,7 @@ CIMNamespaceName validateNamespaceKeys(
     }
 
     PEG_METHOD_EXIT();
-    return CIMNamespaceName(
-        getKeyValue(objectPath, CIM_NAMESPACE_PROPERTY_NAME));
+    return CIMNamespaceName(getKeyValue(objectPath, CIM_NAMESPACE_PROPERTY_NAME));
 }
 
 void InteropProvider::deleteNamespace(
@@ -490,10 +448,13 @@ void InteropProvider::deleteNamespace(
 
     repository->deleteNameSpace(deleteNamespaceName);
 
-    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Namespace = %s successfully deleted.",
-        (const char*)deleteNamespaceName.getString().getCString()));
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Namespace = " + deleteNamespaceName.getString() +
+            " successfully deleted.");
 
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "Interop Provider Delete Namespace: $0",
+        deleteNamespaceName.getString());
     PEG_METHOD_EXIT();
 }
 
@@ -511,54 +472,69 @@ CIMObjectPath InteropProvider::createNamespace(
         newInstanceReference, namespaceInstance, objectManagerName);
 
     // Create the new namespace
-
-    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Namespace = %s to be created.",
-        (const char*)newNamespaceName.getString().getCString()));
-
-    CIMRepository::NameSpaceAttributes attributes;
-
-    // Set shareable attribute to "false" if property is not present
-    if (getPropertyValue(namespaceInstance,
-        PG_NAMESPACE_PROPERTY_ISSHAREABLE, false))
+    try
     {
-        attributes.insert("shareable", "true");
-    }
-    else
-    {
-        attributes.insert("shareable", "false");
-    }
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+            "Namespace = " + newNamespaceName.getString() +
+                " to be created.");
 
-    // Set updatesAllowed attribute to "false" if property is not present
-    if (getPropertyValue(namespaceInstance,
-        PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, false))
-    {
-        attributes.insert("updatesAllowed", "true");
-    }
-    else
-    {
-        attributes.insert("updatesAllowed", "false");
-    }
+        CIMRepository::NameSpaceAttributes attributes;
 
-    // Set the parent attribute if the property is present, but don't set
-    // it at all otherwise.
-    String parent = getPropertyValue(namespaceInstance,
-        PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, String::EMPTY);
-    if (parent != String::EMPTY)
-        attributes.insert("parent",parent);
+        // Set shareable attribute to "false" if property is not present
+        Boolean shareable = false;
+        if(getPropertyValue(namespaceInstance,
+            PG_NAMESPACE_PROPERTY_ISSHAREABLE, false))
+        {
+            attributes.insert("shareable", "true");
+        }
+        else
+        {
+            attributes.insert("shareable", "false");
+        }
 
-    //
-    // Create the namespace with the retrieved attributes.
-    //
-    repository->createNameSpace(newNamespaceName, attributes);
-  
-    PEG_TRACE((
-        TRC_CONTROLPROVIDER,
-        Tracer::LEVEL4,
-        "Namespace %s: Parent: %s"
-            "  successfully created.",
-        (const char*) newNamespaceName.getString().getCString(),
-        (const char*) parent.getCString()));
+        // Set updatesAllowed attribute to "false" if property is not present
+        Boolean updatesAllowed = false;
+        if (getPropertyValue(namespaceInstance,
+            PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, false))
+        {
+            attributes.insert("updatesAllowed", "true");
+        }
+        else
+        {
+            attributes.insert("updatesAllowed", "false");
+        }
+
+        // Set the parent attribute if the property is present, but don't set
+        // it at all otherwise.
+        String parent = getPropertyValue(namespaceInstance,
+            PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, String::EMPTY);
+        if (parent != String::EMPTY)
+            attributes.insert("parent",parent);
+
+        //
+        // Create the namespace with the retrieved attributes.
+        //
+        repository->createNameSpace(newNamespaceName, attributes);
+
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+            "Namespace = " + newNamespaceName.getString() +
+                " successfully created.");
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "Create Namespace: Shareable = $0, Updates allowed: $1,  Parent: $2",
+            newNamespaceName.getString(), shareable? 
+                    "true" : "false", shareable? "true" : "false", parent );
+
+    }
+    catch(const CIMException&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
+    catch(const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
 
     return newInstanceReference;
 }

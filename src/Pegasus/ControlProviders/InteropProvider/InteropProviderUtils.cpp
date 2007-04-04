@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,8 +39,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
-//  namespace. There is a test on each operation that returns
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
+//  namespace. There is a test on each operation that returns 
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -66,14 +68,12 @@
 
 #include <stdlib.h>
 
-//The following includes are needed for gethostbyname and AF_INET6
+//The following include is needed for gethostbyname
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <objbase.h>
-#include <winsock2.h>
 #else
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <sys/socket.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -85,6 +85,30 @@ PEGASUS_NAMESPACE_BEGIN
  *                                                             *
  ***************************************************************/
 
+const char * boolToString(Boolean x)
+{
+    return (x ? "true" : "false");
+}
+
+//
+// Utility function used to produce trace/logging statements
+//
+String propertyListToString(const CIMPropertyList& pl)
+{
+    if(pl.isNull())
+        return "NULL";
+    else if(pl.size() == 0)
+        return "EMPTY";
+
+    String tmp;
+    for (Uint32 i = 0; i < pl.size() ; i++)
+    {
+        if (i > 0)
+            tmp.append(", ");
+        tmp.append(pl[i].getString());
+    }
+    return tmp;
+}
 
 //
 // function that creates an object path given a class definition, an
@@ -128,16 +152,22 @@ bool namespaceSupported(const CIMObjectPath & path)
     // return;
     if(path.getNameSpace().getString() == PEGASUS_NAMESPACENAME_INTEROP)
       return true;
-    //// If this is ever reinstalled please review which Exception should
-    //// be used. Not clear that NotSupported is correct
+
     throw CIMNotSupportedException(path.getClassName().getString() +
       " in namespace " + path.getNameSpace().getString());
-
+    
     return false;
 }
 */
 
-// Normalize the instance by setting the complete path for the instance.
+//
+// Normalize the instance by setting the complete path for the instance and
+// executing the instance filter to set the qualifiers, classorigin, and
+// property list in accordance with the input.  Note that this can only remove
+// characteristics, except for the path completion, so that it expects
+// instances with qualifiers, class origin, and a complete set of properties
+// already present in the instance.
+//
 void normalizeInstance(CIMInstance& instance, const CIMObjectPath& path,
                        Boolean includeQualifiers, Boolean includeClassOrigin,
                        const CIMPropertyList& propertyList)
@@ -147,6 +177,9 @@ void normalizeInstance(CIMInstance& instance, const CIMObjectPath& path,
     p.setNameSpace(path.getNameSpace());
 
     instance.setPath(p);
+    instance.filter(includeQualifiers,
+                    includeClassOrigin,
+                    propertyList );
 }
 
 //
@@ -224,23 +257,23 @@ Boolean getPropertyValue(const CIMInstance & instance,
 //     request.  This is exactly the definition in the
 //     PG_CIMXMLCommunicationMechanism mof for the property
 //     namespaceAccessProtocol.
-// @param port String defining the port to be used.
+// @param port String defining the port to be used.  If String::EMPTY, it is
+//     not valid and the defaultPortNumber is inserted instead.
+// @param defaultPortNumber Uint32 defining a default port number to be used
+//     if port string is not provided.
 //
 // @return String with the IP address to be used. This must be the complete
 //     address sufficient to access the IP address. Therefore, it includes the
 //     port number.
 //
-String getHostAddress(
-    const String& hostName,
-    Uint32 namespaceType,
-    const String& port)
+String getHostAddress(const String & hostName, Uint32 namespaceType,
+    const String & port, Uint32 defaultPortNumber)
 {
   String ipAddress;
-  int af;
   if(hostName == String::EMPTY)
-      System::getHostIP(System::getHostName(), &af, ipAddress);
+      ipAddress = System::getHostIP(System::getHostName());
   else
-      System::getHostIP(hostName, &af, ipAddress);
+      ipAddress = System::getHostIP(hostName);
 
   if(ipAddress == String::EMPTY)
   {
@@ -251,14 +284,21 @@ String getHostAddress(
   // Question: Is there a case where we leave off the port number?
   // Code to get the property service_location_tcp ( which is equivalent to
   // "IP address:5988")
-#ifdef PEGASUS_ENABLE_IPV6
-  if (af == AF_INET6)
-  {
-      ipAddress = "[" + ipAddress + "]";
-  }
-#endif
+
+  // If port is valid port number, we use it.  Else use the default port
+  // number provided. One or the other MUST not be zero.
   ipAddress.append(":");
-  ipAddress.append(port);
+  if(port == String::EMPTY)
+  {
+      // convert portNumber to ascii
+      char buffer[32];
+      sprintf(buffer, "%u", defaultPortNumber);
+      ipAddress.append(buffer);
+  }
+  else
+  {
+      ipAddress.append(port);
+  }
 
   return ipAddress;
 }
@@ -360,7 +400,7 @@ Boolean validateRequiredProperty(
     const String & value)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::validateRequiredProperty()");
+            "InteropProvider::_validateRequiedProperty()");
     Array<CIMKeyBinding> kbArray = objectPath.getKeyBindings();
     Boolean retVal = false;
     // find the correct key binding
@@ -382,10 +422,12 @@ Boolean validateRequiredProperty(
 // return an indicator as to which one it is.
 // @param - Classname
 // @return - Enum value indicating type
-// @Exceptions - throws CIMOperationFailedException if invalid class.
+// @Exceptions - throws CIMNotSupportedException if invalid class.
 //
 TARGET_CLASS translateClassInput(const CIMName& className)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "InteropProvider::translateClassInput");
     if(className.equal(PEGASUS_CLASSNAME_PG_OBJECTMANAGER))
         return PG_OBJECTMANAGER;
 
@@ -410,10 +452,6 @@ TARGET_CLASS translateClassInput(const CIMName& className)
     else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE))
         return PG_ELEMENTCONFORMSTOPROFILE;
 
-    else if(className.equal(
-        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP))
-            return PG_ELEMENTCONFORMSTOPROFILE_RP_RP;
-
     else if(className.equal(PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE))
         return PG_SUBPROFILEREQUIRESPROFILE;
 
@@ -435,38 +473,13 @@ TARGET_CLASS translateClassInput(const CIMName& className)
     else if(className.equal(PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT))
         return PG_HOSTEDACCESSPOINT;
 
-    else if(className.equal(PEGASUS_CLASSNAME_CIMNAMESPACE))
-        return CIM_NAMESPACE;
-
-    else if(className.equal(PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES))
-        return PG_PROVIDERPROFILECAPABILITIES;
-
-    else if(className.equal(PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES))
-        return PG_PROVIDERREFERENCEDPROFILES;
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES))
-        return PG_ELEMENTCAPABILITIES;
-
-    else if(className.equal(PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE))
-        return PG_HOSTEDINDICATIONSERVICE;
-
-    else if(className.equal(PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT))
-        return PG_SERVICEAFFECTSELEMENT;
-
-    else if(className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE))
-        return CIM_INDICATIONSERVICE;
-#endif
-
     // Last entry, reverse test and throw exception if not PG_Namespace
     // Note: Changed to PG_Namespace for CIM 2.4
     else if(!className.equal(PEGASUS_CLASSNAME_PGNAMESPACE))
-    {
-        throw CIMOperationFailedException
-            (className.getString() +
-               " Class not supported by Interop Provider");
-    }
+        throw CIMNotSupportedException
+            (className.getString() + " not supported by Interop Provider");
 
+    PEG_METHOD_EXIT();
     return PG_NAMESPACE;
 }
 
@@ -475,6 +488,9 @@ TARGET_CLASS translateClassInput(const CIMName& className)
 //
 TARGET_CLASS translateAssocClassInput(const CIMName & className)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+            "InteropProvider::translateAssocClassInput");
+
     if(className.equal(PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER))
         return PG_NAMESPACEINMANAGER;
 
@@ -487,10 +503,6 @@ TARGET_CLASS translateAssocClassInput(const CIMName & className)
     else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE))
         return PG_ELEMENTCONFORMSTOPROFILE;
 
-    else if(className.equal(
-        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP))
-            return PG_ELEMENTCONFORMSTOPROFILE_RP_RP;
-
     else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY))
         return PG_ELEMENTSOFTWAREIDENTITY;
 
@@ -498,11 +510,11 @@ TARGET_CLASS translateAssocClassInput(const CIMName & className)
     // PG_SubProfileRequiresProfile
     else if(!className.equal(PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE))
     {
-        throw CIMOperationFailedException(className.getString() +
-          " Class not supported by association operations in the "
-              "Interop Provider");
+        throw CIMNotSupportedException(className.getString() +
+          " not supported by association operations in the Interop Provider");
     }
 
+    PEG_METHOD_EXIT();
     return PG_SUBPROFILEREQUIRESPROFILE;
 }
 
@@ -519,12 +531,10 @@ TARGET_CLASS translateAssocClassInput(const CIMName & className)
 void setPropertyValue(CIMInstance& instance, const CIMName& propertyName,
     const CIMValue & value)
 {
-    //return bool? would be pos != PEG_NOT_FOUND
+    // ++EMC: AVD - return bool? would be pos != PEG_NOT_FOUND
     unsigned int pos = instance.findProperty(propertyName);
     if(pos != PEG_NOT_FOUND)
-    {
         instance.getProperty(pos).setValue(value);
-    }
 }
 
 //

@@ -1,66 +1,63 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
+
+#ifdef PEGASUS_OS_OS400
+#include <qycmutilu2.H>
+#include "OS400ConvertChar.h"
+#include "CIMOMHandleOS400UserState.h"
+#include "CIMOMHandleOS400SystemState.h"
+#endif
 
 #include "InternalCIMOMHandleRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-// If is class only, return true.  This is used only to determine
-// if the input for associators, etc. requests objectPath is a class or
-// instance request.
-Boolean _isClassRequest(const CIMObjectPath& ref)
-{
-    return ref.getKeyBindings().size () == 0;
-}
-
 InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
     _output_qid(0),
     _return_qid(0),
-    _responseReady(0),
     _response(0)
 {
-    // output queue is the request dispatcher
-    MessageQueue* out = MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
+    // output queue is the binary message handler
+    MessageQueue* out = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
 
     PEGASUS_ASSERT(out != 0);
 
@@ -72,6 +69,14 @@ InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
 
 InternalCIMOMHandleMessageQueue::~InternalCIMOMHandleMessageQueue()
 {
+    try
+    {
+        // ATTN: release any unprocessed responses
+        _response.clear();
+    }
+    catch (...)
+    {
+    }
 }
 
 void InternalCIMOMHandleMessageQueue::handleEnqueue()
@@ -128,8 +133,8 @@ void InternalCIMOMHandleMessageQueue::handleEnqueue()
     case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
     case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
     case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
-        _response = message;
-        _responseReady.signal();
+        _response.enqueue(message);
+
         break;
     default:
         PEG_TRACE_CSTRING(
@@ -155,6 +160,7 @@ CIMResponseMessage* InternalCIMOMHandleMessageQueue::sendRequest(
     // update message to include routing information
     request->dest = _output_qid;
     request->queueIds.push(_return_qid);
+    request->queueIds.push(_output_qid);
 
     // locate destination
     MessageQueueService* service =
@@ -164,12 +170,15 @@ CIMResponseMessage* InternalCIMOMHandleMessageQueue::sendRequest(
     PEGASUS_ASSERT(service != 0);
 
     // forward request
-    service->enqueue(request);
+    if (service->SendForget(request) == false)
+    {
+        PEG_METHOD_EXIT();
+        throw Exception("Failed to send message");
+    }
 
     // wait for response
-    _responseReady.wait();
-    CIMResponseMessage* response = dynamic_cast<CIMResponseMessage*>(_response);
-    _response = 0;
+    CIMResponseMessage* response =
+        dynamic_cast<CIMResponseMessage *>(_response.dequeue_wait());
 
     PEG_METHOD_EXIT();
     return response;
@@ -189,6 +198,22 @@ static OperationContext _filterOperationContext(const OperationContext& context)
 {
     OperationContext temp;
 
+#ifdef PEGASUS_OS_OS400
+    // on OS/400, do not allow the provider set the user name for the request
+    // get the user name from the current thread.
+    char os400UserName[11];
+
+    if (ycmGetCurrentUser(os400UserName) == 0)
+    {
+        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
+            "An internal error occurred during the processing of the "
+                "CIMOM handle"));
+    }
+
+    EtoA(os400UserName);
+    temp.insert(IdentityContainer(String(os400UserName)));
+#else
     if (context.contains(IdentityContainer::NAME))
     {
         // propagate the identity container if it exists (get() with throw
@@ -199,6 +224,7 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     {
         temp.insert(IdentityContainer(String::EMPTY));
     }
+#endif
 
     if (context.contains(AcceptLanguageListContainer::NAME))
     {
@@ -232,17 +258,6 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     {
         temp.insert(ContentLanguageListContainer(ContentLanguageList()));
     }
-    
-    if (context.contains(UserRoleContainer::NAME))
-    {
-        // propagate the user role container if it exists (get() with throw
-        // an exception if it does not)
-        temp.insert(context.get(UserRoleContainer::NAME));
-    }
-    else
-    {
-        temp.insert(UserRoleContainer(String::EMPTY));
-    }
 
     return temp;
 }
@@ -255,10 +270,34 @@ InternalCIMOMHandleRep::~InternalCIMOMHandleRep()
 {
 }
 
+#ifdef PEGASUS_OS_OS400
+InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400UserStateKey)
+    : _chOS400(os400UserStateKey)
+{
+}
+
+void InternalCIMOMHandleRep::setOS400ProfileHandle(const char* profileHandle)
+{
+    memcpy(os400PH, profileHandle, 12);
+}
+#endif
+
 CIMResponseMessage* InternalCIMOMHandleRep::do_request(
     CIMRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::do_request");
+
+#ifdef PEGASUS_OS_OS400
+    // On OS/400, this code runs in a system state thread.  Swap the
+    // thread profile to be able to access server resources.
+    if (CIMOMHandleOS400SystemState::setProfileHandle(os400PH) !=
+            CIM_ERR_SUCCESS)
+    {
+        PEG_METHOD_EXIT();
+        throw Exception("Could not set profile handle");
+    }
+#endif
+
     /*
     Uint32 timeout = 0;
 
@@ -279,24 +318,20 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(
     {
         if (timeout)
         {
-            if (!_msg_avail.time_wait(timeout))
-            {
-                PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
-                    "timeout waiting for response");
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                    MessageLoaderParms(
-                        "Provider.CIMOMHandle.EMPTY_CIM_RESPONSE",
-                        "Empty CIM Response"));
-            }
+            _msg_avail.time_wait(timeout);
         }
         else
         {
             _msg_avail.wait();
         }
     }
-    catch (CIMException&)
+    catch (TimeOut&)
     {
-        throw;
+        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                        "timeout waiting for response");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            "Provider.CIMOMHandle.EMPTY_CIM_RESPONSE",
+            "Empty CIM Response"));
     }
     catch (...)
     {
@@ -347,7 +382,7 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(
             {
                 // deletes the old tsd and creates a new one
                 currentThread->put_tsd(
-                    TSD_CIMOM_HANDLE_CONTENT_LANGUAGES,
+                    "cimomHandleContentLanguages",
                     _deleteContentLanguage,
                     sizeof(ContentLanguageList*),
                     new ContentLanguageList(container.getLanguages()));
@@ -375,7 +410,25 @@ CIMClass InternalCIMOMHandleRep::getClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        CIMClass cimClass =
+            _chOS400.getClass(
+                context,
+                nameSpace,
+                className,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
+
+        PEG_METHOD_EXIT();
+        return cimClass;
+    }
+#endif
 
     // encode request
     CIMGetClassRequestMessage* request =
@@ -404,7 +457,7 @@ CIMClass InternalCIMOMHandleRep::getClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -419,7 +472,7 @@ CIMClass InternalCIMOMHandleRep::getClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -447,7 +500,25 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateClasses");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMClass> cimClasses =
+            _chOS400.enumerateClasses(
+                context,
+                nameSpace,
+                className,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin);
+
+        PEG_METHOD_EXIT();
+        return cimClasses;
+    }
+#endif
 
     CIMEnumerateClassesRequestMessage* request =
         new CIMEnumerateClassesRequestMessage(
@@ -474,7 +545,7 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -489,7 +560,7 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -516,7 +587,22 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateClassNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMName> cimClassNames =
+            _chOS400.enumerateClassNames(
+                context,
+                nameSpace,
+                className,
+                deepInheritance);
+
+        PEG_METHOD_EXIT();
+        return cimClassNames;
+    }
+#endif
 
     CIMEnumerateClassNamesRequestMessage* request =
         new CIMEnumerateClassNamesRequestMessage(
@@ -540,7 +626,7 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -555,7 +641,7 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -580,7 +666,20 @@ void InternalCIMOMHandleRep::createClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::createClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.createClass(
+            context,
+            nameSpace,
+            newClass);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+#endif
 
     CIMCreateClassRequestMessage* request =
         new CIMCreateClassRequestMessage(
@@ -603,7 +702,7 @@ void InternalCIMOMHandleRep::createClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -618,7 +717,7 @@ void InternalCIMOMHandleRep::createClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -641,7 +740,20 @@ void InternalCIMOMHandleRep::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::modifyClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.modifyClass(
+            context,
+            nameSpace,
+            modifiedClass);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+#endif
 
     CIMModifyClassRequestMessage* request =
         new CIMModifyClassRequestMessage(
@@ -664,7 +776,7 @@ void InternalCIMOMHandleRep::modifyClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -679,7 +791,7 @@ void InternalCIMOMHandleRep::modifyClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -702,7 +814,21 @@ void InternalCIMOMHandleRep::deleteClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::deleteClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.deleteClass(
+            context,
+            nameSpace,
+            className);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+#endif
+
     // encode request
     CIMDeleteClassRequestMessage* request =
         new CIMDeleteClassRequestMessage(
@@ -725,7 +851,7 @@ void InternalCIMOMHandleRep::deleteClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -740,7 +866,7 @@ void InternalCIMOMHandleRep::deleteClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -756,23 +882,44 @@ void InternalCIMOMHandleRep::deleteClass(
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::getInstance(
+CIMInstance InternalCIMOMHandleRep::getInstance(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        CIMInstance cimInstance =
+            _chOS400.getInstance(
+                context,
+                nameSpace,
+                instanceName,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
+
+        PEG_METHOD_EXIT();
+        return cimInstance;
+    }
+#endif
+
     // encode request
     CIMGetInstanceRequestMessage* request =
         new CIMGetInstanceRequestMessage(
             XmlWriter::getNextMessageId(),
             nameSpace,
             instanceName,
+            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList,
@@ -792,7 +939,7 @@ CIMResponseData InternalCIMOMHandleRep::getInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -807,7 +954,7 @@ CIMResponseData InternalCIMOMHandleRep::getInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -818,15 +965,18 @@ CIMResponseData InternalCIMOMHandleRep::getInstance(
                 "Exception caught in CIMOMHandle"));
     }
 
+    CIMInstance cimInstance = response->cimInstance;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimInstance;
 }
 
-CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
+Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -834,7 +984,26 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateInstances");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMInstance> cimInstances =
+            _chOS400.enumerateInstances(
+                context,
+                nameSpace,
+                className,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
+
+        PEG_METHOD_EXIT();
+        return cimInstances;
+    }
+#endif
 
     // encode request
     CIMEnumerateInstancesRequestMessage* request =
@@ -843,6 +1012,7 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
             nameSpace,
             className,
             deepInheritance,
+            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList,
@@ -862,7 +1032,7 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -877,7 +1047,7 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -888,12 +1058,14 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
                 "Exception caught in CIMOMHandle"));
     }
 
+    Array<CIMInstance> cimInstances = response->cimNamedInstances;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimInstances;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
+Array<CIMObjectPath> InternalCIMOMHandleRep::enumerateInstanceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className)
@@ -901,7 +1073,21 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateInstanceNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMObjectPath> cimObjectPaths =
+            _chOS400.enumerateInstanceNames(
+                context,
+                nameSpace,
+                className);
+
+        PEG_METHOD_EXIT();
+        return cimObjectPaths;
+    }
+#endif
 
     // encode request
     CIMEnumerateInstanceNamesRequestMessage* request =
@@ -925,7 +1111,7 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -940,7 +1126,7 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -950,8 +1136,11 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObjectPath> cimObjectPaths = response->instanceNames;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjectPaths;
 }
 
 CIMObjectPath InternalCIMOMHandleRep::createInstance(
@@ -962,7 +1151,21 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::createInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        CIMObjectPath cimReference =
+            _chOS400.createInstance(
+                context,
+                nameSpace,
+                newInstance);
+
+        PEG_METHOD_EXIT();
+        return cimReference;
+    }
+#endif
 
     CIMCreateInstanceRequestMessage* request =
         new CIMCreateInstanceRequestMessage(
@@ -985,7 +1188,7 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1000,7 +1203,7 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1028,7 +1231,22 @@ void InternalCIMOMHandleRep::modifyInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::modifyInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.modifyInstance(
+            context,
+            nameSpace,
+            modifiedInstance,
+            includeQualifiers,
+            propertyList);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+#endif
 
     CIMModifyInstanceRequestMessage* request =
         new CIMModifyInstanceRequestMessage(
@@ -1053,7 +1271,7 @@ void InternalCIMOMHandleRep::modifyInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1068,7 +1286,7 @@ void InternalCIMOMHandleRep::modifyInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1092,7 +1310,20 @@ void InternalCIMOMHandleRep::deleteInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::deleteInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.deleteInstance(
+            context,
+            nameSpace,
+            instanceName);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+#endif
 
     CIMDeleteInstanceRequestMessage* request =
         new CIMDeleteInstanceRequestMessage(
@@ -1115,7 +1346,7 @@ void InternalCIMOMHandleRep::deleteInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1130,7 +1361,7 @@ void InternalCIMOMHandleRep::deleteInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1146,7 +1377,7 @@ void InternalCIMOMHandleRep::deleteInstance(
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::execQuery(
+Array<CIMObject> InternalCIMOMHandleRep::execQuery(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const String& queryLanguage,
@@ -1154,7 +1385,22 @@ CIMResponseData InternalCIMOMHandleRep::execQuery(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::execQuery");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMObject> cimObjects =
+            _chOS400.execQuery(
+                context,
+                nameSpace,
+                queryLanguage,
+                query);
+
+        PEG_METHOD_EXIT();
+        return cimObjects;
+    }
+#endif
 
     CIMExecQueryRequestMessage* request =
         new CIMExecQueryRequestMessage(
@@ -1178,7 +1424,7 @@ CIMResponseData InternalCIMOMHandleRep::execQuery(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1193,7 +1439,7 @@ CIMResponseData InternalCIMOMHandleRep::execQuery(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1203,12 +1449,15 @@ CIMResponseData InternalCIMOMHandleRep::execQuery(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObject> cimObjects = response->cimObjects;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjects;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::associators(
+Array<CIMObject> InternalCIMOMHandleRep::associators(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1222,7 +1471,28 @@ CIMResponseData InternalCIMOMHandleRep::associators(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::associators");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMObject> cimObjects =
+            _chOS400.associators(
+                context,
+                nameSpace,
+                objectName,
+                assocClass,
+                resultClass,
+                role,
+                resultRole,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
+
+        PEG_METHOD_EXIT();
+        return cimObjects;
+    }
+#endif
 
     CIMAssociatorsRequestMessage* request =
         new CIMAssociatorsRequestMessage(
@@ -1236,8 +1506,7 @@ CIMResponseData InternalCIMOMHandleRep::associators(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1253,7 +1522,7 @@ CIMResponseData InternalCIMOMHandleRep::associators(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1268,7 +1537,7 @@ CIMResponseData InternalCIMOMHandleRep::associators(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1278,12 +1547,15 @@ CIMResponseData InternalCIMOMHandleRep::associators(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObject> cimObjects = response->cimObjects;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjects;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::associatorNames(
+Array<CIMObjectPath> InternalCIMOMHandleRep::associatorNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1295,7 +1567,25 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::associatorNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMObjectPath> cimObjectPaths =
+            _chOS400.associatorNames(
+                context,
+                nameSpace,
+                objectName,
+                assocClass,
+                resultClass,
+                role,
+                resultRole);
+
+        PEG_METHOD_EXIT();
+        return cimObjectPaths;
+    }
+#endif
 
     CIMAssociatorNamesRequestMessage* request =
         new CIMAssociatorNamesRequestMessage(
@@ -1306,8 +1596,7 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
             resultClass,
             role,
             resultRole,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1323,7 +1612,7 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1338,7 +1627,7 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1348,12 +1637,15 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObjectPath> cimObjectPaths = response->objectNames;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjectPaths;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::references(
+Array<CIMObject> InternalCIMOMHandleRep::references(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1365,7 +1657,26 @@ CIMResponseData InternalCIMOMHandleRep::references(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::references");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMObject> cimObjects =
+            _chOS400.references(
+                context,
+                nameSpace,
+                objectName,
+                resultClass,
+                role,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
+
+        PEG_METHOD_EXIT();
+        return cimObjects;
+    }
+#endif
 
     CIMReferencesRequestMessage* request =
         new CIMReferencesRequestMessage(
@@ -1377,8 +1688,7 @@ CIMResponseData InternalCIMOMHandleRep::references(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1394,7 +1704,7 @@ CIMResponseData InternalCIMOMHandleRep::references(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1409,7 +1719,7 @@ CIMResponseData InternalCIMOMHandleRep::references(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1419,12 +1729,15 @@ CIMResponseData InternalCIMOMHandleRep::references(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObject> cimObjects = response->cimObjects;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjects;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::referenceNames(
+Array<CIMObjectPath> InternalCIMOMHandleRep::referenceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1434,7 +1747,23 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::referenceNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        Array<CIMObjectPath> cimObjectPaths =
+            _chOS400.referenceNames(
+                context,
+                nameSpace,
+                objectName,
+                resultClass,
+                role);
+
+        PEG_METHOD_EXIT();
+        return cimObjectPaths;
+    }
+#endif
 
     CIMReferenceNamesRequestMessage* request =
         new CIMReferenceNamesRequestMessage(
@@ -1443,8 +1772,7 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
             objectName,
             resultClass,
             role,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1460,7 +1788,7 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1475,7 +1803,7 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1485,8 +1813,11 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObjectPath> cimObjectPaths = response->objectNames;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjectPaths;
 }
 
 
@@ -1498,7 +1829,22 @@ CIMValue InternalCIMOMHandleRep::getProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getProperty");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        CIMValue cimValue =
+            _chOS400.getProperty(
+                context,
+                nameSpace,
+                instanceName,
+                propertyName);
+
+        PEG_METHOD_EXIT();
+        return cimValue;
+    }
+#endif
 
     CIMGetPropertyRequestMessage* request =
         new CIMGetPropertyRequestMessage(
@@ -1522,7 +1868,7 @@ CIMValue InternalCIMOMHandleRep::getProperty(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1537,7 +1883,7 @@ CIMValue InternalCIMOMHandleRep::getProperty(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1549,16 +1895,6 @@ CIMValue InternalCIMOMHandleRep::getProperty(
     }
 
     CIMValue cimValue = response->value;
-
-    // Return value in String form.
-    if (cimValue.getType() != CIMTYPE_STRING &&
-        cimValue.getType() != CIMTYPE_REFERENCE && !cimValue.isNull())
-    {
-        Buffer out;
-        XmlWriter::appendValueElement(out, cimValue);
-        XmlParser parser((char*)out.getData());
-        XmlReader::getPropertyValue(parser,cimValue);
-    }
 
     PEG_METHOD_EXIT();
     return cimValue;
@@ -1574,7 +1910,22 @@ void InternalCIMOMHandleRep::setProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::setProperty");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.setProperty(
+            context,
+            nameSpace,
+            instanceName,
+            propertyName,
+            newValue);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+#endif
 
     CIMSetPropertyRequestMessage* request =
         new CIMSetPropertyRequestMessage(
@@ -1599,7 +1950,7 @@ void InternalCIMOMHandleRep::setProperty(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1614,7 +1965,7 @@ void InternalCIMOMHandleRep::setProperty(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1640,7 +1991,24 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::invokeMethod");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        CIMValue cimValue =
+            _chOS400.invokeMethod(
+                context,
+                nameSpace,
+                instanceName,
+                methodName,
+                inParameters,
+                outParameters);
+
+        PEG_METHOD_EXIT();
+        return cimValue;
+    }
+#endif
 
     CIMInvokeMethodRequestMessage* request =
         new CIMInvokeMethodRequestMessage(
@@ -1665,7 +2033,7 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1680,7 +2048,7 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL1,
+            Tracer::LEVEL2,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1705,11 +2073,31 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
 
 void InternalCIMOMHandleRep::disallowProviderUnload()
 {
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.disallowProviderUnload();
+        return;
+    }
+#endif
+
     CIMOMHandleRep::disallowProviderUnload();
 }
 
 void InternalCIMOMHandleRep::allowProviderUnload()
 {
+#ifdef PEGASUS_OS_OS400
+    // If this is running in user-state, then run the request
+    // through the user-state layer
+    if (_chOS400.hasKey())
+    {
+        _chOS400.allowProviderUnload();
+        return;
+    }
+#endif
+
     CIMOMHandleRep::allowProviderUnload();
 }
 
@@ -1726,7 +2114,7 @@ OperationContext InternalCIMOMHandleRep::getResponseContext()
     else
     {
         ContentLanguageList* contentLangs = (ContentLanguageList*)
-            curThrd->reference_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES);
+            curThrd->reference_tsd("cimomHandleContentLanguages");
         curThrd->dereference_tsd();
 
         if (contentLangs == NULL)
@@ -1737,7 +2125,7 @@ OperationContext InternalCIMOMHandleRep::getResponseContext()
         {
             ctx.insert(ContentLanguageListContainer(*contentLangs));
             // delete the old tsd to free the memory
-            curThrd->delete_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES);
+            curThrd->delete_tsd("cimomHandleContentLanguages");
         }
     }
 

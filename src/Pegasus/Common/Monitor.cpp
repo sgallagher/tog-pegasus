@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,292 +39,16 @@
 #include "Socket.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
-#include "HostAddress.h"
 #include <errno.h>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Tickler
-//
-////////////////////////////////////////////////////////////////////////////////
-
-Tickler::Tickler()
-    : _listenSocket(PEGASUS_INVALID_SOCKET),
-      _clientSocket(PEGASUS_INVALID_SOCKET),
-      _serverSocket(PEGASUS_INVALID_SOCKET)
-{
-    try
-    {
-        _initialize();
-    }
-    catch (...)
-    {
-        _uninitialize();
-        throw;
-    }
-}
-
-Tickler::~Tickler()
-{
-    _uninitialize();
-}
-
-void Tickler::notify()
-{
-    Socket::write(_clientSocket, "\0", 1);
-}
-
-void Tickler::reset()
-{
-    // Clear all bytes from the tickle socket
-    char buffer[32];
-    while (Socket::read(_serverSocket, buffer, 32) > 0)
-    {
-    }
-}
-
-#if defined(PEGASUS_OS_TYPE_UNIX)
-
-// Use an anonymous pipe for the tickle connection.
-
-void Tickler::_initialize()
-{
-    int fds[2];
-
-    if (pipe(fds) == -1)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_CREATE",
-            "Received error number $0 while creating the internal socket.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    _serverSocket = fds[0];
-    _clientSocket = fds[1];
-
-    Socket::disableBlocking(_serverSocket);
-}
-
-#else
-
-// Use an external loopback socket connection to allow the tickle socket to
-// be included in the select() array on non-Unix platforms.
-
-void Tickler::_initialize()
-{
-    //
-    // Set up the addresses for the listen, client, and server sockets
-    // based on whether IPv6 is enabled.
-    //
-
-    Socket::initializeInterface();
-
-# ifdef PEGASUS_ENABLE_IPV6
-    struct sockaddr_storage listenAddress;
-    struct sockaddr_storage clientAddress;
-    struct sockaddr_storage serverAddress;
-# else
-    struct sockaddr_in listenAddress;
-    struct sockaddr_in clientAddress;
-    struct sockaddr_in serverAddress;
-# endif
-
-    int addressFamily;
-    SocketLength addressLength;
-
-    memset(&listenAddress, 0, sizeof (listenAddress));
-
-# ifdef PEGASUS_ENABLE_IPV6
-    if (System::isIPv6StackActive())
-    {
-        // Use the IPv6 loopback address for the listen sockets
-        HostAddress::convertTextToBinary(
-            HostAddress::AT_IPV6,
-            "::1",
-            &reinterpret_cast<struct sockaddr_in6*>(&listenAddress)->sin6_addr);
-        listenAddress.ss_family = AF_INET6;
-        reinterpret_cast<struct sockaddr_in6*>(&listenAddress)->sin6_port = 0;
-
-        addressFamily = AF_INET6;
-        addressLength = sizeof(struct sockaddr_in6);
-    }
-    else
-# endif
-    {
-        // Use the IPv4 loopback address for the listen sockets
-        HostAddress::convertTextToBinary(
-            HostAddress::AT_IPV4,
-            "127.0.0.1",
-            &reinterpret_cast<struct sockaddr_in*>(
-                &listenAddress)->sin_addr.s_addr);
-        reinterpret_cast<struct sockaddr_in*>(&listenAddress)->sin_family =
-            AF_INET;
-        reinterpret_cast<struct sockaddr_in*>(&listenAddress)->sin_port = 0;
-
-        addressFamily = AF_INET;
-        addressLength = sizeof(struct sockaddr_in);
-    }
-
-    // Use the same address for the client socket as the listen socket
-    clientAddress = listenAddress;
-
-    //
-    // Set up a listen socket to allow the tickle client and server to connect
-    //
-
-    // Create the listen socket
-    if ((_listenSocket = Socket::createSocket(addressFamily, SOCK_STREAM, 0)) ==
-             PEGASUS_INVALID_SOCKET)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_CREATE",
-            "Received error number $0 while creating the internal socket.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    // Bind the listen socket to the loopback address
-    if (::bind(
-            _listenSocket,
-            reinterpret_cast<struct sockaddr*>(&listenAddress),
-            addressLength) < 0)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_BIND",
-            "Received error number $0 while binding the internal socket.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    // Listen for a connection from the tickle client
-    if ((::listen(_listenSocket, 3)) < 0)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_LISTEN",
-            "Received error number $0 while listening to the internal socket.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    // Verify we have the correct listen socket
-    SocketLength tmpAddressLength = addressLength;
-    int sock = ::getsockname(
-        _listenSocket,
-        reinterpret_cast<struct sockaddr*>(&listenAddress),
-        &tmpAddressLength);
-    if (sock < 0)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_SOCKNAME",
-            "Received error number $0 while getting the internal socket name.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    //
-    // Set up the client side of the tickle connection.
-    //
-
-    // Create the client socket
-    if ((_clientSocket = Socket::createSocket(addressFamily, SOCK_STREAM, 0)) ==
-             PEGASUS_INVALID_SOCKET)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_CLIENT_CREATE",
-            "Received error number $0 while creating the internal client "
-                "socket.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    // Bind the client socket to the loopback address
-    if (::bind(
-            _clientSocket,
-            reinterpret_cast<struct sockaddr*>(&clientAddress),
-            addressLength) < 0)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_CLIENT_BIND",
-            "Received error number $0 while binding the internal client "
-                "socket.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    // Connect the client socket to the listen socket address
-    if (::connect(
-            _clientSocket,
-            reinterpret_cast<struct sockaddr*>(&listenAddress),
-            addressLength) < 0)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_CLIENT_CONNECT",
-            "Received error number $0 while connecting the internal client "
-                "socket.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    //
-    // Set up the server side of the tickle connection.
-    //
-
-    tmpAddressLength = addressLength;
-
-    // Accept the client socket connection.
-    _serverSocket = ::accept(
-        _listenSocket,
-        reinterpret_cast<struct sockaddr*>(&serverAddress),
-        &tmpAddressLength);
-
-    if (_serverSocket == PEGASUS_SOCKET_ERROR)
-    {
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_ACCEPT",
-            "Received error number $0 while accepting the internal socket "
-                "connection.",
-            getSocketError());
-        throw Exception(parms);
-    }
-
-    //
-    // Close the listen socket and make the other sockets non-blocking
-    //
-
-    Socket::close(_listenSocket);
-    Socket::disableBlocking(_serverSocket);
-    Socket::disableBlocking(_clientSocket);
-}
-
-#endif
-
-void Tickler::_uninitialize()
-{
-    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
-
-    try
-    {
-        Socket::close(_serverSocket);
-        Socket::close(_clientSocket);
-        Socket::close(_listenSocket);
-    }
-    catch (...)
-    {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
-            "Failed to close tickle sockets");
-    }
-    Socket::uninitializeInterface();
-}
-
+static AtomicInt _connections(0);
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -334,91 +60,337 @@ void Tickler::_uninitialize()
 Monitor::Monitor()
    : _stopConnections(0),
      _stopConnectionsSem(0),
-     _solicitSocketCount(0)
+     _solicitSocketCount(0),
+     _tickle_client_socket(-1),
+     _tickle_server_socket(-1),
+     _tickle_peer_socket(-1)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
+    Socket::initializeInterface();
     _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
 
-    // Create a MonitorEntry for the Tickler and set its state to IDLE so the
-    // Monitor will watch for its events.
-    _entries.append(MonitorEntry(
-        _tickler.getReadHandle(),
-        1,
-        MonitorEntry::STATUS_IDLE,
-        MonitorEntry::TYPE_TICKLER));
+    // setup the tickler
+    initializeTickler();
 
-    // Start the count at 1 because _entries[0] is the Tickler
+    // Start the count at 1 because initilizeTickler()
+    // has added an entry in the first position of the
+    // _entries array
     for (int i = 1; i < numberOfMonitorEntriesToAllocate; i++)
     {
-        _entries.append(MonitorEntry());
+       _MonitorEntry entry(0, 0, 0);
+       _entries.append(entry);
     }
 }
 
 Monitor::~Monitor()
 {
+    uninitializeTickler();
+    Socket::uninitializeInterface();
     PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
+}
+void Monitor::uninitializeTickler()
+{
+    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
+
+    try
+    {
+        if (_tickle_peer_socket >= 0)
+        {
+            Socket::close(_tickle_peer_socket);
+        }
+        if (_tickle_client_socket >= 0)
+        {
+            Socket::close(_tickle_client_socket);
+        }
+        if (_tickle_server_socket >= 0)
+        {
+            Socket::close(_tickle_server_socket);
+        }
+    }
+    catch (...)
+    {
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                  "Failed to close tickle sockets");
+    }
+
+}
+
+void Monitor::initializeTickler()
+{
+    /*
+       NOTE: On any errors trying to
+             setup out tickle connection,
+             throw an exception/end the server
+    */
+
+    /* setup the tickle server/listener */
+    // try until the tcpip is restarted
+    do
+    {
+        // get a socket for the server side
+        if ((_tickle_server_socket =
+                 Socket::createSocket(PF_INET, SOCK_STREAM, 0)) ==
+             PEGASUS_INVALID_SOCKET)
+        {
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_CREATE",
+                "Received error number $0 while creating the internal socket.",
+                getSocketError());
+            throw Exception(parms);
+        }
+
+        // initialize the address
+        memset(&_tickle_server_addr, 0, sizeof(_tickle_server_addr));
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(37)
+#endif
+        _tickle_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(0)
+#endif
+        _tickle_server_addr.sin_family = PF_INET;
+        _tickle_server_addr.sin_port = 0;
+
+        SocketLength _addr_size = sizeof(_tickle_server_addr);
+
+        // bind server side to socket
+        if ((::bind(_tickle_server_socket,
+                 reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
+                 sizeof(_tickle_server_addr))) < 0)
+        {
+#ifdef PEGASUS_OS_ZOS
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_BIND_LONG",
+                "Received error:$0 while binding the internal socket.",
+                strerror(errno));
+#else
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_BIND",
+                "Received error number $0 while binding the internal socket.",
+                getSocketError());
+#endif
+            throw Exception(parms);
+        }
+
+        // tell the kernel we are a server
+        if ((::listen(_tickle_server_socket, 3)) < 0)
+        {
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_LISTEN",
+                "Received error number $0 while listening to the internal "
+                    "socket.",
+                getSocketError());
+            throw Exception(parms);
+        }
+
+        // make sure we have the correct socket for our server
+        int sock = ::getsockname(
+            _tickle_server_socket,
+            reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
+            &_addr_size);
+        if (sock < 0)
+        {
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_SOCKNAME",
+                "Received error number $0 while getting the internal socket "
+                    "name.",
+                getSocketError());
+            throw Exception(parms);
+        }
+
+        /* set up the tickle client/connector */
+
+        // get a socket for our tickle client
+        if ((_tickle_client_socket =
+                 Socket::createSocket(PF_INET, SOCK_STREAM, 0)) ==
+            PEGASUS_INVALID_SOCKET)
+        {
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_CLIENT_CREATE",
+                "Received error number $0 while creating the internal client "
+                    "socket.",
+                getSocketError());
+            throw Exception(parms);
+        }
+
+        // setup the address of the client
+        memset(&_tickle_client_addr, 0, sizeof(_tickle_client_addr));
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+# pragma convert(37)
+#endif
+        _tickle_client_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+# pragma convert(0)
+#endif
+        _tickle_client_addr.sin_family = PF_INET;
+        _tickle_client_addr.sin_port = 0;
+
+        // bind socket to client side
+        if ((::bind(_tickle_client_socket,
+                 reinterpret_cast<struct sockaddr*>(&_tickle_client_addr),
+                 sizeof(_tickle_client_addr))) < 0)
+        {
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_CLIENT_BIND",
+                "Received error number $0 while binding the internal client "
+                    "socket.",
+                getSocketError());
+            throw Exception(parms);
+        }
+
+        // connect to server side
+        if ((::connect(_tickle_client_socket,
+                 reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
+                 sizeof(_tickle_server_addr))) < 0)
+        {
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_CLIENT_CONNECT",
+                "Received error number $0 while connecting the internal "
+                    "client socket.",
+                getSocketError());
+            throw Exception(parms);
+        }
+
+        /* set up the slave connection */
+        memset(&_tickle_peer_addr, 0, sizeof(_tickle_peer_addr));
+        SocketLength peer_size = sizeof(_tickle_peer_addr);
+        Threads::sleep(1);
+
+        // this call may fail, we will try a max of 20 times to establish
+        // this peer connection
+        if ((_tickle_peer_socket = ::accept(_tickle_server_socket,
+                 reinterpret_cast<struct sockaddr*>(&_tickle_peer_addr),
+                 &peer_size)) < 0)
+        {
+            if (_tickle_peer_socket == PEGASUS_SOCKET_ERROR &&
+                getSocketError() == PEGASUS_NETWORK_TRYAGAIN)
+            {
+                int retries = 0;
+                do
+                {
+                    Threads::sleep(1);
+                    _tickle_peer_socket = ::accept(
+                        _tickle_server_socket,
+                        reinterpret_cast<struct sockaddr*>(&_tickle_peer_addr),
+                        &peer_size);
+                    retries++;
+                } while (_tickle_peer_socket == PEGASUS_SOCKET_ERROR &&
+                         getSocketError() == PEGASUS_NETWORK_TRYAGAIN &&
+                         retries < 20);
+            }
+            // TCP/IP is down, destroy sockets and retry again.
+            if (_tickle_peer_socket == PEGASUS_SOCKET_ERROR &&
+                getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
+            {
+                // destroy everything
+                uninitializeTickler();
+                // retry again.
+                continue;
+            }
+        }
+        if (_tickle_peer_socket == PEGASUS_SOCKET_ERROR)
+        {
+            MessageLoaderParms parms(
+                "Common.Monitor.TICKLE_ACCEPT",
+                "Received error number $0 while accepting the internal "
+                    "socket connection.",
+                getSocketError());
+            throw Exception(parms);
+        }
+        else
+        {
+            // socket is ok
+            break;
+        }
+    } while (1); // try until TCP/IP is restarted
+
+    Socket::disableBlocking(_tickle_peer_socket);
+    Socket::disableBlocking(_tickle_client_socket);
+
+    // add the tickler to the list of entries to be monitored and set to
+    // IDLE because Monitor only
+    // checks entries with IDLE state for events
+    _MonitorEntry entry(_tickle_peer_socket, 1, INTERNAL);
+    entry._status = _MonitorEntry::IDLE;
+
+    // is the tickler initalized as first socket on startup ?
+    if (_entries.size()==0)
+    {
+       // if yes, append a new entry
+       _entries.append(entry);
+    }
+    else
+    {
+       // if not, overwrite the tickler entry with new socket
+       _entries[0]=entry;
+    }
 }
 
 void Monitor::tickle()
 {
-    _tickler.notify();
+    static char _buffer[] =
+    {
+      '0','0'
+    };
+
+    AutoMutex autoMutex(_tickle_mutex);
+    Socket::write(_tickle_client_socket,&_buffer, 2);
 }
 
-void Monitor::setState(
-    Uint32 index,
-    MonitorEntry::Status status)
+void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
 {
-    AutoMutex autoEntryMutex(_entriesMutex);
     // Set the state to requested state
-    _entries[index].status = status;
+    _entries[index]._status = status;
 }
 
 void Monitor::run(Uint32 milliseconds)
 {
+
+    int i = 0;
+
     struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
 
     fd_set fdread;
     FD_ZERO(&fdread);
 
-    AutoMutex autoEntryMutex(_entriesMutex);
+    AutoMutex autoEntryMutex(_entry_mut);
 
-    ArrayIterator<MonitorEntry> entries(_entries);
+    ArrayIterator<_MonitorEntry> entries(_entries);
 
     // Check the stopConnections flag.  If set, clear the Acceptor monitor
     // entries
     if (_stopConnections.get() == 1)
     {
-        for (Uint32 indx = 0; indx < entries.size(); indx++)
+        for ( int indx = 0; indx < (int)entries.size(); indx++)
         {
-            if (entries[indx].type == MonitorEntry::TYPE_ACCEPTOR)
+            if (entries[indx]._type == Monitor::ACCEPTOR)
             {
-                if (entries[indx].status != MonitorEntry::STATUS_EMPTY)
+                if ( entries[indx]._status.get() != _MonitorEntry::EMPTY)
                 {
-                    if (entries[indx].status == MonitorEntry::STATUS_IDLE ||
-                        entries[indx].status == MonitorEntry::STATUS_DYING)
-                    {
-                        // remove the entry
-                        entries[indx].status = MonitorEntry::STATUS_EMPTY;
-                    }
-                    else
-                    {
-                        // set status to DYING
-                        entries[indx].status = MonitorEntry::STATUS_DYING;
-                    }
-                }
-            }
+                   if ( entries[indx]._status.get() == _MonitorEntry::IDLE ||
+                        entries[indx]._status.get() == _MonitorEntry::DYING )
+                   {
+                       // remove the entry
+                       entries[indx]._status = _MonitorEntry::EMPTY;
+                   }
+                   else
+                   {
+                       // set status to DYING
+                      entries[indx]._status = _MonitorEntry::DYING;
+                   }
+               }
+           }
         }
         _stopConnections = 0;
         _stopConnectionsSem.signal();
     }
 
-    for (Uint32 indx = 0; indx < entries.size(); indx++)
+    for (int indx = 0; indx < (int)entries.size(); indx++)
     {
-        const MonitorEntry& entry = entries[indx];
-
-        if ((entry.status == MonitorEntry::STATUS_DYING) &&
-            (entry.type == MonitorEntry::TYPE_CONNECTION))
+        const _MonitorEntry &entry = entries[indx];
+        if ((entry._status.get() == _MonitorEntry::DYING) &&
+            (entry._type == Monitor::CONNECTION))
         {
             MessageQueue *q = MessageQueue::lookup(entry.queueId);
             PEGASUS_ASSERT(q != 0);
@@ -443,7 +415,7 @@ void Monitor::run(Uint32 milliseconds)
                 continue;
             }
             h._connectionClosePending = false;
-            HTTPAcceptor &o = h.getOwningAcceptor();
+            MessageQueue &o = h.get_owner();
             Message* message= new CloseConnectionMessage(entry.socket);
             message->dest = o.getQueueId();
 
@@ -459,9 +431,9 @@ void Monitor::run(Uint32 milliseconds)
             // unlocked will not result in an ArrayIndexOutOfBounds
             // exception.
 
-            _entriesMutex.unlock();
+            _entry_mut.unlock();
             o.enqueue(message);
-            _entriesMutex.lock();
+            _entry_mut.lock();
 
             // After enqueue a message and the autoEntryMutex has been
             // released and locked again, the array of _entries can be
@@ -480,16 +452,16 @@ void Monitor::run(Uint32 milliseconds)
         because we have to traverse the entire array.
     */
     SocketHandle maxSocketCurrentPass = 0;
-    for (Uint32 indx = 0; indx < entries.size(); indx++)
+    for (int indx = 0; indx < (int)entries.size(); indx++)
     {
-        if (maxSocketCurrentPass < entries[indx].socket)
-            maxSocketCurrentPass = entries[indx].socket;
+       if (maxSocketCurrentPass < entries[indx].socket)
+           maxSocketCurrentPass = entries[indx].socket;
 
-        if (entries[indx].status == MonitorEntry::STATUS_IDLE)
-        {
-            _idleEntries++;
-            FD_SET(entries[indx].socket, &fdread);
-        }
+       if (entries[indx]._status.get() == _MonitorEntry::IDLE)
+       {
+           _idleEntries++;
+           FD_SET(entries[indx].socket, &fdread);
+       }
     }
 
     /*
@@ -498,7 +470,7 @@ void Monitor::run(Uint32 milliseconds)
     */
     maxSocketCurrentPass++;
 
-    _entriesMutex.unlock();
+    _entry_mut.unlock();
 
     //
     // The first argument to select() is ignored on Windows and it is not
@@ -510,11 +482,7 @@ void Monitor::run(Uint32 milliseconds)
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
-
-    _entriesMutex.lock();
-
-    struct timeval timeNow;
-    Time::gettimeofday(&timeNow);
+    _entry_mut.lock();
 
     // After enqueue a message and the autoEntryMutex has been released and
     // locked again, the array of _entries can be changed. The ArrayIterator
@@ -523,17 +491,14 @@ void Monitor::run(Uint32 milliseconds)
 
     if (events == PEGASUS_SOCKET_ERROR)
     {
-        int selectErrno = 0; 
-        selectErrno = getSocketError();
-
-        PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
-            "Monitor::run - select() returned error %d.", selectErrno));
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+            "Monitor::run - errorno = %d has occurred on select.", errno));
         // The EBADF error indicates that one or more or the file
         // descriptions was not valid. This could indicate that
         // the entries structure has been corrupted or that
         // we have a synchronization error.
 
-        PEGASUS_ASSERT(selectErrno != EBADF);
+        PEGASUS_ASSERT(errno != EBADF);
     }
     else if (events)
     {
@@ -541,65 +506,120 @@ void Monitor::run(Uint32 milliseconds)
             "Monitor::run select event received events = %d, monitoring %d "
                 "idle entries",
             events, _idleEntries));
-        for (Uint32 indx = 0; indx < entries.size(); indx++)
+        for (int indx = 0; indx < (int)entries.size(); indx++)
         {
             // The Monitor should only look at entries in the table that are
             // IDLE (i.e., owned by the Monitor).
-            if ((entries[indx].status == MonitorEntry::STATUS_IDLE) &&
+            if ((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
                 (FD_ISSET(entries[indx].socket, &fdread)))
             {
-                MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
-                PEGASUS_ASSERT(q != 0);
+                MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
                 PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                    "Monitor::run indx = %d, queueId = %d, q = %p",
+                    "Monitor::run indx = %d, queueId =  %d, q = %p",
                     indx, entries[indx].queueId, q));
+                PEGASUS_ASSERT(q !=0);
 
                 try
                 {
-                    if (entries[indx].type == MonitorEntry::TYPE_CONNECTION)
+                    if (entries[indx]._type == Monitor::CONNECTION)
                     {
                         PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                            "entries[%d].type is TYPE_CONNECTION",
+                            "entries[indx].type for indx = %d is "
+                                "Monitor::CONNECTION",
                             indx));
+                        static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
+                        // Do not update the entry just yet. The entry gets
+                        // updated once the request has been read.
+                        //entries[indx]._status = _MonitorEntry::BUSY;
+
+                        // If allocate_and_awaken failure, retry on next
+                        // iteration
+/* Removed for PEP 183.
+                        if (!MessageQueueService::get_thread_pool()->
+                                allocate_and_awaken((void *)q, _dispatch))
+                        {
+                            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                                "Monitor::run: Insufficient resources to "
+                                    "process request.");
+                            entries[indx]._status = _MonitorEntry::IDLE;
+                            return true;
+                        }
+*/
+// Added for PEP 183
                         HTTPConnection *dst =
                             reinterpret_cast<HTTPConnection *>(q);
-                        dst->_entry_index = indx;
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                            "Monitor::_dispatch: entering run() for "
+                                "indx = %d, queueId = %d, q = %p",
+                            dst->_entry_index,
+                            dst->_monitor->_entries[dst->_entry_index].queueId,
+                            dst));
 
-                        // Update idle start time because we have received some
-                        // data. Any data is good data at this point, and we'll
-                        // keep the connection alive, even if we've exceeded
-                        // the idleConnectionTimeout, which will be checked
-                        // when we call closeConnectionOnTimeout() next.
-                        Time::gettimeofday(&dst->_idleStartTime);
-
-                        // Check for accept pending (ie. SSL handshake pending)
-                        // or idle connection timeouts for sockets from which
-                        // we received data (avoiding extra queue lookup below).
-                        if (!dst->closeConnectionOnTimeout(&timeNow))
+                        try
                         {
-                            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                                "Entering HTTPConnection::run() for "
-                                    "indx = %d, queueId = %d, q = %p",
-                                indx, entries[indx].queueId, q));
-
-                            try
-                            {
-                                dst->run();
-                            }
-                            catch (...)
-                            {
-                                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
-                                    "Caught exception from "
-                                    "HTTPConnection::run()");
-                            }
-                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                                "Exited HTTPConnection::run()");
+                            dst->run(1);
                         }
+                        catch (...)
+                        {
+                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                                "Monitor::_dispatch: exception received");
+                        }
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                            "Monitor::_dispatch: exited run() for index %d",
+                            dst->_entry_index));
+
+                        // It is possible the entry status may not be set to
+                        // busy.  The following will fail in that case.
+                        // PEGASUS_ASSERT(dst->_monitor->_entries[
+                        //     dst->_entry_index]._status.get() ==
+                        //    _MonitorEntry::BUSY);
+                        // Once the HTTPConnection thread has set the status
+                        // value to either Monitor::DYING or Monitor::IDLE,
+                        // it has returned control of the connection to the
+                        // Monitor.  It is no longer permissible to access
+                        // the connection or the entry in the _entries table.
+
+                        // The following is not relevant as the worker thread
+                        // or the reader thread will update the status of the
+                        // entry.
+                        //if (dst->_connectionClosePending)
+                        //{
+                        //  dst->_monitor->_entries[dst->_entry_index]._status =
+                        //    _MonitorEntry::DYING;
+                        //}
+                        //else
+                        //{
+                        //  dst->_monitor->_entries[dst->_entry_index]._status =
+                        //    _MonitorEntry::IDLE;
+                        //}
+// end Added for PEP 183
                     }
-                    else if (entries[indx].type == MonitorEntry::TYPE_TICKLER)
+                    else if (entries[indx]._type == Monitor::INTERNAL)
                     {
-                        _tickler.reset();
+                        // set ourself to BUSY,
+                        // read the data
+                        // and set ourself back to IDLE
+
+                        entries[indx]._status = _MonitorEntry::BUSY;
+                        static char buffer[2];
+                        Sint32 amt =
+                            Socket::read(entries[indx].socket,&buffer, 2);
+
+                        if (amt == PEGASUS_SOCKET_ERROR &&
+                            getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
+                        {
+                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                                "Monitor::run: Tickler socket got an IO error. "
+                                    "Going to re-create Socket and wait for "
+                                    "TCP/IP restart.");
+                            uninitializeTickler();
+                            initializeTickler();
+                        }
+                        else
+                        {
+                            entries[indx]._status = _MonitorEntry::IDLE;
+                        }
                     }
                     else
                     {
@@ -607,54 +627,26 @@ void Monitor::run(Uint32 milliseconds)
                             "Non-connection entry, indx = %d, has been "
                                 "received.",
                             indx));
+                        int events = 0;
+                        events |= SocketMessage::READ;
                         Message* msg = new SocketMessage(
-                            entries[indx].socket, SocketMessage::READ);
-                        entries[indx].status = MonitorEntry::STATUS_BUSY;
-                        _entriesMutex.unlock();
+                            entries[indx].socket, events);
+                        entries[indx]._status = _MonitorEntry::BUSY;
+                        _entry_mut.unlock();
                         q->enqueue(msg);
-                        _entriesMutex.lock();
+                        _entry_mut.lock();
 
                         // After enqueue a message and the autoEntryMutex has
                         // been released and locked again, the array of
-                        // entries can be changed. The ArrayIterator has to be
-                        // reset with the latest _entries.
+                        // entries can be changed. The ArrayIterator has be
+                        // reset with the original _entries
                         entries.reset(_entries);
-                        entries[indx].status = MonitorEntry::STATUS_IDLE;
+                        entries[indx]._status = _MonitorEntry::IDLE;
                     }
                 }
                 catch (...)
                 {
                 }
-            }
-            // else check for accept pending (ie. SSL handshake pending) or
-            // idle connection timeouts for sockets from which we did not
-            // receive data.
-            else if ((entries[indx].status == MonitorEntry::STATUS_IDLE) &&
-                entries[indx].type == MonitorEntry::TYPE_CONNECTION)
-
-            {
-                MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
-                PEGASUS_ASSERT(q != 0);
-                HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
-                dst->_entry_index = indx;
-                dst->closeConnectionOnTimeout(&timeNow);
-            }
-        }
-    }
-    // else if "events" is zero (ie. select timed out) then we still need
-    // to check if there are any pending SSL handshakes that have timed out.
-    else
-    {
-        for (Uint32 indx = 0; indx < entries.size(); indx++)
-        {
-            if ((entries[indx].status == MonitorEntry::STATUS_IDLE) &&
-                entries[indx].type == MonitorEntry::TYPE_CONNECTION)
-            {
-                MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
-                PEGASUS_ASSERT(q != 0);
-                HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
-                dst->_entry_index = indx;
-                dst->closeConnectionOnTimeout(&timeNow);
             }
         }
     }
@@ -681,35 +673,39 @@ void Monitor::stopListeningForConnections(Boolean wait)
 
 int Monitor::solicitSocketMessages(
     SocketHandle socket,
+    Uint32 events,
     Uint32 queueId,
-    Uint32 type)
+    int type)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
-    AutoMutex autoMut(_entriesMutex);
-
+    AutoMutex autoMut(_entry_mut);
     // Check to see if we need to dynamically grow the _entries array
-    // We always want the _entries array to be 2 bigger than the
+    // We always want the _entries array to 2 bigger than the
     // current connections requested
     _solicitSocketCount++;  // bump the count
-
-    for (Uint32 i = _entries.size(); i < _solicitSocketCount + 1; i++)
+    int size = (int)_entries.size();
+    if ((int)_solicitSocketCount >= (size-1))
     {
-        _entries.append(MonitorEntry());
+        for (int i = 0; i < ((int)_solicitSocketCount - (size-1)); i++)
+        {
+            _MonitorEntry entry(0, 0, 0);
+            _entries.append(entry);
+        }
     }
 
-    for (Uint32 index = 1; index < _entries.size(); index++)
+    int index;
+    for (index = 1; index < (int)_entries.size(); index++)
     {
         try
         {
-            if (_entries[index].status == MonitorEntry::STATUS_EMPTY)
+            if (_entries[index]._status.get() == _MonitorEntry::EMPTY)
             {
                 _entries[index].socket = socket;
                 _entries[index].queueId  = queueId;
-                _entries[index].type = type;
-                _entries[index].status = MonitorEntry::STATUS_IDLE;
+                _entries[index]._type = type;
+                _entries[index]._status = _MonitorEntry::IDLE;
 
-                PEG_METHOD_EXIT();
-                return (int)index;
+                return index;
             }
         }
         catch (...)
@@ -725,17 +721,19 @@ int Monitor::solicitSocketMessages(
 void Monitor::unsolicitSocketMessages(SocketHandle socket)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
-    AutoMutex autoMut(_entriesMutex);
+    AutoMutex autoMut(_entry_mut);
 
     /*
         Start at index = 1 because _entries[0] is the tickle entry which
-        never needs to be reset to EMPTY;
+        never needs to be EMPTY;
     */
-    for (Uint32 index = 1; index < _entries.size(); index++)
+    unsigned int index;
+    for (index = 1; index < _entries.size(); index++)
     {
         if (_entries[index].socket == socket)
         {
-            _entries[index].reset();
+            _entries[index]._status = _MonitorEntry::EMPTY;
+            _entries[index].socket = PEGASUS_INVALID_SOCKET;
             _solicitSocketCount--;
             break;
         }
@@ -748,15 +746,57 @@ void Monitor::unsolicitSocketMessages(SocketHandle socket)
         first NON EMPTY.  This prevents the positions, of the NON EMPTY
         entries, from being changed.
     */
-    for (Uint32 index = _entries.size() - 1;
-         (_entries[index].status == MonitorEntry::STATUS_EMPTY) &&
-             (index >= MAX_NUMBER_OF_MONITOR_ENTRIES);
-         index--)
+    index = _entries.size() - 1;
+    while (_entries[index]._status.get() == _MonitorEntry::EMPTY)
     {
-        _entries.remove(index);
+        if (_entries.size() > MAX_NUMBER_OF_MONITOR_ENTRIES)
+                _entries.remove(index);
+        index--;
     }
-
     PEG_METHOD_EXIT();
+}
+
+// Note: this is no longer called with PEP 183.
+ThreadReturnType PEGASUS_THREAD_CDECL Monitor::_dispatch(void* parm)
+{
+    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+        "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, "
+            "q = %p",
+        dst->_entry_index,
+        dst->_monitor->_entries[dst->_entry_index].queueId,
+        dst));
+
+    try
+    {
+        dst->run(1);
+    }
+    catch (...)
+    {
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+            "Monitor::_dispatch: exception received");
+    }
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+        "Monitor::_dispatch: exited run() for index %d", dst->_entry_index));
+
+    PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() ==
+        _MonitorEntry::BUSY);
+
+    // Once the HTTPConnection thread has set the status value to either
+    // Monitor::DYING or Monitor::IDLE, it has returned control of the
+    // connection to the Monitor.  It is no longer permissible to access the
+    // connection or the entry in the _entries table.
+    if (dst->_connectionClosePending)
+    {
+        dst->_monitor->_entries[dst->_entry_index]._status =
+            _MonitorEntry::DYING;
+    }
+    else
+    {
+        dst->_monitor->_entries[dst->_entry_index]._status =
+            _MonitorEntry::IDLE;
+    }
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

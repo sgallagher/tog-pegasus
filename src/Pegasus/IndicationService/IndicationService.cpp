@@ -124,13 +124,13 @@ IndicationService::IndicationService (
         // the value of _enableSubscriptionsForNonprivilegedUsers will
         // default to false (i.e., the more restrictive security
         // setting.
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
            "Failure attempting to read configuration parameters during initialization.");
      }
 
-    Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
         "Value of _enableSubscriptionsForNonprivilegedUsers is %d",
-        _enableSubscriptionsForNonprivilegedUsers);
+        _enableSubscriptionsForNonprivilegedUsers));
 
     try
     {
@@ -193,7 +193,7 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
        }
        catch(Exception & )
        {
-           PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3,
+           PEG_TRACE_CSTRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3,
                "Caught Exception in IndicationService while handling a wrapped legacy  message ");
                _make_response(req, async_results::CIM_NAK );
        }
@@ -383,8 +383,8 @@ void IndicationService::handleEnqueue(Message* message)
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();
 
-    Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-        "%s: %.3f seconds", MessageTypeToString(message->getType()), stopWatch.getElapsed());
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        "%s: %.3f seconds", MessageTypeToString(message->getType()), stopWatch.getElapsed()));
 #endif
 
    delete message;
@@ -577,9 +577,9 @@ void IndicationService::_initialize (void)
         (activeSubscriptions);
     noProviderSubscriptions.clear ();
 
-    Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
         "%u active subscription(s) found on initialization",
-        activeSubscriptions.size ());
+        activeSubscriptions.size ()));
 
     String condition;
     String query;
@@ -598,9 +598,9 @@ void IndicationService::_initialize (void)
             {
                 CIMObjectPath path = activeSubscriptions [i].getPath ();
 
-                Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
                     "Deleting expired subscription on initialization: %s",
-                    (const char *) path.toString ().getCString ());
+                    (const char *) path.toString ().getCString ()));
 
                 _deleteExpiredSubscription (path);
                 // If subscription is expired delete the subscription
@@ -629,10 +629,10 @@ void IndicationService::_initialize (void)
 
         if (indicationProviders.size () == 0)
         {
-            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
                 "No providers found for subscription on initialization: %s",
                 (const char *)
-                activeSubscriptions [i].getPath ().toString ().getCString ());
+                activeSubscriptions [i].getPath ().toString ().getCString ()));
 
             //
             //  There are no providers that can support this subscription
@@ -723,10 +723,10 @@ void IndicationService::_initialize (void)
 
         if (acceptedProviders.size () == 0)
         {
-            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
                 "No providers accepted subscription on initialization: %s",
                 (const char *)
-                activeSubscriptions [i].getPath ().toString ().getCString ());
+                activeSubscriptions [i].getPath ().toString ().getCString ()));
 
             //
             //  No providers accepted the subscription
@@ -759,9 +759,9 @@ void IndicationService::_initialize (void)
                 CIMInstance indicationInstance = _createAlertInstance
                     (_CLASS_NO_PROVIDER_ALERT, subscriptions);
 
-                Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
                     "Sending NoProvider Alert for %u subscriptions",
-                    subscriptions.size ());
+                    subscriptions.size ()));
                 _sendAlerts (subscriptions, indicationInstance);
 #endif
 
@@ -817,9 +817,9 @@ void IndicationService::_initialize (void)
         CIMInstance indicationInstance = _createAlertInstance
             (_CLASS_NO_PROVIDER_ALERT, noProviderSubscriptions);
 
-        Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
             "Sending NoProvider Alert for %u subscriptions",
-            noProviderSubscriptions.size ());
+            noProviderSubscriptions.size ()));
         _sendAlerts (noProviderSubscriptions, indicationInstance);
 #endif
         //
@@ -850,8 +850,8 @@ void IndicationService::_initialize (void)
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();
 
-    Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-        "%s: %.3f seconds", "Initialize", stopWatch.getElapsed());
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        "%s: %.3f seconds", "Initialize", stopWatch.getElapsed()));
 #endif
 
     PEG_METHOD_EXIT ();
@@ -886,9 +886,9 @@ void IndicationService::_terminate (void)
         //
         //  Send CimomShutdownAlertIndication to each unique handler instance
         //
-        Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
             "Sending CIMServerShutdown Alert for %u subscriptions",
-            activeSubscriptions.size ());
+            activeSubscriptions.size ()));
         _sendAlerts (activeSubscriptions, indicationInstance);
     }
 #endif
@@ -2082,9 +2082,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 #ifdef PEGASUS_INDICATION_PERFINST
         stopWatch.stop();
 
-        Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
             "%s: %.3f seconds",
-            "Get Matching Subscriptions", stopWatch.getElapsed());
+            "Get Matching Subscriptions", stopWatch.getElapsed()));
 #endif
 
         //
@@ -2146,9 +2146,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 #ifdef PEGASUS_INDICATION_PERFINST
             stopWatch.stop();
 
-            Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
                 "%s: %.3f seconds",
-                "Look up Subscriptions", stopWatch.getElapsed());
+                "Look up Subscriptions", stopWatch.getElapsed()));
 #endif
             matchedSubscriptions = providedSubscriptions;
         }
@@ -2212,9 +2212,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 #ifdef PEGASUS_INDICATION_PERFINST
             stopWatch.stop();
 
-            Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
                            "%s: %.3f seconds",
-                           "Evaluate WHERE clause", stopWatch.getElapsed());
+                           "Evaluate WHERE clause", stopWatch.getElapsed()));
 #endif
 
             if (match)
@@ -2358,7 +2358,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 "IndicationService.IndicationService.UNKNOWN_ERROR",
                 "Unknown Error"));
 
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Unknown error occurred in attempting to process indication.");
     }
 
@@ -2815,9 +2815,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //
         //  Send NoProviderAlertIndication to each unique handler instance
         //
-        Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
             "Sending NoProvider Alert for %u subscriptions",
-            formerSubscriptions.size ());
+            formerSubscriptions.size ()));
         _sendAlerts (formerSubscriptions, indicationInstance);
 #endif
         //
@@ -2911,9 +2911,9 @@ void IndicationService::_handleNotifyProviderTerminationRequest
             //  Send ProviderTerminatedAlertIndication to each unique handler
             //  instance
             //
-            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
                 "Sending ProviderDisabled Alert for %u subscriptions",
-                providerSubscriptions.size ());
+                providerSubscriptions.size ()));
             _sendAlerts (providerSubscriptions, indicationInstance);
 #endif
             //
@@ -3036,7 +3036,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
         }
         catch (...)
         {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
                "Error in handling provider enable notification");
 
             cimException = PEGASUS_CIM_EXCEPTION_L(
@@ -5305,11 +5305,11 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
             PEGASUS_ASSERT (providerInstances.size () ==
                             providerModuleInstances.size ());
 
-            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
                 "%u indication provider(s) found for class %s",
                 providerInstances.size (),
                 (const char *) 
-                indicationSubclasses[i].getString ().getCString ());
+                indicationSubclasses[i].getString ().getCString ()));
 
             //
             //  Merge into list of ProviderClassList structs
@@ -7185,7 +7185,7 @@ Boolean IndicationService::_getCreator (
             (creatorIndex).getValue ();
         if (creatorValue.isNull ())
         {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+            PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
                 Tracer::LEVEL2,
                 "Null Subscription Creator property value");
 
@@ -7222,7 +7222,7 @@ Boolean IndicationService::_getCreator (
     }
     else
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+        PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
             Tracer::LEVEL2,
             "Missing Subscription Creator property");
 

@@ -1,33 +1,36 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 #include "JMPIProviderManager.h"
 
 #include "JMPIImpl.h"
@@ -36,6 +39,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -50,374 +54,203 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-// request->localOnly is replaced with JMPI_LOCALONLY for
-// getInstance () and enumerateInstances ()
+int JMPIProviderManager::trace=0;
+
+#ifdef PEGASUS_DEBUG
+#define DDD(x) if (JMPIProviderManager::trace) x;
+#else
+#define DDD(x)
+#endif
+
+// request->localOnly is replaced with JMPI_LOCALONLY for getInstance () and enumerateInstances ()
 #define JMPI_LOCALONLY false
 
 /* Fix for 4092 */
-// request->includeQualifiers is replaced with JMPI_INCLUDE_QUALIFIERS
-// for getInstance (), setInstance (), enumerateInstances (), associators ()
-// and references ()
+// request->includeQualifiers is replaced with JMPI_INCLUDE_QUALIFIERS for getInstance (),
+//    setInstance (), enumerateInstances (), associators (), and references ()
 #define JMPI_INCLUDE_QUALIFIERS false
 
 #include "Convert.h"
 
-
-//
-//  The following tests were added to allow the provider to supply a
-//  CIMObjectPath in the response.  Before this, the path was always
-//  rebuild by the response functions from the instance.  This resulted
-//  in cases where the key properties were not in the returned instance
-//  (ex. excluded by the property list) so that the path could not be built.
-//  The preferred behavior is for the provider to build the path on response.
-//  However, to cover existing providers the alternate of allowing the
-//  ProviderManager has been kept if the path in the instance is not considered
-//  to exist.
-//  PLEASE: provider writers build/set a proper path into returned objects
-//  See bug 8062
-
-/*
-    local function to implement the CIMObjectPath required for a response
-    object.
-    If there is a path defined in the instance, we simply return this path.
-    If not, we use the class to build a path from the instance.
-    Note that we are depending on some value in the keybindings to determine
-    if we have a path.
-*/
-
-void _fixCIMObjectPath(CIMInstance* instance, CIMClass& cls)
-{
-    CIMObjectPath op = instance->getPath();
-    const Array<CIMKeyBinding> kb = op.getKeyBindings();
-    if (kb.size() == 0)
-    {
-        CIMObjectPath iop = instance->buildPath(cls);
-        /* Fix for 4237*/
-        iop.setNameSpace(op.getNameSpace());
-        instance->setPath(iop);
-    }
-}
-
 void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "JMPIProviderManager::debugPrintMethodPointers");
-
+   // cd ${PEGAUSE_HOME}/src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/JMPI_TestPropertyTypes
+   // javap -s -p JMPI_TestPropertyTypes
    static const char *methodNames[][3] = {
-       // CIMProvider
-      {"snia 2.0",
-       "initialize",
-       "(Lorg/pegasus/jmpi/CIMOMHandle;)V"},
-      {"snia 2.0",
-       "cleanup",
-       "()V"},
+      // CIMProvider
+      //   cimom-2003-11-24/org/snia/wbem/provider/CIMProvider.java
+      //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/CIMProvider.java
+      {"snia 2.0","initialize","(Lorg/pegasus/jmpi/CIMOMHandle;)V"},
+      {"snia 2.0","cleanup","()V"},
       // InstanceProvider
-      {"snia 2.0",
-       "enumInstances",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;"
-          "Z)Ljava/util/Vector;"},
-      {"pegasus 2.4",
-       "enumInstances",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;"
-          "Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMInstance;"},
+      //   cimom-2003-11-24/org/snia/wbem/provider/InstanceProvider.java
+      //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/CIMInstanceProvider.java
+      {"snia 2.0","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;"},
+      {"pegasus 2.4","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMInstance;"},
       /* Begin Fix for 4189 */
-      {"pegasus 2.5",
-       "enumerateInstances",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;"
-          "ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      {"pegasus 2.5","enumerateInstances","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
       /* End Fix for 4189 */
-      {"snia 2.0",
-       "enumInstances",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)"
-          "Ljava/util/Vector;"},
-      {"pegasus 2.4",
-       "enumerateInstanceNames",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)"
-          "[Lorg/pegasus/jmpi/CIMObjectPath;"},
-      {"pegasus 2.5",
-       "enumerateInstanceNames",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)"
-          "Ljava/util/Vector;"},
-      {"snia 2.0",
-       "getInstance",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)"
-          "Lorg/pegasus/jmpi/CIMInstance;"},
-      {"pegasus 2.4",
-       "getInstance",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;"
-          "Lorg/pegasus/jmpi/CIMClass;)Lorg/pegasus/jmpi/CIMInstance;"},
+      {"snia 2.0","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
+      {"pegasus 2.4","enumerateInstanceNames","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMObjectPath;"},
+      {"pegasus 2.5","enumerateInstanceNames","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
+      {"snia 2.0","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;"},
+      {"pegasus 2.4","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)Lorg/pegasus/jmpi/CIMInstance;"},
       /* Begin Fix for 4238 */
-      {"pegasus 2.5",
-       "getInstance",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;"
-          "ZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;"},
+      {"pegasus 2.5","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;"},
       /* End Fix for 4238 */
-      {"snia 2.0",
-       "createInstance",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)"
-          "Lorg/pegasus/jmpi/CIMObjectPath;"},
-      {"snia 2.0",
-       "setInstance",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V"},
-      {"pegasus 2.4",
-       "setInstance",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Z[Ljava/lang/String)V"},
-      {"snia 2.0",
-       "deleteInstance",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;)V"},
-      {"snia 2.0",
-       "execQuery",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-          "ILorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
-      {"pegasus 2.4",
-       "execQuery",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-          "Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)"
-              "[Lorg/pegasus/jmpi/CIMInstance;"},
-      {"pegasus 2.5",
-       "execQuery",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;"
-          "Ljava/lang/String;Ljava/lang/String;)Ljava/util/Vector;"},
+      {"snia 2.0","createInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)Lorg/pegasus/jmpi/CIMObjectPath;"},
+      {"snia 2.0","setInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V"},
+      {"pegasus 2.4","setInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Z[Ljava/lang/String)V"},
+      {"snia 2.0","deleteInstance","(Lorg/pegasus/jmpi/CIMObjectPath;)V"},
+      {"snia 2.0","execQuery","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ILorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
+      {"pegasus 2.4","execQuery","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMInstance;"},
+      {"pegasus 2.5","execQuery","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Vector;"},
       // MethodProvider
-      {"snia 2.0",
-       "invokeMethod",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-          "Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;"},
-      {"pegasus 2.4",
-       "invokeMethod",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-          "[Lorg/pegasus/jmpi/CIMArgument;[Lorg/pegasus/jmpi/CIMArgument;)"
-          "Lorg/pegasus/jmpi/CIMValue;"},
+      //   cimom-2003-11-24/org/snia/wbem/provider/MethodProvider.java
+      //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/CIMMethodProvider.java
+      {"snia 2.0","invokeMethod","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;"},
+      {"pegasus 2.4","invokeMethod","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;[Lorg/pegasus/jmpi/CIMArgument;[Lorg/pegasus/jmpi/CIMArgument;)Lorg/pegasus/jmpi/CIMValue;"},
       // PropertyProvider
-      {"snia 2.0",
-       "getPropertyValue",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;)"
-          "Lorg/pegasus/jmpi/CIMValue;"},
-      {"snia 2.0",
-       "setPropertyValue",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
-          "Lorg/pegasus/jmpi/CIMValue;)V"},
+      //   cimom-2003-11-24/org/snia/wbem/provider/PropertyProvider.java
+      //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/PropertyProvider.java
+      {"snia 2.0","getPropertyValue","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;)Lorg/pegasus/jmpi/CIMValue;"},
+      {"snia 2.0","setPropertyValue","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Lorg/pegasus/jmpi/CIMValue;)V"},
       // AssociatorProvider
-      {"snia 2.0",
-       "associators",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;"
-          "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;"
-             "ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
-      {"pegasus 2.4",
-       "associators",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
-          "Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
-      {"snia 2.0",
-       "associatorNames",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;"
-          "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)"
-             "Ljava/util/Vector;"},
-      {"pegasus 2.4",
-       "associatorNames",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
-          "Ljava/lang/String;)Ljava/util/Vector;"},
-      {"snia 2.0",
-       "references",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;"
-          "Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
-      {"pegasus 2.4",
-       "references",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-          "ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
-      {"snia 2.0",
-       "referenceNames",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;"
-          "Ljava/lang/String;)Ljava/util/Vector;"},
-      {"pegasus 2.4",
-       "referenceNames",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)"
-          "Ljava/util/Vector;"},
+      //   cimom-2003-11-24/org/snia/wbem/provider20/AssociatorProvider.java
+      //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/AssociatorProvider.java
+      {"snia 2.0","associators","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      {"pegasus 2.4","associators","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      {"snia 2.0","associatorNames","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Vector;"},
+      {"pegasus 2.4","associatorNames","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Vector;"},
+      {"snia 2.0","references","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      {"pegasus 2.4","references","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      {"snia 2.0","referenceNames","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)Ljava/util/Vector;"},
+      {"pegasus 2.4","referenceNames","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)Ljava/util/Vector;"},
       // CIMProviderRouter
+      //   cimom-2003-11-24/org/snia/wbem/provider20/CIMProviderRouter.java
       // EventProvider
-      {"snia 2.0",
-       "activateFilter",
-       "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
-          "Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
-      {"snia 2.0",
-       "deActivateFilter",
-       "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
-          "Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
+      //   cimom-2003-11-24/org/snia/wbem/provider20/EventProvider.java
+      //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/EventProvider.java
+      {"snia 2.0","activateFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
+      {"snia 2.0","deActivateFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
       // IndicationHandler
+      //   cimom-2003-11-24/org/snia/wbem/provider20/IndicationHandler.java
       // ProviderAdapter
+      //   cimom-2003-11-24/org/snia/wbem/provider20/ProviderAdapter.java
       // JMPI_TestPropertyTypes
-      {"JMPI_TestPropertyTypes",
-       "findObjectPath",
-       "(Lorg/pegasus/jmpi/CIMObjectPath;)I"},
-      {"JMPI_TestPropertyTypes",
-       "testPropertyTypesValue",
-       "(Lorg/pegasus/jmpi/CIMInstance;)V"}
+      {"JMPI_TestPropertyTypes","findObjectPath","(Lorg/pegasus/jmpi/CIMObjectPath;)I"},
+      {"JMPI_TestPropertyTypes","testPropertyTypesValue","(Lorg/pegasus/jmpi/CIMInstance;)V"}
    };
 
    if (!env)
    {
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-          "No JNI environment specified. (JNIEnv==NULL)");
-      PEG_METHOD_EXIT();
+      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugPrintMethodPointers: env is NULL!"<<PEGASUS_STD(endl));
       return;
    }
    if (!jc)
    {
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-          "No Java class specified. (jc==NULL)");
-      PEG_METHOD_EXIT();
+      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugPrintMethodPointers: jc is NULL!"<<PEGASUS_STD(endl));
       return;
    }
 
    for (int i = 0; i < (int)(sizeof (methodNames)/sizeof (methodNames[0])); i++)
    {
       jmethodID id = env->GetMethodID(jc,methodNames[i][1], methodNames[i][2]);
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-          "Method: %s, %s, id = %p",
-          methodNames[i][0],methodNames[i][1],id));
-
+      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugPrintMethodPointers: "<<methodNames[i][0]<<", "<<methodNames[i][1]<<", id = "<<PEGASUS_STD(hex)<<(long)id<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       env->ExceptionClear();
    }
 
    env->ExceptionClear();
-   PEG_METHOD_EXIT();
-   return;
 }
 
-void debugIntrospectJavaObject (JNIEnv *env, jobject jInst)
+void
+debugIntrospectJavaObject (JNIEnv *env, jobject jInst)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::debugIntrospectJavaObject");
-
    jclass       jInstClass             = env->GetObjectClass(jInst);
    jclass       jInstSuperClass        = env->GetSuperclass(jInstClass);
-   jmethodID    jmidGetDeclaredMethods = env->GetMethodID(
-                                             jInstClass,
-                                             "getDeclaredMethods",
-                                             "()[Ljava/lang/reflect/Method;");
+   jmethodID    jmidGetDeclaredMethods = env->GetMethodID(jInstClass, "getDeclaredMethods", "()[Ljava/lang/reflect/Method;");
 
    if (!jmidGetDeclaredMethods)
    {
       env->ExceptionClear();
-      jmidGetDeclaredMethods = env->GetMethodID(
-                                   jInstSuperClass,
-                                   "getDeclaredMethods",
-                                   "()[Ljava/lang/reflect/Method;");
+      jmidGetDeclaredMethods = env->GetMethodID(jInstSuperClass, "getDeclaredMethods", "()[Ljava/lang/reflect/Method;");
    }
 
    if (jmidGetDeclaredMethods)
    {
-      jobjectArray jarrayDeclaredMethods = (jobjectArray)env->CallObjectMethod(
-                                               jInstClass,
-                                               jmidGetDeclaredMethods);
+      jobjectArray jarrayDeclaredMethods  = (jobjectArray)env->CallObjectMethod(jInstClass,
+                                                                                jmidGetDeclaredMethods);
 
       if (jarrayDeclaredMethods)
       {
-         for (int i=0,iLen=env->GetArrayLength(jarrayDeclaredMethods);
-               i < iLen;
-               i++)
+         for (int i = 0, iLen = env->GetArrayLength (jarrayDeclaredMethods); i < iLen; i++)
          {
             JMPIjvm::checkException(env);
 
-            jobject jDeclaredMethod = env->GetObjectArrayElement(
-                                               jarrayDeclaredMethods,
-                                               i);
-            jclass jDeclaredMethodClass = env->GetObjectClass(jDeclaredMethod);
+            jobject jDeclaredMethod      = env->GetObjectArrayElement (jarrayDeclaredMethods, i);
+            jclass  jDeclaredMethodClass = env->GetObjectClass (jDeclaredMethod);
 
             JMPIjvm::checkException(env);
 
-            jmethodID   jmidToString  = env->GetMethodID(
-                                            jDeclaredMethodClass,
-                                            "toString",
-                                            "()Ljava/lang/String;");
-            jstring     jstringResult = (jstring)env->CallObjectMethod(
-                                            jDeclaredMethod,
-                                            jmidToString);
-            const char *pszResult = env->GetStringUTFChars(jstringResult, 0);
+            jmethodID   jmidToString  = env->GetMethodID (jDeclaredMethodClass, "toString", "()Ljava/lang/String;");
+            jstring     jstringResult = (jstring)env->CallObjectMethod (jDeclaredMethod, jmidToString);
+            const char *pszResult     = env->GetStringUTFChars(jstringResult, 0);
 
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Introspect java object: %s",pszResult));
+            PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugIntrospectJavaObject: "<<pszResult<<PEGASUS_STD(endl);
 
             env->ReleaseStringUTFChars (jstringResult, pszResult);
          }
       }
    }
 
+
    env->ExceptionClear();
-   PEG_METHOD_EXIT();
-   return;
 }
 
-void debugDumpJavaObject (JNIEnv *env, jobject jInst)
+void
+debugDumpJavaObject (JNIEnv *env, jobject jInst)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "JMPIProviderManager::debugDumpJavaObject");
-   jclass jInstClass = env->GetObjectClass(jInst);
-   jclass jInstSuperClass = env->GetSuperclass(jInstClass);
-   jmethodID jmidToString1 = env->GetMethodID(
-                                jInstClass,
-                                "toString",
-                                "()Ljava/lang/String;");
-   jmethodID jmidToString2 = env->GetMethodID(
-                                jInstSuperClass,
-                                "toString",
-                                "()Ljava/lang/String;");
+   jclass      jInstClass      = env->GetObjectClass(jInst);
+   jclass      jInstSuperClass = env->GetSuperclass(jInstClass);
+   jmethodID   jmidToString1   = env->GetMethodID(jInstClass,      "toString", "()Ljava/lang/String;");
+   jmethodID   jmidToString2   = env->GetMethodID(jInstSuperClass, "toString", "()Ljava/lang/String;");
    if (!jmidToString1 || !jmidToString2)
    {
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-           "No class or super class description.");
       env->ExceptionClear();
-      PEG_METHOD_EXIT();
       return;
    }
-   jstring jstringResult1 = (jstring)env->CallObjectMethod(
-                                jInstClass,
-                                jmidToString1);
-   jstring jstringResult2 = (jstring)env->CallObjectMethod(
-                                jInstSuperClass,
-                                jmidToString2);
-   jstring jstringResult3 = (jstring)env->CallObjectMethod(
-                                jInst,
-                                jmidToString1);
+   jstring     jstringResult1  = (jstring)env->CallObjectMethod(jInstClass,      jmidToString1);
+   jstring     jstringResult2  = (jstring)env->CallObjectMethod(jInstSuperClass, jmidToString2);
+   jstring     jstringResult3  = (jstring)env->CallObjectMethod(jInst,           jmidToString1);
    const char *pszResult1      = env->GetStringUTFChars(jstringResult1, 0);
    const char *pszResult2      = env->GetStringUTFChars(jstringResult2, 0);
    const char *pszResult3      = env->GetStringUTFChars(jstringResult3, 0);
 
-   jmethodID jmidCInst = env->GetMethodID(
-                             env->GetObjectClass(jInst),
-                             JMPIjvm::jv.instanceMethodNames[22].methodName,
-                             JMPIjvm::jv.instanceMethodNames[22].signature);
+   jmethodID jmidCInst = env->GetMethodID(env->GetObjectClass(jInst),JMPIjvm::jv.instanceMethodNames[22].methodName, JMPIjvm::jv.instanceMethodNames[22].signature);
 
-   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-       "Dumping class %p:\n "
-           "    jInstSuperClass = %p\n"
-           "    jClassShouldBe = %p\n"
-           "    jmidCInst = %p\n"
-           "    pszResult1 = %s\n"
-           "    pszResult2 = %s\n"
-           "    pszResult3 = %s",
-       jInstClass,jInstSuperClass,JMPIjvm::jv.classRefs[18],jmidCInst,
-       pszResult1,pszResult2,pszResult3 ));
+   PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugIntrospectJavaObject: jInstClass = "<<jInstClass<<", jInstSuperClass = "<<jInstSuperClass<<", jClassShouldBe = "<<JMPIjvm::jv.classRefs[18]<<", jmidCInst = "<<jmidCInst<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"pszResult1 = "<<pszResult1<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"pszResult2 = "<<pszResult2<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"pszResult3 = "<<pszResult3<<PEGASUS_STD(endl);
 
    env->ReleaseStringUTFChars (jstringResult1, pszResult1);
    env->ReleaseStringUTFChars (jstringResult2, pszResult2);
    env->ReleaseStringUTFChars (jstringResult3, pszResult3);
 
    env->ExceptionClear();
-   PEG_METHOD_EXIT();
-   return;
 }
 
-bool JMPIProviderManager::getInterfaceType(
-    ProviderIdContainer pidc,
-    String& interfaceType,
-    String& interfaceVersion)
+bool JMPIProviderManager::getInterfaceType (ProviderIdContainer pidc,
+                                            String&             interfaceType,
+                                            String&             interfaceVersion)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::getInterfaceType");
-
+///CIMInstance ciProvider       = pidc.getProvider ();
    CIMInstance ciProviderModule = pidc.getModule ();
    Uint32      idx;
    bool        fRet             = true;
+
+///PEGASUS_STD(cout)<<"--- JMPIProviderManager::getInterfaceType: ciProvider       = "<<ciProvider.getPath ().toString ()<<PEGASUS_STD(endl);
+///PEGASUS_STD(cout)<<"--- JMPIProviderManager::getInterfaceType: ciProviderModule = "<<ciProviderModule.getPath ().toString ()<<PEGASUS_STD(endl);
 
    idx = ciProviderModule.findProperty ("InterfaceType");
 
@@ -429,13 +262,10 @@ bool JMPIProviderManager::getInterfaceType(
 
       itValue.get (interfaceType);
 
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-          "interfaceType = %s",(const char*)interfaceType.getCString()));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::getInterfaceType: interfaceType = "<<interfaceType<<PEGASUS_STD(endl));
    }
    else
    {
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-          "inferfaceType not found.");
       fRet = false;
    }
 
@@ -449,16 +279,13 @@ bool JMPIProviderManager::getInterfaceType(
 
       itValue.get (interfaceVersion);
 
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-          "interfaceVersion = %s",(const char*)interfaceVersion.getCString()));
+      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::getInterfaceType: interfaceVersion = "<<interfaceVersion<<PEGASUS_STD(endl));
    }
    else
    {
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-          "inferfaceVersion not found.");
       fRet = false;
    }
-   PEG_METHOD_EXIT();
+
    return fRet;
 }
 
@@ -475,9 +302,8 @@ bool JMPIProviderManager::interfaceIsUsed (JNIEnv  *env,
       return false;
    }
 
-   jInterfaces = (jobjectArray)env->CallObjectMethod(
-                     env->GetObjectClass (jObject),
-                    JMPIjvm::jv.ClassGetInterfaces);
+   jInterfaces = (jobjectArray)env->CallObjectMethod (env->GetObjectClass (jObject),
+                                                      JMPIjvm::jv.ClassGetInterfaces);
 
    if (!jInterfaces)
    {
@@ -492,15 +318,13 @@ bool JMPIProviderManager::interfaceIsUsed (JNIEnv  *env,
 
       if (jInterface)
       {
-         jstring jInterfaceName = (jstring)env->CallObjectMethod(
-                                      jInterface,
-                                      JMPIjvm::jv.ClassGetName);
+         jstring jInterfaceName = (jstring)env->CallObjectMethod (jInterface,
+                                                                  JMPIjvm::jv.ClassGetName);
 
          if (jInterfaceName)
          {
-            const char *pszInterfaceName = env->GetStringUTFChars(
-                                               jInterfaceName,
-                                               0);
+            const char *pszInterfaceName = env->GetStringUTFChars (jInterfaceName,
+                                                                   0);
             String      interfaceName    = pszInterfaceName;
 
             if (String::equal (interfaceName, searchInterfaceName))
@@ -526,6 +350,15 @@ Mutex                              JMPIProviderManager::mutexProvReg;
 JMPIProviderManager::JMPIProviderManager()
 {
    _subscriptionInitComplete = false;
+
+#ifdef PEGASUS_DEBUG
+   if (getenv("PEGASUS_JMPI_TRACE"))
+      JMPIProviderManager::trace = 1;
+   else
+      JMPIProviderManager::trace = 0;
+#else
+   JMPIProviderManager::trace = 0;
+#endif
 }
 
 JMPIProviderManager::~JMPIProviderManager(void)
@@ -535,12 +368,9 @@ JMPIProviderManager::~JMPIProviderManager(void)
 Boolean JMPIProviderManager::insertProvider(const ProviderName & name,
             const String &ns, const String &cn)
 {
-    PEG_METHOD_ENTER( TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::insertProvider");
+    String key(ns+String("::")+cn+String("::")+CIMValue(name.getCapabilitiesMask()).toString());
 
-    String key(ns + String("::") + cn);
-    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-        "insertProvider: %s",(const char*)key.getCString()));
+    DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::insertProvider: "<<key<<PEGASUS_STD(endl));
 
     Boolean ret = false;
 
@@ -550,15 +380,12 @@ Boolean JMPIProviderManager::insertProvider(const ProviderName & name,
        ret = provReg.insert(key,name);
     }
 
-    PEG_METHOD_EXIT();
     return ret;
 }
 
 Message * JMPIProviderManager::processMessage(Message * request) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::processMessage()");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::processMessage()");
 
     Message * response = 0;
 
@@ -649,19 +476,18 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleStopAllProvidersRequest(request);
         break;
 
+    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+        response = handleInitializeProviderRequest(request);
+        break;
+
     case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
         response = handleSubscriptionInitCompleteRequest (request);
         break;
 
-    case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
-        response = handleIndicationServiceDisabledRequest (request);
-        break;
-
     default:
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "Unsupported Request %d",
-                   request->getType()
-                  ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                         "*** Unsupported Request "+request->getType());
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::processMessage: Unsupported request "<<request->getType ()<<PEGASUS_STD(endl));
 
         response = handleUnsupportedRequest(request);
         break;
@@ -694,8 +520,7 @@ void JMPIProviderManager::unloadIdleProviders()
 
 #define HandlerIntroBase(type,type1,message,request,response,handler) \
     CIM##type##RequestMessage * request = \
-        dynamic_cast<CIM##type##RequestMessage *>(const_cast<Message *> \
-        (message)); \
+        dynamic_cast<CIM##type##RequestMessage *>(const_cast<Message *>(message)); \
     PEGASUS_ASSERT(request != 0); \
     CIM##type##ResponseMessage * response = \
         dynamic_cast<CIM##type##ResponseMessage*>(request->buildResponse()); \
@@ -713,46 +538,39 @@ void JMPIProviderManager::unloadIdleProviders()
 
 #define HandlerCatch(handler) \
     catch(CIMException & e)  \
-    {   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s", \
-            (const char*)e.getMessage().getCString())); \
-        handler.setStatus(e.getCode(), e.getContentLanguages(), \
-        e.getMessage()); \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+                "Exception: " + e.getMessage()); \
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); \
     } \
     catch(Exception & e) \
-    {   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s", \
-            (const char*)e.getMessage().getCString())); \
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), \
-        e.getMessage()); \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+                "Exception: " + e.getMessage()); \
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); \
     } \
     catch(...) \
-    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
+    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
                 "Exception: Unknown"); \
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
 
 static jobjectArray getList(JvmVector *jv, JNIEnv *env, CIMPropertyList &list)
 {
-    jobjectArray pl= NULL;
-    if (!list.isNull())
-    {
-        Uint32 s=list.size();
-        jstring initial=env->NewString(NULL,0);
-        pl=(jobjectArray)env->NewObjectArray(s,jv->StringClassRef,initial);
-        for (Uint32 i=0; i<s; i++)
-        {
-            env->SetObjectArrayElement
-                (pl,i,env->NewStringUTF(list[i].getString().getCString()));
-        }
+    Uint32 s=list.size();
+    jobjectArray pl=NULL;
+    if (s) {
+       jstring initial=env->NewString(NULL,0);
+       pl=(jobjectArray)env->NewObjectArray(s,jv->StringClassRef,initial);
+       for (Uint32 i=0; i<s; i++) {
+           env->SetObjectArrayElement
+              (pl,i,env->NewStringUTF(list[i].getString().getCString()));
+       }
     }
     return pl;
 }
 
-Message * JMPIProviderManager::handleGetInstanceRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleGetInstanceRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleGetInstanceRequest");
 
     HandlerIntro(GetInstance,message,request,response,handler);
 
@@ -765,52 +583,40 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
-    {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-             "handleGetInstanceRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                  instanceName.getClassName().getString().getCString()
-             ));
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->instanceName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->instanceName.getClassName(),
-                                        request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                name.getPhysicalName(),
-                                                name.getLogicalName());
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName());
         OperationContext context;
 
-        context.insert(
-            request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-
-        if (request->operationContext.contains(UserRoleContainer::NAME))
-        {
-            context.insert(
-                request->operationContext.get(UserRoleContainer::NAME));
-        }
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         JMPIProvider &pr=ph.GetProvider();
 
-        PEG_TRACE(( TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-            "handleGetInstanceRequest:Calling provider instance: %s" ,
-            (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.getInstance: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: Calling provider getInstance: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -818,20 +624,14 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleGetInstanceRequest:"
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
+
+////////DDD(debugPrintMethodPointers (env, (jclass)pr.jProviderClass));
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -839,80 +639,79 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "getInstance",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                         "Lorg/pegasus/jmpi/CIMClass;Z)"
-                             "Lorg/pegasus/jmpi/CIMInstance;");
+           // public org.pegasus.jmpi.CIMInstance getInstance (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                                  org.pegasus.jmpi.CIMClass      cimClass,
+           //                                                  boolean                        localOnly)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "getInstance",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleGetInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: found METHOD_INSTANCEPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "getInstance",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ["
-                            "Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)"
-                                "Lorg/pegasus/jmpi/CIMInstance;");
+               // public org.pegasus.jmpi.CIMInstance getInstance (org.pegasus.jmpi.CIMObjectPath op,
+               //                                                  boolean                        localOnly,
+               //                                                  boolean                        includeQualifiers,
+               //                                                  boolean                        includeClassOrigin,
+               //                                                  java.lang.String[]             propertyList,
+               //                                                  org.pegasus.jmpi.CIMClass      cc)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "getInstance",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                       "handleGetInstanceRequest: "
-                           "Found METHOD_CIMINSTANCEPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: found METHOD_CIMINSTANCEPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "getInstance",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)"
-                                "Lorg/pegasus/jmpi/CIMInstance;");
+           /* Fix for 4238 */
+           // public org.pegasus.jmpi.CIMInstance getInstance (org.pegasus.jmpi.OperationContext oc
+           //                                                  org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                                  org.pegasus.jmpi.CIMClass         cimClass,
+           //                                                  boolean                           includeQualifiers,
+           //                                                  boolean                           includeClassOrigin,
+           //                                                  String                            propertyList[])
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "getInstance",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: found METHOD_INSTANCEPROVIDER2."<<PEGASUS_STD(endl));
            }
            /* Fix for 4238 */
         }
 
         if (id == NULL)
         {
-           PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-               "handleGetInstanceRequest: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on "
-                       "InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -921,11 +720,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jlong jopRef=DEBUG_ConvertCToJava(CIMObjectPath*,jlong,objectPath);
-            jobject jop=env->NewObject(
-                            jv->CIMObjectPathClassRef,
-                            jv->CIMObjectPathNewJ,
-                            jopRef);
+            jlong   jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jopRef);
 
             JMPIjvm::checkException(env);
 
@@ -933,46 +729,21 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetInstanceRequest: "
-                       "enter(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->
-                       instanceName.getClassName().getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
-               cls = pr._cimom_handle->getClass(
-                         context,
-                         request->nameSpace,
-                         request->instanceName.getClassName(),
-                         false,
-                         true,
-                         true,
-                         CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetInstanceRequest: "
-                   "exit(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->
-                       instanceName.getClassName().getString().getCString()
-                    ));
-
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->instanceName.getClassName(),
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleGetInstanceRequest: "
-                   "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->
-                      instanceName.getClassName().getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -980,14 +751,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jcimClassRef = DEBUG_ConvertCToJava(
-                                     CIMClass*,
-                                     jlong,
-                                     pcls);
-            jobject jcimClass = env->NewObject(
-                                    jv->CIMClassClassRef,
-                                    jv->CIMClassNewJ,
-                                    jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -1009,13 +774,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
             handler.processing();
 
             if (jciRet) {
-               jlong jciRetRef = env->CallLongMethod(
-                                     jciRet,
-                                     JMPIjvm::jv.CIMInstanceCInst);
-               CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                        jlong,
-                                        CIMInstance*,
-                                        jciRetRef);
+               jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                handler.deliver(*ciRet);
             }
@@ -1026,23 +786,11 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
         /* Fix for 4238 */
         case METHOD_INSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jopRef = DEBUG_ConvertCToJava(
-                               CIMObjectPath*,
-                               jlong,
-                               objectPath);
-            jobject jop = env->NewObject(
-                              jv->CIMObjectPathClassRef,
-                              jv->CIMObjectPathNewJ,
-                              jopRef);
+            jlong   jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1050,44 +798,21 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetInstanceRequest: "
-                   "enter(METHOD_INSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->
-                       instanceName.getClassName().getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
-               cls = pr._cimom_handle->getClass(
-                         context,
-                         request->nameSpace,
-                         request->instanceName.getClassName(),
-                         false,
-                         true,
-                         true,
-                         CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetInstanceRequest: "
-                   "exit(METHOD_INSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->
-                       instanceName.getClassName().getString().getCString()
-                   ));
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->instanceName.getClassName(),
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleGetInstanceRequest: "
-                   "Caught CIMExcetion (METHOD_INSTANCEPROVIDER2) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->
-                       instanceName.getClassName().getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -1095,11 +820,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
-            jobject jcimClass = env->NewObject(
-                                    jv->CIMClassClassRef,
-                                    jv->CIMClassNewJ,
-                                    jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -1107,23 +829,20 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobject jciRet = env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 joc,
-                                 jop,
-                                 jcimClass,
-                                 JMPI_INCLUDE_QUALIFIERS,
-                                 request->includeClassOrigin,
-                                 jPropertyList);
+            jobject      jciRet        = env->CallObjectMethod((jobject)pr.jProvider,
+                                                               id,
+                                                               joc,
+                                                               jop,
+                                                               jcimClass,
+                                                               JMPI_INCLUDE_QUALIFIERS,
+                                                               request->includeClassOrigin,
+                                                               jPropertyList);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(
-                   joc,
-                   JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -1131,13 +850,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
             handler.processing();
 
             if (jciRet) {
-               jlong jciRetRef = env->CallLongMethod(
-                                     jciRet,
-                                     JMPIjvm::jv.CIMInstanceCInst);
-               CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                        jlong,
-                                        CIMInstance*,
-                                        jciRetRef);
+               jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                handler.deliver(*ciRet);
             }
@@ -1148,13 +862,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jlong jopRef = DEBUG_ConvertCToJava(
-                               CIMObjectPath*,
-                               jlong,
-                               objectPath);
-            jobject jop = env->NewObject(
-                              jv->CIMObjectPathClassRef,
-                              jv->CIMObjectPathNewJ,jopRef);
+            jlong   jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1162,44 +871,21 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
             try
             {
-                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "handleGetInstanceRequest: "
-                    "enter(METHOD_INSTANCEPROVIDER): "
-                        "cimom_handle->getClass(%s).",
-                    (const char*)request->
-                        instanceName.getClassName().getString().getCString()
-                    ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
-               cls = pr._cimom_handle->getClass(
-                         context,
-                         request->nameSpace,
-                         request->instanceName.getClassName(),
-                         false,
-                         true,
-                         true,
-                         CIMPropertyList());
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetInstanceRequest: "
-                   "exit(METHOD_INSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->
-                       instanceName.getClassName().getString().getCString()
-                   ));
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->instanceName.getClassName(),
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleGetInstanceRequest: "
-                   "Caught CIMExcetion (METHOD_INSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->
-                       instanceName.getClassName().getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -1207,11 +893,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
-            jobject jcimClass = env->NewObject(
-                                    jv->CIMClassClassRef,
-                                    jv->CIMClassNewJ,
-                                    jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -1229,13 +912,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
             handler.processing();
 
             if (jciRet) {
-               jlong jciRetRef = env->CallLongMethod(
-                                     jciRet,
-                                     JMPIjvm::jv.CIMInstanceCInst);
-               CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                        jlong,
-                                        CIMInstance*,
-                                        jciRetRef);
+               jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+               CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                handler.deliver(*ciRet);
             }
@@ -1245,8 +923,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleGetInstanceRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -1260,12 +937,9 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleEnumerateInstancesRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleEnumerateInstanceRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleEnumerateInstanceRequest");
 
     HandlerIntro(EnumerateInstances,message,request,response,handler);
 
@@ -1279,14 +953,14 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
-    {
-       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-            "handleEnumerateInstanceRequest: "
-                "name space = %s class name = %s",
-            (const char*)request->nameSpace.getString().getCString(),
-            (const char*)request->className.getString().getCString()
-            ));
+    try {
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->className.getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
         CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
@@ -1298,27 +972,23 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                name.getPhysicalName(),
-                                                name.getLogicalName(),
-                                                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // convert arguments
         OperationContext context;
 
-        context.insert(
-            request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleEnumerateInstanceRequest: "
-            "Calling provider: %s", (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.enumerateInstances: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Calling provider enumerateInstances: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -1326,18 +996,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleEnumerateInstanceRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1346,98 +1009,102 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get (ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "enumInstances",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;Z"
-                         "Lorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;");
+           // public abstract java.util.Vector enumInstances (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                                 boolean                        deep,
+           //                                                 org.pegasus.jmpi.CIMClass      cimClass,
+           //                                                 boolean                        localOnly)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "enumInstances",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstances: Found METHOD_INSTANCEPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_INSTANCEPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "enumerateInstances",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ["
-                            "Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)["
-                                "Lorg/pegasus/jmpi/CIMInstance;");
+               // public org.pegasus.jmpi.CIMInstance[] enumerateInstances (org.pegasus.jmpi.CIMObjectPath cop,
+               //                                                           boolean                        localOnly,
+               //                                                           boolean                        includeQualifiers,
+               //                                                           boolean                        includeClassOrigin,
+               //                                                           java.lang.String[]             propertyList,
+               //                                                           org.pegasus.jmpi.CIMClass      cimClass)
+               //         throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "enumerateInstances",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleEnumerateInstances: "
-                           "Found METHOD_CIMINSTANCEPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_CIMINSTANCEPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "enumerateInstances",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)"
-                                "Ljava/util/Vector;");
+           /* Fix for 4189 */
+           // public abstract java.util.Vector enumerateInstances (org.pegasus.jmpi.OperationContext oc
+           //                                                      org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                                      org.pegasus.jmpi.CIMClass         cimClass,
+           //                                                      boolean                           includeQualifiers,
+           //                                                      boolean                           includeClassOrigin,
+           //                                                      java.lang.String[]                propertyList)
+           //         throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "enumerateInstances",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstances: "
-                       "Found METHOD_INSTANCEPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_INSTANCEPROVIDER2."<<PEGASUS_STD(endl));
            }
+           /* Fix for 4189 */
+
            if (id == NULL)
            {
                env->ExceptionClear();
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "enumerateInstances",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                "Lorg/pegasus/jmpi/CIMClass;ZZ["
-                                    "Ljava/lang/String;)["
-                                        "Lorg/pegasus/jmpi/CIMInstance;");
+
+               // public abstract org.pegasus.jmpi.CIMInstance[] enumerateInstances (org.pegasus.jmpi.OperationContext oc
+               //                                                                    org.pegasus.jmpi.CIMObjectPath    cop,
+               //                                                                    org.pegasus.jmpi.CIMClass         cimClass,
+               //                                                                    boolean                           includeQualifiers,
+               //                                                                    boolean                           includeClassOrigin,
+               //                                                                    java.lang.String[]                propertyList)
+               //         throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "enumerateInstances",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleEnumerateInstances: "
-                           "Found METHOD_CIMINSTANCEPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_CIMINSTANCEPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleEnumerateInstances: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on "
-                       "InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -1446,14 +1113,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1461,13 +1122,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstances: "
-                       "enter(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -1477,25 +1132,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstances: "
-                       "exit(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstances: "
-                   "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -1504,10 +1145,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             JMPIjvm::checkException(env);
 
             jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
-            jobject jcc = env->NewObject(
-                              jv->CIMClassClassRef,
-                              jv->CIMClassNewJ,
-                              jccRef);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -1515,15 +1153,14 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr  = (jobjectArray)env->CallObjectMethod(
-                                    (jobject)pr.jProvider,
-                                    id,
-                                    jcop,
-                                    JMPI_LOCALONLY,
-                                    JMPI_INCLUDE_QUALIFIERS,
-                                    request->includeClassOrigin,
-                                    jPropertyList,
-                                    jcc);
+            jobjectArray jAr           = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                             id,
+                                                                             jcop,
+                                                                             JMPI_LOCALONLY,
+                                                                             JMPI_INCLUDE_QUALIFIERS,
+                                                                             request->includeClassOrigin,
+                                                                             jPropertyList,
+                                                                             jcc);
 
             JMPIjvm::checkException(env);
 
@@ -1536,26 +1173,15 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleEnumerateInstances: "
-                               "enter: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -1565,28 +1191,16 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleEnumerateInstances: "
-                               "exit: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                           "handleEnumerateInstances: "
-                           "Caught CIMExcetion "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                                getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
+
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
 
@@ -1599,23 +1213,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
         case METHOD_CIMINSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1623,13 +1225,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstances: "
-                       "enter(METHOD_CIMINSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -1639,24 +1235,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstances: "
-                       "exit(METHOD_CIMINSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstances: "
-                   "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -1665,10 +1248,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             JMPIjvm::checkException(env);
 
             jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
-            jobject jcc = env->NewObject(
-                              jv->CIMClassClassRef,
-                              jv->CIMClassNewJ,
-                              jccRef);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -1676,21 +1256,20 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr = (jobjectArray)env->CallObjectMethod(
-                                   (jobject)pr.jProvider,
-                                   id,
-                                   joc,
-                                   jcop,
-                                   jcc,
-                                   JMPI_INCLUDE_QUALIFIERS,
-                                   request->includeClassOrigin,
-                                   jPropertyList);
+            jobjectArray jAr           = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                             id,
+                                                                             joc,
+                                                                             jcop,
+                                                                             jcc,
+                                                                             JMPI_INCLUDE_QUALIFIERS,
+                                                                             request->includeClassOrigin,
+                                                                             jPropertyList);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -1704,26 +1283,15 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleEnumerateInstancesRequest: "
-                               "enter: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                                getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -1733,27 +1301,16 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleEnumerateInstancesRequest: "
-                               "exit: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                                getClassName().getString().getCString()
-                           ));
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                           "handleEnumerateInstancesRequest: "
-                           "Caught CIMExcetion "
-                              "cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
+
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
 
@@ -1767,23 +1324,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
         /* Fix for 4189 */
         case METHOD_INSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1791,13 +1336,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             try
             {
-                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "handleEnumerateInstancesRequest: "
-                        "enter(METHOD_INSTANCEPROVIDER2): "
-                        "cimom_handle->getClass(%s).",
-                    (const char*)request->className.getString().getCString()
-                    ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass (context,
@@ -1807,26 +1346,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                  true,
                                                  true,
                                                  CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstancesRequest: "
-                       "enter(METHOD_INSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstancesRequest: "
-                   "Caught CIMExcetion(METHOD_INSTANCEPROVIDER2) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -1835,10 +1359,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             JMPIjvm::checkException(env);
 
             jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
-            jobject jcc = env->NewObject(
-                              jv->CIMClassClassRef,
-                              jv->CIMClassNewJ,
-                              jccRef);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -1846,59 +1367,42 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobject jVec = env->CallObjectMethod((jobject)pr.jProvider,
-                                                 id,
-                                                 joc,
-                                                 jcop,
-                                                 jcc,
-                                                 JMPI_INCLUDE_QUALIFIERS,
-                                                 request->includeClassOrigin,
-                                                 jPropertyList);
+            jobject      jVec          = env->CallObjectMethod((jobject)pr.jProvider,
+                                                               id,
+                                                               joc,
+                                                               jcop,
+                                                               jcc,
+                                                               JMPI_INCLUDE_QUALIFIERS,
+                                                               request->includeClassOrigin,
+                                                               jPropertyList);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                      i<m;
-                      i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass             cls;
 
                     try
                     {
-                        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                            "handleEnumerateInstancesRequest: "
-                                "enter: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                            ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -1908,31 +1412,23 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleEnumerateInstancesRequest: "
-                               "exit: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                           "handleEnumerateInstancesRequest: "
-                           "Caught CIMExcetion "
-                              "cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                              getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+
+                    ciRet->setPath(iop);
+                    /* Fix for 4237*/
 
                     handler.deliver(*ciRet);
                 }
@@ -1944,14 +1440,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -1959,13 +1449,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstancesRequest: "
-                       "enter(METHOD_INSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -1975,24 +1459,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstancesRequest: "
-                       "exit(METHOD_INSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstancesRequest: "
-                   "Caught CIMExcetion(METHOD_INSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -2001,10 +1472,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             JMPIjvm::checkException(env);
 
             jlong   jccRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
-            jobject jcc = env->NewObject(
-                              jv->CIMClassClassRef,
-                              jv->CIMClassNewJ,
-                              jccRef);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jccRef);
 
             JMPIjvm::checkException(env);
 
@@ -2022,39 +1490,22 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                      i<m;
-                      i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
                     CIMClass cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleEnumerateInstancesRequest: "
-                               "enter: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -2064,31 +1515,23 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleEnumerateInstancesRequest: "
-                               "exit: cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                           "handleEnumerateInstancesRequest: "
-                           "Caught CIMExcetion "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
-                    _fixCIMObjectPath(ciRet, cls);
+
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+
+                    ciRet->setPath(iop);
+                    /* Fix for 4237*/
 
                     handler.deliver(*ciRet);
                 }
@@ -2099,8 +1542,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleEnumerateInstancesRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -2114,12 +1556,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleEnumerateInstanceNamesRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
     HandlerIntro(EnumerateInstanceNames,message,request,response, handler);
 
@@ -2134,11 +1573,13 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-             "handleEnumerateInstanceNamesRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->className.getString().getCString()));
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleEnumerateInstanceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->className.getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
         CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
@@ -2150,25 +1591,21 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                name.getPhysicalName(),
-                                                name.getLogicalName());
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName());
 
         // convert arguments
         OperationContext context;
 
-        context.insert(
-            request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleEnumerateInstanceNamesRequest: "
-            "Calling provider: %s",(const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.enumerateInstanceNames: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Calling provider : enumerateInstanceNames: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -2176,19 +1613,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleEnumerateInstanceNamesRequest: "
-                     "Could not initialize the JVM (Java Virtual Machine) "
-                     "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                         "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -2197,100 +1626,89 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "enumInstances",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                        "ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;");
+           // public abstract java.util.Vector enumInstances (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                                 boolean                        deep,
+           //                                                 org.pegasus.jmpi.CIMClass      cimClass)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "enumInstances",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "Found METHOD_INSTANCEPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: found METHOD_INSTANCEPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                       (jclass)pr.jProviderClass,
-                       "enumerateInstanceNames",
-                       "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                           "Lorg/pegasus/jmpi/CIMClass;)["
-                               "Lorg/pegasus/jmpi/CIMObjectPath;");
+               // public org.pegasus.jmpi.CIMObjectPath[] enumerateInstanceNames (org.pegasus.jmpi.CIMObjectPath op,
+               //                                                                 org.pegasus.jmpi.CIMClass      cc)
+               //         throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "enumerateInstanceNames",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMObjectPath;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleEnumerateInstanceNamesRequest: "
-                           "Found METHOD_CIMINSTANCEPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: found METHOD_CIMINSTANCEPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "enumerateInstanceNames",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;");
+           // public abstract java.util.Vector enumerateInstanceNames (org.pegasus.jmpi.OperationContext oc
+           //                                                          org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                                          org.pegasus.jmpi.CIMClass         cimClass)
+           //         throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "enumerateInstanceNames",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "Found METHOD_INSTANCEPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: found METHOD_INSTANCEPROVIDER2."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "enumerateInstanceNames",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                             "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                 "Lorg/pegasus/jmpi/CIMClass;)"
-                                     "[Lorg/pegasus/jmpi/CIMObjectPath;");
+               // public abstract org.pegasus.jmpi.CIMObjectPath[] enumerateInstanceNames (org.pegasus.jmpi.OperationContext oc
+               //                                                                          org.pegasus.jmpi.CIMObjectPath    cop,
+               //                                                                          org.pegasus.jmpi.CIMClass         cimClass)
+               //         throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "enumerateInstanceNames",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMObjectPath;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleEnumerateInstanceNamesRequest: "
-                           "Found METHOD_CIMINSTANCEPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: found METHOD_CIMINSTANCEPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleEnumerateInstanceNamesRequest: "
-                    "No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on "
-                       "InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -2299,14 +1717,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -2314,13 +1726,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "enter(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -2330,26 +1736,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "exit(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstanceNamesRequest: "
-                   "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -2357,24 +1748,17 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jcimClassRef = DEBUG_ConvertCToJava(
-                                     CIMClass*,
-                                     jlong,
-                                     pcls);
-            jobject jcimClass = env->NewObject(
-                                    jv->CIMClassClassRef,
-                                    jv->CIMClassNewJ,
-                                    jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr = (jobjectArray)env->CallObjectMethod(
-                                   (jobject)pr.jProvider,
-                                   id,
-                                   jcop,
-                                   jcimClass);
+            jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                   id,
+                                                                   jcop,
+                                                                   jcimClass);
 
             JMPIjvm::checkException(env);
 
@@ -2387,13 +1771,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -2406,23 +1785,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         case METHOD_CIMINSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -2430,13 +1797,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "enter(METHOD_CIMINSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -2446,26 +1807,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "exit(METHOD_CIMINSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstanceNamesRequest: "
-                   "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER2) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -2473,28 +1819,24 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jcimClassRef = DEBUG_ConvertCToJava(CIMClass*, jlong, pcls);
-            jobject jcimClass = env->NewObject(
-                                    jv->CIMClassClassRef,
-                                    jv->CIMClassNewJ,
-                                    jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr = (jobjectArray)env->CallObjectMethod(
-                                   (jobject)pr.jProvider,
-                                   id,
-                                   joc,
-                                   jcop,
-                                   jcimClass);
+            jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                   id,
+                                                                   joc,
+                                                                   jcop,
+                                                                   jcimClass);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -2508,13 +1850,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -2527,23 +1864,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         case METHOD_INSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -2551,13 +1876,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "enter(METHOD_INSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -2567,26 +1886,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "exit(METHOD_INSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstanceNamesRequest: "
-                   "Caught CIMExcetion(METHOD_INSTANCEPROVIDER2) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -2594,14 +1898,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jcimClassRef = DEBUG_ConvertCToJava(
-                                     CIMClass*,
-                                     jlong,
-                                     pcls);
-            jobject jcimClass = env->NewObject(
-                                    jv->CIMClassClassRef,
-                                    jv->CIMClassNewJ,
-                                    jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -2617,33 +1915,22 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                      i<m;
-                      i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->CallObjectMethod(
-                                          jVec,
-                                          JMPIjvm::jv.VectorElementAt,
-                                          i);
+                    jobject jcopRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -2656,14 +1943,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -2671,13 +1952,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "exit(METHOD_INSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -2687,25 +1962,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleEnumerateInstanceNamesRequest: "
-                       "exit(METHOD_INSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                   "handleEnumerateInstanceNamesRequest: "
-                   "Caught CIMExcetion(METHOD_INSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -2713,14 +1974,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jcimClassRef = DEBUG_ConvertCToJava(
-                                     CIMClass*,
-                                     jlong,
-                                     pcls);
-            jobject jcimClass = env->NewObject(
-                                    jv->CIMClassClassRef,
-                                    jv->CIMClassNewJ,
-                                    jcimClassRef);
+            jlong   jcimClassRef = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
+            jobject jcimClass    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcimClassRef);
 
             JMPIjvm::checkException(env);
 
@@ -2736,26 +1991,15 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                      i<m;
-                      i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->CallObjectMethod(
-                                          jVec,
-                                          JMPIjvm::jv.VectorElementAt,
-                                          i);
+                    jobject jcopRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -2768,9 +2012,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleEnumerateInstanceNamesRequest: "
-                    "Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -2784,12 +2026,9 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleCreateInstanceRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleCreateInstanceRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleCreateInstanceRequest");
 
     HandlerIntro(CreateInstance,message,request,response,handler);
 
@@ -2802,39 +2041,35 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleCreateInstanceRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 newInstance.getPath().getClassName().getString().getCString()
-             ));
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleCreateInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->newInstance.getPath().getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->newInstance.getPath().getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath =
-            new CIMObjectPath(
-                System::getHostName(),
-                request->nameSpace,
-                request->newInstance.getPath().getClassName(),
-                request->newInstance.getPath().getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->newInstance.getPath().getClassName(),
+                                                       request->newInstance.getPath().getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                name.getPhysicalName(),
-                name.getLogicalName(),
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleCreateInstanceRequest: "
-            "Calling provider: %s", (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.createInstance: " + ph.GetProvider().getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: Calling provider createInstance: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -2842,19 +2077,11 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleCreateInstanceRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -2863,61 +2090,51 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(
-                ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "createInstance",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                        "Lorg/pegasus/jmpi/CIMInstance;)"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;");
+           // public org.pegasus.jmpi.CIMObjectPath createInstance (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                                       org.pegasus.jmpi.CIMInstance   cimInstance)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "createInstance",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)Lorg/pegasus/jmpi/CIMObjectPath;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleCreateInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: found METHOD_INSTANCEPROVIDER."<<PEGASUS_STD(endl));
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "createInstance",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMInstance;)"
-                                "Lorg/pegasus/jmpi/CIMObjectPath;");
+           // public org.pegasus.jmpi.CIMObjectPath createInstance (org.pegasus.jmpi.OperationContext oc
+           //                                                       org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                                       org.pegasus.jmpi.CIMInstance      cimInstance)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "createInstance",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)Lorg/pegasus/jmpi/CIMObjectPath;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleCreateInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: found METHOD_INSTANCEPROVIDER2."<<PEGASUS_STD(endl));
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleCreateInstanceRequest: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on "
-                        "InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -2926,30 +2143,18 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
         {
         case METHOD_INSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
             CIMInstance *ci     = new CIMInstance (request->newInstance);
-            jlong jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
-            jobject jci = env->NewObject(
-                              jv->CIMInstanceClassRef,
-                              jv->CIMInstanceNewJ,
-                              jciRef);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                 "handleCreateInstanceRequest: "
-                     "id = %p, jcop = %p, jci = %p",
-                       id,jcop,jci));
+            DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: id = "<<id<<", jcop = "<<jcop<<", jci = "<<jci<<PEGASUS_STD(endl));
 
             StatProviderTimeMeasurement providerTime(response);
 
@@ -2963,13 +2168,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
             handler.processing();
 
             if (jcopRet) {
-                jlong jCopRetRef = env->CallLongMethod(
-                                       jcopRet,
-                                       JMPIjvm::jv.CIMObjectPathCInst);
-                CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                            jlong,
-                                            CIMObjectPath*,
-                                            jCopRetRef);
+                jlong          jCopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jCopRetRef);
 
                 handler.deliver(*copRet);
             }
@@ -2979,39 +2179,21 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
         case METHOD_INSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            CIMInstance *ci = new CIMInstance (request->newInstance);
-            jlong jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
-            jobject jci = env->NewObject(
-                              jv->CIMInstanceClassRef,
-                              jv->CIMInstanceNewJ,
-                              jciRef);
+            CIMInstance *ci     = new CIMInstance (request->newInstance);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                 "handleCreateInstanceRequest: "
-                     "id = %p, jcop = %p, jci = %p",
-                       id,jcop,jci));
+            DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: id = "<<id<<", jcop = "<<jcop<<", jci = "<<jci<<PEGASUS_STD(endl));
 
             StatProviderTimeMeasurement providerTime(response);
 
@@ -3025,7 +2207,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -3033,13 +2215,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
             handler.processing();
 
             if (jcopRet) {
-                jlong jCopRetRef = env->CallLongMethod(
-                                       jcopRet,
-                                       JMPIjvm::jv.CIMObjectPathCInst);
-                CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                            jlong,
-                                            CIMObjectPath*,
-                                            jCopRetRef);
+                jlong          jCopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jCopRetRef);
 
                 handler.deliver(*copRet);
             }
@@ -3049,8 +2226,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleCreateInstanceRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -3064,12 +2240,9 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleModifyInstanceRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleModifyInstanceRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleModifyInstanceRequest");
 
     HandlerIntro(ModifyInstance,message,request,response,handler);
 
@@ -3083,46 +2256,37 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleModifyInstanceRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->modifiedInstance.getPath().getClassName()
-                 .getString().getCString()
-             ));
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->modifiedInstance.getPath().getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->modifiedInstance.getPath().getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath =
-           new CIMObjectPath(
-               System::getHostName(),
-               request->nameSpace,
-               request->modifiedInstance.getPath().getClassName(),
-               request->modifiedInstance.getPath ().getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->modifiedInstance.getPath ().getClassName(),
+                                                       request->modifiedInstance.getPath ().getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-             "handleModifyInstanceRequest: "
-                 "provider name physical = %s, logical = %s",
-              (const char*)name.getPhysicalName().getCString(),
-              (const char*)name.getLogicalName().getCString()
-              ));
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: provider name physical = "<<name.getPhysicalName()<<", logical = "<<name.getLogicalName()<<PEGASUS_STD(endl));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                name.getPhysicalName(),
-                name.getLogicalName(),
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleModifyInstanceRequest: "
-            "Calling provider: %s", (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.modifyInstance: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: Calling provider "<<PEGASUS_STD(hex)<<(long)&pr<<PEGASUS_STD(dec)<<", name = "<<pr.getName ()<<", module = "<<pr.getModule()<<" modifyInstance: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -3130,19 +2294,11 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                "handleModifyInstanceRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -3151,78 +2307,71 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(
-                ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "setInstance",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                        "Lorg/pegasus/jmpi/CIMInstance;)V");
+           // public abstract void setInstance (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                   org.pegasus.jmpi.CIMInstance   cimInstance)
+           //        org.pegasus.jmpi.throws CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "setInstance",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleModifyInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: found METHOD_INSTANCEPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "setInstance",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Z[Ljava/lang/String)V");
+               // public void setInstance (org.pegasus.jmpi.CIMObjectPath op,
+               //                          org.pegasus.jmpi.CIMInstance   ci,
+               //                          boolean                        includeQualifiers,
+               //                          java.lang.String[]             propertyList)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "setInstance",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Z[Ljava/lang/String)V");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleModifyInstanceRequest: "
-                           "Found METHOD_CIMINSTANCEPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: found METHOD_CIMINSTANCEPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                   (jclass)pr.jProviderClass,
-                   "setInstance",
-                   "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMInstance;)V");
+           // public abstract void setInstance (org.pegasus.jmpi.OperationContext oc,
+           //                                   org.pegasus.jmpi.CIMObjectPath    op,
+           //                                   org.pegasus.jmpi.CIMInstance      cimInstance);
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "setInstance",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleModifyInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: found METHOD_INSTANCEPROVIDER2."<<PEGASUS_STD(endl));
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleModifyInstanceRequest: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on "
-                       "InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -3231,33 +2380,17 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
         {
         case METHOD_INSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
-
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            CIMInstance *ci = new CIMInstance (request->modifiedInstance);
-            jlong jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
-            jobject jci = env->NewObject(
-                              jv->CIMInstanceClassRef,
-                              jv->CIMInstanceNewJ,
-                              jciRef);
+            CIMInstance *ci     = new CIMInstance (request->modifiedInstance);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -3275,7 +2408,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -3284,23 +2417,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
 
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
             CIMInstance *ci     = new CIMInstance (request->modifiedInstance);
-            jlong jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
-            jobject jci = env->NewObject(
-                              jv->CIMInstanceClassRef,
-                              jv->CIMInstanceNewJ,
-                              jciRef);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -3321,23 +2445,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            CIMInstance *ci = new CIMInstance (request->modifiedInstance);
-            jlong jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
-            jobject jci = env->NewObject(
-                              jv->CIMInstanceClassRef,
-                              jv->CIMInstanceNewJ,
-                              jciRef);
+            CIMInstance *ci     = new CIMInstance (request->modifiedInstance);
+            jlong        jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
+            jobject      jci    = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewJ,jciRef);
 
             JMPIjvm::checkException(env);
 
@@ -3354,8 +2469,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleModifyInstanceRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -3369,12 +2483,9 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleDeleteInstanceRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleDeleteInstanceRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleDeleteInstanceRequest");
 
     HandlerIntro(DeleteInstance,message,request,response,handler);
 
@@ -3387,38 +2498,35 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleDeleteInstanceRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 instanceName.getClassName().getString().getCString()
-             ));
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->instanceName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->instanceName.getClassName(),
-                                        request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                name.getPhysicalName(),
-                name.getLogicalName(),
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleDeleteInstanceRequest: "
-            "Calling provider: %s", (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.deleteInstance: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteInstanceRequest: Calling provider deleteInstance: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -3426,19 +2534,11 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleDeleteInstanceRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -3447,13 +2547,14 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
+           // public abstract void deleteInstance (org.pegasus.jmpi.CIMObjectPath cop)
+           //        throws org.pegasus.jmpi.CIMException
            id = env->GetMethodID((jclass)pr.jProviderClass,
                                  "deleteInstance",
                                  "(Lorg/pegasus/jmpi/CIMObjectPath;)V");
@@ -3461,41 +2562,34 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleDeleteInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteInstanceRequest: found METHOD_INSTANCEPROVIDER."<<PEGASUS_STD(endl));
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "deleteInstance",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;)V");
+           // public abstract void deleteInstance (org.pegasus.jmpi.OperationContext oc,
+           //                                      org.pegasus.jmpi.CIMObjectPath    cop)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "deleteInstance",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleDeleteInstanceRequest: "
-                       "Found METHOD_INSTANCEPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteInstanceRequest: found METHOD_INSTANCEPROVIDER2."<<PEGASUS_STD(endl));
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleDeleteInstanceRequest: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteInstanceRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on "
-                       "InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -3504,23 +2598,11 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
         {
         case METHOD_INSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -3535,7 +2617,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -3544,14 +2626,8 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -3567,8 +2643,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleDeleteInstanceRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteInstanceRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -3582,12 +2657,9 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleExecQueryRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleExecQueryRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleExecQueryRequest");
 
     HandlerIntro(ExecQuery,message,request,response,handler);
 
@@ -3602,12 +2674,13 @@ Message * JMPIProviderManager::handleExecQueryRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleExecQueryRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->className.getString().getCString()
-             ));
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleExecQueryRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->className.getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
         CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
@@ -3619,32 +2692,23 @@ Message * JMPIProviderManager::handleExecQueryRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                name.getPhysicalName(),
-                name.getLogicalName(),
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // convert arguments
         OperationContext context;
 
-        context.insert(
-            request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleExecQueryRequest: "
-                "Calling provider: %s, queryLanguage: %s, query: %s",
-            (const char*)pr.getName().getCString(),
-            (const char*)request->queryLanguage.getCString(),
-            (const char*)request->query.getCString()
-            ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.execQuery: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Calling provider execQuery: "<<pr.getName()<<", queryLanguage: "<<request->queryLanguage<<", query: "<<request->query<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -3652,19 +2716,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleExecQueryRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -3673,100 +2729,97 @@ Message * JMPIProviderManager::handleExecQueryRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(
-                ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                   (jclass)pr.jProviderClass,
-                   "execQuery",
-                   "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                       "ILorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;");
+           // public abstract java.util.Vector execQuery (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                             java.lang.String               queryStatement,
+           //                                             int                            ql,
+           //                                             org.pegasus.jmpi.CIMClass      cimClass)
+           //        throws org.pegasus.jmpi.CIMException
+           //
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "execQuery",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ILorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: Found METHOD_INSTANCEPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: found METHOD_INSTANCEPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "execQuery",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                            "Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)"
-                                "[Lorg/pegasus/jmpi/CIMInstance;");
+               // public abstract org.pegasus.jmpi.CIMInstance[] execQuery(org.pegasus.jmpi.CIMObjectPath cop,
+               //                                                          java.lang.String               query,
+               //                                                          java.lang.String               ql,
+               //                                                          org.pegasus.jmpi.CIMClass      cimClass)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "execQuery",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleExecQueryRequest: "
-                           "Found METHOD_CIMINSTANCEPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: found METHOD_CIMINSTANCEPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "execQuery",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                         "Lorg/pegasus/jmpi/CIMObjectPath;"
-                             "Lorg/pegasus/jmpi/CIMClass;Ljava/lang/String;"
-                                 "Ljava/lang/String;)Ljava/util/Vector;");
+           // public abstract java.util.Vector execQuery (org.pegasus.jmpi.OperationContext oc,
+           //                                             org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                             org.pegasus.jmpi.CIMClass         cimClass,
+           //                                             java.lang.String                  queryStatement,
+           //                                             java.lang.String                  queryLanguage)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "execQuery",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: Found METHOD_INSTANCEPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: found METHOD_INSTANCEPROVIDER2."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "execQuery",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                "Lorg/pegasus/jmpi/CIMClass;Ljava/lang/String;"
-                                    "Ljava/lang/String;)"
-                                        "[Lorg/pegasus/jmpi/CIMInstance;");
+               // public abstract org.pegasus.jmpi.CIMInstance[] execQuery (org.pegasus.jmpi.OperationContext oc,
+               //                                                           org.pegasus.jmpi.CIMObjectPath    cop,
+               //                                                           org.pegasus.jmpi.CIMClass         cimClass,
+               //                                                           java.lang.String                  queryStatement,
+               //                                                           java.lang.String                  queryLanguage)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "execQuery",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Ljava/lang/String;Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleExecQueryRequest: "
-                           "Found METHOD_CIMINSTANCEPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: found METHOD_CIMINSTANCEPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleExecQueryRequest: No method provider found!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: found no method!"<<PEGASUS_STD(endl));
 
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                    "Could not find a method for the provider based on "
-                         "InterfaceType."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                               "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -3775,33 +2828,19 @@ Message * JMPIProviderManager::handleExecQueryRequest(
         {
         case METHOD_CIMINSTANCEPROVIDER:
         {
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring jqueryLanguage = env->NewStringUTF(
-                                         request->queryLanguage.getCString());
-            jstring jquery         = env->NewStringUTF(
-                                         request->query.getCString());
+            jstring jqueryLanguage = env->NewStringUTF(request->queryLanguage.getCString());
+            jstring jquery         = env->NewStringUTF(request->query.getCString());
 
             CIMClass cls;
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "enter(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -3811,26 +2850,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "exit(METHOD_CIMINSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                   "handleExecQueryRequest: "
-                   "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -3840,22 +2864,18 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
             jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(
-                            jv->CIMClassClassRef,
-                            jv->CIMClassNewJ,
-                            jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr = (jobjectArray)env->CallObjectMethod(
-                                   (jobject)pr.jProvider,
-                                   id,
-                                   jcop,
-                                   jquery,
-                                   jqueryLanguage,
-                                   jCc);
+            jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                   id,
+                                                                   jcop,
+                                                                   jquery,
+                                                                   jqueryLanguage,
+                                                                   jCc);
 
             JMPIjvm::checkException(env);
 
@@ -3868,13 +2888,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -3887,42 +2902,22 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
         case METHOD_CIMINSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring jqueryLanguage = env->NewStringUTF(
-                                         request->queryLanguage.getCString());
-            jstring jquery         = env->NewStringUTF(
-                                         request->query.getCString());
+            jstring jqueryLanguage = env->NewStringUTF(request->queryLanguage.getCString());
+            jstring jquery         = env->NewStringUTF(request->query.getCString());
 
             CIMClass cls;
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "enter(METHOD_CIMINSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -3932,26 +2927,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "exit(METHOD_CIMINSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                   "handleExecQueryRequest: "
-                   "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER2) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -3961,29 +2941,25 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
             jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(
-                            jv->CIMClassClassRef,
-                            jv->CIMClassNewJ,
-                            jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr = (jobjectArray)env->CallObjectMethod(
-                                   (jobject)pr.jProvider,
-                                   id,
-                                   joc,
-                                   jcop,
-                                   jquery,
-                                   jqueryLanguage,
-                                   jCc);
+            jobjectArray jAr = (jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                   id,
+                                                                   joc,
+                                                                   jcop,
+                                                                   jquery,
+                                                                   jqueryLanguage,
+                                                                   jCc);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -3997,13 +2973,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -4016,42 +2987,22 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
         case METHOD_INSTANCEPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring jqueryLanguage = env->NewStringUTF(
-                                         request->queryLanguage.getCString());
-            jstring jquery         = env->NewStringUTF(
-                                         request->query.getCString());
+            jstring jqueryLanguage = env->NewStringUTF(request->queryLanguage.getCString());
+            jstring jquery         = env->NewStringUTF(request->query.getCString());
 
             CIMClass cls;
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "enter(METHOD_INSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -4061,26 +3012,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "exit(METHOD_INSTANCEPROVIDER2): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                   "handleExecQueryRequest: "
-                   "Caught CIMExcetion(METHOD_INSTANCEPROVIDER2) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -4088,10 +3024,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
             jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(
-                            jv->CIMClassClassRef,
-                            jv->CIMClassNewJ,
-                            jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
@@ -4109,7 +3042,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -4117,70 +3050,43 @@ Message * JMPIProviderManager::handleExecQueryRequest(
             handler.processing();
             if (jVec)
             {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i < m;
-                     i++)
+                for (int i = 0, m = env->CallIntMethod (jVec, JMPIjvm::jv.VectorSize); i < m; i++)
                 {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
-                    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "handleExecQueryRequest: jciRet = %p",jciRet));
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                    DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: jciRet = "<<jciRet<<PEGASUS_STD(endl));
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
                     handler.deliver(*ciRet);
                 }
             }
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "handleExecQueryRequest: done!");
-
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: done!"<<PEGASUS_STD(endl));
             handler.complete();
             break;
         }
 
         case METHOD_INSTANCEPROVIDER:
         {
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring jqueryLanguage = env->NewStringUTF(
-                                         request->queryLanguage.getCString());
-            jstring jquery = env->NewStringUTF(
-                                 request->query.getCString());
+            jstring jqueryLanguage = env->NewStringUTF(request->queryLanguage.getCString());
+            jstring jquery         = env->NewStringUTF(request->query.getCString());
 
             CIMClass cls;
 
             try
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "enter(METHOD_INSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
                AutoMutex lock (pr._cimomMutex);
 
                cls = pr._cimom_handle->getClass(context,
@@ -4190,26 +3096,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(
                                                 true,
                                                 true,
                                                 CIMPropertyList());
-
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleExecQueryRequest: "
-                       "exit(METHOD_INSTANCEPROVIDER): "
-                       "cimom_handle->getClass(%s).",
-                   (const char*)request->className.getString().getCString()
-                   ));
-
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                   "handleExecQueryRequest: "
-                   "Caught CIMExcetion(METHOD_INSTANCEPROVIDER) "
-                       "during cimom_handle->getClass(%s): %s ",
-                   (const char*)request->className.getString().getCString(),
-                   (const char*)e.getMessage().getCString()
-                   ));
-
-               PEG_METHOD_EXIT();
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                throw;
             }
 
@@ -4219,10 +3110,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
             jlong jcls = DEBUG_ConvertCToJava (CIMClass*, jlong, pcls);
 
-            jobject jCc=env->NewObject(
-                            jv->CIMClassClassRef,
-                            jv->CIMClassNewJ,
-                            jcls);
+            jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewJ,jcls);
 
             JMPIjvm::checkException(env);
 
@@ -4230,37 +3118,26 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobject jVec = env->CallObjectMethod((jobject)pr.jProvider,
-                                                 id,
-                                                 jcop,
-                                                 jquery,
-                                                 jql,
-                                                 jCc);
+            jobject jVec = env->CallObjectMethod ((jobject)pr.jProvider,
+                                                  id,
+                                                  jcop,
+                                                  jquery,
+                                                  jql,
+                                                  jCc);
 
             JMPIjvm::checkException(env);
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m;
-                     i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    jlong        jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -4273,8 +3150,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleExecQueryRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -4288,12 +3164,9 @@ Message * JMPIProviderManager::handleExecQueryRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleAssociatorsRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleAssociatorsRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleAssociatorsRequest");
 
     HandlerIntro(Associators,message,request,response,handler);
 
@@ -4307,58 +3180,46 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
-    {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleAssociatorsRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 objectName.getClassName().getString().getCString()
-             ));
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleAssociatorsRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->objectName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->objectName.getClassName(),
-                                        request->objectName.getKeyBindings());
-        CIMObjectPath *assocPath  = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->assocClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *assocPath  = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->assocClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                name.getPhysicalName(),
-                name.getLogicalName(),
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // convert arguments
         OperationContext context;
 
-        context.insert(
-            request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleAssociatorsRequest: "
-                "Calling provider: %s, role: %s, aCls: %s",
-            (const char*)pr.getName().getCString(),
-            (const char*)request->role.getCString(),
-            (const char*)request->assocClass.getString().getCString()
-            ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.associators: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: Calling provider associators: "<<pr.getName()<<", role: "<<request->role<<", aCls: "<<request->assocClass<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -4366,19 +3227,11 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleAssociatorsRequest: "
-                "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -4387,108 +3240,116 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(
-                ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                   (jclass)pr.jProviderClass,
-                   "associators",
-                   "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                       "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                           "Ljava/lang/String;Ljava/lang/String;"
-                               "ZZ[Ljava/lang/String;)Ljava/util/Vector;");
+           // public java.util.Vector associators (org.pegasus.jmpi.CIMObjectPath assocName,
+           //                                      org.pegasus.jmpi.CIMObjectPath pathName,
+           //                                      java.lang.String               resultClass,
+           //                                      java.lang.String               role,
+           //                                      java.lang.String               resultRole,
+           //                                      boolean                        includeQualifiers,
+           //                                      boolean                        includeClassOrigin,
+           //                                      java.lang.String[]             propertyList)
+           //        throws org.pegasus.jmpi.CIMException
+           //
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "associators",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleAssociatorsRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: found METHOD_ASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "associators",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                                "Ljava/lang/String;Ljava/lang/String;"
-                                    "ZZ[Ljava/lang/String;)"
-                                        "[Lorg/pegasus/jmpi/CIMInstance;");
+               // public org.pegasus.jmpi.CIMInstance[] associators (org.pegasus.jmpi.CIMObjectPath assocName,
+               //                                                    org.pegasus.jmpi.CIMObjectPath pathName,
+               //                                                    java.lang.String               resultClass,
+               //                                                    java.lang.String               role,
+               //                                                    java.lang.String               resultRole,
+               //                                                    boolean                        includeQualifiers,
+               //                                                    boolean                        includeClassOrigin,
+               //                                                    java.lang.String[]             propertyList)
+               //        throws org.pegasus.jmpi.CIMException
+               //
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "associators",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ[Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleAssociatorsRequest: "
-                           "Found METHOD_ASSOCIATORPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: found METHOD_CIMASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "associators",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                "Ljava/lang/String;Ljava/lang/String;"
-                                    "Ljava/lang/String;ZZ[Ljava/lang/String;)"
-                                        "Ljava/util/Vector;");
+           // public java.util.Vector associators (org.pegasus.jmpi.OperationContext oc,
+           //                                      org.pegasus.jmpi.CIMObjectPath    assocName,
+           //                                      org.pegasus.jmpi.CIMObjectPath    pathName,
+           //                                      java.lang.String                  resultClass,
+           //                                      java.lang.String                  role,
+           //                                      java.lang.String                  resultRole,
+           //                                      boolean                           includeQualifiers,
+           //                                      boolean                           includeClassOrigin,
+           //                                      java.lang.String[]                propertyList)
+           //        throws org.pegasus.jmpi.CIMException
+           //
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "associators",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleAssociatorsRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: found METHOD_ASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "associators",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                    "Ljava/lang/String;Ljava/lang/String;"
-                                       "Ljava/lang/String;ZZ[Ljava/lang/String;"
-                                          ")[Lorg/pegasus/jmpi/CIMInstance;");
+
+               // public org.pegasus.jmpi.CIMInstance[] associators (org.pegasus.jmpi.OperationContext oc,
+               //                                                    org.pegasus.jmpi.CIMObjectPath assocName,
+               //                                                    org.pegasus.jmpi.CIMObjectPath pathName,
+               //                                                    java.lang.String               resultClass,
+               //                                                    java.lang.String               role,
+               //                                                    java.lang.String               resultRole,
+               //                                                    boolean                        includeQualifiers,
+               //                                                    boolean                        includeClassOrigin,
+               //                                                    java.lang.String[]             propertyList)
+               //        throws org.pegasus.jmpi.CIMException
+               //
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "associators",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ[Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleAssociatorsRequest: "
-                           "Found METHOD_CIMASSOCIATORPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: found METHOD_CIMASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleAssociatorsRequest: No method found!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: found no method!"<<PEGASUS_STD(endl));
 
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                    "Could not find a method for the provider based on "
-                        "InterfaceType."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                               "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -4497,77 +3358,46 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jlong   jAssociationNameRef = DEBUG_ConvertCToJava(
-                                              CIMObjectPath*,
-                                              jlong,
-                                              assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong   jPathNameRef = DEBUG_ConvertCToJava(
-                                       CIMObjectPath*,
-                                       jlong,
-                                       objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole =
-                env->NewStringUTF(
-                    request->role.getCString());
-            jstring jResultRole =
-                env->NewStringUTF(
-                    request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeClassOrigin = false");
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: assocName          = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: pathName           = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultClass        = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultRole         = "<<request->resultRole<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 jAssociationName,
-                                 jPathName,
-                                 jResultClass,
-                                 jRole,
-                                 jResultRole,
-                                 JMPI_INCLUDE_QUALIFIERS,
-                                 request->includeClassOrigin,
-                                 jPropertyList);
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
 
@@ -4580,28 +3410,16 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
-                    CIMClass cls;
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
+                    CIMClass             cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleAssociatorsRequest: "
-                               "enter(METHOD_CIMASSOCIATORPROVIDER): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -4611,34 +3429,21 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleAssociatorsRequest: "
-                               "exit(METHOD_CIMASSOCIATORPROVIDER): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                                  getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleAssociatorsRequest: "
-                           "Caught CIMExcetion(METHOD_CIMASSOCIATORPROVIDER) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                                  getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -4649,91 +3454,56 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
         case METHOD_CIMASSOCIATORPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole =
-                env->NewStringUTF(request->role.getCString());
-            jstring jResultRole =
-                env->NewStringUTF(request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeClassOrigin = false");
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: assocName          = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: pathName           = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultClass        = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultRole         = "<<request->resultRole<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 joc,
-                                 jAssociationName,
-                                 jPathName,
-                                 jResultClass,
-                                 jRole,
-                                 jResultRole,
-                                 JMPI_INCLUDE_QUALIFIERS,
-                                 request->includeClassOrigin,
-                                 jPropertyList);
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -4747,28 +3517,16 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
-                    CIMClass cls;
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
+                    CIMClass             cls;
 
                     try
                     {
-                        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                            "handleAssociatorsRequest: "
-                                "enter(METHOD_CIMASSOCIATORPROVIDER2): "
-                                "cimom_handle->getClass(%s).",
-                            (const char*)ciRet->
-                                getClassName().getString().getCString()
-                            ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -4778,32 +3536,21 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleAssociatorsRequest: "
-                               "exit(METHOD_CIMASSOCIATORPROVIDER2): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleAssociatorsRequest: "
-                           "Caught CIMExcetion(METHOD_CIMASSOCIATORPROVIDER2) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -4814,170 +3561,103 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole =
-                env->NewStringUTF(request->role.getCString());
-            jstring jResultRole =
-                env->NewStringUTF(request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeClassOrigin = false");
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: assocName          = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: pathName           = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultClass        = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultRole         = "<<request->resultRole<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  joc,
-                                  jAssociationName,
-                                  jPathName,
-                                  jResultClass,
-                                  jRole,
-                                  jResultRole,
-                                  JMPI_INCLUDE_QUALIFIERS,
-                                  request->includeClassOrigin,
-                                  jPropertyList);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m;
-                     i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
-                    CIMClass cls;
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
+                    CIMClass             cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleAssociatorsRequest: "
-                               "enter(METHOD_ASSOCIATORPROVIDER2): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
-                       cls = pr._cimom_handle->getClass(
-                                 context,
-                                 request->nameSpace,
-                                 ciRet->getClassName(),
-                                 false,
-                                 true,
-                                 true,
-                                 CIMPropertyList());
-
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleAssociatorsRequest: "
-                               "exit(METHOD_ASSOCIATORPROVIDER2): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleAssociatorsRequest: "
-                           "Caught CIMExcetion(METHOD_ASSOCIATORPROVIDER2) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -4988,111 +3668,65 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole =
-                env->NewStringUTF(request->role.getCString());
-            jstring jResultRole =
-                env->NewStringUTF(request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorsRequest: includeClassOrigin = false");
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: assocName          = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: pathName           = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultClass        = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: resultRole         = "<<request->resultRole<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorsRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  jAssociationName,
-                                  jPathName,
-                                  jResultClass,
-                                  jRole,
-                                  jResultRole,
-                                  JMPI_INCLUDE_QUALIFIERS,
-                                  request->includeClassOrigin,
-                                  jPropertyList);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m;
-                     i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
+
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
-                    CIMClass cls;
+                    jlong                jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
+                    CIMClass             cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleAssociatorsRequest: "
-                               "enter(METHOD_ASSOCIATORPROVIDER): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -5102,33 +3736,21 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleAssociatorsRequest: "
-                               "exit(METHOD_ASSOCIATORPROVIDER): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleAssociatorsRequest: "
-                           "Caught CIMExcetion(METHOD_ASSOCIATORPROVIDER) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op        = ciRet->getPath();
+                    CIMObjectPath        iop       = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -5139,8 +3761,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleAssociatorsRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -5154,12 +3775,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleAssociatorNamesRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleAssociatorNamesRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleAssociatorNamesRequest");
 
     HandlerIntro(AssociatorNames,message,request,response,handler);
 
@@ -5173,48 +3791,39 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
-    {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleAssociatorNamesRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 objectName.getClassName().getString().getCString()
-             ));
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleAssociatorNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->objectName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<", assocName = "<<request->assocClass.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->objectName.getClassName(),
-                                        request->objectName.getKeyBindings());
-        CIMObjectPath *assocPath  = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->assocClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *assocPath  = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->assocClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                name.getPhysicalName(),
-                name.getLogicalName(),
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleAssociatorNamesRequest: "
-                "Calling provider: %s, role: %s, aCls: %s",
-            (const char*)pr.getName().getCString(),
-            (const char*)request->role.getCString(),
-            (const char*)request->assocClass.getString().getCString()
-            ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.associatorNames: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: Calling provider associatorNames: "<<pr.getName()<<", role: "<<request->role<<", aCls: "<<request->assocClass<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -5222,19 +3831,11 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleAssociatorNamesRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -5243,105 +3844,100 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "associatorNames",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                            "Ljava/lang/String;Ljava/lang/String;)"
-                                 "Ljava/util/Vector;");
+           // public java.util.Vector associatorNames (org.pegasus.jmpi.CIMObjectPath assocName,
+           //                                          org.pegasus.jmpi.CIMObjectPath pathName,
+           //                                          java.lang.String               resultClass,
+           //                                          java.lang.String               role,
+           //                                          java.lang.String               resultRole)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "associatorNames",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleAssociatorNamesRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: found METHOD_ASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "associatorNames",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                                "Ljava/lang/String;Ljava/lang/String;)"
-                                    "[Lorg/pegasus/jmpi/CIMObjectPath;");
+
+               // public org.pegasus.jmpi.CIMObjectPath[] associatorNames (org.pegasus.jmpi.CIMObjectPath assocName,
+               //                                                          org.pegasus.jmpi.CIMObjectPath pathName,
+               //                                                          java.lang.String               resultClass,
+               //                                                          java.lang.String               role,
+               //                                                          java.lang.String               resultRole)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "associatorNames",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMObjectPath;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleAssociatorNamesRequest: "
-                           "Found METHOD_CIMASSOCIATORPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: found METHOD_CIMASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "associatorNames",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                                "Ljava/lang/String;Ljava/lang/String;)"
-                                    "Ljava/util/Vector;");
+           // public java.util.Vector associatorNames (org.pegasus.jmpi.OperationContext oc,
+           //                                          org.pegasus.jmpi.CIMObjectPath    assocName,
+           //                                          org.pegasus.jmpi.CIMObjectPath    pathName,
+           //                                          java.lang.String                  resultClass,
+           //                                          java.lang.String                  role,
+           //                                          java.lang.String                  resultRole)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "associatorNames",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleAssociatorNamesRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: found METHOD_ASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "associatorNames",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                    "Ljava/lang/String;Ljava/lang/String;"
-                                        "Ljava/lang/String;)["
-                                            "Lorg/pegasus/jmpi/CIMObjectPath;");
+               // public org.pegasus.jmpi.CIMObjectPath[] associatorNames (org.pegasus.jmpi.OperationContext oc,
+               //                                                          org.pegasus.jmpi.CIMObjectPath    assocName,
+               //                                                          org.pegasus.jmpi.CIMObjectPath    pathName,
+               //                                                          java.lang.String                  resultClass,
+               //                                                          java.lang.String                  role,
+               //                                                          java.lang.String                  resultRole)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "associatorNames",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMObjectPath;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleAssociatorNamesRequest: "
-                           "Found METHOD_CIMASSOCIATORPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: found METHOD_CIMASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleAssociatorNames: No method found!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: found no method!"<<PEGASUS_STD(endl));
 
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                    "Could not find a method for the provider based on "
-                        "InterfaceType."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                               "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -5350,63 +3946,38 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole        =
-                env->NewStringUTF(request->role.getCString());
-            jstring jResultRole  =
-                env->NewStringUTF(request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: assocName   = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultClass = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: role        = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 jAssociationName,
-                                 jPathName,
-                                 jResultClass,
-                                 jRole,
-                                 jResultRole);
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole);
 
             JMPIjvm::checkException(env);
 
@@ -5419,13 +3990,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -5438,78 +4004,47 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
         case METHOD_CIMASSOCIATORPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole =
-                env->NewStringUTF(request->role.getCString());
-            jstring jResultRole =
-                env->NewStringUTF(request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: assocName   = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultClass = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: role        = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 joc,
-                                 jAssociationName,
-                                 jPathName,
-                                 jResultClass,
-                                 jRole,
-                                 jResultRole);
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -5523,13 +4058,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -5542,90 +4072,53 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole =
-                env->NewStringUTF(request->role.getCString());
-            jstring jResultRole =
-                env->NewStringUTF(request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: assocName   = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: pathName    = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultClass = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: role        = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  jAssociationName,
-                                  jPathName,
-                                  jResultClass,
-                                  jRole,
-                                  jResultRole);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole);
 
             JMPIjvm::checkException(env);
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m; i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->CallObjectMethod(
-                                          jVec,
-                                          JMPIjvm::jv.VectorElementAt,
-                                          i);
+                    jobject jcopRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -5638,107 +4131,64 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            assocPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, assocPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
-                env->NewStringUTF(
-                    request->resultClass.getString().getCString());
-            jstring jRole =
-                env->NewStringUTF(request->role.getCString());
-            jstring jResultRole =
-                env->NewStringUTF(request->resultRole.getCString());
+            jstring jResultClass = env->NewStringUTF(request->resultClass.getString().getCString());
+            jstring jRole        = env->NewStringUTF(request->role.getCString());
+            jstring jResultRole  = env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: assocName = %s ",
-                (const char*)assocPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultClass = %s ",
-                (const char*)request->resultClass.getString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleAssociatorNamesRequest: resultRole = %s ",
-                (const char*)request->resultRole.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: assocName   = "<<assocPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: pathName    = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultClass = "<<request->resultClass<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: role        = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: resultRole  = "<<request->resultRole<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  joc,
-                                  jAssociationName,
-                                  jPathName,
-                                  jResultClass,
-                                  jRole,
-                                  jResultRole);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jResultClass,
+                                                                  jRole,
+                                                                  jResultRole);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m; i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->CallObjectMethod(
-                                          jVec,
-                                          JMPIjvm::jv.VectorElementAt,
-                                          i);
+                    jobject jcopRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    jlong          jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+                    CIMObjectPath *copRet     = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     JMPIjvm::checkException(env);
 
@@ -5751,8 +4201,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleAssociatorNamesRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -5766,12 +4215,9 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleReferencesRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleReferencesRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleReferencesRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleReferencesRequest");
 
     HandlerIntro(References,message,request,response,handler);
 
@@ -5785,58 +4231,46 @@ Message * JMPIProviderManager::handleReferencesRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
-    {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleReferencesRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 objectName.getClassName().getString().getCString()
-             ));
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->objectName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<", result = "<<request->resultClass.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->objectName.getClassName(),
-                                        request->objectName.getKeyBindings());
-        CIMObjectPath *resultPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->resultClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *resultPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->resultClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                name.getPhysicalName(),
-                name.getLogicalName(),
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // convert arguments
         OperationContext context;
 
-        context.insert(
-            request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleReferencesRequest: "
-                "Calling provider: %s, role: %s, refCls: %s",
-            (const char*)pr.getName().getCString(),
-            (const char*)request->role.getCString(),
-            (const char*)request->resultClass.getString().getCString()
-            ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.references: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: Calling provider references: "<<pr.getName()<<", role: "<<request->role<<" aCls: "<<request->resultClass<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -5844,19 +4278,11 @@ Message * JMPIProviderManager::handleReferencesRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleReferencesRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -5865,101 +4291,104 @@ Message * JMPIProviderManager::handleReferencesRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "references",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                         "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                             "ZZ[Ljava/lang/String;)Ljava/util/Vector;");
+           // public java.util.Vector references (org.pegasus.jmpi.CIMObjectPath assocName,
+           //                                     org.pegasus.jmpi.CIMObjectPath pathName,
+           //                                     java.lang.String               role,
+           //                                     boolean                        includeQualifiers,
+           //                                     boolean                        includeClassOrigin,
+           //                                     java.lang.String[]             propertyList)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "references",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleReferencesRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: found METHOD_ASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "references",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                                "ZZ[Ljava/lang/String;)"
-                                    "[Lorg/pegasus/jmpi/CIMInstance;");
+
+               // public org.pegasus.jmpi.CIMInstance[] references (org.pegasus.jmpi.CIMObjectPath assocName,
+               //                                                   org.pegasus.jmpi.CIMObjectPath pathName,
+               //                                                   java.lang.String               role,
+               //                                                   boolean                        includeQualifiers,
+               //                                                   boolean                        includeClassOrigin,
+               //                                                   java.lang.String[]             propertyList)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "references",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ZZ[Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleReferencesRequest: "
-                           "Found METHOD_CIMASSOCIATORPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: found METHOD_CIMASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "references",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                                "ZZ[Ljava/lang/String;)Ljava/util/Vector;");
+           // public java.util.Vector references (org.pegasus.jmpi.OperationContext oc,
+           //                                     org.pegasus.jmpi.CIMObjectPath    assocName,
+           //                                     org.pegasus.jmpi.CIMObjectPath    pathName,
+           //                                     java.lang.String                  role,
+           //                                     boolean                           includeQualifiers,
+           //                                     boolean                           includeClassOrigin,
+           //                                     java.lang.String[]                propertyList)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "references",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleReferencesRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: found METHOD_ASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "references",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                             "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                 "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                     "Ljava/lang/String;ZZ[Ljava/lang/String;)"
-                                         "[Lorg/pegasus/jmpi/CIMInstance;");
+
+               // public org.pegasus.jmpi.CIMInstance[] references (org.pegasus.jmpi.OperationContext oc,
+               //                                                   org.pegasus.jmpi.CIMObjectPath    assocName,
+               //                                                   org.pegasus.jmpi.CIMObjectPath    pathName,
+               //                                                   java.lang.String                  role,
+               //                                                   boolean                           includeQualifiers,
+               //                                                   boolean                           includeClassOrigin,
+               //                                                   java.lang.String[]                propertyList)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "references",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ZZ[Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleReferencesRequest: "
-                           "Found METHOD_CIMASSOCIATORPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: found METHOD_CIMASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleReferencesRequest: No method provider found!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: found no method!"<<PEGASUS_STD(endl));
 
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                    "Could not find a method for the provider based on "
-                        "InterfaceType."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                               "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -5968,25 +4397,13 @@ Message * JMPIProviderManager::handleReferencesRequest(
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong   jPathNameRef = DEBUG_ConvertCToJava(
-                                       CIMObjectPath*,
-                                       jlong,
-                                       objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -5997,29 +4414,22 @@ Message * JMPIProviderManager::handleReferencesRequest(
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: assocName = %s ",
-                (const char*)resultPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeClassOrigin = false");
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: assocName          = "<<resultPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 jAssociationName,
-                                 jPathName,
-                                 jRole,
-                                 JMPI_INCLUDE_QUALIFIERS,
-                                 request->includeClassOrigin,
-                                 jPropertyList);
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
 
@@ -6032,178 +4442,16 @@ Message * JMPIProviderManager::handleReferencesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
-                    CIMClass cls;
-
-                    try
-                    {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleReferencesRequest: "
-                               "enter(METHOD_CIMASSOCIATORPROVIDER): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
-                       AutoMutex lock (pr._cimomMutex);
-
-                       cls = pr._cimom_handle->getClass(context,
-                                                        request->nameSpace,
-                                                        ciRet->getClassName(),
-                                                        false,
-                                                        true,
-                                                        true,
-                                                        CIMPropertyList());
-
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleReferencesRequest: "
-                               "exit(METHOD_CIMASSOCIATORPROVIDER): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-                    }
-                    catch (CIMException e)
-                    {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleReferencesRequest: "
-                           "Caught CIMExcetion(METHOD_CIMASSOCIATORPROVIDER) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
-                       throw;
-                    }
-
-                    _fixCIMObjectPath(ciRet, cls);
-
-                    JMPIjvm::checkException(env);
-
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
-                }
-            }
-            handler.complete();
-            break;
-        }
-
-        case METHOD_CIMASSOCIATORPROVIDER2:
-        {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
-
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
-
-            JMPIjvm::checkException(env);
-
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
-
-            JMPIjvm::checkException(env);
-
-            jstring jRole = env->NewStringUTF(request->role.getCString());
-
-            JMPIjvm::checkException(env);
-
-            jobjectArray jPropertyList = getList(jv,env,request->propertyList);
-
-#ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: assocName = %s ",
-                (const char*)resultPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeClassOrigin = false");
-#endif
-
-            StatProviderTimeMeasurement providerTime(response);
-
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 joc,
-                                 jAssociationName,
-                                 jPathName,
-                                 jRole,
-                                 JMPI_INCLUDE_QUALIFIERS,
-                                 request->includeClassOrigin,
-                                 jPropertyList);
-
-            JMPIjvm::checkException(env);
-
-            if (joc)
-            {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
-
-               JMPIjvm::checkException(env);
-            }
-
-            handler.processing();
-            if (jAr) {
-                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
-                    JMPIjvm::checkException(env);
-
-                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
-
-                    JMPIjvm::checkException(env);
-
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-
-                    JMPIjvm::checkException(env);
-
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
                     CIMClass             cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleReferencesRequest: "
-                               "enter(METHOD_CIMASSOCIATORPROVIDER2): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -6213,27 +4461,11 @@ Message * JMPIProviderManager::handleReferencesRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleReferencesRequest: "
-                               "exit(METHOD_CIMASSOCIATORPROVIDER2): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleReferencesRequest: "
-                           "Caught CIMExcetion(METHOD_CIMASSOCIATORPROVIDER2) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
@@ -6245,8 +4477,107 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
+                    handler.deliver(*ciRet);
+                }
+            }
+            handler.complete();
+            break;
+        }
+
+        case METHOD_CIMASSOCIATORPROVIDER2:
+        {
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
+
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
+
+            JMPIjvm::checkException(env);
+
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
+
+            JMPIjvm::checkException(env);
+
+            jstring jRole = env->NewStringUTF(request->role.getCString());
+
+            JMPIjvm::checkException(env);
+
+            jobjectArray jPropertyList = getList(jv,env,request->propertyList);
+
+#ifdef PEGASUS_DEBUG
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: assocName          = "<<resultPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
+#endif
+
+            StatProviderTimeMeasurement providerTime(response);
+
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
+
+            JMPIjvm::checkException(env);
+
+            if (joc)
+            {
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
+
+               JMPIjvm::checkException(env);
+            }
+
+            handler.processing();
+            if (jAr) {
+                for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+                    JMPIjvm::checkException(env);
+
+                    jobject jciRet = env->GetObjectArrayElement(jAr,i);
+
+                    JMPIjvm::checkException(env);
+
+                    jlong jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+
+                    JMPIjvm::checkException(env);
+
+                    CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
+                    CIMClass             cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
+
+                    JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
+
+                    handler.deliver(*ciRet);
                 }
             }
             handler.complete();
@@ -6255,25 +4586,13 @@ Message * JMPIProviderManager::handleReferencesRequest(
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -6284,67 +4603,42 @@ Message * JMPIProviderManager::handleReferencesRequest(
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: assocName = %s ",
-                (const char*)resultPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeClassOrigin = false");
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: assocName          = "<<resultPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: pathName           = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
+
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  jAssociationName,
-                                  jPathName,
-                                  jRole,
-                                  JMPI_INCLUDE_QUALIFIERS,
-                                  request->includeClassOrigin,
-                                  jPropertyList);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m; i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
-                    CIMClass cls;
+                    jlong                jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
+                    CIMClass             cls;
 
                     try
                     {
-                      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                          "handleReferencesRequest: "
-                              "enter(METHOD_ASSOCIATORPROVIDER): "
-                              "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                          ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -6354,26 +4648,11 @@ Message * JMPIProviderManager::handleReferencesRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleReferencesRequest: "
-                               "exit(METHOD_ASSOCIATORPROVIDER): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleReferencesRequest: "
-                           "Caught CIMExcetion(METHOD_ASSOCIATORPROVIDER) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
@@ -6385,8 +4664,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
+                    handler.deliver(*ciRet);
                 }
             }
             handler.complete();
@@ -6395,34 +4673,16 @@ Message * JMPIProviderManager::handleReferencesRequest(
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -6433,76 +4693,50 @@ Message * JMPIProviderManager::handleReferencesRequest(
             jobjectArray jPropertyList = getList(jv,env,request->propertyList);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: assocName = %s ",
-                (const char*)resultPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: pathName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: role = %s ",
-                (const char*)request->role.getCString()));
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeQualifiers = false");
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferencesRequest: includeClassOrigin = false");
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: assocName          = "<<resultPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: pathName           = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeQualifiers  = "<<false<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferencesRequest: includeClassOrigin = "<<false<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  joc,
-                                  jAssociationName,
-                                  jPathName,
-                                  jRole,
-                                  JMPI_INCLUDE_QUALIFIERS,
-                                  request->includeClassOrigin,
-                                  jPropertyList);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jRole,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
+                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m; i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jciRet = env->CallObjectMethod(
-                                         jVec,
-                                         JMPIjvm::jv.VectorElementAt,
-                                         i);
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jciRetRef = env->CallLongMethod(
-                                          jciRet,
-                                          JMPIjvm::jv.CIMInstanceCInst);
-                    CIMInstance *ciRet = DEBUG_ConvertJavaToC(
-                                             jlong,
-                                             CIMInstance*,
-                                             jciRetRef);
-                    CIMClass cls;
+                    jlong                jciRetRef = env->CallLongMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jlong, CIMInstance*, jciRetRef);
+                    CIMClass             cls;
 
                     try
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleReferencesRequest: "
-                               "enter(METHOD_ASSOCIATORPROVIDER2): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                        AutoMutex lock (pr._cimomMutex);
 
                        cls = pr._cimom_handle->getClass(context,
@@ -6512,27 +4746,11 @@ Message * JMPIProviderManager::handleReferencesRequest(
                                                         true,
                                                         true,
                                                         CIMPropertyList());
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                           "handleReferencesRequest: "
-                               "exit(METHOD_ASSOCIATORPROVIDER2): "
-                               "cimom_handle->getClass(%s).",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString()
-                           ));
-
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                           "handleReferencesRequest: "
-                           "Caught CIMExcetion(METHOD_ASSOCIATORPROVIDER2) "
-                               "during cimom_handle->getClass(%s): %s ",
-                           (const char*)ciRet->
-                               getClassName().getString().getCString(),
-                           (const char*)e.getMessage().getCString()
-                           ));
-
-                       PEG_METHOD_EXIT();
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
                        throw;
                     }
 
@@ -6544,8 +4762,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
+                    handler.deliver(*ciRet);
                 }
             }
             handler.complete();
@@ -6554,8 +4771,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleReferencesRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -6569,12 +4785,9 @@ Message * JMPIProviderManager::handleReferencesRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleReferenceNamesRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleReferenceNamesRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleReferenceNamesRequest");
 
     HandlerIntro(ReferenceNames,message,request,response,handler);
 
@@ -6588,46 +4801,38 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
-    {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleReferenceNamesRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 objectName.getClassName().getString().getCString()
-             ));
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleReferenceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->objectName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->objectName.getClassName(),
-                                        request->objectName.getKeyBindings());
-        CIMObjectPath *resultPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->resultClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *resultPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->resultClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                name.getPhysicalName(),
-                                                name.getLogicalName(),
-                                                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleReferenceNamesRequest: "
-                "Calling provider: %s, role: %s, refCls: %s",
-            (const char*)pr.getName().getCString(),
-            (const char*)request->role.getCString(),
-            (const char*)request->resultClass.getString().getCString()
-            ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.referenceNames: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: Calling provider referenceNames: "<<pr.getName()<<", role: "<<request->role<<", aCls: "<<request->resultClass<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -6635,19 +4840,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleReferenceNamesRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -6656,101 +4853,92 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                   (jclass)pr.jProviderClass,
-                   "referenceNames",
-                   "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                       "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)"
-                           "Ljava/util/Vector;");
+           // public java.util.Vector referenceNames (org.pegasus.jmpi.CIMObjectPath assocName,
+           //                                         org.pegasus.jmpi.CIMObjectPath pathName,
+           //                                         java.lang.String               role)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "referenceNames",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleReferencesRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: found METHOD_ASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "referenceNames",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                                ")[Lorg/pegasus/jmpi/CIMObjectPath;");
+               // public org.pegasus.jmpi.CIMObjectPath[] referenceNames (org.pegasus.jmpi.CIMObjectPath assocName,
+               //                                                         org.pegasus.jmpi.CIMObjectPath pathName,
+               //                                                         java.lang.String               role)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "referenceNames",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMObjectPath;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleReferenceNamesRequest: "
-                           "Found METHOD_CIMASSOCIATORPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: found METHOD_CIMASSOCIATORPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "referenceNames",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                                ")Ljava/util/Vector;");
+           // public java.util.Vector referenceNames (org.pegasus.jmpi.OperationContext oc,
+           //                                         org.pegasus.jmpi.CIMObjectPath    assocName,
+           //                                         org.pegasus.jmpi.CIMObjectPath    pathName,
+           //                                         java.lang.String                  role)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "referenceNames",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)Ljava/util/Vector;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_ASSOCIATORPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleReferenceNamesRequest: "
-                       "Found METHOD_ASSOCIATORPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: found METHOD_ASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "referenceNames",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                    "Ljava/lang/String;)"
-                                        "[Lorg/pegasus/jmpi/CIMObjectPath;");
+
+               // public org.pegasus.jmpi.CIMObjectPath[] referenceNames (org.pegasus.jmpi.OperationContext oc,
+               //                                                         org.pegasus.jmpi.CIMObjectPath    assocName,
+               //                                                         org.pegasus.jmpi.CIMObjectPath    pathName,
+               //                                                         java.lang.String                  role)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "referenceNames",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMObjectPath;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMASSOCIATORPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleReferenceNamesRequest: "
-                           "Found METHOD_CIMASSOCIATORPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: found METHOD_CIMASSOCIATORPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleReferenceNames: No method found!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: found no method!"<<PEGASUS_STD(endl));
 
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                    "Could not find a method for the provider based on "
-                        "InterfaceType."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                               "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -6759,25 +4947,13 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
         {
         case METHOD_CIMASSOCIATORPROVIDER:
         {
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -6786,22 +4962,17 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: assocName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: assocName          = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 jPathName,
-                                 jAssociationName,
-                                 jRole);
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jPathName,
+                                                                  jAssociationName,
+                                                                  jRole);
 
             JMPIjvm::checkException(env);
 
@@ -6814,16 +4985,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     handler.deliver(*copRet);
                 }
@@ -6834,34 +5000,16 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
         case METHOD_CIMASSOCIATORPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -6870,29 +5018,24 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: assocName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: assocName          = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jAr=(jobjectArray)env->CallObjectMethod(
-                                 (jobject)pr.jProvider,
-                                 id,
-                                 joc,
-                                 jPathName,
-                                 jAssociationName,
-                                 jRole);
+            jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jPathName,
+                                                                  jAssociationName,
+                                                                  jRole);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -6906,16 +5049,11 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     handler.deliver(*copRet);
                 }
@@ -6926,25 +5064,13 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
         case METHOD_ASSOCIATORPROVIDER:
         {
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -6953,52 +5079,35 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: assocName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: pathName = %s ",
-                (const char*)resultPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: assocName          = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: pathName           = "<<resultPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  jAssociationName,
-                                  jPathName,
-                                  jRole);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jRole);
 
             JMPIjvm::checkException(env);
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m; i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
 
-                    jobject jcopRet = env->CallObjectMethod(
-                                          jVec,
-                                          JMPIjvm::jv.VectorElementAt,
-                                          i);
+                    jobject jcopRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
 
                     JMPIjvm::checkException(env);
 
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
 
                     handler.deliver(*copRet);
                 }
@@ -7009,34 +5118,16 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
         case METHOD_ASSOCIATORPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jAssociationNameRef = DEBUG_ConvertCToJava(
-                                            CIMObjectPath*,
-                                            jlong,
-                                            resultPath);
-            jobject jAssociationName = env->NewObject(
-                                           jv->CIMObjectPathClassRef,
-                                           jv->CIMObjectPathNewJ,
-                                           jAssociationNameRef);
+            jlong   jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, resultPath);
+            jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jlong jPathNameRef = DEBUG_ConvertCToJava(
-                                     CIMObjectPath*,
-                                     jlong,
-                                     objectPath);
-            jobject jPathName = env->NewObject(
-                                    jv->CIMObjectPathClassRef,
-                                    jv->CIMObjectPathNewJ,
-                                    jPathNameRef);
+            jlong   jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jPathNameRef);
 
             JMPIjvm::checkException(env);
 
@@ -7045,55 +5136,44 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
             JMPIjvm::checkException(env);
 
 #ifdef PEGASUS_DEBUG
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: assocName = %s ",
-                (const char*)objectPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: pathName = %s ",
-                (const char*)resultPath->toString().getCString()));
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleReferenceNamesRequest: role = %s ",
-                (const char*)request->role.getCString()));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: assocName          = "<<objectPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: pathName           = "<<resultPath->toString ()<<PEGASUS_STD(endl));
+            DDD(PEGASUS_STD(cerr)<<"--- JMPIProviderManager::handleReferenceNamesRequest: role               = "<<request->role<<PEGASUS_STD(endl));
 #endif
 
             StatProviderTimeMeasurement providerTime(response);
 
-            jobjectArray jVec=(jobjectArray)env->CallObjectMethod(
-                                  (jobject)pr.jProvider,
-                                  id,
-                                  joc,
-                                  jAssociationName,
-                                  jPathName,
-                                  jRole);
+            jobjectArray jVec=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,
+                                                                  id,
+                                                                  joc,
+                                                                  jAssociationName,
+                                                                  jPathName,
+                                                                  jRole);
 
             JMPIjvm::checkException(env);
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
-                     i<m; i++)
-                {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                     JMPIjvm::checkException(env);
-                    jobject jcopRet = env->CallObjectMethod(
-                                          jVec,
-                                          JMPIjvm::jv.VectorElementAt,
-                                          i);
+
+                    jobject jcopRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+
                     JMPIjvm::checkException(env);
-                    jlong jcopRetRef = env->CallLongMethod(
-                                           jcopRet,
-                                           JMPIjvm::jv.CIMObjectPathCInst);
+
+                    jlong jcopRetRef = env->CallLongMethod(jcopRet,JMPIjvm::jv.CIMObjectPathCInst);
+
                     JMPIjvm::checkException(env);
-                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC(
-                                                jlong,
-                                                CIMObjectPath*,
-                                                jcopRetRef);
+
+                    CIMObjectPath *copRet = DEBUG_ConvertJavaToC (jlong, CIMObjectPath*, jcopRetRef);
+
                     handler.deliver(*copRet);
                 }
             }
@@ -7103,8 +5183,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleReferenceNamesRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -7118,12 +5197,9 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleGetPropertyRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleGetPropertyRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleGetPropertyRequest");
 
     HandlerIntro(GetProperty,message,request,response,handler);
 
@@ -7136,39 +5212,35 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleGetPropertyRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 instanceName.getClassName().getString().getCString()
-             ));
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleGetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->instanceName.getClassName(),
-                                        request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                name.getPhysicalName(),
-                                                name.getLogicalName(),
-                                                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleReferenceNamesRequest: "
-                "Calling provider: %s",
-            (const char*)pr.getName().getCString()
-            ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.getPropertyValue: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: Calling provider getPropertyValue: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -7176,19 +5248,11 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleReferenceNamesRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -7197,58 +5261,55 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "getPropertyValue",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                        "Ljava/lang/String;)Lorg/pegasus/jmpi/CIMValue;");
+           // public abstract org.pegasus.jmpi.CIMValue getPropertyValue (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                                             java.lang.String               oclass,
+           //                                                             java.lang.String               pName)
+           //        throws org.pegasus.jmpi.CIMException
+           //
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "getPropertyValue",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;)Lorg/pegasus/jmpi/CIMValue;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_PROPERTYPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetPropertyRequest: "
-                       "Found METHOD_PROPERTYPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: found METHOD_PROPERTYPROVIDER."<<PEGASUS_STD(endl));
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "getPropertyValue",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                            "Ljava/lang/String;)Lorg/pegasus/jmpi/CIMValue;");
+           // public abstract org.pegasus.jmpi.CIMValue getPropertyValue (org.pegasus.jmpi.OperationContext oc,
+           //                                                             org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                                             java.lang.String                  oclass,
+           //                                                             java.lang.String                  pName)
+           //        throws org.pegasus.jmpi.CIMException
+           //
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "getPropertyValue",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;)Lorg/pegasus/jmpi/CIMValue;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_PROPERTYPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleGetPropertyRequest: "
-                       "Found METHOD_PROPERTYPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: found METHOD_PROPERTYPROVIDER2."<<PEGASUS_STD(endl));
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleGetPropertyRequest: No method provider found!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: found no method!"<<PEGASUS_STD(endl));
 
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                    "Could not find a method for the provider based on "
-                        "InterfaceType."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                               "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -7257,26 +5318,16 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
         {
         case METHOD_PROPERTYPROVIDER:
         {
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring joclass =
-              env->NewStringUTF(
-                 request->instanceName.getClassName().getString().getCString());
+            jstring joclass = env->NewStringUTF(request->instanceName.getClassName().getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            jstring jpName =
-                env->NewStringUTF(
-                    request->propertyName.getString().getCString());
+            jstring jpName = env->NewStringUTF(request->propertyName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
@@ -7294,13 +5345,8 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
             if (jvalRet)
             {
-               jlong jvalRetRef = env->CallLongMethod(
-                                      jvalRet,
-                                      JMPIjvm::jv.CIMValueCInst);
-               CIMValue *valRet = DEBUG_ConvertJavaToC(
-                                      jlong,
-                                      CIMValue*,
-                                      jvalRetRef);
+               jlong     jvalRetRef = env->CallLongMethod(jvalRet,JMPIjvm::jv.CIMValueCInst);
+               CIMValue *valRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jvalRetRef);
 
                JMPIjvm::checkException(env);
 
@@ -7312,33 +5358,19 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
         case METHOD_PROPERTYPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring joclass = env->NewStringUTF(
-                request->instanceName.getClassName().getString().getCString());
+            jstring joclass = env->NewStringUTF(request->instanceName.getClassName().getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            jstring jpName = env->NewStringUTF(
-                request->propertyName.getString().getCString());
+            jstring jpName = env->NewStringUTF(request->propertyName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
@@ -7355,7 +5387,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -7364,13 +5396,8 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
             if (jvalRet)
             {
-               jlong jvalRetRef = env->CallLongMethod(
-                                      jvalRet,
-                                      JMPIjvm::jv.CIMValueCInst);
-               CIMValue *valRet = DEBUG_ConvertJavaToC(
-                                      jlong,
-                                      CIMValue*,
-                                      jvalRetRef);
+               jlong     jvalRetRef = env->CallLongMethod(jvalRet,JMPIjvm::jv.CIMValueCInst);
+               CIMValue *valRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jvalRetRef);
 
                JMPIjvm::checkException(env);
 
@@ -7382,8 +5409,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleGetPropertyRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -7397,12 +5423,9 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleSetPropertyRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleSetPropertyRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleSetPropertyRequest");
 
     HandlerIntro(SetProperty,message,request,response,handler);
 
@@ -7414,40 +5437,36 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
-    {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleSetPropertyRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 instanceName.getClassName().getString().getCString()
-             ));
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleSetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->instanceName.getClassName(),
-                                        request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                name.getPhysicalName(),
-                                                name.getLogicalName(),
-                                                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         // forward request
         JMPIProvider &pr = ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleSetPropertyRequest: "
-            "Calling provider. setPropertyValue: %s",
-            (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.setPropertyValue: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: Calling provider setPropertyValue: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -7455,18 +5474,11 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -7475,58 +5487,57 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "setPropertyValue",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                        "Ljava/lang/String;Lorg/pegasus/jmpi/CIMValue;)V");
+           // public abstract void setPropertyValue (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                        java.lang.String               oclass,
+           //                                        java.lang.String               pName,
+           //                                        org.pegasus.jmpi.CIMValue      val)
+           //        throws org.pegasus.jmpi.CIMException
+           //
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "setPropertyValue",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Lorg/pegasus/jmpi/CIMValue;)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_PROPERTYPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleSetPropertyRequest: "
-                       "Found METHOD_PROPERTYPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: found METHOD_PROPERTYPROVIDER."<<PEGASUS_STD(endl));
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "setPropertyValue",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                            "Ljava/lang/String;Lorg/pegasus/jmpi/CIMValue;)V");
+           // public abstract void setPropertyValue (org.pegasus.jmpi.OperationContext oc,
+           //                                        org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                        java.lang.String                  oclass,
+           //                                        java.lang.String                  pName,
+           //                                        org.pegasus.jmpi.CIMValue         val)
+           //        throws org.pegasus.jmpi.CIMException
+           //
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "setPropertyValue",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Lorg/pegasus/jmpi/CIMValue;)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_PROPERTYPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleSetPropertyRequest: "
-                       "Found METHOD_PROPERTYPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: found METHOD_PROPERTYPROVIDER2."<<PEGASUS_STD(endl));
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleSetPropertyRequest: No method provider found!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: found no method!"<<PEGASUS_STD(endl));
 
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                    "Could not find a method for the provider based on "
-                        "InterfaceType."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                               "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -7535,26 +5546,16 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
         {
         case METHOD_PROPERTYPROVIDER:
         {
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring joclass =
-              env->NewStringUTF(
-                 request->instanceName.getClassName().getString().getCString());
+            jstring joclass = env->NewStringUTF(request->instanceName.getClassName().getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            jstring jpName =
-                env->NewStringUTF(
-                    request->propertyName.getString().getCString());
+            jstring jpName = env->NewStringUTF(request->propertyName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
@@ -7562,11 +5563,8 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jvalref = DEBUG_ConvertCToJava(CIMValue*, jlong, val);
-            jobject jval = env->NewObject(
-                               jv->CIMValueClassRef,
-                               jv->CIMValueNewJ,
-                               jvalref);
+            jlong   jvalref = DEBUG_ConvertCToJava (CIMValue*, jlong, val);
+            jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewJ, jvalref);
 
             JMPIjvm::checkException(env);
 
@@ -7585,35 +5583,19 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
         case METHOD_PROPERTYPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopref = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopref);
+            jlong   jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewJ, jcopref);
 
             JMPIjvm::checkException(env);
 
-            jstring joclass =
-               env->NewStringUTF(
-                 request->instanceName.getClassName().getString().getCString());
+            jstring joclass = env->NewStringUTF(request->instanceName.getClassName().getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            jstring jpName =
-                env->NewStringUTF(
-                    request->propertyName.getString().getCString());
+            jstring jpName = env->NewStringUTF(request->propertyName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
@@ -7621,11 +5603,8 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
             JMPIjvm::checkException(env);
 
-            jlong jvalref = DEBUG_ConvertCToJava (CIMValue*, jlong, val);
-            jobject jval = env->NewObject(
-                               jv->CIMValueClassRef,
-                               jv->CIMValueNewJ,
-                               jvalref);
+            jlong   jvalref = DEBUG_ConvertCToJava (CIMValue*, jlong, val);
+            jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewJ, jvalref);
 
             JMPIjvm::checkException(env);
 
@@ -7643,7 +5622,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -7652,8 +5631,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleSetPropertyRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -7667,12 +5645,9 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleInvokeMethodRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleInvokeMethodRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleInvokeMethodRequest");
 
     HandlerIntro(InvokeMethod,message,request,response,handler);
 
@@ -7687,38 +5662,34 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleInvokeMethodRequest: "
-                 "name space = %s class name = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)request->
-                 instanceName.getClassName().getString().getCString()
-             ));
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->instanceName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath *objectPath = new CIMObjectPath(
-                                        System::getHostName(),
-                                        request->nameSpace,
-                                        request->instanceName.getClassName(),
-                                        request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                name.getPhysicalName(),
-                                                name.getLogicalName(),
-                                                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
         JMPIProvider &pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleInvokeMethodRequest: "
-                "Calling provider: %s",
-            (const char*)pr.getName().getCString()
-            ));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.invokeMethod: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: Calling provider invokeMethod: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -7726,19 +5697,11 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleInvokeMethodRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -7747,103 +5710,96 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "invokeMethod",
-                    "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                        "Ljava/util/Vector;Ljava/util/Vector;)"
-                            "Lorg/pegasus/jmpi/CIMValue;");
+           // public abstract org.pegasus.jmpi.CIMValue invokeMethod (org.pegasus.jmpi.CIMObjectPath cop,
+           //                                                         java.lang.String               name,
+           //                                                         java.util.Vector               in,
+           //                                                         java.util.Vector               out)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "invokeMethod",
+                                 "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_METHODPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleInvokeMethodRequest: "
-                       "Found METHOD_PROPERTYPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: found METHOD_METHODPROVIDER."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "invokeMethod",
-                        "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                            "[Lorg/pegasus/jmpi/CIMArgument;"
-                                "[Lorg/pegasus/jmpi/CIMArgument;)"
-                                    "Lorg/pegasus/jmpi/CIMValue;");
+
+               // public org.pegasus.jmpi.CIMValue invokeMethod (org.pegasus.jmpi.CIMObjectPath op,
+               //                                                java.lang.String               methodName,
+               //                                                org.pegasus.jmpi.CIMArgument[] inArgs,
+               //                                                org.pegasus.jmpi.CIMArgument[] outArgs)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "invokeMethod",
+                                     "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;[Lorg/pegasus/jmpi/CIMArgument;[Lorg/pegasus/jmpi/CIMArgument;)Lorg/pegasus/jmpi/CIMValue;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMMETHODPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleInvokeMethodRequest: "
-                           "Found METHOD_CIMMETHODPROVIDER.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: found METHOD_CIMMETHODPROVIDER."<<PEGASUS_STD(endl));
                }
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "invokeMethod",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
-                            "Ljava/util/Vector;Ljava/util/Vector;)"
-                                "Lorg/pegasus/jmpi/CIMValue;");
+           // public abstract org.pegasus.jmpi.CIMValue invokeMethod (org.pegasus.jmpi.OperationContext oc,
+           //                                                         org.pegasus.jmpi.CIMObjectPath    cop,
+           //                                                         java.lang.String                  name,
+           //                                                         java.util.Vector                  in,
+           //                                                         java.util.Vector                  out)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "invokeMethod",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_METHODPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleInvokeMethodRequest: "
-                       "Found METHOD_METHODPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: found METHOD_METHODPROVIDER2."<<PEGASUS_STD(endl));
            }
 
            if (id == NULL)
            {
                env->ExceptionClear();
 
-               id = env->GetMethodID(
-                        (jclass)pr.jProviderClass,
-                        "invokeMethod",
-                        "(Lorg/pegasus/jmpi/OperationContext;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                "Ljava/lang/String;"
-                                    "[Lorg/pegasus/jmpi/CIMArgument;["
-                                        "Lorg/pegasus/jmpi/CIMArgument;)"
-                                            "Lorg/pegasus/jmpi/CIMValue;");
+               // public org.pegasus.jmpi.CIMValue invokeMethod (org.pegasus.jmpi.OperationContext oc,
+               //                                                org.pegasus.jmpi.CIMObjectPath    op,
+               //                                                java.lang.String                  methodName,
+               //                                                org.pegasus.jmpi.CIMArgument[]    inArgs,
+               //                                                org.pegasus.jmpi.CIMArgument[]    outArgs)
+               //        throws org.pegasus.jmpi.CIMException
+               id = env->GetMethodID((jclass)pr.jProviderClass,
+                                     "invokeMethod",
+                                     "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;[Lorg/pegasus/jmpi/CIMArgument;[Lorg/pegasus/jmpi/CIMArgument;)Lorg/pegasus/jmpi/CIMValue;");
 
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMMETHODPROVIDER2;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                       "handleInvokeMethodRequest: "
-                           "Found METHOD_CIMMETHODPROVIDER2.");
+                   DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: found METHOD_CIMMETHODPROVIDER2."<<PEGASUS_STD(endl));
                }
            }
         }
 
         if (id == NULL)
         {
-           PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-               "handleInvokeMethod: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on "
-                       "InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -7852,45 +5808,28 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
         {
         case METHOD_CIMMETHODPROVIDER:
         {
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jMethod =
-                env->NewStringUTF(
-                    request->methodName.getString().getCString());
+            jstring jMethod = env->NewStringUTF(request->methodName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
             Uint32 m=request->inParameters.size();
 
-            jobjectArray jArIn=(jobjectArray)env->NewObjectArray(
-                                   m,
-                                   jv->CIMArgumentClassRef,
-                                   NULL);
+            jobjectArray jArIn=(jobjectArray)env->NewObjectArray(m,jv->CIMArgumentClassRef,NULL);
 
             for (Uint32 i=0; i<m; i++) {
-              CIMParamValue *parm = new CIMParamValue(request->inParameters[i]);
-              jlong jArgRef = DEBUG_ConvertCToJava(CIMParamValue*, jlong, parm);
-              jobject jArg = env->NewObject(
-                                 jv->CIMArgumentClassRef,
-                                 jv->CIMArgumentNewJ,
-                                 jArgRef);
+              CIMParamValue *parm    = new CIMParamValue(request->inParameters[i]);
+              jlong          jArgRef = DEBUG_ConvertCToJava (CIMParamValue*, jlong, parm);
+              jobject        jArg    = env->NewObject(jv->CIMArgumentClassRef,jv->CIMArgumentNewJ,jArgRef);
 
               env->SetObjectArrayElement(jArIn,i,jArg);
             }
 
-            jobjectArray jArOut=(jobjectArray)env->NewObjectArray(
-                                    24,
-                                    jv->CIMArgumentClassRef,
-                                    NULL);
+            jobjectArray jArOut=(jobjectArray)env->NewObjectArray(24,jv->CIMArgumentClassRef,NULL);
 
             StatProviderTimeMeasurement providerTime(response);
 
@@ -7904,13 +5843,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             handler.processing();
 
-            jlong jValueRetRef = env->CallLongMethod(
-                                     jValueRet,
-                                     JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet = DEBUG_ConvertJavaToC(
-                                     jlong,
-                                     CIMValue*,
-                                     jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
@@ -7922,13 +5856,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
                 if (jArg==NULL)
                    break;
 
-                jlong jpRef = env->CallLongMethod(
-                                  jArg,
-                                  JMPIjvm::jv.CIMArgumentCInst);
-                CIMParamValue *p = DEBUG_ConvertJavaToC(
-                                       jlong,
-                                       CIMParamValue*,
-                                       jpRef);
+                jlong          jpRef = env->CallLongMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
+                CIMParamValue *p     = DEBUG_ConvertJavaToC (jlong, CIMParamValue*, jpRef);
 
                 JMPIjvm::checkException(env);
 
@@ -7941,53 +5870,31 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
         case METHOD_CIMMETHODPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,
-                              jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jMethod =
-                env->NewStringUTF(request->methodName.getString().getCString());
+            jstring jMethod = env->NewStringUTF(request->methodName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
             Uint32 m=request->inParameters.size();
 
-            jobjectArray jArIn=(jobjectArray)env->NewObjectArray(
-                                   m,
-                                   jv->CIMArgumentClassRef,
-                                   NULL);
+            jobjectArray jArIn=(jobjectArray)env->NewObjectArray(m,jv->CIMArgumentClassRef,NULL);
 
             for (Uint32 i=0; i<m; i++) {
-              CIMParamValue *parm = new CIMParamValue(request->inParameters[i]);
-              jlong jArgRef = DEBUG_ConvertCToJava(CIMParamValue*, jlong, parm);
-              jobject jArg = env->NewObject(
-                                 jv->CIMArgumentClassRef,
-                                 jv->CIMArgumentNewJ,
-                                 jArgRef);
+              CIMParamValue *parm    = new CIMParamValue(request->inParameters[i]);
+              jlong          jArgRef = DEBUG_ConvertCToJava (CIMParamValue*, jlong, parm);
+              jobject        jArg    = env->NewObject(jv->CIMArgumentClassRef,jv->CIMArgumentNewJ,jArgRef);
 
               env->SetObjectArrayElement(jArIn,i,jArg);
             }
 
-            jobjectArray jArOut=(jobjectArray)env->NewObjectArray(
-                                    24,
-                                    jv->CIMArgumentClassRef,
-                                    NULL);
+            jobjectArray jArOut=(jobjectArray)env->NewObjectArray(24,jv->CIMArgumentClassRef,NULL);
 
             StatProviderTimeMeasurement providerTime(response);
 
@@ -8002,20 +5909,15 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
 
-            jlong     jValueRetRef = env->CallLongMethod(
-                                         jValueRet,
-                                         JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet = DEBUG_ConvertJavaToC(
-                                     jlong,
-                                     CIMValue*,
-                                     jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
@@ -8027,13 +5929,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
                 if (jArg==NULL)
                    break;
 
-                jlong jpRef = env->CallLongMethod(
-                                  jArg,
-                                  JMPIjvm::jv.CIMArgumentCInst);
-                CIMParamValue *p = DEBUG_ConvertJavaToC(
-                                       jlong,
-                                       CIMParamValue*,
-                                       jpRef);
+                jlong          jpRef = env->CallLongMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
+                CIMParamValue *p     = DEBUG_ConvertJavaToC (jlong, CIMParamValue*, jpRef);
 
                 JMPIjvm::checkException(env);
 
@@ -8046,19 +5943,12 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
         case METHOD_METHODPROVIDER:
         {
-            jlong   jcopRef = DEBUG_ConvertCToJava(
-                                  CIMObjectPath*,
-                                  jlong,
-                                  objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jMethod = env->NewStringUTF(
-                                  request->methodName.getString().getCString());
+            jstring jMethod = env->NewStringUTF(request->methodName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
@@ -8068,17 +5958,11 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             for (int i=0,m=request->inParameters.size(); i<m; i++)
             {
-                const CIMParamValue &parm = request->inParameters[i];
-                const CIMValue v = parm.getValue();
-                CIMProperty *p = new CIMProperty(
-                                     parm.getParameterName(),
-                                     v,
-                                     v.getArraySize());
-                jlong jpRef = DEBUG_ConvertCToJava (CIMProperty*, jlong, p);
-                jobject jp = env->NewObject(
-                                 jv->CIMPropertyClassRef,
-                                 jv->CIMPropertyNewJ,
-                                 jpRef);
+                const CIMParamValue &parm  = request->inParameters[i];
+                const CIMValue       v     = parm.getValue();
+                CIMProperty         *p     = new CIMProperty(parm.getParameterName(),v,v.getArraySize());
+                jlong                jpRef = DEBUG_ConvertCToJava (CIMProperty*, jlong, p);
+                jobject              jp    = env->NewObject(jv->CIMPropertyClassRef,jv->CIMPropertyNewJ,jpRef);
 
                 env->CallVoidMethod(jVecIn,jv->VectorAddElement,jp);
              }
@@ -8098,42 +5982,25 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             handler.processing();
 
-            jlong jValueRetRef = env->CallLongMethod(
-                                     jValueRet,
-                                     JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet = DEBUG_ConvertJavaToC(
-                                     jlong,
-                                     CIMValue*,
-                                     jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
-            for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize);
-                  i<m;
-                  i++)
+            for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize); i<m; i++)
             {
                 JMPIjvm::checkException(env);
 
-                jobject jProp = env->CallObjectMethod(
-                                    jVecOut,
-                                    JMPIjvm::jv.VectorElementAt,
-                                    i);
+                jobject jProp = env->CallObjectMethod(jVecOut,JMPIjvm::jv.VectorElementAt,i);
 
                 JMPIjvm::checkException(env);
 
-                jlong jpRef = env->CallLongMethod(
-                                  jProp,
-                                  JMPIjvm::jv.CIMPropertyCInst);
-                CIMProperty *p = DEBUG_ConvertJavaToC(
-                                     jlong,
-                                     CIMProperty*,
-                                     jpRef);
+                jlong        jpRef = env->CallLongMethod(jProp,JMPIjvm::jv.CIMPropertyCInst);
+                CIMProperty *p     = DEBUG_ConvertJavaToC (jlong, CIMProperty*, jpRef);
 
                 JMPIjvm::checkException(env);
 
-                handler.deliverParamValue(
-                    CIMParamValue(p->getName().getString(),
-                                  p->getValue()));
+                handler.deliverParamValue(CIMParamValue(p->getName().getString(),p->getValue()));
             }
 
             handler.complete();
@@ -8142,28 +6009,15 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
         case METHOD_METHODPROVIDER2:
         {
-            jlong   jocRef = DEBUG_ConvertCToJava(
-                                 OperationContext*,
-                                 jlong,
-                                 &request->operationContext);
-            jobject joc    = env->NewObject(
-                                 jv->OperationContextClassRef,
-                                 jv->OperationContextNewJ,
-                                 jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
-                                CIMObjectPath*,
-                                jlong,
-                                objectPath);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,
-                               jcopRef);
+            jlong   jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jMethod = env->NewStringUTF(
-                                  request->methodName.getString().getCString());
+            jstring jMethod = env->NewStringUTF(request->methodName.getString().getCString());
 
             JMPIjvm::checkException(env);
 
@@ -8175,15 +6029,9 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
             {
                 const CIMParamValue &parm  = request->inParameters[i];
                 const CIMValue       v     = parm.getValue();
-                CIMProperty *p = new CIMProperty(
-                                     parm.getParameterName(),
-                                     v,
-                                     v.getArraySize());
-                jlong jpRef = DEBUG_ConvertCToJava(CIMProperty*, jlong, p);
-                jobject jp = env->NewObject(
-                                 jv->CIMPropertyClassRef,
-                                 jv->CIMPropertyNewJ,
-                                 jpRef);
+                CIMProperty         *p     = new CIMProperty(parm.getParameterName(),v,v.getArraySize());
+                jlong                jpRef = DEBUG_ConvertCToJava (CIMProperty*, jlong, p);
+                jobject              jp    = env->NewObject(jv->CIMPropertyClassRef,jv->CIMPropertyNewJ,jpRef);
 
                 env->CallVoidMethod(jVecIn,jv->VectorAddElement,jp);
              }
@@ -8204,49 +6052,32 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
 
             handler.processing();
 
-            jlong jValueRetRef = env->CallLongMethod(
-                                     jValueRet,
-                                     JMPIjvm::jv.CIMValueCInst);
-            CIMValue *valueRet = DEBUG_ConvertJavaToC(
-                                     jlong,
-                                     CIMValue*,
-                                     jValueRetRef);
+            jlong     jValueRetRef = env->CallLongMethod(jValueRet,JMPIjvm::jv.CIMValueCInst);
+            CIMValue *valueRet     = DEBUG_ConvertJavaToC (jlong, CIMValue*, jValueRetRef);
 
             handler.deliver(*valueRet);
 
-            for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize);
-                 i<m;
-                 i++)
+            for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize); i<m; i++)
             {
                 JMPIjvm::checkException(env);
 
-                jobject jProp = env->CallObjectMethod(
-                                    jVecOut,
-                                    JMPIjvm::jv.VectorElementAt,
-                                    i);
+                jobject jProp = env->CallObjectMethod(jVecOut,JMPIjvm::jv.VectorElementAt,i);
 
                 JMPIjvm::checkException(env);
 
-                jlong jpRef = env->CallLongMethod(
-                                  jProp,
-                                  JMPIjvm::jv.CIMPropertyCInst);
-                CIMProperty *p = DEBUG_ConvertJavaToC(
-                                     jlong,
-                                     CIMProperty*,
-                                     jpRef);
+                jlong        jpRef = env->CallLongMethod(jProp,JMPIjvm::jv.CIMPropertyCInst);
+                CIMProperty *p     = DEBUG_ConvertJavaToC (jlong, CIMProperty*, jpRef);
 
                 JMPIjvm::checkException(env);
 
-                handler.deliverParamValue(
-                    CIMParamValue(p->getName().getString(),
-                                  p->getValue()));
+                handler.deliverParamValue(CIMParamValue(p->getName().getString(),p->getValue()));
             }
 
             handler.complete();
@@ -8255,8 +6086,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleInvokeMethodRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -8270,13 +6100,10 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
     return(response);
 }
 
-int LocateIndicationProviderNames(
-    const CIMInstance& pInstance,
-    const CIMInstance& pmInstance,
-    String& providerName,
-    String& location)
+int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
+                                  String& providerName, String& location)
 {
-    Uint32 pos = pInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
+    Uint32 pos = pInstance.findProperty(CIMName ("Name"));
     pInstance.getProperty(pos).getValue().get(providerName);
 
     pos = pmInstance.findProperty(CIMName ("Location"));
@@ -8302,12 +6129,9 @@ newSelectExp (String& query,
    return stmt;
 }
 
-Message * JMPIProviderManager::handleCreateSubscriptionRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleCreateSubscriptionRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleCreateSubscriptionRequest");
 
     HandlerIntroInd(CreateSubscription,message,request,response,handler);
 
@@ -8325,35 +6149,40 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
                              providerLocation;
         CIMInstance          req_provider,
                              req_providerModule;
-        ProviderIdContainer  pidc =
-            (ProviderIdContainer) request->operationContext.get(
-                ProviderIdContainer::NAME);
+        ProviderIdContainer  pidc               = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
 
-        req_provider = pidc.getProvider ();
+        req_provider       = pidc.getProvider ();
         req_providerModule = pidc.getModule ();
 
-        LocateIndicationProviderNames(
-            req_provider,
-            req_providerModule,
-            providerName,
-            providerLocation);
+        LocateIndicationProviderNames (req_provider,
+                                       req_providerModule,
+                                       providerName,
+                                       providerLocation);
 
-        fileName = resolveFileName(providerLocation);
+        fileName = resolveFileName (providerLocation);
 
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleCreateSubscriptionRequest: "
-                 "name space = %s provider name = %s provider filename = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)providerName.getCString(),
-             (const char*)fileName.getCString()
-             ));
+        Logger::put (Logger::STANDARD_LOG,
+                     System::CIMSERVER,
+                     Logger::TRACE,
+                     "JMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+                     System::getHostName(),
+                     request->nameSpace.getString(),
+                     providerName);
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: hostname = "
+                             <<System::getHostName()
+                             <<", namespace = "
+                             <<request->nameSpace.getString()
+                             <<", providername = "
+                             <<providerName
+                             <<", fileName = "
+                             <<fileName
+                             <<PEGASUS_STD(endl));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(
-                fileName,
-                providerName,
-                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (fileName,
+                                                                         providerName,
+                                                                         String::EMPTY);
 
         //
         //  Save the provider instance from the request
@@ -8367,11 +6196,9 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
         //
         pr.testIfZeroAndIncrementSubscriptions ();
 
-        SubscriptionFilterConditionContainer sub_cntr =
-            request->operationContext.get(
-                SubscriptionFilterConditionContainer::NAME);
-        indProvRecord *prec = NULL;
-        bool fNewPrec = false;
+        SubscriptionFilterConditionContainer  sub_cntr = request->operationContext.get (SubscriptionFilterConditionContainer::NAME);
+        indProvRecord                        *prec     = NULL;
+        bool                                  fNewPrec = false;
 
         {
            AutoMutex lock (mutexProvTab);
@@ -8387,35 +6214,21 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
                // convert arguments
                prec->ctx = new OperationContext ();
 
-               prec->ctx->insert(
-                   request->operationContext.get(
-                       IdentityContainer::NAME));
-               prec->ctx->insert(
-                   request->operationContext.get(
-                       AcceptLanguageListContainer::NAME));
-               prec->ctx->insert(
-                   request->operationContext.get(
-                       ContentLanguageListContainer::NAME));
-               prec->ctx->insert(
-                   request->operationContext.get(
-                       SubscriptionInstanceContainer::NAME));
-               prec->ctx->insert(
-                   request->operationContext.get(
-                       SubscriptionFilterConditionContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (IdentityContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (AcceptLanguageListContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (ContentLanguageListContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (SubscriptionInstanceContainer::NAME));
+               prec->ctx->insert (request->operationContext.get (SubscriptionFilterConditionContainer::NAME));
 
                prec->enabled = true;
 
-               prec->handler = new EnableIndicationsResponseHandler(
-                                   0,
-                                   0,
-                                   req_provider,
-                                   _indicationCallback,
-                                   _responseChunkCallback);
+               prec->handler = new EnableIndicationsResponseHandler (0,
+                                                                     0,
+                                                                     req_provider,
+                                                                     _indicationCallback,
+                                                                     _responseChunkCallback);
 
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                             "handleCreateSubscriptionRequest: "
-                       "Adding %s to provTab.",
-                   (const char*)providerName.getCString()));
+               DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: Adding to provTab "<<providerName<<PEGASUS_STD(endl));
 
                provTab.insert (providerName, prec);
            }
@@ -8435,45 +6248,26 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
            srec->queryLanguage = sub_cntr.getQueryLanguage ();
            srec->propertyList  = request->propertyList;
 
-           CIMOMHandleQueryContext *qContext =
-               new CIMOMHandleQueryContext(
-                   CIMNamespaceName(
-                       request->nameSpace.getString()),
-                   *pr._cimom_handle);
+           CIMOMHandleQueryContext *qContext = new CIMOMHandleQueryContext (CIMNamespaceName (request->nameSpace.getString ()),
+                                                                            *pr._cimom_handle);
            srec->qContext = qContext;
 
-           CIMObjectPath sPath = request->subscriptionInstance.getPath();
-           Array<CIMKeyBinding> kb;
+           CIMObjectPath sPath (request->subscriptionInstance.getPath ().getClassName ().getString ());
 
-           // Technically we only need Name and Handler for uniqueness
-           kb = sPath.getKeyBindings ();
-
-           // Add an entry for every provider.
-           kb.append (CIMKeyBinding ("Provider",
-                                     pr.getName (),
-                                     CIMKeyBinding::STRING));
-
-           sPath.setKeyBindings (kb);
+           sPath.setNameSpace (request->subscriptionInstance.getPath ().getNameSpace ());
 
            AutoMutex lock (mutexSelxTab);
 
-           PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-               "handleCreateSubscriptionRequest: "
-                   "Adding %s to selxTab.",
-               (const char*)sPath.toString().getCString()));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: Adding to selxTab "<<sPath.toString ()<<PEGASUS_STD(endl));
 
            selxTab.insert (sPath.toString (), srec);
 
-           PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                 "handleCreateSubscriptionRequest: "
-                     "For selxTab %s , srec = %p, qContext = %p",
-                 (const char*)sPath.toString().getCString(),
-                 srec,qContext));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: For selxTab "<<sPath.toString ()<<", srec = "<<PEGASUS_STD(hex)<<(long)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(long)qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
         }
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "handleCreateSubscriptionRequest: Calling provider: %s",
-            (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.createSubscriptionRequest: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: Calling provider createSubscriptionRequest: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -8481,19 +6275,11 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleCreateSubscriptionRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -8508,51 +6294,49 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "activateFilter",
-                    "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+           // public void activateFilter (org.pegasus.jmpi.SelectExp     filter,
+           //                             java.lang.String               eventType,
+           //                             org.pegasus.jmpi.CIMObjectPath classPath,
+           //                             boolean                        firstActivation)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID ((jclass)pr.jProviderClass,
+                                  "activateFilter",
+                                  "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_EVENTPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleCreateSubscriptionRequest: "
-                       "Found METHOD_EVENTPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: found METHOD_EVENTPROVIDER."<<PEGASUS_STD(endl));
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "activateFilter",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                        "Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
-                            "Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+           // public void activateFilter (org.pegasus.jmpi.OperationContext oc,
+           //                             org.pegasus.jmpi.SelectExp        filter,
+           //                             java.lang.String                  eventType,
+           //                             org.pegasus.jmpi.CIMObjectPath    classPath,
+           //                             boolean                           firstActivation)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID ((jclass)pr.jProviderClass,
+                                  "activateFilter",
+                                  "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_EVENTPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleCreateSubscriptionRequest: "
-                       "Found METHOD_EVENTPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: found METHOD_EVENTPROVIDER2."<<PEGASUS_STD(endl));
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleCreateSubscriptionRequest: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on"
-                       " InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -8561,32 +6345,22 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
         {
         case METHOD_EVENTPROVIDER:
         {
-            WQLSelectStatement *stmt = newSelectExp(
-                                           srec->query,
-                                           srec->queryLanguage);
-            jlong jStmtRef = DEBUG_ConvertCToJava(
-                                 WQLSelectStatement *,
-                                 jlong,
-                                 stmt);
-            jobject jSelectExp = env->NewObject(
-                                     jv->SelectExpClassRef,
-                                     jv->SelectExpNewJ,
-                                     jStmtRef);
+            WQLSelectStatement *stmt       = newSelectExp (srec->query,
+                                                           srec->queryLanguage);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jType = env->NewStringUTF(
-                                request->nameSpace.getString().getCString());
+            jstring jType = env->NewStringUTF(request->nameSpace.getString().getCString());
 
             JMPIjvm::checkException(env);
 
             CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
                                                         request->nameSpace,
                                                         request->classNames[0]);
-            jlong jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,jcopRef);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -8605,39 +6379,25 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
 
         case METHOD_EVENTPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
-            WQLSelectStatement *stmt = newSelectExp(srec->query,
-                                                    srec->queryLanguage);
-            jlong   jStmtRef   = DEBUG_ConvertCToJava(
-                                     WQLSelectStatement *,
-                                     jlong,
-                                     stmt);
-            jobject jSelectExp = env->NewObject(
-                                     jv->SelectExpClassRef,
-                                     jv->SelectExpNewJ,
-                                     jStmtRef);
+            WQLSelectStatement *stmt       = newSelectExp (srec->query,
+                                                           srec->queryLanguage);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jType = env->NewStringUTF(
-                                request->nameSpace.getString().getCString());
+            jstring jType = env->NewStringUTF(request->nameSpace.getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            CIMObjectPath *cop = new CIMObjectPath (System::getHostName(),
-                                                    request->nameSpace,
-                                                    request->classNames[0]);
-            jlong jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,jcopRef);
+            CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
+                                                        request->nameSpace,
+                                                        request->classNames[0]);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -8655,7 +6415,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(joc,JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -8664,8 +6424,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleCreateSubscriptionRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateSubscriptionRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -8679,12 +6438,9 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleDeleteSubscriptionRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleDeleteSubscriptionRequest");
 
     HandlerIntroInd(DeleteSubscription,message,request,response,handler);
 
@@ -8705,9 +6461,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
                             providerLocation;
         CIMInstance         req_provider,
                             req_providerModule;
-        ProviderIdContainer pidc = (ProviderIdContainer)
-                                       request->operationContext.get(
-                                           ProviderIdContainer::NAME);
+        ProviderIdContainer pidc               = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
 
         req_provider       = pidc.getProvider ();
         req_providerModule = pidc.getModule ();
@@ -8719,19 +6473,28 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
 
         fileName = resolveFileName (providerLocation);
 
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-             "handleDeleteSubscriptionRequest: "
-                 "name space = %s provider name = %s provider filename = %s",
-             (const char*)request->nameSpace.getString().getCString(),
-             (const char*)providerName.getCString(),
-             (const char*)fileName.getCString()
-             ));
+        Logger::put (Logger::STANDARD_LOG,
+                     System::CIMSERVER,
+                     Logger::TRACE,
+                     "JMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+                     System::getHostName(),
+                     request->nameSpace.getString(),
+                     providerName);
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: hostname = "
+                             <<System::getHostName()
+                             <<", namespace = "
+                             <<request->nameSpace.getString()
+                             <<", providername = "
+                             <<providerName
+                             <<", fileName = "
+                             <<fileName
+                             <<PEGASUS_STD(endl));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider(
-                                                fileName,
-                                                providerName,
-                                                String::EMPTY);
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (fileName,
+                                                                         providerName,
+                                                                         String::EMPTY);
 
         JMPIProvider &pr = ph.GetProvider ();
 
@@ -8746,10 +6509,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
 
            if (--prec->count <= 0)
            {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "handleDeleteSubscriptionRequest: "
-                       "Removing %s from provTab.",
-                    (const char*)providerName.getCString()));
+               DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: Removing provTab "<<providerName<<PEGASUS_STD(endl));
 
                provTab.remove (providerName);
 
@@ -8758,46 +6518,26 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
         }
 
         {
-           CIMObjectPath sPath = request->subscriptionInstance.getPath();
-           Array<CIMKeyBinding> kb;
+           CIMObjectPath sPath (request->subscriptionInstance.getPath ().getClassName ().getString ());
 
-           // Technically we only need Name and Handler for uniqueness
-           kb = sPath.getKeyBindings ();
-
-           // Add an entry for every provider.
-           kb.append (CIMKeyBinding ("Provider",
-                                     pr.getName (),
-                                     CIMKeyBinding::STRING));
-
-           sPath.setKeyBindings (kb);
+           sPath.setNameSpace (request->subscriptionInstance.getPath ().getNameSpace ());
 
            String sPathString = sPath.toString ();
 
            AutoMutex lock (mutexSelxTab);
 
-           PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "handleDeleteSubscriptionRequest: "
-                   "Removing %s from selxTab.",
-                (const char*)sPathString.getCString()));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: Removing selxTab "<<sPathString<<PEGASUS_STD(endl));
 
-           if (!selxTab.lookup (sPathString, srec))
-           {
-               PEGASUS_ASSERT(0);
-           }
+           selxTab.lookup (sPathString, srec);
 
-           PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                 "handleDeleteSubscriptionRequest: "
-                     "For selxTab %s , srec = %p, qContext = %p",
-                 (const char*)sPathString.getCString(),
-                 srec,srec->qContext));
+           DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: For selxTab "<<sPathString<<", srec = "<<PEGASUS_STD(hex)<<(long)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(long)srec->qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 
            selxTab.remove (sPathString);
         }
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
-            "handleDeleteSubscriptionRequest: "
-                "Calling provider: %s",
-            (const char*)pr.getName().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.deleteSubscriptionRequest: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: Calling provider deleteSubscriptionRequest: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
@@ -8805,19 +6545,11 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleDeleteSubscriptionRequest: "
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                    "runtime environment.");
-
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
-                    "Could not initialize the JVM (Java Virtual Machine) "
-                        "runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -8826,58 +6558,55 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
         String    interfaceType;
         String    interfaceVersion;
 
-        getInterfaceType(
-            request->operationContext.get(ProviderIdContainer::NAME),
-            interfaceType,
-            interfaceVersion);
+        getInterfaceType (request->operationContext.get (ProviderIdContainer::NAME),
+                          interfaceType,
+                          interfaceVersion);
 
         if (interfaceType == "JMPI")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "deActivateFilter",
-                    "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
-                        "Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+           // public void deActivateFilter (org.pegasus.jmpi.SelectExp    filter,
+           //                              java.lang.String               eventType,
+           //                              org.pegasus.jmpi.CIMObjectPath classPath,
+           //                              boolean                        lastActivation)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "deActivateFilter",
+                                 "(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_EVENTPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleDeleteSubscriptionRequest: "
-                       "Found METHOD_EVENTPROVIDER.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: found METHOD_EVENTPROVIDER."<<PEGASUS_STD(endl));
            }
         }
         else if (interfaceType == "JMPIExperimental")
         {
-           id = env->GetMethodID(
-                    (jclass)pr.jProviderClass,
-                    "deActivateFilter",
-                    "(Lorg/pegasus/jmpi/OperationContext;"
-                         "Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;"
-                             "Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
+           // public void deActivateFilter (org.pegasus.jmpi.OperationContext oc,
+           //                               org.pegasus.jmpi.SelectExp        filter,
+           //                               java.lang.String                  eventType,
+           //                               org.pegasus.jmpi.CIMObjectPath    classPath,
+           //                               boolean                           lastActivation)
+           //        throws org.pegasus.jmpi.CIMException
+           id = env->GetMethodID((jclass)pr.jProviderClass,
+                                 "deActivateFilter",
+                                 "(Lorg/pegasus/jmpi/OperationContext;Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V");
 
            if (id != NULL)
            {
                eMethodFound = METHOD_EVENTPROVIDER2;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                   "handleDeleteSubscriptionRequest: "
-                       "Found METHOD_EVENTPROVIDER2.");
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: found METHOD_EVENTPROVIDER2."<<PEGASUS_STD(endl));
            }
         }
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleDeleteSubscriptionRequest: No method provider found!");
+           DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: No method found!"<<PEGASUS_STD(endl));
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L(
-               CIM_ERR_FAILED,
-               MessageLoaderParms(
-                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
-                   "Could not find a method for the provider based on"
-                        " InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
+                                                              "Could not find a method for the provider based on InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -8886,32 +6615,22 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
         {
         case METHOD_EVENTPROVIDER:
         {
-            WQLSelectStatement *stmt = newSelectExp(
-                                           srec->query,
-                                           srec->queryLanguage);
-            jlong jStmtRef = DEBUG_ConvertCToJava(
-                                 WQLSelectStatement *,
-                                 jlong,
-                                 stmt);
-            jobject jSelectExp = env->NewObject(
-                                     jv->SelectExpClassRef,
-                                     jv->SelectExpNewJ,jStmtRef);
+            WQLSelectStatement *stmt       = newSelectExp (srec->query,
+                                                           srec->queryLanguage);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jType = env->NewStringUTF(
-                                request->nameSpace.getString().getCString());
+            jstring jType = env->NewStringUTF(request->nameSpace.getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            CIMObjectPath *cop = new CIMObjectPath(
-                                     System::getHostName(),
-                                     request->nameSpace,
-                                     request->classNames[0]);
-            jlong jcopRef = DEBUG_ConvertCToJava(CIMObjectPath*, jlong, cop);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,jcopRef);
+            CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
+                                                        request->nameSpace,
+                                                        request->classNames[0]);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -8930,39 +6649,25 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
 
         case METHOD_EVENTPROVIDER2:
         {
-            jlong jocRef = DEBUG_ConvertCToJava(
-                               OperationContext*,
-                               jlong,
-                               &request->operationContext);
-            jobject joc = env->NewObject(
-                              jv->OperationContextClassRef,
-                              jv->OperationContextNewJ,jocRef);
+            jlong   jocRef = DEBUG_ConvertCToJava (OperationContext*, jlong, &request->operationContext);
+            jobject joc    = env->NewObject(jv->OperationContextClassRef,jv->OperationContextNewJ,jocRef);
 
             WQLSelectStatement *stmt       = newSelectExp (srec->query,
                                                            srec->queryLanguage);
-            jlong jStmtRef   = DEBUG_ConvertCToJava(
-                                   WQLSelectStatement *,
-                                   jlong,
-                                   stmt);
-            jobject jSelectExp = env->NewObject(
-                                     jv->SelectExpClassRef,
-                                     jv->SelectExpNewJ,
-                                     jStmtRef);
+            jlong               jStmtRef   = DEBUG_ConvertCToJava (WQLSelectStatement *, jlong, stmt);
+            jobject             jSelectExp = env->NewObject(jv->SelectExpClassRef,jv->SelectExpNewJ,jStmtRef);
 
             JMPIjvm::checkException(env);
 
-            jstring jType = env->NewStringUTF(
-                                request->nameSpace.getString().getCString());
+            jstring jType = env->NewStringUTF(request->nameSpace.getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            CIMObjectPath *cop = new CIMObjectPath (System::getHostName(),
-                                                    request->nameSpace,
-                                                    request->classNames[0]);
-            jlong jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
-            jobject jcop = env->NewObject(
-                               jv->CIMObjectPathClassRef,
-                               jv->CIMObjectPathNewJ,jcopRef);
+            CIMObjectPath *cop     = new CIMObjectPath (System::getHostName(),
+                                                        request->nameSpace,
+                                                        request->classNames[0]);
+            jlong          jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jlong, cop);
+            jobject        jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewJ,jcopRef);
 
             JMPIjvm::checkException(env);
 
@@ -8980,9 +6685,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
 
             if (joc)
             {
-               env->CallVoidMethod(
-                   joc,
-                   JMPIjvm::jv.OperationContextUnassociate);
+               env->CallVoidMethod (joc, JMPIjvm::jv.OperationContextUnassociate);
 
                JMPIjvm::checkException(env);
             }
@@ -8991,8 +6694,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "handleDeleteSubscriptionRequest: Unknown method provider!");
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }
@@ -9024,23 +6726,19 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
     return(response);
 }
 
-Message * JMPIProviderManager::handleDisableModuleRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleDisableModuleRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleDisableModuleRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleDisableModuleRequest");
 
     CIMDisableModuleRequestMessage * request =
-        dynamic_cast<CIMDisableModuleRequestMessage *>
-        (const_cast<Message *>(message));
+        dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
     // get provider module name
     String moduleName;
     CIMInstance mInstance = request->providerModule;
-    Uint32 pos = mInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
+    Uint32 pos = mInstance.findProperty(CIMName ("Name"));
 
     if(pos != PEG_NOT_FOUND)
     {
@@ -9058,61 +6756,73 @@ Message * JMPIProviderManager::handleDisableModuleRequest(
     //
     Array<CIMInstance> _pInstances = request->providers;
 
-    CIMDisableModuleResponseMessage* response =
-        dynamic_cast<CIMDisableModuleResponseMessage*>(
-            request->buildResponse());
+    CIMDisableModuleResponseMessage * response =
+        new CIMDisableModuleResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        operationalStatus);
+
     PEGASUS_ASSERT(response != 0);
-    response->operationalStatus = operationalStatus;
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * JMPIProviderManager::handleEnableModuleRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleEnableModuleRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleEnableModuleRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleEnableModuleRequest");
 
     CIMEnableModuleRequestMessage * request =
-        dynamic_cast<CIMEnableModuleRequestMessage *>
-            (const_cast<Message *>(message));
+        dynamic_cast<CIMEnableModuleRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
     Array<Uint16> operationalStatus;
-    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
+    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
 
-    CIMEnableModuleResponseMessage* response =
-        dynamic_cast<CIMEnableModuleResponseMessage*>(
-            request->buildResponse());
+    CIMEnableModuleResponseMessage * response =
+        new CIMEnableModuleResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop(),
+        operationalStatus);
+
     PEGASUS_ASSERT(response != 0);
-    response->operationalStatus = operationalStatus;
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
 
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
-Message * JMPIProviderManager::handleStopAllProvidersRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleStopAllProvidersRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleStopAllProvidersRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleStopAllProvidersRequest");
 
     CIMStopAllProvidersRequestMessage * request =
-        dynamic_cast<CIMStopAllProvidersRequestMessage *>
-            (const_cast<Message *>(message));
+        dynamic_cast<CIMStopAllProvidersRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMStopAllProvidersResponseMessage* response =
-        dynamic_cast<CIMStopAllProvidersResponseMessage*>(
-            request->buildResponse());
+    CIMStopAllProvidersResponseMessage * response =
+        new CIMStopAllProvidersResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
     PEGASUS_ASSERT(response != 0);
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();
@@ -9122,29 +6832,32 @@ Message * JMPIProviderManager::handleStopAllProvidersRequest(
     return(response);
 }
 
-Message* JMPIProviderManager::handleIndicationServiceDisabledRequest(
-    Message* message)
+Message * JMPIProviderManager::handleInitializeProviderRequest(const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::_handleIndicationServiceDisabledRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleInitializeProviderRequest");
 
-    CIMIndicationServiceDisabledRequestMessage* request =
-        dynamic_cast<CIMIndicationServiceDisabledRequestMessage*>(message);
-    PEGASUS_ASSERT(request != 0);
+    HandlerIntroInit(InitializeProvider,message,request,response,handler);
 
-    CIMIndicationServiceDisabledResponseMessage* response =
-        dynamic_cast<CIMIndicationServiceDisabledResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
+    try
+    {
+        // resolve provider name
+        ProviderName name = _resolveProviderName(
+           request->operationContext.get(ProviderIdContainer::NAME));
 
-    _subscriptionInitComplete = false;
+        // get cached or load new provider module
+        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
+                                                                         name.getLogicalName(),
+                                                                         String::EMPTY);
 
-    PEG_METHOD_EXIT ();
-    return response;
+    }
+    HandlerCatch(handler);
+
+    PEG_METHOD_EXIT();
+
+    return(response);
 }
 
-Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest(
-    const Message * message)
+Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest (const Message * message)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
      "JMPIProviderManager::handleSubscriptionInitCompleteRequest");
@@ -9176,20 +6889,57 @@ Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest(
 
     Uint32 numProviders = enableProviders.size ();
 
-    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "handleSubscriptionInitCompleteRequest: numProviders = %d ",
-        numProviders));
+    DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSubscriptionInitCompleteRequest: numProviders = "<<numProviders<<PEGASUS_STD(endl));
+
+#if 0
+    for (Uint32 i = 0; i < numProviders; i++)
+    {
+        try
+        {
+            CIMInstance provider;
+
+            provider = enableProviders[i]->getProviderInstance ();
+
+            DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSubscriptionInitCompleteRequest: name = "<<enableProviders[i]->getName ()<<PEGASUS_STD(endl));
+
+            //
+            //  Get cached or load new provider module
+            //
+            JMPIProvider::OpProviderHolder  ph   = providerManager.getProvider (enableProviders[i]->getModule ()->getFileName (),
+                                                                                enableProviders[i]->getName ());
+            indProvRecord                  *prec = NULL;
+
+            {
+               AutoMutex lock (mutexProvTab);
+
+               provTab.lookup (enableProviders[i]->getName (), prec);
+            }
+        }
+        catch (CIMException & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "CIMException: " + e.getMessage ());
+        }
+        catch (Exception & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Exception: " + e.getMessage ());
+        }
+        catch(...)
+        {
+            PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Unknown error in handleSubscriptionInitCompleteRequest");
+        }
+    }
+#endif
 
     PEG_METHOD_EXIT ();
     return (response);
 }
 
-Message * JMPIProviderManager::handleUnsupportedRequest(
-    const Message * message) throw()
+Message * JMPIProviderManager::handleUnsupportedRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::handleUnsupportedRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleUnsupportedRequest");
 
     CIMRequestMessage* request =
         dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
@@ -9208,17 +6958,11 @@ ProviderName JMPIProviderManager::_resolveProviderName(
 {
     String providerName;
     String fileName;
-    String moduleName;
+    String interfaceName;
     CIMValue genericValue;
 
-    genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty(
-            PEGASUS_PROPERTYNAME_NAME)).getValue();
-    genericValue.get(moduleName);
-
     genericValue = providerId.getProvider().getProperty(
-        providerId.getProvider().findProperty(
-            PEGASUS_PROPERTYNAME_NAME)).getValue();
+        providerId.getProvider().findProperty("Name")).getValue();
     genericValue.get(providerName);
 
     genericValue = providerId.getModule().getProperty(
@@ -9226,13 +6970,17 @@ ProviderName JMPIProviderManager::_resolveProviderName(
     genericValue.get(fileName);
     fileName = resolveFileName(fileName);
 
-    return ProviderName(moduleName, providerName, fileName);
+    // ATTN: This attribute is probably not required
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("InterfaceType")).getValue();
+    genericValue.get(interfaceName);
+
+    return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
 String JMPIProviderManager::resolveFileName(String fileName)
 {
-    String name = ConfigManager::getHomedPath(
-        ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    String name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     // physfilename = everything up to the delimiter pointing at class start
     // in case there is no delimiter anymore, it takes the entire filename
     String physfilename = fileName.subString(0, fileName.find(":"));

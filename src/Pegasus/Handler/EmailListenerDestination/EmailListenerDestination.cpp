@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,15 +36,13 @@
 
 #include <iostream>
 #include <Pegasus/Handler/CIMHandler.h>
-#include <Pegasus/Handler/IndicationFormatter.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/IndicationFormatter.h>
 #include <Pegasus/IndicationService/IndicationConstants.h>
-
-
 
 #if defined(PEGASUS_OS_VMS)
 #include <unistd>
@@ -85,16 +85,6 @@ void EmailListenerDestination::handleIndication(
 
     try
     {
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
-            "EmailListenerDestination %s:%s.%s processing %s Indication",
-           (const char*)(nameSpace.getCString()),
-           (const char*)(handler.getClassName().getString().getCString()),
-           (const char*)(handler.getProperty(
-           handler.findProperty(PEGASUS_PROPERTYNAME_NAME)).
-           getValue().toString().getCString()),
-           (const char*)(indication.getClassName().getString().
-           getCString())));
-
         // gets formatted indication message
         indicationText = IndicationFormatter::getFormattedIndText(
             subscription, indication, contentLanguages);
@@ -105,7 +95,7 @@ void EmailListenerDestination::handleIndication(
             PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO)).getValue().get(mailTo);
 
         // get MailSubject from handler instance
-        String mailSubject;
+        String mailSubject = String::EMPTY;
         handler.getProperty(handler.findProperty(
             PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT)).getValue().get(
                 mailSubject);
@@ -136,21 +126,19 @@ void EmailListenerDestination::handleIndication(
     }
     catch (CIMException& c)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "CIMException: %s",
-            (const char*)c.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "Exception: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to deliver indication via e-mail.");
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
@@ -175,6 +163,7 @@ void EmailListenerDestination::_sendViaEmail(
     defined(PEGASUS_OS_VMS)
 
     String exceptionStr;
+    FILE* mailFilePtr;
     FILE* filePtr;
     char mailFile[TEMP_NAME_LEN];
 
@@ -182,15 +171,23 @@ void EmailListenerDestination::_sendViaEmail(
     // Check for proper execute permissions for sendmail
     if (access(SENDMAIL_CMD, X_OK) < 0)
     {
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+            "Cannot execute %s: %s.", SENDMAIL_CMD, strerror(errno)));
+
+        MessageLoaderParms parms(
+            "Handler.EmailListenerDestination.EmailListenerDestination."
+                "_MSG_EXECUTE_ACCESS_FAILED",
+            "Cannot execute $0: $1",
+            SENDMAIL_CMD,
+            strerror(errno));
+
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Handler.EmailListenerDestination.EmailListenerDestination."
-                    "_MSG_EXECUTE_ACCESS_FAILED",
-                "Cannot execute $0: $1",
-                SENDMAIL_CMD,
-                strerror(errno)));
+            "Handler.EmailListenerDestination.EmailListenerDestination."
+                "_MSG_EXECUTE_ACCESS_FAILED",
+            MessageLoader::getMessage(parms));
 
         PEG_METHOD_EXIT();
+
         return;
     }
 #endif
@@ -207,7 +204,7 @@ void EmailListenerDestination::_sendViaEmail(
 
         fclose(filePtr);
     }
-    catch (CIMException&)
+    catch (CIMException& c)
     {
         fclose(filePtr);
         unlink(mailFile);
@@ -225,7 +222,7 @@ void EmailListenerDestination::_sendViaEmail(
         status = mail$send_begin(&send_context, &nulllist, &nulllist);
         if (status != SS$_NORMAL)
         {
-            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                 "Routine mail$send_begin failed.");
             PEG_METHOD_EXIT();
 
@@ -238,7 +235,7 @@ void EmailListenerDestination::_sendViaEmail(
         // send the message
         _sendMsg(mailFile);
     }
-    catch (CIMException&)
+    catch (CIMException& c)
     {
         unlink(mailFile);
 
@@ -248,9 +245,11 @@ void EmailListenerDestination::_sendViaEmail(
 
     unlink(mailFile);
 
+    PEG_METHOD_EXIT();
+
 #else
 
-    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                          "sendmail is not supported.");
     PEG_METHOD_EXIT();
 
@@ -284,9 +283,6 @@ void EmailListenerDestination::_buildMailHeader(
                  "DO_NOT_HAVE_EMAIL_ADDRESS",
              "Do not have an e-mail address."));
     }
-    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-       "EmailListenerDestination sending Indication via email to %s",
-       (const char*)(mailToStr.getCString())));
 
 #ifdef PEGASUS_OS_VMS
 
@@ -300,7 +296,7 @@ void EmailListenerDestination::_buildMailHeader(
     // Write the mailSubject string
     //
 
-    String mailSubjectStr;
+    String mailSubjectStr = String::EMPTY;
     mailSubjectStr.append(mailSubject);
     CString foo = mailSubjectStr.getCString();
 
@@ -313,7 +309,7 @@ void EmailListenerDestination::_buildMailHeader(
         &nulllist);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_add_attribute failed.");
         PEG_METHOD_EXIT();
 
@@ -333,7 +329,7 @@ void EmailListenerDestination::_buildMailHeader(
     status = mail$send_add_bodypart(&send_context, bodypart_itmlst, 0);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_add_bodypart failed..");
         PEG_METHOD_EXIT();
 
@@ -345,7 +341,7 @@ void EmailListenerDestination::_buildMailHeader(
 
 #else
 
-    String mailHdrStr;
+    String mailHdrStr = String::EMPTY;
 
     // Write the mailToStr to file
     mailHdrStr.append("To: ");
@@ -362,7 +358,7 @@ void EmailListenerDestination::_buildMailHeader(
     _writeStrToFile(mailHdrStr, filePtr);
 
     // build from string
-    String fromStr;
+    String fromStr = String::EMPTY;
     fromStr.append("From: ");
     fromStr.append(System::getEffectiveUserName());
     fromStr.append("@");
@@ -372,7 +368,7 @@ void EmailListenerDestination::_buildMailHeader(
     _writeStrToFile(fromStr, filePtr);
 
     // Write the mailSubject string to file
-    String mailSubjectStr;
+    String mailSubjectStr = String::EMPTY;
     mailSubjectStr.append("Subject: ");
     mailSubjectStr.append(mailSubject);
     _writeStrToFile(mailSubjectStr, filePtr);
@@ -387,7 +383,7 @@ String EmailListenerDestination::_buildMailAddrStr(
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "EmailListenerDestination::_buildMailAddrStr");
 
-    String mailAddrStr;
+    String mailAddrStr = String::EMPTY;
     Uint32 mailAddrSize = mailAddr.size();
 
     for (Uint32 i = 0; i < mailAddrSize; i++)
@@ -407,7 +403,7 @@ String EmailListenerDestination::_buildMailAddrStr(
             &nulllist);
         if (status != SS$_NORMAL)
         {
-            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                 "Routine mail$send_add_address failed.");
             PEG_METHOD_EXIT();
 
@@ -438,7 +434,7 @@ String EmailListenerDestination::_buildMailAddrCcStr(
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "EmailListenerDestination::_buildMailAddrCcStr");
 
-    String mailAddrStr;
+    String mailAddrStr = String::EMPTY;
     Uint32 mailAddrSize = mailAddr.size();
 
     for (Uint32 i = 0; i < mailAddrSize; i++)
@@ -456,7 +452,7 @@ String EmailListenerDestination::_buildMailAddrCcStr(
             &nulllist);
         if (status != SS$_NORMAL)
         {
-            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
                 "Routine mail$send_add_address failed (cc).");
             PEG_METHOD_EXIT();
 
@@ -484,7 +480,7 @@ void EmailListenerDestination::_writeStrToFile(
 
     if (fprintf(filePtr, "%s\n", (const char *) mailHdrStr.getCString()) < 0)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to write the %s to the file: %s.",
             (const char *) mailHdrStr.getCString(),
             strerror(errno)));
@@ -519,7 +515,7 @@ void EmailListenerDestination::_sendMsg(
     // Checks the existence of the temp mail file
     if (!System::exists(mailFile))
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "File %s does not exist: %s.",
             mailFile,
             strerror(errno)));
@@ -542,7 +538,7 @@ void EmailListenerDestination::_sendMsg(
     // problems for sendmail()
     if (stat(mailFile, &statBuf) != 0)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "Can not get file %s status: %s.",
             mailFile,
             strerror(errno)));
@@ -563,7 +559,7 @@ void EmailListenerDestination::_sendMsg(
 
     if (statBuf.st_size == 0)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "File %s does not contain any data.",
             mailFile));
 
@@ -587,7 +583,7 @@ void EmailListenerDestination::_sendMsg(
     status = mail$send_message(&send_context, nulllist, nulllist);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_message failed.");
         PEG_METHOD_EXIT();
 
@@ -603,7 +599,7 @@ void EmailListenerDestination::_sendMsg(
     status = mail$send_end(&send_context, nulllist, nulllist);
     if (status != SS$_NORMAL)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Routine mail$send_end failed.");
         PEG_METHOD_EXIT();
 
@@ -619,7 +615,7 @@ void EmailListenerDestination::_sendMsg(
     // Open the pipe to send the message
     if ((sendmailPtr = popen(sendmailCmd, "r")) == NULL)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "popen of sendmail failed.");
 
         MessageLoaderParms parms(
@@ -638,7 +634,7 @@ void EmailListenerDestination::_sendMsg(
     Sint32 retCode = pclose(sendmailPtr);
     if (retCode < 0)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "No associated stream with this popen command.");
 
         MessageLoaderParms parms(
@@ -654,7 +650,7 @@ void EmailListenerDestination::_sendMsg(
     }
     else if (retCode == SH_EXECUTE_FAILED)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
             "/usr/bin/sh could not be executed.");
 
         MessageLoaderParms parms(
@@ -688,7 +684,7 @@ void EmailListenerDestination::_openFile(
 #endif
     if (*filePtr == NULL)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1,
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
             "fopen of %s failed: %s.", mailFile,
             strerror(errno)));
 

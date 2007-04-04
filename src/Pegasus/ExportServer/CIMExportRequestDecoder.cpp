@@ -185,12 +185,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    userName = httpMessage->authInfo->getAuthenticatedUser();
 
    Boolean closeConnect = httpMessage->getCloseConnect();
-   Tracer::trace(
+   PEG_TRACE((
        TRC_HTTP,
        Tracer::LEVEL3,
        "CIMOperationRequestDecoder::handleHTTPMessage()- "
            "httpMessage->getCloseConnect() returned %d",
-       httpMessage->getCloseConnect());
+       httpMessage->getCloseConnect()));
 
    // Parse the HTTP message:
 

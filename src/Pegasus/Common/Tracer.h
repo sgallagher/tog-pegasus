@@ -1,108 +1,56 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Tracer_h
 #define Pegasus_Tracer_h
 
-#include <cstdarg>
+#include <stdarg.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/TraceHandler.h>
+#include <Pegasus/Common/TraceComponents.h>
+#include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/SharedPtr.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-/**
-    Trace component identifiers.  This list must be kept in sync with the
-    TRACE_COMPONENT_LIST in Tracer.cpp.
-    The tracer uses the _traceComponentMask 64bit field to mask
-    the user configured components.
-
-    Please ensure that no more than 64 Trace Component ID's are specified.
-*/
-enum TraceComponentId
-{
-    TRC_XML,
-    TRC_XML_IO,
-    TRC_HTTP,
-    TRC_REPOSITORY,
-    TRC_DISPATCHER,
-    TRC_OS_ABSTRACTION,
-    TRC_CONFIG,
-    TRC_IND_HANDLER,
-    TRC_AUTHENTICATION,
-    TRC_AUTHORIZATION,
-    TRC_USER_MANAGER,
-    TRC_SHUTDOWN,
-    TRC_SERVER,
-    TRC_INDICATION_SERVICE,
-    TRC_MESSAGEQUEUESERVICE,
-    TRC_PROVIDERMANAGER,
-    TRC_OBJECTRESOLUTION,
-    TRC_WQL,
-    TRC_CQL,
-    TRC_THREAD,
-    TRC_EXP_REQUEST_DISP,
-    TRC_SSL,
-    TRC_CONTROLPROVIDER,
-    TRC_CIMOM_HANDLE,
-    TRC_L10N,
-    TRC_EXPORT_CLIENT,
-    TRC_LISTENER,
-    TRC_DISCARDED_DATA,
-    TRC_PROVIDERAGENT,
-    TRC_IND_FORMATTER,
-    TRC_STATISTICAL_DATA,
-    TRC_CMPIPROVIDER,
-    TRC_INDICATION_GENERATION,
-    TRC_INDICATION_RECEIPT,
-    TRC_CMPIPROVIDERINTERFACE,
-    TRC_WSMSERVER,
-    TRC_RSSERVER,
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    TRC_WEBSERVER,
-#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
-    TRC_LOGMSG,
-    TRC_WMI_MAPPER_CONSUMER,
-    TRC_INTERNALPROVIDER
-};
 
 /** Token used for tracing functions.
 */
 struct TracerToken
 {
-    TraceComponentId component;
+    Uint32 component;
     const char* method;
 };
 
@@ -112,33 +60,10 @@ class PEGASUS_COMMON_LINKAGE Tracer
 {
 public:
 
-    /** Trace Components list defines the strings repesenting each
-        TraceComponentId entry. Externalized to allow display of the
-        possible list of trace components.  The size of this list is
-        defined in _NUM_COMPONENTS variable.
-     */
-    static char const* TRACE_COMPONENT_LIST[];
-
-    /** Trace facilities
-        File - tracing occurs to the trace file
-        Log  - tracing occurs through the Pegasus Logger class
-        Keep the TRACE_FACILITY_LIST in sync with the TRACE_FACILITY_INDEX,
-        so that the index matches the according string in the list.
-     */
-    static char const* TRACE_FACILITY_LIST[];
-
-    enum TRACE_FACILITY_INDEX
-    {
-        TRACE_FACILITY_FILE = 0,
-        TRACE_FACILITY_LOG  = 1,
-        TRACE_FACILITY_MEMORY = 2
-    };
-
-
     /** Levels of trace
         Trace messages are written to the trace file only if they are at or
         above a given trace level
-        LEVEL1 - Severe and log messages
+        LEVEL1 - Function Entry/Exit
         LEVEL2 - Basic flow trace messages, low data detail
         LEVEL3 - Inter-function logic flow, medium data detail
         LEVEL4 - High data detail
@@ -148,18 +73,64 @@ public:
     static const Uint32 LEVEL3;
     static const Uint32 LEVEL4;
 
+    /** Traces the given message
+        @param traceComponent  component being traced
+        @param level           trace level of the trace message
+        @param *fmt            printf style format string
+        @param ...             variable argument list
+     */
+    static void trace(
+        const Uint32 traceComponent,
+        const Uint32 level,
+        const char *fmt,
+        ...);
+
+    /** Traces the given message. Overloaded to include the filename and
+        the line number of trace origin.
+        @param fileName        filename of the trace originator
+        @param lineNum         line number of the trace originator
+        @param traceComponent  component being traced
+        @param level           trace level of the trace message
+        @param *fmt            printf style format string
+        @param ...             variable argument list
+     */
+    static void trace(
+        const char* fileName,
+        const Uint32 lineNum,
+        const Uint32 traceComponent,
+        const Uint32 level,
+        const char* fmt,
+        ...);
+
+    /** Traces the given string.  Overloaded to include the filename
+        and line number of trace origin.
+        @param fileName        filename of the trace originator
+        @param lineNum         line number of the trace originator
+        @param traceComponent  component being traced
+        @param level           trace level of the trace message
+        @param string          the string to be traced
+     */
+    static void traceString(
+        const char* fileName,
+        const Uint32 lineNum,
+        const Uint32 traceComponent,
+        const Uint32 level,
+        const String& string);
+
     /** Traces the given character string.
         Overloaded to include the filename
         and line number of trace origin.
         @param fileName        filename of the trace originator
         @param lineNum         line number of the trace originator
         @param traceComponent  component being traced
+        @param level           trace level of the trace message
         @param cstring         the character string to be traced
      */
     static void traceCString(
         const char* fileName,
         const Uint32 lineNum,
-        const TraceComponentId traceComponent,
+        const Uint32 traceComponent,
+        const Uint32 level,
         const char* cstring);
 
     /** Traces the message in the given CIMException object.  The message
@@ -167,40 +138,12 @@ public:
         line number of the CIMException originator.
         @param traceComponent  component being traced
         @param level           trace level of the trace message
-        @param cimException    the CIMException to be traced.
+        @param CIMException    the CIMException to be traced.
      */
     static void traceCIMException(
-        const TraceComponentId traceComponent,
+        const Uint32 traceComponent,
         const Uint32 level,
         const CIMException& cimException);
-
-    /** Formats the message given in data as hex dump if binary is true
-        @param data      Message to be formatted
-        @param binary    flag indicating if message is binary or not
-    */
-    static SharedArrayPtr<char> traceFormatChars(
-        const Buffer& data,
-        bool binary);
-
-    /** Gets an HTTP request message.
-
-        Given a binary HTTP request message(application/x-openpegasus
-        this method returns the request message formatted in hex dump format
-        and returns.
-
-        Given an HTTP request message, this method checks if the
-        message contains a "Basic" authorization header.
-
-        If true, the username/passwd is suppressed and returned.
-        Otherwise the request message is returned without any changes.
-
-        @param requestMessage  requestMessage to be checked
-
-        @return request message
-
-    */
-    static SharedArrayPtr<char> getHTTPRequestMessage(
-        const Buffer& requestMessage);
 
     /** Set the trace file to the given file
         @param  traceFile  full path of the trace file
@@ -225,42 +168,6 @@ public:
     static void setTraceComponents(
        const String& traceComponents);
 
-    /** Set trace facility to be used
-        @param traceFacility facility to be used for tracing,
-               for example Log or File.
-        @return 0      if trace facility is valid
-                1      if trace facility is invalid
-    */
-    static Uint32 setTraceFacility(const String& traceFacility);
-
-    /** Get trace facility currently in use
-        @return TRACE_FACILITY_FILE - if trace facility is file
-                TRACE_FACILITY_LOG - if trace facility is the log
-                TRACE_FACILITY_MEMORY - if trace facility is memory tracing
-    */
-    static Uint32 getTraceFacility();
-
-    /** Set buffer size to be used for the memory tracing facility
-        @param bufferSize buffer size in Kbyte to be used for memory tracing
-        @return true   if function was successfully.
-    */
-    static Boolean setTraceMemoryBufferSize(Uint32 bufferSize);
-
-    /** Set the Max trace File Size and used for the File tracing
-        @param maxLogFileSizeBytes size of cimserver.trc
-    */
-    static void setMaxTraceFileSize (const String &size);
-
-    /** Set the Max trace File number
-        @param maxLogFileNumber number of cimserver.trc in trace folder
-    */
-    static void setMaxTraceFileNumber(const String &numberOfFiles);
-
-    /** Flushes the trace buffer to traceFilePath. This method will only
-        have an effect when traceFacility=Memory.
-    */
-    static void flushTrace();
-
     /** Traces method entry.
         @param token           TracerToken
         @param fileName        filename of the trace originator
@@ -272,7 +179,7 @@ public:
         TracerToken& token,
         const char* file,
         size_t line,
-        TraceComponentId traceComponent,
+        Uint32 component,
         const char* method);
 
     /** Traces method exit.
@@ -309,46 +216,15 @@ public:
         const String& traceComponents,
         String& invalidComponents);
 
-    /** Validates the trace facility string value
-        @param  traceFacility   The trace facility as string
-        @return 1        if the trace facility is valid
-                0        if the trace facility is invalid
-     */
-    static Boolean isValidTraceFacility( const String& traceFacility );
-
-    /** Signals the trace to be running OOP and provides the file name
-        extension of  the trace file.  If non-empty, this
+    /** Specify the name of the module being traced.  If non-empty, this
         value is used as an extension to the name of the trace file.
-        @param  oopTraceFileExtension Trace file extension.
+        @param  moduleName Name of the module being traced.
      */
-    static void setOOPTraceFileExtension(const String& oopTraceFileExtension);
+    static void setModuleName(const String& moduleName);
 
     /**
     */
     static Boolean isTraceOn() { return _traceOn; }
-
-    // Checks if trace is enabled for the given component and trace level
-    // @param    traceComponent  component being traced
-    // @param    level      level of the trace message
-    // @return   0               if the component and level are not enabled
-    //           1               if the component and level are enabled
-    static Boolean isTraceEnabled(
-        const TraceComponentId traceComponent,
-        const Uint32 traceLevel)
-    {
-        return ((traceLevel & _traceLevelMask) &&
-                (_traceComponentMask & ((Uint64)1 << traceComponent)));
-    }
-
-    //
-    //Converts a given string representation of a trace property into Uint32.
-    //If the string reperesantation is not valid, the returnd bufferSize is 0.
-    //@param  traceProperty     The trace property value as string
-    //@param  valueInUint32     Returns the value as Uint32.
-    //@return Boolean           True if specified size is a
-    //                          valid string representaion of a Uint32.
-    static Boolean tracePropertyToUint32( const String& traceProperty,
-              Uint32& valueInUint32 );
 
 private:
 
@@ -359,50 +235,42 @@ private:
      */
     static Boolean _traceOn;
 
-    /** Internal only Levels of trace
-        These cannot be used in any of the trace calls directly, but are set
-        by methods of the Tracer class for specific purposes, such as trace
-        Enter and traceExit.
-        LEVEL0 - Trace is switched off
-        LEVEL5 - used for method enter & exit
-     */
-    static const Uint32 LEVEL0;
-    static const Uint32 LEVEL5;
-
     static const char   _COMPONENT_SEPARATOR;
     static const Uint32 _NUM_COMPONENTS;
     static const Uint32 _STRLEN_MAX_UNSIGNED_INT;
     static const Uint32 _STRLEN_MAX_PID_TID;
-    static Uint64                _traceComponentMask;
-    static Uint32                _traceLevelMask;
-    static Tracer*               _tracerInstance;
-    Uint32                _traceMemoryBufferSize;
-    Uint32                _traceFacility;
-    Boolean               _runningOOP;
-    TraceHandler*         _traceHandler;
-    String                _traceFile;
-    String                _oopTraceFileExtension;
-
+    static const Boolean _SUCCESS;
+    static const Boolean _FAILURE;
+    AutoArrayPtr<Boolean> _traceComponentMask;
+    Uint32              _traceLevelMask;
+    AutoPtr<TraceFileHandler> _traceHandler;
+    String              _moduleName;
+    static Tracer*      _tracerInstance;
 
     // Message Strings for function Entry and Exit
     static const char _METHOD_ENTER_MSG[];
     static const char _METHOD_EXIT_MSG[];
 
-    // Function formats size bytes of binary data given in data in a nicely
-    // readable hex format and writes the output to targetBuffer
-    // Return value: Pointer to one byte behind last position that was written
-    static char* _formatHexDump(
-        char* targetBuffer,
-        const char* data,Uint32 size);
+    // Message Strings for Logger
+    static const char _LOG_MSG[];
 
-    // Factory function to create an instance of the matching trace handler
-    // for the given type of traceFacility.
-    // @param    traceFacility  type of trace handler to create
-    void _setTraceHandler( Uint32 traceFacility );
+    // Checks if trace is enabled for the given component and trace level
+    // @param    traceComponent  component being traced
+    // @param    level      level of the trace message
+    // @return   0               if the component and level are not enabled
+    //           1               if the component and level are enabled
+    static Boolean _isTraceEnabled(
+        const Uint32 traceComponent,
+        const Uint32 level);
 
-    // Validates if the given file path if it is eligible for writing traces.
-    // @param    fileName      a file intended to be used to write traces
-    static Boolean _isValidTraceFile(String fileName);
+    // Traces the given message
+    //  @param    traceComponent  component being traced
+    //  @param    *fmt            printf style format string
+    //  @param    argList         variable argument list
+    static void _trace(
+        const Uint32 traceComponent,
+        const char* fmt,
+        va_list argList);
 
     // Traces the given message. Overloaded to include the file name and the
     // line number as one of the parameters.
@@ -413,9 +281,22 @@ private:
     static void _trace(
         const char* fileName,
         const Uint32 lineNum,
-        const TraceComponentId traceComponent,
+        const Uint32 traceComponent,
         const char* fmt,
         va_list argList);
+
+    //  Traces a given character string.  Overloaded to include the filename
+    //  and line number of trace origin.
+    //  @param    fileName        filename of the trace originator
+    //  @param    lineNum         line number of the trace originator
+    //  @param    traceComponent  component being traced
+    //  @param    cstring         the character string to be traced
+    //
+    static void _traceCString(
+        const char* fileName,
+        const Uint32 lineNum,
+        const Uint32 traceComponent,
+        const char* cstring);
 
     //  Traces the message in the given CIMException object.  The message
     //  to be written to the trace file will include the source filename and
@@ -424,25 +305,25 @@ private:
     //  @param    CIMException    the CIMException to be traced.
     //
     static void _traceCIMException(
-        const TraceComponentId traceComponent,
+        const Uint32 traceComponent,
         const CIMException& cimException);
 
     // Called by all the trace interfaces to log message
     // consisting of a single character string to the trace file
-    // @param    traceComponent  component being traced
+    // @param    traceComponent  component being traced    
     // @param    cstring         the string to be traced
     static void _traceCString(
-        const TraceComponentId traceComponent,
+        const Uint32 traceComponent,
         const char* message,
         const char* cstring);
-
+    
     // Called by all the trace interfaces to log message
     // with variable number of arguments to the trace file
     // @param    traceComponent  component being traced
     // @param    *fmt            printf style format string
     // @param    argList         variable argument list
     static void _trace(
-        const TraceComponentId traceComponent,
+        const Uint32 traceComponent,
         const char* message,
         const char* fmt,
         va_list argList);
@@ -455,7 +336,7 @@ private:
     static void _traceMethod(
         const char* fileName,
         const Uint32 lineNum,
-        const TraceComponentId traceComponent,
+        const Uint32 traceComponent,
         const char* methodEntryExit,
         const char* method);
 
@@ -470,11 +351,6 @@ private:
     // Returns the Singleton instance of the Tracer
     // @return   Tracer*  Instance of Tracer
     static Tracer* _getInstance();
-
-    friend class TraceCallFrame;
-    friend class TracePropertyOwner;
-    friend class TraceMemoryHandler;
-    friend class TraceFileHandler;
 };
 
 //==============================================================================
@@ -486,28 +362,52 @@ private:
 
 #ifdef PEGASUS_REMOVE_TRACE
 
+inline void Tracer::trace(
+    const Uint32 traceComponent,
+    const Uint32 level,
+    const char *fmt,
+    ...)
+{
+    // empty function
+}
+
+inline void Tracer::trace(
+    const char* fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 level,
+    const char* fmt,
+    ...)
+{
+    // empty function
+}
+
+inline void Tracer::traceString(
+    const char* fileName,
+    const Uint32 lineNum,
+    const Uint32 traceComponent,
+    const Uint32 level,
+    const String& string)
+{
+    // empty function
+}
+
 inline void Tracer::traceCString(
     const char* fileName,
     const Uint32 lineNum,
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
+    const Uint32 level,
     const char* cstring)
 {
     // empty function
 }
 
 inline void Tracer::traceCIMException(
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const Uint32 level,
     const CIMException& cimException)
 {
     // empty function
-}
-
-static SharedArrayPtr<char> getHTTPRequestMessage(
-        const Buffer& requestMessage)
-{
-    //empty function
-    return SharedArrayPtr<char>();
 }
 
 inline Uint32 Tracer::setTraceFile(const char* traceFile)
@@ -526,32 +426,6 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
 {
     // empty function
 }
-
-inline Uint32 Tracer::setTraceFacility(const String& traceFacility)
-{
-    // empty function
-    return 0;
-}
-
-inline Uint32 Tracer::getTraceFacility()
-{
-    // empty function
-    return 0;
-}
-
-inline Boolean Tracer::setTraceMemoryBufferSize(Uint32 bufferSize)
-{
-    // empty function
-    return true;
-}
-
-inline void Tracer::flushTrace()
-{
-    // empty function
-    return;
-}
-
-
 
 #endif /* PEGASUS_REMOVE_TRACE */
 
@@ -575,24 +449,18 @@ inline void Tracer::flushTrace()
 
 # define PEG_METHOD_ENTER(comp,meth)
 # define PEG_METHOD_EXIT()
+# define PEG_TRACE_STRING(comp,level,string)
 # define PEG_TRACE(VAR_ARGS)
 # define PEG_TRACE_CSTRING(comp,level,chars)
 
 #else /* PEGASUS_REMOVE_TRACE */
 
-// remover trace code for method enter/exit
-# ifdef  PEGASUS_REMOVE_METHODTRACE
-#  define PEG_METHOD_ENTER(comp,meth)
-#  define PEG_METHOD_EXIT()
-# else
-#  define PEG_METHOD_ENTER(comp, meth) \
+# define PEG_METHOD_ENTER(comp, meth) \
     TracerToken __tracerToken; \
-    __tracerToken.method = 0; \
     do \
     { \
         if (Tracer::isTraceOn()) \
-            Tracer::traceEnter( \
-                __tracerToken PEGASUS_COMMA_FILE_LINE, comp, meth); \
+            Tracer::traceEnter(__tracerToken PEGASUS_COMMA_FILE_LINE, comp, meth); \
     } \
     while (0)
 
@@ -603,7 +471,16 @@ inline void Tracer::flushTrace()
             Tracer::traceExit(__tracerToken PEGASUS_COMMA_FILE_LINE); \
     } \
     while (0)
-# endif
+
+// Macro for Trace String.  the do construct allows this to appear
+// as a single statement.
+# define PEG_TRACE_STRING(comp, level, string) \
+    do \
+    { \
+        if (Tracer::isTraceOn()) \
+            Tracer::traceString(PEGASUS_FILE_LINE_COMMA comp, level, string); \
+    } \
+    while (0)
 
 // Macro to trace character lists.  the do construct allows this to appear
 // as a single statement.
@@ -611,79 +488,19 @@ inline void Tracer::flushTrace()
     do \
     { \
         if (Tracer::isTraceOn()) \
-        { \
-            if (Tracer::isTraceEnabled(comp, level)) \
-            { \
-                Tracer::traceCString(PEGASUS_FILE_LINE_COMMA comp, chars); \
-            } \
-        } \
+            Tracer::traceCString(PEGASUS_FILE_LINE_COMMA comp, level, chars); \
     } \
     while (0)
 
-//
-// This class is constructed with the same arguments passed to PEG_TRACE().
-// The constructor saves all the fixed arguments and calls va_start() on
-// the varying arguments (wherein the va_list argument is the ap member of
-// this class). The PEG_TRACE() macro eventually calls invoke() with the
-// file and line macros in order to write the trace entry. For more details,
-// see the comments below on the PEG_TRACE() macro.
-//
-class TraceCallFrame
-{
-public:
-
-    const char* file;
-    Uint32 line;
-
-    TraceCallFrame(const char* file_, Uint32 line_) : file(file_), line(line_)
-    {
-    }
-
-    PEGASUS_FORMAT(4, 5)
-    inline void invoke(
-        const TraceComponentId component,
-        const Uint32 level,
-        const char* format,
-        ...)
-    {
-        if (Tracer::isTraceEnabled(component, level))
-        {
-            va_list ap;
-            va_start(ap, format);
-            Tracer::_trace(file, line, component, format, ap);
-            va_end(ap);
-        }
-    }
-
-    ~TraceCallFrame()
-    {
-    }
-};
-//
-// This macro is a wrapper for calling the printf-style form of the
-// Tracer::trace() function. Since macros cannot have a varying number of
-// arguments, PEG_TRACE() must be invoked with double parentheses. For
-// example:
-//
-//     PEG_TRACE((TRC_HTTP, Tracer::LEVEL1, "Oops: %d", 999));
-//
-// This macro offers two advantages over the calling trace() directly.
-//
-//     1. It eliminates the call to trace() if isTraceOn() returns false.
-//        This has proven to reduce the expense of servicing a request
-//        (when tracing is off) by as much as 3%.
-//
-//     2. It implicitly injects the __FILE__ and __LINE__ macros, relieving
-//        the caller of this burden.
-//
+// Macro for Trace variable number of arguments with format string. The trace
+// test is included becase of the possible cost of preparing the variable
+// number of arguments on each call.  The d construct allows this to be
+// treated as a single statement.
 # define PEG_TRACE(VAR_ARGS) \
     do \
     { \
         if (Tracer::isTraceOn()) \
-        { \
-                TraceCallFrame frame(__FILE__, __LINE__); \
-                frame.invoke VAR_ARGS; \
-        } \
+            Tracer::trace VAR_ARGS; \
     } \
     while (0)
 

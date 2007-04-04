@@ -452,8 +452,8 @@ void ProviderAgentContainer::_startAgentProcess()
         &siStartInfo,  //  STARTUPINFO
         &piProcInfo))  //  PROCESS_INFORMATION
     {
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "CreateProcess() failed.  errno = %d.", GetLastError());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "CreateProcess() failed.  errno = %d.", GetLastError()));
         PEG_METHOD_EXIT();
         throw Exception(MessageLoaderParms(
             "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
@@ -494,8 +494,8 @@ void ProviderAgentContainer::_startAgentProcess()
               (const char*)_moduleName.getCString(), (char*)0)) == -1);
           {
             // If we're still here, there was an error
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "execl() failed.  errno = %d.", errno);
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "execl() failed.  errno = %d.", errno));
             _exit(1);
           }
         }
@@ -504,7 +504,7 @@ void ProviderAgentContainer::_startAgentProcess()
           // There's not much we can do here in no man's land
           try
           {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "Caught exception before calling execl().");
           }
           catch (...)
@@ -517,8 +517,8 @@ void ProviderAgentContainer::_startAgentProcess()
         break;
 
       case -1:
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "fork() failed.  errno = %d.", errno);
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "fork() failed.  errno = %d.", errno));
         PEG_METHOD_EXIT();
         throw Exception(MessageLoaderParms(
             "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
@@ -566,8 +566,8 @@ void ProviderAgentContainer::_startAgentProcess()
     pid_t pid = fork();
     if (pid < 0)
     {
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "fork() failed.  errno = %d.", errno);
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "fork() failed.  errno = %d.", errno));
         PEG_METHOD_EXIT();
         throw Exception(MessageLoaderParms(
             "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
@@ -604,9 +604,9 @@ void ProviderAgentContainer::_startAgentProcess()
             {
                 if (!System::changeUserContext(newUid, newGid))
                 {
-                    Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "System::changeUserContext() failed.  userName = %s.",
-                        (const char*)_userName.getCString());
+                        (const char*)_userName.getCString()));
                     Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
                         Logger::WARNING,
                         "ProviderManager.OOPProviderManagerRouter."
@@ -641,8 +641,8 @@ void ProviderAgentContainer::_startAgentProcess()
                 (const char*)_moduleName.getCString(), (char*)0);
 
             // If we're still here, there was an error
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "execl() failed.  errno = %d.", errno);
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "execl() failed.  errno = %d.", errno));
             _exit(1);
         }
         catch (...)
@@ -650,7 +650,7 @@ void ProviderAgentContainer::_startAgentProcess()
             // There's not much we can do here in no man's land
             try
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "Caught exception before calling execl().");
             }
             catch (...) {}
@@ -822,7 +822,7 @@ void ProviderAgentContainer::_initialize()
                     "Not enough threads to process responses from the "
                         "provider agent.");
 
-                Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Could not allocate thread to process responses from the "
                         "provider agent.");
 
@@ -852,9 +852,9 @@ void ProviderAgentContainer::_initialize()
 
             if (status == -1)
             {
-                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "ProviderAgentContainer::_initialize(): "
-                        "waitpid failed; errno = %d.", errno);
+                        "waitpid failed; errno = %d.", errno));
             }
         }
 #endif
@@ -952,7 +952,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
     catch (...)
     {
         // We're uninitializing, so do not propagate the exception
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Ignoring _uninitialize() exception.");
     }
 
@@ -967,9 +967,9 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 
     if (status == -1)
     {
-        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "ProviderAgentContainer::_uninitialize(): "
-                "waitpid failed; errno = %d.", errno);
+                "waitpid failed; errno = %d.", errno));
     }
 #endif
 
@@ -1141,9 +1141,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
 
                 if (writeStatus != AnonymousPipe::STATUS_SUCCESS)
                 {
-                    Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                         "Failed to write message to pipe.  writeStatus = %d.",
-                        writeStatus);
+                        writeStatus));
 
                     request->messageId = originalMessageId;
 
@@ -1181,7 +1181,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     request->operationContext.set(*origProviderId.get());
                 }
 
-                Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Failed to write message to pipe.");
                 // Remove the OutstandingRequestTable entry for this request
                 {
@@ -1257,7 +1257,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Caught unknown exception");
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
@@ -1390,7 +1390,7 @@ void ProviderAgentContainer::_processResponses()
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "Ignoring exception");
         }
     }
@@ -1771,8 +1771,8 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "Module name = " + moduleName);
-    Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "User context = %hd.", userContext);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "User context = %hd.", userContext));
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "User name = " + userName);
 

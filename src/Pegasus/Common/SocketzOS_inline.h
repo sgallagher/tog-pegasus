@@ -97,7 +97,7 @@ int MP_Socket::ATTLS_zOS_query()
           case(EINPROGRESS):
           case(EWOULDBLOCK):
           {
-              PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+              PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                   "---> Accept pending (EWB).");
               return 0; // accept pending
           }
@@ -171,7 +171,7 @@ int MP_Socket::ATTLS_zOS_query()
        case(TTLS_CONN_HS_INPROGRESS):
        {
            // the SSL handshake has not been finished yet, try late again.
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> Accept pending.");
+           PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> Accept pending.");
            return 0;
        }
        case(TTLS_CONN_SECURE):
@@ -204,7 +204,7 @@ int MP_Socket::ATTLS_zOS_query()
        case(TTLS_SEC_SRV_CA_FULL):
        case(TTLS_SEC_SRV_CA_REQD):
        {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+           PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                "---> ATTLS Securtiy Type is valid but no SAFCHK.");
            PEG_METHOD_EXIT();
            return 1;
@@ -225,7 +225,7 @@ int MP_Socket::ATTLS_zOS_query()
        }
    } // end switch(ioc.TTLSi_Sec_Type)
    // This should never be reached
-   PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+   PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
        "---> Never reach this! New/wrong return value of ioctl().");
    PEG_METHOD_EXIT();
    return -1;

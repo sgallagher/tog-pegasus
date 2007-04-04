@@ -296,7 +296,7 @@ void CIMExportClient::exportIndication(
     }
     catch (...)
     {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL4,
             "Failed to export indication");
         throw;
     }
@@ -334,7 +334,7 @@ Message* CIMExportClient::_doRequest(
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
                 "Failed to connect to indication listener.");
             PEG_METHOD_EXIT();
             throw;
@@ -400,7 +400,7 @@ Message* CIMExportClient::_doRequest(
                 Exception* clientException =
                     ((ClientExceptionMessage*)response.get())->clientException;
 
-                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
                     "Client Exception Message received.");
 
                 AutoPtr<Exception> d(clientException);
@@ -448,7 +448,7 @@ Message* CIMExportClient::_doRequest(
             }
             else if (response->getType() == expectedResponseMessageType)
             {
-                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
                     "Received expected indication response message.");
                 CIMResponseMessage* cimResponse =
                     (CIMResponseMessage*)response.get();
@@ -468,7 +468,7 @@ Message* CIMExportClient::_doRequest(
                 }
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
-                    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+                    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
                         "Received indication failure message.");
                     CIMException cimException(
                         cimResponse->cimException.getCode(),
@@ -519,7 +519,7 @@ Message* CIMExportClient::_doRequest(
     // Reconnect to reset the connection (disregard late response)
     //
 
-    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
         "Connection to the listener timed out.");
 
     _disconnect();

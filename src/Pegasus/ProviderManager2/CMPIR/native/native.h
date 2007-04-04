@@ -240,28 +240,28 @@ typedef struct _NativeCMPIBrokerFT NativeCMPIBrokerFT;
 
 /****************************************************************************/
 
-void native_release_CMPIValue ( CMPIType, CMPIValue * val );
-CMPIValue native_clone_CMPIValue ( CMPIType, CONST CMPIValue * val, CMPIStatus * );
+CMPI_EXPORT void native_release_CMPIValue ( CMPIType, CMPIValue * val );
+CMPI_EXPORT CMPIValue native_clone_CMPIValue ( CMPIType, CONST CMPIValue * val, CMPIStatus * );
 CMPI_EXPORT CMPIString * native_new_CMPIString ( const char *, CMPIStatus * );
-CMPIArray * native_new_CMPIArray ( CMPICount size,
+CMPI_EXPORT CMPIArray * native_new_CMPIArray ( CMPICount size,
                    CMPIType type,
                    CMPIStatus * );
-void native_array_increase_size ( CMPIArray *, CMPICount );
-CMPIInstance * native_new_CMPIInstance ( CONST CMPIObjectPath *, CMPIStatus * );
+CMPI_EXPORT void native_array_increase_size ( CMPIArray *, CMPICount );
+CMPI_EXPORT CMPIInstance * native_new_CMPIInstance ( CONST CMPIObjectPath *, CMPIStatus * );
 CMPI_EXPORT CMPIResult * PEGASUS_CMPIR_CDECL native_new_CMPIResult ( CMPIStatus * );
 CMPI_EXPORT CMPIArray * PEGASUS_CMPIR_CDECL native_result2array ( CMPIResult * );
 CMPI_EXPORT CMPIEnumeration * PEGASUS_CMPIR_CDECL native_new_CMPIEnumeration ( CMPIArray *, CMPIStatus * );
-CMPIObjectPath * native_new_CMPIObjectPath ( const char *,
+CMPI_EXPORT CMPIObjectPath * native_new_CMPIObjectPath ( const char *,
                          const char *,
                          CMPIStatus * );
-CMPIArgs * native_new_CMPIArgs ( CMPIStatus * );
-CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * );
-CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64,
+CMPI_EXPORT CMPIArgs * native_new_CMPIArgs ( CMPIStatus * );
+CMPI_EXPORT CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * );
+CMPI_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64,
                             CMPIBoolean,
                             CMPIStatus * );
-CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char *,
+CMPI_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char *,
                            CMPIStatus * );
-CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32,
+CMPI_EXPORT CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32,
                            CMPIStatus * );
 CMPI_EXPORT CMPIContext * PEGASUS_CMPIR_CDECL native_new_CMPIContext ( int mem_state );
 CMPI_EXPORT void PEGASUS_CMPIR_CDECL native_release_CMPIContext ( CONST CMPIContext * );

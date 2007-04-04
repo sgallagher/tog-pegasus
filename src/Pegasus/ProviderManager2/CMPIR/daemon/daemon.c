@@ -43,6 +43,7 @@
   \sa remote_broker.c
 */
 
+
 #include "../cmpir_common.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,6 +69,7 @@
 #include <signal.h>
 #endif
 
+#define DAEMON
 
 #include "mm.h"
 #include "../remote.h"
@@ -96,7 +98,7 @@ static comm_lib __libs[] = {
 int nativeSide=1;
 
 
-struct BinarySerializerFT *__sft = &binarySerializerFT;
+struct BinarySerializerFT *__sft = NULL;
 
 
 /***************************************************************************/
@@ -175,16 +177,15 @@ int main (int argc, char *argv[])
     int daemon_stop = 0;
     char* message_code;
     CMPIContext * ctx;
-
     int socket;
+
+     __sft = &binarySerializerFT;
 
     if (argc > 2)
     {
         _usage();
         return 0;
     }
-
-    //__asm { int 3h };
 
     if (argc == 2)
     {
@@ -223,8 +224,10 @@ int main (int argc, char *argv[])
             printf ("CMPIRDaemon is already started.\n");
         }
 
+
         __sft->serialize_string (socket, message_code );
         PEGASUS_CMPIR_CLOSESOCKET (socket);
+
         return 0;
     }
     else if (daemon_stop)

@@ -419,9 +419,9 @@ static int condWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
     return pthread_cond_wait((pthread_cond_t*)c, (pthread_mutex_t*)m);
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-if(SignalObjectAndWait(m,c,INFINITE,FALSE)!=WAIT_OBJECT_0)
+if(SignalObjectAndWait(m,c,INFINITE,FALSE)==WAIT_OBJECT_0)
     {
-        if(WaitForSingleObject(m,INFINITE)!=WAIT_OBJECT_0)
+        if(WaitForSingleObject(m,INFINITE)==WAIT_OBJECT_0)
         {
             return 0;
         }

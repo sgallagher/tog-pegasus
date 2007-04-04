@@ -100,8 +100,6 @@ static void TCPCOMM_attachThread(int socket, CONST CMPIBroker * broker,
     CMPIStatus rc;
     CONST CMPIContext *ctx;
     CMPIData ctxid = CMGetContextEntry(context, RCMPI_CTX_ID, NULL);
-    // cleanup all indication object created -V 5245
-    cleanup_indicationObjects(ctxid.value.uint32);
     ctx = get_context(ctxid.value.uint32);
     rc = CBAttachThread(broker, ctx);
     (__sft)->serialize_CMPIStatus(socket, &rc);
@@ -111,8 +109,11 @@ static void TCPCOMM_detachThread(int socket, CONST CMPIBroker * broker,
                    CONST CMPIContext * context)
 {
     CMPIStatus rc;
+    CONST CMPIContext *ctx;
     CMPIData ctxid = CMGetContextEntry(context, RCMPI_CTX_ID, NULL);
-    CONST CMPIContext *ctx = get_context(ctxid.value.uint32);
+    // cleanup all indication object created -V 5245
+    cleanup_indicationObjects(ctxid.value.uint32);
+    ctx = get_context(ctxid.value.uint32);
     remove_context(ctxid.value.uint32);
     rc = CBDetachThread(broker, ctx);
     (__sft)->serialize_CMPIStatus(socket, &rc);

@@ -406,10 +406,6 @@ int getCurrentTimeZone()
 
 #endif
 
-// ATTN: This code is copied from actual implementation of  CIMDateTime::
-// getCurrentDateTime(). Need to find some way to sync the changes made to
-// CIMDateTime::getCurrentDateTime() here. -V 5885
-
 CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
 {
     // Get sec and usec:
@@ -418,6 +414,7 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
     // ATTN: if this fails on your platform, use time() to obtain the
     // sec element and set usec to zero.
     struct timeval tv;
+
 #if defined(PEGASUS_OS_VMS)
     void *tz = NULL;
 #else
@@ -426,7 +423,6 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
     int tzMinutesEast=0;
     struct tm* tmval;
     struct tm tmvalBuffer;
- //   Sint16 currentTimeZone=0;
 
     gettimeofday(&tv, &tz);
     sec = tv.tv_sec;
@@ -470,9 +466,9 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
         (CMPIUint64) usec;
 
     return (CMPIDateTime *) __new_datetime ( TOOL_MM_ADD,
-						 usec,
-						 0,
-						 rc );
+                         usec,
+                         0,
+                         rc );
 }
 
 //! Creates a native CMPIDateTime given a fixed binary time.

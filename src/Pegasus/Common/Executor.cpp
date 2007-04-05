@@ -55,6 +55,7 @@
 #include "Mutex.h"
 #include "FileSystem.h"
 #include "String.h"
+#include "Tracer.h"
 #include <Executor/Strlcpy.h>
 #include <Executor/Strlcat.h>
 
@@ -335,12 +336,12 @@ public:
 
             if (pid == 0)
             {
+#if !defined(PEGASUS_OS_VMS)
                 // Close unused pipe descriptors:
 
                 close(to[1]);
                 close(from[0]);
 
-#if !defined(PEGASUS_OS_VMS)
 
                 // Close unused descriptors. Leave stdin, stdout, stderr, 
                 // and the child's pipe descriptors open.
@@ -388,8 +389,12 @@ public:
 
                 {
                     CString cstr = path.getCString();
-                    execl(cstr, cstr, arg1, arg2, module, (char*)0);
-                    _exit(1);
+                    if (execl(cstr, cstr, arg1, arg2, module, (char*)0) == -1)
+                    {
+                        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                            "execl() failed.  errno = %d.", errno));
+                        _exit(1);
+                    }
                 }
 
                 // ATTN: log failure!

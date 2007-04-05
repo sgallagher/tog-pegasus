@@ -82,14 +82,14 @@
 /*
 **==============================================================================
 **
-** CimserveaSend()
+** CimserveraSend()
 **
 **     Sends *size* bytes on the given socket.
 **
 **==============================================================================
 */
 
-static ssize_t CimserveaSend(int sock, void* buffer, size_t size)
+static ssize_t CimserveraSend(int sock, void* buffer, size_t size)
 {
     size_t r = size;
     char* p = (char*)buffer;
@@ -246,13 +246,13 @@ static int CimserveraAuthenticate(const char* username, const char* password)
         Strlcpy(request.arg1, username, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.arg2, password, EXECUTOR_BUFFER_SIZE);
 
-        if (CimserveaSend(sock, &request, sizeof(request)) != sizeof(request))
+        if (CimserveraSend(sock, &request, sizeof(request)) != sizeof(request))
         {
             status = -1;
             break;
         } 
 
-        /* Get exist status from CIMSERVERA program. */
+        /* Get exit status from CIMSERVERA program. */
 
         waitpid(pid, &childStatus, 0);
 
@@ -305,13 +305,13 @@ static int CimserveraValidateUser(const char* username)
         Strlcpy(request.arg0, "validateUser", EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.arg1, username, EXECUTOR_BUFFER_SIZE);
 
-        if (CimserveaSend(sock, &request, sizeof(request)) != sizeof(request))
+        if (CimserveraSend(sock, &request, sizeof(request)) != sizeof(request))
         {
             status = -1;
             break;
         }
 
-        /* Get exist status from CIMSERVERA program. */
+        /* Get exit status from CIMSERVERA program. */
 
         waitpid(pid, &childStatus, 0);
 

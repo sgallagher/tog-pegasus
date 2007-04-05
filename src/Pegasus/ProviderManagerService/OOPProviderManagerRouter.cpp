@@ -414,7 +414,7 @@ void ProviderAgentContainer::_startAgentProcess()
                 CIM_ERR_FAILED,
                 MessageLoaderParms(
                     "ProviderManager.OOPProviderManagerRouter."
-                    "USER_CONTEXT_CHANGE_FAILED",
+                        "USER_CONTEXT_CHANGE_FAILED",
                     "Unable to change user context to \"$0\".", _userName));
         }
     }
@@ -438,7 +438,7 @@ void ProviderAgentContainer::_startAgentProcess()
     if (status != 0)
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Executor::createProviderAgent() failed"));
+            "Executor::startProviderAgent() failed"));
         PEG_METHOD_EXIT();
         throw Exception(MessageLoaderParms(
             "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
@@ -456,7 +456,6 @@ void ProviderAgentContainer::_startAgentProcess()
 
     _pipeFromAgent.reset(readPipe);
     _pipeToAgent.reset(writePipe);
-
 
     PEG_METHOD_EXIT();
 }
@@ -1105,17 +1104,18 @@ void ProviderAgentContainer::_processResponses()
                 return;
             }
 
-            // It is a CIM_PROCESS_INDICATION_REQUEST_MESSAGE?
-
             if (message->getType() == CIM_PROCESS_INDICATION_REQUEST_MESSAGE)
             {
-                // Forward indications to the indication callback
+                // Process an indication message
+
                 _indicationCallback(
                     reinterpret_cast<CIMProcessIndicationRequestMessage*>(
                         message));
             }
             else if (!message->isComplete())
             {
+                // Process an incomplete response chunk
+
                 CIMResponseMessage* response;
                 response = dynamic_cast<CIMResponseMessage*>(message);
                 PEGASUS_ASSERT(response != 0);
@@ -1139,6 +1139,8 @@ void ProviderAgentContainer::_processResponses()
             }
             else
             {
+                // Process a completed response
+
                 CIMResponseMessage* response;
                 response = dynamic_cast<CIMResponseMessage*>(message);
                 PEGASUS_ASSERT(response != 0);

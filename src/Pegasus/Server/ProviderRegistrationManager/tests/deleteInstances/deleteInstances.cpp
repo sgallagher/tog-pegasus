@@ -29,18 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -87,40 +83,47 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
         CIMClass cimClass(CLASSNAME);
         CIMInstance cimInstance(CLASSNAME);
 
-    	cimInstance.addProperty(CIMProperty(CIMName ("Name"), String("providersModule1")));
-    	cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
-    	cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
-    	cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), String("PG_DefaultC++")));
-    	cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), String("2.0")));
-    	cimInstance.addProperty(CIMProperty(CIMName ("Location"), String("/tmp/module1")));
+        cimInstance.addProperty(CIMProperty(CIMName ("Name"),
+            String("providersModule1")));
+        cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
+        cimInstance.addProperty(CIMProperty(CIMName ("Version"),
+            String("2.0")));
+        cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"),
+            String("PG_DefaultC++")));
+        cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"),
+            String("2.0")));
+        cimInstance.addProperty(CIMProperty(CIMName ("Location"),
+            String("/tmp/module1")));
 
-    	instanceName = cimInstance.buildPath(cimClass);
+        instanceName = cimInstance.buildPath(cimClass);
 
-    	instanceName.setNameSpace(NAMESPACE);
-    	instanceName.setClassName(CLASSNAME);
+        instanceName.setNameSpace(NAMESPACE);
+        instanceName.setClassName(CLASSNAME);
 
-    	returnRef = prmanager.createInstance(instanceName, cimInstance);
+        returnRef = prmanager.createInstance(instanceName, cimInstance);
     }
 
     // create PG_Provider instances
 
     if (i <= 2 )
     {
-    	CIMObjectPath returnRef2;
+        CIMObjectPath returnRef2;
 
-    	CIMClass cimClass2(CLASSNAME2);
+        CIMClass cimClass2(CLASSNAME2);
 
-    	CIMInstance cimInstance2(CLASSNAME2);
+        CIMInstance cimInstance2(CLASSNAME2);
 
-    	cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), String("providersModule1")));
-    	cimInstance2.addProperty(CIMProperty(CIMName ("Name"), String("PG_ProviderInstance1")));
+        cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
+            String("providersModule1")));
+        cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
+            String("PG_ProviderInstance1")));
 
-    	instanceName2 = cimInstance2.buildPath(cimClass2);
+        instanceName2 = cimInstance2.buildPath(cimClass2);
 
-    	instanceName2.setNameSpace(NAMESPACE);
-    	instanceName2.setClassName(CLASSNAME2);
+        instanceName2.setNameSpace(NAMESPACE);
+        instanceName2.setClassName(CLASSNAME2);
 
-    	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
 
     //
@@ -146,13 +149,19 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), String("capability1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), String("test_class1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
+        String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"),
+        String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"),
+        String("capability1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"),
+        String("test_class1")));
     cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), providerType));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), supportedMethods));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"),
+        providerType));
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"),
+        supportedMethods));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 
@@ -163,42 +172,42 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
 
     switch (i)
     {
-	case 1:
-            //
-            // delete cimInstance2
-            //
-            keys2.append(kbp1);
-            keys2.append(kbp2);
-
-            instanceName2.setKeyBindings(keys2);
-
-    	    prmanager.deleteInstance(instanceName2);
-	    break;
-
-	case 2:
-            //
-            // delete cimInstance3
-            //
-            keys.append(kb1);
-            keys.append(kb2);
-            keys.append(kb3);
-
-            instanceName3.setKeyBindings(keys);
-
-    	    prmanager.deleteInstance(instanceName3);
-	    break;
-
-	case 3:
-    	    //
-    	    // delete cimInstance
-            //
-            keysm.append(kbm1);
-
-            instanceName.setKeyBindings(keysm);
-
-	    prmanager.deleteInstance(instanceName);
-	    break;
-        }
+        case 1:
+                //
+                // delete cimInstance2
+                //
+                keys2.append(kbp1);
+                keys2.append(kbp2);
+    
+                instanceName2.setKeyBindings(keys2);
+    
+                prmanager.deleteInstance(instanceName2);
+            break;
+    
+        case 2:
+                //
+                // delete cimInstance3
+                //
+                keys.append(kb1);
+                keys.append(kb2);
+                keys.append(kb3);
+    
+                instanceName3.setKeyBindings(keys);
+    
+                prmanager.deleteInstance(instanceName3);
+            break;
+    
+        case 3:
+                //
+                // delete cimInstance
+                //
+                keysm.append(kbm1);
+    
+                instanceName.setKeyBindings(keysm);
+    
+            prmanager.deleteInstance(instanceName);
+            break;
+    }
     }
   }
   catch(CIMException& e)
@@ -230,18 +239,19 @@ int main(int argc, char** argv)
 
     try
     {
-	TestDeleteInstances(prmanager);
+        TestDeleteInstances(prmanager);
     }
 
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << argv[0] << " +++++ delete instances failed"
-                           << PEGASUS_STD (endl);
-	exit(-1);
+    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+    PEGASUS_STD (cout) << argv[0] << " +++++ delete instances failed"
+                       << PEGASUS_STD (endl);
+    exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0]<< " +++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0]<< " +++++ passed all tests" 
+                      << PEGASUS_STD(endl);
     
     return 0;
 }

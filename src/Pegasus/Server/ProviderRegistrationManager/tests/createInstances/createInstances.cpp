@@ -29,20 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -178,7 +172,10 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
 int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose) cout << argv[0] << ": started" << endl;
+    if (verbose)
+    {
+        cout << argv[0] << ": started" << endl;
+    }
 
     const char* tmpDir = getenv ("PEGASUS_TMP");
     String repositoryRoot;
@@ -210,7 +207,8 @@ int main(int argc, char** argv)
         exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" 
+                      << PEGASUS_STD(endl);
 
     return 0;
 }

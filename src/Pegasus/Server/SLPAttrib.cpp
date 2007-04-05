@@ -49,22 +49,25 @@ static const String PROP_NAME = "Name";
 static const String PROP_CLASSINFO = "Classinfo";
 static const String PROP_COMMUNICATIONMECHANISM = "CommunicationMechanism";
 static const String PROP_OTHERCOMMUNICATIONMECHANISMDESCRIPTION =
-                                      "OtherCommunicationMechanismDescription";
+    "OtherCommunicationMechanismDescription";
 static const String PROP_INTEROPSCHEMANAMESPACE = "InteropSchemaNamespace";
 static const String PROP_VERSION = "Version";
-static const String PROP_FUNCTIONALPROFILESSUPPORTED = "FunctionalProfilesSupported";
+static const String PROP_FUNCTIONALPROFILESSUPPORTED =
+    "FunctionalProfilesSupported";
 static const String PROP_FUNCTIONALPROFILEDESCRIPTIONS =
-                                                      "FunctionalProfileDescriptions";
-static const String PROP_MULTIPLEOPERATIONSSUPPORTED = "MultipleOperationsSupported";
+    "FunctionalProfileDescriptions";
+static const String PROP_MULTIPLEOPERATIONSSUPPORTED =
+    "MultipleOperationsSupported";
 static const String PROP_AUTHENTICATIONMECHANISMSSUPPORTED =
-                                                     "AuthenticationMechanismsSupported";
+    "AuthenticationMechanismsSupported";
 static const String PROP_AUTHENTICATIONMECHANISMDESCRIPTIONS =
-                                                 "AuthenticationMechanismDescriptions";
+    "AuthenticationMechanismDescriptions";
 static const String PROP_NAMESPACETYPE = "namespaceType";
 static const String PROP_IPADDRESS = "IPAddress";
 
 static const String CIM_CLASSNAME_REGISTEREDPROFILE = "CIM_RegisteredProfile";
-static const String PROP_OTHERREGISTEREDORGANIZATION = "OtherRegisteredOrganization";
+static const String PROP_OTHERREGISTEREDORGANIZATION =
+    "OtherRegisteredOrganization";
 static const String PROP_REGISTEREDNAME = "RegisteredName";
 static const String PROP_ADVERTISETYPES = "AdvertiseTypes";
 
@@ -120,12 +123,17 @@ Boolean SLPAttrib::fillData(String protocol)
         Boolean deepInheritance=true;
         Uint32 len = 0;
 
-        // set to true if there is "Other" property value in FunctionsProfilesSupported value.
+        // set to true if there is "Other" property value in
+        // FunctionsProfilesSupported value.
         Boolean functionaProfileDescriptions = false;
 
-        instances = client.enumerateInstances
-            (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_OBJECTMANAGER,
-               deepInheritance,localOnly,includeQualifiers,includeClassOrigin);
+        instances = client.enumerateInstances (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_OBJECTMANAGER,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
 
         PEGASUS_ASSERT (instances.size () == 1);
 
@@ -144,9 +152,13 @@ Boolean SLPAttrib::fillData(String protocol)
         val = instances[0].getProperty(pos).getValue ();
         serviceId = val.toString();
 
-        instances = client.enumerateInstances
-            (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
-              deepInheritance,localOnly,includeQualifiers,includeClassOrigin);
+        instances = client.enumerateInstances (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
 
         for (Uint32 n=instances.size(),i=0 ; i<n; i++)
         {
@@ -179,10 +191,11 @@ Boolean SLPAttrib::fillData(String protocol)
             return false;
         }
 
-        cimClass = client.getClass(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_CIMNAMESPACE);
+        cimClass = client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_CIMNAMESPACE);
         instances = client.enumerateInstances
-            (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_CIMNAMESPACE,deepInheritance,
-             localOnly,includeQualifiers,includeClassOrigin);
+            (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_CIMNAMESPACE,
+             deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
 
         for (Uint32 n=instances.size(),i=0 ; i<n; i++)
         {
@@ -208,11 +221,10 @@ Boolean SLPAttrib::fillData(String protocol)
         if (len > 0)
             classes.remove( len-1,1);
 
-        cimClass = client.getClass
-           (PEGASUS_NAMESPACENAME_INTEROP,
+        cimClass = client.getClass (PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM);
-        instances = client.enumerateInstances
-           (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
+        instances = client.enumerateInstances (PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
             deepInheritance,localOnly,includeQualifiers,includeClassOrigin);
 
         pos = saveInstance.findProperty (PROP_COMMUNICATIONMECHANISM);
@@ -220,8 +232,10 @@ Boolean SLPAttrib::fillData(String protocol)
         val = saveInstance.getProperty(pos).getValue();
         pos = cimClass.findProperty(PROP_COMMUNICATIONMECHANISM);
         communicationMechanism = getMappedValue(cimClass.getProperty(pos),val);
-        pos = saveInstance.findProperty (PROP_OTHERCOMMUNICATIONMECHANISMDESCRIPTION);
+        pos = saveInstance.findProperty (
+            PROP_OTHERCOMMUNICATIONMECHANISMDESCRIPTION);
         PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+
         val = saveInstance.getProperty(pos).getValue ();
         otherCommunicationMechanismDescription = val.toString();
 
@@ -235,6 +249,7 @@ Boolean SLPAttrib::fillData(String protocol)
 
         pos = saveInstance.findProperty (PROP_FUNCTIONALPROFILESSUPPORTED);
         PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+
         CIMConstProperty constProperty;
         constProperty = saveInstance.getProperty(pos);
         val = constProperty.getValue();
@@ -246,7 +261,9 @@ Boolean SLPAttrib::fillData(String protocol)
             String profileValue = getMappedValue(cimClass.getProperty(pos),
                                                  CIMValue(arrayValFPS[i]));
             if (profileValue == "Other")
+            {
                 functionaProfileDescriptions = true;
+            }
             functionalProfilesSupported.append(profileValue);
             functionalProfilesSupported.append(",");
         }
@@ -280,7 +297,8 @@ Boolean SLPAttrib::fillData(String protocol)
         else
             multipleOperationsSupported.append("FALSE");
 
-        pos = saveInstance.findProperty (PROP_AUTHENTICATIONMECHANISMSSUPPORTED);
+        pos = saveInstance.findProperty (
+            PROP_AUTHENTICATIONMECHANISMSSUPPORTED);
         PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
         val = saveInstance.getProperty(pos).getValue();
         Array<Uint16> arrayValAMS;
@@ -288,15 +306,17 @@ Boolean SLPAttrib::fillData(String protocol)
         pos = cimClass.findProperty (PROP_AUTHENTICATIONMECHANISMSSUPPORTED);
         for (Uint32 n=arrayValAMS.size(),i=0; i<n; i++)
         {
-            authenticationMechanismsSupported.append(getMappedValue(cimClass.getProperty(pos),
-                                                      CIMValue(arrayValAMS[i])));
+            authenticationMechanismsSupported.append(
+                getMappedValue(cimClass.getProperty(pos),
+                CIMValue(arrayValAMS[i])));
             authenticationMechanismsSupported.append(",");
         }
         len = authenticationMechanismsSupported.size();
         if (len > 0)
             authenticationMechanismsSupported.remove( len-1,1);
 
-        pos = saveInstance.findProperty (PROP_AUTHENTICATIONMECHANISMDESCRIPTIONS);
+        pos = saveInstance.findProperty (
+            PROP_AUTHENTICATIONMECHANISMDESCRIPTIONS);
         PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
         val = saveInstance.getProperty(pos).getValue();
         Array<String> arrayValAMD;
@@ -309,9 +329,9 @@ Boolean SLPAttrib::fillData(String protocol)
         len = authenticationMechanismDescriptions.size();
         if (len > 0)
             authenticationMechanismDescriptions.remove( len-1,1);
-        instances = client.enumerateInstances
-            (PEGASUS_NAMESPACENAME_INTEROP, CIM_CLASSNAME_REGISTEREDPROFILE,
-              deepInheritance,localOnly,includeQualifiers,includeClassOrigin);
+        instances = client.enumerateInstances (PEGASUS_NAMESPACENAME_INTEROP,
+            CIM_CLASSNAME_REGISTEREDPROFILE,
+            deepInheritance,localOnly,includeQualifiers,includeClassOrigin);
 
         for (Uint32 n=instances.size(),i=0 ; i<n; i++)
         {
@@ -324,13 +344,16 @@ Boolean SLPAttrib::fillData(String protocol)
             {
                 if(advTypes[j] == 3)
                 {
-                    pos = instances[i].findProperty (PROP_OTHERREGISTEREDORGANIZATION);
+                    pos = instances[i].findProperty (
+                        PROP_OTHERREGISTEREDORGANIZATION);
                     PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
-                    registeredProfiles.append(instances[i].getProperty(pos).getValue().toString());
+                    registeredProfiles.append(
+                        instances[i].getProperty(pos).getValue().toString());
                     registeredProfiles.append(":");
                     pos = instances[i].findProperty (PROP_REGISTEREDNAME);
                     PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
-                    registeredProfiles.append(instances[i].getProperty(pos).getValue().toString());
+                    registeredProfiles.append(
+                        instances[i].getProperty(pos).getValue().toString());
                     registeredProfiles.append(",");
                     break;
                 }
@@ -349,16 +372,18 @@ Boolean SLPAttrib::fillData(String protocol)
     catch(Exception& e)
     {
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Server.CIMServer.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-                     "exception raised during CIMServer registration with External SLP. $0",
-                     e.getMessage());
+            "Server.CIMServer.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+            "exception raised during CIMServer registration with"
+                " External SLP. $0",
+            e.getMessage());
     }
 
     catch(...)
     {
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Server.CIMServer.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-                     "Exception raised during CIMserver registration with External SLP.");
+           "Server.CIMServer.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+           "Exception raised during CIMserver registration with"
+               " External SLP.");
     }
 
     client.disconnect();
@@ -372,7 +397,9 @@ String SLPAttrib::getMappedValue(const CIMProperty& cimProperty, CIMValue value)
     Uint16 localValue;
 
     if (strcmp(cimTypeToString(value.getType()),"string") == 0)
-       value.get(retValue);
+    {
+        value.get(retValue);
+    }
     else
     {
         value.get(localValue);
@@ -381,7 +408,8 @@ String SLPAttrib::getMappedValue(const CIMProperty& cimProperty, CIMValue value)
 
     Uint32 posValueMap;
 
-    if ((posValueMap = cimProperty.findQualifier(CIMName("ValueMap"))) == PEG_NOT_FOUND)
+    if ((posValueMap = cimProperty.findQualifier(CIMName("ValueMap")))
+        == PEG_NOT_FOUND)
     {
         return retValue;
     }
@@ -429,41 +457,40 @@ String SLPAttrib::getMappedValue(const CIMProperty& cimProperty, CIMValue value)
 // Form the attributes String.
 void SLPAttrib::formAttributes()
 {
-
     attributes.append(Formatter::format(
-                        "(template-url-syntax=$0),(service-hi-name=$1),"
-                         "(service-hi-description=$2),(service-id=$3),"
-                         "(Namespace=$4),(Classinfo=$5),(CommunicationMechanism=$6),"
-                         "(OtherCommunicationMechanismDescription=$7),"
-                         "(InteropSchemaNamespace=$8),(ProtocolVersion=$9),",
-                         serviceUrl,serviceHiName,
-                         serviceHiDescription,serviceId,
-                         nameSpaces,classes,
-                         communicationMechanism,
-                         otherCommunicationMechanismDescription,
-                         interopSchemaNamespace,
-                         protocolVersion));
-
+        "(template-url-syntax=$0),(service-hi-name=$1),"
+        "(service-hi-description=$2),(service-id=$3),"
+        "(Namespace=$4),(Classinfo=$5),(CommunicationMechanism=$6),"
+        "(OtherCommunicationMechanismDescription=$7),"
+        "(InteropSchemaNamespace=$8),(ProtocolVersion=$9),",
+        serviceUrl,serviceHiName,
+        serviceHiDescription,serviceId,
+        nameSpaces,classes,
+        communicationMechanism,
+        otherCommunicationMechanismDescription,
+        interopSchemaNamespace,
+        protocolVersion));
+    
     attributes.append(Formatter::format(
-                         "(FunctionalProfilesSupported=$0),"
-                         "(FunctionalProfileDescriptions=$1),"
-                         "(MultipleOperationsSupported=$2),"
-                         "(AuthenticationMechanismsSupported=$3),"
-                         "(AuthenticationMechanismDescriptions=$4),"
-                         "(RegisteredProfilesSupported=$5)",
-                         functionalProfilesSupported,
-                         functionalProfileDescriptions,
-                         multipleOperationsSupported,
-                         authenticationMechanismsSupported,
-                         authenticationMechanismDescriptions,
-                         registeredProfiles));
+        "(FunctionalProfilesSupported=$0),"
+        "(FunctionalProfileDescriptions=$1),"
+        "(MultipleOperationsSupported=$2),"
+        "(AuthenticationMechanismsSupported=$3),"
+        "(AuthenticationMechanismDescriptions=$4),"
+        "(RegisteredProfilesSupported=$5)",
+        functionalProfilesSupported,
+        functionalProfileDescriptions,
+        multipleOperationsSupported,
+        authenticationMechanismsSupported,
+        authenticationMechanismDescriptions,
+        registeredProfiles));
 
     if (attributes.size() > 7900)
     {
-	//truncate the attributes
-	attributes = attributes.subString(0,7900);
-	Uint32 index = attributes.reverseFind(')');
-	attributes= attributes.subString(0,index+1);
+        //truncate the attributes
+        attributes = attributes.subString(0,7900);
+        Uint32 index = attributes.reverseFind(')');
+        attributes= attributes.subString(0,index+1);
     }
     return;
 }

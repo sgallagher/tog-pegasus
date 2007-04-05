@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Adrian Schuur (schuur@de.ibm.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -135,7 +127,8 @@ static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
 /**
    The name of the Destinations property for PG_ConsumerCapabilities class
 */
-static const CIMName _PROPERTY_INDICATIONDESTINATIONS = CIMName ("Destinations");
+static const CIMName _PROPERTY_INDICATIONDESTINATIONS =
+                                                CIMName ("Destinations");
 
 /**
    The name of the AutoStart property for PG_Provider class
@@ -170,90 +163,90 @@ static const Uint16 _INSTANCE_QUERY_PROVIDER    = 7;
 class PEGASUS_PRM_LINKAGE ProviderRegistrationManager
 {
 public:
-	//ProviderRegistrationManager(ServiceCIMOMHandle & cimom);
-	ProviderRegistrationManager(CIMRepository* repository);
+    //ProviderRegistrationManager(ServiceCIMOMHandle & cimom);
+    ProviderRegistrationManager(CIMRepository* repository);
 
-	virtual ~ProviderRegistrationManager(void);
+    virtual ~ProviderRegistrationManager(void);
 
-	Boolean lookupInstanceProvider(
-		const CIMNamespaceName & nameSpace, 
-		const CIMName & className,
-	    CIMInstance & provider, 
-		CIMInstance & providerModule,
+    Boolean lookupInstanceProvider(
+        const CIMNamespaceName & nameSpace, 
+        const CIMName & className,
+        CIMInstance & provider, 
+        CIMInstance & providerModule,
         Boolean is_assoc = false,
-	Boolean * has_no_query = NULL);
+    Boolean * has_no_query = NULL);
 
-	Boolean lookupMethodProvider(
-		const CIMNamespaceName & nameSpace, 
-		const CIMName & className, 
-	    const CIMName & method, 
-	    CIMInstance & provider, 
-		CIMInstance & providerModule); 
+    Boolean lookupMethodProvider(
+        const CIMNamespaceName & nameSpace, 
+        const CIMName & className, 
+        const CIMName & method, 
+        CIMInstance & provider, 
+        CIMInstance & providerModule); 
 
-	Boolean lookupAssociationProvider(
-		const CIMNamespaceName & nameSpace, 
-		const CIMName & assocClassName,
+    Boolean lookupAssociationProvider(
+        const CIMNamespaceName & nameSpace, 
+        const CIMName & assocClassName,
         Array<CIMInstance>& provider, 
         Array<CIMInstance>& providerModule);
 
-	Boolean lookupIndicationConsumer(
-		const String & destinationPath,
-	    	CIMInstance & provider, 
-		CIMInstance & providerModule);
+    Boolean lookupIndicationConsumer(
+        const String & destinationPath,
+            CIMInstance & provider, 
+        CIMInstance & providerModule);
 
-	Boolean getIndicationProviders(
-		const CIMNamespaceName & nameSpace, 
-		const CIMName & className,
-		const CIMPropertyList & requiredProperties,
-		Array<CIMInstance> & provider,
-		Array<CIMInstance> & providerModule); 
+    Boolean getIndicationProviders(
+        const CIMNamespaceName & nameSpace, 
+        const CIMName & className,
+        const CIMPropertyList & requiredProperties,
+        Array<CIMInstance> & provider,
+        Array<CIMInstance> & providerModule); 
 
         /**
-	    This function is called with an (CIMObjectPath ref) specifying a
+        This function is called with an (CIMObjectPath ref) specifying a
             instance of PG_ProviderModule, or instance of PG_Provider, or
-	    instance of PG_ProviderCapabilities, or instance of 
+        instance of PG_ProviderCapabilities, or instance of 
             PG_ConsumerCapabilities to be returned.
 
             @param ref specifies the fully qualified object path of the 
-		   instance of interest.
+           instance of interest.
 
             @param includeQualifiers indicates whether the returned instance 
                    must include the qualifiers for the instance and properties.
 
             @param includeClassOrigin indicates whether the returned instance 
-		   must include the class origin for each of the instance 
+           must include the class origin for each of the instance 
                    elements.
 
             @param propertyList specifies the minimum set of properties 
                    required in instances returned by this operation.
         */
             
-	CIMInstance getInstance(
-		    const CIMObjectPath & ref,
-		    const Boolean includeQualifiers = false,
-		    const Boolean includeClassOrigin = false,
-		    const CIMPropertyList & propertyList = CIMPropertyList());
+    CIMInstance getInstance(
+            const CIMObjectPath & ref,
+            const Boolean includeQualifiers = false,
+            const Boolean includeClassOrigin = false,
+            const CIMPropertyList & propertyList = CIMPropertyList());
 
-	Array<CIMInstance> enumerateInstancesForClass(
-			   const CIMObjectPath & classReference,
-		    	   const Boolean includeQualifiers = false,
-		     	   const Boolean includeClassOrigin = false,
-		    	   const CIMPropertyList & propertyList = CIMPropertyList());
+    Array<CIMInstance> enumerateInstancesForClass(
+               const CIMObjectPath & classReference,
+                   const Boolean includeQualifiers = false,
+                   const Boolean includeClassOrigin = false,
+                   const CIMPropertyList & propertyList = CIMPropertyList());
 
-	Array<CIMObjectPath> enumerateInstanceNamesForClass(
+    Array<CIMObjectPath> enumerateInstanceNamesForClass(
             const CIMObjectPath & ref);
 
-	void modifyInstance(const CIMObjectPath & ref, 
-		const CIMInstance & instance,
-		const Boolean includeQualifiers,
-		const Array<CIMName> & propertyList);
+    void modifyInstance(const CIMObjectPath & ref, 
+        const CIMInstance & instance,
+        const Boolean includeQualifiers,
+        const Array<CIMName> & propertyList);
 
-	CIMObjectPath createInstance(const CIMObjectPath & ref, 
-		const CIMInstance & instance);
+    CIMObjectPath createInstance(const CIMObjectPath & ref, 
+        const CIMInstance & instance);
 
-	void deleteInstance(const CIMObjectPath & ref);
+    void deleteInstance(const CIMObjectPath & ref);
 
-	Array<Uint16> getProviderModuleStatus(const String & providerModuleName);
+    Array<Uint16> getProviderModuleStatus(const String & providerModuleName);
 
         /**
             Updates the Provider Module Status.  The value of the
@@ -287,19 +280,19 @@ public:
             const Array<Uint16>& appendStatus,
             Array<Uint16>& outStatus);
 
-	/**
-	    Iterate through registration hash table, if AutoStart property
-	    is set to true in a PG_Provider instance, send initialize provider
-	    request message to Provider Manager Service to load and initialize 
-	    the provider
+    /**
+        Iterate through registration hash table, if AutoStart property
+        is set to true in a PG_Provider instance, send initialize provider
+        request message to Provider Manager Service to load and initialize 
+        the provider
         */
         void initializeProviders();
 
-	/**
-	    send initialize provider request message to Provider Manager
-	    Service to load the module and initialize providers in the module
+    /**
+        send initialize provider request message to Provider Manager
+        Service to load the module and initialize providers in the module
         */
-	void initializeProviders(const CIMInstance & providerModule);
+    void initializeProviders(const CIMInstance & providerModule);
 
         /**
             Determines whether specified provider is an indication provider.
@@ -307,7 +300,7 @@ public:
             @param    moduleName specifies name of the provider module which 
                       the provider is in.
 
-	    @param    providerName specifies name of the provider which
+        @param    providerName specifies name of the provider which
                       needs to be determine.
 
             @return   True if the provider is an indication provider; 
@@ -317,17 +310,17 @@ public:
            const String & moduleName,
            const String & providerName);
 
-   	enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
+    enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
 
 protected:
 
-	CIMRepository * _repository;
+    CIMRepository * _repository;
 
-	/**
+    /**
             HashTable to store instances of PG_ProviderModule, instances of
             PG_Provider, and instances of PG_ProviderCapability 
-	*/
-	RegistrationTable* _registrationTable;
+    */
+    RegistrationTable* _registrationTable;
 
         /**
             A lock used to control access to the _registrationTable.  Before
@@ -339,26 +332,26 @@ protected:
         */
         ReadWriteSem _registrationTableLock;
 
-	String _generateKey(const String & name,
-		const String & provider);
+    String _generateKey(const String & name,
+        const String & provider);
 
-	String _generateKey(const CIMNamespaceName & namespaceName,
-		const CIMName & className,
-		const String & providerType);
+    String _generateKey(const CIMNamespaceName & namespaceName,
+        const CIMName & className,
+        const String & providerType);
 
-	String _generateKey(const CIMNamespaceName & namespaceName,
-		const CIMName & className,
-		const String & supportedMethod,
-		const String & providerType);
+    String _generateKey(const CIMNamespaceName & namespaceName,
+        const CIMName & className,
+        const String & supportedMethod,
+        const String & providerType);
 
-	MessageQueueService * _getIndicationService();
+    MessageQueueService * _getIndicationService();
 
-	void _sendMessageToSubscription(
-		CIMNotifyProviderRegistrationRequestMessage * notify);
+    void _sendMessageToSubscription(
+        CIMNotifyProviderRegistrationRequestMessage * notify);
 
-	void _sendInitializeProviderMessage(
-	    const CIMInstance & provider,
-	    const CIMInstance & providerModule);
+    void _sendInitializeProviderMessage(
+        const CIMInstance & provider,
+        const CIMInstance & providerModule);
 
 private:
 
@@ -366,15 +359,15 @@ private:
             Initialize the registration table.  The caller must first lock
             _registrationTableLock for write access.
         */
-	void _initialRegistrationTable();
+    void _initialRegistrationTable();
 
         /**
             Adds an entry to the registration table for the specified
             instances.  The caller must first lock _registrationTableLock
             for write access.
         */
-	void _addInstancesToTable(const String & key,
-		Array<CIMInstance> & instances); 
+    void _addInstancesToTable(const String & key,
+        Array<CIMInstance> & instances); 
 
         /**
             Adds an entry to the registration table for the specified
@@ -382,8 +375,8 @@ private:
             routine.  The caller must first lock _registrationTableLock for
             write access.
         */
-	void _addInitialInstancesToTable(const String & key,
-		const Array<CIMInstance> & instances); 
+    void _addInitialInstancesToTable(const String & key,
+        const Array<CIMInstance> & instances); 
 
         /**
             Get the provider instance and module instance corresponding to
@@ -391,48 +384,49 @@ private:
             registration table.  The caller must first lock
             _registrationTableLock for read (or write) access.
         */
-	void _getInstances(const String & providerName,
-		const String & moduleName,
-		CIMInstance & providerInstance,
-		CIMInstance & moduleInstance);
+    void _getInstances(const String & providerName,
+        const String & moduleName,
+        CIMInstance & providerInstance,
+        CIMInstance & moduleInstance);
 
-	void _getPropertyNames(const CIMInstance & instance,
-		CIMPropertyList & propertyNames);
+    void _getPropertyNames(const CIMInstance & instance,
+        CIMPropertyList & propertyNames);
 
         /**
             Notify the subscription service that the specified provider
             capability instance was deleted.  The caller must first lock
             _registrationTableLock for read (or write) access.
         */
-	void _sendDeleteNotifyMessage(const CIMInstance & instance);
+    void _sendDeleteNotifyMessage(const CIMInstance & instance);
 
         /**
             Notify the subscription service that the specified provider
             capability instance was modified.  The caller must first lock
             _registrationTableLock for read (or write) access.
         */
-	void _sendModifyNotifyMessage(const CIMInstance & instance,
-				      const CIMInstance & origInstance);
+    void _sendModifyNotifyMessage(const CIMInstance & instance,
+                      const CIMInstance & origInstance);
 
         /**
             Register a provider.  The caller must first lock
             _registrationTableLock for write access.
         */
-	CIMObjectPath _createInstance(const CIMObjectPath & ref, 
-		const CIMInstance & instance, Operation flag);
+    CIMObjectPath _createInstance(const CIMObjectPath & ref, 
+        const CIMInstance & instance, Operation flag);
 
         /**
             Unregister a provider.  The caller must first lock
             _registrationTableLock for write access.
         */
-	void _deleteInstance(const CIMObjectPath & ref, Operation flag);
+    void _deleteInstance(const CIMObjectPath & ref, Operation flag);
 
         /**
             Set the status of the specified provider module instance and
             update the repository.  The caller must first lock the repository
             for write access.
         */
-	void _setStatus(const Array<Uint16> & status, CIMInstance & moduleInstance); 
+    void _setStatus(const Array<Uint16> & status,
+            CIMInstance & moduleInstance); 
 
         /**
             Gets the Provider Module Status.  The value of the OperationalStatus

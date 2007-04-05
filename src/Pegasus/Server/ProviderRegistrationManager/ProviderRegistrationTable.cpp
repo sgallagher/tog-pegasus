@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou (yi_zhou@hp.com)
-//
-// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/FileSystem.h>
@@ -64,7 +60,7 @@ ProviderRegistrationTable::~ProviderRegistrationTable(void)
 
 const Array<CIMInstance> & ProviderRegistrationTable::getInstances(void) const
 {
-	return(_instances);
+    return(_instances);
 }
 
 PEGASUS_NAMESPACE_END

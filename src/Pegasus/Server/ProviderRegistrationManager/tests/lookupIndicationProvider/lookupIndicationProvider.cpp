@@ -29,20 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -69,7 +63,8 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     cimInstance.addProperty(CIMProperty("Name", String("providersModule1")));
     cimInstance.addProperty(CIMProperty("Vendor", String("HP")));
     cimInstance.addProperty(CIMProperty("Version", String("2.0")));
-    cimInstance.addProperty(CIMProperty("InterfaceType", String("PG_DefaultC++")));
+    cimInstance.addProperty(CIMProperty("InterfaceType",
+                String("PG_DefaultC++")));
     cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
     cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
 
@@ -80,7 +75,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef = prmanager.createInstance(instanceName, cimInstance);
+        returnRef = prmanager.createInstance(instanceName, cimInstance);
     }
     catch(const CIMException&)
     {
@@ -95,8 +90,10 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
+    cimInstance2.addProperty(CIMProperty("ProviderModuleName",
+                String("providersModule1")));
+    cimInstance2.addProperty(CIMProperty("Name",
+                String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
 
@@ -105,7 +102,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
     catch(const CIMException&)
     {
@@ -118,8 +115,10 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance4(CLASSNAME2);
 
-    cimInstance4.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance4.addProperty(CIMProperty("Name", String("PG_ProviderInstance2")));
+    cimInstance4.addProperty(CIMProperty("ProviderModuleName",
+                String("providersModule1")));
+    cimInstance4.addProperty(CIMProperty("Name",
+                String("PG_ProviderInstance2")));
 
     CIMObjectPath instanceName4 = cimInstance4.buildPath(cimClass4);
 
@@ -128,7 +127,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef4 = prmanager.createInstance(instanceName4, cimInstance4);
+        returnRef4 = prmanager.createInstance(instanceName4, cimInstance4);
     }
     catch(const CIMException&)
     {
@@ -164,14 +163,18 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty("CapabilityID", String("capability1")));
+    cimInstance3.addProperty(CIMProperty("ProviderModuleName",
+                String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty("ProviderName",
+                String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty("CapabilityID",
+                String("capability1")));
     cimInstance3.addProperty(CIMProperty("ClassName", String("test_class1")));
     cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
-    cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
+    cimInstance3.addProperty(CIMProperty("SupportedProperties",
+                supportedProperties));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 
@@ -180,7 +183,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
     }
     catch(const CIMException&)
     {
@@ -201,13 +204,17 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance5(CLASSNAME3);
 
-    cimInstance5.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance5.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance2")));
-    cimInstance5.addProperty(CIMProperty("CapabilityID", String("capability2")));
+    cimInstance5.addProperty(CIMProperty("ProviderModuleName",
+                String("providersModule1")));
+    cimInstance5.addProperty(CIMProperty("ProviderName",
+                String("PG_ProviderInstance2")));
+    cimInstance5.addProperty(CIMProperty("CapabilityID",
+                String("capability2")));
     cimInstance5.addProperty(CIMProperty("ClassName", String("test_class1")));
     cimInstance5.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance5.addProperty(CIMProperty("ProviderType", providerType));
-    cimInstance5.addProperty(CIMProperty("SupportedProperties", supportedProperties2));
+    cimInstance5.addProperty(CIMProperty("SupportedProperties",
+                supportedProperties2));
 
     CIMObjectPath instanceName5 = cimInstance5.buildPath(cimClass5);
 
@@ -216,7 +223,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef5 = prmanager.createInstance(instanceName5, cimInstance5);
+        returnRef5 = prmanager.createInstance(instanceName5, cimInstance5);
     }
     catch(const CIMException&)
     {
@@ -240,13 +247,16 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     CIMPropertyList requiredPropertyList(requiredProperties);
 
     if (prmanager.getIndicationProviders("test_namespace1",
-	"test_class1", requiredPropertyList, providerIns, providerModuleIns))
+                                         "test_class1",
+                                         requiredPropertyList,
+                                         providerIns,
+                                         providerModuleIns))
     {
-	return (true);
+    return (true);
     }
     else
     {
-	return (false);
+    return (false);
     }
 }
 
@@ -271,23 +281,24 @@ int main(int argc, char** argv)
 
     try
     {
-	if (!TestLookupIndicationProvider(prmanager))
-	{
-	    PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed" << PEGASUS_STD(
-endl);
+    if (!TestLookupIndicationProvider(prmanager))
+    {
+        PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed" 
+            << PEGASUS_STD(endl);
             exit (-1);
-	}
+    }
     }
 
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << argv[0] << " +++++ lookup indication provider failed"
+    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+    PEGASUS_STD (cout) << argv[0] << " +++++ lookup indication provider failed"
                            << PEGASUS_STD (endl);
-	exit(-1);
+    exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" 
+        << PEGASUS_STD(endl);
 
     return 0;
 }

@@ -29,20 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -84,7 +78,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef = prmanager.createInstance(instanceName, cimInstance);
+        returnRef = prmanager.createInstance(instanceName, cimInstance);
     }
     catch(const CIMException&)
     {
@@ -111,7 +105,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
+        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
     catch(const CIMException&)
     {
@@ -162,7 +156,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     try
     {
-    	returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
     }
     catch(const CIMException&)
     {
@@ -182,25 +176,25 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
         CIMName ("test_class1"), CIMName ("test_method2"),
         providerIns, providerModuleIns))
     {
-	providerIns.getProperty(providerIns.findProperty
-	    (CIMName ("ProviderModuleName"))).getValue().get
+    providerIns.getProperty(providerIns.findProperty
+        (CIMName ("ProviderModuleName"))).getValue().get
             (_providerModuleName);
 
-	providerModuleIns.getProperty(providerModuleIns.findProperty
+    providerModuleIns.getProperty(providerModuleIns.findProperty
             (CIMName ("Name"))).getValue().get(_providerModuleName2);
 
-	if (String::equal(_providerModuleName, _providerModuleName2))
-	{
-	    return (true);
-	}
-	else
-	{
-	    return (false);
-	}
+    if (String::equal(_providerModuleName, _providerModuleName2))
+    {
+        return (true);
     }
     else
     {
-	return (false);
+        return (false);
+    }
+    }
+    else
+    {
+    return (false);
     }
 }
 
@@ -225,22 +219,24 @@ int main(int argc, char** argv)
 
     try
     {
-	if (!TestLookupMethodProvider(prmanager))
-	{
-	    PEGASUS_STD(cerr) << "Error: lookupMethodProvider Failed" << PEGASUS_STD(endl);
-	    exit (-1);
-	}
+    if (!TestLookupMethodProvider(prmanager))
+    {
+        PEGASUS_STD(cerr) << "Error: lookupMethodProvider Failed"
+            << PEGASUS_STD(endl);
+        exit (-1);
+    }
     }
 
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << argv[0] << " +++++ lookup method provider failed"
+    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+    PEGASUS_STD (cout) << argv[0] << " +++++ lookup method provider failed"
                            << PEGASUS_STD (endl);
-	exit(-1);
+    exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests"
+        << PEGASUS_STD(endl);
 
     return 0;
 }

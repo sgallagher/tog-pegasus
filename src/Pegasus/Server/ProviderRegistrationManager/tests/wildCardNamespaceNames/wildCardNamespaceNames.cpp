@@ -29,18 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -80,20 +76,25 @@ int main(int argc, char** argv)
        CIMNamespaceName ok3(WildCardNamespaceNames::add(String("root/ci*")));
        if (verbose) cout<<argv[0]<<" --- ok3: "<<ok1.getString()<<endl;
 
-       CIMNamespaceName ok11(WildCardNamespaceNames::check(String("root/ci33")));
+       CIMNamespaceName ok11(WildCardNamespaceNames::check(
+           String("root/ci33")));
        if (verbose) cout<<argv[0]<<" --- ok11: "<<ok11.getString()<<endl;
 
-       CIMNamespaceName ok12(WildCardNamespaceNames::check(String("root/cim3")));
+       CIMNamespaceName ok12(WildCardNamespaceNames::check(
+           String("root/cim3")));
        if (verbose) cout<<argv[0]<<" --- ok12: "<<ok12.getString()<<endl;
 
        const Array<String> ar=WildCardNamespaceNames::getArray();
-       for (int i=0,m=ar.size(); i<m; i++ ) {
+       for ( int i=0,m=ar.size(); i<m; i++ )
+       {
            if (verbose) cout<<argv[0]<<" --- "<<i<<" "<<ar[i]<<endl;
        }
 
        Array<CIMNamespaceName> nss=_repository->enumerateNameSpaces();
-       for (int i=0,m=nss.size(); i<m; i++ ) {
-          if (verbose) cout<<argv[0]<<" --- "<<i<<" "<<nss[i].getString()<<endl;
+       for (int i=0,m=nss.size(); i<m; i++ )
+       {
+          if (verbose) cout << argv[0]<<" --- "<<i<<" "<<nss[i].getString()
+                            <<endl;
        }
 
     }
@@ -105,7 +106,8 @@ int main(int argc, char** argv)
         exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" 
+                      << PEGASUS_STD(endl);
 
     return 0;
 }

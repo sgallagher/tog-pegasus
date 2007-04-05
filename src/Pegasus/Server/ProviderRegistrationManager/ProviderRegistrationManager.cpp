@@ -46,12 +46,8 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/AuditLogger.h>
-
 #include "ProviderRegistrationTable.h"
-
 #include <Pegasus/Repository/CIMRepository.h>
-
-// l10n
 #include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -108,8 +104,8 @@ PEGASUS_NAMESPACE_BEGIN
     CIMObjectPath (ref) to retrieve an instance of PG_ProviderModule, or an
     instance of PG_Provider, or an instance of PG_ProviderCapabilities, or an
     instance of PG_ConsumerCapabilities.
-
 */
+
 typedef HashTable<String,
     ProviderRegistrationTable*, EqualFunc<String>,HashFunc<String> > Table;
 
@@ -173,30 +169,49 @@ static const char MET_PROVIDER [] = "Method";
 static const char MODULE_KEY [] = "Module";
 
 static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
-static const char MODULE_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MODULE_NOT_FOUND";
+static const char MODULE_NOT_FOUND_KEY [] =
+    "Server.ProviderRegistrationManager."
+        "ProviderRegistrationManager.MODULE_NOT_FOUND";
 static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
-static const char PROVIDER_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_NOT_FOUND";
-static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
-static const char CAPABILITY_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED";
-//L10N TODO DONE
-static const char CONSUMER_NOT_REGISTERED [] = " Consumer capability has not been registered yet.";
-static const char CONSUMER_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CONSUMER_CAPABILITY_NOT_YET_REGISTERED";
+static const char PROVIDER_NOT_FOUND_KEY [] =
+    "Server.ProviderRegistrationManager."
+        "ProviderRegistrationManager.PROVIDER_NOT_FOUND";
+static const char CAPABILITY_NOT_REGISTERED [] =
+    " Provider capability has not been registered yet.";
+static const char CAPABILITY_NOT_REGISTERED_KEY [] =
+    "Server.ProviderRegistrationManager."
+        "ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED";
+static const char CONSUMER_NOT_REGISTERED [] =
+    " Consumer capability has not been registered yet.";
+static const char CONSUMER_NOT_REGISTERED_KEY [] =
+    "Server.ProviderRegistrationManager.ProviderRegistrationManager."
+        "CONSUMER_CAPABILITY_NOT_YET_REGISTERED";
 static const char PROVIDER_CANNOT_BE_LOAD [] =
-" Can not initialize and load the provider.";
+    " Can not initialize and load the provider.";
 static const char PROVIDER_CANNOT_BE_LOAD_KEY [] =
-"Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_CANNOT_BE_LOAD";
-static const char MODULE_NAME_NOT_FOUND_KEY[] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME";
-static const char MODULE_NAME_NOT_FOUND[] = "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.";
-static const char PROVIDER_NAME_NOT_FOUND_KEY[] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME";
-static const char PROVIDER_NAME_NOT_FOUND[] = "Missing ProviderName which is key in PG_ProviderCapabilities class.";
+                    "Server.ProviderRegistrationManager."
+                    "ProviderRegistrationManager.PROVIDER_CANNOT_BE_LOAD";
+static const char MODULE_NAME_NOT_FOUND_KEY[] =
+    "Server.ProviderRegistrationManager."
+        "ProviderRegistrationManager.MISSING_MODULENAME";
+static const char MODULE_NAME_NOT_FOUND[] =
+    "Missing ProviderModuleName which is key in"
+        " PG_ProviderCapabilities class.";
+static const char PROVIDER_NAME_NOT_FOUND_KEY[] =
+    "Server.ProviderRegistrationManager."
+        "ProviderRegistrationManager.MISSING_PROVIDERNAME";
+static const char PROVIDER_NAME_NOT_FOUND[] =
+    "Missing ProviderName which is key in"
+        " PG_ProviderCapabilities class.";
 
 static const char UNSUPPORTED_PROVIDER_TYPE_KEY[] = 
     "Server.ProviderRegistrationManager.ProviderRegistrationManager."
-    "UNSUPPORTED_PROVIDER_TYPE";
+        "UNSUPPORTED_PROVIDER_TYPE";
 static const char UNSUPPORTED_PROVIDER_TYPE[] = 
     "Unsupported ProviderType \"$0\" in ProviderModule \"$1\".";
 
-ProviderRegistrationManager::ProviderRegistrationManager(CIMRepository* repository)
+ProviderRegistrationManager::ProviderRegistrationManager(
+                                        CIMRepository* repository)
     : _repository(repository)
 {
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
@@ -262,20 +277,22 @@ void ProviderRegistrationManager::initializeProviders(void)
                         {
                             // get provider module name
                             String module;
-                            instances[j].getProperty(pos2).getValue().get(module);
+                            instances[j].getProperty(pos2).getValue()
+                                                        .get(module);
 
                             // Use provider module name to generate a key
-                            String _moduleKey = _generateKey(module, MODULE_KEY);
+                            String _moduleKey = 
+                                _generateKey(module, MODULE_KEY);
                             // get provider module instance from the table
                             ProviderRegistrationTable* _providerModule = 0;
                             if (!_registrationTable->table.lookup(_moduleKey,
                                 _providerModule))
                             {
                                 Logger::put_l (Logger::STANDARD_LOG,
-                                               System::CIMSERVER,
-                                               Logger::WARNING,
-                                               MODULE_NOT_FOUND_KEY,
-                                               MODULE_NOT_FOUND, module);
+                                    System::CIMSERVER,
+                                    Logger::WARNING,
+                                    MODULE_NOT_FOUND_KEY,
+                                    MODULE_NOT_FOUND, module);
                             }
                             else
                             {
@@ -315,14 +332,14 @@ void ProviderRegistrationManager::initializeProviders(
     const CIMInstance & providerModule)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::initializeProviders");
+         "ProviderRegistrationManager::initializeProviders");
 
 // Note: The PG_Provider AutoStart property is not yet supported
 #if 0
     // get provider module name
     String providerModuleName;
-    providerModule.getProperty(providerModule.findProperty
-        (_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(providerModuleName);
+    providerModule.getProperty(providerModule.findProperty (
+        _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(providerModuleName);
 
     Array<CIMInstance> instances;
 
@@ -343,10 +360,12 @@ void ProviderRegistrationManager::initializeProviders(
                     // get provider module name
                     String moduleName;
                     instances[j].getProperty(instances[j].findProperty(
-                        _PROPERTY_PROVIDERMODULENAME)).getValue().get(moduleName);
+                        _PROPERTY_PROVIDERMODULENAME)).getValue()
+                                                        .get(moduleName);
 
                     // if the moduleName is same as providerModuleName and
-                    // autoStart is true send message to Provider Manager Service
+                    // autoStart is true send message to Provider Manager
+                    // Service
                     // to load and initialize providers in the module
                     if (String::equalNoCase(providerModuleName, moduleName))
                     {
@@ -412,16 +431,19 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     // create the key by using nameSpace, className, and providerType
     //
 
-    const CIMNamespaceName & nameSpaceKey=CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
+    const CIMNamespaceName & nameSpaceKey = 
+        CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
 
     String capabilityKey;
     if (!is_assoc) {
        if (has_no_query) {
           *has_no_query=true;
-          capabilityKey = _generateKey(nameSpaceKey, className, INSTANCE_QUERY_PROVIDER);
+          capabilityKey = _generateKey(nameSpaceKey, className,
+                  INSTANCE_QUERY_PROVIDER);
           if (!_registrationTable->table.lookup(
                   capabilityKey, providerCapability))
-             capabilityKey = _generateKey(nameSpaceKey, className, INS_PROVIDER);
+             capabilityKey = _generateKey(nameSpaceKey, className,
+                     INS_PROVIDER);
           else *has_no_query=false;
        }
     else
@@ -475,6 +497,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         {
             PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 MODULE_NAME_NOT_FOUND);
+
             PEG_METHOD_EXIT();
             return false;
         }
@@ -497,7 +520,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
             PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-              PROVIDER_NOT_FOUND);
+                PROVIDER_NOT_FOUND);
             PEG_METHOD_EXIT();
             return false;
         }
@@ -516,13 +539,15 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
             return false;
         }
 
-        Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
+        Array<CIMInstance> providerModuleInstances = 
+            _providerModule->getInstances();
         providerModule = providerModuleInstances[0];
 
     }
     catch(CIMException & exception)
     {
-        Tracer::traceCIMException(TRC_PROVIDERMANAGER, Tracer::LEVEL4, exception);
+        Tracer::traceCIMException (
+            TRC_PROVIDERMANAGER, Tracer::LEVEL4, exception);
         PEG_METHOD_EXIT();
         return (false);
     }
@@ -553,12 +578,15 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 
   try
   {
-    const CIMNamespaceName & nameSpaceKey=CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
+    const CIMNamespaceName & nameSpaceKey = 
+        CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
     //
     // check if the provider was registered to support all methods
-    // create the key by using nameSpace, className, allMethods, and providerType
+    // create the key by using nameSpace, className, allMethods,
+    // and providerType
     //
-    String capabilityKey = _generateKey(nameSpaceKey, className, "{}", MET_PROVIDER);
+    String capabilityKey = _generateKey(nameSpaceKey, className,
+        "{}", MET_PROVIDER);
 
     if (_registrationTable->table.lookup(capabilityKey, providerCapability))
     {
@@ -566,7 +594,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 
         instances = providerCapability->getInstances();
 
-         //
+        //
         // get provider name
         //
         Uint32 pos = instances[0].findProperty(CIMName(_PROPERTY_PROVIDERNAME));
@@ -611,9 +639,11 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     {
         //
         // provider was not registered to support all the methods
-        // create the key by using nameSpace, className, method, and providerType
+        // create the key by using nameSpace, className, method,
+        // and providerType
         //
-        capabilityKey = _generateKey(nameSpaceKey, className, method.getString(),
+        capabilityKey = _generateKey(nameSpaceKey, className,
+            method.getString(),
             MET_PROVIDER);
         if (_registrationTable->table.lookup(capabilityKey, providerCapability))
         {
@@ -665,14 +695,10 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
         else
         {
             PEG_METHOD_EXIT();
-            // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
 
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
-                                                             CAPABILITY_NOT_REGISTERED));
-
+                 MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+                 CAPABILITY_NOT_REGISTERED));
         }
 
     }
@@ -694,13 +720,9 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     {
         PEG_METHOD_EXIT();
 
-        // l10n
-
-        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
-
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                      MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                                                         PROVIDER_NOT_FOUND));
+            MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+                PROVIDER_NOT_FOUND));
     }
 
     Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -713,16 +735,13 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     {
         PEG_METHOD_EXIT();
 
-        // l10n
-
-        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
-
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                      MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                                                         MODULE_NOT_FOUND));
+            MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+                MODULE_NOT_FOUND));
     }
 
-    Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
+    Array<CIMInstance> providerModuleInstances =
+        _providerModule->getInstances();
     providerModule = providerModuleInstances[0];
 
   }
@@ -761,7 +780,7 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
             pInstance.getProperty(pos).getValue().get(providerName);
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                         "providerName = " + providerName + " found.");
+                "providerName = " + providerName + " found.");
             providers.append(pInstance);
             providerModules.append(pmInstance);
         }
@@ -799,7 +818,8 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
   try
   {
-    const CIMNamespaceName & nameSpaceKey=CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
+    const CIMNamespaceName & nameSpaceKey = 
+        CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
     //
     // create the key by using nameSpace, className, and providerType
     //
@@ -814,11 +834,12 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
         // l10n
 
-        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+        // CAPABILITY_NOT_REGISTERED);
 
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                      MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
-                                                         CAPABILITY_NOT_REGISTERED));
+            MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+            CAPABILITY_NOT_REGISTERED));
 
     }
 
@@ -854,11 +875,6 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
         {
             PEG_METHOD_EXIT();
 
-            // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // PROVIDER_NAME_NOT_FOUND);
-
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms(PROVIDER_NAME_NOT_FOUND_KEY,
                     PROVIDER_NAME_NOT_FOUND));
@@ -874,14 +890,9 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
         {
             PEG_METHOD_EXIT();
 
-                // l10n
-
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            // MODULE_NAME_NOT_FOUND);
-
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                    MessageLoaderParms(MODULE_NAME_NOT_FOUND_KEY,
-                        MODULE_NAME_NOT_FOUND));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(MODULE_NAME_NOT_FOUND_KEY,
+                    MODULE_NAME_NOT_FOUND));
         }
         instances[i].getProperty(pos3).getValue().get(providerModuleName);
 
@@ -905,13 +916,9 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             {
                 PEG_METHOD_EXIT();
 
-                // l10n
-
-                // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
-
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                              MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                                                                 PROVIDER_NOT_FOUND));
+                    MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+                    PROVIDER_NOT_FOUND));
             }
 
             //
@@ -921,23 +928,18 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             {
                 PEG_METHOD_EXIT();
 
-                // l10n
-
-                // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
-
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                              MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                                                                 MODULE_NOT_FOUND));
+                    MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+                    MODULE_NOT_FOUND));
             }
 
             _providerInstances = _provider->getInstances();
 
             _providerModuleInstances = _providerModule->getInstances();
 
-            //
             // if the instance of the PG_Provider was not in the list, add the
-            // instance to the list, also, add the instance of the provider module
-            // to the list
+            // instance to the list, also, add the instance of the provider
+            // module to the list
             if (!containsCIMInstance (provider, _providerInstances[0]))
             {
                 provider.append(_providerInstances[0]);
@@ -953,7 +955,8 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
                 // there is a list for the required properties
                 //
                 Boolean match = true;
-                requiredProperties = requiredPropertyList.getPropertyNameArray();
+                requiredProperties =
+                    requiredPropertyList.getPropertyNameArray();
 
                 //
                 // Compare supported properties with required properties
@@ -975,18 +978,15 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
                     //
                     // get provider instance from the table by using
                     // _providerKey to be key
-                        //
-                    if (!_registrationTable->table.lookup(_providerKey, _provider))
+                    
+                    if (!_registrationTable->table.lookup(_providerKey,
+                                _provider))
                     {
                         PEG_METHOD_EXIT();
 
-                        // l10n
-
-                        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
-
                         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                                      MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                                                                         PROVIDER_NOT_FOUND));
+                             MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+                             PROVIDER_NOT_FOUND));
                     }
 
                     _providerInstances = _provider->getInstances();
@@ -994,24 +994,22 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
                     //
                     // get provider module instance from the table
                     //
-                    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
+                    if (!_registrationTable->table.lookup(_moduleKey,
+                                _providerModule))
                     {
                         PEG_METHOD_EXIT();
 
-                        // l10n
-
-                        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
-
                         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                                      MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                                                                         MODULE_NOT_FOUND));
+                            MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+                            MODULE_NOT_FOUND));
 
                     }
 
                     _providerModuleInstances = _providerModule->getInstances();
 
                     //
-                    // if the instance of the PG_Provider was not in the list, add
+                    // if the instance of the PG_Provider was not in the list,
+                    // add
                     // the instance to the list; also, add the instance of the
                     // provider module to the list
                     //
@@ -1058,8 +1056,8 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
     //
     String consumerKey = _generateKey(destinationPath, CON_PROVIDER);
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                     "\ndestinationPath = " + destinationPath +
-                     "; consumerKey = " + consumerKey);
+        "\ndestinationPath = " + destinationPath +
+        "; consumerKey = " + consumerKey);
 
     try
     {
@@ -1069,10 +1067,11 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
         if (!_registrationTable->table.lookup(
                   consumerKey, consumerCapability))
         {
-            //L10N TODO DONE
             PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CONSUMER_NOT_REGISTERED);
-            MessageLoaderParms parms(CONSUMER_NOT_REGISTERED_KEY, CONSUMER_NOT_REGISTERED);
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+            //CONSUMER_NOT_REGISTERED);
+            MessageLoaderParms parms(CONSUMER_NOT_REGISTERED_KEY,
+                CONSUMER_NOT_REGISTERED);
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
         }
 
@@ -1082,13 +1081,14 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
 
         if (pos == PEG_NOT_FOUND)
         {
-            //L10N TODO DONE
             PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            //"Missing ProviderName which is key in PG_ConsumerCapabilities class.");
 
-            MessageLoaderParms parms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME_KEY_IN_CONSUMER_CAPABILITIES",
-                                     "Missing ProviderName which is key in PG_ConsumerCapabilities class.");
+            MessageLoaderParms parms(
+                "Server.ProviderRegistrationManager."
+                    "ProviderRegistrationManager."
+                    "MISSING_PROVIDERNAME_KEY_IN_CONSUMER_CAPABILITIES",
+                "Missing ProviderName which is key in PG_ConsumerCapabilities"
+                    " class.");
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
         }
 
@@ -1104,12 +1104,14 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
             (CIMName (_PROPERTY_PROVIDERMODULENAME));
         if (pos2 == PEG_NOT_FOUND)
         {
-            //L10N TODO DONE
             PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            //"Missing ProviderModuleName which is key in PG_ConsumerCapabilities class.");
-            MessageLoaderParms parms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERMODULENAME_KEY_IN_CONSUMER_CAPABILITIES",
-                                     "Missing ProviderModuleName which is key in PG_ConsumerCapabilities class.");
+
+            MessageLoaderParms parms(
+                "Server.ProviderRegistrationManager."
+                    "ProviderRegistrationManager."
+                    "MISSING_PROVIDERMODULENAME_KEY_IN_CONSUMER_CAPABILITIES",
+                "Missing ProviderModuleName which is key in"
+                    " PG_ConsumerCapabilities class.");
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
         }
 
@@ -1130,10 +1132,10 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
         //
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
-            //L10N TODO DONE
             PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
-            MessageLoaderParms parms(PROVIDER_NOT_FOUND_KEY, PROVIDER_NOT_FOUND);
+
+            MessageLoaderParms parms(
+                PROVIDER_NOT_FOUND_KEY, PROVIDER_NOT_FOUND);
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
 
@@ -1145,20 +1147,21 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
         //
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
-            //L10N_ TODO DONE
             PEG_METHOD_EXIT();
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+
             MessageLoaderParms parms(MODULE_NOT_FOUND_KEY, MODULE_NOT_FOUND);
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
 
-        Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
+        Array<CIMInstance> providerModuleInstances = 
+            _providerModule->getInstances();
         providerModule = providerModuleInstances[0];
 
     }
     catch(CIMException & exception)
     {
-        Tracer::traceCIMException(TRC_PROVIDERMANAGER, Tracer::LEVEL4, exception);
+        Tracer::traceCIMException(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            exception);
         PEG_METHOD_EXIT();
         return (false);
     }
@@ -1195,7 +1198,8 @@ Boolean ProviderRegistrationManager::isIndicationProvider(
             String provider;
             Array<Uint16> providerType;
 
-            Uint32 pos1 = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+            Uint32 pos1 = instances[j].findProperty(
+                _PROPERTY_PROVIDERMODULENAME);
             Uint32 pos2 = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
             Uint32 pos3 = instances[j].findProperty(_PROPERTY_PROVIDERTYPE);
 
@@ -1238,7 +1242,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
     const CIMPropertyList & propertyList)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::getInstance");
+        "ProviderRegistrationManager::getInstance");
 
     // get class name
     CIMName className = instanceReference.getClassName();
@@ -1276,7 +1280,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
                 String module;
 
                 Uint32 pos = instances[j].findProperty(
-                             _PROPERTY_PROVIDERMODULE_NAME);
+                    _PROPERTY_PROVIDERMODULE_NAME);
 
                 if (pos != PEG_NOT_FOUND)
                 {
@@ -1285,11 +1289,13 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
                     if (String::equalNoCase(_moduleName, module))
                     {
-                        /** if the names of ProviderModule and Provider are the same, here
-                            we need to check whether we are actually returning the
+                        /** if the names of ProviderModule and Provider are the
+                            same, here we need to check whether we are actually
+                            returning the
                             providerModule.  see Bug #5940
                         */
-                        if(instances[j].getClassName().equal(PEGASUS_CLASSNAME_PROVIDERMODULE))
+                        if(instances[j].getClassName().equal(
+                            PEGASUS_CLASSNAME_PROVIDERMODULE))
                         {
                             PEG_METHOD_EXIT();
                             return (instances[j]);
@@ -1301,8 +1307,8 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_FOUND,
-                                      MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                                      MODULE_NOT_FOUND));
+            MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+            MODULE_NOT_FOUND));
     }
     //
     // get provider instance from the table
@@ -1337,9 +1343,9 @@ CIMInstance ProviderRegistrationManager::getInstance(
                 String provider;
 
                 Uint32 pos1 = instances[j].findProperty(
-                             _PROPERTY_PROVIDERMODULENAME);
+                    _PROPERTY_PROVIDERMODULENAME);
                 Uint32 pos2 = instances[j].findProperty(
-                              _PROPERTY_PROVIDER_NAME);
+                    _PROPERTY_PROVIDER_NAME);
 
                 if (pos1 != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND)
                 {
@@ -1361,8 +1367,8 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_FOUND,
-                                      MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                                      PROVIDER_NOT_FOUND));
+            MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+            PROVIDER_NOT_FOUND));
     }
     //
     // get provider capabilty instance or consumer instance
@@ -1407,14 +1413,14 @@ CIMInstance ProviderRegistrationManager::getInstance(
                 String capabilityID;
 
                 Uint32 pos1 = instances[j].findProperty(
-                             _PROPERTY_PROVIDERMODULENAME);
+                    _PROPERTY_PROVIDERMODULENAME);
                 Uint32 pos2 = instances[j].findProperty(
-                              _PROPERTY_PROVIDERNAME);
+                    _PROPERTY_PROVIDERNAME);
                 Uint32 pos3 = instances[j].findProperty(
-                              _PROPERTY_CAPABILITIESID);
+                    _PROPERTY_CAPABILITIESID);
 
-                if (pos1 != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND &&
-                    pos3 != PEG_NOT_FOUND)
+                if (pos1 != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND
+                    && pos3 != PEG_NOT_FOUND)
                 {
                     // get provider module name
                     instances[j].getProperty(pos1).getValue().get(module);
@@ -1424,8 +1430,10 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
                     // get capabilityID
                     instances[j].getProperty(pos3).getValue().get(capabilityID);
-                    if (String::equalNoCase(_moduleName, module) &&
-                        String::equalNoCase( _providerName, provider) &&
+                    if (String::equalNoCase(_moduleName, module)
+                        &&
+                        String::equalNoCase( _providerName, provider)
+                        &&
                         String::equalNoCase(_capabilityID, capabilityID))
                     {
                         PEG_METHOD_EXIT();
@@ -1437,8 +1445,8 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_FOUND,
-                                      MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
-                                      CAPABILITY_NOT_REGISTERED));
+            MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+            CAPABILITY_NOT_REGISTERED));
     }
 
     // Note: We should never be asked for an instance of any other class
@@ -1480,8 +1488,9 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstancesForClass(
 }
 
 // get all registered provider names
-Array<CIMObjectPath> ProviderRegistrationManager::enumerateInstanceNamesForClass(
-    const CIMObjectPath & ref)
+Array<CIMObjectPath>
+    ProviderRegistrationManager::enumerateInstanceNamesForClass(
+        const CIMObjectPath & ref)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderRegistrationManager::enumerateInstanceNamesForClass");
@@ -1519,8 +1528,9 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
         cimRef = _createInstance(ref, instance, OP_CREATE);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "ProviderRegistrationManager::createInstance - Create instance object path: $0",
-                    cimRef.toString());
+            "ProviderRegistrationManager::createInstance"
+                " - Create instance object path: $0",
+            cimRef.toString());
 
         return (cimRef);
     }
@@ -1545,8 +1555,9 @@ void ProviderRegistrationManager::deleteInstance(
         _deleteInstance(instanceReference, OP_DELETE);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "ProviderRegistrationManager::deleteInstance - delete instance object path: $0",
-                    instanceReference.toString());
+            "ProviderRegistrationManager::deleteInstance"
+            " - delete instance object path: $0",
+            instanceReference.toString());
     }
 
     catch (const CIMException &)
@@ -1567,7 +1578,7 @@ void ProviderRegistrationManager::modifyInstance(
     const Array<CIMName> & propertyList)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::modifyInstance");
+         "ProviderRegistrationManager::modifyInstance");
 
     WriteLock lock(_registrationTableLock);
 
@@ -1689,11 +1700,11 @@ void ProviderRegistrationManager::modifyInstance(
                 {
                     // copy only the property value
                     CIMProperty newProperty(givenProperty.getName(),
-                                            givenProperty.getValue(),
-                                            givenProperty.getArraySize(),
-                                            givenProperty.getReferenceClassName(),
-                                            givenProperty.getClassOrigin(),
-                                            givenProperty.getPropagated());
+                        givenProperty.getValue(),
+                        givenProperty.getArraySize(),
+                        givenProperty.getReferenceClassName(),
+                        givenProperty.getClassOrigin(),
+                        givenProperty.getPropagated());
                     instance.addProperty(newProperty);
                 }
             }
@@ -1796,6 +1807,7 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
         moduleKeyBindings.append (CIMKeyBinding
             (_PROPERTY_PROVIDERMODULE_NAME,
              providerModuleName, CIMKeyBinding::STRING));
+
         CIMObjectPath reference ("", CIMNamespaceName (),
             PEGASUS_CLASSNAME_PROVIDERMODULE, moduleKeyBindings);
 
@@ -1867,7 +1879,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     Array<String> indicationDestinations;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::_initialRegistrationTable()");
+        "ProviderRegistrationManager::_initialRegistrationTable()");
     try
     {
         //
@@ -1889,8 +1901,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             CIMPropertyList());
 
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                      "PG_ProviderModule class has = %d instances",
-                      cimNamedInstances.size()));
+            "PG_ProviderModule class has = %d instances",
+            cimNamedInstances.size()));
 
         for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
         {
@@ -1907,11 +1919,14 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             // properties must be set, otherwise, property OperationalStatus
             // is set to Error.
             //
-            Uint32 posModuleName = instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME);
+            Uint32 posModuleName =
+                instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME);
             Uint32 posVendor = instance.findProperty(_PROPERTY_VENDOR);
             Uint32 posVersion = instance.findProperty(_PROPERTY_VERSION);
-            Uint32 posInterfaceType = instance.findProperty(_PROPERTY_INTERFACETYPE);
-            Uint32 posInterfaceVersion = instance.findProperty(_PROPERTY_INTERFACEVERSION);
+            Uint32 posInterfaceType =
+                instance.findProperty(_PROPERTY_INTERFACETYPE);
+            Uint32 posInterfaceVersion =
+                instance.findProperty(_PROPERTY_INTERFACEVERSION);
             Uint32 posLocation = instance.findProperty(_PROPERTY_LOCATION);
             Uint32 posUserContext = instance.findProperty(
                 PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
@@ -1921,7 +1936,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             if (posModuleName != PEG_NOT_FOUND)
             {
                 // get provider module name
-                instance.getProperty(posModuleName).getValue().get(providerModuleName);
+                instance.getProperty(posModuleName).getValue()
+                    .get(providerModuleName);
             }
             else
             {
@@ -1940,12 +1956,14 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
             if (posInterfaceType != PEG_NOT_FOUND)
             {
-                instance.getProperty(posInterfaceType).getValue().get(interfaceType);
+                instance.getProperty(posInterfaceType).getValue()
+                    .get(interfaceType);
             }
 
             if (posInterfaceVersion != PEG_NOT_FOUND)
             {
-                instance.getProperty(posInterfaceVersion).getValue().get(interfaceVersion);
+                instance.getProperty(posInterfaceVersion).getValue()
+                    .get(interfaceVersion);
             }
 
             if (posLocation != PEG_NOT_FOUND)
@@ -1964,7 +1982,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 }
             }
 
-            if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0 ||
+            if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0
+                ||
                 posVendor == PEG_NOT_FOUND || vendor.size() == 0 ||
                 posVersion == PEG_NOT_FOUND || version.size() == 0 ||
                 posInterfaceType == PEG_NOT_FOUND ||
@@ -2099,8 +2118,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             false,
             CIMPropertyList());
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                      "PG_Provider class has = %d instances",
-                      cimNamedInstances.size()));
+            "PG_Provider class has = %d instances",
+            cimNamedInstances.size()));
 
         for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
         {
@@ -2110,7 +2129,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
             // get provider module name
             instance.getProperty(instance.findProperty
-                (_PROPERTY_PROVIDERMODULENAME)).getValue().get(providerModuleName);
+                (_PROPERTY_PROVIDERMODULENAME)).getValue().
+                    get(providerModuleName);
 
             // get provider name
             instance.getProperty(instance.findProperty
@@ -2119,7 +2139,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             //
             // create the key by using providerModuleName and providerName
             //
-            String _providerKey = _generateKey(providerModuleName, providerName);
+            String _providerKey = _generateKey(providerModuleName,
+                providerName);
 
             //
             // add the instance to the hash table by using _providerKey
@@ -2139,8 +2160,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             false,
             CIMPropertyList());
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                      "PG_ConsumerCapabilities class has = %d instances",
-                      cimNamedInstances.size()));
+            "PG_ConsumerCapabilities class has = %d instances",
+            cimNamedInstances.size()));
 
         for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
         {
@@ -2150,7 +2171,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
             // get indication destinations
             instance.getProperty(instance.findProperty
-                (_PROPERTY_INDICATIONDESTINATIONS)).getValue().get(indicationDestinations);
+                (_PROPERTY_INDICATIONDESTINATIONS)).getValue().
+                    get(indicationDestinations);
 
             //
             // create the key by using indicationDestination and provider type
@@ -2189,11 +2211,11 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
             // get Namespace
             instance.getProperty(instance.findProperty
-            (_PROPERTY_NAMESPACES)).getValue().get(namespaces);
+                (_PROPERTY_NAMESPACES)).getValue().get(namespaces);
 
             // get provider type
             instance.getProperty(instance.findProperty
-            (_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+                (_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
 
             for (Uint32 j=0; j < providerType.size(); j++)
             {
@@ -2210,13 +2232,19 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             // and providerType. Use this key to store the
                             // instance to the hash table
                             //
-                            if (supportWildCardNamespaceNames) capabilityKey =
-                               _generateKey(WildCardNamespaceNames::add(namespaces[k]),
-                               className, INS_PROVIDER);
-                            else capabilityKey = _generateKey(namespaces[k],
-                                                className, INS_PROVIDER);
+                            if (supportWildCardNamespaceNames)
+                                capabilityKey =
+                                    _generateKey(
+                                        WildCardNamespaceNames::add(
+                                            namespaces[k]),
+                                    className, INS_PROVIDER);
+                            else 
+                                capabilityKey = _generateKey(namespaces[k],
+                                    className, INS_PROVIDER);
+
                             instances.append(instance);
-                            _addInitialInstancesToTable(capabilityKey, instances);
+                            _addInitialInstancesToTable(capabilityKey,
+                                                        instances);
                         }
                         break;
                     }
@@ -2232,13 +2260,21 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             // and providerType. Use this key to store the
                             // instance to the hash table
                             //
-                            if (supportWildCardNamespaceNames) capabilityKey =
-                               _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                            if (supportWildCardNamespaceNames)
+                                capabilityKey =
+                                    _generateKey (WildCardNamespaceNames::add(
+                                        namespaces[k]),
                                className, ASSO_PROVIDER);
-                            else capabilityKey = _generateKey(namespaces[k],
-                                                className, ASSO_PROVIDER);
+
+                            else
+                            {
+                                capabilityKey = _generateKey (namespaces[k],
+                                    className,
+                                    ASSO_PROVIDER);
+                            }
                             instances.append(instance);
-                            _addInitialInstancesToTable(capabilityKey, instances);
+                            _addInitialInstancesToTable (capabilityKey,
+                                instances);
                         }
                         break;
                     }
@@ -2255,13 +2291,17 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             // create key by using namespace, className and
                             // providerType, store the instance to the table
                             //
-                            if (supportWildCardNamespaceNames) capabilityKey =
-                               _generateKey(WildCardNamespaceNames::add(namespaces[k]),
-                               className, IND_PROVIDER);
+                            if (supportWildCardNamespaceNames)
+                                capabilityKey =
+                                    _generateKey(
+                                        WildCardNamespaceNames::add(
+                                            namespaces[k]),
+                                    className, IND_PROVIDER);
                             else capabilityKey = _generateKey(namespaces[k],
                                         className, IND_PROVIDER);
 
-                            if (_registrationTable->table.lookup(capabilityKey, capabilities))
+                            if (_registrationTable->table.lookup(capabilityKey,
+                                    capabilities))
                             {
                                 // the class is already in the table
                                 instances = capabilities->getInstances();
@@ -2279,7 +2319,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             }
 
                             // Add the entry to the table
-                            _addInitialInstancesToTable(capabilityKey, instances);
+                            _addInitialInstancesToTable(capabilityKey,
+                                instances);
                         }
 
                         break;
@@ -2300,7 +2341,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                         {
                             value = instance.getProperty(pos).getValue();
                             if (!value.isNull())
-                                {
+                            {
                                 suppMethodIsNull = false;
                                 value.get(supportedMethods);
                                 methodsCount = supportedMethods.size();
@@ -2319,14 +2360,18 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                                 Array<CIMInstance> instances;
 
                                 // The provider supports all the methods
-                            if (supportWildCardNamespaceNames) capabilityKey =
-                               _generateKey(WildCardNamespaceNames::add(namespaces[k]),
-                               className, "{}", MET_PROVIDER);
-                            else capabilityKey = _generateKey(namespaces[k],
-                                    className, "{}", MET_PROVIDER);
+                                if (supportWildCardNamespaceNames)
+                                    capabilityKey =
+                                        _generateKey(
+                                            WildCardNamespaceNames::add(
+                                                namespaces[k]),
+                                        className, "{}", MET_PROVIDER);
+                                else capabilityKey = _generateKey(namespaces[k],
+                                        className, "{}", MET_PROVIDER);
 
                                 instances.append(instance);
-                                _addInitialInstancesToTable(capabilityKey, instances);
+                                _addInitialInstancesToTable(capabilityKey,
+                                                            instances);
                             }
                             else
                             {
@@ -2334,13 +2379,23 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                                 {
                                     Array<CIMInstance> instances;
 
-                                    if (supportWildCardNamespaceNames) capabilityKey =
-                                       _generateKey(WildCardNamespaceNames::add(namespaces[k]),
-                                       className, supportedMethods[n], MET_PROVIDER);
-                                    else capabilityKey = _generateKey(namespaces[k],
-                                        className, supportedMethods[n], MET_PROVIDER);
+                                    if (supportWildCardNamespaceNames)
+                                        capabilityKey =
+                                       _generateKey(
+                                           WildCardNamespaceNames::add (
+                                               namespaces[k]),
+                                               className,
+                                               supportedMethods[n],
+                                               MET_PROVIDER);
+                                    else
+                                        capabilityKey =
+                                            _generateKey(namespaces[k],
+                                                className, supportedMethods[n],
+                                            MET_PROVIDER);
+
                                     instances.append(instance);
-                                    _addInitialInstancesToTable(capabilityKey, instances);
+                                    _addInitialInstancesToTable(capabilityKey,
+                                        instances);
                                 }
                             }
                         }
@@ -2353,19 +2408,26 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                         for (Uint32 k=0; k < namespaces.size(); k++)
                         {
                             Array<CIMInstance> instances;
-
                             //
                             // create a key by using namespace, className
                             // and providerType. Use this key to store the
                             // instance to the hash table
                             //
                             if (supportWildCardNamespaceNames) capabilityKey =
-                               _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                               _generateKey(
+                                   WildCardNamespaceNames::add(namespaces[k]),
                                className, INSTANCE_QUERY_PROVIDER);
-                            else capabilityKey = _generateKey(namespaces[k],
-                                                className, INSTANCE_QUERY_PROVIDER);
+
+                            else
+                            {
+                                capabilityKey = _generateKey(namespaces[k],
+                                    className,
+                                    INSTANCE_QUERY_PROVIDER);
+                            }
+
                             instances.append(instance);
-                            _addInitialInstancesToTable(capabilityKey, instances);
+                            _addInitialInstancesToTable(capabilityKey,
+                                instances);
                         }
                         break;
                     }
@@ -2379,6 +2441,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             (_PROPERTY_PROVIDERMODULENAME)).getValue().
                             get(providerModuleName);
                         PEG_METHOD_EXIT();
+
                         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                             MessageLoaderParms(UNSUPPORTED_PROVIDER_TYPE_KEY,
                             UNSUPPORTED_PROVIDER_TYPE, providerType[j],
@@ -2422,7 +2485,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
     String _providerName;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::_createInstance");
+        "ProviderRegistrationManager::_createInstance");
 
     CIMName className = ref.getClassName();
 
@@ -2442,7 +2505,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             // get provider module name
             //
             instance.getProperty(instance.findProperty
-                (_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(_providerModule);
+                (_PROPERTY_PROVIDERMODULE_NAME)).getValue()
+                    .get(_providerModule);
             //
             // Use provider module name to be a key, add the instance to
             // the hash table
@@ -2551,15 +2615,13 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                 // the provider module class is not registered
                 //
 
-                // l10n
-
-                // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_ProviderModule class"
-                // " needs to be registered before register the PG_Provider class");
-
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                              MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_MODULE",
-                                                                 "PG_ProviderModule class"
-                                                                 " needs to be registered before register the PG_Provider class"));
+                      MessageLoaderParms(
+                        "Server.ProviderRegistrationManager."
+                            "ProviderRegistrationManager.PG_PROVIDER_MODULE",
+                        "PG_ProviderModule class"
+                            " needs to be registered before register the"
+                            " PG_Provider class"));
             }
         }
 
@@ -2607,10 +2669,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                     Array<CIMInstance> instances;
 
                     //
-                    // create a key by using indicationDestination and providerType
+                    // create a key by using indicationDestination and
+                    // providerType
                     //
                     _consumerKey = _generateKey(_indicationDestinations[i],
-                                                CON_PROVIDER);
+                        CON_PROVIDER);
 
                     // add the instance to the table, will throw
                     // exception if duplicate already exists
@@ -2626,17 +2689,18 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             }
             else
             {
-//L10N_TODO DONE
                 // the provider class was not registered
 
-                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_Provider class "
-                //    "needs to be registered before register the consumer "
-                //    "capabilities class");
-                MessageLoaderParms parms("Server.ProviderRegistrationManager.ProviderRegistrationManager.PGPROVIDER_NEEDS_TO_BE_REGISTERED_BEFORE_CONSUMER_CAPABILITIES",
-                                         "PG_Provider class needs to be registered before register the consumer capabilities class");
+                MessageLoaderParms parms(
+                    "Server.ProviderRegistrationManager."
+                        "ProviderRegistrationManager."
+                        "PGPROVIDER_NEEDS_TO_BE_REGISTERED_BEFORE_CONSUMER"
+                        "_CAPABILITIES",
+                    "PG_Provider class needs to be registered before register"
+                        " the consumer capabilities class");
+
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
             }
-
         }
 
         //
@@ -2692,7 +2756,9 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                 Array<CIMNamespaceName> _namespaceNames;
 
                 if (supportWildCardNamespaceNames)
-                    WildCardNamespaceNames::remap(_repository,_namespaces,_namespaceNames);
+                    WildCardNamespaceNames::remap(_repository,
+                        _namespaces,
+                        _namespaceNames);
                 else for (Uint32 i=0; i < _namespaces.size(); i++)
                 {
                     _namespaceNames.append (CIMNamespaceName (_namespaces [i]));
@@ -2718,11 +2784,19 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // create a key by using namespace, className
                                 // and providerType
                                 //
-                                if (supportWildCardNamespaceNames) _capabilityKey =
-                                    _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
-                                    _className, INS_PROVIDER);
-                                else _capabilityKey = _generateKey(_namespaces[j],
-                                     _className, INS_PROVIDER);
+                                if (supportWildCardNamespaceNames)
+                                    _capabilityKey =
+                                        _generateKey(
+                                            WildCardNamespaceNames::add(
+                                                _namespaces[j]),
+                                        _className, INS_PROVIDER);
+
+                                else
+                                {
+                                    _capabilityKey =
+                                        _generateKey(_namespaces[j],
+                                        _className, INS_PROVIDER);
+                                }
 
                                 // add the instance to the table, will throw
                                 // exception if duplicate already exists
@@ -2744,11 +2818,17 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // create a key by using namespace, className
                                 // and providerType
                                 //
-                                if (supportWildCardNamespaceNames) _capabilityKey =
-                                    _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                if (supportWildCardNamespaceNames) 
+                                    _capabilityKey =
+                                        _generateKey(
+                                            WildCardNamespaceNames::add(
+                                                _namespaces[j]),
                                     _className, ASSO_PROVIDER);
-                                else _capabilityKey = _generateKey(_namespaces[j],
-                                    _className, ASSO_PROVIDER);
+
+                                else
+                                    _capabilityKey =
+                                        _generateKey(_namespaces[j],
+                                        _className, ASSO_PROVIDER);
 
                                 // add the instance to the table, will throw
                                 // exception if duplicate already exists
@@ -2770,25 +2850,35 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // and providerType, store the instance to
                                 // the table
                                 //
-                                if (supportWildCardNamespaceNames) _capabilityKey =
-                                   _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
-                                   _className, IND_PROVIDER);
-                                else _capabilityKey = _generateKey(_namespaces[j],
-                                     _className, IND_PROVIDER);
+                                if (supportWildCardNamespaceNames) 
+                                    _capabilityKey =
+                                        _generateKey(
+                                            WildCardNamespaceNames::add(
+                                                _namespaces[j]),
+                                        _className, IND_PROVIDER);
+                                else
+                                    _capabilityKey = 
+                                        _generateKey(_namespaces[j],
+                                        _className, IND_PROVIDER);
 
-                                if (_registrationTable->table.lookup(_capabilityKey, providerCapabilities))
+                                if (_registrationTable->table.lookup(
+                                        _capabilityKey,
+                                        providerCapabilities))
                                 {
                                     //
                                     // the class is already in the table
                                     //
-                                    instances = providerCapabilities->getInstances();
+                                    instances =
+                                        providerCapabilities->getInstances();
+
                                     instances.append(instance);
 
                                     //
                                      // remove the entry from the table
                                     //
                                     delete providerCapabilities;
-                                    _registrationTable->table.remove(_capabilityKey);
+                                    _registrationTable->table.remove(
+                                            _capabilityKey);
                                 }
                                 else
                                 {
@@ -2800,7 +2890,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                             }
 
                             //
-                            // Create CIMNotifyProviderRegistrationRequestMessage
+                            // Create
+                            // CIMNotifyProviderRegistrationRequestMessage
                             // send the message to the subscription service
                             // if this function is called by createInstance
                             //
@@ -2811,7 +2902,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
                                 Array<CIMNamespaceName> _oldNamespaces;
                                 //
-                                // get provider instance and module instance from the
+                                // get provider instance and module instance
+                                // from the
                                 // registration table
                                 //
                                 _getInstances(_providerName, _providerModule,
@@ -2822,7 +2914,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 CIMPropertyList _newPropertyNames;
 
                                 //
-                                // get new property list from supported properties in the
+                                // get new property list from supported
+                                // properties in the
                                 // providerCapability instance
                                 //
                                 _getPropertyNames(instance, _newPropertyNames);
@@ -2830,24 +2923,31 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 //
                                 // get indication server queueId
                                 //
-                                MessageQueueService * _service = _getIndicationService();
+                                MessageQueueService * _service =
+                                    _getIndicationService();
 
                                 if (_service != NULL)
                                 {
-                                    CIMNotifyProviderRegistrationRequestMessage * notify_req =
-                                        new CIMNotifyProviderRegistrationRequestMessage(
-                                            XmlWriter::getNextMessageId (),
-                                            CIMNotifyProviderRegistrationRequestMessage::Operation(OP_CREATE),
-                                            _className,
-                                            _namespaceNames,
-                                            _oldNamespaces,
-                                            _newPropertyNames,
-                                            _oldPropertyNames,
-                                            QueueIdStack(_service->getQueueId()));
+                    // The following lines are shoved left just to 
+                    // get them inside the 80 col limits.
+                    CIMNotifyProviderRegistrationRequestMessage * notify_req =
+                        new CIMNotifyProviderRegistrationRequestMessage(
+                            XmlWriter::getNextMessageId (),
+                        CIMNotifyProviderRegistrationRequestMessage::Operation(
+                            OP_CREATE),
+                            _className,
+                            _namespaceNames,
+                            _oldNamespaces,
+                            _newPropertyNames,
+                            _oldPropertyNames,
+                            QueueIdStack(
+                                _service->getQueueId()));
 
-                                                                        notify_req->operationContext.insert(ProviderIdContainer(_moduleInstance,_providerInstance));
+                    notify_req->operationContext.insert(
+                        ProviderIdContainer(
+                            _moduleInstance,_providerInstance));
 
-                                    _sendMessageToSubscription(notify_req);
+                    _sendMessageToSubscription(notify_req);
                                 }
                             }
 
@@ -2863,7 +2963,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                             //
                             // get supportedMethods
                             //
-                            Uint32 pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
+                            Uint32 pos = instance.findProperty(
+                                    _PROPERTY_SUPPORTEDMETHODS);
                             if (pos != PEG_NOT_FOUND)
                             {
                                 value = instance.getProperty(pos).getValue();
@@ -2891,16 +2992,22 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     Array<CIMInstance> instances;
 
                                     // Provider supports all methods
-                                    if (supportWildCardNamespaceNames) _capabilityKey =
-                                        _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                    if (supportWildCardNamespaceNames)
+                                        _capabilityKey =
+                                        _generateKey(
+                                            WildCardNamespaceNames::add(
+                                                _namespaces[j]),
                                         _className, "{}", MET_PROVIDER);
-                                    else _capabilityKey = _generateKey(_namespaces[j],
-                                        _className, "{}", MET_PROVIDER);
+
+                                    else _capabilityKey = 
+                                        _generateKey(_namespaces[j],
+                                            _className, "{}", MET_PROVIDER);
 
                                     // add the instance to the table, will throw
                                     // exception if duplicate already exists
                                     instances.append(instance);
-                                    _addInstancesToTable(_capabilityKey, instances);
+                                    _addInstancesToTable(_capabilityKey,
+                                            instances);
                                 }
                                 else
                                 {
@@ -2911,16 +3018,26 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     {
                                         Array<CIMInstance> instances;
 
-                                        if (supportWildCardNamespaceNames) _capabilityKey =
-                                            _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
-                                            _className, _supportedMethods[k], MET_PROVIDER);
-                                        else _capabilityKey = _generateKey(_namespaces[j],
-                                            _className, _supportedMethods[k], MET_PROVIDER);
+                                        if (supportWildCardNamespaceNames)
+                                            _capabilityKey =
+                                            _generateKey(
+                                                WildCardNamespaceNames::add(
+                                                    _namespaces[j]),
+                                                _className, _supportedMethods[k],
+                                                     MET_PROVIDER);
 
-                                        // add the instance to the table, will throw
+                                        else
+                                            _capabilityKey =
+                                                _generateKey(_namespaces[j],
+                                                _className, _supportedMethods[k],
+                                                MET_PROVIDER);
+
+                                        // add the instance to the table, will
+                                        // throw
                                         // exception if duplicate already exists
                                         instances.append(instance);
-                                        _addInstancesToTable(_capabilityKey, instances);
+                                        _addInstancesToTable(_capabilityKey,
+                                                instances);
                                     }
                                 }
                             }
@@ -2931,17 +3048,21 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                         case _INSTANCE_QUERY_PROVIDER:
                         {
                             Uint32 notInstanceProvider=1;
-                            for (Uint32 ii=0; ii < _providerType.size(); ii++) {
-                               if (_providerType[ii]==_INSTANCE_PROVIDER) notInstanceProvider=0;
+                            for (Uint32 ii=0; ii < _providerType.size(); ii++)
+                            {
+                               if (_providerType[ii]==_INSTANCE_PROVIDER)
+                                   notInstanceProvider=0;
                             }
                             if (notInstanceProvider) {
                                //
-                               //  Error condition: InstanceQueryProvider must be defined in
+                               //  Error condition: InstanceQueryProvider
+                               //  must be defined in
                                //  combination with InstanceProvider
                                //
-                               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                        "InstanceQueryProvider must be defined in "
-                                        "combination with InstanceProvider");
+                               throw PEGASUS_CIM_EXCEPTION(
+                                    CIM_ERR_NOT_SUPPORTED,
+                                    "InstanceQueryProvider must be defined in "
+                                    "combination with InstanceProvider");
                                break;
                             }
                             for (Uint32 j=0; j < _namespaces.size(); j++)
@@ -2952,10 +3073,15 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // create a key by using namespace, className
                                 // and providerType
                                 //
-                                if (supportWildCardNamespaceNames) _capabilityKey =
-                                    _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                if (supportWildCardNamespaceNames)
+                                    _capabilityKey =
+                                    _generateKey(
+                                        WildCardNamespaceNames::add(
+                                            _namespaces[j]),
                                     _className, INSTANCE_QUERY_PROVIDER);
-                                else _capabilityKey = _generateKey(_namespaces[j],
+
+                                else _capabilityKey =
+                                    _generateKey(_namespaces[j],
                                     _className, INSTANCE_QUERY_PROVIDER);
 
                                 // add the instance to the table, will throw
@@ -2986,13 +3112,13 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             else
             {
                 // the provider class was not registered
-                // l10n
-                // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_Provider class needs "
-                //    "to be registered before register the Provider capabilities class");
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                             MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_CLASS",
-                                                                "PG_Provider class needs "
-                                                                "to be registered before register the Provider capabilities class"));
+                          MessageLoaderParms(
+                              "Server.ProviderRegistrationManager."
+                              "ProviderRegistrationManager.PG_PROVIDER_CLASS",
+                          "PG_Provider class needs "
+                              "to be registered before register the Provider"
+                              " capabilities class"));
             }
         }
 
@@ -3088,9 +3214,11 @@ void ProviderRegistrationManager::_deleteInstance(
                 String module;
                 String provider;
 
-                Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+                Uint32 pos = instances[j].findProperty(
+                        _PROPERTY_PROVIDERMODULENAME);
                 Uint32 pos2 = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
-                Uint32 pos3 = instances[j].findProperty(_PROPERTY_CAPABILITIESID);
+                Uint32 pos3 = instances[j].findProperty(
+                        _PROPERTY_CAPABILITIESID);
 
                 if (pos != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND &&
                     pos3 != PEG_NOT_FOUND)
@@ -3275,7 +3403,8 @@ void ProviderRegistrationManager::_deleteInstance(
             Array<CIMInstance> instances;
 
             //
-            // remove all entries which their key's value is same as _deletedProviderKey
+            // remove all entries which their key's value is same as
+            // _deletedProviderKey
             // from the table
             //
             if (String::equalNoCase(_deletedProviderKey, i.key()))
@@ -3292,16 +3421,22 @@ void ProviderRegistrationManager::_deleteInstance(
                     String _providerName;
                     String _moduleName;
 
-                    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
-                    Uint32 pos2 = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
+                    Uint32 pos = instances[j].findProperty(
+                            _PROPERTY_PROVIDERMODULENAME);
+                    Uint32 pos2 = instances[j].findProperty(
+                            _PROPERTY_PROVIDERNAME);
 
                     if (pos != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND)
                     {
-                        instances[j].getProperty(pos).getValue().get(_moduleName);
-                        instances[j].getProperty(pos2).getValue().get(_providerName);
+                        instances[j].getProperty(pos).getValue()
+                            .get(_moduleName);
+                        instances[j].getProperty(pos2).getValue()
+                            .get(_providerName);
 
-                        if (String::equalNoCase(deletedModuleName, _moduleName) &&
-                            String::equalNoCase(deletedProviderName, _providerName))
+                        if (String::equalNoCase(deletedModuleName, _moduleName)
+                            &&
+                            String::equalNoCase(deletedProviderName,
+                                                _providerName))
                         {
                             //
                             //  Remove old entry
@@ -3339,11 +3474,13 @@ void ProviderRegistrationManager::_deleteInstance(
         // get the key provider module name
         //
         instance.getProperty(instance.findProperty(
-            _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(deletedProviderModuleName);
+            _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(
+                deletedProviderModuleName);
         //
         // create the key by using deletedProviderModuleName and MODULE_KEY
         //
-        String _deletedModuleKey = _generateKey(deletedProviderModuleName, MODULE_KEY);
+        String _deletedModuleKey = _generateKey(deletedProviderModuleName,
+            MODULE_KEY);
 
 
         //
@@ -3380,7 +3517,8 @@ void ProviderRegistrationManager::_deleteInstance(
                 }
             }
 
-            if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
+            if (String::equalNoCase(deletedProviderModuleName,
+                    _providerModuleName))
             {
                 //
                 // if provider module name of instance of PG_Provider is
@@ -3430,7 +3568,8 @@ void ProviderRegistrationManager::_deleteInstance(
                 }
             }
 
-            if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
+            if (String::equalNoCase(deletedProviderModuleName,
+                                    _providerModuleName))
             {
                 //
                 // get provider types
@@ -3502,11 +3641,14 @@ void ProviderRegistrationManager::_deleteInstance(
                 {
                     String _providerModuleName;
 
-                    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+                    Uint32 pos = instances[j].findProperty(
+                                                _PROPERTY_PROVIDERMODULENAME);
                     if ( pos != PEG_NOT_FOUND )
                     {
-                        instances[j].getProperty(pos).getValue().get(_providerModuleName);
-                        if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
+                        instances[j].getProperty(pos).getValue().get(
+                                                        _providerModuleName);
+                        if (String::equalNoCase(deletedProviderModuleName,
+                                _providerModuleName))
                         {
                             instances.remove(j);
                             j = j - 1;
@@ -3540,7 +3682,7 @@ void ProviderRegistrationManager::_addInstancesToTable(
     Array<CIMInstance> & instances)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::_addInstancesToTable");
+        "ProviderRegistrationManager::_addInstancesToTable");
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
 
     ProviderRegistrationTable* elementInfo = 0;
@@ -3550,9 +3692,11 @@ void ProviderRegistrationManager::_addInstancesToTable(
     //
     for (Uint32 i = 0; i < instances.size (); i++)
     {
-        CIMClass theClass = _repository->getClass
-            (PEGASUS_NAMESPACENAME_INTEROP, instances [i].getClassName (),
-             false, true, false, CIMPropertyList ());
+        CIMClass theClass = _repository->getClass (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            instances [i].getClassName (),
+            false, true, false, CIMPropertyList ());
+
         instances [i].setPath (instances [i].buildPath (theClass));
     }
 
@@ -3570,18 +3714,17 @@ void ProviderRegistrationManager::_addInstancesToTable(
     if (!_registrationTable->table.insert(key,elementInfo))
     {
         PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                      "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
+            "Exception:: Attempt to add duplicate entry"
+            " to provider reistration hash table.");
         //ATTN-YZ-P3-20020301:Is this proper exception
         PEG_METHOD_EXIT();
 
-        // l10n
-
-        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Can not insert element to the table ");
-
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT",
-                "A provider is already registered for the specified capability."));
+                "Server.ProviderRegistrationManager."
+                "ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT",
+                "A provider is already registered for the specified"
+                " capability."));
     }
     PEG_METHOD_EXIT();
 }
@@ -3591,7 +3734,7 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
     const Array<CIMInstance> & instances)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-                     "ProviderRegistrationManager::_addInitialInstancesToTable");
+        "ProviderRegistrationManager::_addInitialInstancesToTable");
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
 
     ProviderRegistrationTable* elementInfo = 0;
@@ -3615,17 +3758,14 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
     if (!_registrationTable->table.insert(key,elementInfo))
     {
         PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                      "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
-
-
-        // l10n
-
-        // Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-        //        "The CIM Repository in namespace root/PG_InterOp has been corrupted.");
+            "Exception:: Attempt to add duplicate entry to"
+            " provider reistration hash table.");
 
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                      "Server.ProviderRegistrationManager.ProviderRegistrationManager.REPOSITORY_CORRUPTED",
-                      "The CIM Repository in namespace root/PG_InterOp has been corrupted.");
+            "Server.ProviderRegistrationManager."
+            "ProviderRegistrationManager.REPOSITORY_CORRUPTED",
+            "The CIM Repository in namespace root/PG_InterOp"
+            " has been corrupted.");
     }
     PEG_METHOD_EXIT();
 }
@@ -3805,11 +3945,13 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
     Array<CIMNamespaceName> _namespaceNames;
 
     if (supportWildCardNamespaceNames)
-        WildCardNamespaceNames::remap(_repository,_namespaces,_namespaceNames);
-    else  for (Uint32 i=0; i < _namespaces.size(); i++)
-    {
-        _namespaceNames.append (CIMNamespaceName (_namespaces [i]));
-    }
+        WildCardNamespaceNames::remap(_repository,_namespaces,
+                                      _namespaceNames);
+    else
+        for (Uint32 i=0; i < _namespaces.size(); i++)
+        {
+            _namespaceNames.append (CIMNamespaceName (_namespaces [i]));
+        }
 
     //
     // get classname
@@ -3844,7 +3986,8 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
         CIMNotifyProviderRegistrationRequestMessage * notify_req =
             new CIMNotifyProviderRegistrationRequestMessage(
                 XmlWriter::getNextMessageId (),
-                CIMNotifyProviderRegistrationRequestMessage::Operation(OP_DELETE),
+                CIMNotifyProviderRegistrationRequestMessage::Operation(
+                    OP_DELETE),
                 _className,
                 Array<CIMNamespaceName>(),
                 _namespaceNames,
@@ -3852,7 +3995,8 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
                 _oldPropertyNames,
                 QueueIdStack(_service->getQueueId()));
 
-                notify_req->operationContext.insert(ProviderIdContainer(_moduleInstance,_providerInstance));
+                notify_req->operationContext.insert(
+                    ProviderIdContainer(_moduleInstance,_providerInstance));
         _sendMessageToSubscription(notify_req);
     }
 }
@@ -3918,7 +4062,7 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
     // registration table
     //
     _getInstances(_providerName, _providerModule,
-                  _providerInstance, _moduleInstance);
+        _providerInstance, _moduleInstance);
 
     CIMPropertyList _newPropertyNames;
     CIMPropertyList _oldPropertyNames;
@@ -3945,7 +4089,8 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
         CIMNotifyProviderRegistrationRequestMessage * notify_req =
             new CIMNotifyProviderRegistrationRequestMessage(
                 XmlWriter::getNextMessageId (),
-                CIMNotifyProviderRegistrationRequestMessage::Operation(OP_MODIFY),
+                CIMNotifyProviderRegistrationRequestMessage::Operation(
+                    OP_MODIFY),
                 _className,
                 _newNamespaceNames,
                 _oldNamespaceNames,
@@ -3953,7 +4098,8 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
                 _oldPropertyNames,
                 QueueIdStack(_service->getQueueId()));
 
-                notify_req->operationContext.insert(ProviderIdContainer(_moduleInstance,_providerInstance));
+                notify_req->operationContext.insert(
+                    ProviderIdContainer(_moduleInstance,_providerInstance));
 
         _sendMessageToSubscription(notify_req);
     }
@@ -3962,7 +4108,8 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
 // get indication service
 MessageQueueService * ProviderRegistrationManager::_getIndicationService()
 {
-    MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE);
+    MessageQueue * queue = MessageQueue::lookup(
+            PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
     MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
 
@@ -4013,17 +4160,17 @@ void ProviderRegistrationManager::_setStatus(
     const Array<Uint16> & status,
     CIMInstance & instance)
 {
-    _repository->setProperty(
+    _repository->setProperty (
         PEGASUS_NAMESPACENAME_INTEROP,
         instance.getPath(),
         _PROPERTY_OPERATIONALSTATUS,
         status);
 
-    Uint32 pos = instance.findProperty(_PROPERTY_OPERATIONALSTATUS);
+    Uint32 pos = instance.findProperty (_PROPERTY_OPERATIONALSTATUS);
 
     if (pos == PEG_NOT_FOUND)
     {
-        instance.addProperty(CIMProperty(_PROPERTY_OPERATIONALSTATUS, status));
+        instance.addProperty (CIMProperty (_PROPERTY_OPERATIONALSTATUS, status));
     }
     else
     {
@@ -4141,7 +4288,8 @@ String WildCardNamespaceNames::add(String ns)
         return ns;
 }
 
-const CIMNamespaceName & WildCardNamespaceNames::check(const CIMNamespaceName & ns)
+const CIMNamespaceName & WildCardNamespaceNames::check(
+                                            const CIMNamespaceName & ns)
 {
         if (!supportWildCardNamespaceNames) return ns;
 

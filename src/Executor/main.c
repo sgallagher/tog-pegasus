@@ -298,19 +298,6 @@ void DefineExecutorMacros()
     if (DefineConfigPathMacro("crlStore", "crl") != 0)
         Fatal(FL, "missing \"crlStore\" configuration parameter.");
 
-    /* Define ${policyConfigFilePath} */
-    {
-        char path[EXECUTOR_BUFFER_SIZE];
-
-        if (GetHomedPath(PEGASUS_POLICY_CONFIG_FILE_PATH, path) != 0)
-        {
-            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
-                PEGASUS_POLICY_CONFIG_FILE_PATH);
-        }
-
-        DefineMacro("policyConfigFilePath", path);
-    }
-
     /* Define ${privilegedUser} */
 
     DefineMacro("privilegedUser", "root");

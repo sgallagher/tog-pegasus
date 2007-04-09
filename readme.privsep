@@ -9,8 +9,9 @@ executor for functions that require root privilege.
 
 The privilege separation functionality is documented in PEP 286.
 
-cimserver is the executor program (see src/Executor)
-cimservermain is the server program (see src/Server and src/Pegasus/ExecutorClient)
+cimserver is the executor program (see src/Executor).
+cimservermain is the server program (see src/Server and
+src/Pegasus/Common/Executor.h).
 
 Privilege separation is build-time optional functionality. To enable privilege
 separation, define the following environment variable before compiling.
@@ -33,9 +34,6 @@ This user name is defined as follows:
 3. default of "pegasus" if the the config parameter is not found in the
    commandline or planned config file.
 
-The defined user MUST exist or cimserver will terminate immediatly.
+The defined user MUST exist or cimserver will terminate immediately.
 
-12/30/2006
-
-
-
+4/9/2007

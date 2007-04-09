@@ -30,7 +30,7 @@
 #//=============================================================================
 
 ROOT = ../..
-DIR = Server
+DIR = Shutdown
 include $(ROOT)/mak/config.mak
 
 PROGRAM = cimshutdown

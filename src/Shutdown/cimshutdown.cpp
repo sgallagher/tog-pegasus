@@ -223,7 +223,6 @@ static void _waitForTerminationOrTimeout(Uint32 timeout)
 
         sleep(1);
     }
-    while (0);
 
     if (running)
     {

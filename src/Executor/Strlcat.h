@@ -46,7 +46,7 @@
 **     strlcat - consistent, safe, string copy and concatenation".
 **
 **     Note that this implementation favors readability over efficiency. More
-**     efficient implemetations are possible but would be to complicated
+**     efficient implementations are possible but would be too complicated
 **     to verify in a security audit.
 **
 **==============================================================================

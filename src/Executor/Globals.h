@@ -60,7 +60,7 @@ struct Globals
     /* UID of child process (CIMSERVERMAIN). */
     int childUid;
 
-    /* UID of child process (CIMSERVERMAIN). */
+    /* GID of child process (CIMSERVERMAIN). */
     int childGid;
 
     /* Mask of signals encountered by executor process. */

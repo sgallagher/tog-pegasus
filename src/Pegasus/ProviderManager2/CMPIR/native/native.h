@@ -248,9 +248,9 @@ CMPI_EXPORT CMPIArray * native_new_CMPIArray ( CMPICount size,
                    CMPIStatus * );
 CMPI_EXPORT void native_array_increase_size ( CMPIArray *, CMPICount );
 CMPI_EXPORT CMPIInstance * native_new_CMPIInstance ( CONST CMPIObjectPath *, CMPIStatus * );
-CMPI_EXPORT CMPIResult * PEGASUS_CMPIR_CDECL native_new_CMPIResult ( CMPIStatus * );
-CMPI_EXPORT CMPIArray * PEGASUS_CMPIR_CDECL native_result2array ( CMPIResult * );
-CMPI_EXPORT CMPIEnumeration * PEGASUS_CMPIR_CDECL native_new_CMPIEnumeration ( CMPIArray *, CMPIStatus * );
+CMPI_EXPORT CMPIResult *  native_new_CMPIResult ( CMPIStatus * );
+CMPI_EXPORT CMPIArray *  native_result2array ( CMPIResult * );
+CMPI_EXPORT CMPIEnumeration *  native_new_CMPIEnumeration ( CMPIArray *, CMPIStatus * );
 CMPI_EXPORT CMPIObjectPath * native_new_CMPIObjectPath ( const char *,
                          const char *,
                          CMPIStatus * );
@@ -263,23 +263,24 @@ CMPI_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char *,
                            CMPIStatus * );
 CMPI_EXPORT CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32,
                            CMPIStatus * );
-CMPI_EXPORT CMPIContext * PEGASUS_CMPIR_CDECL native_new_CMPIContext ( int mem_state );
-CMPI_EXPORT void PEGASUS_CMPIR_CDECL native_release_CMPIContext ( CONST CMPIContext * );
-CMPI_EXPORT void PEGASUS_CMPIR_CDECL native_release_CMPISelectExp ( CONST CMPISelectExp *);
+CMPI_EXPORT CMPIContext *  native_new_CMPIContext ( int mem_state );
+CMPI_EXPORT void  native_release_CMPIContext ( CONST CMPIContext * );
+CMPI_EXPORT void  native_release_CMPISelectExp ( CONST CMPISelectExp *);
 
-#ifndef TCPCOMM_REMOTE
+#ifndef PEGASUS_TCPCOMM_REMOTE
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 CMPI_EXPORT extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 #else
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 #endif
 #endif
-/****************************************************************************/
-#ifdef TCPCOMM_REMOTE
+
+#ifdef PEGASUS_TCPCOMM_REMOTE
 CMPI_IMPORT extern CMPIBrokerEncFT  native_brokerEncFT;
 #else
 CMPI_EXPORT extern CMPIBrokerEncFT  native_brokerEncFT;
 #endif
+
 extern struct native_propertyFT propertyFT;
 
 #endif

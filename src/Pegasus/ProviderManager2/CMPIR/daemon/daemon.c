@@ -69,8 +69,6 @@
 #include <signal.h>
 #endif
 
-#define DAEMON
-
 #include "mm.h"
 #include "../remote.h"
 #include "../native/native.h"
@@ -97,6 +95,7 @@ static comm_lib __libs[] = {
 
 int nativeSide=1;
 
+CMPI_IMPORT extern const struct BinarySerializerFT *binarySerializerFTptr;
 
 struct BinarySerializerFT *__sft = NULL;
 
@@ -179,7 +178,7 @@ int main (int argc, char *argv[])
     CMPIContext * ctx;
     int socket;
 
-     __sft = &binarySerializerFT;
+     __sft = binarySerializerFTptr;
 
     if (argc > 2)
     {

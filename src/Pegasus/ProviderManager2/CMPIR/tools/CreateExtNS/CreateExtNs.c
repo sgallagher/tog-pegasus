@@ -69,8 +69,8 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #define RCMPI_MKDIR(dir) mkdir(dir)
 #else
-#include <sys/stat.h>  
-#include <unistd.h>  
+#include <sys/stat.h>
+#include <unistd.h>
 #define RCMPI_MKDIR(dir) mkdir(dir,0775)
 #endif
 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 
     if (0 == (pegasushome = getenv("PEGASUS_HOME")))
     {
-        printf("PEGASUS_HOME environment varialble not set.");
+        printf("PEGASUS_HOME environment varialble not set. ");
         return -1;
     }
 
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     {
         printf(
                "Usage: CreateExtNs -n <namespace-name> [ -p <parent-namespace>"
-               " -l <remote-location> ]\n");
+               " -l <remote-location> ] \n");
         return 0;
     }
 
@@ -156,8 +156,8 @@ int main(int argc, char* argv[])
     }
     if (0 == access(rdir,0))
     {
-	printf("%s : Namespace already exisists\n",rdir);
-        return 0; 
+    printf("%s : Namespace already exisists\n",rdir);
+        return 0;
     }
 
     rdir[rlen] = '\0'; // get back repository directory with pathseparator
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
     }
     if (0 != RCMPI_MKDIR(rdir))
     {
-	 printf("Create Namespace\n");
+     printf("Create Namespace\n");
          perror(rdir);
          return -1;
     }
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
     strcat(rdir,"classes");
     if (0 != RCMPI_MKDIR(rdir))
     {
-	printf("Create classes\n");
+    printf("Create classes\n");
         perror(rdir);
         return -1;
     }
@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
     strcat(rdir,"qualifiers");
     if (0 != RCMPI_MKDIR(rdir))
     {
-	printf("Create qualifiers\n");
+    printf("Create qualifiers\n");
         perror(rdir);
         return -1;
     }
@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
     strcat(rdir,"instances");
     if (0 != RCMPI_MKDIR(rdir))
     {
-	printf("Create instances\n");
+    printf("Create instances\n");
         perror(rdir);
         return -1;
     }
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
         }
         if (0 != RCMPI_MKDIR(rdir))
         {
-	    printf("Create SRS parent Namespace\n");
+        printf("Create SRS parent Namespace\n");
             perror(rdir);
             return -1;
         }
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
         strcat(rdir,remotelocation);
         if (0 != RCMPI_MKDIR(rdir))
         {
-	    printf("Create remote location\n");
+        printf("Create remote location\n");
             perror(rdir);
             return -1;
         }

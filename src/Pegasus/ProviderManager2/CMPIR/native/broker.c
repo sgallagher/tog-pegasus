@@ -42,6 +42,7 @@
   \author Frank Scheffler
 */
 
+#include "cmpir_common.h"
 #include "tool.h"
 #include "native.h"
 #include "debug.h"
@@ -169,7 +170,7 @@ static CMPIBoolean __beft_classPathIsA ( CONST CMPIBroker * broker,
      clsn=CMGetClassName(cop,NULL);
 
      if (clsn && clsn->hdl) {
-        if (strcasecmp(type,(char*)clsn->hdl)==0) return 1;
+        if (PEGASUS_CMPIR_STRCASECMP (type,(char*)clsn->hdl)==0) return 1;
      }
      else return 0;
 

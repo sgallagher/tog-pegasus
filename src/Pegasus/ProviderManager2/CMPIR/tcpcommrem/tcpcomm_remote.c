@@ -43,7 +43,7 @@
   \sa socketcomm.h
 */
 
-#define TCPCOMM_REMOTE 1
+#define PEGASUS_TCPCOMM_REMOTE 1
 
 #include "cmpir_common.h"
 

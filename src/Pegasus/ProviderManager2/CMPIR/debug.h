@@ -140,7 +140,7 @@ static int __trace_level ( int level )
     if ( l == NULL ) return 0;
 
     while ( i-- )
-        if ( strcasecmp ( l, __debug_levels[i] ) == 0 )
+        if ( PEGASUS_CMPIR_STRCASECMP ( l, __debug_levels[i] ) == 0 )
             return ( level <= i );
 
     return 0;

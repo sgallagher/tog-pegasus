@@ -60,6 +60,7 @@
 #define PEGASUS_CMPIR_SLEEP(duration) sleep(duration)
 #define PEGASUS_CMPIR_SOCKET(family,stream,protocol) socket(family,stream,protocol)
 #define PEGASUS_CMPIR_STDCALL
+#define PEGASUS_CMPIR_STRCASECMP(a,b) strcasecmp(a,b)
 #define PEGASUS_CMPIR_VSPRINTF(a,b,c,d) vsnprintf(a,b,c,d)
 #define PEGASUS_CMPIR_WSAGETLASTERROR errno
 #endif
@@ -93,9 +94,10 @@
 #define PEGASUS_CMPIR_SLEEP(duration) Sleep(duration)
 #define PEGASUS_CMPIR_SOCKET(family,stream,protocol) socket(family,stream,protocol)
 #define PEGASUS_CMPIR_STDCALL __stdcall
+#define PEGASUS_CMPIR_STRCASECMP(a,b) _stricmp(a,b)
 #define PEGASUS_CMPIR_VSPRINTF(a, b, c,d)  vsprintf(a,c,d)
 #define PEGASUS_CMPIR_WSAGETLASTERROR WSAGetLastError()
-#define strcasecmp _stricmp
+
 
 typedef unsigned char Uint8;
 typedef unsigned int  Uint32;

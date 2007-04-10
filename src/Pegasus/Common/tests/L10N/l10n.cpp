@@ -46,12 +46,9 @@
 #include <Pegasus/Common/InternalException.h>
 
 PEGASUS_USING_PEGASUS;
-
 PEGASUS_USING_STD;
 
-
-
-void drive_LanguageParser()
+void testLanguageParser()
 {
     // Test the LanguageTag parser
     {
@@ -140,7 +137,7 @@ void drive_LanguageParser()
 }
 
 
-void drive_LanguageTag()
+void testLanguageTag()
 {
     try
     {
@@ -542,7 +539,7 @@ void drive_LanguageTag()
 }
 
 
-void drive_AcceptLanguageList()
+void testAcceptLanguageList()
 {
     try
     {
@@ -909,7 +906,7 @@ void drive_AcceptLanguageList()
 }
 
 
-void drive_ContentLanguageList()
+void testContentLanguageList()
 {
     try
     {
@@ -1034,184 +1031,151 @@ void drive_ContentLanguageList()
     }
 }
 
-
-void callMessageLoader(MessageLoaderParms mlp_arr[], int size)
+void testMessageLoader()
 {
-    String msg;
-
-    for(int i = 0; i < size; i++)
-    {
-         msg = MessageLoader::getMessage(mlp_arr[i]);
-    }
-}
-
-
-void drive_MessageLoader()
-{
-    String msg;
-    int mlp_arr_size = 4;
-
-    MessageLoaderParms mlp("CIMStatusCode.CIM_ERR_SUCCESS",
-                           "Default CIMStatusCode, $0 $1",
-                           "rab oof is foo bar backwards",64000);
+    MessageLoaderParms mlp(
+        "CIMStatusCode.CIM_ERR_SUCCESS",
+        "Default CIMStatusCode, $0 $1",
+        "rab oof is foo bar backwards",
+        64000);
 
     mlp.msg_src_path = "test/pegasusTest";
-
-
-
-    AcceptLanguageList al = LanguageParser::parseAcceptLanguageHeader("en-US");
-
-    mlp.acceptlanguages = al;
+    mlp.acceptlanguages = LanguageParser::parseAcceptLanguageHeader("en-US");
 
 #ifdef PEGASUS_HAS_ICU
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) ==
-                   "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar"
-                   " backwards, number = 64,000" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = 64,000");
 
     // test for return content languages
 
-    PEGASUS_TEST_ASSERT ( LanguageParser::buildContentLanguageHeader(
-        mlp.contentlanguages) == "en-US" );
+    PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(
+        mlp.contentlanguages) == "en-US");
 
 #else
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) ==
-                           "Default CIMStatusCode, rab oof"
-                           " is foo bar backwards 64000" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards 64000");
 
 #endif
 
-
-
-
-
+    //
     // should load en-US resource because of single element fallback logic
+    //
 
     mlp.acceptlanguages.clear();
-
     mlp.acceptlanguages.insert(LanguageTag("en-US-mn"), 1.0);
 
 #ifdef PEGASUS_HAS_ICU
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == 
-                          "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar"
-                          " backwards, number = 64,000" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = 64,000");
 
 #else
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == 
-                          "Default CIMStatusCode, rab oof is foo bar"
-                          " backwards 64000" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards 64000");
 
 #endif
 
-
-
+    //
     // testing first element fallback after acceptlanguages has been exhausted
+    //
 
     MessageLoaderParms mlp1("CIMStatusCode.CIM_ERR_SUCCESS",
                             "Default CIMStatusCode, $0 $1",
                             "rab oof is foo bar backwards","fr");
 
     mlp1.msg_src_path = "test/pegasusTest";
-
     mlp1.acceptlanguages.clear();
-
     mlp1.acceptlanguages.insert(LanguageTag("fr-FR"), 1.0);
-
     mlp1.acceptlanguages.insert(LanguageTag("bl-ow"), 1.0);
 
 #ifdef PEGASUS_HAS_ICU
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) == 
-                          "CIM_ERR_SUCCESS: SUCCESSFUL fr rab oof is foo bar"
-                          " backwards, number = fr" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL fr rab oof is foo bar backwards, "
+            "number = fr");
 
 #else
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == 
-                          "Default CIMStatusCode, rab oof is foo"
-                          " bar backwards 64000" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards 64000");
 
 #endif
 
-
-
+    //
     // use gobal default message switch for messageloading
+    //
 
     MessageLoader::_useDefaultMsg = true;
 
     mlp.acceptlanguages.clear();
-
     mlp.acceptlanguages.insert(LanguageTag("en-US"), 1.0);
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == 
-                          "Default CIMStatusCode, rab oof is foo bar"
-                          " backwards 64000" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards 64000");
 
-
-
+    //
     // set static AcceptLanguageList in message loader
+    //
 
     MessageLoader::_useDefaultMsg = false;
-
     MessageLoader::_acceptlanguages.insert(LanguageTag("st-at-ic"), 1.0);
+
     MessageLoaderParms mlp_static(
         "CIMStatusCode.CIM_ERR_SUCCESS","Default CIMStatusCode, $0",
         "rab oof is foo bar backwards static");
     mlp_static.msg_src_path = "test/pegasusTest";
 
 #ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp_static) == 
-                          "CIM_ERR_SUCCESS: SUCCESSFUL st_at_ic rab oof is"
-                          " foo bar backwards static" );
+
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp_static) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL st_at_ic rab oof is foo bar backwards "
+            "static");
 
 #else
 
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp_static) == 
-                          "Default CIMStatusCode, rab oof is foo bar"
-                          " backwards static" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp_static) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards static");
 
 #endif
-
-
-
 }
 
 //
 // Tests the substitutions into the message
 //
-void drive_MessageLoaderSubs()
+void testMessageLoaderSubs()
 {
-    String msg;
-    AcceptLanguageList al = LanguageParser::parseAcceptLanguageHeader("en-US");
-
     MessageLoader::_acceptlanguages.clear();
 
     //
     // Test Uint64 support.  ICU does not support Uint64, so there
     // is special handling for it in MessageLoader.
+    //
 
     //
     // Uint64 Substitution is the biggest positive to fit in int64_t.
     // This does not test the special code in MessageLoader.
     //
     MessageLoaderParms mlp1(
-            "CIMStatusCode.CIM_ERR_SUCCESS","Default CIMStatusCode, $0 $1",
-            String("rab oof is foo bar backwards"),
-            PEGASUS_UINT64_LITERAL(0x7fffffffffffffff));
+        "CIMStatusCode.CIM_ERR_SUCCESS",
+        "Default CIMStatusCode, $0 $1",
+        String("rab oof is foo bar backwards"),
+        PEGASUS_UINT64_LITERAL(0x7fffffffffffffff));
     mlp1.msg_src_path = "test/pegasusTest";
-    mlp1.acceptlanguages = al;
+    mlp1.acceptlanguages = LanguageParser::parseAcceptLanguageHeader("en-US");
 
 #ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar"
-        " backwards, number = 9,223,372,036,854,775,807");
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = 9,223,372,036,854,775,807");
 #else
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-         "Default CIMStatusCode, rab oof is foo bar backwards"
-         " 9223372036854775807" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards "
+            "9223372036854775807");
 #endif
 
     //
@@ -1220,112 +1184,110 @@ void drive_MessageLoaderSubs()
     // code for this.  Expect the number to be unformatted.
     //
     mlp1.arg1 = PEGASUS_UINT64_LITERAL(0x8000000000000000);
+
 #ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards,"
-        " number = 9223372036854775808");
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = 9223372036854775808");
 #else
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-         "Default CIMStatusCode, rab oof is foo bar backwards"
-         " 9223372036854775808" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards "
+            "9223372036854775808");
 #endif
 
     //
     // Sint64 substitution - biggest negative.
     //
     mlp1.arg1 = PEGASUS_SINT64_LITERAL(0x8000000000000000);
-#ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards,"
-        " number = -9,223,372,036,854,775,808");
-#else
-    /* ====> Commenting this out until Formatter.cpp is fixed for
-       ULInteger (it truncates the value)
-       The main purpose of these tests is ICU substitution.
 
-       PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-          "Default CIMStatusCode, rab oof is foo bar"
-          " backwards -9223372036854775808" );
-    */
+#ifdef PEGASUS_HAS_ICU
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = -9,223,372,036,854,775,808");
+#else
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards "
+            "-9223372036854775808" );
 #endif
 
     //
     // Uint32 substitution - biggest possible
     //
     mlp1.arg1 = (Uint32)(0xffffffff);
+
 #ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards,"
-        " number = 4,294,967,295");
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = 4,294,967,295");
 #else
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-         "Default CIMStatusCode, rab oof is foo bar backwards 4294967295" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards 4294967295");
 #endif
 
     //
     // Sint32 substitution - biggest negative
     //
     mlp1.arg1 = (Sint32)(0x80000000);
+
 #ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards,"
-        " number = -2,147,483,648");
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = -2,147,483,648");
 #else
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-         "Default CIMStatusCode, rab oof is foo bar backwards -2147483648" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards -2147483648");
 #endif
 
     //
     // Real64 substitution
     //
     mlp1.arg1 = (Real64)-64000.125;
+
 #ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards,"
-        " number = -64,000.125");
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = -64,000.125");
 #else
-    /* Commenting out due to platform differences
-       The main purpose of this tests is ICU substitution.
-    cout << MessageLoader::getMessage(mlp1) << endl;
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-         "Default CIMStatusCode, rab oof is foo bar backwards -64000.125" );
-    */
+    // Commenting out due to platform differences
+    // The main purpose of this tests is ICU substitution.
+    // cout << MessageLoader::getMessage(mlp1) << endl;
+    // PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+    //     "Default CIMStatusCode, rab oof is foo bar backwards -64000.125");
 #endif
 
     //
     // Boolean substitution = true
     //
     mlp1.arg1 = true;
+
 #ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards,"
-        " number = true");
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = true");
 #else
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-         "Default CIMStatusCode, rab oof is foo bar backwards true" );
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards true");
 #endif
 
     //
     // Boolean substitution = false
     //
     mlp1.arg1 = false;
-#ifdef PEGASUS_HAS_ICU
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards,"
-        " number = false");
-#else
-    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
-         "Default CIMStatusCode, rab oof is foo bar backwards false" );
-#endif
 
+#ifdef PEGASUS_HAS_ICU
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
+            "number = false");
+#else
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
+        "Default CIMStatusCode, rab oof is foo bar backwards false");
+#endif
 }
 
-
-
-int main( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
-
 #ifdef PEGASUS_HAS_ICU
+
     // If PEGASUS_MSG_HOME is set then use that as the message
     // home for this test.
     // This will ignore any msg home defined for the platform (Constants.h)
@@ -1333,59 +1295,42 @@ int main( int argc, char *argv[] )
     const char* env = getenv("PEGASUS_MSG_HOME");
     if (env != NULL)
     {
-      MessageLoader::setPegasusMsgHome(env);
+        MessageLoader::setPegasusMsgHome(env);
     }
     else
     {
-      // PEGASUS_MSG_HOME is not set.  Since we need the test messages,
-      // use PEGASUS_HOME as the message home.
-      env = getenv("PEGASUS_HOME");
-      if (env != NULL)
-      {
-        String msghome(env);
-        msghome.append("/msg");
-        MessageLoader::setPegasusMsgHome(msghome);
-      }
-      else
-      {
-        PEGASUS_STD(cout) << "Either PEGASUS_MSG_HOME or PEGASUS_HOME"
-                             " needs to set for this test!"
-                          << PEGASUS_STD(endl);
-        exit(-1);
-
-      }
+        // PEGASUS_MSG_HOME is not set.  Since we need the test messages,
+        // use PEGASUS_HOME as the message home.
+        env = getenv("PEGASUS_HOME");
+        if (env != NULL)
+        {
+            String msghome(env);
+            msghome.append("/msg");
+            MessageLoader::setPegasusMsgHome(msghome);
+        }
+        else
+        {
+            PEGASUS_STD(cout) << "Either PEGASUS_MSG_HOME or PEGASUS_HOME "
+                "needs to be set for this test!" << PEGASUS_STD(endl);
+            exit(-1);
+        }
     }
-
 
     // If PEGASUS_USE_DEFAULT_MESSAGES env var is set then we need
     // to make sure that it doesn't break this test.
     // Reset _useDefaultMsg to make sure PEGASUS_USE_DEFAULT_MESSAGES
     // is ignored.
     MessageLoader::_useDefaultMsg = false;
+
 #endif
 
+    testLanguageParser();
+    testLanguageTag();
+    testAcceptLanguageList();
+    testContentLanguageList();
+    testMessageLoader();
+    testMessageLoaderSubs();
 
-    //BEGIN TESTS....
-
-
-
-    drive_LanguageParser();
-
-    drive_LanguageTag();
-
-    drive_AcceptLanguageList();
-
-    drive_ContentLanguageList();
-
-    drive_MessageLoader();
-
-    drive_MessageLoaderSubs();
-
-
-    //END TESTS....
-
-        cout << argv[0] << " +++++ passed all tests" << endl;
-
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
-
 }

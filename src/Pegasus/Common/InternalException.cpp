@@ -142,9 +142,6 @@ const char StackUnderflow::KEY[] = "Common.InternalException.STACK_UNDERFLOW";
 const char StackOverflow::MSG[] = "stack overflow";
 const char StackOverflow::KEY[] = "Common.InternalException.STACK_OVERFLOW";
 
-const char BadFormat::MSG[] = "bad format passed to Formatter::format()";
-const char BadFormat::KEY[] = "Common.InternalException.BAD_FORMAT";
-
 const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
 const char BadlyFormedCGIQueryString::KEY[] =
     "Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING";
@@ -778,27 +775,14 @@ StackOverflow::~StackOverflow()
 
 //==============================================================================
 //
-// BadFormat
-//
-//==============================================================================
-
-BadFormat::BadFormat()
-    : Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
-{
-}
-
-BadFormat::~BadFormat()
-{
-}
-
-//==============================================================================
-//
 // BadlyFormedCGIQueryString
 //
 //==============================================================================
 
 BadlyFormedCGIQueryString::BadlyFormedCGIQueryString()
-    : Exception(MessageLoaderParms(BadFormat::KEY, BadFormat::MSG))
+    : Exception(MessageLoaderParms(
+          BadlyFormedCGIQueryString::KEY,
+          BadlyFormedCGIQueryString::MSG))
 {
 }
 

@@ -40,7 +40,6 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Formatter.h>
 #include <Pegasus/Server/reg_table.h>
 
 #include <Pegasus/Server/QuerySupportRouter.h>
@@ -184,7 +183,7 @@ Uint32 OperationAggregate::getRequestType() const
 
 void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 {
-    static const String func = "OperationAggregate::resequenceResponse: ";
+    static const char* func = "OperationAggregate::resequenceResponse";
     CIMStatusCode error = response.cimException.getCode();
     bool notSupportedReceived = false;
     if (error != CIM_ERR_SUCCESS)
@@ -197,8 +196,9 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         _totalReceivedErrors++;
         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
             Logger::TRACE,
-            String(func + "Response has error. "
-                "Namespace: $0  Class name: $1 Response Sequence: $2"),
+            "$0: Response has error.  Namespace: $1, Class name: $2, "
+                "Response Sequence: $3",
+            func,
             _nameSpace.getString(),
             _className.getString(),
             _totalReceived));
@@ -232,24 +232,23 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
     {
         if (_totalReceivedExpected == _totalReceived)
         {
-            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                Formatter::format(
-                    func + "message is complete. "
-                        "total responses: $0, "
-                        "total chunks: $1, "
-                        "total errors: $2",
-                    _totalReceivedComplete,
-                    _totalReceived,
-                    _totalReceivedErrors));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "%s: Message is complete.  Total responses: %u, "
+                    "total chunks: %u, total errors: %u",
+                func,
+                _totalReceivedComplete,
+                _totalReceived,
+                _totalReceivedErrors));
         }
         else
         {
             PEG_LOGGER_TRACE((
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                func + "All completed responses ($0) for current request "
-                    "have been accounted for but expected count ($1) does "
-                    "not match the received count ($2). error count ($3).  "
+                "$0: All completed responses ($1) for current request "
+                    "have been accounted for but expected count ($2) does "
+                    "not match the received count ($3). error count ($4).  "
                     "Attempting to continue ...",
+                func,
                 _totalReceivedComplete,
                 _totalReceivedExpected,
                 _totalReceived,
@@ -1893,9 +1892,9 @@ Array<ProviderInfo>
     //        classNames[i].getString());
     //}
 
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        Formatter::format(" Association Lookup $0 classes found",
-            classNames.size()));
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "Association Lookup: %u classes found",
+        classNames.size()));
 
     // ATTN: KS P2 20030420  What should we do with remote associations if
     // there are any
@@ -3697,15 +3696,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             request->className.getString(),
             _maximumEnumerateBreadth, providerCount));
 
-        PEG_TRACE_STRING(
-            TRC_DISPATCHER,
-            Tracer::LEVEL4,
-            Formatter::format(
-                "ERROR Enumerate too broad for class $0. Limit = $1, "
-                    "Request = $2",
-                request->className.getString(),
-                _maximumEnumerateBreadth,
-                providerCount));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
+            "ERROR: Enumerate operation too broad for class %s.  "
+                "Limit = %u, providerCount = %u",
+            (const char*)request->className.getString().getCString(),
+            _maximumEnumerateBreadth,
+            providerCount));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
@@ -3770,16 +3766,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             if (providerInfo.hasProvider)
                 continue;
 
-            PEG_TRACE_STRING(
-                TRC_DISPATCHER,
-                Tracer::LEVEL4,
-                Formatter::format(
-                    "EnumerateInstances Req. class $0 to repository, "
-                        "No $1 of $2, SN $3",
-                    providerInfo.className.getString(),
-                    i,
-                    numClasses,
-                    poA->_aggregationSN));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Routing EnumerateInstances request for class %s to the "
+                    "repository.  Class # %u of %u, aggregation SN %u.",
+                (const char*)providerInfo.className.getString().getCString(),
+                i + 1,
+                numClasses,
+                poA->_aggregationSN));
 
             AutoPtr<CIMEnumerateInstancesResponseMessage> response(
                 dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
@@ -3858,16 +3851,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         if (! providerInfo.hasProvider)
             continue;
 
-        PEG_TRACE_STRING(
-            TRC_DISPATCHER,
-            Tracer::LEVEL4,
-            Formatter::format(
-                "EnumerateInstances Req. class $0 to svc \"$1\" for control "
-                    "provider \"$2\", No $3 of $4, SN $5",
-                providerInfo.className.getString(),
-                providerInfo.serviceName,
-                providerInfo.controlProviderName,
-                i, numClasses, poA->_aggregationSN));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "Routing EnumerateInstances request for class %s to "
+                "service \"%s\" for control provider \"%s\".  "
+                "Class # %u of %u, aggregation SN %u.",
+            (const char*)providerInfo.className.getString().getCString(),
+            (const char*)providerInfo.serviceName.getCString(),
+            (const char*)providerInfo.controlProviderName.getCString(),
+            i + 1,
+            numClasses,
+            poA->_aggregationSN));
 
         CIMEnumerateInstancesRequestMessage* requestCopy =
             new CIMEnumerateInstancesRequestMessage(*request);
@@ -3881,7 +3874,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             providerInfo.className,
             checkClassException);
 
-        // The following is not correct. Need better way to terminate.
+        // ATTN: The following is not correct. Need better way to terminate.
         if (checkClassException.getCode() != CIM_ERR_SUCCESS)
         {
             CIMResponseMessage* response = request->buildResponse();
@@ -3910,16 +3903,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         if (checkClassException.getCode() == CIM_ERR_SUCCESS)
         {
-            PEG_TRACE_STRING(
-                TRC_DISPATCHER,
-                Tracer::LEVEL4,
-                Formatter::format(
-                    "EnumerateInstances Req. Fwd class $0 to svc \"$1\" for "
-                        "control provider \"$2\", PropertyList= $3",
-                    providerInfo.className.getString(),
-                    providerInfo.serviceName,
-                    providerInfo.controlProviderName,
-                    _showPropertyList(requestCopy->propertyList)));
+            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                String("PropertyList = ") +
+                    _showPropertyList(requestCopy->propertyList));
 
             _forwardRequestForAggregation(
                 providerInfo.serviceName,
@@ -3930,7 +3916,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     } // for all classes and dervied classes
 
     PEG_METHOD_EXIT();
-    return;
 }
 
 /**$*******************************************************
@@ -4028,15 +4013,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             request->className.getString(),
             _maximumEnumerateBreadth, providerCount));
 
-        PEG_TRACE_STRING(
-            TRC_DISPATCHER,
-            Tracer::LEVEL4,
-            Formatter::format(
-                "ERROR Enumerate too broad for class $0. "
-                    "Limit = $1, Request = $2",
-                request->className.getString(),
-                _maximumEnumerateBreadth,
-                providerCount));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
+            "ERROR: Enumerate operation too broad for class %s.  "
+                "Limit = %u, providerCount = %u",
+            (const char*)request->className.getString().getCString(),
+            _maximumEnumerateBreadth,
+            providerCount));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
@@ -4094,14 +4076,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
             // If this class does not have a provider
 
-            PEG_TRACE_STRING(
-                TRC_DISPATCHER,
-                Tracer::LEVEL4,
-                Formatter::format(
-                    "EnumerateInstanceNames Req. class $0 to repository, "
-                    "No $1 of $2, SN $3",
-                    providerInfo.className.getString(),
-                    i, numClasses, poA->_aggregationSN));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Routing EnumerateInstanceNames request for class %s to the "
+                    "repository.  Class # %u of %u, aggregation SN %u.",
+                (const char*)providerInfo.className.getString().getCString(),
+                i + 1,
+                numClasses,
+                poA->_aggregationSN));
 
             AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
                 dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
@@ -4168,18 +4149,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         if (! providerInfo.hasProvider)
             continue;
 
-        PEG_TRACE_STRING(
-            TRC_DISPATCHER,
-            Tracer::LEVEL4,
-            Formatter::format(
-                "EnumerateInstanceNames Req. class $0 to svc \"$1\" for "
-                    "control provider \"$2\", No $3 of $4, SN $5",
-                providerInfo.className.getString(),
-                providerInfo.serviceName,
-                providerInfo.controlProviderName,
-                i,
-                numClasses,
-                poA->_aggregationSN));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "Routing EnumerateInstanceNames request for class %s to "
+                "service \"%s\" for control provider \"%s\".  "
+                "Class # %u of %u, aggregation SN %u.",
+            (const char*)providerInfo.className.getString().getCString(),
+            (const char*)providerInfo.serviceName.getCString(),
+            (const char*)providerInfo.controlProviderName.getCString(),
+            i + 1,
+            numClasses,
+            poA->_aggregationSN));
 
         CIMEnumerateInstanceNamesRequestMessage* requestCopy =
             new CIMEnumerateInstanceNamesRequestMessage(*request);

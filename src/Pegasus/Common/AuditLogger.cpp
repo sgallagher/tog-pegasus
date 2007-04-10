@@ -34,9 +34,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Formatter.h>
-#include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AuditLogger.h>
 
 #ifdef PEGASUS_OS_DARWIN

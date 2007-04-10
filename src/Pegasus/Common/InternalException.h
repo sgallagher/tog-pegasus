@@ -335,17 +335,6 @@ public:
     virtual ~StackOverflow();
 };
 
-class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
-{
-public:
-
-    static const char MSG[];
-    static const char KEY[];
-
-    BadFormat();
-    virtual ~BadFormat();
-};
-
 class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
 {
 public:

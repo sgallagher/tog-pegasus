@@ -293,13 +293,12 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             request->className.getString(),
             _maximumEnumerateBreadth, providerCount);
 
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            Formatter::format(
-                "ERROR Enumerate too broad for class $0. "
-                    "Limit = $1, Request = $2",
-                request->className.getString(),
-                _maximumEnumerateBreadth,
-                providerCount));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
+            "ERROR: Enumerate operation too broad for class %s.  "
+                "Limit = %u, providerCount = %u",
+            (const char*)request->className.getString().getCString(),
+            _maximumEnumerateBreadth,
+            providerCount));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
@@ -358,12 +357,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
             // If this class does not have a provider
 
-            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                 Formatter::format(
-                     "ExecQuery Req. class $0 to repository, "
-                         "No $1 of $2, SN $3",
-                     providerInfo.className.getString(),
-                     i, numClasses, poA->_aggregationSN));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                "Routing ExecQuery request for class %s to the "
+                    "repository.  Class # %u of %u, aggregation SN %u.",
+                (const char*)providerInfo.className.getString().getCString(),
+                i + 1,
+                numClasses,
+                poA->_aggregationSN));
 
             AutoPtr<CIMEnumerateInstancesResponseMessage> response(
                 new CIMEnumerateInstancesResponseMessage(
@@ -430,14 +430,16 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         if (!providerInfo.hasProvider)
             continue;
 
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            Formatter::format(
-                "Query Req. class $0 to svc \"$1\" for "
-                    "control provider \"$2\", No $3 of $4, SN $5",
-                providerInfo.className.getString(),
-                providerInfo.serviceName,
-                providerInfo.controlProviderName,
-                i, numClasses, poA->_aggregationSN));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "Routing ExecQuery request for class %s to "
+                "service \"%s\" for control provider \"%s\".  "
+                "Class # %u of %u, aggregation SN %u.",
+            (const char*)providerInfo.className.getString().getCString(),
+            (const char*)providerInfo.serviceName.getCString(),
+            (const char*)providerInfo.controlProviderName.getCString(),
+            i + 1,
+            numClasses,
+            poA->_aggregationSN));
 
         ProviderIdContainer* providerIdContainer =
             providerInfo.providerIdContainer.get();

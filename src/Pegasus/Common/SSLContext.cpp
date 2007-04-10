@@ -32,30 +32,27 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_HAS_SSL
-
-#include <Pegasus/Common/Config.h>
-
-#include "Network.h"
-
-#define OPENSSL_NO_KRB5 1
-#include <openssl/err.h>
-#include <openssl/ssl.h>
-#include <openssl/rand.h>
+# include <Pegasus/Common/Config.h>
+# include <Pegasus/Common/Network.h>
+# define OPENSSL_NO_KRB5 1
+# include <openssl/err.h>
+# include <openssl/ssl.h>
+# include <openssl/rand.h>
 #else
-#define SSL_CTX void
+# define SSL_CTX void
 #endif // end of PEGASUS_HAS_SSL
+
+#include <time.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <time.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/Formatter.h>
 
 #include "SSLContext.h"
 #include "SSLContextRep.h"
 
 #ifdef PEGASUS_OS_OS400
-#include "SSLWrapperOS400.h"
+# include "SSLWrapperOS400.h"
 #endif
 
 //

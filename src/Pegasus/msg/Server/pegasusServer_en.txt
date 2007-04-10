@@ -239,7 +239,8 @@ en:table {
 
         /**
         * @note PGS00222:
-        *    Do not translate the word 'Formatter::format()' since it is a class name::method name
+        *    Do not translate the word 'Formatter::format()' since it is a class name::method name.
+        *    This message is no longer used as of Pegasus 2.5.
         */
         Common.InternalException.BAD_FORMAT:string { "PGS00222: Incorrect format is passed to Formatter::format()."}
 
@@ -3315,6 +3316,10 @@ CIM server listening on HTTPS port {0}."}
         */
         src.Server.cimserver.UNSUPPORTED_DEBUG_OPTION:string {"PGS10015:  Unsupported debug output option is enabled."}
 
+        /**
+        * @note  PGS10016:
+        *    This message is no longer used as of February 2004.
+        */
         src.Server.cimserver.SUPERVISOR_PRIVILEGE_TO_RUN_SERVER:string {"PGS10016: Superuser authority is required to run the CIM server."}
 
         src.Server.cimserver.DUPLICATE_SHUTDOWN_OPTION:string {"PGS10017:  Duplicate shutdown option is specified."}

@@ -43,15 +43,13 @@
 #include "cimmofMessages.h"
 #include <cstdio>
 #include <iostream> // for debug only
-#include <Pegasus/Common/MessageLoader.h> //l10n
-#include <Pegasus/Common/Formatter.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 const cimmofMessages::arglist cimmofMessages::EMPTYLIST;
 
-//l10n replaced % sprintf style substitution with $ Formatter style substitution
 static String _cimmofMessages[] = {
   "OK", //CIM_ERR_SUCCESS
   "$0:$1: $2 before '$3'", //PARSER_SYNTAX_ERROR
@@ -119,9 +117,8 @@ static String _cimmofMessages[] = {
   "Invalid version format in mof class or repository class (valid format is m.n.u)", //INVALID_VERSION_FORMAT
   ""
 };
-//l10n
-static String _cimmofMessagesKeys [] = {
-	
+static String _cimmofMessagesKeys [] =
+{
     "Compiler.cimmofMessages.CIM_ERR_SUCCESS",
     "Compiler.cimmofMessages.PARSER_SYNTAX_ERROR",
     "Compiler.cimmofMessages.APPLY_PARAMETER_ERROR",
@@ -171,7 +168,6 @@ static String _cimmofMessagesKeys [] = {
     "Compiler.cimmofMessages.NO_CLASS_UPDATE",
     "Compiler.cimmofMessages.INVALID_VERSION_FORMAT",
     "Compiler.cimmofMessages.END"	
-	
 };
 
 

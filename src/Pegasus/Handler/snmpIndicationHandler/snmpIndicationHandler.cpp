@@ -116,15 +116,7 @@ void snmpIndicationHandler::handleIndication(
     Array<String> propTYPEs;
     Array<String> propVALUEs;
 
-    CIMProperty prop;
-    CIMQualifier trapQualifier;
-
-    Uint32 qualifierPos;
-
-    String propValue;
-
-    String mapstr1;
-    String mapstr2;
+    Array<String> mapStr;
 
     PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "snmpIndicationHandler::handleIndication");
@@ -139,49 +131,69 @@ void snmpIndicationHandler::handleIndication(
 
         for (Uint32 i=0; i < propertyCount; i++)
         {
-            prop = indication.getProperty(i);
+            CIMProperty prop = indication.getProperty(i);
 
-            if (!prop.isUninitialized())
+            Uint32 propDeclPos = indicationClass.findProperty(prop.getName());
+            if (propDeclPos != PEG_NOT_FOUND)
             {
-                CIMName propName = prop.getName();
-                Uint32 propPos = indicationClass.findProperty(propName);
-                if (propPos != PEG_NOT_FOUND)
+                CIMProperty propDecl = indicationClass.getProperty(propDeclPos);
+
+                Uint32 qualifierPos =
+                    propDecl.findQualifier(CIMName("MappingStrings"));
+                if (qualifierPos != PEG_NOT_FOUND)
                 {
-                    CIMProperty trapProp = indicationClass.getProperty(propPos);
+                    //
+                    // We are looking for following fields:
+                    // MappingStrings {"OID.IETF | SNMP." oidStr, 
+                    //     "DataType.IETF |" dataType}
+                    // oidStr is the object identifier (e.g. "1.3.6.1.2.1.5..."
+                    // dataType is either Integer, or OctetString, 
+                    // or OID
+                    // Following is one example:
+                    // MappingStrings {"OID.IETF | SNMP.1.3.6.6.3.1.1.5.2",
+                    //    "DataType.IETF | Integer"}
+                    //
 
-                    qualifierPos =
-                        trapProp.findQualifier(CIMName("MappingStrings"));
-                    if (qualifierPos != PEG_NOT_FOUND)
+                    propDecl.getQualifier(qualifierPos).getValue().get(
+                        mapStr);
+ 
+                    String oidStr, dataType;
+                    String mapStr1, mapStr2;
+                    Boolean isValidAuthority = false;
+                    Boolean isValidDataType = false;
+
+                    for (Uint32 j=0; j < mapStr.size(); j++)
                     {
-                        trapQualifier = trapProp.getQualifier(qualifierPos);
-
-                        mapstr1.clear();
-                        mapstr1 = trapQualifier.getValue().toString();
-
-                        if ((mapstr1.find("OID.IETF") != PEG_NOT_FOUND) &&
-                            (mapstr1.find("DataType.IETF") != PEG_NOT_FOUND))
+                        Uint32 barPos = mapStr[j].find("|");
+                            
+                        if (barPos != PEG_NOT_FOUND) 
                         {
-                            if (mapstr1.subString(0, 8) == "OID.IETF")
+                            mapStr1 = mapStr[j].subString(0, barPos);
+                            mapStr2 = mapStr[j].subString(barPos + 1);
+
+                            _trimWhitespace(mapStr1);
+                            _trimWhitespace(mapStr2);
+                                
+                            if ((mapStr1 == "OID.IETF") &&
+                                (String::compare(mapStr2, 
+                                 String("SNMP."), 5) == 0))
                             {
-                                mapstr1 = mapstr1.subString(
-                                    mapstr1.find("SNMP.") + 5);
-                                if (mapstr1.find("|") != PEG_NOT_FOUND)
-                                {
-                                    mapstr2.clear();
-                                    mapstr2 = mapstr1.subString(0,
-                                        mapstr1.find("DataType.IETF")-1);
-                                    propOIDs.append(mapstr2);
+                                isValidAuthority = true;
+                                oidStr = mapStr2.subString(5);
+                            }
+                            else if (mapStr1 == "DataType.IETF")
+                            {
+                                isValidDataType = true;
+                                dataType = mapStr2;
+                            }
 
-                                           propValue.clear();
-                                    propValue = prop.getValue().toString();
-                                    propVALUEs.append(propValue);
+                            if (isValidAuthority && isValidDataType) 
+                            {
+                                propOIDs.append(oidStr);
+                                propTYPEs.append(dataType);
+                                propVALUEs.append(prop.getValue().toString());
 
-                                    mapstr2 = mapstr1.subString(
-                                        mapstr1.find("|") + 2);
-                                    mapstr2 = mapstr2.subString(
-                                        0, mapstr2.size() - 1);
-                                    propTYPEs.append(mapstr2);
-                                }
+                                break;
                             }
                         }
                     }
@@ -218,6 +230,8 @@ void snmpIndicationHandler::handleIndication(
             Uint32 portNumber;
 
             String trapOid;
+            Boolean trapOidAvailable = false;
+            String exceptionStr;
             //
             //  Get snmpTrapOid from context
             //
@@ -227,6 +241,7 @@ void snmpIndicationHandler::handleIndication(
                     context.get(SnmpTrapOidContainer::NAME);
 
                 trapOid = trapContainer.getSnmpTrapOid();
+                trapOidAvailable = true;
             }
             else
             {
@@ -236,25 +251,52 @@ void snmpIndicationHandler::handleIndication(
                     indicationClass.findQualifier(CIMName("MappingStrings"));
                 if (pos != PEG_NOT_FOUND)
                 {
-                    trapOid =
-                        indicationClass.getQualifier(pos).getValue().toString();
+                    Array<String> classMapStr;
+                    indicationClass.getQualifier(pos).getValue().
+                        get(classMapStr);
 
-                    trapOid = trapOid.subString(11, PEG_NOT_FOUND);
-
-                    if ((String::compare(trapOid, "SNMP.", 5)) == 0)
+                    for (Uint32 i=0; i < classMapStr.size(); i++)
                     {
-                        trapOid = trapOid.subString(5, (trapOid.size()-6));
+                        Uint32 barPos = classMapStr[i].find("|");
+
+                        if (barPos != PEG_NOT_FOUND) 
+                        {
+                            String authorityName = 
+                                classMapStr[i].subString(0, barPos);
+                            String oidStr = classMapStr[i].subString(
+                                barPos+1, PEG_NOT_FOUND);
+
+                            _trimWhitespace(authorityName);
+                            _trimWhitespace(oidStr);
+
+                            if ((authorityName == "OID.IETF") &&
+                                (String::compare(oidStr, 
+                                 String("SNMP."), 5) == 0))
+                            {
+                                trapOid = oidStr.subString(5); 
+                                trapOidAvailable = true;
+                                break;
+                            }
+                        }
                     }
-                    else
+
+                    if (!trapOidAvailable)
                     {
+                        exceptionStr = "No MappingStrings for snmp trap"
+                            "is specified for class: ";
+                      
+                        exceptionStr.append(
+                            indication.getClassName().getString());
+
                         PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-                            "Invalid MappingStrings Value " + trapOid);
+                            exceptionStr);
                         PEG_METHOD_EXIT();
+
                         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                             MessageLoaderParms(
                                 "Handler.snmpIndicationHandler."
-                                    "snmpIndicationHandler.INVALID_MS_VALUE",
-                                "Invalid MappingStrings Value"));
+                                "snmpIndicationHandler.NO_MS_FOR_SNMP_TRAP",
+                                exceptionStr));
                     }
                 }
                 else
@@ -346,6 +388,44 @@ void snmpIndicationHandler::handleIndication(
             "Handler.snmpIndicationHandler.snmpIndicationHandler."
                 "FAILED_TO_DELIVER_TRAP",
             "Failed to deliver trap."));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+void snmpIndicationHandler::_trimWhitespace(
+    String & nameStr)
+{
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
+        "snmpIndicationHandler::_trimWhitespace");
+
+    Uint32 ps = 0;
+    // skip begining whitespace
+    for (ps = 0; ps < nameStr.size(); ps++)
+    {
+        if (nameStr[ps] != ' ')
+        {
+            break;
+        }
+    }
+
+    if (ps != 0)
+    {
+        nameStr.remove(0, ps);
+    }
+
+    // skip the appended whitespace
+    for (ps = nameStr.size(); ps != 0; ps--)
+    {
+        if (nameStr[ps-1] != ' ')
+        {
+            break;
+        }
+    }
+
+    if (ps !=  nameStr.size())
+    {
+        nameStr.remove(ps);
     }
 
     PEG_METHOD_EXIT();

@@ -3708,6 +3708,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS10600:
         *   Do not translate 'MappingStrings' since it is a standard Indication qualifier CIM name
+        *   This message is no longer used as of version 2.7.0
         */
         Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_MS_VALUE:string {"PGS10600:  The MappingStrings qualifier value is not valid."}
 
@@ -3723,8 +3724,17 @@ CIM server listening on HTTPS port {0}."}
         */
         Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND:string {"PGS10602:  CIM qualifier MappingStrings cannot be found"}
 
+        /**
+        * @note  PGS10603:
+        */
     Handler.snmpIndicationHandler.snmpIndicationHandler.FAILED_TO_DELIVER_TRAP:string {"PGS10603: Failed to deliver trap."}
 
+        /**
+        * @note  PGS10604:
+        *   Do not translate 'MappingStrings' since it is a standard Indication qualifier CIM name
+        *   Substitution {0} is a string containing the supported class name by an indication provider
+        */
+        Handler.snmpIndicationHandler.snmpIndicationHandler.NO_MS_FOR_SNMP_TRAP:string {"PGS10604: No MappingStrings for snmp trap is specified for class: {0}"}
 
         // ==========================================================
         // Messages for snmpDeliverTrap_netsnmp

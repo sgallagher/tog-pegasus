@@ -66,6 +66,8 @@ private:
     snmpDeliverTrap* _snmpTrapSender;
 
     CIMRepository* _repository;
+
+    void _trimWhitespace(String & name);
 };
 
 PEGASUS_NAMESPACE_END

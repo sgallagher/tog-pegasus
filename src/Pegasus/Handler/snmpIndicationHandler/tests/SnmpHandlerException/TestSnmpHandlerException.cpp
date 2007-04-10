@@ -51,6 +51,7 @@ const CIMName testClass4 = CIMName ("SnmpTestClass4");
 const CIMName testClass5 = CIMName ("SnmpTestClass5");
 const CIMName testClass6 = CIMName ("SnmpTestClass6");
 const CIMName testClass7 = CIMName ("SnmpTestClass7");
+const CIMName testClass8 = CIMName ("SnmpTestClass8");
 
 String repositoryRoot;
 
@@ -128,99 +129,143 @@ static void CreateRepository(CIMRepository & repository)
 {
     repository.createNameSpace(NS);
 
-    CIMQualifierDecl q1(CIMName ("MappingStrings"), String(), 
+    Array<String> qualifierValue;
+    qualifierValue.append("");
+
+    CIMQualifierDecl q1(CIMName ("MappingStrings"), qualifierValue, 
         CIMScope::PROPERTY + CIMScope::CLASS);
 
     // Qualifier name must be "MappingStrings", test the qualifier
     // name is not "MappingStrings"
-    CIMQualifierDecl q2(CIMName ("NotMappingStrings"), String(), 
+    CIMQualifierDecl q2(CIMName ("NotMappingStrings"), qualifierValue, 
         CIMScope::CLASS);
 
     repository.setQualifier(NS, q1);
     repository.setQualifier(NS, q2);
 
-    String mappingStr = "OID.IETF | SNMP.1.3.6.1.4.1.892.2.3.9000.8600";
+    Array<String> classMappingStr;
+    classMappingStr.append("OID.IETF | SNMP.1.3.6.1.4.1.892.2.3.9000.8600");
 
     CIMClass class1(testClass1);
     class1.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-        String(mappingStr)));
+        CIMValue(classMappingStr)));
     
+    Array<String> invalidFormatStr;
+    invalidFormatStr.append(
+        "Wrong format OID.IETF | SNMP.1.3.6.1.4.1.2.3.9000.8600");
+    invalidFormatStr.append("DataType.IETF | OctetString ");
+
     // create wrong format property mappingStrings value
     class1.addProperty(CIMProperty(CIMName ("OidDataType"), String("OctetString"))
         .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-            String("Wrong format OID.IETF | SNMP.1.3.6.1.4.1.2.3.9000.8600, DataType.IETF | OctetString "))));
+            CIMValue(invalidFormatStr))));
 
     repository.createClass(NS, class1);
 
     // create invalid mapping string value
-    String mappingStr2 = "OID.IETF |Invalid Mapping String Value";
+    Array<String> class2MappingStr;
+    Array<String> mappingStr2;
+
+    class2MappingStr.append("OID.IETF |Invalid Mapping String Value");
+
+    mappingStr2.append("OID.IETF | SNMP.1.3.6.1.4.1.2.3.9000.8600");
+    mappingStr2.append("DataType.IETF OctetString ");
 
     CIMClass class2(testClass2);
     class2.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-        String(mappingStr2)));
+        CIMValue(class2MappingStr)));
     
     class2.addProperty(CIMProperty(CIMName ("OidDataType"), String())
         .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-            String("OID.IETF | SNMP.1.3.6.1.4.1.2.3.9000.8600, DataType.IETF OctetString "))));
+            CIMValue(mappingStr2))));
     repository.createClass(NS, class2);
 
     // create non MappingStrings qualifier
     CIMClass class3(testClass3);
-    class3.addQualifier(CIMQualifier(CIMName ("NotMappingStrings"), String(mappingStr)));
+    class3.addQualifier(CIMQualifier(CIMName ("NotMappingStrings"), 
+        CIMValue(classMappingStr)));
     
     repository.createClass(NS, class3);
 
     // error building ASN.1 representation
-    String mappingStr4 = "OID.IETF | SNMP.1.204.6.1.6.3.1.330.5.1.0 ";
+    Array<String> class4MappingStr;
+    class4MappingStr.append("OID.IETF | SNMP.1.204.6.1.6.3.1.330.5.1.0 ");
 
     CIMClass class4(testClass4);
     class4.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-    String(mappingStr4)));
+        CIMValue(class4MappingStr)));
     
     repository.createClass(NS, class4);
 
     // create incorrect class mappingStrings value
-    String mappingStr5 = "OID.IETF | SNMP.1.3.6.1.6.test.1.1.5.1.3 ";
+    Array<String> class5MappingStr;
+    class5MappingStr.append("OID.IETF | SNMP.1.3.6.1.6.test.1.1.5.1.3 ");
 
     CIMClass class5(testClass5);
     class5.addQualifier(CIMQualifier(CIMName 
-        ("MappingStrings"), String(mappingStr5)));
+        ("MappingStrings"), CIMValue(class5MappingStr)));
 
     // create incorrect property name
     class5.addProperty(
         CIMProperty(CIMName ("WrongPropertyName"), String("OctetString"))
             .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-                String(mappingStr5))));
+                CIMValue(class5MappingStr))));
     
     repository.createClass(NS, class5);
 
     // create incorrect property mappingStrings value
-    String mappingStr6 = 
-       "OID.IETF | SNMP.1.3.6.1.6.test.1.1.5.1.3, DataType.IETF | OctetString ";
+    Array<String> class6MappingStr;
+    class6MappingStr.append("OID.IETF | SNMP.1.3.6.1.6.3.1.1.0.1 ");
+
+    Array<String> mappingStr6;
+    mappingStr6.append("OID.IETF | SNMP.1.3.6.1.6.test.1.1.5.1.3");
+    mappingStr6.append("DataType.IETF | OctetString");
 
     CIMClass class6(testClass6);
     class6.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-        String("OID.IETF | SNMP.1.3.6.1.6.3.1.1.0.1 ")));
+        CIMValue(class6MappingStr)));
     class6.addProperty(
         CIMProperty(CIMName ("OidDataType"), String("OctetString"))
             .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-                String(mappingStr6))));
+                CIMValue(mappingStr6))));
     
     repository.createClass(NS, class6);
 
     // create unsupportted SNMP Data Type for the CIM property
-    String mappingStr7 = 
-        "OID.IETF | SNMP.1.3.6.1.6.test.1.1.5.1.3, DataType.IETF | test ";
+    Array<String> class7MappingStr;
+    class7MappingStr.append("OID.IETF | SNMP.1.3.6.1.6.3.1.1.5.1 ");
+
+    Array<String> mappingStr7;
+    mappingStr7.append("OID.IETF | SNMP.1.3.6.1.6.test.1.1.5.1.3");
+    mappingStr7.append("DataType.IETF | test ");
 
     CIMClass class7(testClass7);
     class7.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-        String("OID.IETF | SNMP.1.3.6.1.6.3.1.1.5.1 ")));
+        CIMValue(class7MappingStr)));
     class7.addProperty(
         CIMProperty(CIMName ("OidDataType"), String("test"))
             .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
-                String(mappingStr7))));
+                CIMValue(mappingStr7))));
     
     repository.createClass(NS, class7);
+
+    // create invalid syntax for MappingStrings qualifier
+    Array<String> invalidSyntax;
+    Array<String> class8MappingStr;
+    class8MappingStr.append("OID.IETF Invalid Syntax for MappingStrings");
+
+    Array<String> mappingStr8;
+    mappingStr8.append("OID.IETF | SNMP.1.3.6.1.4.1.2.3.9000.8600");
+    mappingStr8.append("DataType.IETF | OctetString ");
+
+    CIMClass class8(testClass8);
+    class8.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+        CIMValue(class8MappingStr)));
+    
+    class8.addProperty(CIMProperty(CIMName ("OidDataType"), String())
+        .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+            CIMValue(mappingStr8))));
+    repository.createClass(NS, class8);
 }
 
 static void TestExceptionHandling(CIMHandler* handler)
@@ -280,6 +325,20 @@ static void TestExceptionHandling(CIMHandler* handler)
        CIMName("OtherTargetHostFormat"), String("testOtherTargetHostFormat")));
     indicationHandlerInstance.addProperty(CIMProperty(
        CIMName("PortNumber"), Uint32(200)));
+    TestException(handler, indicationHandlerInstance, indicationInstance,
+        CIM_ERR_FAILED);
+
+    // Test "invalid MappingStrings Syntax" exception
+    indicationInstance = CIMInstance(testClass8);
+    indicationInstance.addProperty(CIMProperty(
+        CIMName ("OidDataType"), String("OctetString")));
+    indicationHandlerInstance = CreateHandlerInstance();
+    indicationHandlerInstance.addProperty(CIMProperty(
+       CIMName("TargetHost"), String("15.13.140.120")));
+    indicationHandlerInstance.addProperty(CIMProperty(
+        CIMName("TargetHostFormat"), Uint16(3)));
+    indicationHandlerInstance.addProperty(CIMProperty(
+        CIMName("SNMPVersion"), Uint16(2)));
     TestException(handler, indicationHandlerInstance, indicationInstance,
         CIM_ERR_FAILED);
 
@@ -440,6 +499,7 @@ int main(int argc, char** argv)
         repository->deleteClass(NS, testClass5);
         repository->deleteClass(NS, testClass6);
         repository->deleteClass(NS, testClass7);
+        repository->deleteClass(NS, testClass8);
 
         //
         // -- Delete the qualifier:

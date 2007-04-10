@@ -257,7 +257,7 @@ HTTPConnection* HTTPConnector::connect(
     SSLContext * sslContext,
     MessageQueue* outputMessageQueue)
 {
-    PEG_METHOD_ENTER(TRC_IND_HANDLER,"HTTPConnector::connect()");
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnector::connect()");
 
     SocketHandle socket;
 

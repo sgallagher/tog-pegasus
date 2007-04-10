@@ -133,6 +133,12 @@ endif
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestAggregationOutputProvider.mof
 	@ $(ECHO) +++++ Registering TestAggregationOutputProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestAggregationOutputProviderR.mof
+
+	@ $(ECHO) +++++ Loading LocalizedProvider.mof into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" LocalizedProvider.mof
+	@ $(ECHO) +++++ Registering LocalizedProvider ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" LocalizedProviderR.mof
+
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
@@ -238,6 +244,12 @@ repositoryServer:
 	@ cimmof "-n$(TESTPROVIDERNS)" TestAggregationOutputProvider.mof
 	@ $(ECHO) +++++ Registering TestAggregationOutputProvider ...
 	@ cimmof "-n$(INTEROPNS)" TestAggregationOutputProviderR.mof
+
+	@ $(ECHO) +++++ Loading LocalizedProvider.mof into $(TESTPROVIDERNS) namespace ...
+	@ cimmof "-n$(TESTPROVIDERNS)" LocalizedProvider.mof
+	@ $(ECHO) +++++ Registering LocalizedProvider ...
+	@ cimmof "-n$(INTEROPNS)" LocalizedProviderR.mof
+
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
@@ -313,6 +325,7 @@ unregisterproviders:
 	cimprovider -r -m IndicationStressTestProviderModule
 	cimprovider -r -m MethodTestProviderModule
 	cimprovider -r -m CLITestProviderModule
+	cimprovider -r -m TestLocalizedProviderModule
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m TestCMPIIndicationProviderModule
 	cimprovider -r -m TestCMPIMethodProviderModule

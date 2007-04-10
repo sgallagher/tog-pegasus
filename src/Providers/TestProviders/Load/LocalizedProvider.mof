@@ -28,36 +28,52 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Chuck Carmack (carmack@us.ibm.com)
-//
-// Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-
-#include "LocalizedProvider.h"
-
-PEGASUS_USING_PEGASUS;
-
-// This is the dynamic entry point into this dynamic module. The name of
-// this provider is "LocalizedProvider" which is appened to
-// "PegasusCreateProvider_" to form a symbol name. This function is called
-// by the ProviderModule to load this provider.
-//
-// NOTE: The name of the provider must be correct to be loadable.
-
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+// globalization test class for localization and UTF testing
+[Version ("2.7.0")]
+class Test_LocalizedProviderClass
 {
-	if(String::equalNoCase(name, "samplelocalizedprovider") ||
-		String::equalNoCase(name, "samplelocalizedprovider (PROVIDER)"))
-	{
-        return(new LocalizedProvider());
-	}
+    [key, read]
+    Uint8 Identifier;
 
-	return(0);
-}
+    [read, write]
+    string RoundTripString;
+
+    [read, write]
+    char16 RoundTripChar;
+
+    [read]
+    string ResourceBundleString;
+
+    [read, write]
+    string ContentLanguageString;
+
+    string UTFMethod(
+        [IN] string inStr,
+        [IN] char16 inChar16,
+        [OUT] string outStr,
+        [OUT] char16 outChar16);
+
+    uint16 generateIndication();
+
+    uint8 getConsumerStatus();
+
+    boolean setDefaultMessageLoading([IN] boolean newSetting);
+};
+
+// globalization test class for aggregation tests
+[Version ("2.7.0")]
+class Test_LocalizedProviderSubClass : Test_LocalizedProviderClass
+{
+    [read, write]
+    string TestString;
+};
+
+// globalization test class for indication tests
+[Indication, Version ("2.7.0")]
+class LocalizedProvider_TestIndication : CIM_Indication
+{
+    string UnicodeStr;
+    char16 UnicodeChar;
+};
 

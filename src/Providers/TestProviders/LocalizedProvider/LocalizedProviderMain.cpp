@@ -28,69 +28,30 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-#pragma locale ("en_US")
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
-// l10n - globalization test
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
-instance of PG_ProviderModule
+#include "LocalizedProvider.h"
+
+PEGASUS_USING_PEGASUS;
+
+// This is the dynamic entry point into this dynamic module. The name of
+// this provider is "LocalizedProvider" which is appened to
+// "PegasusCreateProvider_" to form a symbol name. This function is called
+// by the ProviderModule to load this provider.
+//
+// NOTE: The name of the provider must be correct to be loadable.
+
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
+    const String& name)
 {
-    Description = "The Sample Pegasus Provider Module that implements Sample_LocalizedProviderClass";
-    Caption = "Sample Pegasus Localized Provider Module";
-    Name = "SampleLocalizedProviderModule";
-    Vendor = "OpenPegasus";
-    Version = "2.0.0";
-    InterfaceType = "C++Default";
-    InterfaceVersion = "2.1.0";
-    Location = "SampleLocalizedProvider";
-};
+    if (String::equalNoCase(name, "testlocalizedprovider"))
+    {
+        return(new LocalizedProvider());
+    }
 
-instance of PG_Provider
-{
-    ProviderModuleName = "SampleLocalizedProviderModule";
-    Name = "SampleLocalizedProvider";
-};
-
-instance of PG_ProviderCapabilities
-{
-   ProviderModuleName = "SampleLocalizedProviderModule";
-   ProviderName = "SampleLocalizedProvider";
-   CapabilityID = "1";
-   ClassName = "Sample_LocalizedProviderClass";
-   Namespaces = {"root/SampleProvider"};
-   ProviderType = { 2, 5 };   //Instance, Method
-   SupportedProperties = NULL;
-   SupportedMethods = NULL;
-};
-
-instance of PG_ProviderCapabilities
-{
-   ProviderModuleName = "SampleLocalizedProviderModule";
-   ProviderName = "SampleLocalizedProvider";
-   CapabilityID = "2";
-   ClassName = "Sample_LocalizedProviderSubClass";
-   Namespaces = {"root/SampleProvider"};
-   ProviderType = { 2 };   //Instance
-   SupportedProperties = NULL;
-   SupportedMethods = NULL;
-};
-
-instance of PG_ProviderCapabilities
-{
-   ProviderModuleName = "SampleLocalizedProviderModule";
-   ProviderName = "SampleLocalizedProvider";
-   CapabilityID = "3";  
-   ClassName = "LocalizedProvider_TestIndication";
-   Namespaces = {"root/SampleProvider"};
-   ProviderType = { 4 };   //Indication
-   SupportedProperties = NULL;
-   SupportedMethods = NULL;
-};
-
-instance of PG_ConsumerCapabilities
-{
-    ProviderModuleName = "SampleLocalizedProviderModule";
-    ProviderName = "SampleLocalizedProvider";
-    CapabilityID = "1";
-    ProviderType = { 6 };  // Consumer
-    Destinations = {"/localizedprovider"};
-};
+    return 0;
+}

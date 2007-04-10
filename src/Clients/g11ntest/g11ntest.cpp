@@ -198,7 +198,7 @@ static void TestUTFRepository( CIMClient& client,
      return;
   }
 
-  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
   const CIMNamespaceName ROOT_NAMESPACE = CIMNamespaceName ("root");
 
   Boolean deepInheritance = true;
@@ -554,12 +554,12 @@ static void TestLocalizedMethods( CIMClient& client,
                                   Boolean activeTest,
                                   Boolean verboseTest )
 {
-  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-  const CIMName CLASSNAME = CIMName ("Sample_LocalizedProviderClass");
+  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
+  const CIMName CLASSNAME = CIMName ("Test_LocalizedProviderClass");
   const String INPARAM1 = "inStr";
   const String INPARAM2 = "inChar16";
   const CIMName METHOD = CIMName("UTFMethod");
-  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Test_LocalizedProviderClass.Identifier=0");
 
   // Array of UTF-16 chars to be sent and received to the server.
   // Note: the first 3 chars are taken from section 3.3.2 of the CIM-over-HTTP spec.
@@ -681,14 +681,14 @@ static void TestLocalizedMethods( CIMClient& client,
 /* Enumerates instances of the sample classes using a given AcceptLanguageList,
    and checks the language of the response.
 */
-static Array<CIMInstance> EnumerateSampleInstances(CIMClient &client,
+static Array<CIMInstance> EnumerateTestInstances(CIMClient &client,
                                      AcceptLanguageList & acceptLangs,
                                      ContentLanguageList & contentLangs,
                                      String & expectedStr,
                                      Boolean verboseTest)
 {
-  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-  const CIMName CLASSNAME = CIMName ("Sample_LocalizedProviderClass");
+  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
+  const CIMName CLASSNAME = CIMName ("Test_LocalizedProviderClass");
   Boolean deepInheritance = false;
   Boolean localOnly = false;
   Boolean includeQualifiers = true;
@@ -758,11 +758,11 @@ static void TestLocalizedInstances( CIMClient& client,
                                     Boolean activeTest,
                                     Boolean verboseTest )
 {
-  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-  const CIMName CLASSNAME = CIMName ("Sample_LocalizedProviderClass");
-  const CIMName SUBCLASSNAME = CIMName ("Sample_LocalizedProviderSubClass");
-  const String INSTANCE0 = "instance 0Sample_LocalizedProviderClass";
-  const String INSTANCE1 = "instance 1Sample_LocalizedProviderClass";
+  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
+  const CIMName CLASSNAME = CIMName ("Test_LocalizedProviderClass");
+  const CIMName SUBCLASSNAME = CIMName ("Test_LocalizedProviderSubClass");
+  const String INSTANCE0 = "instance 0Test_LocalizedProviderClass";
+  const String INSTANCE1 = "instance 1Test_LocalizedProviderClass";
   const String RBPROP = "ResourceBundleString";
   const String ROUNDTRIPSTRINGPROP = "RoundTripString";
   const String ROUNDTRIPCHARPROP = "RoundTripChar";
@@ -842,7 +842,7 @@ static void TestLocalizedInstances( CIMClient& client,
       cout << endl << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguageList = "
           << LanguageParser::buildAcceptLanguageHeader(acceptLangs1) << endl;
 
-          Array<CIMInstance> cimNInstances = EnumerateSampleInstances(
+          Array<CIMInstance> cimNInstances = EnumerateTestInstances(
                                                client,
                                                acceptLangs1,
                                                CL_DE,
@@ -1365,7 +1365,7 @@ static void TestServerMessages( CIMClient& client,
         }
 
         // Parms for the getClass API call
-        const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+        const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/TestProvider");
         const CIMName CLASSNAME = CIMName ("CIM_ANonExistentClassName");
         Boolean localOnly = false;
         Boolean includeQualifiers = true;
@@ -1515,7 +1515,7 @@ static void TestServerMessages( CIMClient& client,
 //                     cout << "Sending the enumerate instance request " << i <<
 //                              ". Lang = " << acceptLangsDE.toString() << endl;
 
-                   EnumerateSampleInstances(
+                   EnumerateTestInstances(
                                            client,
                                            acceptLangsDE,
                                            CL_DE,
@@ -1527,7 +1527,7 @@ static void TestServerMessages( CIMClient& client,
 //                     cout << "Sending the enumerate instance request " << i <<
 //                              ". Lang = " << acceptLangsFR.toString() << endl;
 
-                   EnumerateSampleInstances(
+                   EnumerateTestInstances(
                                            client,
                                            acceptLangsFR,
                                            CL_FR,
@@ -1539,7 +1539,7 @@ static void TestServerMessages( CIMClient& client,
 //                     cout << "Sending the enumerate instance request " << i <<
 //                              ". Lang = " << acceptLangsES.toString() << endl;
 
-                   EnumerateSampleInstances(
+                   EnumerateTestInstances(
                                            client,
                                            acceptLangsES,
                                            CL_ES,
@@ -1626,10 +1626,10 @@ static void createSubscriptions(CIMClient& client,
                 Boolean skipListener,
                 Boolean verboseTest)
 {
-  const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMNamespaceName TEST_NAMESPACE = CIMNamespaceName ("test/TestProvider");
 // Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
   const CIMName METHOD = CIMName("getIndicationResult");
-  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Test_LocalizedProviderClass.Identifier=0");
 
   try
   {
@@ -1748,7 +1748,7 @@ static void createSubscriptions(CIMClient& client,
     filterInstance.addProperty(CIMProperty(CIMName ("Name"),
         String("g11ntest_Filter")));
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
-        String("root/SampleProvider")));
+        String("test/TestProvider")));
     filterInstance.addProperty (CIMProperty(CIMName ("Query"),
     String("SELECT * FROM LocalizedProvider_TestIndication")));
     filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
@@ -1835,10 +1835,10 @@ static void TestLocalizedIndications( CIMClient& client,
                       Boolean skipListener,
                       String listenerHost)
 {
-  const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMNamespaceName TEST_NAMESPACE = CIMNamespaceName ("test/TestProvider");
   const CIMName GEN_METHOD = CIMName("generateIndication");
   const CIMName RESULT_METHOD = CIMName("getConsumerStatus");
-  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Test_LocalizedProviderClass.Identifier=0");
 
   if (!activeTest)
   {
@@ -1947,7 +1947,7 @@ static void TestLocalizedIndications( CIMClient& client,
     Array<CIMParamValue> inParams;
     Array<CIMParamValue> outParams;
     CIMValue rtnVal = client.invokeMethod(
-        SAMPLE_NAMESPACE,
+        TEST_NAMESPACE,
         REFERENCE,
         GEN_METHOD,
         inParams,
@@ -2041,7 +2041,7 @@ static void TestLocalizedIndications( CIMClient& client,
 
     Threads::sleep(3000);  // give the indication 3 sec to get to the consumer
     rtnVal = client.invokeMethod(
-        SAMPLE_NAMESPACE,
+        TEST_NAMESPACE,
         REFERENCE,
         RESULT_METHOD,
         inParams,
@@ -2114,9 +2114,9 @@ static void TestLocalizedIndications( CIMClient& client,
 Boolean setServerDefaultMessageLoading(CIMClient & client,
                        Boolean newSetting)
 {
-  const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMNamespaceName TEST_NAMESPACE = CIMNamespaceName ("test/TestProvider");
   const CIMName SETTER_METHOD = CIMName("setDefaultMessageLoading");
-  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Test_LocalizedProviderClass.Identifier=0");
 
   // Set the language objects to be sent to the LocalizedProvider
   // This is required by the provider
@@ -2132,7 +2132,7 @@ Boolean setServerDefaultMessageLoading(CIMClient & client,
   inParams.append( CIMParamValue(  "newSetting", CIMValue( newSetting ) ) );
   Array<CIMParamValue> outParams;
   CIMValue rtnVal = client.invokeMethod(
-    SAMPLE_NAMESPACE,
+    TEST_NAMESPACE,
     REFERENCE,
     SETTER_METHOD,
     inParams,

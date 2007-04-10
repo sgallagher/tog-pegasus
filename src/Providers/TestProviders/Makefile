@@ -62,7 +62,7 @@ DIRS = \
 	MethodTestProvider \
 	MethodTestProvider/testclient \
 	MCCA_TestAssocProvider \
-    MCCA_TestAssocProvider/testclient \
+	MCCA_TestAssocProvider/testclient \
 	OOPModuleFailureProvider \
 	OOPModuleFailureProvider/testclient \
 	PG_TestPropertyTypes \
@@ -72,7 +72,9 @@ DIRS = \
 	CIMOMHandleTestProvider \
 	CIMOMHandleTestProvider/testclient \
 	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient
+	TestAggregationOutputProvider/testclient \
+	LocalizedProvider \
+	LocalizedProvider/msg
 
 ifdef PEGASUS_BUILD_INTEROP
 DIRS += \

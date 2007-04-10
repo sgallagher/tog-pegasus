@@ -38,9 +38,7 @@ DIRS = \
 	SNMPIndicationProvider \
 	RT_Indication \
 	AssociationProvider \
-	AssociationProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg
+	AssociationProvider/testclient
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 DIRS += \

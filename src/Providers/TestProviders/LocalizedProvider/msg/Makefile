@@ -33,7 +33,7 @@
 
 ROOT = ../../../../..
 
-DIR = Providers/sample/LocalizedProvider/msg
+DIR = Providers/TestProviders/LocalizedProvider/msg
 
 include $(ROOT)/mak/config.mak
 

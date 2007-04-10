@@ -161,7 +161,6 @@ endif
 	cimprovider -r -m SampleMethodProviderModule
 	cimprovider -r -m SampleAssociationProviderModule
 	cimprovider -r -m RT_IndicationProviderModule
-	cimprovider -r -m SampleLocalizedProviderModule
 	cimprovider -r -m SimpleDisplayConsumerModule
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m FilesAndDirectoriesModule

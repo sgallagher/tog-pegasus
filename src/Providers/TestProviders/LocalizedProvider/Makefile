@@ -30,14 +30,14 @@
 #//==============================================================================
 ROOT = ../../../..
 
-DIR = Providers/sample/LocalizedProvider
+DIR = Providers/TestProviders/LocalizedProvider
 
 include $(ROOT)/mak/config.mak
 
 # Note: This provider uses interfaces that are not frozen
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-LIBRARY = SampleLocalizedProvider
+LIBRARY = TestLocalizedProvider
 
 LIBRARIES = \
     pegprovider \
@@ -45,10 +45,7 @@ LIBRARIES = \
     pegcommon
 	
 SOURCES = \
-	LocalizedProviderMain.cpp \
-	LocalizedProvider.cpp
+    LocalizedProviderMain.cpp \
+    LocalizedProvider.cpp
 
 include $(ROOT)/mak/dynamic-library.mak
-
-tests:
-

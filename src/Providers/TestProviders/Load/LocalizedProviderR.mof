@@ -28,42 +28,69 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+#pragma locale ("en_US")
 
-[abstract, Version ("2.2.0")]
-class Sample_ProviderClass
+// l10n - globalization test
+
+instance of PG_ProviderModule
 {
-	[key,
-	read]
-	Uint8 Identifier;
+    Description = "The Test Pegasus Provider Module that implements Test_LocalizedProviderClass";
+    Caption = "Test Pegasus Localized Provider Module";
+    Name = "TestLocalizedProviderModule";
+    Vendor = "OpenPegasus";
+    Version = "2.7.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.6.0";
+    Location = "TestLocalizedProvider";
 };
 
-[Version ("2.2.0")]
-class Sample_InstanceProviderClass : Sample_ProviderClass
+instance of PG_Provider
 {
-	[read, write]
-	string Message;
+    ProviderModuleName = "TestLocalizedProviderModule";
+    Name = "TestLocalizedProvider";
 };
 
-[Version ("2.2.0")]
-class Sample_InstanceQueryProviderClass : Sample_ProviderClass
+instance of PG_ProviderCapabilities
 {
-	[read, write]
-	string Message;
+   ProviderModuleName = "TestLocalizedProviderModule";
+   ProviderName = "TestLocalizedProvider";
+   CapabilityID = "1";
+   ClassName = "Test_LocalizedProviderClass";
+   Namespaces = {"test/TestProvider"};
+   ProviderType = { 2, 5 };   //Instance, Method
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
 };
 
-[Version ("2.2.0")]
-class Sample_MethodProviderClass : Sample_ProviderClass
+instance of PG_ProviderCapabilities
 {
-	string SayHello( [IN] string Name, [OUT] string place);
+   ProviderModuleName = "TestLocalizedProviderModule";
+   ProviderName = "TestLocalizedProvider";
+   CapabilityID = "2";
+   ClassName = "Test_LocalizedProviderSubClass";
+   Namespaces = {"test/TestProvider"};
+   ProviderType = { 2 };   //Instance
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
 };
 
-[Version ("2.2.0")]
-class Sample_IndicationProviderClass : CIM_Indication
+instance of PG_ProviderCapabilities
 {
-	[read]
-	string Message;
-	
-	[read]
-	datetime TimeStamp;
+   ProviderModuleName = "TestLocalizedProviderModule";
+   ProviderName = "TestLocalizedProvider";
+   CapabilityID = "3";  
+   ClassName = "LocalizedProvider_TestIndication";
+   Namespaces = {"test/TestProvider"};
+   ProviderType = { 4 };   //Indication
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
 };
 
+instance of PG_ConsumerCapabilities
+{
+    ProviderModuleName = "TestLocalizedProviderModule";
+    ProviderName = "TestLocalizedProvider";
+    CapabilityID = "1";
+    ProviderType = { 6 };  // Consumer
+    Destinations = {"/localizedprovider"};
+};

@@ -1,0 +1,192 @@
+#//%2006////////////////////////////////////////////////////////////////////////
+#//
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
+#//
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#//
+#//==============================================================================
+###############################################################################
+##
+## RPM Makefile for building tog-pegasus rpms
+##
+## see the usage rule for documentation of rules etc.
+##
+##
+###############################################################################
+
+
+RELEASE:=$(shell lsb_release -r -s)
+IDISTRO:=$(shell lsb_release -i -s)
+PLATFORM:=$(shell /bin/rpm --eval %_target_cpu)
+BRANCH:=$(PEGASUS_BUILD_BRANCH)
+RPM:=rpm
+RPMBUILD:=rpmbuild
+RM:=rm
+MV:=mv
+CP:=cp
+GREP:=grep
+ECHO:=echo
+TOG_INSTALLED_RPMS:=$(shell $(RPM) -qa|grep tog-pegasus)
+REMOVE_PEGASUS_DIRECTORY:=$(RM) -Rf pegasus.old; $(MV) pegasus pegasus.old
+
+ifndef PEGASUS_SRC_RELEASE
+    PEGASUS_SRC_RELEASE:=1
+endif
+
+ifdef PEGASUS_BUILD_BRANCH
+    ifeq ($(PEGASUS_BUILD_BRANCH),MAIN)
+        PEGASUS_RPM_CVS_TAG:=HEAD
+    else
+        PEGASUS_RPM_CVS_TAG:=$(PEGASUS_BUILD_BRANCH)
+    endif
+else
+        PEGASUS_RPM_CVS_TAG:=HEAD
+endif
+
+ifeq ($(IDISTRO),RedHatEnterpriseServer)
+    DISTRO:=REDHAT
+    export PEGASUS_DISTRO_SUFFIX:=$(if $(filter $(RELEASE),4.92 4.93 5),el5,\
+        xxx)
+else
+    ifeq ($(findstring RedHat,$(IDISTRO)),RedHat)
+        DISTRO:=REDHAT
+        ifeq ($(RELEASE),4)
+           export PEGASUS_DISTRO_SUFFIX=rhel4
+        else
+            ifeq ($(RELEASE),3)
+                export PEGASUS_DISTRO_SUFFIX=rhel3
+            else
+                export PEGASUS_DISTRO_SUFFIX=xxx
+            endif
+        endif
+    else
+        ifeq ($(findstring SUSE,$(IDISTRO)),SUSE)
+            DISTRO:=SUSE
+            ifeq ($(RELEASE),9)
+                export PEGASUS_DISTRO_SUFFIX=sles9
+            else
+                ifeq ($(RELEASE),10)
+                    export PEGASUS_DISTRO_SUFFIX=sles10
+                else
+                    export PEGASUS_DISTRO_SUFFIX=xxx
+                endif
+            endif
+        endif
+    endif
+endif
+
+###############################################################################
+#
+# The user may set PEGASUS_RPM_DIRECTORY to the path of their rpm build target.
+# The source tar file will then be in 
+# PEGASUS_RPM_DIRECTORY/SOURCES/tog-pegasus.
+# If PEGASUS_RPM_DIRECTORY is not defined the rpm build target path will be
+# defaulted to the well-known locations on redhat and suse systems.
+#
+###############################################################################
+ifndef PEGASUS_RPM_DIRECTORY
+  ifeq ($(DISTRO),REDHAT)
+    PEGASUS_RPM_DIRECTORY:=/usr/src/redhat
+  else
+    ifeq ($(DISTRO),SUSE)
+      PEGASUS_RPM_DIRECTORY:=/usr/src/packages
+    endif
+  endif
+  TOG_PEGASUS_DIR:=""
+else
+  TOG_PEGASUS_DIR:=tog-pegasus
+endif
+
+VERSION:=$(PEGASUS_RPM_VERSION)-$(PEGASUS_SRC_RELEASE)
+CORE_RPM:=tog-pegasus-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
+SDK_RPM:=tog-pegasus-devel-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
+TEST_RPM:=tog-pegasus-test-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
+SRC_RPM:=tog-pegasus-$(VERSION).src.rpm
+
+USAGE = @$(ECHO) $(1)
+
+usage: 
+	$(USAGE)
+	$(USAGE)"RPMMakefile targets:"
+	$(USAGE)""
+	$(USAGE)"exportSRC            - cvs export of pegasus"
+	$(USAGE)"createSRCRPM         - creates source rpm"
+	$(USAGE)"createBINRPM         - creates binary rpms including the test"
+	$(USAGE)"                       rpm from the source rpm"
+	$(USAGE)"buildRPM             - createSRCRPM createBINRPM"
+	$(USAGE)"buildall             - exportSRC buildRPM"
+	$(USAGE)"list                 - list the installed pegasus rpms"
+	$(USAGE)"clean                - cleans build and target directories"
+	$(USAGE)""
+	$(USAGE)"Input variables:"
+	$(USAGE)"PEGASUS_BUILD_BRANCH - pegasus branch to build"
+	$(USAGE)"                       HEAD is used if MAIN is specified"
+	$(USAGE)"PEGASUS_RPM_VERSION  - pegasus release version (Required)"
+	$(USAGE)"PEGASUS_SRC_RELEASE  - pegasus source release number"
+	$(USAGE)"                       defaults to 1 if not specified"
+	$(USAGE)"PEGASUS_RPM_DIRECTORY- path to target binary rpm directory"
+	$(USAGE)"                       if it is not defined"
+	$(USAGE)"                       defaults to /usr/src/redhat"
+	$(USAGE)"                       for Red Hat distributions"
+	$(USAGE)"                       defaults to /usr/src/packages"
+	$(USAGE)"                       for SUSE distributions"
+	$(USAGE)""
+
+exportSRC:
+	@cvs -d:pserver:anon@cvs.opengroup.org:/cvs/MSB export -r $(PEGASUS_RPM_CVS_TAG) pegasus
+
+createSRCRPM:
+
+ifndef PEGASUS_RPM_VERSION
+	@$(ECHO) "PEGASUS_RPM_VERSION is not defined"
+	@exit 2
+endif
+	@$(MV) pegasus tog-pegasus-$(PEGASUS_RPM_VERSION)
+	@$(CP) tog-pegasus-$(PEGASUS_RPM_VERSION)/rpm/tog-pegasus.spec $(PEGASUS_RPM_DIRECTORY)/SPECS 
+	@tar czf tog-pegasus-$(VERSION).tar.gz tog-pegasus-$(PEGASUS_RPM_VERSION)
+	@$(CP) tog-pegasus-$(VERSION).tar.gz $(PEGASUS_RPM_DIRECTORY)/SOURCES/$(TOG_PEGASUS_DIR)
+	@$(RPMBUILD) -bs $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
+
+createBINRPM:
+	@$(RPM) -i $(PEGASUS_RPM_DIRECTORY)/SRPMS/$(SRC_RPM)
+	@$(RPMBUILD) -bb --define 'LINUX_VERSION $(PEGASUS_DISTRO_SUFFIX)' --define 'PEGASUS_BUILD_TEST_RPM 1' $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
+
+buildRPM: createSRCRPM createBINRPM
+
+buildall: exportSRC buildRPM
+
+list: 
+	@$(RPM) -qa|$(GREP) tog-pegasus
+
+clean:
+	-$(RPM) -e $(filter tog-pegasus-test%,$(TOG_INSTALLED_RPMS))
+	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
+	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
+	-$(RM) -rf $(PEGASUS_RPM_DIRECTORY)/BUILD/tog-pegasus-$(VERSION)
+	-$(REMOVE_PEGASUS_DIRECTORY)
+	-$(RM) -rf pegasus	tog-pegasus-*
+	-$(RM) -rf /var/tmp/tog-pegasus-*
+

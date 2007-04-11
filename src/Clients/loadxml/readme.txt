@@ -30,7 +30,7 @@
 //==============================================================================
 Readme - LoadXml Utility Program
 
-LoadXML - THis is a utility program primarily for test that loads
+LoadXML - This is a utility program primarily for test that loads
 an XML file in the WBEM XML format into a repository.
 
 This program is not intended for production use but in the test environment.

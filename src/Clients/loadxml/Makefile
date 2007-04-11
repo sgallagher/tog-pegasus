@@ -28,27 +28,24 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = $(PEGASUS_ROOT)
 
-PROGRAM_NAME = loadxml
+ROOT = ../../..
+DIR = Clients/loadxml
  
-DIR = Clients/$(PROGRAM_NAME)
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-PROGRAM = $(PROGRAM_NAME)
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-SOURCES = $(PROGRAM_NAME).cpp
+PROGRAM = loadxml
 
-LIBRARIES += pegrepository
+SOURCES = loadxml.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
-	@ $(ECHO) remove repository at $(REPOSITORY_PATH)
-	$(RMREPOSITORY) $(REPOSITORY_PATH)/repository
-
-	$(PROGRAM_NAME)  x.xml root $(REPOSITORY_ROOT)
-	
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository
+	@ $(PROGRAM)  $(TMP_DIR)/repository x.xml root
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository
+	@ $(ECHO) "passed all tests +++"
 poststarttests:
-

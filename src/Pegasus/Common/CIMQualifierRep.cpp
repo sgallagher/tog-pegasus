@@ -177,10 +177,14 @@ void CIMQualifierRep::toMof(Buffer& out) const
         }
         else
         {
-            out << STRLIT(" (");
+            if( !_value.isArray() )
+                out << STRLIT(" (");
+            else
+                out << STRLIT(" ");
             hasValueField = true;
             MofWriter::appendValueElement(out, _value);
-            out.append(')');
+            if( !_value.isArray() )
+                out.append(')');
         }
     }
 

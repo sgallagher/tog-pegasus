@@ -47,7 +47,7 @@
 #define PEGASUS_CMPIR_CLOSESOCKET(socket_hdl) close(socket_hdl)
 #define PEGASUS_CMPIR_ERROR(h_error) hstrerror(h_errno)
 #define PEGASUS_CMPIR_FREELIBRARY(libhandle) dlclose(libhandle)
-#define PEGAUSUS_CMPIR_GETGID() getgid()
+#define PEGASUS_CMPIR_GETGID() getgid()
 #define PEGASUS_CMPIR_GETPID() getpid()
 #define PEGASUS_CMPIR_GETUID() getuid()
 #define PEGASUS_CMPIR_GETPROCADDRESS(hLibrary, function) dlsym(hLibrary, function)
@@ -83,7 +83,7 @@
 #define PEGASUS_CMPIR_LIBTYPE  "%s.dll"
 #define PEGASUS_CMPIR_LOADLIBRARY(filename,mode)  LoadLibrary(filename)
 #define PEGASUS_CMPIR_FREELIBRARY(libhandle) FreeLibrary(libhandle)
-#define PEGAUSUS_CMPIR_GETGID() 1
+#define PEGASUS_CMPIR_GETGID() 1
 #define PEGASUS_CMPIR_GETPID() _getpid()
 #define PEGASUS_CMPIR_GETPROCADDRESS(hLibrary,function)  GetProcAddress(hLibrary, function)
 #define PEGASUS_CMPIR_GETUID() 1
@@ -104,7 +104,6 @@ typedef unsigned int  Uint32;
 typedef size_t socklen_t;
 
 int gettimeofday (struct timeval *t,void * );
-//int getCurrentTimeZone(int&);
 #endif
 
 
@@ -137,7 +136,7 @@ int gettimeofday (struct timeval *t,void * );
 #define PEGASUS_CMPIR_CDECL
 #define PEGASUS_CMPIR_EXTERNAL
 #define PEGASUS_CMPIR_STDCALL
-#define PEGAUSUS_CMPIR_GETGID() getgid()
+#define PEGASUS_CMPIR_GETGID() getgid()
 #define PEGASUS_CMPIR_FREELIBRARY(libhandle) dllfree((dllhandle *) libhandle )
 #define atoll(X) strtoll(X, NULL, 10)
 #define PEGASUS_CMPIR_SLEEP(duration) sleep(duration)

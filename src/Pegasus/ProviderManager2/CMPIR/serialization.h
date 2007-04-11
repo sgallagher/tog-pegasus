@@ -130,11 +130,7 @@ struct BinarySerializerFT {
 
 };
 
-#ifndef DAEMON
-CMPI_EXPORT const struct BinarySerializerFT binarySerializerFT;
-#else
-CMPI_IMPORT extern const struct BinarySerializerFT binarySerializerFT;
-#endif
+extern const struct BinarySerializerFT binarySerializerFT;
 
 #endif
 

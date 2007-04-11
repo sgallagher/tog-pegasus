@@ -167,7 +167,7 @@ static void __trace_this ( int level,
     fprintf ( stderr,
           "--rcmpi(%s)--[%d(%d,%d)]:%s:(%d): %s\n",
            __debug_levels[level],
-          PEGASUS_CMPIR_GETPID(), PEGASUS_CMPIR_GETUID(), PEGAUSUS_CMPIR_GETGID(),
+          PEGASUS_CMPIR_GETPID(), PEGASUS_CMPIR_GETUID(), PEGASUS_CMPIR_GETGID(),
           file, line,
           msg );
     free ( msg ); \

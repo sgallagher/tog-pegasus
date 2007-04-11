@@ -152,7 +152,8 @@ static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle ( int, CONST CMPIBroker
 /****************************************************************************/
 
 
-CMPI_EXPORT const struct BinarySerializerFT binarySerializerFT = {
+
+const struct BinarySerializerFT binarySerializerFT = {
     __serialize_UINT8,
     __deserialize_UINT8,
     __serialize_UINT16,
@@ -200,8 +201,7 @@ CMPI_EXPORT const struct BinarySerializerFT binarySerializerFT = {
 
 };
 
-
-
+CMPI_EXPORT const struct BinarySerializerFT *binarySerializerFTptr = &binarySerializerFT;
 /****************************************************************************/
 
 

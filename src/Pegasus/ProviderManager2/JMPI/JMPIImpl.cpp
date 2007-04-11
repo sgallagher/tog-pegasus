@@ -109,6 +109,7 @@ const char* classNames[]={
 /*32*/ "java/lang/Character",
 /*33*/ "org/pegasus/jmpi/OperationContext",
 /*34*/ "java/lang/Class",
+/*35*/ "java/lang/StackTraceElement"
 };
 
 const METHOD_STRUCT instanceMethodNames[]={
@@ -164,7 +165,12 @@ const METHOD_STRUCT instanceMethodNames[]={
 /*49 OperationContextUnassociate */ { /*OperationContext */33, "unassociate",     "()V" },
 /*50 ClassGetInterfaces          */ { /*Class            */34, "getInterfaces",   "()[Ljava/lang/Class;" },
 /*51 ClassGetName                */ { /*Class            */34, "getName",         "()Ljava/lang/String;" },
-/*52 UnsignedInt64NewStr         */ { /*UnsignedInt64    */11, "<init>",          "(Ljava/lang/String;)V" }
+/*52 UnsignedInt64NewStr            */ { /*UnsignedInt64    */11, "<init>",          "(Ljava/lang/String;)V" },
+/*53 ThrowableGetStackTrace         */ { /*Throwable        */21, "getStackTrace",   "()Ljava/lang/StackTraceElement;" },
+/*54 StackTraceElementGetClassName  */ { /*StackTraceElement*/35, "getClassName",    "()Ljava/lang/String;" },
+/*55 StackTraceElementGetFileName   */ { /*StackTraceElement*/35, "getFileName",     "()Ljava/lang/String;" },
+/*56 StackTraceElementGetLineNumber */ { /*StackTraceElement*/35, "getLineNumber",   "()I" },
+/*57 StackTraceElementGetMethodName */ { /*StackTraceElement*/35, "getMethodName",   "()Ljava/lang/String;" }
 };
 
 const METHOD_STRUCT staticMethodNames[]={
@@ -716,10 +722,216 @@ jobject JMPIjvm::getProvider (JNIEnv *env, const char *cn, jclass *cls)
    return gProv;
 }
 
+#if 0
+
+// Java 1.4 version of programmatically accessting the backtrace stack
+///*57 ThrowableGetStackTrace         */ { /*Throwable        */21, "getStackTrace",   "()Ljava/lang/StackTraceElement;" },
+///*58 StackTraceElementGetClassName  */ { /*StackTraceElement*/35, "getClassName",    "()Ljava/lang/String;" },
+///*59 StackTraceElementGetFileName   */ { /*StackTraceElement*/35, "getFileName",     "()Ljava/lang/String;" },
+///*60 StackTraceElementGetLineNumber */ { /*StackTraceElement*/35, "getLineNumber",   "()I" },
+///*61 StackTraceElementGetMethodName */ { /*StackTraceElement*/35, "getMethodName",   "()Ljava/lang/String;" }
+
+String getExceptionInfo (JNIEnv *env)
+{
+   jthrowable   err        = env->ExceptionOccurred ();
+   jobjectArray stackTrace = 0;
+   String       rc;
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: err = "
+                           << PEGASUS_STD (hex)
+                           << (int)err
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   if (!err)
+      return rc;
+
+   stackTrace = (jobjectArray)env->CallObjectMethod (err,
+                                                     JMPIjvm::jv.ThrowableGetStackTrace);
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: stackTrace = "
+                           << PEGASUS_STD (hex)
+                           << (int)stackTrace
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   if (!stackTrace)
+      return rc;
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: stackTrace length = "
+                           << env->GetArrayLength (stackTrace)
+                           << PEGASUS_STD (endl));
+
+   jobject jFirstST = 0;
+   jstring jClass   = 0;
+   jstring jFile    = 0;
+   jstring jMethod  = 0;
+   jint    jLine    = 0;
+
+   jFirstST = env->GetObjectArrayElement (stackTrace, 0);
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jFirstST = "
+                           << PEGASUS_STD (hex)
+                           << (int)jFirstST
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   if (!jFirstST)
+      return rc;
+
+   jClass  = (jstring)env->CallObjectMethod (jFirstST,
+                                             JMPIjvm::jv.StackTraceElementGetClassName);
+   jFile   = (jstring)env->CallObjectMethod (jFirstST,
+                                             JMPIjvm::jv.StackTraceElementGetFileName);
+   jMethod = (jstring)env->CallObjectMethod (jFirstST,
+                                             JMPIjvm::jv.StackTraceElementGetMethodName);
+   jLine   = env->CallIntMethod (jFirstST,
+                                 JMPIjvm::jv.StackTraceElementGetLineNumber);
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jClass = "
+                           << PEGASUS_STD (hex)
+                           << (int)jClass
+                           << ", jFile = "
+                           << (int)jFile
+                           << ", jMethod = "
+                           << (int)jMethod
+                           << ", jLine = "
+                           << (int)jLine
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   const char *pszClass  = 0;
+   const char *pszFile   = 0;
+   const char *pszMethod = 0;
+
+   pszClass  = env->GetStringUTFChars (jClass, NULL);
+   pszFile   = env->GetStringUTFChars (jFile, NULL);
+   pszMethod = env->GetStringUTFChars (jMethod, NULL);
+
+   std::ostringstream oss;
+   String             exceptionInfo;
+
+   if (pszFile)
+   {
+      oss << "File: " << pszFile;
+
+      env->ReleaseStringUTFChars (jFile, pszFile);
+   }
+   if (jLine)
+   {
+      oss << ", Line: " << jLine;
+   }
+   if (pszClass)
+   {
+      oss << ", Class: " << pszClass;
+
+      env->ReleaseStringUTFChars (jClass, pszClass);
+   }
+   if (pszMethod)
+   {
+      oss << ", Method: " << pszMethod;
+
+      env->ReleaseStringUTFChars (jMethod, pszMethod);
+   }
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: oss = "
+                           << oss.str ()
+                           << PEGASUS_STD (endl));
+
+   rc = oss.str ().c_str ();
+
+   return rc;
+}
+
+#else
+
+String getExceptionInfo (JNIEnv *env)
+{
+   jthrowable err = env->ExceptionOccurred ();
+   String     rc;
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: err = "
+                           << PEGASUS_STD (hex)
+                           << (int)err
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   if (!err)
+      return rc;
+
+   // ByteArrayOutputStream baos = new ByteArrayOutputStream ();
+   // PrintStream           ps   = new PrintStream (baos);
+   // e.printStackTrace (ps);
+   // result = baos.toString ();
+
+   jobject jBAOS = 0;
+   jobject jPS   = 0;
+
+   jBAOS = env->NewObject (JMPIjvm::jv.ByteArrayOutputStreamClassRef,
+                           JMPIjvm::jv.ByteArrayOutputStreamNew);
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jBAOS = "
+                           << PEGASUS_STD (hex)
+                           << (int)jBAOS
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   if (!jBAOS)
+      return rc;
+
+   jPS = env->NewObject (JMPIjvm::jv.PrintStreamClassRef,
+                         JMPIjvm::jv.PrintStreamNewOb,
+                         jBAOS);
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jPS = "
+                           << PEGASUS_STD (hex)
+                           << (int)jPS
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   if (!jPS)
+      return rc;
+
+   env->CallVoidMethod (err,
+                        JMPIjvm::jv.ThrowablePrintStackTrace,
+                        jPS);
+
+   jstring jST = 0;
+
+   jST = (jstring)env->CallObjectMethod (jBAOS,
+                                         JMPIjvm::jv.ByteArrayOutputStreamToString);
+
+   DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jST = "
+                           << PEGASUS_STD (hex)
+                           << (int)jST
+                           << PEGASUS_STD (dec)
+                           << PEGASUS_STD (endl));
+
+   const char *pszST = 0;
+
+   pszST = env->GetStringUTFChars (jST, NULL);
+
+   if (pszST)
+   {
+      DDD (PEGASUS_STD (cerr) << "getExceptionInfo: pszST = "
+                              << pszST
+                              << PEGASUS_STD (endl));
+
+      rc = pszST;
+
+      env->ReleaseStringUTFChars (jST, pszST);
+   }
+
+   return rc;
+}
+
+#endif
+
 void JMPIjvm::checkException (JNIEnv *env)
 {
-   if (env->ExceptionCheck ())
-   {
+   if (!env->ExceptionCheck ())
+      return;
+
       jstring     jMsg = NULL,
                   jId  = NULL;
       int         code;
@@ -730,11 +942,13 @@ void JMPIjvm::checkException (JNIEnv *env)
 
       DDD(env->ExceptionDescribe());
 
+   if (!err)
+      return;
+
       if (env->IsInstanceOf (err, JMPIjvm::jv.CIMExceptionClassRef))
       {
          env->ExceptionClear ();
-         if (err)
-         {
+
             jMsg = (jstring)env->CallObjectMethod (err, JMPIjvm::jv.ThrowableGetMessage);
             code = (int)env->CallIntMethod (err, JMPIjvm::jv.CIMExceptionGetCode);
             jId  = (jstring)env->CallObjectMethod (err, JMPIjvm::jv.CIMExceptionGetID);
@@ -757,13 +971,23 @@ void JMPIjvm::checkException (JNIEnv *env)
 
             throw CIMException ((CIMStatusCode)code, id+" ("+msg+")");
          }
-      }
       else
       {
-         DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::checkException: exiting..."<<PEGASUS_STD(endl));
+      DDD(PEGASUS_STD(cerr)<<"--- Provider caused an exception!"<<PEGASUS_STD(endl));
+
+#ifdef PEGASUS_DEBUG
          env->ExceptionDescribe();
-         exit(13);
-      }
+#endif
+
+      String info = getExceptionInfo (env);
+
+      env->ExceptionClear ();
+
+      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                     MessageLoaderParms (
+                                        "ProviderManager2.JMPI.JMPIImpl.JAVA_CAUSED_EXCEPTION.STANDARD",
+                                        "Java caused an exception: $0",
+                                        info));
    }
 }
 

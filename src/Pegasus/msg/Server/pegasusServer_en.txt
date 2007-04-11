@@ -6476,7 +6476,7 @@ CIM server listening on HTTPS port {0}."}
 
         // ==========================================================
         // Messages for JMPIProviderManager
-        //  Please use message prefix "PGS18600 - PGS17799"
+        //  Please use message prefix "PGS18600 - PGS18799"
         // ==========================================================
 
         /**
@@ -6507,8 +6507,12 @@ CIM server listening on HTTPS port {0}."}
         /**
         * This message is no longer used in Pegasus 2.7. 
         */
-        ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS:string {"PGS18603: Could not get CLASSPATH from environment. Either CLASSPATH is longer than 255 characters or not set at all."}
+        ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS:string {"PGS18604: Could not get CLASSPATH from environment. Either CLASSPATH is longer than 255 characters or not set at all."}
 
+	/**
+	 * @note PGS18605
+	 */
+        ProviderManager2.JMPI.JMPIImpl.JAVA_CAUSED_EXCEPTION.STANDARD:string {"PGS18605: Java code caused an exception: {0}"}
         
 
 

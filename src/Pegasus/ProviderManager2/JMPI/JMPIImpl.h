@@ -375,6 +375,8 @@ class _dataType {
 #define CharacterClassRef            classRefs[32]
 #define OperationContextClassRef     classRefs[33]
 #define ClassClassRef                classRefs[34]
+#define ByteArrayOutputStreamClassRef  classRefs[35]
+#define PrintStreamClassRef            classRefs[36]
 
 #define BigIntegerValueOf            staticMethodIDs[0]
 #define JarClassLoaderLoad           staticMethodIDs[1]
@@ -432,6 +434,10 @@ class _dataType {
 #define ClassGetInterfaces           instMethodIDs[50]
 #define ClassGetName                 instMethodIDs[51]
 #define UnsignedInt64NewStr          instMethodIDs[52]
+#define ByteArrayOutputStreamNew       instMethodIDs[53]
+#define PrintStreamNewOb               instMethodIDs[54]
+#define ThrowablePrintStackTrace       instMethodIDs[55]
+#define ByteArrayOutputStreamToString  instMethodIDs[56]
 
 //extern "C" JNIEnv* attachThread(JvmVector**);
 //extern "C" void detachThread();

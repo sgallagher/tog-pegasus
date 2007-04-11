@@ -38,7 +38,6 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
@@ -226,46 +225,62 @@ void test05()
            cout << "Class test\n";
     CIMClass class1(CIMName ("MyClass"), CIMName ("YourClass"));
 
+    Array<String> valueMap;
+    valueMap.append("Abend");
+    valueMap.append("Other");
+    valueMap.append("Unknown");
+    CIMValue v(valueMap);
+
+    CIMProperty p(CIMName ("errorType"), CIMValue(CIMTYPE_STRING,false));
+    p.addQualifier(CIMQualifier(CIMName("valueMap"),v));
+
     class1
         .addQualifier(CIMQualifier(CIMName ("q1"), Uint32(55)))
         .addQualifier(CIMQualifier(CIMName ("q2"), String("Hello")))
         .addProperty(CIMProperty(CIMName ("message"), String("Hello")))
         .addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
+        .addProperty(CIMProperty(p))
         .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
             .addParameter(CIMParameter(CIMName ("hostname"), 
                     CIMTYPE_STRING))
             .addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
     if (verbose)
-        XmlWriter::printClassElement(class1);
+        MofWriter::printClassElement(class1);
     Buffer tmp;
     MofWriter::appendClassElement(tmp, class1);
 
     // compare with the following result.
-#define MESSAGE "\n//    Class MyClass\n\n\
-[q1 (55) : DisableOverride, Restricted, \n\
-q2 (\"Hello\") : DisableOverride, Restricted]\n\
-class MyClass : YourClass\n\
-{\n\
-string message = \"Hello\";\n\
-uint32 count = 77;\n\
-boolean isActive(string hostname, uint32 port);\n\
-};\n";
-        char classCompare[] = MESSAGE;
+        char classCompare[] = 
+            "\n//    Class MyClass\n\n"
+            "[q1 (55) : DisableOverride, Restricted, \n"
+            "q2 (\"Hello\") : DisableOverride, Restricted]\n"
+            "class MyClass : YourClass\n"
+            "{\n"
+            "string message = \"Hello\";\n"
+            "uint32 count = 77;\n"
+            "[valueMap {\"Abend\", \"Other\", \"Unknown\"} :"
+                " DisableOverride, Restricted]\n"
+            "string errorType;\n"
+            "boolean isActive(string hostname, uint32 port);\n"
+            "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmp, classCompare));
 
         CIMInstance instance1 = class1.buildInstance(false, false,
                                                      CIMPropertyList());
+        Uint32 idx = instance1.findProperty(CIMName("errorType"));
+        instance1.removeProperty(idx);
+        instance1.addProperty(CIMProperty(CIMName ("errorType"), String("Abend")));
         Buffer tmpInstance;
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
-#define MESSAGEINST "\n//Instance of MyClass\n\
-instance of MyClass\n\
-{\n\
-message = \"Hello\";\n\
-count = 77;\n\
-};\n";
-
-        char instanceCompare[] = MESSAGEINST;
+        char instanceCompare[] = 
+            "\n//Instance of MyClass\n"
+            "instance of MyClass\n"
+            "{\n"
+            "message = \"Hello\";\n"
+            "count = 77;\n"
+            "errorType = \"Abend\";\n"
+            "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmpInstance, instanceCompare));
     }
     
@@ -299,24 +314,24 @@ count = 77;\n\
                         CIMTYPE_STRING))
                 .addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
         if (verbose)
-            XmlWriter::printClassElement(class1);
+            MofWriter::printClassElement(class1);
         Buffer tmp;
         MofWriter::appendClassElement(tmp, class1);
 
     // compare with the following result.
-#define MESSAGE2 "\n//    Class MyClass\n\n\
-[association : DisableOverride, Restricted, \n\
-q1 (55) : DisableOverride, Restricted, \n\
-q2 (\"Hello\") : DisableOverride, Restricted]\n\
-class MyClass : YourClass\n\
-{\n\
-string message;\n\
-uint32 count;\n\
-boolean booltest;\n\
-string arraytest[] = {\"One\", \"Two\", \"Three\"};\n\
-boolean isActive(string hostname, uint32 port);\n\
-};\n";
-        char classCompare[] = MESSAGE2;
+        char classCompare[] = 
+            "\n//    Class MyClass\n\n"
+            "[association : DisableOverride, Restricted, \n"
+            "q1 (55) : DisableOverride, Restricted, \n"
+            "q2 (\"Hello\") : DisableOverride, Restricted]\n"
+            "class MyClass : YourClass\n"
+            "{\n"
+            "string message;\n"
+            "uint32 count;\n"
+            "boolean booltest;\n"
+            "string arraytest[] = {\"One\", \"Two\", \"Three\"};\n"
+            "boolean isActive(string hostname, uint32 port);\n"
+            "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmp, classCompare));
 
         CIMInstance instance1 = class1.buildInstance(false, false,
@@ -324,16 +339,15 @@ boolean isActive(string hostname, uint32 port);\n\
         Buffer tmpInstance;
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
-#define MESSAGEINST2 "\n//Instance of MyClass\n\
-instance of MyClass\n\
-{\n\
-message = NULL;\n\
-count = NULL;\n\
-booltest = NULL;\n\
-arraytest = {\"One\", \"Two\", \"Three\"};\n\
-};\n";
-
-        char instanceCompare[] = MESSAGEINST2;
+        char instanceCompare[] = 
+            "\n//Instance of MyClass\n"
+            "instance of MyClass\n"
+            "{\n"
+            "message = NULL;\n"
+            "count = NULL;\n"
+            "booltest = NULL;\n"
+            "arraytest = {\"One\", \"Two\", \"Three\"};\n"
+            "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmpInstance, instanceCompare));
     }
     // Test CimClass This is not really an association class.
@@ -402,34 +416,33 @@ arraytest = {\"One\", \"Two\", \"Three\"};\n\
                      )
                      ;
         if (verbose)
-            XmlWriter::printClassElement(class1);
+            MofWriter::printClassElement(class1);
         Buffer tmp;
         MofWriter::appendClassElement(tmp, class1);
 
-#define MESSAGE3 "\n//    Class SubClass\n\n\
-[abstract : DisableOverride, Restricted, \n\
-description (\"This is a Description of my class. This is part 2 \
-of the string to make it longer. \
-This is part 3 of the same string for nothing.\") \
-: DisableOverride, Restricted]\n\
-class SubClass : SuperClass\n\
-{\n\
-[read : DisableOverride, Restricted]\n\
-string DriveLetter = \"A\";\n\
-[read : DisableOverride, Restricted, \n\
-Units (\"KiloBytes\") : DisableOverride, Restricted]\n\
-sint32 RawCapacity = 99;\n\
-string VolumeLabel = \" \";\n\
-boolean NoParmsMethod();\n\
-boolean OneParmmethod([Dangerous : DisableOverride, Restricted] \
-boolean FastFormat);\n\
-boolean TwoParmMethod([Dangerous : DisableOverride, Restricted, \n\
-in : DisableOverride, Restricted] boolean FirstParam, \
-[Dangerous : DisableOverride, Restricted, \n\
-in : DisableOverride, Restricted] boolean SecondParam);\n\
-};\n";
- 
-        char classCompare[] = MESSAGE3;
+        char classCompare[] = 
+            "\n//    Class SubClass\n\n"
+            "[abstract : DisableOverride, Restricted, \n"
+            "description (\"This is a Description of my class. This is part 2 "
+            "of the string to make it longer. "
+            "This is part 3 of the same string for nothing.\") "
+            ": DisableOverride, Restricted]\n"
+            "class SubClass : SuperClass\n"
+            "{\n"
+            "[read : DisableOverride, Restricted]\n"
+            "string DriveLetter = \"A\";\n"
+            "[read : DisableOverride, Restricted, \n"
+            "Units (\"KiloBytes\") : DisableOverride, Restricted]\n"
+            "sint32 RawCapacity = 99;\n"
+            "string VolumeLabel = \" \";\n"
+            "boolean NoParmsMethod();\n"
+            "boolean OneParmmethod([Dangerous : DisableOverride, Restricted] "
+            "boolean FastFormat);\n"
+            "boolean TwoParmMethod([Dangerous : DisableOverride, Restricted, \n"
+            "in : DisableOverride, Restricted] boolean FirstParam, "
+            "[Dangerous : DisableOverride, Restricted, \n"
+            "in : DisableOverride, Restricted] boolean SecondParam);\n"
+            "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmp, classCompare));
     }
 

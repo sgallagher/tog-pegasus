@@ -281,7 +281,7 @@ int main (int argc, char *argv[])
         TRACE_NORMAL(("Entering provider cleanup loop ...\n"));
     }
 
-    cleanup_remote_brokers ((long) 100, (PEGASUS_CMPIR_INT)30 );
+    cleanup_remote_brokers ((long) 100, 30 );
     return 0;
 }
 

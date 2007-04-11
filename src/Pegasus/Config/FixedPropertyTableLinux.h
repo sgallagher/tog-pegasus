@@ -81,7 +81,7 @@
 #  endif
     {"messageDir",          "/opt/tog-pegasus/share/locale/ICU_Messages"},
 # endif /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
-#endif /*  defined(PEGASUS_USE_RELEASE_DIRS)
+#endif /* defined(PEGASUS_USE_RELEASE_DIRS) */
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
     !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"} // Remove this line if others are added

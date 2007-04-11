@@ -932,51 +932,51 @@ void JMPIjvm::checkException (JNIEnv *env)
    if (!env->ExceptionCheck ())
       return;
 
-      jstring     jMsg = NULL,
-                  jId  = NULL;
-      int         code;
-      const char *cp;
-      String      msg;
-      String      id;
-      jthrowable  err  = env->ExceptionOccurred();
+   jstring     jMsg = NULL,
+               jId  = NULL;
+   int         code;
+   const char *cp;
+   String      msg;
+   String      id;
+   jthrowable  err  = env->ExceptionOccurred();
 
-      DDD(env->ExceptionDescribe());
+   DDD(env->ExceptionDescribe());
 
    if (!err)
       return;
 
-      if (env->IsInstanceOf (err, JMPIjvm::jv.CIMExceptionClassRef))
+   if (env->IsInstanceOf (err, JMPIjvm::jv.CIMExceptionClassRef))
+   {
+      env->ExceptionClear ();
+
+      jMsg = (jstring)env->CallObjectMethod (err, JMPIjvm::jv.ThrowableGetMessage);
+      code = (int)env->CallIntMethod (err, JMPIjvm::jv.CIMExceptionGetCode);
+      jId  = (jstring)env->CallObjectMethod (err, JMPIjvm::jv.CIMExceptionGetID);
+
+      if (jId)
       {
-         env->ExceptionClear ();
+         cp = env->GetStringUTFChars (jId, NULL);
+         id = String (cp);
+         env->ReleaseStringUTFChars (jId, cp);
+      }
 
-            jMsg = (jstring)env->CallObjectMethod (err, JMPIjvm::jv.ThrowableGetMessage);
-            code = (int)env->CallIntMethod (err, JMPIjvm::jv.CIMExceptionGetCode);
-            jId  = (jstring)env->CallObjectMethod (err, JMPIjvm::jv.CIMExceptionGetID);
-
-            if (jId)
-            {
-               cp = env->GetStringUTFChars (jId, NULL);
-               id = String (cp);
-               env->ReleaseStringUTFChars (jId, cp);
-            }
-
-            if (jMsg)
-            {
-               cp  = env->GetStringUTFChars (jMsg, NULL);
-               msg = String (cp);
-               env->ReleaseStringUTFChars (jMsg, cp);
-            }
-
-            DDD(PEGASUS_STD(cerr)<<"--- throwing Pegasus exception: "<<code<<" "<<id<<" ("<<msg<<")"<<PEGASUS_STD(endl));
-
-            throw CIMException ((CIMStatusCode)code, id+" ("+msg+")");
-         }
-      else
+      if (jMsg)
       {
+         cp  = env->GetStringUTFChars (jMsg, NULL);
+         msg = String (cp);
+         env->ReleaseStringUTFChars (jMsg, cp);
+      }
+
+      DDD(PEGASUS_STD(cerr)<<"--- throwing Pegasus exception: "<<code<<" "<<id<<" ("<<msg<<")"<<PEGASUS_STD(endl));
+
+      throw CIMException ((CIMStatusCode)code, id+" ("+msg+")");
+   }
+   else
+   {
       DDD(PEGASUS_STD(cerr)<<"--- Provider caused an exception!"<<PEGASUS_STD(endl));
 
 #ifdef PEGASUS_DEBUG
-         env->ExceptionDescribe();
+      env->ExceptionDescribe();
 #endif
 
       String info = getExceptionInfo (env);

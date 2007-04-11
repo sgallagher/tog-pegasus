@@ -35,9 +35,33 @@ ifndef PEGASUS_HOME
     $(error PEGASUS_HOME environment variable undefined)
 endif
 
-all clean depend build poststarttests messages tests repository:
-	$(MAKE) -C LoadJMPI $(MFLAGS) $@
-	$(MAKE) -C JRE $(MFLAGS) $@
-	$(MAKE) -C Providers $(MFLAGS) $@
-	$(MAKE) -C Client $(MFLAGS) $@
-	$(MAKE) -C Static $(MFLAGS) $@
+DIR = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/LoadJMPI
+
+include $(PEGASUS_ROOT)/mak/config.mak
+
+LIBRARIES = \
+     pegcommon \
+     pegconfig
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+SOURCES = \
+	LoadJMPI.cpp
+
+PROGRAM = LoadJMPI
+
+include $(ROOT)/mak/program.mak
+include $(ROOT)/test/config.mak
+
+ifeq ($(OS_TYPE),windows)
+  SYS_LIBS = ws2_32.lib advapi32.lib	
+endif
+
+tests:
+	@$(PROGRAM) test
+
+poststarttests:
+
+repository:
+
+all: $(FULL_PROGRAM)

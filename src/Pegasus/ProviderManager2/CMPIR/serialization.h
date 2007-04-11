@@ -105,8 +105,10 @@ struct BinarySerializerFT {
     ssize_t (* serialize_CMPIInstance) ( int, CONST CMPIInstance * );
     CMPIInstance * (* deserialize_CMPIInstance) ( int, CONST CMPIBroker * );
 
-    ssize_t (* serialize_CMPISelectExp) ( int, CONST CMPISelectExp *, CMPIUint32);
-    CMPISelectExp * (* deserialize_CMPISelectExp) ( int, CONST CMPIBroker *, CMPIUint32);
+    ssize_t (* serialize_CMPISelectExp) ( int, CONST CMPISelectExp *,
+                                          CMPIUint32);
+    CMPISelectExp * (* deserialize_CMPISelectExp) ( int, CONST CMPIBroker *,
+                                                    CMPIUint32);
 
     ssize_t (* serialize_CMPIDateTime) ( int, CMPIDateTime * );
     CMPIDateTime * (* deserialize_CMPIDateTime) ( int, CONST CMPIBroker * );

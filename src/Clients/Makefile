@@ -55,7 +55,8 @@ DIRS = \
     cimsub/tests \
     repupgrade/SSPModules/SampleSSPModule \
     repupgrade/tests \
-    wbemexec/tests
+    wbemexec/tests \
+    loadxml
 
 
 ifeq ($(OS),HPUX)

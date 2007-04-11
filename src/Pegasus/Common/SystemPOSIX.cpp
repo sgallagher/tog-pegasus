@@ -83,12 +83,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Mutex.h>
 
-#if defined(PEGASUS_OS_LSB)
-# include <termios.h>
-# include <stdio.h>
-# include <stdlib.h>
-#endif
-
 #include <net/if.h>
 
 #include "Once.h"
@@ -501,53 +495,6 @@ Uint32 System::lookupPort(
     return localPort;
 }
 
-#if defined(PEGASUS_OS_LSB)
-
-/*
-   getpass equivalent.
-   Adapted from example implementation described in GLIBC documentation
-   (http://www.dusek.ch/manual/glibc/libc_32.html) and
-   "Advanced Programming in the UNIX Environment" by Richard Stevens,
-   pg. 350.
-
-*/
-char *getpassword(const char *prompt)
-{
-    const size_t MAX_PASS_LEN = 1024;
-    static char buf[MAX_PASS_LEN];
-    struct termios old, new_val;
-    char *ptr;
-    int c;
-
-    buf[0] = 0;
-
-    /* Turn echoing off and fail if we can't. */
-    if (tcgetattr (fileno (stdin), &old) != 0)
-        return buf;
-    new_val = old;
-    new_val.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
-    if (tcsetattr (fileno (stdin), TCSAFLUSH, &new_val) != 0)
-        return buf;
-
-    /* Read the password. */
-    fputs (prompt, stdin);
-    ptr = buf;
-    while ( (c = getc(stdin)) != EOF && c != '\n')
-    {
-        if (ptr < &buf[MAX_PASS_LEN])
-            *ptr++ = c;
-    }
-    *ptr = 0;
-    putc('\n', stdin);
-
-    /* Restore terminal. */
-    (void) tcsetattr (fileno (stdin), TCSAFLUSH, &old);
-    fclose(stdin);
-    return buf;
-}
-
-#endif /* PEGASUS_OS_LSB */
-
 String System::getPassword(const char* prompt)
 {
 #if defined(PEGASUS_OS_VMS)
@@ -715,10 +662,6 @@ String System::getPassword(const char* prompt)
     // Not supported on OS/400, and we don't need it.
     // 'getpass' is DEPRECATED
     return String();
-
-#elif defined(PEGASUS_OS_LSB)
-
-    return String(getpassword(prompt));
 
 #else /* default */
 

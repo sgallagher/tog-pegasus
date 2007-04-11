@@ -47,7 +47,7 @@
     {"httpAuthType",        "Basic"},
     {"enableBinaryRepository", "false"},
 #endif
-#if defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB)
+#if defined(PEGASUS_USE_RELEASE_DIRS)
 # if defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
     {"traceFilePath",       PEGASUS_TRACE_FILE_PATH},
 #  if !defined(PEGASUS_USE_SYSLOGS)
@@ -81,25 +81,7 @@
 #  endif
     {"messageDir",          "/opt/tog-pegasus/share/locale/ICU_Messages"},
 # endif /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
-#endif /*  defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB) */
-#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
-    {"traceFilePath",       "/var/opt/lsb-pegasus/cache/cimserver.trc"},
-# if !defined(PEGASUS_USE_SYSLOGS)
-    {"logdir",              "/var/opt/lsb-pegasus/log"},
-# endif
-    {"passwordFilePath",    "/etc/opt/lsb-pegasus/cimserver.passwd"},
-    {"sslCertificateFilePath", "/etc/opt/lsb-pegasus/server.pem"},
-    {"sslKeyFilePath",      "/etc/opt/lsb-pegasus/file.pem"},
-    {"sslTrustStore",       "/etc/opt/lsb-pegasus/cimserver_trust"},
-    {"crlStore",            "/etc/opt/lsb-pegasus/crl"},
-    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
-# if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
-    {"providerDir",         "/opt/lsb-pegasus/providers:/usr/"
-                                PEGASUS_ARCH_LIB "/cmpi"},
-# else
-    {"providerDir",         "/opt/lsb-pegasus/providers"},
-# endif
-#endif
+#endif /*  defined(PEGASUS_USE_RELEASE_DIRS)
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
     !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"} // Remove this line if others are added

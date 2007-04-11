@@ -75,10 +75,6 @@
 #include <sys/param.h> // For MAXHOSTNAMELEN
 #include <limits.h>    // _POSIX_HOST_NAME_MAX 
 
-#if defined(PEGASUS_OS_LSB) && !defined(MAXHOSTNAMELEN)
-#define PEGASUS_MAXHOSTNAMELEN 64
-#endif
-
 #if (__GNUC__ >= 4)
 # define PEGASUS_EXPORT __attribute__ ((visibility("default")))
 # define PEGASUS_IMPORT __attribute__ ((visibility("default")))

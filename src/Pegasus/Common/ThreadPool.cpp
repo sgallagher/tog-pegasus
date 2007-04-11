@@ -231,14 +231,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
                     String("Exception from work in ThreadPool::_loop: ") +
                         e.getMessage());
             }
-#if !defined(PEGASUS_OS_LSB)
             catch (const exception& e)
             {
                 PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     String("Exception from work in ThreadPool::_loop: ") +
                         e.what());
             }
-#endif
             catch (...)
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,

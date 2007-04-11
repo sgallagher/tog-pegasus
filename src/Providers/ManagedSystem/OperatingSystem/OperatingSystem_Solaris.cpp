@@ -369,7 +369,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
       {
          while (readdir_r(procdir, entry, &result) == 0 && result != NULL)
          {
-#if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU) && !defined(PEGASUS_OS_LSB)
+#if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
             if (entry->d_type != DT_DIR)
                continue;
 #endif

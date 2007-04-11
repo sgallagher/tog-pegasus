@@ -518,7 +518,7 @@ PEGASUS_COMMON_LINKAGE
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  \
     "/opt/freeware/cimom/pegasus/bin/cimservera"
-# elif defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_LSB)
+# elif defined(PEGASUS_OS_LINUX)
 #  undef CIMSERVER_LOCK_FILE
 #  define CIMSERVER_LOCK_FILE               \
     "/var/opt/tog-pegasus/cimserver_start.lock"
@@ -550,34 +550,6 @@ PEGASUS_COMMON_LINKAGE
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/tog-pegasus/sbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/tog-pegasus/sbin/cimprovagt"
-# elif defined(PEGASUS_OS_LSB)
-#  undef PEGASUS_REPOSITORY_DIR
-#  define PEGASUS_REPOSITORY_DIR            "/var/opt/lsb-pegasus/repository"
-#  undef PEGASUS_CURRENT_CONFIG_FILE_PATH
-#  define PEGASUS_CURRENT_CONFIG_FILE_PATH  \
-    "/etc/opt/lsb-pegasus/cimserver_current.conf"
-#  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
-#  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
-    "/etc/opt/lsb-pegasus/cimserver_planned.conf"
-#  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      "/var/run/cimserver.pid"
-#  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
-#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/lsb-pegasus/client.pem"
-#  undef PEGASUS_SSLCLIENT_RANDOMFILE
-#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/lsb-pegasus/ssl.rnd"
-#  undef PEGASUS_SSLSERVER_RANDOMFILE
-#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/lsb-pegasus/cimserver.rnd"
-#  undef PEGASUS_LOCAL_AUTH_DIR
-#  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/lsb-pegasus/localauth"
-#  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
-#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  \
-    "/var/opt/lsb-pegasus/socket/cimxml.socket"
-#  undef PEGASUS_CORE_DIR
-#  define PEGASUS_CORE_DIR                  "/var/opt/lsb-pegasus"
-#  undef PEGASUS_PAM_STANDALONE_PROC_NAME
-#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/lsb-pegasus/sbin/cimservera"
-#  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
-#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/lsb-pegasus/sbin/cimprovagt"
 # elif defined(PEGASUS_OS_VMS)
 #  undef CIMSERVER_LOCK_FILE
 #  define CIMSERVER_LOCK_FILE               \

@@ -195,17 +195,6 @@ endif
   endif
 endif
 
-####################################
-##
-##   If PEGASUS_LSB is set, set the rest of the variables.
-##
-####################################
-
-ifdef PEGASUS_LSB
-    SYS_INCLUDES += -I/usr/include -I/usr/include/c++ -I/opt/lsbdev-base/include/c++ -I/opt/lsbdev-base/include/
-    FLAGS += -DPEGASUS_OS_LSB
-endif
-
 ##==============================================================================
 ##
 ## Set the default visibility symbol to hidden for shared libraries. This 

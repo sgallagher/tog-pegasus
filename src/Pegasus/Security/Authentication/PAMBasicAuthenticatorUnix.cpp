@@ -69,12 +69,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #include <security/pam_appl.h>
 
-#if defined(PEGASUS_OS_LSB)
-#ifndef PAM_MAX_MSG_SIZE
-#define PAM_MAX_MSG_SIZE      512
-#endif
-#endif
-
 #define BUFFERLEN 1024
 
 /**

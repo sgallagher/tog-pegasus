@@ -319,8 +319,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         else
             contentTypeValue = cimContentType;
 
-        if (!String::equalNoCase(contentTypeValue, "text/xml") &&
-            !String::equalNoCase(contentTypeValue, "application/xml"))
+        if (!HTTPMessage::isSupportedContentType(contentTypeValue))
         {
             CIMClientMalformedHTTPException* malformedHTTPException = new
                 CIMClientMalformedHTTPException

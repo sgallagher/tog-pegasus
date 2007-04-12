@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -87,16 +83,38 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   //static CMPIStatus enumReleaseNop(CMPIEnumeration* eEnum) {
-   //   CMReturn(CMPI_RC_OK);
-   //}
+   static CMPIEnumeration* enumClone(const CMPIEnumeration* eEnumObj, CMPIStatus* rc)
+   {
+       const CMPIEnumeration* eEnum = (CMPIEnumeration*)eEnumObj->hdl;
 
-   static CMPIEnumeration* enumClone(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
-   //   CIMInstance* enm=(CIMInstance*)eEnum->hdl;
-   //   CIMInstance* cInst=new CIMInstance(enum->clone());
-   //   CMPIEnumeration* neEnum=(CMPIEnumeration*)new CMPI_Object(cInst,CMPI_Instance_Ftab);
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-   //   return neEnum;
+       if (eEnum->hdl)
+       {
+           if ((void*)eEnum->ft == (void*)CMPI_InstEnumeration_Ftab)
+           {
+               Array<CIMInstance>* enm = (Array<CIMInstance>*)eEnum->hdl;
+               CMPI_Object *obj = new CMPI_Object(
+                   new CMPI_InstEnumeration(new Array<CIMInstance>(*enm)));
+               obj->unlink(); // remove from current thread context.
+               return reinterpret_cast<CMPIEnumeration*>(obj);
+           }
+           else if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab)
+           {
+               Array<CIMObject>* enm = (Array<CIMObject>*)eEnum->hdl;
+               CMPI_Object *obj = new CMPI_Object(
+                   new CMPI_ObjEnumeration(new Array<CIMObject>(*enm)));
+               obj->unlink(); // remove from current thread context.
+               return reinterpret_cast<CMPIEnumeration*>(obj);
+           }
+           else if ((void*)eEnum->ft == (void*)CMPI_OpEnumeration_Ftab)
+           {
+               Array<CIMObjectPath>* enm = (Array<CIMObjectPath>*)eEnum->hdl;
+               CMPI_Object *obj = new CMPI_Object(
+                   new CMPI_OpEnumeration(new Array<CIMObjectPath>(*enm)));
+               obj->unlink(); // remove from current thread context.
+               return reinterpret_cast<CMPIEnumeration*>(obj);
+           }
+       }
+       CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
       return NULL;
    }
 

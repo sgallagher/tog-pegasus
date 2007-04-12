@@ -100,6 +100,36 @@ static char* _FindSeparator(const char* data, Uint32 size)
     return 0;
 }
 
+/**
+    Utility functions to validate Content-Type header.
+*/
+static void _skipWhitespace(const char*& str)
+{
+    while (*str && isspace(*str))
+    {
+        ++str;
+    }
+}
+
+// Finds the token in the string by skipping initial LWS and
+// returns true if "token" can be found in "str" else false.
+// Token should be the first in the string.
+static Boolean _expectToken(const char*& str, const char *token)
+{
+    PEGASUS_ASSERT(token);
+    // skip LWS.
+    _skipWhitespace(str);
+    for ( ; *token ; ++str, ++token)
+    {
+        if (!*str || tolower(*str) != tolower(*token))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 HTTPMessage::HTTPMessage(
     const Buffer& message_,
     Uint32 queueId_, const CIMException *cimException_)
@@ -462,6 +492,40 @@ Boolean HTTPMessage::parseStatusLine(
     reasonPhrase = statusLine.subString(space2 + 1);
 
     return true;
+}
+
+Boolean HTTPMessage::isSupportedContentType(const String& cimContentType)
+{
+    CString cstr = cimContentType.getCString();
+    const char *str = (const char*) cstr;
+
+    if (!_expectToken(str, "application/xml"))
+    {
+        str = (const char*) cstr;
+        if (!_expectToken(str, "text/xml"))
+        {
+            return false;
+        }
+    }
+
+    // Check for missing charset.
+    _skipWhitespace(str);
+    if (!*str)
+    {
+        return true; //We assume "utf-8".
+    }
+
+    // charset is present, should be "utf-8", case insensitive.
+    if (!_expectToken(str, ";") || !_expectToken(str, "charset") ||
+        !_expectToken (str, "=") ||!_expectToken(str, "\"utf-8\""))
+    {
+        return false;
+    }
+
+    // Check for any extra characters
+    _skipWhitespace(str);
+
+    return !*str;
 }
 
 PEGASUS_NAMESPACE_END

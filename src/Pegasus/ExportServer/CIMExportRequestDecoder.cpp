@@ -434,9 +434,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", cimContentType, true);
 
-    // ATTN: Bug 5928: Need to validate that the content type is text/xml or
-    // application/xml, and the encoding is utf-8 (or compatible)
-    if (!contentTypeHeaderFound)
+    if (!contentTypeHeaderFound ||
+        !HTTPMessage::isSupportedContentType (cimContentType))
     {
         sendHttpError(
             queueId,

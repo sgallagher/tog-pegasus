@@ -395,9 +395,8 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 							    cimContentType,
 							    true);
 
-   if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
-  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
-	     contentTypeHeaderFound))
+   if (!contentTypeHeaderFound ||
+       !HTTPMessage::isSupportedContentType(cimContentType))
    {
    		//l10n
        //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",

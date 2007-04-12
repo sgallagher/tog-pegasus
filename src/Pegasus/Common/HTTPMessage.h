@@ -108,6 +108,9 @@ public:
         String& httpVersion,
         Uint32& statusCode,
         String& reasonPhrase);
+
+    static Boolean isSupportedContentType(
+        const String& cimContentType);
 };
 
 PEGASUS_NAMESPACE_END

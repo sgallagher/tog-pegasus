@@ -100,9 +100,12 @@ extern "C" {
       return NULL;
    }
 
-   static CMPIData enumGetNext(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   static CMPIData enumGetNext(const CMPIEnumeration* eEnumObj, CMPIStatus* rc) 
+   {
       CMPIData data={0,CMPI_nullValue,{0}};
-      if (!eEnum->hdl)
+      const CMPIEnumeration* eEnum = (CMPIEnumeration*)eEnumObj->hdl;
+
+      if (!eEnum ||!eEnum->hdl)
         {
             if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return data;
@@ -145,8 +148,12 @@ extern "C" {
       return data;
    }
 
-   static CMPIBoolean enumHasNext(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
-      if (!eEnum->hdl)
+   static CMPIBoolean enumHasNext(const CMPIEnumeration* eEnumObj, 
+                                  CMPIStatus* rc) 
+   {
+      const CMPIEnumeration* eEnum = (CMPIEnumeration*)eEnumObj->hdl;
+
+      if (!eEnum || !eEnum->hdl)
         {
             if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return false;
@@ -172,11 +179,14 @@ extern "C" {
    extern CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
                                        const CMPIValue *val, CMPIType type);
 
-   static CMPIArray* enumToArray(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   static CMPIArray* enumToArray(const CMPIEnumeration* eEnumObj, CMPIStatus* rc) 
+   {
       Uint32 size;
       CMPI_Object* obj;
       CMPIArray *nar=NULL;
-      if (!eEnum->hdl)
+      const CMPIEnumeration* eEnum = (CMPIEnumeration*)eEnumObj->hdl;
+
+      if (!eEnum || !eEnum->hdl)
         {
             if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;

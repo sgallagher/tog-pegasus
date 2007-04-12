@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -211,6 +211,111 @@ int main(int argc, char** argv)
     b.clear();
     PEGASUS_TEST_ASSERT(b2.size() == 0);
     PEGASUS_TEST_ASSERT(b.size() == 0);
+    }
+
+    cout << "Testing the limits of Buffer Class by stressing the memory..."
+         << endl;
+
+    /** Added to test funtionality of
+        void append(const char* data, Uint32 size) for memory overflow. */
+    {
+        Boolean exceptionCaught = false;
+        //Minimum capacity allocated by Buffer class is 0x800
+        Buffer b("abc", 0x800);
+        try
+        {
+                b.append("abc", 0xFFFF0000);
+        }
+        catch (const PEGASUS_STD(bad_alloc)&)
+        {
+                exceptionCaught = true;
+        }
+        PEGASUS_TEST_ASSERT(exceptionCaught);
+    }
+
+    /** Added to test funtionality of
+        void reserveCapacity(Uint32 cap) for memory overflow. */
+    {
+        Boolean exceptionCaught = false;
+        Buffer b("abc",0x800);
+        try
+        {
+            b.reserveCapacity(0xFFFF0000);
+        }
+        catch (const PEGASUS_STD(bad_alloc)&)
+        {
+            exceptionCaught = true;
+        }
+        PEGASUS_TEST_ASSERT(exceptionCaught);
+        PEGASUS_TEST_ASSERT(b.capacity() == 0x800);
+    }
+
+    /** Added to test funtionality of
+        void grow(Uint32 size, char x = '\0') for memory overflow. */
+    {
+        Boolean exceptionCaught = false;
+        Buffer b("abc", 0x800);
+        try
+        {
+            b.grow(0xFFFF0000, 'a');
+        }
+        catch (const PEGASUS_STD(bad_alloc)&)
+        {
+            exceptionCaught = true;
+        }
+        PEGASUS_TEST_ASSERT(exceptionCaught);
+    }
+
+    /** Added to test funtionality of
+        void append(char c1, char c2, char c3, char c4) for memory overflow. */
+    {
+        Boolean exceptionCaught = false;
+        Buffer b;
+        try
+        {
+            b.grow(0x3FFFFFFC, 'a');
+            b.append('a','b','c','d');
+        }
+        catch (const PEGASUS_STD(bad_alloc)&)
+        {
+            exceptionCaught = true;
+        }
+        PEGASUS_TEST_ASSERT(exceptionCaught);
+    }
+
+    /** Added to test funtionality of
+        void append(char c1, char c2, char c3, char c4, char c5, char c6,
+        char c7, char c8) for memory overflow. */
+    {
+        Boolean exceptionCaught = false;
+        Buffer b;
+        try
+        {
+              b.grow(0x3FFFFFF8, 'a');
+              b.append('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h');
+        }
+        catch (const PEGASUS_STD(bad_alloc)&)
+        {
+            exceptionCaught = true;
+        }
+        PEGASUS_TEST_ASSERT( exceptionCaught);
+    }
+
+     /** Added to test funtionality of
+          void append(char x) for memory overflow. */
+    {
+        Boolean exceptionCaught = false;
+        Buffer b;
+        try
+        {
+            b.grow(0x3FFFFFFF, 'a');
+            b.append('a');
+        }
+        catch (const PEGASUS_STD(bad_alloc)&)
+        {
+            exceptionCaught = true;
+        }
+        PEGASUS_TEST_ASSERT( exceptionCaught);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

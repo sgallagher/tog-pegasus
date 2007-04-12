@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -241,7 +241,7 @@ int test(int argc, char** argv)
         PEGASUS_TEST_ASSERT(String::compare(t2, t1) > 0);
         PEGASUS_TEST_ASSERT(String::compare(t1, t2, 10) < 0);
         PEGASUS_TEST_ASSERT(String::compare(t1, t2, 0) == 0);
-      
+
         t1 = "abc";
         t2 = "ABC";
         PEGASUS_TEST_ASSERT(String::equalNoCase(t1,t2));
@@ -292,9 +292,9 @@ int test(int argc, char** argv)
                                    0x3c3,
                                    'a',
                                    0x3c2,
-                                   0x00}; 
+                                   0x00};
         String degkLow2(lowermap2);
-        
+
         // Upper case greek and german
         // latin cap letter sharp s (german) (4 of these due to expansion)
         // greek cap letter sigma (followed by another letter)
@@ -305,7 +305,7 @@ int test(int argc, char** argv)
                                    0x3a3,
                                    'A',
                                    0x3a3,
-                                   0x00}; 
+                                   0x00};
         String degkUp(uppermap);
 
 
@@ -433,7 +433,7 @@ int test(int argc, char** argv)
         }
 
         // utf8 string with mutliple byte characters
-        char utf8bad[] = 
+        char utf8bad[] =
         {
             '\xFF','\xFF', '\xFF', '\0', '\0', '\0'
         };
@@ -480,7 +480,7 @@ int test(int argc, char** argv)
                               '\xCE', '\xBD', '\xCE', '\0', '\xCE', '\xBA',
                               '\xCE', '\xBF', '\xCE', '\xBD', '\xCF', '\x84',
                               '\0'
-                            }; // utf8 string with mutliple byte characters     
+                            }; // utf8 string with mutliple byte characters
 
         // Test String(char *)
         try
@@ -565,14 +565,14 @@ int test(int argc, char** argv)
                               '\xCE', '\xBD', 'A', '\0', '\xCE', '\xBA',
                               '\xCE', '\xBF', '\xCE', '\xBD', '\xCF', '\x84',
                               '\0'
-                            }; // utf8 string with mutliple byte characters     
+                            }; // utf8 string with mutliple byte characters
 
         // Test String(char *)
         try
         {
           // terminator after 5 chars
           String tmp(utf8good1);
-          PEGASUS_TEST_ASSERT (tmp.size() == 5); 
+          PEGASUS_TEST_ASSERT (tmp.size() == 5);
         }
         catch (Exception &)
         {
@@ -585,7 +585,7 @@ int test(int argc, char** argv)
         {
           // embedded terminator counts as 1 char
           String tmp(utf8good1, sizeof(utf8good1) - 1);
-          PEGASUS_TEST_ASSERT (tmp.size() == 10); 
+          PEGASUS_TEST_ASSERT (tmp.size() == 10);
         }
         catch (Exception &)
         {
@@ -600,7 +600,7 @@ int test(int argc, char** argv)
         {
           // terminator after 5 chars
           assigntest.assign(utf8good1);
-          PEGASUS_TEST_ASSERT (assigntest.size() == 5); 
+          PEGASUS_TEST_ASSERT (assigntest.size() == 5);
         }
         catch (Exception &)
         {
@@ -615,7 +615,7 @@ int test(int argc, char** argv)
         {
           // embedded terminator counts as 1 char
           assigntest.assign(utf8good1, sizeof(utf8good1) - 1);
-          PEGASUS_TEST_ASSERT (assigntest.size() == 10); 
+          PEGASUS_TEST_ASSERT (assigntest.size() == 10);
         }
         catch (Exception &)
         {
@@ -706,7 +706,7 @@ int test(int argc, char** argv)
             String x(reinterpret_cast<const char *>(0));
             cerr <<
                  "Error: Exception not thrown on NULL passed to"
-                 " constructor(const char *)" 
+                 " constructor(const char *)"
                 << endl;
         }
 
@@ -717,9 +717,9 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << 
+            cerr <<
                 "Error: Wrong exception thrown on NULL passed to"
-                " constructor(const char *)" 
+                " constructor(const char *)"
                 << endl;
         }
 
@@ -727,9 +727,9 @@ int test(int argc, char** argv)
         try
         {
             String x(reinterpret_cast<const Char16 *>(0));
-            cerr << 
+            cerr <<
                 "Error: Exception not thrown on NULL passed to"
-                " constructor(const Char16 *)" 
+                " constructor(const Char16 *)"
                 << endl;
         }
 
@@ -740,9 +740,9 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << 
+            cerr <<
                 "Error: Wrong exception thrown on NULL passed to"
-                " constructor(const Char16 *)" 
+                " constructor(const Char16 *)"
                 << endl;
         }
 
@@ -752,9 +752,9 @@ int test(int argc, char** argv)
             String x;
 
             x.assign(reinterpret_cast<const char *>(0));
-            cerr << 
+            cerr <<
                 "Error: Exception not thrown on NULL passed to"
-                " assign(const char *)" 
+                " assign(const char *)"
                 << endl;
         }
 
@@ -765,9 +765,9 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << 
+            cerr <<
                 "Error: Wrong exception thrown on NULL passed to"
-                " assign(const char *)" 
+                " assign(const char *)"
                 << endl;
         }
 
@@ -777,9 +777,9 @@ int test(int argc, char** argv)
             String x;
 
             x.assign(reinterpret_cast<const Char16 *>(0));
-            cerr << 
+            cerr <<
                 "Error: Exception not thrown on NULL passed to"
-                " assign(const Char16 *)" 
+                " assign(const Char16 *)"
                 << endl;
         }
 
@@ -790,9 +790,9 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << 
+            cerr <<
                 "Error: Wrong exception thrown on NULL passed to"
-                " assign(const Char16 *)" 
+                " assign(const Char16 *)"
                 << endl;
         }
 
@@ -802,9 +802,9 @@ int test(int argc, char** argv)
             String x;
 
             x.append(reinterpret_cast<const char *>(0));
-            cerr << 
+            cerr <<
                 "Error: Exception not thrown on NULL passed to"
-                " append(const char *)" 
+                " append(const char *)"
                 << endl;
         }
 
@@ -815,9 +815,9 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << 
+            cerr <<
                 "Error: Wrong exception thrown on NULL passed to"
-                " append(const char *)" 
+                " append(const char *)"
                 << endl;
         }
 
@@ -827,9 +827,9 @@ int test(int argc, char** argv)
             String x;
 
             x.append(reinterpret_cast<const Char16 *>(0));
-            cerr << 
+            cerr <<
                 "Error: Exception not thrown on NULL passed to"
-                " append(const Char16 *)" 
+                " append(const Char16 *)"
                 << endl;
         }
 
@@ -840,9 +840,9 @@ int test(int argc, char** argv)
 
         catch ( ... )
         {
-            cerr << 
+            cerr <<
                 "Error: Wrong exception thrown on NULL passed"
-                " to append(const Char16 *)" 
+                " to append(const Char16 *)"
                 << endl;
         }
 
@@ -1268,6 +1268,89 @@ int test(int argc, char** argv)
     caught_bad_alloc = true;
     }
     PEGASUS_TEST_ASSERT(caught_bad_alloc);
+
+    /** Added to test funtionality of
+        String(const String& str, Uint32 n) for memory overflow. */
+    Boolean caughtBadAlloc = false;
+    try
+    {
+        String s("abc", 0xFFFF0000);   //to check for alloc
+    }
+    catch(const PEGASUS_STD(bad_alloc)&)
+    {
+        caughtBadAlloc = true;
+    }
+
+    /** Added to test funtionality of
+        void reserveCapacity(Uint32 capacity) for memory overflow. */
+    caughtBadAlloc = false;
+    try
+    {
+        String s;
+        s.reserveCapacity(0xFFFF0000);   //to check for _reserve
+    }
+    catch (const PEGASUS_STD(bad_alloc)&)
+    {
+        caughtBadAlloc = true;
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    /** Added to test funtionality of
+        String& append(const char* str, Uint32 size) for memory overflow. */
+    caughtBadAlloc = false;
+    try
+    {
+        String s;
+        s.append("xxx", 0xFFFF0000);         //to check for _reserve
+    }
+    catch (const PEGASUS_STD(bad_alloc)&)
+    {
+        caughtBadAlloc = true;
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    /** Added to test funtionality of
+        String& append(const Char16* str, Uint32 n) for memory overflow. */
+    caughtBadAlloc = false;
+    try
+    {
+        String s;
+        s.append((Char16 *)"xxx", 0xFFFF0000); //to check for _reserve
+    }
+    catch (const PEGASUS_STD(bad_alloc)&)
+    {
+        caughtBadAlloc = true;
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    /** Added to test funtionality of
+        String& assign(const char* str, Uint32 n) for memory overflow. */
+    caughtBadAlloc = false;
+    try
+    {
+        String s;
+        s.assign("xxx", 0xFFFF0000);               //to check for alloc
+    }
+    catch (const PEGASUS_STD(bad_alloc)&)
+    {
+    caughtBadAlloc = true;
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
+    /** Added to test funtionality of
+        String& assign(const Char16* str, Uint32 n) for memory overflow. */
+    caughtBadAlloc = false;
+    try
+    {
+        String s;
+        s.assign((Char16 *)"xxx", 0xFFFF0000);   //to check for alloc
+    }
+    catch (const PEGASUS_STD(bad_alloc)&)
+    {
+        caughtBadAlloc = true;
+    }
+    PEGASUS_TEST_ASSERT(caughtBadAlloc);
+
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

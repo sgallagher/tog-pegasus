@@ -980,13 +980,7 @@ int CIMServerProcess::cimserver_run(
     if (os400StartupOption == false)
     {
 #endif
-        // Get the log file directory definition.
-        // We put String into Cstring because
-        // Directory functions only handle Cstring.
-        // ATTN-KS: create String based directory functions.
 #if !defined(PEGASUS_USE_SYSLOGS)
-		// When using syslog facility. No files anymore.
-        logsDirectory = configManager->getCurrentValue("logdir");
         logsDirectory =
         ConfigManager::getHomedPath(configManager->getCurrentValue("logdir"));
 #endif

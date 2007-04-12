@@ -879,12 +879,6 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
     if (os400StartupOption == false)
     {
 #endif            
-        // Get the log file directory definition.
-        // We put String into Cstring because
-        // Directory functions only handle Cstring.
-        // ATTN-KS: create String based directory functions.
-
-        logsDirectory = configManager->getCurrentValue("logdir");
         logsDirectory = 
         ConfigManager::getHomedPath(configManager->getCurrentValue("logdir"));
 #ifdef PEGASUS_OS_OS400

@@ -55,6 +55,7 @@ DIRS = \
     Flavor \
     Formatter \
     HashTable \
+    HTTPMessage \
     InstanceDecl \
     IndicationFormatter \
     L10N \

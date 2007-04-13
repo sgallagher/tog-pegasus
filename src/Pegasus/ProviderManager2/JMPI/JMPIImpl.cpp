@@ -739,7 +739,7 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: err = "
                            << PEGASUS_STD (hex)
-                           << (int)err
+                           << (jlong)err
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 
@@ -751,7 +751,7 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: stackTrace = "
                            << PEGASUS_STD (hex)
-                           << (int)stackTrace
+                           << (jlong)stackTrace
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 
@@ -772,7 +772,7 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jFirstST = "
                            << PEGASUS_STD (hex)
-                           << (int)jFirstST
+                           << (jlong)jFirstST
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 
@@ -790,13 +790,13 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jClass = "
                            << PEGASUS_STD (hex)
-                           << (int)jClass
+                           << (jlong)jClass
                            << ", jFile = "
-                           << (int)jFile
+                           << (jlong)jFile
                            << ", jMethod = "
-                           << (int)jMethod
+                           << (jlong)jMethod
                            << ", jLine = "
-                           << (int)jLine
+                           << jLine
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 
@@ -852,7 +852,7 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: err = "
                            << PEGASUS_STD (hex)
-                           << (int)err
+                           << (jlong)err
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 
@@ -872,12 +872,16 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jBAOS = "
                            << PEGASUS_STD (hex)
-                           << (int)jBAOS
+                           << (jlong)jBAOS
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 
    if (!jBAOS)
+   {
+      DDD(env->ExceptionDescribe ());
+
       return rc;
+   }
 
    jPS = env->NewObject (JMPIjvm::jv.PrintStreamClassRef,
                          JMPIjvm::jv.PrintStreamNewOb,
@@ -885,7 +889,7 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jPS = "
                            << PEGASUS_STD (hex)
-                           << (int)jPS
+                           << (jlong)jPS
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 
@@ -903,7 +907,7 @@ String getExceptionInfo (JNIEnv *env)
 
    DDD (PEGASUS_STD (cerr) << "getExceptionInfo: jST = "
                            << PEGASUS_STD (hex)
-                           << (int)jST
+                           << (jlong)jST
                            << PEGASUS_STD (dec)
                            << PEGASUS_STD (endl));
 

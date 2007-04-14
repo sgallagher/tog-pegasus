@@ -31,11 +31,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define NEED_STRING_EQUAL
-
 #include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <cctype>
+#include <new>
 #include <Pegasus/Common/Buffer.h>
 
 PEGASUS_USING_STD;

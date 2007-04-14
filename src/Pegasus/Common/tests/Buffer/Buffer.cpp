@@ -307,7 +307,7 @@ int main(int argc, char** argv)
         Buffer b;
         try
         {
-            b.grow(0x3FFFFFFF, 'a');
+            b.grow(0x40000000, 'a');
             b.append('a');
         }
         catch (const PEGASUS_STD(bad_alloc)&)

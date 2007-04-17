@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WQLOperation_h
@@ -48,29 +44,29 @@ PEGASUS_NAMESPACE_BEGIN
     These operators include the following:
 
     <ul>
-	<li>OR</li>
-	<li>AND</li>
-	<li>NOT</li>
-	<li>=</li>
-	<li>&lt;&gt;</li>
-	<li>&lt;</li>
-	<li>&le;</li>
-	<li>&gt;</li>
-	<li>&ge;</li>
-	<li>IS NULL</li>
-	<li>IS NOT NULL</li>
-	<li>IS TRUE</li>
-	<li>IS NOT TRUE</li>
-	<li>IS FALSE</li>
-	<li>IS NOT FALSE</li>
+        <li>OR</li>
+        <li>AND</li>
+        <li>NOT</li>
+        <li>=</li>
+        <li>&lt;&gt;</li>
+        <li>&lt;</li>
+        <li>&le;</li>
+        <li>&gt;</li>
+        <li>&ge;</li>
+        <li>IS NULL</li>
+        <li>IS NOT NULL</li>
+        <li>IS TRUE</li>
+        <li>IS NOT TRUE</li>
+        <li>IS FALSE</li>
+        <li>IS NOT FALSE</li>
     </ul>
 
     Here's an example of a SQL query that uses some of these operations.
 
     <pre>
-	SELECT *
-	FROM MyClass
-	WHERE (x &gt; 10 OR y &le; 1.5) OR z = 19 AND name IS NOT NULL
+        SELECT *
+        FROM MyClass
+        WHERE (x &gt; 10 OR y &le; 1.5) OR z = 19 AND name IS NOT NULL
     </pre>
 
     As the parser recognizes these operations, it adds the corresponding
@@ -82,7 +78,7 @@ PEGASUS_NAMESPACE_BEGIN
     Note that in expressions like this one:
 
     <pre>
-	count IS TRUE
+        count IS TRUE
     </pre>
 
     The IS operator is NOT treated as a binary operator (which would take
@@ -93,19 +89,19 @@ PEGASUS_NAMESPACE_BEGIN
     expression is equivalent to the following psuedo expression:
 
     <pre>
-    	IS_TRUE(count)
+        IS_TRUE(count)
     </pre>
 
     Note that this technique is applied the following operations (also 
     combined to be unary operations).
 
     <ul>
-	<li>WQL_IS_NULL</li>
-	<li>WQL_IS_NOT_NULL</li>
-	<li>WQL_IS_TRUE</li>
-	<li>WQL_IS_NOT_TRUE</li>
-	<li>WQL_IS_FALSE</li>
-	<li>WQL_IS_NOT_FALSE</li>
+        <li>WQL_IS_NULL</li>
+        <li>WQL_IS_NOT_NULL</li>
+        <li>WQL_IS_TRUE</li>
+        <li>WQL_IS_NOT_TRUE</li>
+        <li>WQL_IS_FALSE</li>
+        <li>WQL_IS_NOT_FALSE</li>
     </ul>
 */
 enum WQLOperation

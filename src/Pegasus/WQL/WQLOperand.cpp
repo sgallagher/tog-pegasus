@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -65,9 +61,9 @@ WQLOperand& WQLOperand::operator=(const WQLOperand& x)
 void WQLOperand::clear()
 {
     if (_type == PROPERTY_NAME)
-	((String*)_propertyName)->~String();
+    ((String*)_propertyName)->~String();
     else if (_type == STRING_VALUE)
-	((String*)_stringValue)->~String();
+    ((String*)_stringValue)->~String();
 
     _type = NULL_VALUE;
 }
@@ -76,29 +72,29 @@ void WQLOperand::assign(const WQLOperand& x)
 {
     switch (_type = x._type)
     {
-	case PROPERTY_NAME:
-	    new(_propertyName) String(*((String*)x._propertyName));
-	    break;
+    case PROPERTY_NAME:
+        new(_propertyName) String(*((String*)x._propertyName));
+        break;
 
-	case STRING_VALUE:
-	    new(_stringValue) String(*((String*)x._stringValue));
-	    break;
+    case STRING_VALUE:
+        new(_stringValue) String(*((String*)x._stringValue));
+        break;
 
-	case INTEGER_VALUE:
-	    _integerValue = x._integerValue;
-	    break;
+    case INTEGER_VALUE:
+        _integerValue = x._integerValue;
+        break;
 
-	case DOUBLE_VALUE:
-	    _doubleValue = x._doubleValue;
-	    break;
+    case DOUBLE_VALUE:
+        _doubleValue = x._doubleValue;
+        break;
 
-	case BOOLEAN_VALUE:
-	    _booleanValue = x._booleanValue;
-	    break;
+    case BOOLEAN_VALUE:
+        _booleanValue = x._booleanValue;
+        break;
 
-	case NULL_VALUE:
-	    _integerValue = 0;
-	    break;
+    case NULL_VALUE:
+        _integerValue = 0;
+        break;
     }
 }
 
@@ -108,54 +104,54 @@ String WQLOperand::toString() const
 
     switch (_type)
     {
-	case PROPERTY_NAME:
-	{
-	    result = "PROPERTY_NAME: ";
-	    result.append(*((String*)_propertyName));
-	    break;
-	}
+    case PROPERTY_NAME:
+    {
+        result = "PROPERTY_NAME: ";
+        result.append(*((String*)_propertyName));
+        break;
+    }
 
-	case STRING_VALUE:
-	{
-	    result = "STRING_VALUE: ";
-	    result.append(*((String*)_stringValue));
-	    break;
-	}
+    case STRING_VALUE:
+    {
+        result = "STRING_VALUE: ";
+        result.append(*((String*)_stringValue));
+        break;
+    }
 
-	case INTEGER_VALUE:
-	{
-	    result = "INTEGER_VALUE: ";
-	    char buffer[32];
-	    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
+    case INTEGER_VALUE:
+    {
+        result = "INTEGER_VALUE: ";
+        char buffer[32];
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
                     _integerValue);
-	    result.append(buffer);
-	    break;
-	}
+        result.append(buffer);
+        break;
+    }
 
-	case DOUBLE_VALUE:
-	{
-	    result = "DOUBLE_VALUE: ";
-	    char buffer[32];
-	    sprintf(buffer, "%f", _doubleValue);
-	    result.append(buffer);
-	    break;
-	} 
+    case DOUBLE_VALUE:
+    {
+        result = "DOUBLE_VALUE: ";
+        char buffer[32];
+        sprintf(buffer, "%f", _doubleValue);
+        result.append(buffer);
+        break;
+    } 
 
-	case BOOLEAN_VALUE:
-	{
-	    result = "BOOLEAN_VALUE: ";
+    case BOOLEAN_VALUE:
+    {
+        result = "BOOLEAN_VALUE: ";
 
-	    if (_booleanValue)
-		result.append("TRUE");
-	    else
-		result.append("FALSE");
+        if (_booleanValue)
+        result.append("TRUE");
+        else
+        result.append("FALSE");
 
-	    break;
-	}
+        break;
+    }
 
-	default:
-	    result = "NULL_VALUE";
-	    break;
+    default:
+        result = "NULL_VALUE";
+        break;
     }
 
     return result;

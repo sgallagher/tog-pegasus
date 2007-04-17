@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WQLInstancePropertySource_h
@@ -53,14 +49,14 @@ class PEGASUS_WQL_LINKAGE WQLInstancePropertySource : public WQLPropertySource
 public:
 
     WQLInstancePropertySource(const CIMInstance& inst) :
-       WQLPropertySource(),
-       ci(inst) {}
+        WQLPropertySource(),
+        ci(inst) {}
 
     virtual ~WQLInstancePropertySource() {}
 
     virtual Boolean getValue(
-	const CIMName& propertyName, 
-	WQLOperand& value) const;
+        const CIMName& propertyName, 
+        WQLOperand& value) const;
 };
 
 PEGASUS_NAMESPACE_END

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WQLSimplePropertySource_h
@@ -77,36 +72,36 @@ public:
     }
 
     /** Get the value for the property with the given name. Simply looks up
-	the property name in the internal map to fetch the value.
-
-	@param propertyName name of property to be retrieved.
-	@param value value of property.
-	@return true is such a property exists and false otherwise.
+        the property name in the internal map to fetch the value.
+    
+        @param propertyName name of property to be retrieved.
+        @param value value of property.
+        @return true is such a property exists and false otherwise.
     */
     virtual Boolean getValue(
-	const CIMName& propertyName, 
-	WQLOperand& value) const
+    const CIMName& propertyName, 
+    WQLOperand& value) const
     {
-	return _map.lookup(propertyName.getString(), value);
+        return _map.lookup(propertyName.getString(), value);
     }
 
     /** Add the given propert-name/value pair to the internal map.
-	
-	@param propertyName name of property.
-	@param value value of property.
-	@return true if no such property already existed and false otherwise.
+    
+        @param propertyName name of property.
+        @param value value of property.
+        @return true if no such property already existed and false otherwise.
     */
     Boolean addValue(
-	const CIMName& propertyName, 
-	const WQLOperand& value)
+    const CIMName& propertyName, 
+    const WQLOperand& value)
     {
-	return _map.insert(propertyName.getString(), value);
+        return _map.insert(propertyName.getString(), value);
     }
 
 private:
 
     typedef HashTable<
-	String, WQLOperand, EqualFunc<String>, HashFunc<String> > Map;
+    String, WQLOperand, EqualFunc<String>, HashFunc<String> > Map;
 
     Map _map;
 };

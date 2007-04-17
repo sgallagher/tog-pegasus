@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WQLPropertySource_h
@@ -60,18 +55,18 @@ public:
     virtual ~WQLPropertySource();
 
     /** Returns the value whose property has the given name. The output
-	parameter value is populated with the value of that parameter.
-	Note that only integer, double, and string types are supported
-	(see the WQLOperand class). The implementer of this method must
-	perform appropriate conversions to the appropriate type.
+    parameter value is populated with the value of that parameter.
+    Note that only integer, double, and string types are supported
+    (see the WQLOperand class). The implementer of this method must
+    perform appropriate conversions to the appropriate type.
 
-	@param propertyName name of property to be gotten.
-	@param value holds the value of the property upon return.
-	@return true if such a property was found and false otherwise.
+    @param propertyName name of property to be gotten.
+    @param value holds the value of the property upon return.
+    @return true if such a property was found and false otherwise.
     */
     virtual Boolean getValue(
-	const CIMName& propertyName, 
-	WQLOperand& value) const = 0;
+    const CIMName& propertyName, 
+    WQLOperand& value) const = 0;
 };
 
 PEGASUS_NAMESPACE_END

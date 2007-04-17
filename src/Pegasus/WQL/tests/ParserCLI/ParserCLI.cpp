@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Karl Schopmeyer
-//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4006
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -72,10 +64,12 @@ int main(int argc, char** argv)
 
     if (argc < 2)
     {
-	cerr << "Usage: " << argv[0] << " <returnOptions> wql-text..." << endl;
-    cerr << "return Options are keywords parseError, noEvaluate or evalulateError" << endl;
-    cerr << "They tell the call to reverse the error on the parse or evalutate tests" << endl;
-	return(1);
+    cerr << "Usage: " << argv[0] << " <returnOptions> wql-text..." << endl;
+    cerr << "return Options are keywords parseError,"
+        " noEvaluate or evalulateError" << endl;
+    cerr << "They tell the call to reverse the error"
+        " on the parse or evalutate tests" << endl;
+    return(1);
     }
     Boolean evaluateErrorTest = false;
     Boolean parseErrorTest = false;
@@ -115,8 +109,8 @@ int main(int argc, char** argv)
     {
         text.append(argv[i], strlen(argv[i]));
 
-    	if (i + 1 !=  argc)
-    	    text.append("\n", 1);
+        if (i + 1 !=  argc)
+            text.append("\n", 1);
     }
 
     if (verbose)
@@ -157,14 +151,21 @@ int main(int argc, char** argv)
 
     WQLSimplePropertySource source;
     PEGASUS_TEST_ASSERT(source.addValue("v", WQLOperand()));
-    PEGASUS_TEST_ASSERT(source.addValue("w", WQLOperand(true, WQL_BOOLEAN_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("x", WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("y", WQLOperand(10.10, WQL_DOUBLE_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("z", WQLOperand("Ten", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("w",
+        WQLOperand(true, WQL_BOOLEAN_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("x", WQLOperand(10,
+        WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("y",
+        WQLOperand(10.10, WQL_DOUBLE_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("z",
+        WQLOperand("Ten", WQL_STRING_VALUE_TAG)));
 
-    PEGASUS_TEST_ASSERT(source.addValue("SourceInstance", WQLOperand("SourceInstance", WQL_STRING_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("PreviousInstance", WQLOperand("PreviousInstance", WQL_STRING_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("OperationalStatus", WQLOperand("OperationalStatus", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("SourceInstance",
+        WQLOperand("SourceInstance", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("PreviousInstance",
+        WQLOperand("PreviousInstance", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("OperationalStatus",
+        WQLOperand("OperationalStatus", WQL_STRING_VALUE_TAG)));
 
     //
     // Create an instance
@@ -176,9 +177,12 @@ int main(int argc, char** argv)
     inst.addProperty(CIMProperty(CIMName("x"), CIMValue(10)));
     inst.addProperty(CIMProperty(CIMName("y"), CIMValue(10.10)));
     inst.addProperty(CIMProperty(CIMName("z"), CIMValue(String("Ten"))));
-    inst.addProperty(CIMProperty(CIMName("SourceInstance"), CIMValue(String("SourceInstance"))));
-    inst.addProperty(CIMProperty(CIMName("PreviousInstance"), CIMValue(String("PreviousInstance"))));
-    inst.addProperty(CIMProperty(CIMName("OperationalStatus"), CIMValue(String("OperationalStatus"))));
+    inst.addProperty(CIMProperty(CIMName("SourceInstance"),
+        CIMValue(String("SourceInstance"))));
+    inst.addProperty(CIMProperty(CIMName("PreviousInstance"),
+        CIMValue(String("PreviousInstance"))));
+    inst.addProperty(CIMProperty(CIMName("OperationalStatus"),
+        CIMValue(String("OperationalStatus"))));
 
     //
     // Create an empty instance
@@ -197,35 +201,44 @@ int main(int argc, char** argv)
 
     try
     {
-        Array<CIMName> selectList = statement.getSelectPropertyList().getPropertyNameArray();
+        Array<CIMName> selectList =
+            statement.getSelectPropertyList().getPropertyNameArray();
 
         CIMInstance projInst = inst.clone();
-        statement.applyProjection(projInst, false);  // do not allow missing props
+        statement.applyProjection(projInst, false); // don't allow missing props
         if (statement.getAllProperties())
         {
-            PEGASUS_TEST_ASSERT(projInst.getPropertyCount() == inst.getPropertyCount());
+            PEGASUS_TEST_ASSERT(projInst.getPropertyCount()
+                    == inst.getPropertyCount());
         }
         else
         {
-            PEGASUS_TEST_ASSERT(projInst.getPropertyCount() == statement.getSelectPropertyNameCount());
+            PEGASUS_TEST_ASSERT(projInst.getPropertyCount()
+                    == statement.getSelectPropertyNameCount());
             for (Uint32 i = 0; i < projInst.getPropertyCount(); i++)
             {
-                PEGASUS_TEST_ASSERT(containsProperty(projInst.getProperty(i).getName(), selectList));
+                PEGASUS_TEST_ASSERT(
+                    containsProperty(projInst.getProperty(i).getName(),
+                        selectList));
             }
         }
         
         CIMObject projObj = inst.clone();
-        statement.applyProjection(projObj, false);  // do not allow missing props
+        statement.applyProjection(projObj, false);  // don't allow missing props
         if (statement.getAllProperties())
         {
-            PEGASUS_TEST_ASSERT(projObj.getPropertyCount() == inst.getPropertyCount());
+            PEGASUS_TEST_ASSERT(projObj.getPropertyCount()
+                    == inst.getPropertyCount());
         }
         else
         {
-            PEGASUS_TEST_ASSERT(projObj.getPropertyCount() == statement.getSelectPropertyNameCount());
+            PEGASUS_TEST_ASSERT(projObj.getPropertyCount()
+                    == statement.getSelectPropertyNameCount());
             for (Uint32 i = 0; i < projObj.getPropertyCount(); i++)
             {
-                PEGASUS_TEST_ASSERT(containsProperty(projObj.getProperty(i).getName(), selectList));
+                PEGASUS_TEST_ASSERT(
+                        containsProperty(projObj.getProperty(i).getName(),
+                            selectList));
             }
         }
     }
@@ -244,7 +257,7 @@ int main(int argc, char** argv)
         Boolean gotExc = false;
         try
         {
-            statement.applyProjection(emptyInst, false);  // do not allow missing props
+            statement.applyProjection(emptyInst, false);//disallow missing props
             PEGASUS_TEST_ASSERT(false);
         }
         catch (QueryRuntimePropertyException&)
@@ -253,7 +266,8 @@ int main(int argc, char** argv)
         }
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty instance, do not allow missing props: " 
+            cerr << "ApplyProjection Exception with empty instance,"
+                " do not allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
@@ -265,7 +279,8 @@ int main(int argc, char** argv)
         }    
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty instance, allow missing props: " 
+            cerr << "ApplyProjection Exception with empty instance,"
+                    " allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
@@ -273,7 +288,7 @@ int main(int argc, char** argv)
         gotExc = false;
         try
         {
-            statement.applyProjection(emptyObj, false);  // do not allow missing props
+            statement.applyProjection(emptyObj, false);// disallow missing props
             PEGASUS_TEST_ASSERT(false);
         }
         catch (QueryRuntimePropertyException&)
@@ -282,7 +297,8 @@ int main(int argc, char** argv)
         }
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty object, do not allow missing props: " 
+            cerr << "ApplyProjection Exception with empty object,"
+                " do not allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
@@ -294,7 +310,8 @@ int main(int argc, char** argv)
         }
         catch (Exception& e)
         {
-            cerr << "ApplyProjection Exception with empty object, allow missing props: " 
+            cerr << "ApplyProjection Exception with empty object,"
+                    " allow missing props: " 
                  << e.getMessage() << endl;
             return(1);
         }
@@ -322,7 +339,8 @@ int main(int argc, char** argv)
         {
             if (evaluateErrorTest)
             {
-                cerr << "EvaluateWhereClause Exception: " << e.getMessage() << endl;
+                cerr << "EvaluateWhereClause Exception: "
+                     << e.getMessage() << endl;
                 exit(1);
             }
             else

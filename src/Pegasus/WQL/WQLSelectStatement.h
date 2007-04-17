@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,9 +60,9 @@ class WQLSelectStatementRep;
     instance. A WQL1 SELECT statement has the following form:
 
     <pre>
-	SELECT &lt;property&gt;...
-	FROM &lt;class name&gt;
-	WHERE &lt;where clause&gt;
+        SELECT &lt;property&gt;...
+        FROM &lt;class name&gt;
+        WHERE &lt;where clause&gt;
     </pre>
 
     There are methods for obtaining the various elements of the select
@@ -109,7 +103,7 @@ public:
     const CIMName& getClassName() const;
 
     /** Modifier. This method should not be called by the user (only by the
-	parser).
+    parser).
     */
     void setClassName(const CIMName& className);
 
@@ -125,7 +119,7 @@ public:
     void setAllProperties(const Boolean allProperties);
 
     /** Returns the number of property names which were indicated in the
-	selection list.
+    selection list.
         This function should only be used if getAllProperties() returns false.
     */
     Uint32 getSelectPropertyNameCount() const;
@@ -151,7 +145,7 @@ public:
         (const CIMObjectPath& inClassName = CIMObjectPath ());
 
     /** Appends a property name to the property name list. The user should
-	not call this method; it should only be called by the parser.
+        not call this method; it should only be called by the parser.
     */
     void appendSelectPropertyName(const CIMName& x);
 
@@ -179,20 +173,20 @@ public:
         (const CIMObjectPath& inClassName = CIMObjectPath ());
 
     /** Appends a property name to the where property name list. The user
-	should not call this method; it should only be called by the parser.
-
-	@param x name of the property.
-	@return false if a property with that name already exists.
+        should not call this method; it should only be called by the parser.
+    
+        @param x name of the property.
+        @return false if a property with that name already exists.
     */
     Boolean appendWherePropertyName(const CIMName& x);
 
     /** Appends an operation to the operation array. This method should only
-	be called by the parser itself.
+        be called by the parser itself.
     */
     void appendOperation(WQLOperation x);
 
     /** Appends an operand to the operation array. This method should only
-	be called by the parser itself.
+        be called by the parser itself.
     */
     void appendOperand(const WQLOperand& x);
 
@@ -204,7 +198,8 @@ public:
     */
     Boolean evaluateWhereClause(const WQLPropertySource* source) const;
 
-    /** Inspect an instance and remove properties not listed in Select projection.
+    /** Inspect an instance and remove properties not listed in Select
+        projection.
 
         @param  allowMissing  Boolean specifying whether missing project
                               properties are allowed
@@ -225,7 +220,8 @@ public:
 
     void validate();
 
-    CIMPropertyList getPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
+    CIMPropertyList getPropertyList(
+        const CIMObjectPath& inClassName = CIMObjectPath());
 
     Array<CIMObjectPath> getClassPathList();
 

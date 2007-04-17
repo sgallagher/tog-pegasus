@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #include "WQLSelectStatement.h"
 #include "WQLSelectStatementRep.h"
@@ -51,46 +44,48 @@ const WQLSelectStatement WQLSelectStatement::EMPTY=WQLSelectStatement();
 WQLSelectStatement::WQLSelectStatement(String& queryLang, String& query)
    :SelectStatement()
 {
-	_rep = new WQLSelectStatementRep(queryLang,query);
-	// Set the _rep into the base class also
-	SelectStatement::_rep = _rep;
+    _rep = new WQLSelectStatementRep(queryLang,query);
+    // Set the _rep into the base class also
+    SelectStatement::_rep = _rep;
 }
 
-WQLSelectStatement::WQLSelectStatement(String& queryLang, String& query, QueryContext& inCtx)
+WQLSelectStatement::WQLSelectStatement(String& queryLang,
+                                       String& query,
+                                       QueryContext& inCtx)
    :SelectStatement()
 {
-	_rep = new WQLSelectStatementRep(queryLang,query,inCtx);
-	// Set the _rep into the base class also
-	SelectStatement::_rep = _rep;
+    _rep = new WQLSelectStatementRep(queryLang,query,inCtx);
+    // Set the _rep into the base class also
+    SelectStatement::_rep = _rep;
 }
 
 WQLSelectStatement::WQLSelectStatement()
    :SelectStatement()
 {
-	_rep = new WQLSelectStatementRep();
-	// Set the _rep into the base class also
-	SelectStatement::_rep = _rep;
+    _rep = new WQLSelectStatementRep();
+    // Set the _rep into the base class also
+    SelectStatement::_rep = _rep;
 }
 
 WQLSelectStatement::WQLSelectStatement(const WQLSelectStatement& statement)
   :SelectStatement()
 {
-  _rep = new WQLSelectStatementRep(*statement._rep);
-
-  // Set the _rep into the base class also
-  SelectStatement::_rep = _rep;
+    _rep = new WQLSelectStatementRep(*statement._rep);
+    
+    // Set the _rep into the base class also
+    SelectStatement::_rep = _rep;
 }
 
 WQLSelectStatement& WQLSelectStatement::operator=(const WQLSelectStatement& rhs)
 {
-  if(&rhs != this)
-  {
-    if(_rep) delete _rep;
-    _rep = new WQLSelectStatementRep(*rhs._rep);
-
-    // Set the _rep into the base class also
-    SelectStatement::_rep = _rep;
-  }
+    if(&rhs != this)
+    {
+        if(_rep) delete _rep;
+        _rep = new WQLSelectStatementRep(*rhs._rep);
+        
+        // Set the _rep into the base class also
+        SelectStatement::_rep = _rep;
+    }
 
   return *this;
 }
@@ -98,12 +93,12 @@ WQLSelectStatement& WQLSelectStatement::operator=(const WQLSelectStatement& rhs)
 
 WQLSelectStatement::~WQLSelectStatement()
 {
-	delete _rep;
+    delete _rep;
 }
 
 void WQLSelectStatement::clear()
 {
-	_rep->clear();
+    _rep->clear();
 }
 
 Boolean WQLSelectStatement::getAllProperties() const
@@ -119,7 +114,7 @@ void WQLSelectStatement::setAllProperties(const Boolean allProperties)
 CIMPropertyList WQLSelectStatement::getSelectPropertyList
     (const CIMObjectPath& inClassName)
 {
-	return _rep->getSelectPropertyList(inClassName);
+    return _rep->getSelectPropertyList(inClassName);
 }
 
 CIMPropertyList WQLSelectStatement::getWherePropertyList
@@ -136,44 +131,45 @@ Boolean WQLSelectStatement::appendWherePropertyName(const CIMName& x)
 Boolean WQLSelectStatement::evaluateWhereClause(
     const WQLPropertySource* source) const
 {
-	return _rep->evaluateWhereClause(source);
+    return _rep->evaluateWhereClause(source);
 }
 
 void WQLSelectStatement::applyProjection(CIMInstance& ci,
     Boolean allowMissing)
 {
-	_rep->applyProjection(ci, allowMissing);
+    _rep->applyProjection(ci, allowMissing);
 }
 
 void WQLSelectStatement::applyProjection(CIMObject& ci,
     Boolean allowMissing)
 {
-	_rep->applyProjection(ci, allowMissing);
+    _rep->applyProjection(ci, allowMissing);
 }
 
 void WQLSelectStatement::print() const
 {
-	_rep->print();
+    _rep->print();
 }
 
 Boolean WQLSelectStatement::evaluate(const CIMInstance& inCI)
 {
-	return _rep->evaluate(inCI);
+    return _rep->evaluate(inCI);
 }
 
 void WQLSelectStatement::validate()
 {
-	_rep->validate();
+    _rep->validate();
 }
 
-CIMPropertyList WQLSelectStatement::getPropertyList(const CIMObjectPath& inClassName)
+CIMPropertyList WQLSelectStatement::getPropertyList(
+        const CIMObjectPath& inClassName)
 {
-	return _rep->getPropertyList(inClassName);
+    return _rep->getPropertyList(inClassName);
 }
 
 Array<CIMObjectPath> WQLSelectStatement::getClassPathList()
 {
-	return _rep->getClassPathList();
+    return _rep->getClassPathList();
 }
 
 Uint32 WQLSelectStatement::getSelectPropertyNameCount() const

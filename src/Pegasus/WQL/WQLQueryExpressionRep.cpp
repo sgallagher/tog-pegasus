@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "WQLQueryExpressionRep.h"
@@ -49,18 +45,21 @@ const CIMPropertyList WQLQueryExpressionRep::getPropertyList() const
    return _stmt->getSelectPropertyList();
 }
 
-WQLQueryExpressionRep::~WQLQueryExpressionRep() {
+WQLQueryExpressionRep::~WQLQueryExpressionRep()
+{
    if (_stmt) delete _stmt;
 }
 
 void WQLQueryExpressionRep::_parse()
 {
-   if (_queryLanguage=="WQL") {
+   if (_queryLanguage=="WQL")
+   {
       _stmt=new WQLSelectStatement();
       WQLParser::parse(_query, *_stmt);
    }
    else throw
-     PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, _queryLanguage);
+     PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, 
+             _queryLanguage);
 }
 
 Boolean WQLQueryExpressionRep::evaluate(const CIMInstance & inst) const
@@ -68,10 +67,12 @@ Boolean WQLQueryExpressionRep::evaluate(const CIMInstance & inst) const
     if (_stmt==NULL) ((WQLQueryExpressionRep*)this)->_parse();
 
     WQLInstancePropertySource ips(inst);
-    try {
+    try
+    {
        if (_stmt->evaluateWhereClause(&ips)) return true;
     }
-    catch (...) {
+    catch (...)
+    {
          return false;
     }
     return false; 

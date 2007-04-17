@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -55,18 +50,21 @@ void test01()
     //
 
     WQLSimplePropertySource source;
-    PEGASUS_TEST_ASSERT(source.addValue("x", WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("y", WQLOperand(20, WQL_INTEGER_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("z", WQLOperand(1.5, WQL_DOUBLE_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("x",
+        WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("y",
+        WQLOperand(20, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("z",
+        WQLOperand(1.5, WQL_DOUBLE_VALUE_TAG)));
 
     //
     // Define query:
     //
     
     const char TEXT[] = 
-	"SELECT x,y,z\n"
-	"FROM MyClass\n"
-	"WHERE x > 5 AND y < 25 AND z > 1.2";
+        "SELECT x,y,z\n"
+        "FROM MyClass\n"
+        "WHERE x > 5 AND y < 25 AND z > 1.2";
 
     //
     //  Will test WQLParser::parse(const Buffer&, WQLSelectStatement&)
@@ -87,10 +85,10 @@ void test01()
 
     try
     {
-	WQLParser::parse(text, statement);
+        WQLParser::parse(text, statement);
         if (verbose)
         {
-	    statement.print();
+            statement.print();
         }
 
         //
@@ -100,18 +98,18 @@ void test01()
         PEGASUS_TEST_ASSERT (!statement.getAllProperties());
         PEGASUS_TEST_ASSERT (statement.getSelectPropertyNameCount() == 3);
         CIMName propName = statement.getSelectPropertyName (0);
-        PEGASUS_TEST_ASSERT ((propName.equal ("x")) || (propName.equal ("y")) || 
-                (propName.equal ("z")));
+        PEGASUS_TEST_ASSERT ((propName.equal ("x")) || (propName.equal ("y"))
+                || (propName.equal ("z")));
         CIMPropertyList propList = statement.getSelectPropertyList();
         PEGASUS_TEST_ASSERT (!propList.isNull());
         PEGASUS_TEST_ASSERT (propList.size() == 3);
-        PEGASUS_TEST_ASSERT ((propList[0].equal ("x")) || (propList[0].equal ("y")) || 
-                (propList[0].equal ("z")));
+        PEGASUS_TEST_ASSERT ((propList[0].equal ("x"))
+            || (propList[0].equal ("y")) || (propList[0].equal ("z")));
         PEGASUS_TEST_ASSERT (statement.hasWhereClause());
         PEGASUS_TEST_ASSERT (statement.getWherePropertyNameCount() == 3);
         CIMName wherePropName = statement.getWherePropertyName (0);
-        PEGASUS_TEST_ASSERT ((wherePropName.equal ("x")) || (wherePropName.equal ("y")) || 
-                (wherePropName.equal ("z")));
+        PEGASUS_TEST_ASSERT ((wherePropName.equal ("x"))
+            || (wherePropName.equal ("y")) || (wherePropName.equal ("z")));
         CIMPropertyList wherePropList = statement.getWherePropertyList();
         PEGASUS_TEST_ASSERT (!wherePropList.isNull());
         PEGASUS_TEST_ASSERT (wherePropList.size() == 3);
@@ -122,8 +120,8 @@ void test01()
     }
     catch (Exception& e)
     {
-	cerr << "Exception: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 }
 
@@ -135,19 +133,23 @@ void test02()
     //
 
     WQLSimplePropertySource source;
-    PEGASUS_TEST_ASSERT(source.addValue("a", WQLOperand(5, WQL_INTEGER_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("b", WQLOperand(25, WQL_INTEGER_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("c", WQLOperand(0.9, WQL_DOUBLE_VALUE_TAG)));
-    PEGASUS_TEST_ASSERT(source.addValue("d", WQLOperand("Test", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("a",
+        WQLOperand(5, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("b", WQLOperand(25,
+        WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("c", WQLOperand(0.9,
+        WQL_DOUBLE_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("d", WQLOperand("Test",
+        WQL_STRING_VALUE_TAG)));
 
     //
     // Define query:
     //
     
     const char TEXT[] = 
-	"SELECT a,c,d\n"
-	"FROM YourClass\n"
-	"WHERE a > 5 AND b < 25 AND c > 1.2 AND d = \"Pass\"";
+        "SELECT a,c,d\n"
+        "FROM YourClass\n"
+        "WHERE a > 5 AND b < 25 AND c > 1.2 AND d = \"Pass\"";
 
     //
     //  Will test WQLParser::parse(const String&, WQLSelectStatement&)
@@ -167,10 +169,10 @@ void test02()
 
     try
     {
-	WQLParser::parse(text, statement);
+        WQLParser::parse(text, statement);
         if (verbose)
         {
-	    statement.print();
+            statement.print();
         }
 
         //
@@ -180,18 +182,19 @@ void test02()
         PEGASUS_TEST_ASSERT (!statement.getAllProperties());
         PEGASUS_TEST_ASSERT (statement.getSelectPropertyNameCount() == 3);
         CIMName propName = statement.getSelectPropertyName (2);
-        PEGASUS_TEST_ASSERT ((propName.equal ("a")) || (propName.equal ("c")) || 
-                (propName.equal ("d")));
+        PEGASUS_TEST_ASSERT ((propName.equal ("a")) || (propName.equal ("c"))
+            || (propName.equal ("d")));
         CIMPropertyList propList = statement.getSelectPropertyList();
         PEGASUS_TEST_ASSERT (!propList.isNull());
         PEGASUS_TEST_ASSERT (propList.size() == 3);
-        PEGASUS_TEST_ASSERT ((propList[2].equal ("a")) || (propList[2].equal ("c")) || 
-                (propList[2].equal ("d")));
+        PEGASUS_TEST_ASSERT ((propList[2].equal ("a"))
+            || (propList[2].equal ("c")) || (propList[2].equal ("d")));
         PEGASUS_TEST_ASSERT (statement.hasWhereClause());
         PEGASUS_TEST_ASSERT (statement.getWherePropertyNameCount() == 4);
         CIMName wherePropName = statement.getWherePropertyName (3);
-        PEGASUS_TEST_ASSERT ((wherePropName.equal ("a")) || (wherePropName.equal ("b")) || 
-                (wherePropName.equal ("c")) || (wherePropName.equal ("d")));
+        PEGASUS_TEST_ASSERT ((wherePropName.equal ("a"))
+            || (wherePropName.equal ("b")) || 
+            (wherePropName.equal ("c")) || (wherePropName.equal ("d")));
         CIMPropertyList wherePropList = statement.getWherePropertyList();
         PEGASUS_TEST_ASSERT (!wherePropList.isNull());
         PEGASUS_TEST_ASSERT (wherePropList.size() == 4);
@@ -203,8 +206,8 @@ void test02()
     }
     catch (Exception& e)
     {
-	cerr << "Exception: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 }
 
@@ -215,8 +218,8 @@ void test03()
     //
     
     const char TEXT[] = 
-	"SELECT *\n"
-	"FROM AnotherClass\n";
+        "SELECT *\n"
+        "FROM AnotherClass\n";
 
     //
     //  Will test WQLParser::parse(const String&, WQLSelectStatement&)
@@ -236,10 +239,10 @@ void test03()
 
     try
     {
-	WQLParser::parse(text, statement);
+        WQLParser::parse(text, statement);
         if (verbose)
         {
-	    statement.print();
+            statement.print();
         }
 
         //
@@ -257,8 +260,8 @@ void test03()
     }
     catch (Exception& e)
     {
-	cerr << "Exception: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 }
 

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//                    Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -62,12 +56,12 @@ void WQLParser::parse(
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
     
-	 AutoMutex mtx(WQL_mutex);
+     AutoMutex mtx(WQL_mutex);
 
     if (!text)
     {
         PEG_METHOD_EXIT();
-	throw NullPointer();
+        throw NullPointer();
     }
 
     statement.clear();
@@ -83,11 +77,11 @@ void WQLParser::parse(
 
     if (globalParserState->error)
     {
-	String errorMessage = globalParserState->errorMessage;
-	cleanup();
-    delete globalParserState;
+        String errorMessage = globalParserState->errorMessage;
+        cleanup();
+        delete globalParserState;
         PEG_METHOD_EXIT();
-	throw ParseError(errorMessage);
+        throw ParseError(errorMessage);
     }
 
     cleanup();
@@ -124,7 +118,7 @@ void WQLParser::cleanup()
     Array<char*>& arr = globalParserState->outstandingStrings;
 
     for (Uint32 i = 0, n = arr.size(); i < n; i++)
-	delete [] arr[i];
+        delete [] arr[i];
 
     arr.clear();
 
@@ -160,21 +154,21 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     //
 
     int remaining = 
-	globalParserState->textSize - globalParserState->offset - 1;
+        globalParserState->textSize - globalParserState->offset - 1;
 
     if (remaining == 0)
     {
-	numRead = 0;
+        numRead = 0;
         PEG_METHOD_EXIT();
-	return 0;
+        return 0;
     }
 
     if (remaining < numRequested)
-	numRequested = remaining;
+        numRequested = remaining;
 
     memcpy(buffer, 
-	globalParserState->text + globalParserState->offset, 
-	numRequested);
+    globalParserState->text + globalParserState->offset, 
+    numRequested);
 
     globalParserState->offset += numRequested;
     numRead = numRequested;

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WQLParser_h
@@ -53,29 +48,29 @@ PEGASUS_NAMESPACE_BEGIN
     Here's an example which parses a SELECT statement:
 
     <pre>
-	const char TEXT[] = "SELECT X,Y FROM MyClass WHERE X > 10 AND Y < 3";
+    const char TEXT[] = "SELECT X,Y FROM MyClass WHERE X > 10 AND Y < 3";
 
-	// Note that this array must be null-terminated (sizeof(TEXT) includes
-	// the null-terminator in the count).
+    // Note that this array must be null-terminated (sizeof(TEXT) includes
+    // the null-terminator in the count).
 
-	Buffer text(TEXT, sizeof(TEXT));
+    Buffer text(TEXT, sizeof(TEXT));
 
-	WQLSelectStatement selectStatement;
+    WQLSelectStatement selectStatement;
 
-	WQLParser parser;
+    WQLParser parser;
 
-	try
-	{
-	    parser.parse(text, selectStatement);
-	}
-	catch (ParseError&)
-	{
-	    ...
-	}
-	catch (MissingNullTerminator&)
-	{
-	    ...
-	}
+    try
+    {
+        parser.parse(text, selectStatement);
+    }
+    catch (ParseError&)
+    {
+        ...
+    }
+    catch (MissingNullTerminator&)
+    {
+        ...
+    }
     </pre>
 
     Note that the text must be NULL terminated or else the MissingNullTerminator
@@ -88,30 +83,30 @@ PEGASUS_NAMESPACE_BEGIN
     This may be done by calling WQLSelectStatement::print() like this:
 
     <pre>
-	WQLSelectStatement selectStatement;
-	...
-	selectStatement.print();
+    WQLSelectStatement selectStatement;
+    ...
+    selectStatement.print();
     </pre>
 
     For the above query text, the following is printed:
 
     <pre>
-	WQLSelectStatement
-	{
-	    _className: "MyClass"
+    WQLSelectStatement
+    {
+        _className: "MyClass"
 
-	    _propertyNames[0]: "X"
-	    _propertyNames[1]: "Y"
+        _propertyNames[0]: "X"
+        _propertyNames[1]: "Y"
 
-	    _operations[0]: "WQL_GT"
-	    _operations[1]: "WQL_LT"
-	    _operations[2]: "WQL_AND"
+        _operations[0]: "WQL_GT"
+        _operations[1]: "WQL_LT"
+        _operations[2]: "WQL_AND"
 
-	    _operands[0]: "PROPERTY_NAME: X"
-	    _operands[1]: "INTEGER_VALUE: 10"
-	    _operands[2]: "PROPERTY_NAME: Y"
-	    _operands[3]: "INTEGER_VALUE: 3"
-	}
+        _operands[0]: "PROPERTY_NAME: X"
+        _operands[1]: "INTEGER_VALUE: 10"
+        _operands[2]: "PROPERTY_NAME: Y"
+        _operands[3]: "INTEGER_VALUE: 3"
+    }
     </pre>
 
     The WQLSelectStatement::evaluateWhereClause() method may be called to
@@ -121,14 +116,14 @@ PEGASUS_NAMESPACE_BEGIN
     matches this instance. Here is an example:
 
     <pre>
-	WQLSelectStatement selectStatement;
-	...
-	WQLPropertySource* propertySource = new MyPropertySource(...);
+    WQLSelectStatement selectStatement;
+    ...
+    WQLPropertySource* propertySource = new MyPropertySource(...);
 
-	if (selectStatement.evaluateWhereClause(propertySource))
-	{
-	    // It's a match!
-	}
+    if (selectStatement.evaluateWhereClause(propertySource))
+    {
+        // It's a match!
+    }
     </pre>
 
     The evaluateWhereClause() method calls propertySource->getValue() to
@@ -146,20 +141,20 @@ PEGASUS_NAMESPACE_BEGIN
     a CIMInstance. Here is an example of how it might be used.
 
     <pre>
-	CIMInstancePropertySource* propertySource 
-	    = new CIMInstancePropertySource(...);
+    CIMInstancePropertySource* propertySource 
+        = new CIMInstancePropertySource(...);
 
-	CIMInstance instance;
+    CIMInstance instance;
 
-	while (instance = GetNextInstance(...))
-	{
-	    propertySource->setInstance(currentInstance);
+    while (instance = GetNextInstance(...))
+    {
+        propertySource->setInstance(currentInstance);
 
-	    if (selectStatement.evaluateWhereClause(propertySource))
-	    {
-		// It's a match!
-	    }
-	}
+        if (selectStatement.evaluateWhereClause(propertySource))
+        {
+        // It's a match!
+        }
+    }
     </pre>
 
     Of course the numeration of instances is left to the user of WQL.
@@ -169,40 +164,40 @@ class PEGASUS_WQL_LINKAGE WQLParser
 public:
 
     /** Parse the SELECT statement given by the text parameter and initialize
-	the statement parameter accordingly.
+    the statement parameter accordingly.
 
-	Please note that this method is not thread safe. It must be guarded 
-	with mutexes by the caller.
+    Please note that this method is not thread safe. It must be guarded 
+    with mutexes by the caller.
 
-	@param text null-terminated C-string which points to SQL statement.
-	@param statement object which holds the compiled version of the SELECT
-	    statement upon return.
-	@exception ParseError if text is not a valid SELECT statement.
-	@exception MissingNullTerminator if text argument is not 
-	    terminated with a null. 
+    @param text null-terminated C-string which points to SQL statement.
+    @param statement object which holds the compiled version of the SELECT
+        statement upon return.
+    @exception ParseError if text is not a valid SELECT statement.
+    @exception MissingNullTerminator if text argument is not 
+        terminated with a null. 
     */
     static void parse(
-	const char* text,
-	WQLSelectStatement& statement);
+    const char* text,
+    WQLSelectStatement& statement);
 
     /** Version of parse() taking an array of characters.
     */
     static void parse(
-	const Buffer& text,
-	WQLSelectStatement& statement);
+    const Buffer& text,
+    WQLSelectStatement& statement);
 
     /** Version of parse() taking a string.
     */
     static void parse(
-	const String& text,
-	WQLSelectStatement& statement);
+    const String& text,
+    WQLSelectStatement& statement);
 
 private:
 
     /** This method cleans up all the strings which were created by LEX and
-	passed to YACC. These strings cannot be cleaned up by YACC actions
-	since the actions that clean up certain strings are not always reached
-	when errors occur.
+        passed to YACC. These strings cannot be cleaned up by YACC actions
+        since the actions that clean up certain strings are not always reached
+        when errors occur.
     */
     static void cleanup();
 

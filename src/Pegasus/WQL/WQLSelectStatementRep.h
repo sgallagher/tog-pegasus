@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WQLSelectStatementRep_h
@@ -63,7 +56,8 @@ public:
 
     WQLSelectStatementRep(String& queryLang, String& query);
 
-     WQLSelectStatementRep(String& queryLang, String& query, QueryContext& inCtx);
+     WQLSelectStatementRep(String& queryLang, String& query,
+                           QueryContext& inCtx);
 
     /** Default constructor.
     */
@@ -83,15 +77,15 @@ public:
     */
     const CIMName& getClassName() const
     {
-	return _className;
+        return _className;
     }
 
     /** Modifier. This method should not be called by the user (only by the
-	parser).
+    parser).
     */
     void setClassName(const CIMName& className)
     {
-	_className = className;
+        _className = className;
     }
 
     /**
@@ -106,12 +100,12 @@ public:
     void setAllProperties(const Boolean allProperties);
 
     /** Returns the number of property names which were indicated in the
-	selection list.
+        selection list.
         This function should only be used if getAllProperties() returns false.
     */
     Uint32 getSelectPropertyNameCount() const
     {
-	return _selectPropertyNames.size();
+    return _selectPropertyNames.size();
     }
 
     /** Gets the i-th selected property name in the list.
@@ -119,7 +113,7 @@ public:
     */
     const CIMName& getSelectPropertyName(Uint32 i) const
     {
-	return _selectPropertyNames[i];
+    return _selectPropertyNames[i];
     }
 
     /**
@@ -130,25 +124,25 @@ public:
         (const CIMObjectPath& inClassName) const;
 
     /** Appends a property name to the property name list. The user should
-	not call this method; it should only be called by the parser.
+        not call this method; it should only be called by the parser.
     */
     void appendSelectPropertyName(const CIMName& x)
     {
-	_selectPropertyNames.append(x);
+        _selectPropertyNames.append(x);
     }
 
     /** Returns the number of unique property names from the where clause.
     */
     Uint32 getWherePropertyNameCount() const
     {
-	return _wherePropertyNames.size();
+        return _wherePropertyNames.size();
     }
 
     /** Gets the i-th unique property appearing in the where clause.
     */
     const CIMName& getWherePropertyName(Uint32 i) const
     {
-	return _wherePropertyNames[i];
+        return _wherePropertyNames[i];
     }
 
     /**
@@ -159,41 +153,42 @@ public:
         (const CIMObjectPath& inClassName) const;
 
     /** Appends a property name to the where property name list. The user
-	should not call this method; it should only be called by the parser.
+    should not call this method; it should only be called by the parser.
 
-	@param x name of the property.
-	@return false if a property with that name already exists.
+    @param x name of the property.
+    @return false if a property with that name already exists.
     */
     Boolean appendWherePropertyName(const CIMName& x);
 
     /** Appends an operation to the operation array. This method should only
-	be called by the parser itself.
+    be called by the parser itself.
     */
     void appendOperation(WQLOperation x)
     {
-	_operations.append(x);
+        _operations.append(x);
     }
 
     /** Appends an operand to the operation array. This method should only
-	be called by the parser itself.
+    be called by the parser itself.
     */
     void appendOperand(const WQLOperand& x)
     {
-	_operands.append(x);
+        _operands.append(x);
     }
 
     /** Returns true if this class has a where clause.
     */
     Boolean hasWhereClause() const
     {
-	return _operations.size() != 0;
+        return _operations.size() != 0;
     }
 
     /** Evalautes the where clause using the symbol table to resolve symbols.
     */
     Boolean evaluateWhereClause(const WQLPropertySource* source) const;
 
-    /** Inspect an instance and remove properties not listed in Select projection.
+    /** Inspect an instance and remove properties not listed in Select
+        projection.
     */
     void applyProjection(CIMInstance& inst,
         Boolean allowMissing);

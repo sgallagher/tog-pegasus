@@ -360,6 +360,7 @@ const char * _CMPIrcName ( CMPIrc rc )
       case CMPI_RC_ERR_METHOD_NOT_FOUND:             return "CMPI_RC_ERR_METHOD_NOT_FOUND";
 //      case CMPI_RC_DO_NOT_UNLOAD:                    return "CMPI_RC_DO_NOT_UNLOAD";
 //      case CMPI_RC_NEVER_UNLOAD:                     return "CMPI_RC_NEVER_UNLOAD";
+      case CMPI_RC_ERR_INVALID_HANDLE:               return "CMPI_RC_ERR_INVALID_HANDLE";
       case CMPI_RC_ERROR_SYSTEM:                     return "CMPI_RC_ERROR_SYSTEM";
       case CMPI_RC_ERROR:                            return "CMPI_RC_ERROR";
 

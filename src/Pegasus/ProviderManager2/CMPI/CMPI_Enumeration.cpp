@@ -125,7 +125,7 @@ extern "C" {
 
       if (!eEnum ||!eEnum->hdl)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
         }
       if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
@@ -173,7 +173,7 @@ extern "C" {
 
       if (!eEnum || !eEnum->hdl)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return false;
         }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
@@ -206,7 +206,7 @@ extern "C" {
 
       if (!eEnum || !eEnum->hdl)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
       if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab ||

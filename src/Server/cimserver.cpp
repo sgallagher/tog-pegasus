@@ -1363,23 +1363,7 @@ MessageLoader::_useProcessLocale = false;
 # endif
 #endif
 
-        // bind throws an exception if the bind fails
-	try {
            _cimServer->bind();
-	} catch (const BindFailedException &e)
-	{
-#ifdef PEGASUS_DEBUG
-        MessageLoaderParms parms("src.Server.cimserver.BIND_FAILED",
-                 "Could not bind: $0.", e.getMessage());
-        cout << MessageLoader::getMessage(parms) << endl;
-#endif
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "src.Server.cimserver.BIND.FAILED",
-            "Could not bind:  $0", e.getMessage());
-
-	   deleteCIMServer();
-	   return 1;
-	}
     // notify parent process (if there is a parent process) to terminate
         // so user knows that there is cimserver ready to serve CIM requests.
     if (daemonOption)
@@ -1503,26 +1487,39 @@ MessageLoader::_useProcessLocale = false;
         //
 #endif
     }
-    catch(Exception& e)
+    catch(BindFailedException& e)
     {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            "src.Server.cimserver.SERVER_NOT_STARTED",
+            "cimserver not started:  $0", e.getMessage());
 
-    //l10n
-    //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            //"Error: $0", e.getMessage());
-    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "src.Server.cimserver.ERROR",
-            "Error: $0", e.getMessage());
+#if !defined(PEGASUS_OS_OS400)
+        MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
+            "cimserver not started: $0", e.getMessage());
 
-#ifndef PEGASUS_OS_OS400
-    //l10n
-    //PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-    MessageLoaderParms parms("src.Server.cimserver.ERROR",
-                             "Error: $0", e.getMessage());
-    PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
-
+        cerr << MessageLoader::getMessage(parms) << endl;
 #endif
 
     //
+        // notify parent process (if there is a parent process) to terminate
+        //
+        if (daemonOption)
+                _cimServerProcess->notify_parent(1);
+
+        deleteCIMServer();
+        return 1;
+    }
+    catch(Exception& e)
+    {
+    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "src.Server.cimserver.ERROR",
+            "Error: $0", e.getMessage());
+#ifndef PEGASUS_OS_OS400
+    MessageLoaderParms parms("src.Server.cimserver.ERROR",
+                             "Error: $0", e.getMessage());
+    PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+#endif
+        //
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)

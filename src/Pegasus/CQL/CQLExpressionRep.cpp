@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/CQL/CQLExpression.h>
@@ -45,14 +41,16 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)");
+  PEG_METHOD_ENTER(TRC_CQL,
+      "CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)");
   _CQLTerms.append(theTerm);
   PEG_METHOD_EXIT();
 }
 
 CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep) 
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)");
+  PEG_METHOD_ENTER(TRC_CQL,
+      "CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)");
 
   _TermOperators = rep->_TermOperators;
   _CQLTerms = rep->_CQLTerms;
@@ -64,63 +62,68 @@ CQLExpressionRep::~CQLExpressionRep()
 {
 
 }
-CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
+CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI,
+                                        const QueryContext& QueryCtx)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::resolveValue()");
 
   CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
   
   /*
-  for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+    for(Uint32 i = 0; i < _TermOperators.size(); ++i)
     {
       switch(_TermOperators[i])
-	{
-	   case TERM_ADD:
-	   returnVal = returnVal + 
-	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
-	   break;
-	   case TERM_SUBTRACT:
-	   returnVal = returnVal - 
-	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
-	   break;
-	default:
-	  throw(1);
-	}
+        {
+           case TERM_ADD:
+               returnVal = returnVal + 
+               _CQLTerms[i+1].resolveValue(CI,QueryCtx);
+           break;
+               case TERM_SUBTRACT:
+               returnVal = returnVal - 
+               _CQLTerms[i+1].resolveValue(CI,QueryCtx);
+               break;
+        default:
+            throw(1);
+        }
     }
-  */
+*/
   
   PEG_METHOD_EXIT();
   return returnVal;
 }
 
-void CQLExpressionRep::appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm)
+void CQLExpressionRep::appendOperation(const TermOpType theTermOpType,
+                                       const CQLTerm& theTerm)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::appendOperation()");
-
-  _TermOperators.append(theTermOpType);
-  _CQLTerms.append(theTerm);
-
-  PEG_METHOD_EXIT();
+    PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::appendOperation()");
+    
+    _TermOperators.append(theTermOpType);
+    _CQLTerms.append(theTerm);
+    
+    PEG_METHOD_EXIT();
 }
 
 String CQLExpressionRep::toString()const
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::toString()");
-
-  String returnStr;
-
-  if(_CQLTerms.size() > 0){
-    returnStr.append(_CQLTerms[0].toString());
-   /* for(Uint32 i = 0; i < _TermOperators.size(); ++i)
-      {
-	returnStr.append(_TermOperators[i] == TERM_ADD ? String(" + ") : String(" - "));
-	returnStr.append(_CQLTerms[i+1].toString());
-      }*/
-  }
-
-  PEG_METHOD_EXIT();
-  return returnStr;
-}
+    PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::toString()");
+    
+    String returnStr;
+    
+    if(_CQLTerms.size() > 0)
+    {
+        returnStr.append(_CQLTerms[0].toString());
+        /* for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+          {
+            returnStr.append(_TermOperators[i] == 
+                TERM_ADD ? String(" + ") : String(" - "));
+        returnStr.append(_CQLTerms[i+1].toString());
+          }
+        */
+    }
+    
+    PEG_METHOD_EXIT();
+    return returnStr;
+    }
 
 
 Boolean CQLExpressionRep::isSimple()const
@@ -179,19 +182,19 @@ Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep)const
   for(Uint32 i = 0; i < _TermOperators.size(); ++i)
     {
       if(_TermOperators[i] != rep._TermOperators[i])
-	{
-	  PEG_METHOD_EXIT();
-	  return false;
-	}
+    {
+      PEG_METHOD_EXIT();
+      return false;
+    }
     }
 
   for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
     {
       if(_CQLTerms[i] != rep._CQLTerms[i])
-	{
-	  PEG_METHOD_EXIT();
-	  return false;
-	}
+    {
+      PEG_METHOD_EXIT();
+      return false;
+    }
     }
   
   PEG_METHOD_EXIT();

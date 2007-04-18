@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com) 
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLParserState_h
@@ -103,7 +99,8 @@ struct CQLParserState
     Array<char*> outstandingStrings;
 
     //
-    // This tracks the current token position within the Select Statement being parsed
+    // This tracks the current token position within the Select Statement
+    // being parsed
     // This is incremented and cleared in CQL.l
     //
     Uint32 currentTokenPos;
@@ -115,7 +112,8 @@ struct CQLParserState
     Uint32 tokenCount;
 
     //
-    // This tracks the current rule in String format in the Select Statement we are currently parsing
+    // This tracks the current rule in String format in the Select Statement
+    // we are currently parsing
     // This is updated with each production in CQL.y
     //
     String currentRule;

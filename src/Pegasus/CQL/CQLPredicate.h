@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLPredicate_h
@@ -105,13 +96,15 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
     */
-    CQLPredicate(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
+    CQLPredicate(const CQLSimplePredicate & inSimplePredicate,
+            Boolean inVerted = false);
 
     /**
         Constructor. Using this constructor sets isSimple() to false.
 
         @param  -  inPredicate.
-        @param  -  inVerted. Defaults to false.  This is a logical NOT of this predicate
+        @param  -  inVerted. Defaults to false.  This is a logical NOT of
+                   this predicate
         @return - None.
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
@@ -132,7 +125,8 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
          Evaluates this predicate, using a CIMInstance as a property source.
 
          <PRE>
-         The CQLPredicate is non-simple if it contains only CQLPredicate objects.
+         The CQLPredicate is non-simple if it contains only CQLPredicate
+         objects.
          A non-simple CQLPredicate is evaluated by in turn evaluating the
          contained CQLPredicates and boolean operator.
 
@@ -143,7 +137,8 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
          The result of the evaluation is then inverted if the _invert member
          variable is set to TRUE and then returned to the caller.
 
-         The CQLPredicate is simple if it contains only a single CQLSimplePredicate.
+         The CQLPredicate is simple if it contains only a single
+         CQLSimplePredicate.
          A simple CQLPredicate is evaluated by calling evaluate on
          the CQLSimplePredicate.
          </PRE>
@@ -197,7 +192,8 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
     */
-    void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
+    void appendPredicate(const CQLPredicate& inPredicate,
+            BooleanOpType inBooleanOperator);
 
     /**
         Gets the CQLPredicates contained within this CQLPredicate.
@@ -210,8 +206,8 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     Array<CQLPredicate> getPredicates()const;
 
      /**
-        Gets the CQLSimplePredicate contained within this CQLPredicate. Only valid
-        if this isSimple() = true.
+        Gets the CQLSimplePredicate contained within this CQLPredicate.
+        Only valid if this isSimple() = true.
 
         @param  - None.
         @return - CQLSimplePredicate.
@@ -232,8 +228,8 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     Array<BooleanOpType> getOperators()const;
 
      /**
-        This method normalizes the CQLChainedIdentifier so that properties that require
-        scoping are scoped.
+        This method normalizes the CQLChainedIdentifier so that properties
+        that require scoping are scoped.
 
         @param  - queryContext.
         @return - None.

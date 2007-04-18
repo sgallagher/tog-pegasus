@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
@@ -72,7 +66,8 @@ CQLValue::CQLValue(const CQLValue& val)
    _rep = new CQLValueRep(val._rep);
 }
 
-CQLValue::CQLValue(const String& inString, NumericType inValueType, Boolean inSign)
+CQLValue::CQLValue(const String& inString, NumericType inValueType,
+                   Boolean inSign)
 {
    _rep = new CQLValueRep(inString, inValueType, inSign);
 }
@@ -235,7 +230,8 @@ Boolean CQLValue::isNull() const
    return _rep->isNull();
 }
 
-Boolean CQLValue::isa(const CQLChainedIdentifier& cid, QueryContext& QueryCtx) const
+Boolean CQLValue::isa(const CQLChainedIdentifier& cid,
+                      QueryContext& QueryCtx) const
 {
    return _rep->isa(cid, QueryCtx);
 }

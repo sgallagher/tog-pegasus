@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3589
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLIdentifier.h"
@@ -57,51 +50,51 @@ String SCOPE = "::";
 CQLIdentifier::CQLIdentifier():
   QueryIdentifier()
 {
-	if(_rep) 
-		delete _rep;
-	_rep = NULL;
-	_rep = new QueryIdentifierRep();
+    if(_rep) 
+        delete _rep;
+    _rep = NULL;
+    _rep = new QueryIdentifierRep();
 }
 
 CQLIdentifier::CQLIdentifier(const String& identifier):
   QueryIdentifier()
 {
-	if(_rep) 
-		delete _rep;
+    if(_rep) 
+        delete _rep;
    _rep = NULL;
-	_rep = new CQLIdentifierRep(identifier);
+    _rep = new CQLIdentifierRep(identifier);
 }
 
 CQLIdentifier::CQLIdentifier(const CQLIdentifier& id):
  QueryIdentifier()
 {
-	if(_rep) 
-		delete _rep;
-	_rep = NULL;
-  _rep = new QueryIdentifierRep(id._rep);
+    if(_rep) 
+        delete _rep;
+    _rep = NULL;
+    _rep = new QueryIdentifierRep(id._rep);
 }
 
 CQLIdentifier::CQLIdentifier(const QueryIdentifier& id):
-  QueryIdentifier(id)
+    QueryIdentifier(id)
 {
 
 }
 
 CQLIdentifier::~CQLIdentifier()
 {
-  if(_rep)
-    delete _rep;
-  _rep = NULL;
+    if(_rep)
+        delete _rep;
+    _rep = NULL;
 }
 
 CQLIdentifier& CQLIdentifier::operator=(const CQLIdentifier& rhs)
 {
-	if(&rhs != this)
-   {
-     if(_rep) delete _rep;
-     _rep = new QueryIdentifierRep(rhs._rep);
-	}
-	return *this;
+    if(&rhs != this)
+    {
+        if(_rep) delete _rep;
+        _rep = new QueryIdentifierRep(rhs._rep);
+    }
+    return *this;
 }
 
 PEGASUS_NAMESPACE_END

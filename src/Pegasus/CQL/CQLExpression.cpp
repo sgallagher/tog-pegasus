@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLExpression::CQLExpression()
 {
-	_rep = new CQLExpressionRep();
+    _rep = new CQLExpressionRep();
 }
 
 CQLExpression::CQLExpression(const CQLTerm& theTerm)
@@ -64,23 +64,25 @@ CQLExpression::CQLExpression(const CQLTerm& theTerm)
 
 CQLExpression::CQLExpression(const CQLExpression& inExpress) 
 {
-	_rep = new CQLExpressionRep(inExpress._rep);
+    _rep = new CQLExpressionRep(inExpress._rep);
 }
 
 CQLExpression::~CQLExpression()
 {
-	if(_rep)
-		delete _rep;
+    if(_rep)
+        delete _rep;
 }
 
-CQLValue CQLExpression::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
+CQLValue CQLExpression::resolveValue(const CIMInstance& CI,
+                                     const QueryContext& QueryCtx)
 {
-	return _rep->resolveValue(CI,QueryCtx);
+    return _rep->resolveValue(CI,QueryCtx);
 }
 
-void CQLExpression::appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm)
+void CQLExpression::appendOperation(const TermOpType theTermOpType,
+                                    const CQLTerm& theTerm)
 {
-	_rep->appendOperation(theTermOpType,theTerm);
+    _rep->appendOperation(theTermOpType,theTerm);
 }
 
 String CQLExpression::toString()const
@@ -93,7 +95,7 @@ Boolean CQLExpression::isSimple()const
 }
 Boolean CQLExpression::isSimpleValue()const
 {
-	return _rep->isSimpleValue();
+    return _rep->isSimpleValue();
 }
 
 Array<CQLTerm> CQLExpression::getTerms()const
@@ -114,21 +116,21 @@ void CQLExpression::applyContext(const QueryContext& inContext,
 
 CQLExpression& CQLExpression::operator=(const CQLExpression& rhs)
 {
-	if(&rhs != this){
-		if(_rep) delete _rep;
-		_rep = new CQLExpressionRep(rhs._rep);
-	}
-	return *this;
+    if(&rhs != this){
+        if(_rep) delete _rep;
+        _rep = new CQLExpressionRep(rhs._rep);
+    }
+    return *this;
 }
 /*
 Boolean CQLExpression::operator==(const CQLExpression& expr)const
 {
-	return *_rep == *(expr._rep);
+    return *_rep == *(expr._rep);
 }
 
 Boolean CQLExpression::operator!=(const CQLExpression& expr)const
 {
-	return (!operator==(expr));
+    return (!operator==(expr));
 }
 */
 PEGASUS_NAMESPACE_END

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLFactory_h
@@ -211,7 +203,8 @@ class CQLFactory
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
-  void* getObject(void* inObject, FactoryType inObjectType, FactoryType targetType);
+  void* getObject(void* inObject, FactoryType inObjectType,
+          FactoryType targetType);
 
   void* getObject(CQLChainedIdentifier* obj, FactoryType target);
   void* getObject(CQLValue* obj, FactoryType target);

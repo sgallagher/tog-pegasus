@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3589
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 //#include "CQLIdentifier.h"
@@ -53,28 +46,28 @@ Char16 CQLIdentifierRep::LBRKT = '[';
 const char CQLIdentifierRep::SCOPE[] = "::";
 
 CQLIdentifierRep::CQLIdentifierRep(): 
-  QueryIdentifierRep()
+    QueryIdentifierRep()
 {
 
 }
 
 CQLIdentifierRep::CQLIdentifierRep(const String& identifier): 
-  QueryIdentifierRep()
+    QueryIdentifierRep()
 {
-  _isWildcard = false;
-  _isSymbolicConstant = false;
-	parse(identifier);
+    _isWildcard = false;
+    _isSymbolicConstant = false;
+    parse(identifier);
 }
 
 CQLIdentifierRep::CQLIdentifierRep(const CQLIdentifierRep* rep):
-  QueryIdentifierRep()
+    QueryIdentifierRep()
 {
-	_symbolicConstant = rep->_symbolicConstant;
-   _scope = rep->_scope;
-   _indices = rep->_indices;
-   _name = rep->_name;
-   _isWildcard = rep->_isWildcard;
-   _isSymbolicConstant = rep->_isSymbolicConstant;
+    _symbolicConstant = rep->_symbolicConstant;
+    _scope = rep->_scope;
+    _indices = rep->_indices;
+    _name = rep->_name;
+    _isWildcard = rep->_isWildcard;
+    _isSymbolicConstant = rep->_isSymbolicConstant;
 }
 
 CQLIdentifierRep::~CQLIdentifierRep()
@@ -84,115 +77,138 @@ CQLIdentifierRep::~CQLIdentifierRep()
 
 CQLIdentifierRep& CQLIdentifierRep::operator=(const CQLIdentifierRep& rhs)
 {
-	_symbolicConstant = rhs._symbolicConstant;
-   _scope = rhs._scope;
-   _indices = rhs._indices; 
-   _name = rhs._name;
-   _isWildcard = rhs._isWildcard;
-   _isSymbolicConstant = rhs._isSymbolicConstant;
-	return *this;
+    _symbolicConstant = rhs._symbolicConstant;
+    _scope = rhs._scope;
+    _indices = rhs._indices; 
+    _name = rhs._name;
+    _isWildcard = rhs._isWildcard;
+    _isSymbolicConstant = rhs._isSymbolicConstant;
+    return *this;
 }
 
 void CQLIdentifierRep::parse(String identifier)
 {
-PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifierRep::parse");
-	/*
-	 - Parse for the following:
+    PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifierRep::parse");
+    /*
+     - Parse for the following:
          1. A::<scoped string>
-	 (a)  property name
+     (a)  property name
          (b)  property[3]     e.g. an array index
          (c)  property#'OK'    e.g. a symbolic constant
          (d)  *   (wildcard)
-	 (e)  class name
-	 (f)  embedded object
-	 (g)  namespace
-	*/
+     (e)  class name
+     (f)  embedded object
+     (g)  namespace
+    */
 
-	Uint32 index;
-	Boolean hasCIMName = true;
-	if(identifier == String::EMPTY){
-		_name = CIMName();
-		return;	
-	}
-	// basic error check
-	if((index = identifier.find(HASH)) != PEG_NOT_FOUND){
-		if(((index = identifier.find(RBRKT)) != PEG_NOT_FOUND) || 
-			((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))	
-		{
-			//error
-			MessageLoaderParms parms(String("CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH"),
-                			         String("The identifier contains a mismatched symbolic constant symbol and an array symbol: $0"),
-                                	         identifier);
-			throw CQLIdentifierParseException(parms);
-		}
-	}
+    Uint32 index;
+    Boolean hasCIMName = true;
+    if(identifier == String::EMPTY)
+    {
+        _name = CIMName();
+        return; 
+    }
+    // basic error check
+    if((index = identifier.find(HASH)) != PEG_NOT_FOUND)
+    {
+        if(((index = identifier.find(RBRKT)) != PEG_NOT_FOUND) || 
+            ((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))    
+        {
+            //error
+            MessageLoaderParms parms(
+                String("CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH"),
+                String("The identifier contains a mismatched symbolic"
+                    " constant symbol and an array symbol: $0"),
+                identifier);
+            throw CQLIdentifierParseException(parms);
+        }
+    }
 
-	String _SCOPE(SCOPE);
-	if((index = identifier.find(_SCOPE)) != PEG_NOT_FOUND){
-		_scope = identifier.subString(0,index);
-		identifier = identifier.subString(index+2);
-	}
+    String _SCOPE(SCOPE);
+    if((index = identifier.find(_SCOPE)) != PEG_NOT_FOUND)
+    {
+        _scope = identifier.subString(0,index);
+        identifier = identifier.subString(index+2);
+    }
 
-	if((index = identifier.find(RBRKT)) != PEG_NOT_FOUND){
-		if((index = identifier.find(LBRKT)) != PEG_NOT_FOUND){
-		  // found array index, parse for ','
-		  String range = identifier.subString(index);
-		  range = range.subString(1,range.size()-2);  // remove left and right bracket
-		  while(index != PEG_NOT_FOUND){
-			if((index = range.find(',')) != PEG_NOT_FOUND){
-				// Basic query error
-                        	MessageLoaderParms parms(String("CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES"),
-                                                 String("The identifier contains one or more commas which is not allowed in CQL Basic query: $0"),
-                                                 identifier);
-                        	throw CQLIdentifierParseException(parms);
-				// 
-				// For basic query the following lines are disabled
-				// An exception is thrown if we have ',' in the array range
-				//
-				//_indices.append(SubRange(range.subString(0,index)));
-				//range = range.subString(index+1);
-			}else{
-				_indices.append(SubRange(range));
-			}
-		  }
-		  // remove ranges from identifier
-		  identifier = identifier.subString(0,identifier.find(LBRKT));
-		}else{
-		  // error
-			MessageLoaderParms parms(String("CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH"),
-				                 String("The identifier contains a mismatched array symbol: $0"),
-                                                 identifier);
-			throw CQLIdentifierParseException(parms);
-		}
-	}else if((index = identifier.find(STAR)) != PEG_NOT_FOUND){
-		// wildcard
-		_isWildcard = true;
-	}else if((index = identifier.find(HASH)) != PEG_NOT_FOUND){
-		// symbolic constant
+    if((index = identifier.find(RBRKT)) != PEG_NOT_FOUND)
+    {
+        if((index = identifier.find(LBRKT)) != PEG_NOT_FOUND)
+        {
+            // found array index, parse for ','
+            String range = identifier.subString(index);
+            // remove left and right bracket
+            range = range.subString(1,range.size()-2);
+            while(index != PEG_NOT_FOUND){
+            if((index = range.find(',')) != PEG_NOT_FOUND)
+            {
+                // Basic query error
+                MessageLoaderParms parms(
+                    String("CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES"),
+                    String("The identifier contains one or more commas which"
+                        " is not allowed in CQL Basic query: $0"),
+                    identifier);
+                throw CQLIdentifierParseException(parms);
+                // 
+                // For basic query the following lines are disabled
+                // An exception is thrown if we have ',' in the array range
+                //
+                //_indices.append(SubRange(range.subString(0,index)));
+                //range = range.subString(index+1);
+            }else
+            {
+                _indices.append(SubRange(range));
+            }
+          }
+          // remove ranges from identifier
+          identifier = identifier.subString(0,identifier.find(LBRKT));
+        }
+        else
+        {
+          // error
+            MessageLoaderParms parms(
+                String("CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH"),
+                String("The identifier contains a mismatched array symbol: $0"),
+                identifier);
+            throw CQLIdentifierParseException(parms);
+        }
+    }
+    else if((index = identifier.find(STAR)) != PEG_NOT_FOUND)
+    {
+        // wildcard
+        _isWildcard = true;
+    }
+    else if((index = identifier.find(HASH)) != PEG_NOT_FOUND)
+    {
+        // symbolic constant
 
-		// check if we only have a symbolic constant without a leading identifier
-		if(index == 0) hasCIMName = false;
+        // check if only have a symbolic constant without a leading identifier
+        if(index == 0) hasCIMName = false;
 
-		_isSymbolicConstant = true;
-		_symbolicConstant = identifier.subString(index+1);
-		identifier = identifier.subString(0,index);
-	}
+        _isSymbolicConstant = true;
+        _symbolicConstant = identifier.subString(index+1);
+        identifier = identifier.subString(0,index);
+    }
 
-	// name
-	if(!_isWildcard){
-		try{
-			if(hasCIMName)
-				_name = CIMName(identifier);
-		}catch(Exception e){
-			MessageLoaderParms parms(String("CQL.CQLIdentifier.INVALID_CIMNAME"),
-				                 String("The identifier contains an invalid CIMName: $0."),
-                                                 identifier);
-			throw CQLIdentifierParseException(parms);
-		}
-	}
-	
+    // name
+    if(!_isWildcard)
+    {
+        try
+        {
+            if(hasCIMName)
+                _name = CIMName(identifier);
+        }
+        catch(Exception e)
+        {
+            MessageLoaderParms parms(
+                String("CQL.CQLIdentifier.INVALID_CIMNAME"),
+                String("The identifier contains an invalid CIMName: $0."),
+                identifier);
+            throw CQLIdentifierParseException(parms);
+        }
+    }
+    
 PEG_METHOD_EXIT();
-
 }
 
 PEGASUS_NAMESPACE_END

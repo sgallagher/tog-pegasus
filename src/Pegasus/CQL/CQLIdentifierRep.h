@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3589
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLIdentifierRep_h
@@ -69,14 +62,15 @@ in any of these 3 formats:
    (d)  *   (wildcard)
 
 In the future, there may be support added for a set of indices (ranges).
-  */
+*/
 class CQLIdentifierRep: public QueryIdentifierRep
 {
-  public:
+public:
     CQLIdentifierRep();
     /**  The constructor for a CQLIdentifier object
-          takes a const string reference as input.  The string should contain the
-          property portion of a CQLChainedIdentifier.
+          takes a const string reference as input.  
+          The string should contain the property portion of a
+          CQLChainedIdentifier.
     
          The constructor parses the input string into the components of 
          the property identifier. 
@@ -84,22 +78,23 @@ class CQLIdentifierRep: public QueryIdentifierRep
          Throws parsing errors.
       */
     CQLIdentifierRep(const String& identifier);
-
+    
     CQLIdentifierRep(const CQLIdentifierRep* rep);
-
+    
     ~CQLIdentifierRep();
-
+    
     CQLIdentifierRep& operator=(const CQLIdentifierRep& rhs);
 
-  private:
+private:
 
-      /**   This method needs to continue to take a String object, not a reference nor a const
-            reference.  The reason being it changes the value of the parameter and that
-            changed value should not be returned to the caller.
-      */
-
+    /**   This method needs to continue to take a String object, not a
+        reference nor a const reference.  The reason being it changes
+        the value of the parameter and that changed value should not
+        be returned to the caller.
+    */
+    
     void parse(String indentifier);
-
+    
     static Char16 STAR;
     static Char16 HASH;
     static Char16 RBRKT;

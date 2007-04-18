@@ -28,15 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
-//
-// Author: Dan Gorey (djgorey@us.ibm.com)
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 
 #include "CQLRegularExpression.h"
 #include <Pegasus/Common/Char16.h>
@@ -53,34 +46,43 @@ CQLRegularExpression::~CQLRegularExpression()
 }
 
 
-Boolean CQLRegularExpression::match(const String& string, const String& pattern)
+Boolean CQLRegularExpression::match(const String& string,
+                                    const String& pattern)
 {
     Uint32 patIndex = 0;
     Uint32 strIndex = 0;
 
     // if either pattern or string are "EMPTY" you have an invalid String
-    if (pattern == String::EMPTY) {
+    if (pattern == String::EMPTY)
+    {
         return false;
     }
 
-    if (string == String::EMPTY) {
+    if (string == String::EMPTY)
+    {
         return false;
     }
 
-    while (true) {
-        if ( (string.size() == strIndex) && (pattern.size() == patIndex)) {
+    while (true)
+    {
+        if ( (string.size() == strIndex) && (pattern.size() == patIndex))
+        {
             return true;
-        } else if ((string.size() == strIndex) || (pattern.size() == patIndex)) {
+        }
+        else if ((string.size() == strIndex) || (pattern.size() == patIndex))
+        {
             return false;
         }
 
         //  Check if pattern equal to  '.'
-        if (pattern[patIndex] == '.') {
+        if (pattern[patIndex] == '.')
+        {
             //assumes a valid multi-byte pair has been passed
             if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) && 
                  ((Uint16)pattern[patIndex] <= LAST_HIGH_SURROGATE)) ||
                 (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) && 
-                 ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE))) {
+                 ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE)))
+            {
                 patIndex ++;
                 strIndex ++;
             }
@@ -89,142 +91,206 @@ Boolean CQLRegularExpression::match(const String& string, const String& pattern)
             patIndex ++;
 
             // Check if pattern equal to '*'
-        } else if (pattern[patIndex] == '*') {
-	    if(patIndex == 0)
-	        return false;
-            if (pattern[patIndex-1] == '.') {
-                if ((patIndex > 1) && pattern[patIndex-2] =='\\') {
-                    if (string[strIndex] != '.') {
+        }
+        else if (pattern[patIndex] == '*')
+        {
+            if(patIndex == 0)
+                return false;
+            if (pattern[patIndex-1] == '.')
+            {
+                if ((patIndex > 1) && pattern[patIndex-2] =='\\')
+                {
+                    if (string[strIndex] != '.')
+                    {
                         return false;
                     }
-                } else if (pattern.size()-1 == patIndex) {
+                }
+                else if (pattern.size()-1 == patIndex)
+                {
                     return true;
-                } else if (string.size()-1 == strIndex) {
+                }
+                else if (string.size()-1 == strIndex)
+                {
                     return false;
                 }
-            } else if (pattern[patIndex-1] == '\\') {
-                if (pattern[patIndex-2] == '.') {
-                    if (string[strIndex] != '*') {
+            }
+            else if (pattern[patIndex-1] == '\\')
+            {
+                if (pattern[patIndex-2] == '.')
+                {
+                    if (string[strIndex] != '*')
+                    {
                         return false;
                     }
                 }
-            } else if ((((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) && 
-                        ((Uint16)pattern[patIndex-2] <= LAST_HIGH_SURROGATE)) ||
-                       (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) && 
-                        ((Uint16)pattern[patIndex-2] <= LAST_LOW_SURROGATE))) {
+            }
+            else if (
+                 (((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) && 
+                    ((Uint16)pattern[patIndex-2] <= LAST_HIGH_SURROGATE)) ||
+                 (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) && 
+                    ((Uint16)pattern[patIndex-2] <= LAST_LOW_SURROGATE)))
+            {
 
-                if (pattern[patIndex-2] != string[strIndex]) {
+                if (pattern[patIndex-2] != string[strIndex])
+                {
                     return false;
-                } else if (pattern[patIndex-1] != string[strIndex+1]) {
+                } else if (pattern[patIndex-1] != string[strIndex+1])
+                {
                     return false;
-                } else {
+                }
+                else
+                {
                     strIndex ++;
                 }
-            } else if (pattern[patIndex-1] != string[strIndex]) {
+            }
+            else if (pattern[patIndex-1] != string[strIndex])
+            {
                 return false;
             }
-            while (true) {
+            while (true)
+            {
                 strIndex ++;
 
-                if (pattern[patIndex-1] == '.') {
-                    if ((patIndex > 1) && (pattern[patIndex-2] =='\\')) {
-                        if (string[strIndex] != '.') {
+                if (pattern[patIndex-1] == '.')
+                {
+                    if ((patIndex > 1) && (pattern[patIndex-2] =='\\'))
+                    {
+                        if (string[strIndex] != '.')
+                        {
                             patIndex ++;
                             break;
                         }
-                    } else if (pattern[patIndex+1] == string[strIndex]) {
+                    }
+                    else if (pattern[patIndex+1] == string[strIndex])
+                    {
                         //make copies of the indexes in case you do not reach
                         //the end of the string
                         int stringOrig = strIndex;
                         int patternOrig = patIndex;
                         patIndex++;
 
-                        if (strIndex == string.size()-1 && patIndex == pattern.size()-1) {
+                        if (strIndex == string.size()-1 && 
+                                patIndex == pattern.size()-1)
+                        {
                             return true;
                         }
-                        while (true) {
+                        while (true)
+                        {
                             strIndex++;
                             patIndex ++;
-                            if (pattern[patIndex] != string[strIndex]) {
+                            if (pattern[patIndex] != string[strIndex])
+                            {
                                 strIndex = stringOrig + 1;
                                 patIndex = patternOrig;
                                 break;
                             } else if (strIndex == string.size()-1 && 
-                                       patIndex == pattern.size()-1) {
+                                   patIndex == pattern.size()-1)
+                            {
                                 break;
                             }
                             patIndex++;
                         }
                     }
-                } else if (pattern[patIndex-1] == '\\') {
-                    if (pattern[patIndex-2] == '.') {
-                        if (string[strIndex] != '*') {
+                }
+                else if (pattern[patIndex-1] == '\\')
+                {
+                    if (pattern[patIndex-2] == '.')
+                    {
+                        if (string[strIndex] != '*')
+                        {
                             patIndex ++;
                             break;
                         }
-                        if (strIndex == string.size()-1 && patIndex == pattern.size()-1) {
+                        if (strIndex == string.size()-1 && 
+                            patIndex == pattern.size()-1)
+                        {
                             return true;
                         }
                         while (true) {
                             strIndex ++;
-                            if (string[strIndex] != '*') {
+                            if (string[strIndex] != '*')
+                            {
                                 patIndex ++;
                                 break;
                             }
                             if (strIndex == string.size()-1 && 
-                                patIndex == pattern.size()-1) {
+                                patIndex == pattern.size()-1)
+                            {
                                 return true;
                             }
                         }
                     }
-                } else if ((((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) && 
-                            ((Uint16)pattern[patIndex-2] <= LAST_HIGH_SURROGATE)) ||
-                           (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) && 
-                            ((Uint16)pattern[patIndex-2] <= LAST_LOW_SURROGATE))) {
-
-                    if (pattern[patIndex-2] != string[strIndex]) {
+                }
+                else if (
+                     (((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) && 
+                        ((Uint16)pattern[patIndex-2] <= LAST_HIGH_SURROGATE)) ||
+                     (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) && 
+                        ((Uint16)pattern[patIndex-2] <= LAST_LOW_SURROGATE)))
+                {
+                    if (pattern[patIndex-2] != string[strIndex])
+                    {
                         patIndex ++;
                         break;
-                    } else if (pattern[patIndex-1] != string[strIndex+1]) {
+                    }
+                    else if (pattern[patIndex-1] != string[strIndex+1])
+                    {
                         patIndex ++;
                         break;
-                    } else {
+                    }
+                    else
+                    {
                         strIndex ++;
                     }
-                } else if (pattern[patIndex-1] != string[strIndex]) {
+                }
+                else if (pattern[patIndex-1] != string[strIndex])
+                {
                     patIndex ++;
                     break;
                 }
 
-                if (strIndex == string.size()-1 && patIndex == pattern.size()-1) {
+                if (strIndex == string.size()-1 && 
+                    patIndex == pattern.size()-1)
+                {
                     return true;
-                } else if (strIndex == string.size()-1) {
+                } else if (strIndex == string.size()-1)
+                {
                     return false;
-
                 }
 
             }
             // check if pattern equal to '\'
-        } else if (pattern[patIndex] == '\\') {
+        }
+        else if (pattern[patIndex] == '\\')
+        {
             patIndex ++;
             if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) && 
                  ((Uint16)pattern[patIndex] <= LAST_HIGH_SURROGATE)) ||
                 (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) && 
-                 ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE))) {
+                 ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE)))
+            {
 
-                if (pattern[patIndex] != string[strIndex]) {
+                if (pattern[patIndex] != string[strIndex])
+                {
                     return false;
-                } else if (pattern[patIndex+1] != string[strIndex+1]) {
+                }
+                else if (pattern[patIndex+1] != string[strIndex+1])
+                {
                     return false;
-                } else {
+                }
+                else
+                {
                     patIndex ++;
                     strIndex ++;
                 }
-            } else {
+            }
+            else
+            {
                 if (pattern[patIndex] != string[strIndex]) {
                     return false;
                 }
-                if (strIndex == string.size()-1 && patIndex == pattern.size()-1) {
+                if (strIndex == string.size()-1 && 
+                    patIndex == pattern.size()-1)
+                {
                     return true;
                 }
                 strIndex ++;
@@ -233,21 +299,28 @@ Boolean CQLRegularExpression::match(const String& string, const String& pattern)
             }  
 
             //default 
-        } else {
+        }
+        else
+        {
             if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) && 
                  ((Uint16)pattern[patIndex] <= LAST_HIGH_SURROGATE)) ||
                 (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) && 
-                 ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE))) {
-
-                if (pattern[patIndex] != string[strIndex]) {
+                 ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE)))
+            {
+                if (pattern[patIndex] != string[strIndex])
+                {
                     return false;
-                } else if (pattern[patIndex+1] != string[strIndex+1]) {
+                }
+                else if (pattern[patIndex+1] != string[strIndex+1])
+                {
                     return false;
                 } else {
                     patIndex ++;
                     strIndex ++;
                 }
-            } else if (pattern[patIndex] != string[strIndex]) {
+            }
+            else if (pattern[patIndex] != string[strIndex])
+            {
                 return false;
             }
             patIndex ++;

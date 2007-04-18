@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLChainedIdentifier.h"
@@ -56,7 +49,7 @@ CQLChainedIdentifierRep::CQLChainedIdentifierRep():
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(const String& inString):
   QueryChainedIdentifierRep()
 {
-	parse(inString);
+    parse(inString);
 }
 
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(const CQLIdentifier &id):
@@ -65,14 +58,16 @@ CQLChainedIdentifierRep::CQLChainedIdentifierRep(const CQLIdentifier &id):
   _subIdentifiers.append(id);
 }
 
-CQLChainedIdentifierRep::CQLChainedIdentifierRep(const CQLChainedIdentifierRep* rep):
+CQLChainedIdentifierRep::CQLChainedIdentifierRep(
+  const CQLChainedIdentifierRep* rep)
+  :
   QueryChainedIdentifierRep()
 {
-	_subIdentifiers = rep->_subIdentifiers;
+    _subIdentifiers = rep->_subIdentifiers;
 }
 
 CQLChainedIdentifierRep::~CQLChainedIdentifierRep(){
-	
+    
 }
 
 Array<CQLIdentifier> CQLChainedIdentifierRep::getSubIdentifiers()const
@@ -84,59 +79,64 @@ Array<CQLIdentifier> CQLChainedIdentifierRep::getSubIdentifiers()const
     result.append(CQLIdentifier(_subIdentifiers[i]));
   }
 
-	return result;
+    return result;
 }
 
-CQLIdentifier CQLChainedIdentifierRep::getLastIdentifier()const{
-	if(_subIdentifiers.size() > 0)
-		return CQLIdentifier(_subIdentifiers[_subIdentifiers.size()-1]);
-	return CQLIdentifier();
+CQLIdentifier CQLChainedIdentifierRep::getLastIdentifier()const
+{
+    if(_subIdentifiers.size() > 0)
+        return CQLIdentifier(_subIdentifiers[_subIdentifiers.size()-1]);
+    return CQLIdentifier();
 }
 
 CQLIdentifier CQLChainedIdentifierRep::operator[](Uint32 index)const
 {
-	return CQLIdentifier(_subIdentifiers[index]);
+    return CQLIdentifier(_subIdentifiers[index]);
 }
 
-CQLChainedIdentifierRep& CQLChainedIdentifierRep::operator=(const CQLChainedIdentifierRep& rhs){
-	if(&rhs != this){
-		_subIdentifiers = rhs._subIdentifiers;
-	}
-	return *this;
+CQLChainedIdentifierRep& CQLChainedIdentifierRep::operator=(
+    const CQLChainedIdentifierRep& rhs)
+{
+    if(&rhs != this)
+    {
+        _subIdentifiers = rhs._subIdentifiers;
+    }
+    return *this;
 }
 
-void CQLChainedIdentifierRep::parse(const String & string){
-	PEG_METHOD_ENTER(TRC_CQL, "CQLChainedIdentifierRep::parse");	
-	/* 
-	  - parse string on "."
-	  - start from the end of string
-	  - if more than one substring found, 
-		-- store first found string then
-		-- prepend remaining substrings 
-	*/
-	Char16 delim('.');
-	Uint32 index;
-	String range;
+void CQLChainedIdentifierRep::parse(const String & string)
+{
+    PEG_METHOD_ENTER(TRC_CQL, "CQLChainedIdentifierRep::parse");    
+    /* 
+      - parse string on "."
+      - start from the end of string
+      - if more than one substring found, 
+        -- store first found string then
+        -- prepend remaining substrings 
+    */
+    Char16 delim('.');
+    Uint32 index;
+    String range;
 
-	index = string.reverseFind(delim);
-	if(index == PEG_NOT_FOUND){
-		_subIdentifiers.append(CQLIdentifier(string));
-	}else{
-		String tmp = string.subString(index+1);
-		_subIdentifiers.append(CQLIdentifier(tmp));
+    index = string.reverseFind(delim);
+    if(index == PEG_NOT_FOUND){
+        _subIdentifiers.append(CQLIdentifier(string));
+    }else{
+        String tmp = string.subString(index+1);
+        _subIdentifiers.append(CQLIdentifier(tmp));
 
-		while(index != PEG_NOT_FOUND){
-			tmp = string.subString(0,index);
-			index = tmp.reverseFind(delim);
-			if(index == PEG_NOT_FOUND){
-				_subIdentifiers.prepend(CQLIdentifier(tmp));
-			}
-			else{
-				_subIdentifiers.prepend(CQLIdentifier(tmp.subString(index+1)));
-			}
-		}
-	}
-	PEG_METHOD_EXIT();	
+        while(index != PEG_NOT_FOUND){
+            tmp = string.subString(0,index);
+            index = tmp.reverseFind(delim);
+            if(index == PEG_NOT_FOUND){
+                _subIdentifiers.prepend(CQLIdentifier(tmp));
+            }
+            else{
+                _subIdentifiers.prepend(CQLIdentifier(tmp.subString(index+1)));
+            }
+        }
+    }
+    PEG_METHOD_EXIT();  
 }
 
 PEGASUS_NAMESPACE_END

@@ -28,15 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
-//
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLChainedIdentifier_h
@@ -72,24 +63,25 @@ The CQLChainedIdentifier class can parse and return each
 
 Note:  this must handle wildcard("*"), embedded objects, arrays, symbolic
 constants, etc.
-   */
+*/
 class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 {
   public:
 
     CQLChainedIdentifier();
     /**  
-	Constructor 
+    Constructor 
         Parses the string into the various components of a CQL identifier.
-	@param  - inString.  The raw string to be parsed into a CQLChainedIdentifier
+        @param  - inString.  The raw string to be parsed into a
+                  CQLChainedIdentifier
         @return - None.
         @throws - None.
     */
     CQLChainedIdentifier(const String& inString);
     
     /**  
-	The constructor for a CQLChainedIdentifier object.
-                                                                                                                                                             
+    The constructor for a CQLChainedIdentifier object.
+
         @param  - id.  The CQLIdentifier to construct this object with.
         @return - None.
         @throws - None.
@@ -98,8 +90,8 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
  
     /**
         Copy Constructor
-                                                                                                                                                             
-        @param  - cid.  The CQLChainedIdentifier to construct this object with.
+
+        @param  - cid. The CQLChainedIdentifier to construct this object with.
         @return - None.
         @throws - None.
     */
@@ -107,7 +99,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Destructor
-                                                                                                                                                             
+
         @param  - None.
         @return - None.
         @throws - None.
@@ -116,7 +108,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Opertor=
-                                                                                                                                                             
+
         @param  - rhs. Right hand side of assignement operator.
         @return - *this.
         @throws - None.
@@ -125,16 +117,17 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Operator[]. Allows indexed access into the CQLChainedIdentifier
-                                                                                                                                                             
+
         @param  - index. Location of data within the CQLChainedIdentifier
-        @return - CQLIdentifier.  returns CQLIdentifer() if index is out of bounds.
+        @return - CQLIdentifier.  returns CQLIdentifer() if index is
+                  out of bounds.
         @throws - None.
     */
     CQLIdentifier operator[](Uint32 index)const;
 
     /**
         Gets all of the CQLIdentifiers within the CQLChainedIdentifier
-                                                                                                                                                             
+
         @param  - None.
         @return - Array<CQLIdentifier>.
         @throws - None.
@@ -143,13 +136,13 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
 
     /**
         Gets the last CQLIdentifier in this objects Array of CQLIdentifiers
-                                                                                                                                                             
+
         @param  - None.
         @return - CQLIdentifier.
         @throws - None.
     */
     CQLIdentifier getLastIdentifier()const;
-	
+    
     friend class CQLFactory;
 
   private:

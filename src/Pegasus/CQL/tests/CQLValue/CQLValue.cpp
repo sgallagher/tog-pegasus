@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -339,7 +332,8 @@ void drive_operation()
    _i1.addProperty(_p4);
 
    CIMInstance _i2(_cimName);
-   CIMProperty _p5(CIMName("Description"),CIMValue(String("Dave Rules Everything")));
+   CIMProperty _p5(CIMName("Description"),
+                   CIMValue(String("Dave Rules Everything")));
    CIMProperty _p6(CIMName("EnabledState"),CIMValue(Uint16(2)));
    CIMProperty _p7(CIMName("CurrentTimeZone"),CIMValue(Sint16(-600)));
    CIMProperty _p8(CIMName("TimeOfLastStateChange"),
@@ -423,12 +417,12 @@ void drive_resolve_primitive()
    
    
    const char* env = getenv("PEGASUS_HOME");
-	String repositoryDir(env);
-	repositoryDir.append("/repository");
-	//String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
-	CIMNamespaceName _ns("root/cimv2");
-	CIMRepository *_rep = new CIMRepository(repositoryDir);
-	RepositoryQueryContext _query(_ns, _rep);
+    String repositoryDir(env);
+    repositoryDir.append("/repository");
+    //String repositoryDir("c:/pegasus-cvs/pegasus/repository");    
+    CIMNamespaceName _ns("root/cimv2");
+    CIMRepository *_rep = new CIMRepository(repositoryDir);
+    RepositoryQueryContext _query(_ns, _rep);
    RepositoryQueryContext _query1(_ns, _rep);
 try{
    const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
@@ -449,28 +443,28 @@ try{
    _i1.addProperty(_p3);
    _i1.addProperty(_p4);
 
-   CQLChainedIdentifier ci1(String("CIM_OperatingSystem.CIM_OperatingSystem::Description"));
+   CQLChainedIdentifier ci1(
+      String("CIM_OperatingSystem.CIM_OperatingSystem::Description"));
    CQLChainedIdentifier 
-         ci2(String("CIM_OperatingSystem.CIM_OperatingSystem::EnabledState"));
-   CQLChainedIdentifier ci3(String("CIM_OperatingSystem.CIM_OperatingSystem::CurrentTimeZone"));
-   CQLChainedIdentifier ci4(String("CIM_OperatingSystem.CIM_OperatingSystem::TimeOfLastStateChange"));
+     ci2(String("CIM_OperatingSystem.CIM_OperatingSystem::EnabledState"));
+   CQLChainedIdentifier ci3(
+     String("CIM_OperatingSystem.CIM_OperatingSystem::CurrentTimeZone"));
+   CQLChainedIdentifier ci4(
+     String("CIM_OperatingSystem.CIM_OperatingSystem::TimeOfLastStateChange"));
 
    CQLChainedIdentifier 
-         ci5(String(
-         "CIM_OperatingSystem.CIM_EnabledLogicalElement::TimeOfLastStateChange"));
-
-
+     ci5(String(
+     "CIM_OperatingSystem.CIM_EnabledLogicalElement::TimeOfLastStateChange"));
    
    CQLChainedIdentifier 
-         ci7(String("CIM_OperatingSystem"));
-
-
-   CQLChainedIdentifier 
-         ci9(String(
-         "CIM_EnabledLogicalElement.CIM_OperatingSystem::CSCreationClassName"));
+     ci7(String("CIM_OperatingSystem"));
 
    CQLChainedIdentifier 
-         ci10(String("CIM_OperatingSystem.CIM_OperatingSystem::Bubba"));
+     ci9(String(
+     "CIM_EnabledLogicalElement.CIM_OperatingSystem::CSCreationClassName"));
+
+   CQLChainedIdentifier 
+     ci10(String("CIM_OperatingSystem.CIM_OperatingSystem::Bubba"));
 
    CQLValue a1(ci1); 
    CQLValue a2(ci2);
@@ -498,8 +492,10 @@ try{
    PEGASUS_TEST_ASSERT(a1 == CQLValue(String("Dave Rules")));
    PEGASUS_TEST_ASSERT(a2 == CQLValue(Uint64(2)));
    PEGASUS_TEST_ASSERT(a3 == CQLValue(Sint64(-600)));
-   PEGASUS_TEST_ASSERT(a4 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
-   PEGASUS_TEST_ASSERT(a5 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
+   PEGASUS_TEST_ASSERT(a4 == CQLValue(
+               CIMDateTime(String("20040811105625.000000-360"))));
+   PEGASUS_TEST_ASSERT(a5 == CQLValue(
+               CIMDateTime(String("20040811105625.000000-360"))));
    //PEGASUS_TEST_ASSERT(a7 == CQLValue(_i1));
    PEGASUS_TEST_ASSERT(a9.getValueType() == CQLValue::Null_type);
    PEGASUS_TEST_ASSERT(a10.getValueType() == CQLValue::Null_type);
@@ -519,12 +515,12 @@ void drive_resolve_specialChars()
    
    
       const char* env = getenv("PEGASUS_HOME");
-		String repositoryDir(env);
+        String repositoryDir(env);
       repositoryDir.append("/repository");
-   	//String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
-   	CIMNamespaceName _ns("root/cimv2");
-   	CIMRepository *_rep = new CIMRepository(repositoryDir);
-   	RepositoryQueryContext _query(_ns, _rep);
+    //String repositoryDir("c:/pegasus-cvs/pegasus/repository");    
+    CIMNamespaceName _ns("root/cimv2");
+    CIMRepository *_rep = new CIMRepository(repositoryDir);
+    RepositoryQueryContext _query(_ns, _rep);
       RepositoryQueryContext _query1(_ns, _rep);
    try{
       const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
@@ -553,7 +549,9 @@ void drive_resolve_specialChars()
 
       CQLChainedIdentifier ci5(String("CIM_OperatingSystem.Status#BOGUS"));
 
-      CQLChainedIdentifier ci6(String("CIM_OperatingSystem.CIM_OperatingSystem::OperationalStatus[2]"));
+      CQLChainedIdentifier ci6(
+        String("CIM_OperatingSystem.CIM_OperatingSystem::"
+            "OperationalStatus[2]"));
       CQLValue a1(ci1);
       CQLValue a2(ci2);
       CQLValue a3(ci3);
@@ -568,14 +566,14 @@ void drive_resolve_specialChars()
       a6.resolve(_i1, _query);
 
       try
-	{
-	  a3.resolve(_i1, _query);
-	  PEGASUS_TEST_ASSERT(0);
-	}
+    {
+      a3.resolve(_i1, _query);
+      PEGASUS_TEST_ASSERT(0);
+    }
       catch(...)
-	{
-	  PEGASUS_TEST_ASSERT(1);
-	}
+    {
+      PEGASUS_TEST_ASSERT(1);
+    }
 
       try
       {
@@ -626,37 +624,40 @@ int main( int argc, char *argv[] ){
     }
   else
     {
-      cout << argv[0] << ": ERROR - paramater invalid must be either unittests or poststarttests" << endl;
+      cout << argv[0] 
+           << ": ERROR - paramater invalid must be either unittests or"
+               " poststarttests" 
+           << endl;
       exit(0);
     }
-	
+    
 try
   {
    //BEGIN TESTS....
     if (unittests)
       {
-	if (verbose)
-	  cout << argv[0] << " " << argv[1] << " +++++ operation " << endl;
-	drive_operation();
+    if (verbose)
+      cout << argv[0] << " " << argv[1] << " +++++ operation " << endl;
+    drive_operation();
 
-	if (verbose)       
-	  cout << argv[0] << " " << argv[1] << " +++++ misc " << endl;  
-	drive_get_misc_functions();
+    if (verbose)       
+      cout << argv[0] << " " << argv[1] << " +++++ misc " << endl;  
+    drive_get_misc_functions();
 
       }
     else
       {  
-	if (verbose)
-	  cout << argv[0] << " " << argv[1] << " +++++ primitive " << endl;
-	drive_resolve_primitive();
+    if (verbose)
+      cout << argv[0] << " " << argv[1] << " +++++ primitive " << endl;
+    drive_resolve_primitive();
    
-	if (verbose)
-	  cout << argv[0] << " " << argv[1] << " +++++ special " << endl;
-	drive_resolve_specialChars();
+    if (verbose)
+      cout << argv[0] << " " << argv[1] << " +++++ special " << endl;
+    drive_resolve_specialChars();
 
       }
-	//END TESTS....
-	     
+    //END TESTS....
+         
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 
   }

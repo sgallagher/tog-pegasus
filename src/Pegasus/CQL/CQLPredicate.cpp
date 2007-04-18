@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLPredicate.h"
@@ -57,22 +50,23 @@ PEGASUS_NAMESPACE_BEGIN
 */
 
 CQLPredicate::CQLPredicate(){
-	_rep = new CQLPredicateRep();
+    _rep = new CQLPredicateRep();
 }
 
-CQLPredicate::CQLPredicate(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted)
+CQLPredicate::CQLPredicate(const CQLSimplePredicate& inSimplePredicate,
+                           Boolean inVerted)
 {
-	_rep = new CQLPredicateRep(inSimplePredicate,inVerted);
+    _rep = new CQLPredicateRep(inSimplePredicate,inVerted);
 }
 
 CQLPredicate::CQLPredicate(const CQLPredicate& inPredicate, Boolean inInverted)
 {
-	_rep = new CQLPredicateRep(inPredicate._rep);
+    _rep = new CQLPredicateRep(inPredicate._rep);
 }
 
 CQLPredicate::~CQLPredicate(){
-	if(_rep)
-		delete _rep;
+    if(_rep)
+        delete _rep;
 }
 
 Boolean CQLPredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
@@ -81,32 +75,33 @@ Boolean CQLPredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 }
 
 Boolean CQLPredicate::getInverted()const{
-	return _rep->getInverted();
+    return _rep->getInverted();
 }
 
 void CQLPredicate::setInverted(Boolean invert){
-	_rep->setInverted(invert);
+    _rep->setInverted(invert);
 }
 
 void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate){
-	_rep->appendPredicate(inPredicate);
+    _rep->appendPredicate(inPredicate);
 }
 
-void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator)
+void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate,
+                                   BooleanOpType inBooleanOperator )
 {
-	_rep->appendPredicate(inPredicate,inBooleanOperator);
+    _rep->appendPredicate(inPredicate,inBooleanOperator);
 }
 
 Array<CQLPredicate> CQLPredicate::getPredicates()const{
-	return _rep->getPredicates();
+    return _rep->getPredicates();
 }
 
 CQLSimplePredicate CQLPredicate::getSimplePredicate()const{
-	return _rep->getSimplePredicate();
+    return _rep->getSimplePredicate();
 }
 
 Array<BooleanOpType> CQLPredicate::getOperators()const{
-	return _rep->getOperators();
+    return _rep->getOperators();
 }
 
 void CQLPredicate::applyContext(const QueryContext& queryContext) {
@@ -114,7 +109,7 @@ void CQLPredicate::applyContext(const QueryContext& queryContext) {
 }
 
 Boolean CQLPredicate::isSimple()const{
-	return _rep->isSimple();
+    return _rep->isSimple();
 }
 
 Boolean CQLPredicate::isSimpleValue()const{
@@ -123,15 +118,15 @@ Boolean CQLPredicate::isSimpleValue()const{
 
 
 String CQLPredicate::toString()const{
-	return _rep->toString();
+    return _rep->toString();
 }
 
 CQLPredicate& CQLPredicate::operator=(const CQLPredicate& rhs){
-	if(&rhs != this){
-		if(_rep) delete _rep;
-		_rep = new CQLPredicateRep(rhs._rep);
-	}
-	return *this;
+    if(&rhs != this){
+        if(_rep) delete _rep;
+        _rep = new CQLPredicateRep(rhs._rep);
+    }
+    return *this;
 }
 
 PEGASUS_NAMESPACE_END

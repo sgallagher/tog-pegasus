@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -62,22 +55,22 @@ PEGASUS_USING_STD;
 
 void drive_FromList(QueryContext& _query)
 {
-	Array<String> alias;
-	Array<CQLIdentifier> classes;
-	alias.append("A");
-	alias.append("B");
-	alias.append("C");
+    Array<String> alias;
+    Array<CQLIdentifier> classes;
+    alias.append("A");
+    alias.append("B");
+    alias.append("C");
    alias.append("D");  // alias == identifier, ignore alias
    alias.append("A");  // dup, should not be inserted
-	classes.append(CQLIdentifier("APPLE"));
-	classes.append(CQLIdentifier("BONGO"));
-	classes.append(CQLIdentifier("CLAVE"));
-	classes.append(CQLIdentifier("D"));   // alias == identifier, ignore alias
-	classes.append(CQLIdentifier("APPLE"));  // dup, should not be inserted
+    classes.append(CQLIdentifier("APPLE"));
+    classes.append(CQLIdentifier("BONGO"));
+    classes.append(CQLIdentifier("CLAVE"));
+    classes.append(CQLIdentifier("D"));   // alias == identifier, ignore alias
+    classes.append(CQLIdentifier("APPLE"));  // dup, should not be inserted
 
-	for(Uint32 i = 0; i < alias.size(); i++){
-		_query.insertClassPath(classes[i],alias[i]);
-	}
+    for(Uint32 i = 0; i < alias.size(); i++){
+        _query.insertClassPath(classes[i],alias[i]);
+    }
 
    //
    // Error inserts.  Keep before the from list test below
@@ -125,7 +118,7 @@ void drive_FromList(QueryContext& _query)
 
 
    // check the from list
-	Array<QueryIdentifier> fromList = _query.getFromList();
+    Array<QueryIdentifier> fromList = _query.getFromList();
    PEGASUS_TEST_ASSERT(fromList.size() == 4);
    PEGASUS_TEST_ASSERT(fromList[0].getName() == "APPLE");
    PEGASUS_TEST_ASSERT(fromList[1].getName() == "BONGO");
@@ -194,9 +187,9 @@ void drive_Schema(QueryContext& _query)
 
 void drive_CIMOMHandleQueryContext()
 {
-	CIMNamespaceName _ns("root/SampleProvider");
-	CIMOMHandle _ch;
-	CIMOMHandleQueryContext _queryOrig(_ns,_ch);
+    CIMNamespaceName _ns("root/SampleProvider");
+    CIMOMHandle _ch;
+    CIMOMHandleQueryContext _queryOrig(_ns,_ch);
 
    CIMOMHandleQueryContext _query = _queryOrig;
 
@@ -216,21 +209,21 @@ void drive_RepositoryQueryContext()
         cout << "PEGASUS_HOME needs to be set to run this test." << endl;
         exit(-1);
     }
-   	String repositoryDir(peg_home);
-	repositoryDir.append("/");
-	
-	// get the makefile build config variable REPOSITORY_NAME
-	const char* repo_name = getenv("REPOSITORY_NAME");
+    String repositoryDir(peg_home);
+    repositoryDir.append("/");
+    
+    // get the makefile build config variable REPOSITORY_NAME
+    const char* repo_name = getenv("REPOSITORY_NAME");
     if (repo_name == NULL)
         repositoryDir.append("repository");
     else
         repositoryDir.append(repo_name);
 
-	CIMNamespaceName _ns("root/SampleProvider");
-	CIMRepository *_rep = new CIMRepository(repositoryDir);
-	RepositoryQueryContext _queryOrig(_ns, _rep);
+    CIMNamespaceName _ns("root/SampleProvider");
+    CIMRepository *_rep = new CIMRepository(repositoryDir);
+    RepositoryQueryContext _queryOrig(_ns, _rep);
 
-	RepositoryQueryContext _query = _queryOrig;   
+    RepositoryQueryContext _query = _queryOrig;   
 
    PEGASUS_TEST_ASSERT(_query.getNamespace() == _ns);
 
@@ -251,7 +244,7 @@ int main( int argc, char *argv[] )
   
   try
   {
-	drive_CIMOMHandleQueryContext();
+    drive_CIMOMHandleQueryContext();
    drive_RepositoryQueryContext();
   }
   catch (Exception & e)
@@ -261,7 +254,7 @@ int main( int argc, char *argv[] )
     return -1;
   }
 
-	//END TESTS....
+    //END TESTS....
 
    cout << argv[0] << " +++++ passed all tests" << endl;
                              

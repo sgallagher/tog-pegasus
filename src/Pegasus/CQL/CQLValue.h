@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PEGASUS_CQLVALUE_H
@@ -85,7 +79,8 @@ class PEGASUS_CQL_LINKAGE CQLValue
 public:
 
   enum NumericType  { Hex, Binary,  Decimal, Real};
-  enum CQLValueType { Null_type, Sint64_type, Uint64_type, Real_type, String_type,
+  enum CQLValueType { Null_type, Sint64_type, Uint64_type,
+                      Real_type, String_type,
               CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
               CIMObject_type, Boolean_type};
 
@@ -313,8 +308,8 @@ public:
   Boolean operator!=(const CQLValue& x) const;
 
   /**
-      operator <= compares two CQLValue objects to see if leftside is less than or
-      equal to right side and performs type checking.
+      operator <= compares two CQLValue objects to see if leftside is
+      less than or equal to right side and performs type checking.
 
       @param  x Right hand side of operator.
       @return Boolean.
@@ -324,8 +319,8 @@ public:
   Boolean operator<=(const CQLValue& x) const;
 
   /**
-      operator >= compares two CQLValue objects to see if leftside is greater than or
-      equal to rightside and performs type checking.
+      operator >= compares two CQLValue objects to see if leftside
+      is greater than or equal to rightside and performs type checking.
 
       @param  x Right hand side of operator.
       @return Boolean.
@@ -407,9 +402,10 @@ public:
   */
   Boolean isNull() const;
 
-  /** This will test to determine if the CQLValue isa String contained in the cid,
-      that identifies a class. The CQLValue must be of a type Instance or Class; Also
-      the cid must contain a String that is a valid class name.
+  /** This will test to determine if the CQLValue isa String contained
+      in the cid, that identifies a class. The CQLValue must be of a
+      type Instance or Class; Also the cid must contain a String that
+      is a valid class name.
 
       @param  cid Contains the class name.
       @param  QueryCtx Contains query related data.

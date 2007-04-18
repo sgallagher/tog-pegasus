@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLChainedIdentifier.h"
@@ -50,45 +43,45 @@ PEGASUS_NAMESPACE_BEGIN
 */
 
 CQLChainedIdentifier::CQLChainedIdentifier():
-	QueryChainedIdentifier()
+    QueryChainedIdentifier()
 {
-	if(_rep) 
-		delete _rep;
-	_rep = NULL;
-	_rep = new CQLChainedIdentifierRep();
+    if(_rep) 
+        delete _rep;
+    _rep = NULL;
+    _rep = new CQLChainedIdentifierRep();
 }
 
 CQLChainedIdentifier::CQLChainedIdentifier(const String& inString):
-	QueryChainedIdentifier()
+    QueryChainedIdentifier()
 {
-	if(_rep) 
-		delete _rep;
-	_rep = NULL;
-	_rep = new CQLChainedIdentifierRep(inString);
+    if(_rep) 
+        delete _rep;
+    _rep = NULL;
+    _rep = new CQLChainedIdentifierRep(inString);
 }
 
 CQLChainedIdentifier::CQLChainedIdentifier(const CQLIdentifier &id):
-	QueryChainedIdentifier()
+    QueryChainedIdentifier()
 {
-	if(_rep) 
-		delete _rep;
-	_rep = NULL;
+    if(_rep) 
+        delete _rep;
+    _rep = NULL;
    _rep = new CQLChainedIdentifierRep(id);
 }
 
 CQLChainedIdentifier::CQLChainedIdentifier(const CQLChainedIdentifier& cid):
 QueryChainedIdentifier()
 {
-	if(_rep) 
-		delete _rep;
-	_rep = NULL;
+    if(_rep) 
+        delete _rep;
+    _rep = NULL;
    _rep = new QueryChainedIdentifierRep(cid._rep);
 }
 
 CQLChainedIdentifier::~CQLChainedIdentifier()
 {
-	if(_rep)
-		delete _rep;
+    if(_rep)
+        delete _rep;
    _rep = NULL;
 }
 
@@ -106,24 +99,25 @@ Array<CQLIdentifier> CQLChainedIdentifier::getSubIdentifiers()const
 }
 
 CQLIdentifier CQLChainedIdentifier::getLastIdentifier()const{
-	QueryIdentifier qid = _rep->getLastIdentifier();
+    QueryIdentifier qid = _rep->getLastIdentifier();
    return CQLIdentifier(qid);
 }
 
 CQLIdentifier CQLChainedIdentifier::operator[](Uint32 index)const
 {
-	QueryIdentifier qid = _rep->operator[](index);
+    QueryIdentifier qid = _rep->operator[](index);
    return CQLIdentifier(qid);
 }
 
-CQLChainedIdentifier& CQLChainedIdentifier::operator=(const CQLChainedIdentifier& rhs)
+CQLChainedIdentifier& CQLChainedIdentifier::operator=(
+        const CQLChainedIdentifier& rhs)
 {
-	if(&rhs != this)
+    if(&rhs != this)
    {
      if(_rep) delete _rep;
      _rep = new QueryChainedIdentifierRep(rhs._rep);
-	}
-	return *this;
+    }
+    return *this;
 }
 
 PEGASUS_NAMESPACE_END

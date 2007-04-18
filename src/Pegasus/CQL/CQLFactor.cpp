@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLFactor.h"
@@ -55,97 +48,99 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLFactor::CQLFactor()
 {
-  _rep = new CQLFactorRep();
+    _rep = new CQLFactorRep();
 }
 
 CQLFactor::CQLFactor(const CQLFactor& inCQLFact)
 {
-  _rep = new CQLFactorRep(inCQLFact._rep);
+    _rep = new CQLFactorRep(inCQLFact._rep);
 }
 
 CQLFactor::CQLFactor(const CQLValue& inCQLVal)
 {
-  _rep = new CQLFactorRep(inCQLVal);
+    _rep = new CQLFactorRep(inCQLVal);
 }
 
 CQLFactor::CQLFactor(const CQLExpression& inCQLExp)
 {
-  _rep = new CQLFactorRep(inCQLExp);
+    _rep = new CQLFactorRep(inCQLExp);
 }
 
 CQLFactor::CQLFactor(const CQLFunction& inCQLFunc)
 {
-  _rep = new CQLFactorRep(inCQLFunc);
+    _rep = new CQLFactorRep(inCQLFunc);
 }
 
 CQLFactor::~CQLFactor()
 {
-  if(_rep)
+    if(_rep)
     {
-      delete _rep;
+        delete _rep;
     }
 }
 
 CQLValue CQLFactor::getValue()const
 {
-  return _rep->getValue();
+    return _rep->getValue();
 }
 
-CQLValue CQLFactor::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
+CQLValue CQLFactor::resolveValue(const CIMInstance& CI,
+                                 const QueryContext& QueryCtx)
 {
-  return _rep->resolveValue(CI, QueryCtx);
+    return _rep->resolveValue(CI, QueryCtx);
 }
 Boolean CQLFactor::isSimple()const
 {
-  return _rep->isSimple();
+    return _rep->isSimple();
 }
 Boolean CQLFactor::isSimpleValue()const
 {
-  return _rep->isSimpleValue();
+    return _rep->isSimpleValue();
 }
 
 CQLFunction CQLFactor::getCQLFunction()const
 {
-  return _rep->getCQLFunction();
+    return _rep->getCQLFunction();
 }
 
 CQLExpression CQLFactor::getCQLExpression()const
 {
-  return _rep->getCQLExpression();
+    return _rep->getCQLExpression();
 }
 
 String CQLFactor::toString()const
 {
-  return _rep->toString();
+    return _rep->toString();
 }
 
 void CQLFactor::applyContext(const QueryContext& inContext,
-			     const CQLChainedIdentifier& inCid)
+                 const CQLChainedIdentifier& inCid)
 {
-  _rep->applyContext(inContext,inCid);   
+    _rep->applyContext(inContext,inCid);   
 }
 
 CQLFactor& CQLFactor::operator=(const CQLFactor& rhs)
 {
-  if(&rhs != this)
+    if(&rhs != this)
     {
-      if(_rep)
-	{
-	  delete _rep;
-	}
-      _rep = new CQLFactorRep(rhs._rep);
+        if(_rep)
+    {
+        delete _rep;
     }
-  
-  return *this;
+        _rep = new CQLFactorRep(rhs._rep);
+    }
+    
+    return *this;
 }
 /*
 Boolean CQLFactor::operator==(const CQLFactor& factor)const
 {
-  return (*_rep == *(factor._rep));
+    return (*_rep == *(factor._rep));
 }
 Boolean CQLFactor::operator!=(const CQLFactor& factor)const
 {
-  return (!operator==(factor));                                                                                
+    return (!operator==(factor));
+
 }
 */
 PEGASUS_NAMESPACE_END

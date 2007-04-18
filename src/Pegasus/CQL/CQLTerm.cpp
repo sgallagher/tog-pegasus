@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
-//
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3591
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/CQL/CQLTerm.h>  
@@ -54,85 +47,87 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 */
 
-
 CQLTerm::CQLTerm()
 {
-  _rep = new CQLTermRep();
+    _rep = new CQLTermRep();
 }
 
 CQLTerm::CQLTerm(const CQLTerm& inTerm)
 {
-  _rep = new CQLTermRep(*inTerm._rep);
+    _rep = new CQLTermRep(*inTerm._rep);
 }
 
 CQLTerm::CQLTerm(const CQLFactor& theFactor)
 {
-  _rep = new CQLTermRep(theFactor);
+    _rep = new CQLTermRep(theFactor);
 }
 
 CQLTerm::~CQLTerm()
 {
-  if(_rep)
-    delete _rep;
+    if(_rep)
+        delete _rep;
 }
 
-CQLValue CQLTerm::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
+CQLValue CQLTerm::resolveValue(const CIMInstance& CI,
+                               const QueryContext& QueryCtx)
 {
-  return _rep->resolveValue(CI,QueryCtx);
+    return _rep->resolveValue(CI,QueryCtx);
 }
 
-void CQLTerm::appendOperation(FactorOpType inFactorOpType, const CQLFactor& inFactor)
+void CQLTerm::appendOperation(FactorOpType inFactorOpType,
+                              const CQLFactor& inFactor)
 {
-  _rep->appendOperation(inFactorOpType,inFactor);
+    _rep->appendOperation(inFactorOpType,inFactor);
 }
 
 String CQLTerm::toString()const
 {
-  return _rep->toString();
+    return _rep->toString();
 }
 
 Boolean CQLTerm::isSimple()const
 {
-  return _rep->isSimple();
+    return _rep->isSimple();
 }
 
 Boolean CQLTerm::isSimpleValue()const
 {
-  return _rep->isSimpleValue();
+    return _rep->isSimpleValue();
 }
 
 Array<CQLFactor> CQLTerm::getFactors()const
 {
-  return _rep->getFactors();
+    return _rep->getFactors();
 }
 
 Array<FactorOpType> CQLTerm::getOperators()const
 {
-  return _rep->getOperators();
+    return _rep->getOperators();
 }
 
 void CQLTerm::applyContext(const QueryContext& inContext,
                            const CQLChainedIdentifier& inCid)
 {
-  _rep->applyContext(inContext,inCid);
+    _rep->applyContext(inContext,inCid);
 }
 
 CQLTerm& CQLTerm::operator=(const CQLTerm& rhs)
 {
-  if(&rhs != this){
-    if(_rep) delete _rep;
-    _rep = new CQLTermRep(*rhs._rep);
-  }
-  return *this;
+    if(&rhs != this)
+    {
+        if(_rep) delete _rep;
+            _rep = new CQLTermRep(*rhs._rep);
+    }
+    return *this;
 }
 /*
 Boolean CQLTerm::operator==(const CQLTerm& rhs)const
 {
-  return (*_rep == *(rhs._rep));
+    return (*_rep == *(rhs._rep));
 }
 Boolean CQLTerm::operator!=(const CQLTerm& rhs)const
 {
-  return (!operator==(rhs));                                                                                
+    return (!operator==(rhs));
 }
 */
 PEGASUS_NAMESPACE_END

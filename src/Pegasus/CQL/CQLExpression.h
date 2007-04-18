@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590.
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLExpression_h
@@ -195,10 +186,11 @@ class PEGASUS_CQL_LINKAGE CQLExpression
 
   /**
       Calling applyContext function for every internal object.  This
-      will fully qualify the Chained Identifiers within all the CQLValue objects.
+      will fully qualify the Chained Identifiers within all the CQLValueobjects.
 
       @param  - inContext - Query Context used to access the repository.
-      @param  - inCid - Chained Identifier used for standalone symbolic constants.
+      @param  - inCid - Chained Identifier used for standalone symbolic
+                        constants.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>

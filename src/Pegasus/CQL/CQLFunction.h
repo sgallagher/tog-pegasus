@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLFunction_h
@@ -120,7 +111,8 @@ class CQLFunction
     
     CQLFunction(const CQLFunction& inFunc);
 
-//    CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
+//    CQLFunction(FunctionOpType inFunctionOpType, 
+//                  Array<CQLExpression> inParms);
     
     CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
 
@@ -144,8 +136,7 @@ class CQLFunction
 
    CQLFunction& operator=(const CQLFunction& rhs);
    
-
-//   Boolean operator==(const CQLFunction& func)const;
+  //   Boolean operator==(const CQLFunction& func)const;
    
   // Boolean operator!=(const CQLFunction& func)const;
    

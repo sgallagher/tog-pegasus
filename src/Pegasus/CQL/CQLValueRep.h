@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PEGASUS_CQLVALUEREP_H
@@ -136,8 +130,8 @@ class CQLValueRep
 
     Boolean operator<=(const CQLValueRep& x);
 
-    /** operator >= compares two CQLValue objects to see if x is greater than or
-                            equal to y and performs type checking.
+    /** operator >= compares two CQLValue objects to see if x is greater than
+                            or equal to y and performs type checking.
         @param x - First CQLValue to compare
         @param y - Second CQLValue to compare
         @return true if x is greater than or equal to y,
@@ -281,11 +275,13 @@ class CQLValueRep
    friend class CQLFactory; 
    friend class CQLValue;
   private:
-   Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,QueryContext& in);
+   Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,
+                             QueryContext& in);
    void _validate(const CQLValueRep& x);
    void _resolveSymbolicConstant(const QueryContext& inQueryCtx);
    void _setValue(CIMValue cv, Sint64 Index = -1);
-   void _process_value(CIMProperty& propObj,CQLIdentifier& _id,const QueryContext& inQueryContext);
+   void _process_value(CIMProperty& propObj,CQLIdentifier& _id,
+                       const QueryContext& inQueryContext);
    Boolean _compareObjects(CIMObject& _in1, CIMObject& _in2);
    Boolean _compareArray(const CQLValueRep& _in);
 

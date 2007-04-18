@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,146 +43,153 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CQLPredicateRep::CQLPredicateRep():
-_invert(false)
+    _invert(false)
 {
 
 }
 
-CQLPredicateRep::CQLPredicateRep(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted):
-  _simplePredicate(inSimplePredicate), _invert(inVerted)
+CQLPredicateRep::CQLPredicateRep(const CQLSimplePredicate& inSimplePredicate,
+    Boolean inVerted) :
+    _simplePredicate(inSimplePredicate), _invert(inVerted)
 {
 
 }
 
-CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, Boolean inInverted):
-_invert(inInverted)
+CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, 
+    Boolean inInverted) :
+    _invert(inInverted)
 {
-  _predicates.append(inPredicate);
+    _predicates.append(inPredicate);
 }
 
 CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep):
-_invert(false)
+    _invert(false)
 {
-	_predicates = rep->_predicates;
-	_simplePredicate = rep->_simplePredicate;
-	_operators = rep->_operators;
-	_invert = rep->_invert;
+    _predicates = rep->_predicates;
+    _simplePredicate = rep->_simplePredicate;
+    _operators = rep->_operators;
+    _invert = rep->_invert;
 }
 
 Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
-   PEG_METHOD_ENTER(TRC_CQL, "CQLIPredicateRep::evaluate");
-	Boolean result = false;
+    PEG_METHOD_ENTER(TRC_CQL, "CQLIPredicateRep::evaluate");
+    Boolean result = false;
     
-  if (isSimple())
-  {
-    result = _simplePredicate.evaluate(CI, QueryCtx);
-  }
-  else
-  {
-    result = _predicates[0].evaluate(CI, QueryCtx);
-    for (Uint32 i = 0; i < _operators.size(); i++)
+    if (isSimple())
     {
-      if (_operators[i] == AND)
-      {
-        if(result)
-        {
-          result = _predicates[i+1].evaluate(CI, QueryCtx);
-        }
-      }
-      else
-      {
-        if(result)
-        {
-          break;
-        }
-        else
-        {
-           result = _predicates[i+1].evaluate(CI, QueryCtx);
-	}
-      }
+    result = _simplePredicate.evaluate(CI, QueryCtx);
     }
-  }
-  PEG_METHOD_EXIT();
-  return (getInverted()) ? !result : result;
+    else
+    {
+        result = _predicates[0].evaluate(CI, QueryCtx);
+        for (Uint32 i = 0; i < _operators.size(); i++)
+        {
+            if (_operators[i] == AND)
+            {
+                if(result)
+                {
+                    result = _predicates[i+1].evaluate(CI, QueryCtx);
+                }
+            }
+            else
+            {
+                if(result)
+                {
+                    break;
+                }
+                else
+                {
+                    result = _predicates[i+1].evaluate(CI, QueryCtx);
+                }
+            }
+        }
+    }
+    PEG_METHOD_EXIT();
+    return (getInverted()) ? !result : result;
 }
 
 Boolean CQLPredicateRep::getInverted()const{
-	return _invert;
+    return _invert;
 }
 
 void CQLPredicateRep::setInverted(Boolean invert){
-	_invert = invert;
+    _invert = invert;
 }
 
 void CQLPredicateRep::appendPredicate(const CQLPredicate& inPredicate){
-	_predicates.append(inPredicate);
+    _predicates.append(inPredicate);
 }
 
-void CQLPredicateRep::appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator)
+void CQLPredicateRep::appendPredicate(const CQLPredicate& inPredicate,
+    BooleanOpType inBooleanOperator)
 {
-	_predicates.append(inPredicate);
-	_operators.append(inBooleanOperator);
+    _predicates.append(inPredicate);
+    _operators.append(inBooleanOperator);
 }
 
 Array<CQLPredicate> CQLPredicateRep::getPredicates()const{
-	return _predicates;
+    return _predicates;
 }
 
 CQLSimplePredicate CQLPredicateRep::getSimplePredicate()const{
-	return _simplePredicate;
+    return _simplePredicate;
 }
 
 Array<BooleanOpType> CQLPredicateRep::getOperators()const{
-	return _operators;
+    return _operators;
 }
 
 void CQLPredicateRep::applyContext(const QueryContext& queryContext)
 {
-  PEG_METHOD_ENTER(TRC_CQL, "CQLPredicateRep::applyContext");
-  if (isSimple())
-  {
-    _simplePredicate.applyContext(queryContext);
-  }
-  else
-  {
-    for (Uint32 i = 0; i <_predicates.size(); i++)
+    PEG_METHOD_ENTER(TRC_CQL, "CQLPredicateRep::applyContext");
+    if (isSimple())
     {
-      _predicates[i].applyContext(queryContext);
+        _simplePredicate.applyContext(queryContext);
     }
-  }
-  PEG_METHOD_EXIT();
+    else
+    {
+        for (Uint32 i = 0; i <_predicates.size(); i++)
+        {
+            _predicates[i].applyContext(queryContext);
+        }
+    }
+    PEG_METHOD_EXIT();
 }
 
 Boolean CQLPredicateRep::isSimple()const{
-	return (_predicates.size() == 0);
+    return (_predicates.size() == 0);
 }
 
 Boolean CQLPredicateRep::isSimpleValue()const{
-	return (isSimple() && _simplePredicate.isSimpleValue());
+    return (isSimple() && _simplePredicate.isSimpleValue());
 }
 
 String CQLPredicateRep::toString()const{
-	if(isSimple()){
-		String s;
+    if(isSimple())
+    {
+        String s;
       if(_invert) s = "NOT ";
       s.append(_simplePredicate.toString());
       return s;
-	}
-	String s;
-	if(_invert) s = "NOT ";
-	for(Uint32 i = 0; i < _predicates.size(); i++){
-		s.append(_predicates[i].toString());
-		if(i < _operators.size()){
-			switch(_operators[i]){
-				case AND: s.append(" AND ");
-					break;
-				case OR: s.append(" OR ");
-					break;
-			}
-		}
-	}
-	return s;
+    }
+    String s;
+    if(_invert) s = "NOT ";
+    for(Uint32 i = 0; i < _predicates.size(); i++)
+    {
+        s.append(_predicates[i].toString());
+        if(i < _operators.size())
+        {
+            switch(_operators[i])
+            {
+                case AND: s.append(" AND ");
+                    break;
+                case OR: s.append(" OR ");
+                    break;
+            }
+        }
+    }
+    return s;
 }
 
 PEGASUS_NAMESPACE_END

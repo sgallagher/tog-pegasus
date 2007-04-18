@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/CQL/CQLFunction.h>
@@ -47,64 +40,67 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLFunction::CQLFunction()
 {
-	_rep = new CQLFunctionRep();
+    _rep = new CQLFunctionRep();
 } 
 
 CQLFunction::CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms)
 {
-        _rep = new CQLFunctionRep(inOpType,inParms);
+    _rep = new CQLFunctionRep(inOpType,inParms);
 }
 
 CQLFunction::CQLFunction(const CQLFunction& inFunc)
 {
-	_rep = new CQLFunctionRep(inFunc._rep);
+    _rep = new CQLFunctionRep(inFunc._rep);
 }
 
 CQLFunction::~CQLFunction(){
-	if(_rep)
-		delete _rep;
+    if(_rep)
+        delete _rep;
 }
 
-CQLValue CQLFunction::resolveValue(const CIMInstance& CI, const QueryContext& queryCtx)
+CQLValue CQLFunction::resolveValue(const CIMInstance& CI,
+                                   const QueryContext& queryCtx)
 {
-	return _rep->resolveValue(CI,queryCtx);
+    return _rep->resolveValue(CI,queryCtx);
 }
 
 String CQLFunction::toString()const
 {
-   return _rep->toString();
+    return _rep->toString();
 }
 
 
 Array<CQLPredicate> CQLFunction::getParms()const
 {
-   return _rep->getParms();
+    return _rep->getParms();
 }
 
 FunctionOpType CQLFunction::getFunctionType()const
 {
-   return _rep->getFunctionType();
+    return _rep->getFunctionType();
 }
  
 void CQLFunction::applyContext(const QueryContext& inContext)
 {
-  _rep->applyContext(inContext);
+    _rep->applyContext(inContext);
 }
 
-CQLFunction& CQLFunction::operator=(const CQLFunction& rhs){
-	if(&rhs != this){
-		if(_rep) delete _rep;
-		_rep = new CQLFunctionRep(rhs._rep);
-	}
-	return *this;
+CQLFunction& CQLFunction::operator=(const CQLFunction& rhs)
+{
+    if(&rhs != this)
+    {
+        if(_rep) delete _rep;
+        _rep = new CQLFunctionRep(rhs._rep);
+    }
+    return *this;
 }
 
 /*
 Boolean CQLFunction::operator==(const CQLFunction& func)const{
-	return (*_rep == *(func._rep));
+    return (*_rep == *(func._rep));
 }
 Boolean CQLFunction::operator!=(const CQLFunction& func)const{
-	return (_rep != func._rep);
+    return (_rep != func._rep);
 }
 */
 PEGASUS_NAMESPACE_END

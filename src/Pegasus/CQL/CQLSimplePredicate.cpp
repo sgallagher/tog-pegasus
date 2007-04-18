@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/CQL/CQLSimplePredicate.h>
@@ -68,10 +59,12 @@ CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& leftSideExpression,
                        const CQLExpression& rightSideExpression,
                        ExpressionOpType inOperator)
 {
-    _rep = new CQLSimplePredicateRep(leftSideExpression,rightSideExpression, inOperator);
+    _rep = new CQLSimplePredicateRep(leftSideExpression,rightSideExpression, 
+                                     inOperator);
 }
 
-CQLSimplePredicate::CQLSimplePredicate(const CQLSimplePredicate& inSimplePredicate)
+CQLSimplePredicate::CQLSimplePredicate(
+    const CQLSimplePredicate& inSimplePredicate)
 {
     _rep = new CQLSimplePredicateRep(inSimplePredicate._rep);
 }
@@ -121,7 +114,8 @@ Boolean CQLSimplePredicate::isSimpleValue() const
     return _rep->isSimpleValue();
 }
  
-CQLSimplePredicate& CQLSimplePredicate::operator=(const CQLSimplePredicate& rhs)
+CQLSimplePredicate& CQLSimplePredicate::operator=(
+    const CQLSimplePredicate& rhs)
 {
     if(&rhs != this)
     {

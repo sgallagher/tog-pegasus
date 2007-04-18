@@ -29,19 +29,11 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/PegasusAssert.h>
-                                                                                                                                       
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
@@ -49,60 +41,59 @@
 #include <Pegasus/Query/QueryCommon/SubRange.h>
 
 PEGASUS_USING_PEGASUS;
-                                                                                                                                       
 PEGASUS_USING_STD;
 
 void print(CQLIdentifier &_id){
-	cout << "Name = " << _id.getName().getString() << endl;
-	if(_id.isScoped())
-		cout << "Scope = " << _id.getScope() << endl;
-	if(_id.isSymbolicConstant())
-		cout << "Symbolic Constant = " << _id.getSymbolicConstantName() << endl;
-	if(_id.isWildcard())
-		cout << "CQLIdentifier = *" << endl;
-	if(_id.isArray()){
-		cout << "SubRanges: ";
-		Array<SubRange> _ranges = _id.getSubRanges();
-		for(Uint32 i = 0; i < _ranges.size(); i++){
-			cout << _ranges[i].toString() << ",";
-		}
-		cout << endl;
-	}
+    cout << "Name = " << _id.getName().getString() << endl;
+    if(_id.isScoped())
+        cout << "Scope = " << _id.getScope() << endl;
+    if(_id.isSymbolicConstant())
+        cout << "Symbolic Constant = " << _id.getSymbolicConstantName() << endl;
+    if(_id.isWildcard())
+        cout << "CQLIdentifier = *" << endl;
+    if(_id.isArray()){
+        cout << "SubRanges: ";
+        Array<SubRange> _ranges = _id.getSubRanges();
+        for(Uint32 i = 0; i < _ranges.size(); i++){
+            cout << _ranges[i].toString() << ",";
+        }
+        cout << endl;
+    }
 }
 
 void drive_CQLIdentifier(){
-	CQLIdentifier _ID1("ID1");
-	PEGASUS_TEST_ASSERT(_ID1.getName() == "ID1");
+    CQLIdentifier _ID1("ID1");
+    PEGASUS_TEST_ASSERT(_ID1.getName() == "ID1");
 
-	CQLIdentifier _ID2("ID2");
-	PEGASUS_TEST_ASSERT(_ID1 != _ID2);
+    CQLIdentifier _ID2("ID2");
+    PEGASUS_TEST_ASSERT(_ID1 != _ID2);
 
-	CQLIdentifier _ID3("*");
-	PEGASUS_TEST_ASSERT(_ID3.isWildcard());
-	
-	CQLIdentifier scopedID("SCOPE::IDENTIFIER");
-	PEGASUS_TEST_ASSERT(scopedID.isScoped());
-   PEGASUS_TEST_ASSERT(scopedID.getScope() == "SCOPE");
+    CQLIdentifier _ID3("*");
+    PEGASUS_TEST_ASSERT(_ID3.isWildcard());
+    
+    CQLIdentifier scopedID("SCOPE::IDENTIFIER");
+    PEGASUS_TEST_ASSERT(scopedID.isScoped());
+    PEGASUS_TEST_ASSERT(scopedID.getScope() == "SCOPE");
 
-	CQLIdentifier _ID4("A::Name");
-	CQLIdentifier _ID4a("A::Name");
-	PEGASUS_TEST_ASSERT(_ID4 == _ID4a);
-	
-	CQLIdentifier symbolicConstantID("Name#OK");
-	PEGASUS_TEST_ASSERT(symbolicConstantID.getName() == "Name");
-	PEGASUS_TEST_ASSERT(symbolicConstantID.isSymbolicConstant());
-	PEGASUS_TEST_ASSERT(symbolicConstantID.getSymbolicConstantName() == "OK");
+    CQLIdentifier _ID4("A::Name");
+    CQLIdentifier _ID4a("A::Name");
+    PEGASUS_TEST_ASSERT(_ID4 == _ID4a);
+    
+    CQLIdentifier symbolicConstantID("Name#OK");
+    PEGASUS_TEST_ASSERT(symbolicConstantID.getName() == "Name");
+    PEGASUS_TEST_ASSERT(symbolicConstantID.isSymbolicConstant());
+    PEGASUS_TEST_ASSERT(symbolicConstantID.getSymbolicConstantName() == "OK");
 
    try{
-	CQLIdentifier rangeID("SCOPE::Name[5,6,7]");
-	// Basic query check
-	PEGASUS_TEST_ASSERT(false);
-	PEGASUS_TEST_ASSERT(rangeID.getName() == "Name");
+    CQLIdentifier rangeID("SCOPE::Name[5,6,7]");
+    // Basic query check
+    PEGASUS_TEST_ASSERT(false);
+    PEGASUS_TEST_ASSERT(rangeID.getName() == "Name");
         PEGASUS_TEST_ASSERT(rangeID.isArray());
         Array<SubRange> subRanges = rangeID.getSubRanges();
-   	PEGASUS_TEST_ASSERT(subRanges[0] == String("5"));
-   	PEGASUS_TEST_ASSERT(subRanges[1] == String("6"));
-   	PEGASUS_TEST_ASSERT(subRanges[2] == String("7"));
+    PEGASUS_TEST_ASSERT(subRanges[0] == String("5"));
+    PEGASUS_TEST_ASSERT(subRanges[1] == String("6"));
+    PEGASUS_TEST_ASSERT(subRanges[2] == String("7"));
         PEGASUS_TEST_ASSERT(rangeID.getScope() == "SCOPE");
    }catch(CQLIdentifierParseException&)
    {
@@ -151,7 +142,7 @@ void drive_CQLChainedIdentifier()
   // Error cases
   try 
   {
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[*]");
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[*]");
    PEGASUS_TEST_ASSERT(false);
   }
   catch (QueryParseException&)
@@ -161,7 +152,7 @@ void drive_CQLChainedIdentifier()
 
   try 
   {
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1,3-5,7]");
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1,3-5,7]");
    PEGASUS_TEST_ASSERT(false);
   }
   catch (QueryParseException&)
@@ -171,7 +162,7 @@ void drive_CQLChainedIdentifier()
 
   try 
   {
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1..3]");
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1..3]");
    PEGASUS_TEST_ASSERT(false);
   }
   catch (QueryParseException&)
@@ -181,7 +172,7 @@ void drive_CQLChainedIdentifier()
 
   try 
   {
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[]");
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[]");
    PEGASUS_TEST_ASSERT(false);
   }
   catch (QueryParseException&)
@@ -191,7 +182,7 @@ void drive_CQLChainedIdentifier()
 
   try 
   {
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3]#'ok'");
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3]#'ok'");
    PEGASUS_TEST_ASSERT(false);
   }
   catch (CQLIdentifierParseException&)
@@ -202,7 +193,7 @@ void drive_CQLChainedIdentifier()
 
   try 
   {
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3");
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3");
    PEGASUS_TEST_ASSERT(false);
   }
   catch (CQLIdentifierParseException&)
@@ -212,7 +203,7 @@ void drive_CQLChainedIdentifier()
 
   try 
   {
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::this-is-bogus");
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::this-is-bogus");
    PEGASUS_TEST_ASSERT(false);
   }
   catch (CQLIdentifierParseException&)
@@ -221,8 +212,10 @@ void drive_CQLChainedIdentifier()
   }
 
   // Good case with all the bells and whistles, except wildcard
-  //CQLChainedIdentifier _CI("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[1,3,5,7].SCOPE3::PROP#'ok'");
-  CQLChainedIdentifier _CI("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[3].SCOPE3::PROP#'ok'");
+  //CQLChainedIdentifier _CI(
+  //"FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[1,3,5,7].SCOPE3::PROP#'ok'");
+  CQLChainedIdentifier _CI(
+          "FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[3].SCOPE3::PROP#'ok'");
 
   Array<CQLIdentifier> _arr = _CI.getSubIdentifiers();
   PEGASUS_TEST_ASSERT(_arr.size() == 4);
@@ -273,8 +266,8 @@ void drive_CQLChainedIdentifier()
   PEGASUS_TEST_ASSERT(_arr[3].isWildcard());
 
   try{
-	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[..3].SCOPE3::PROP#'ok'");
-	PEGASUS_TEST_ASSERT(false);
+    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[..3].SCOPE3::PROP#'ok'");
+    PEGASUS_TEST_ASSERT(false);
   }catch(QueryParseException&)
   {
   }

@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLSimplePredicate_h
@@ -53,7 +46,8 @@ class CQLExpression;
 class CQLFactory;
 class CQLSimplePredicateRep;
 
-enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE, NOOP };
+enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, 
+                        IS_NOT_NULL, ISA, LIKE, NOOP };
 
 
 /**
@@ -72,6 +66,7 @@ enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE,
     Example:  a IS NULL
     </PRE>
 */
+
 class PEGASUS_CQL_LINKAGE CQLSimplePredicate
 {
   public:
@@ -150,9 +145,10 @@ class PEGASUS_CQL_LINKAGE CQLSimplePredicate
          For the evaluate method on each CQLExpression, the CQLExpression is
          resolved to a CQLValue and the value is then applied to the operator.
 
-         The CQLSimplePredicate is simple if it contains only a left-side CQLExpression.
-         A simple CQLSimplePredicate is evaluated by resolving the CQLExpression into
-         a CQLValue and then applying the operator.
+         The CQLSimplePredicate is simple if it contains only a left-side
+         CQLExpression.
+         A simple CQLSimplePredicate is evaluated by resolving the
+         CQLExpression into a CQLValue and then applying the operator.
          </PRE>
 
          @param  - CI. Instance to evaluate query against.
@@ -201,8 +197,8 @@ class PEGASUS_CQL_LINKAGE CQLSimplePredicate
     void setOperation(ExpressionOpType op);
 
      /**
-        This method normalizes the CQLChainedIdentifier so that properties that require
-        scoping are scoped.
+        This method normalizes the CQLChainedIdentifier so that properties
+        that require scoping are scoped.
 
         @param  - queryContext.
         @return - None.
@@ -222,7 +218,8 @@ class PEGASUS_CQL_LINKAGE CQLSimplePredicate
     String toString()const;
 
     /**
-       Returns true if this CQLSimplePredicate only has a left-side CQLExpression.
+       Returns true if this CQLSimplePredicate only has a left-side
+       CQLExpression.
 
        @param  - None.
        @return - Boolean.

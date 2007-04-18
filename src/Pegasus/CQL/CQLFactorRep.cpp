@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLFactorRep.h"
@@ -50,100 +43,105 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLFactorRep::CQLFactorRep():
    _CQLExp(),
-	_CQLVal(),
-	_CQLFunct(),
-	_invert(false),
-	_simpleValue(false), 
-	_containedType(VALUE)
+    _CQLVal(),
+    _CQLFunct(),
+    _invert(false),
+    _simpleValue(false), 
+    _containedType(VALUE)
 {
 
 }
 
 CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep):
-  _CQLExp(rep->_CQLExp),
-  _CQLVal(rep->_CQLVal),
-  _CQLFunct(rep->_CQLFunct),
-  _invert(rep->_invert),
-  _simpleValue(rep->_simpleValue),
-_containedType(rep->_containedType)
+    _CQLExp(rep->_CQLExp),
+    _CQLVal(rep->_CQLVal),
+    _CQLFunct(rep->_CQLFunct),
+    _invert(rep->_invert),
+    _simpleValue(rep->_simpleValue),
+    _containedType(rep->_containedType)
   
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep)");
+  PEG_METHOD_ENTER(TRC_CQL,
+          "CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep)");
 
   PEG_METHOD_EXIT();
 }
 
 CQLFactorRep::CQLFactorRep(const CQLValue& inCQLVal):
-  _CQLExp(),
-  _CQLVal(inCQLVal),
-  _CQLFunct(),
-  _invert(false),
-  _simpleValue(true),
-  _containedType(VALUE)
+    _CQLExp(),
+    _CQLVal(inCQLVal),
+    _CQLFunct(),
+    _invert(false),
+    _simpleValue(true),
+    _containedType(VALUE)
 
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::CQLFactorRep(const CQLValue& inCQLVal)");
+  PEG_METHOD_ENTER(TRC_CQL,
+          "CQLFactorRep::CQLFactorRep(const CQLValue& inCQLVal)");
 
   PEG_METHOD_EXIT();
 }
 
 CQLFactorRep::CQLFactorRep(const CQLExpression& inCQLExp):
-  _CQLExp(inCQLExp),
-  _CQLVal(),
-  _CQLFunct(),
-  _invert(false),
-  _simpleValue(false),
-  _containedType(EXPRESSION)
+    _CQLExp(inCQLExp),
+    _CQLVal(),
+    _CQLFunct(),
+    _invert(false),
+    _simpleValue(false),
+    _containedType(EXPRESSION)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::CQLFactorRep(const CQLExpression& inCQLExp)");
+  PEG_METHOD_ENTER(TRC_CQL,
+          "CQLFactorRep::CQLFactorRep(const CQLExpression& inCQLExp)");
 
   PEG_METHOD_EXIT();
 }
 
 CQLFactorRep::CQLFactorRep(const CQLFunction& inCQLFunc):
-  _CQLExp(),
-  _CQLVal(),
-  _CQLFunct(inCQLFunc),
-  _invert(false),
-  _simpleValue(false),
-  _containedType(FUNCTION)
+    _CQLExp(),
+    _CQLVal(),
+    _CQLFunct(inCQLFunc),
+    _invert(false),
+    _simpleValue(false),
+    _containedType(FUNCTION)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::CQLFactorRep(const CQLFunction& inCQLFunc)");
+  PEG_METHOD_ENTER(TRC_CQL,
+          "CQLFactorRep::CQLFactorRep(const CQLFunction& inCQLFunc)");
 
-  PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 CQLValue CQLFactorRep::getValue()const
 {
-   return _CQLVal;
+    return _CQLVal;
 }
 
-CQLValue CQLFactorRep::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
+CQLValue CQLFactorRep::resolveValue(const CIMInstance& CI,
+                                    const QueryContext& QueryCtx)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::resolveValue()");
-
-  if(_containedType == EXPRESSION)
+    PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::resolveValue()");
+    
+    if(_containedType == EXPRESSION)
     {
-      PEG_METHOD_EXIT();
-      return _CQLExp.resolveValue(CI,QueryCtx);
+        PEG_METHOD_EXIT();
+        return _CQLExp.resolveValue(CI,QueryCtx);
     }
-  else if (_containedType == FUNCTION)
+    else if (_containedType == FUNCTION)
     {
-      PEG_METHOD_EXIT();
-      return _CQLFunct.resolveValue(CI,QueryCtx);
+        PEG_METHOD_EXIT();
+        return _CQLFunct.resolveValue(CI,QueryCtx);
     }
-  else if (_containedType == VALUE)
+    else if (_containedType == VALUE)
     {
-      _CQLVal.resolve(CI,QueryCtx);
-      PEG_METHOD_EXIT();
-      return _CQLVal;
+        _CQLVal.resolve(CI,QueryCtx);
+        PEG_METHOD_EXIT();
+        return _CQLVal;
     }
-  else
-	 {
-		MessageLoaderParms msg("CQL.CQLFactorRep.FACTOR_HAS_NO_TYPE",
-							        "The CQLFactor was constructed without a type.");
-      throw CQLRuntimeException(msg);
-	 }
+    else
+    {
+        MessageLoaderParms msg("CQL.CQLFactorRep.FACTOR_HAS_NO_TYPE",
+                              "The CQLFactor was constructed without a type.");
+        throw CQLRuntimeException(msg);
+    }
 }
 
 Boolean CQLFactorRep::isSimple()const
@@ -168,92 +166,92 @@ CQLExpression CQLFactorRep::getCQLExpression()const
 
 String CQLFactorRep::toString()const
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::toString()");
-
-  if(_containedType == VALUE)
+    PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::toString()");
+    
+    if(_containedType == VALUE)
     {
-      PEG_METHOD_EXIT();
-      return _CQLVal.toString();
+        PEG_METHOD_EXIT();
+        return _CQLVal.toString();
     }
-  
-  if(_containedType == FUNCTION)
+    
+    if(_containedType == FUNCTION)
     {
-      PEG_METHOD_EXIT();
-      return _CQLFunct.toString();
+        PEG_METHOD_EXIT();
+        return _CQLFunct.toString();
     }
-  if (_containedType == EXPRESSION)
+    if (_containedType == EXPRESSION)
     {
-      PEG_METHOD_EXIT();
-      return _CQLExp.toString();
+        PEG_METHOD_EXIT();
+        return _CQLExp.toString();
     }
-  return String("");
+    return String("");
 }
 
 void CQLFactorRep::applyContext(const QueryContext& inContext,
                                 const CQLChainedIdentifier& inCid)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::applyContext()");
-  
-  if(_containedType == FUNCTION)
+    PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::applyContext()");
+    
+    if(_containedType == FUNCTION)
     {
-      _CQLFunct.applyContext(inContext);
+        _CQLFunct.applyContext(inContext);
     }
-  else if(_containedType == EXPRESSION)
+    else if(_containedType == EXPRESSION)
     {
-      _CQLExp.applyContext(inContext);
+        _CQLExp.applyContext(inContext);
     }
-  else if(_containedType == VALUE)
+    else if(_containedType == VALUE)
     {
-      _CQLVal.applyContext(inContext,inCid);
+        _CQLVal.applyContext(inContext,inCid);
     }
-  else
-	 {
-		MessageLoaderParms msg("CQL.CQLFactorRep.FACTOR_HAS_NO_TYPE",
-							        "The CQLFactor was constructed without a type.");
-      throw CQLRuntimeException(msg);
-	 }
-
-  PEG_METHOD_EXIT();
-  return;
+    else
+    {
+        MessageLoaderParms msg("CQL.CQLFactorRep.FACTOR_HAS_NO_TYPE",
+                             "The CQLFactor was constructed without a type.");
+        throw CQLRuntimeException(msg);
+    }
+    
+    PEG_METHOD_EXIT();
+    return;
 }
 /*
 Boolean CQLFactorRep::operator==(const CQLFactorRep& rep)const
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::operator==()");
-  
-  if(_CQLExp != rep._CQLExp)
+    PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::operator==()");
+    
+    if(_CQLExp != rep._CQLExp)
     {
-      PEG_METHOD_EXIT();
-      return false;
+        PEG_METHOD_EXIT();
+        return false;
     }
-  if(CQLValue(_CQLVal) != rep._CQLVal) // Why?
+    if(CQLValue(_CQLVal) != rep._CQLVal) // Why?
     {
-      PEG_METHOD_EXIT();
-      return false;
+        PEG_METHOD_EXIT();
+        return false;
     }
-  if(_CQLFunct != rep._CQLFunct)
+    if(_CQLFunct != rep._CQLFunct)
     {
-      PEG_METHOD_EXIT();
-      return false;
+        PEG_METHOD_EXIT();
+        return false;
     }
-  if(_invert != rep._invert)
+    if(_invert != rep._invert)
     {
-      PEG_METHOD_EXIT();
-      return false;
+        PEG_METHOD_EXIT();
+        return false;
     }
-  if(_simpleValue != rep._simpleValue)
+    if(_simpleValue != rep._simpleValue)
     {
-      PEG_METHOD_EXIT();
-      return false;
+        PEG_METHOD_EXIT();
+        return false;
     }
-  if(_containedType != rep._containedType)
+    if(_containedType != rep._containedType)
     {
-      PEG_METHOD_EXIT();
-      return false;
+        PEG_METHOD_EXIT();
+        return false;
     }
-  
-  PEG_METHOD_EXIT();
-  return true;
+    
+    PEG_METHOD_EXIT();
+    return true;
 }
 
 Boolean CQLFactorRep::operator!=(const CQLFactorRep& rep)const

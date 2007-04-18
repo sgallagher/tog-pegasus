@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLPredicateRep_h
@@ -55,43 +46,41 @@ class CQLFactory;
 /**
    This object is populated by Bison.
 
-   Valid operations for each type of CQLValue are in accordance with the DMTF
-CQL Specification.
+   Valid operations for each type of CQLValue are in accordance with the
+   DMTF CQL Specification.
 
    The CQLPredicate is considered "terminal" if it does not contain any
-CQLPredicate objects.
+   CQLPredicate objects.
     A 'terminal' predicate can be evaluated to TRUE/FALSE by examining the
-CQLExpressions and operator.
+    CQLExpressions and operator.
     Valid operators are:
             <, >, =, <=, >=, <>, IS NULL, IS NOT NULL, ISA, LIKE
 
    CQLExpressions:
       For an expression, CQLExpression::getValue is called and will return a
-CQLValue.
+      CQLValue.
       The appropriate operator is then invoked on CQLValue and that operator
-function will
+      function will
       enforce the type restrictions as documented in the DMTF CQL
-Specification.
+      Specification.
       That operator then determines whether the predicate is TRUE / FALSE.
 
 
    CQLPredicates:
       The CQLPredicate is non-terminal if it contains only CQLPredicate
-objects.
+      objects.
       A non-terminal CQLPredicate is evaluated by in turn evaluating the
-contained CQLPredicates and
-      boolean operator.
+      contained CQLPredicates and  boolean operator.
      Valid operators are:
               AND, OR
 
-    For the evaluate method on each CQLPredicate. the CQLPredicate is evaluated
-to TRUE/FALSE and
-     the result of the evaluation is then applied to the appropriate boolean
-operator.
+    For the evaluate method on each CQLPredicate. the CQLPredicate is
+    evaluated to TRUE/FALSE and
+     the result of the evaluation is then applied to the appropriate
+     boolean operator.
 
-    The result of the evaluation is and then inverted if the _invert member
-variable is set to TRUE
-    and then returned to the caller.
+    The result of the evaluation is and then inverted if the _invert
+    member variable is set to TRUE and then returned to the caller.
 
    */
 class CQLPredicateRep
@@ -99,7 +88,8 @@ class CQLPredicateRep
   public:
     CQLPredicateRep();
 
-    CQLPredicateRep(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
+    CQLPredicateRep(const CQLSimplePredicate & inSimplePredicate,
+                    Boolean inVerted = false);
 
     CQLPredicateRep(const CQLPredicate & inPredicate, Boolean inVerted = false);
 
@@ -108,32 +98,29 @@ class CQLPredicateRep
    ~CQLPredicateRep(){}
     /**
       CQLExpressions:
-          For an expression, CQLExpression::getValue is called and will return a
-    CQLValue.
-          The appropriate operator is then invoked on CQLValue and that operator
-    function will
-          enforce the type restrictions as documented in the DMTF CQL
+          For an expression, CQLExpression::getValue is called and will return
+          a CQLValue.
+          The appropriate operator is then invoked on CQLValue and that
+          operator function will enforce the type restrictions as documented
+          in the DMTF CQL
     Specification.
           That operator then determines whether the predicate is TRUE / FALSE.
 
 
        CQLPredicates:
           The CQLPredicate is non-terminal if it contains only CQLPredicate
-    objects.
+          objects.
           A non-terminal CQLPredicate is evaluated by in turn evaluating the
-    contained CQLPredicates and
-          boolean operator.
+          contained CQLPredicates and boolean operator.
          Valid operators are:
                   AND, OR
 
          For the evaluate method on each CQLPredicate. the CQLPredicate is
-    evaluated to TRUE/FALSE and
-         the result of the evaluation is then applied to the appropriate boolean
-    operator.
+         evaluated to TRUE/FALSE and the result of the evaluation is then
+         applied to the appropriate boolean operator.
 
-        The result of the evaluation is and then inverted if the _invert member
-    variable is set to TRUE
-        and then returned to the caller.
+        The result of the evaluation is and then inverted if the _invert
+        member variable is set to TRUE and then returned to the caller.
 
       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
@@ -147,7 +134,8 @@ class CQLPredicateRep
         */
     void appendPredicate(const CQLPredicate& inPredicate);
 
-    void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
+    void appendPredicate(const CQLPredicate& inPredicate,
+            BooleanOpType inBooleanOperator);
 
     Array<CQLPredicate> getPredicates()const;
 

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLParser_h
@@ -48,7 +43,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class is the main interface to the CQL parser used for parsing CQL compliant statements.
+/** This class is the main interface to the CQL parser used for parsing CQL
+    compliant statements.
 
     Here's an example which parses a SELECT statement:
 
@@ -89,7 +85,8 @@ public:
         @param text null-terminated C-string which points to CQL statement.
         @param statement object which holds the compiled version of the SELECT
             statement upon return.
-        @exception CQLSyntaxErrorException if text is not a valid SELECT statement.
+        @exception CQLSyntaxErrorException if text is not a valid SELECT
+            statement.
         @exception MissingNullTerminator if text argument is not 
             terminated with a null. 
     */

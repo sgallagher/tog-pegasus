@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLSelectStatement_h
@@ -159,7 +151,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       @return None
       @throw CQLRuntimeException if the QueryContext had not been set.
       @throw CQLValidationException if a chained identifier is not well formed.
-      @throw CQLSyntaxErrorException if a chained identifier is not well formed.
+      @throw CQLSyntaxErrorException if a chained identifier is not well
+        formed.
 
       <I><B>Experimental Interface</B></I><BR>
      */
@@ -272,8 +265,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param inClassName - class to determine the required properties.  Defaults
-      to the FROM class.
+      @param inClassName - class to determine the required properties.
+      Defaults to the FROM class.
       @return CIMPropertyList containing the required properties for the class.
       If all the properties are required, a null CIMPropertyList is returned.
       If no properties are required, an empty CIMPropertyList is returned.
@@ -283,21 +276,23 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CIMPropertyList getPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
+    CIMPropertyList getPropertyList(
+            const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the required properties from the SELECT clause for the
       classname passed in.  The classname parameter is needed in case
       scoping operators are used in the select statement.  This function
       does not return properties for the classname if they are required
-      on embedded objects. This function does not return required array indices.
+      on embedded objects. This function does not return required
+      array indices.
 
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param inClassName - class to determine the required properties.  Defaults
-      to the FROM class.
+      @param inClassName - class to determine the required properties.
+      Defaults to the FROM class.
       @return CIMPropertyList containing the required properties for the class.
       If all the properties are required, a null CIMPropertyList is returned.
       If no properties are required, an empty CIMPropertyList is returned.
@@ -307,21 +302,23 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CIMPropertyList getSelectPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
+    CIMPropertyList getSelectPropertyList(
+            const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the required properties from the WHERE clause for the
       classname passed in.  The classname parameter is needed in case
       scoping operators are used in the select statement.  This function
       does not return properties for the classname if they are required
-      on embedded objects.  This function does not return required array indices.
+      on embedded objects.  This function does not return required array
+      indices.
 
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param inClassName - class to determine the required properties.  Defaults
-      to the FROM class.
+      @param inClassName - class to determine the required properties.
+      Defaults to the FROM class.
       @return CIMPropertyList containing the required properties for the class.
       If all the properties are required, a null CIMPropertyList is returned.
       If no properties are required, an empty CIMPropertyList is returned.
@@ -331,12 +328,14 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CIMPropertyList getWherePropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
+    CIMPropertyList getWherePropertyList(
+            const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the chained identifiers from the SELECT clause.  These chained
-      identifiers contain the fully qualified property names, including embedded
-      objects, array indices, scoping operators, and symbolic constants.
+      identifiers contain the fully qualified property names, including
+      embedded objects, array indices, scoping operators,
+      and symbolic constants.
 
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
@@ -352,8 +351,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
     /**
       Returns the chained identifiers from the WHERE clause.  These chained
-      identifiers contain the fully qualified property names, including embedded
-      objects, array indices, scoping operators, and symbolic constants.
+      identifiers contain the fully qualified property names, including
+      embedded objects, array indices, scoping operators,
+      and symbolic constants.
 
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized

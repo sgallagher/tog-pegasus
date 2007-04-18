@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef CQLFACTOR_H_HEADER
@@ -140,7 +134,8 @@ class PEGASUS_CQL_LINKAGE CQLFactor
       CQLExpression, and the returned value will already be resolved.
 
       @param  - CI - The CIMInstance to be evaluated.
-      @param  - QueryCtx - The QueryContext contains specific information about the query.
+      @param  - QueryCtx - The QueryContext contains specific information
+                           about the query.
       @return - The primitive CQLValue.
       @throw  - CQLSyntaxErrorException.
       <I><B>Experimental Interface</B></I><BR>
@@ -215,16 +210,18 @@ class PEGASUS_CQL_LINKAGE CQLFactor
 
   /**
       Calling applyContext function for every internal object.  This
-      will fully qualify the Chained Identifiers within all the CQLValue objects.
+      will fully qualify the Chained Identifiers within all the CQLValue
+      objects.
 
       @param  - inContext - Query Context used to access the repository.
-      @param  - inCid - Chained Identifier used for standalone symbolic constants.
+      @param  - inCid - Chained Identifier used for standalone symbolic
+      constants.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
   void applyContext(const QueryContext& inContext,
-		    const CQLChainedIdentifier& inCid);
+            const CQLChainedIdentifier& inCid);
 
   /**
       Assignment operation

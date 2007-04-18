@@ -372,13 +372,9 @@ CMPIStatus checkArgsReturnStatus(const void *ptr)
 {
     CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-    if (!ptr)
+    if (!ptr || !(void*)(*( (int*)ptr) ))
     {
         rc.rc = CMPI_RC_ERR_INVALID_HANDLE;
-    }
-    else if (! (void*)(*( (int*)ptr) ) ) // first pointer in object is hdl pointer
-    {
-        rc.rc = CMPI_RC_ERR_INVALID_PARAMETER;
     }
 
     return rc;

@@ -333,6 +333,12 @@ static CMPIStatus __oft_setNameSpaceFromObjectPath(
         return rc;
     }
 
+    rc = checkArgsReturnStatus(src);
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    }
+
     return __oft_setNameSpace(cop, s->namespace);
 }
 

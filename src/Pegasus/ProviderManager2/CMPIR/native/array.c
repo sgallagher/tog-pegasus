@@ -192,13 +192,17 @@ static CMPIData __aft_getElementAt ( CONST CMPIArray * array,
         }
         result.type = a->type;
         result.state = CMPI_badValue;
-	if ( index < a->size ) {
-
+	if ( index < a->size ) 
+        {
 		result.state = a->data[index].state;
 		result.value = a->data[index].value;
+            CMSetStatus ( rc, CMPI_RC_OK );
+        }
+        else
+        {
+            CMSetStatus (rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
 	}
 
-	if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
 	return result;
 }
 
@@ -252,7 +256,7 @@ static CMPIStatus __aft_setElementAt ( CMPIArray * array,
 		}
 	}
 
-	CMReturn ( CMPI_RC_ERR_FAILED );
+	CMReturn ( CMPI_RC_ERR_TYPE_MISMATCH );
 }
 
 

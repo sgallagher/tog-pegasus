@@ -31,9 +31,21 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <exception>
+
 #include "ExceptionProvider.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
+
+class TestCxxException : public exception
+{
+    virtual const char* what() const throw()
+    {
+        return "test C++ exception";
+    }
+};
 
 ExceptionProvider::ExceptionProvider()
 {
@@ -61,6 +73,10 @@ void _throwException(const String& exceptionType)
     else if (exceptionType == "Regular_Exception")
     {
         throw Exception("test regular exception");
+    }
+    else if (exceptionType == "Cxx_Exception")
+    {
+        throw TestCxxException();
     }
     else
     {

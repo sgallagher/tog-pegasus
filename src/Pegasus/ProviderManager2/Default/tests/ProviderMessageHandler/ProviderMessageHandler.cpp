@@ -137,6 +137,11 @@ void testExceptionResponse(
         PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
         PEGASUS_TEST_ASSERT(e.getMessage() == "test regular exception");
     }
+    else if (className == "Cxx_Exception")
+    {
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
+        PEGASUS_TEST_ASSERT(e.getMessage() == "test C++ exception");
+    }
     else if (className == "Other_Exception")
     {
         PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
@@ -364,6 +369,7 @@ int main(int argc, char** argv)
         ProviderMessageHandler pmh("Test", &ep, 0, 0, false);
         testExceptions(&pmh, "CIM_Exception");
         testExceptions(&pmh, "Regular_Exception");
+        testExceptions(&pmh, "Cxx_Exception");
         testExceptions(&pmh, "Other_Exception");
 
         NotARealProvider np;

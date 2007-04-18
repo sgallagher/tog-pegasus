@@ -33,6 +33,8 @@
 
 #include "ProviderMessageHandler.h"
 
+#include <exception>
+
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
@@ -61,7 +63,7 @@
     catch (CIMException& e)                                            \
     {                                                                  \
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,          \
-            "Provider Exception: " + e.getMessage());                  \
+            "Provider CIMException: " + e.getMessage());               \
         handler.setCIMException(e);                                    \
     }                                                                  \
     catch (Exception& e)                                               \
@@ -71,10 +73,16 @@
         handler.setStatus(                                             \
             CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage());  \
     }                                                                  \
+    catch (const PEGASUS_STD(exception)& e)                            \
+    {                                                                  \
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,                \
+            "Provider exception: %s", e.what()));                      \
+        handler.setStatus(CIM_ERR_FAILED, e.what());                   \
+    }                                                                  \
     catch (...)                                                        \
     {                                                                  \
         PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,         \
-            "Provider Exception: Unknown");                            \
+            "Provider unknown exception");                             \
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");           \
     }
 

@@ -170,6 +170,11 @@ stage_poststarttests:
 
 create_Makefile:
 	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "###############################################################################" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# " >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# Makefile for testing an installed Linux release" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# " >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "###############################################################################" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "OS = $(OS)\n" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "ROOT = UNDEFINED\n" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "CIMSERVER_PATH = $(PEGASUS_SBIN_DIR)/\n" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
@@ -178,6 +183,7 @@ create_Makefile:
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_prestarttests
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_poststarttests
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_tests
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_testsWithSetupAndUnsetup
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_setupTEST
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_unsetupTEST
 
@@ -204,11 +210,55 @@ createMakefile_poststarttests:
 	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 
 createMakefile_tests:
+	@$(ECHO-E) "###############################################################################" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# The tests target stops the cimserver, runs the unit tests, starts the" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# cimserver, and runs the poststarttests and local TestClient." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# It is necessary to manually run make setupTEST before running make tests," >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# and to manually run make unsetupTEST afterward." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# The setupTEST target moves the repository directory to repository.bak, and" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# moves the test repository into the repository directory.  The cimserver is" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# started, and links are created to the provider libraries." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# Since it may not always be desired to move the repository, the make" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# setupTEST step is not done automatically as part of the tests target." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# The unsetupTEST target stops the cimserver, moves the repository to the test" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# repository directory, restores the original repository from repository.bak," >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# and removes the links to the provider libraries." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# Since in case of failure, it is desired to leave the system in its current" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# state to facilitate debugging of the failure, the make unsetupTEST step is" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# not done automatically as part of the tests target." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# Note that in case of failure, the original repository remains in" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# repository.bak." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "###############################################################################" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "tests:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) -i cimstop" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) prestarttests" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_1)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_1)\"" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_2)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_2)\"" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+
+createMakefile_testsWithSetupAndUnsetup:
+	@$(ECHO-E) "###############################################################################" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# The testsWithSetupAndUnsetup target stops the cimserver, runs the unit tests," >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# runs make setupTEST, runs the poststarttests and local TestClient, and runs" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# make unsetupTEST.  If poststarttests or local TestClient exits with a" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# non-zero status, make unsetupTEST is also run to restore the system to its" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# original state." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# It is not necessary to manually run make setupTEST before, nor to run make" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# unsetupTEST after, running make testsWithSetupAndUnsetup." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# The setupTEST target moves the repository directory to repository.bak, and" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# moves the test repository into the repository directory.  The cimserver is" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# started, and links are created to the provider libraries." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# The unsetupTEST target stops the cimserver, moves the repository to the test" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# repository directory, restores the original repository from repository.bak," >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "# and removes the links to the provider libraries." >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "###############################################################################" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "testsWithSetupAndUnsetup:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) -i cimstop" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) prestarttests" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) setupTEST" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_1)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_1)\" || { $(MAKE) unsetupTEST; exit 1; }" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_2)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_2)\" || { $(MAKE) unsetupTEST; exit 1; }" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) unsetupTEST" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 
 createMakefile_setupTEST:

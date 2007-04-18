@@ -45,10 +45,7 @@ XMLSCRIPTS = \
    EMIncorrectMultiExpReq01 \
    EMExpMethodNameMismatch01 \
    EMExpMethodNameMismatch02 \
-   EMSuccess01
-
-# See Bug 5928
-DISABLED_XMLSCRIPT = \
+   EMSuccess01 \
    EMBadContentType01
 
 include $(ROOT)/test/configend.mak

@@ -297,16 +297,23 @@ Boolean isProcRunning(pid_t pid)
     buf.ps_pathptr   =(char *) malloc(buf.ps_pathlen   =PS_PATHBLEN);          
     buf.ps_cmdptr    =(char *) malloc(buf.ps_cmdlen    =PS_CMDBLEN);
 
-    token = w_getpsent(token, &buf, sizeof(buf));                              
-    do {                                                                       
-        token = w_getpsent(token, &buf, sizeof(buf));                          
-        if (buf.ps_pid==pid) {
+    while((token = w_getpsent(token, &buf, sizeof(buf))) > 0)
+    {                   
+        if (buf.ps_pid==pid)
+        {
+            // If the process id is associated with the program
+            // "cimserver", then a cimserver is still running.
+            if (strstr(buf.ps_pathptr,"cimserver")!= NULL )
+            {
             free(buf.ps_conttyptr);                                                    
             free(buf.ps_pathptr);                                                      
             free(buf.ps_cmdptr);
             return true;
         }
-    } while(token>0);
+            // pid found was not associated with a cimserver
+            break;
+        }
+    } 
 
     free(buf.ps_conttyptr);                                                    
     free(buf.ps_pathptr);                                                      

@@ -234,9 +234,19 @@ static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
    }
 
    static CMPIStatus contextAddEntry(const CMPIContext* eCtx, const char *name,
-               const CMPIValue* data,  const CMPIType type) {
-      if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) {
+               const CMPIValue* data,  const CMPIType type) 
+   {
+      if (!name || !data)
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      }
+      if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) 
+      {         
          OperationContext *ctx=((CMPI_Context*)eCtx)->ctx;
+         if (!ctx)
+         {
+             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+         }
          if (type==CMPI_chars) {
             ctx->insert(SnmpTrapOidContainer((char*)data));
             CMReturn(CMPI_RC_OK);

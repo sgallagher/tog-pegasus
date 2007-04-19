@@ -255,6 +255,11 @@ static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
             ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
             CMReturn(CMPI_RC_OK);
          }
+         else
+         {   // Only CMPITypes CMPI_chars and CMPI_string are supported
+             // for SnmpTrapOidContainer.
+             CMReturn(CMPI_RC_ERR_INVALID_DATA_TYPE); 
+         }
       }
       return argsAddArg(reinterpret_cast<const CMPIArgs*>(eCtx),name,data,type);
    }

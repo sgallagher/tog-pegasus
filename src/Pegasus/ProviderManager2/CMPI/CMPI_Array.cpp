@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -48,20 +44,21 @@ PEGASUS_NAMESPACE_BEGIN
 extern "C" {
 
    PEGASUS_STATIC CMPIStatus arrayRelease(CMPIArray* eArray) {
-   //   cout<<"--- arrayRelease()"<<endl;
       CMPIData *dta=(CMPIData*)eArray->hdl;
       if (dta) {
          delete[] dta;
          reinterpret_cast<CMPI_Object*>(eArray)->unlinkAndDelete();
-      }
       CMReturn(CMPI_RC_OK);
+   }
+      CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
    }
 
    PEGASUS_STATIC CMPIArray* arrayClone(const CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData* dta=(CMPIData*)eArray->hdl;
 
-	  if (!dta) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!dta) 
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return NULL;
       }
       CMPIData* nDta=new CMPIData[dta->value.uint32+1];
@@ -126,30 +123,41 @@ extern "C" {
 	       }
 	 }
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return nArray;
    }
 
-   PEGASUS_STATIC CMPIData arrayGetElementAt(const CMPIArray* eArray, CMPICount pos, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPIData arrayGetElementAt(const CMPIArray* eArray, 
+                                             CMPICount pos, CMPIStatus* rc) 
+   {
       CMPIData *dta=(CMPIData*)eArray->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
-	  if (!dta) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!dta) 
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return data;
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      if (pos<dta->value.uint32) return dta[pos+1];
-
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      CMSetStatus(rc,CMPI_RC_OK);
+      if (pos < dta->value.uint32)
+      {
+          return dta[pos+1];
+      }
+      CMSetStatus(rc,CMPI_RC_ERR_NO_SUCH_PROPERTY);
       return data;
    }
 
    CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
-                                       const CMPIValue *val, CMPIType type) {
+                                const CMPIValue *val, CMPIType type) 
+   {
       CMPIData *dta=(CMPIData*)eArray->hdl;
 	  if (!dta) 
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (!val)
+      {
 		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
-
+      }
       if (pos<dta->value.uint32) {
          if ((dta->type&~CMPI_ARRAY)==type) {
             dta[pos+1].state=CMPI_goodValue;
@@ -164,27 +172,30 @@ extern "C" {
 	         reinterpret_cast<CMPIString*>(new CMPI_Object(msg)));
 	 }
       }
-      CMReturn(CMPI_RC_ERR_NOT_FOUND);
+      CMReturn(CMPI_RC_ERR_NO_SUCH_PROPERTY);
    }
 
-   PEGASUS_STATIC CMPICount arrayGetSize(const CMPIArray* eArray, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPICount arrayGetSize(const CMPIArray* eArray, CMPIStatus* rc) 
+   {
       CMPIData *dta=(CMPIData*)eArray->hdl;
-	  if (!dta) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!dta) 
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return 0;
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return dta->value.uint32;
    }
 
-   PEGASUS_STATIC CMPIType arrayGetType(const CMPIArray* eArray, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPIType arrayGetType(const CMPIArray* eArray, CMPIStatus* rc) 
+   {
       CMPIData *dta=(CMPIData*)eArray->hdl;
-	  if (!dta) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!dta)
+      { 
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return CMPI_null;
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return dta->type;
    }
 

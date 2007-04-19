@@ -48,21 +48,29 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   static CMPIStatus argsRelease(CMPIArgs* eArg) {
+   static CMPIStatus argsRelease(CMPIArgs* eArg) 
+   {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       if (arg) {
          delete arg;
          (reinterpret_cast<CMPI_Object*>(eArg))->unlinkAndDelete();
-      }
       CMReturn(CMPI_RC_OK);
+   }
+      CMReturn(CMPI_RC_ERR_INVALID_HANDLE); 
    }
 
    static CMPIStatus argsReleaseNop(CMPIArgs* eArg) {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIArgs* argsClone(const CMPIArgs* eArg, CMPIStatus* rc) {
+   static CMPIArgs* argsClone(const CMPIArgs* eArg, CMPIStatus* rc) 
+   {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      if (!arg)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return 0;
+      }
       Array<CIMParamValue>* cArg=new Array<CIMParamValue>();
       for (long i=0,s=arg->size(); i<s; i++) {
          const CIMParamValue &v=(*arg)[i];
@@ -83,8 +91,18 @@ extern "C" {
       return -1;
    }
 
-   static CMPIStatus argsAddArg(const CMPIArgs* eArg, const char *name, const CMPIValue* data,  const CMPIType type) {
+   static CMPIStatus argsAddArg(const CMPIArgs* eArg, const char *name, 
+                                const CMPIValue* data,  const CMPIType type) 
+   {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+      if (!arg)
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (!name || !data)
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      }
       CMPIrc rc;
       CIMValue v=value2CIMValue(data,type,&rc);
       CIMName sName(name);
@@ -98,13 +116,20 @@ extern "C" {
 
    static CMPIData argsGetArgAt(const CMPIArgs* eArg, CMPICount pos, 
 				CMPIString** name,
-				CMPIStatus* rc) {
+				CMPIStatus* rc) 
+   {
 
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
+      if (!arg)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return data;
+      }
 
-      if (pos>arg->size()) {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      if (pos > arg->size()) 
+      {
+         CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
          return data;
       }
 
@@ -123,21 +148,39 @@ extern "C" {
       return data;
    }
 
-   static CMPIData argsGetArg(const CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
+   static CMPIData argsGetArg(const CMPIArgs* eArg, const char *name, 
+                              CMPIStatus* rc) 
+   {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
+       CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
+       if (!arg)
+       {
+           CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+           return data;
+       }
+       if (!name)
+       {
+           CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+           return data;
+       }
       CIMNameUnchecked eName(name);
 
       long i=locateArg(*arg,eName);
       if (i>=0) return argsGetArgAt(eArg,i,NULL,rc);
 
-      CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+       CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
       return data;
    }
 
-   static CMPICount argsGetArgCount(const CMPIArgs* eArg, CMPIStatus* rc) {
+   static CMPICount argsGetArgCount(const CMPIArgs* eArg, CMPIStatus* rc) 
+   {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      if (!arg)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return 0;
+      }
+      CMSetStatus(rc,CMPI_RC_OK);
       return arg->size();
    }
 

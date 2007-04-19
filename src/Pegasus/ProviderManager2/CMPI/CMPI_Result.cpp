@@ -131,9 +131,16 @@ extern "C" {
        const CMPIResult* eRes, const CMPIValue* data,  const CMPIType type) 
    {
       CMPIrc rc;
-      if ((eRes->hdl == NULL) || (data == NULL))
-	     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-    try {
+      if (eRes->hdl == NULL)
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (data == NULL)
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      }
+
+     try {
       CIMValue v=value2CIMValue((CMPIValue*)data,type,&rc);
       if (eRes->ft==CMPI_ResultMethOnStack_Ftab)
       {

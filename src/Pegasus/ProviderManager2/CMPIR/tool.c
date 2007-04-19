@@ -44,9 +44,6 @@
 #ifdef PEGASUS_OS_TYPE_UNIX
 #include <dlfcn.h>
 #include <strings.h>
-#elif defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <dll.h>
-#include <errno.h>
 #elif defined PEGASUS_OS_TYPE_WINDOWS
 #include <winsock2.h>
 #include <Winbase.h>

@@ -55,7 +55,7 @@
 #include <process.h>
 #include <windows.h>
 #elif defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <dll.h>
+#include <dlfcn.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
@@ -142,7 +142,7 @@ static void __init_remote_comm_lib ( comm_lib * comm )
         }
     }
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined (PEGASUS_OS_TYPE_WINDOWS)
+#if defined (PEGASUS_OS_TYPE_WINDOWS)
     fprintf( stderr, "%s\n", strerror(errno) );
 #else
     fprintf ( stderr, "%s\n", dlerror () );

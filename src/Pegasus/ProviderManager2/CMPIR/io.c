@@ -62,7 +62,9 @@
   \return zero on success.
  */
 
- int io_read_fixed_length ( int fd, PEGASUS_CMPIR_CHAR * buf, size_t count )
+int io_read_fixed_length ( int fd,
+                           PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
+                           size_t count )
 {
     ssize_t bytes;
 
@@ -113,7 +115,9 @@
   \return zero on success.
  */
 
- int io_write_fixed_length ( int fd, const PEGASUS_CMPIR_CHAR * buf, size_t count )
+int io_write_fixed_length ( int fd,
+                            const PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
+                            size_t count )
 {
     ssize_t bytes;
 

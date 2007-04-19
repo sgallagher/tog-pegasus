@@ -49,9 +49,7 @@
 #include "tool.h"
 #include "debug.h"
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <dll.h>
-#elif defined PEGASUS_OS_TYPE_WINDOWS
+#if defined PEGASUS_OS_TYPE_WINDOWS
 #include <winsock2.h>
 #include <Winbase.h>
 #include <Windows.h>

@@ -69,14 +69,8 @@ poststarttests:
 	@$(ECHO) "Skipping g11ntest.  Use 'make g11ntest' to run this test."
 
 g11ntest:
-ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-# ATTN: The g11ntest fails if the LocalizedProvider is not loaded in the
-# cimserver process.
-	@$(ECHO) "Skipping g11ntest, since it does not work correctly with privilege separation enabled."
-else
-    ifdef PEGASUS_HAS_MESSAGES
+ifdef PEGASUS_HAS_MESSAGES
 	$(PROGRAM) -reqlang en -rsplang en
-    else
+else
 	$(PROGRAM)
-    endif
 endif

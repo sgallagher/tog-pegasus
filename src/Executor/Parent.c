@@ -48,7 +48,6 @@
 #include "Globals.h"
 #include "Path.h"
 #include "User.h"
-#include "File.h"
 #include "Exit.h"
 #include "Strlcpy.h"
 #include "LocalAuth.h"

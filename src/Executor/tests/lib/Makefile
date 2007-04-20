@@ -46,7 +46,6 @@ SOURCES = \
     ../../Config.c \
     ../../Exit.c \
     ../../Fatal.c \
-    ../../File.c \
     ../../Globals.c \
     ../../LocalAuth.c \
     ../../Log.c \

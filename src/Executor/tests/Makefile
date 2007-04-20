@@ -3,7 +3,6 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIRS = \
     lib \
     Config \
-    File \
     LocalAuth \
     Macro \
     Match \

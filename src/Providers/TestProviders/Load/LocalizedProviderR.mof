@@ -42,6 +42,7 @@ instance of PG_ProviderModule
     InterfaceType = "C++Default";
     InterfaceVersion = "2.6.0";
     Location = "TestLocalizedProvider";
+    UserContext = 5;    // "CIMServer", to allow load in cimserver process
 };
 
 instance of PG_Provider

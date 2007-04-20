@@ -2009,7 +2009,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                  ) ||
                 posLocation == PEG_NOT_FOUND || location.size() == 0
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
-                || (userContextSpecified)
+                || (userContextSpecified &&
+                    (userContext != PG_PROVMODULE_USERCTXT_CIMSERVER))
 #else
                 || (userContextSpecified &&
                     !((userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||

@@ -515,16 +515,21 @@ void ProviderRegistrationProvider::createInstance(
 
         if (!userContextValue.isNull())
         {
-#ifdef PEGASUS_DISABLE_PROV_USERCTXT
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider.USERCONTEXT_UNSUPPORTED",
-                "The UserContext property in the PG_ProviderModule class is "
-                    "not supported."));
-#else
             Uint16 userContext;
             userContextValue.get(userContext);
 
+#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+            if (userContext != PG_PROVMODULE_USERCTXT_CIMSERVER)
+            {
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "ControlProviders.ProviderRegistrationProvider."
+                            "ProviderRegistrationProvider."
+                            "USERCONTEXT_UNSUPPORTED",
+                        "The UserContext property in the PG_ProviderModule "
+                            "class is not supported."));
+            }
+#else
             if (!((userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
                   (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
                   (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||

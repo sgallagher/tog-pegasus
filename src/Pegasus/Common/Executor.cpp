@@ -198,6 +198,8 @@ public:
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
     {
+        // Add logging here.
+
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 
         AutoMutex autoMutex(_mutex);

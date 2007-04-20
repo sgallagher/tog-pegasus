@@ -45,7 +45,6 @@ SOURCES = \
     Log.c \
     Socket.c \
     Exit.c \
-    File.c \
     Config.c \
     Path.c \
     Process.c \
@@ -71,22 +70,3 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-
-ff:
-	flawfinder -m 3 *.h *.c
-
-kloc:
-	kloc -d -f
-
-authcimserver:
-	cimserver enableAuthentication=true daemon=false logLevel=TRACE
-
-sslcimserver:
-	cimserver enableHttpsConnection=true enableAuthentication=true sslClientVerificationMode=optional sslTrustStoreUserName=root
-
-testssl:
-	$(MAKE) -C ../.. -f TestMakefile run_SSL_TS1
-
-diffs:
-	(cd ../..; cvs diff -r PEP286_PRIVILEGE_SEPARATION_ROOT -u -N > privsep.diff)
-

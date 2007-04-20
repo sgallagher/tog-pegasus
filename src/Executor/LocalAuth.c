@@ -209,25 +209,6 @@ static int CheckLocalAuthToken(
 /*
 **==============================================================================
 **
-** _destructor()
-**
-**     Destructor for session key data.
-**
-**==============================================================================
-*/
-
-static void _destructor(long data)
-{
-    if (!data)
-        return;
-
-    unlink((char*)data);
-    free((char*)data);
-}
-
-/*
-**==============================================================================
-**
 ** StartLocalAuthentication()
 **
 **     Initiate first phase of local authentication.
@@ -260,7 +241,8 @@ int StartLocalAuthentication(
 **
 ** FinishLocalAuthentication()
 **
-**     Initiate second and last phase of local authentication.
+**     Initiate second and last phase of local authentication. Else return
+**     negative one.
 **
 **==============================================================================
 */
@@ -271,8 +253,10 @@ int FinishLocalAuthentication(
 {
     /* Check token against the one in the file. */
 
-    if (CheckLocalAuthToken(challenge, response) != 0)
-        return -1;
+    int rc = CheckLocalAuthToken(challenge, response);
 
-    return 0;
+    if (challenge)
+        unlink((char*)challenge);
+
+    return rc;
 }

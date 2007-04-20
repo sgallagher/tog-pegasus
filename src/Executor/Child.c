@@ -59,8 +59,7 @@ void Child(
     const char* path,
     int uid,
     int gid,
-    int sock,
-    const char* repositoryDir)
+    int sock)
 {
     char sockStr[EXECUTOR_BUFFER_SIZE];
     char username[EXECUTOR_BUFFER_SIZE];
@@ -76,21 +75,6 @@ void Child(
     execArgv[0] = CIMSERVERMAIN;
     execArgv[1] = "-x";
     execArgv[2] = strdup(sockStr);
-
-    /* Check whether repository directory exists. */
-
-    if (AccessDir(repositoryDir) != 0)
-        Fatal(FL, 
-            "failed to access repository directory: %s", repositoryDir);
-
-    /* 
-     * Change ownership of Pegasus repository directory (it should be owned
-     * by same user that owns CIMSERVERMAIN).
-     */
-
-    ChangeDirOwnerRecursive(repositoryDir, uid, gid);
-
-    Log(LL_TRACE, "Pegasus repositoryDir is \"%s\"", repositoryDir);
 
     /*
      * Downgrade privileges by setting the UID and GID of this process. Use

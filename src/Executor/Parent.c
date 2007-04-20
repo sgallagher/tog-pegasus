@@ -154,7 +154,7 @@ static void HandleOpenFileRequest(int sock)
                 fd = open(
                     request.path, 
                     O_WRONLY | O_CREAT | O_TRUNC,
-                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // 0644
                 break;
 
             case 'a':
@@ -162,7 +162,7 @@ static void HandleOpenFileRequest(int sock)
                 fd = open(
                     request.path, 
                     O_WRONLY | O_CREAT | O_APPEND,
-                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // 0644
                 break;
             }
         }

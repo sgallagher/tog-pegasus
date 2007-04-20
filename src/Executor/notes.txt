@@ -7,21 +7,14 @@
         process may read the root owned files, but it must ask the executor 
         to modify them.
 
-    3.  The executor grants ownership of the repository to the server user
-        upon startup if the server user does not already own them. Although
-        at installation time this should have already been done.
+    3.  Cimservermain owns the local-domain socket file (/tmp/cimxml.socket).
 
-    4.  The Executor now checks whether Pegasus repository exists and errors 
-        out if not.
+    4.  The executor now detects whether the CIM server is already running.
 
-    5.  Cimservermain owns the local-domain socket file (/tmp/cimxml.socket).
-
-    6.  The executor now detects whether the CIM server is already running.
-
-    7.  For logging purposes, the executor uses "cimexecutor" as its syslog
+    5.  For logging purposes, the executor uses "cimserver" as its syslog
         identifier.
 
-    8.  Setting up PAM authentiction (non-standalone).
+    6.  Setting up PAM authentiction (non-standalone).
 
         First compile with PEGASUS_PAM_AUTHENTICATION. 
         
@@ -31,28 +24,28 @@
             % cp rpm/wbem /etc/pam.d
             % chmod 0644 /etc/pam.d/wbem
 
-    9.  To build for standalone PAM authentication, compile with these:
+    7.  To build for standalone PAM authentication, compile with these:
 
             PEGASUS_PAM_AUTHENTICATION
             PEGASUS_USE_PAM_STANDALONE_PROC
 
-    10.  To run cimserver to use PAM, use these configuration parameters.
+     8.  To run cimserver to use PAM, use these configuration parameters.
 
             enableAuthentication=true 
 
-    11. To build SSL support, compile with these.
+     9. To build SSL support, compile with these.
     
             OPENSSL_HOME=/usr
             PEGASUS_HAS_SSL=true
 
-    12. To run cimerver to use SSL, use these configuration parameters.
+    10. To run cimerver to use SSL, use these configuration parameters.
 
             enableHttpsConnection=true 
             enableAuthentication=true 
             sslClientVerificationMode=optional 
             sslTrustStoreUserName=root
 
-    13. To add a user to cimserver.passwd, use the following format (the given
+    11. To add a user to cimserver.passwd, use the following format (the given
         user must be a real system user).
 
             jsmith:AB5bZ.JX9fQzA
@@ -74,10 +67,10 @@
 
             % gcc -o mkpasswd mkpasswd.cpp -lcrypt
 
-    14. The KerberosAuthenticationHandler.h and all Kerberos authentication
+    12. The KerberosAuthenticationHandler.h and all Kerberos authentication
         logic is not part of the Pegasus repository.
 
-    15. The following authentication schemes were rewritten and are now
+    13. The following authentication schemes were rewritten and are now
         part of the executor.
 
             - PAM Basic Authentication
@@ -90,18 +83,11 @@
             - SSL peer authentication
             - Kerberos (source not available to Pegasus).
 
-    16. Places that NEW_SESSION_KEY request is used.
-
-            - SSL certificate authentication.
-            - Indication service (before accepting connections).
-
-    17. Note that using "secure basic" authentication and "SSL peer 
+    14. Note that using "secure basic" authentication and "SSL peer 
         authentication" togehter breaks the end-to-end tests (validate
         user fails since the user is not in the cimserver.passwd file).
 
-    18. Four provider agent user contexts:
+    15. The install script is responsible for propertly setting ownership
+        of all files (including the Pegasus repository).
 
-            - REQUESTOR         MyProviderModule:*
-            - DESIGNATED        MyProviderModule:fred
-            - PRIVILEGED        MyProviderModule:root
-            - CIMSERVER         MyProviderModule:pegasus
+

@@ -268,11 +268,6 @@ void DefineExecutorMacros()
         DefineMacro("currentConfigFilePath", path);
     }
 
-    /* Define ${repositoryDir} */
-
-    if (DefineConfigPathMacro("repositoryDir", PEGASUS_REPOSITORY_DIR) != 0)
-        Fatal(FL, "missing \"repositoryDir\" configuration parameter.");
-
     /* Define ${passwordFilePath} */
 
     if (DefineConfigPathMacro("passwordFilePath", "cimserver.passwd") != 0)
@@ -321,7 +316,6 @@ int main(int argc, char** argv)
     int pair[2];
     char username[EXECUTOR_BUFFER_SIZE];
     int childPid;
-    const char* repositoryDir;
     struct Options options;
 
     /* Get options. */
@@ -400,7 +394,7 @@ int main(int argc, char** argv)
 
     /* Open the log. */
 
-    OpenLog("cimexecutor", options.perror);
+    OpenLog("cimserver", options.perror);
 
     Log(LL_INFORMATION, "starting");
 
@@ -428,11 +422,6 @@ int main(int argc, char** argv)
 
     GetServerUser(&globals.childUid, &globals.childGid);
 
-    /* Get repositoryDir for child. */
-
-    if ((repositoryDir = FindMacro("repositoryDir")) == NULL)
-        Fatal(FL, "failed to find repositoryDir macro");
-
     /* Fork child process. */
 
     childPid = fork();
@@ -442,7 +431,7 @@ int main(int argc, char** argv)
         /* Child. */
         close(pair[1]);
         Child(argc, argv, cimservermainPath, globals.childUid, 
-            globals.childGid, pair[0], repositoryDir);
+            globals.childGid, pair[0]);
     }
     else if (childPid > 0)
     {

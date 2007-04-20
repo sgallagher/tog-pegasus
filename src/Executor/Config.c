@@ -73,7 +73,7 @@ static size_t _configSize =
 **
 **     Attempt to find a command line configuratin parameter of the form 
 **     name=value. For example: 
-**         cimservermain repositoryDir=/opt/pegasus/repository. 
+**         cimservermain option=value
 **     Return 0 if found.
 **
 **==============================================================================

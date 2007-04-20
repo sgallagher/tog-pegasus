@@ -42,7 +42,6 @@ void Child(
     const char* path,
     int uid,
     int gid,
-    int sock,
-    const char* repositoryDir);
+    int sock);
 
 #endif /* _Executor_Child_h */

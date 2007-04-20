@@ -99,7 +99,7 @@ extern "C" {
       {
           CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
       }
-      if (!name || !data)
+      if (!name)
       {
           CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
       }

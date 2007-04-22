@@ -70,12 +70,14 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc) {
-      if (!eInst->hdl)  {
-        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-        return NULL;
-      }
+   static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc) 
+   {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      if (!inst)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return NULL;
+      }
       try {
             AutoPtr<CIMInstance> cInst(new CIMInstance(inst->clone()));
             AutoPtr<CMPI_Object> obj(new CMPI_Object(cInst.get()));

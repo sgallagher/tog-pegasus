@@ -58,8 +58,12 @@ extern "C" {
       if (inst) {
          delete inst;
          (reinterpret_cast<CMPI_Object*>(eInst))->unlinkAndDelete();
+         CMReturn(CMPI_RC_OK);
       }
-      CMReturn(CMPI_RC_OK);
+      else
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
    }
 
    static CMPIStatus instReleaseNop(CMPIInstance* eInst) {
@@ -90,13 +94,14 @@ extern "C" {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
 
-      if (!inst)  {
-        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-        return data;
+      if (!inst)  
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return data;
       }
 
       if (pos>inst->getPropertyCount()) {
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+         CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
          CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
          return data;
       }
@@ -116,13 +121,21 @@ extern "C" {
       return data;
    }
 
-   static CMPIData instGetProperty(const CMPIInstance* eInst, const char *name, CMPIStatus* rc)   {
+   static CMPIData instGetProperty(const CMPIInstance* eInst, 
+                                   const char *name, CMPIStatus* rc)   
+   {
 
       CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
-      if (!eInst->hdl)  {
-        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-        return data;
+      if (!eInst->hdl)  
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return data;
+      }
+      if (!name)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+          return data;
       }
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       Uint32 pos=inst->findProperty(String(name));
@@ -131,16 +144,19 @@ extern "C" {
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
          return instGetPropertyAt(eInst,pos,NULL,rc);
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
       return data;
    }
 
 
-   static CMPICount instGetPropertyCount(const CMPIInstance* eInst, CMPIStatus* rc) {
+   static CMPICount instGetPropertyCount(const CMPIInstance* eInst, 
+                                         CMPIStatus* rc) 
+   {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
-      if (!inst)  {
-        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-        return 0;
+      if (!inst)  
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return 0;
       }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return inst->getPropertyCount();
@@ -151,8 +167,9 @@ extern "C" {
      const char* origin)
    {
       CIMInstance *inst=(CIMInstance*)eInst->hdl;
-      if (!inst)  {
-        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!inst)  
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
       }
       char **list=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
       CMPIrc rc;
@@ -248,10 +265,12 @@ extern "C" {
    }
 
    static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst,
-                                            CMPIStatus* rc) {
+                                            CMPIStatus* rc) 
+   {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
-      if (!inst)  {
-        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!inst)  
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
         return NULL;
       }
       const CIMObjectPath &clsRef=inst->getPath();
@@ -293,9 +312,15 @@ extern "C" {
    static CMPIStatus instSetObjectPath(CMPIInstance* eInst, const CMPIObjectPath *obj)
    {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
-      if ((inst==NULL) || (obj==NULL))  {
+      if (inst==NULL)
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (obj==NULL)
+      {
         CMReturn ( CMPI_RC_ERR_INVALID_PARAMETER);
       }
+
      CIMObjectPath &ref = *(CIMObjectPath*)(obj->hdl);
 	try {
     	inst->setPath(ref); 
@@ -307,9 +332,11 @@ extern "C" {
    }
 
    static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
-               const char** propertyList, const char **keys){
-      if (!eInst->hdl)  {
-        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+               const char** propertyList, const char **keys)
+   {
+      if (!eInst->hdl)
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
       }
 
       CMPI_Object *inst=reinterpret_cast<CMPI_Object*>(eInst);

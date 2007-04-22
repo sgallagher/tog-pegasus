@@ -85,17 +85,19 @@ extern "C" {
       return reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
    }
 
-   static CMPIDateTime* dtClone(const CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIDateTime* dtClone(const CMPIDateTime* eDt, CMPIStatus* rc) 
+   {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-      if (!dt) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-	    return NULL;
+      if (!dt) 
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return NULL;
       }
       CIMDateTime* cDt=new CIMDateTime(dt->toString());
       CMPI_Object* obj=new CMPI_Object(cDt);
       obj->unlink();
       CMPIDateTime* neDt=reinterpret_cast<CMPIDateTime*>(obj);
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return neDt;
    }
 

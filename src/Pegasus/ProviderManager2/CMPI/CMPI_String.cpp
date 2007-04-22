@@ -50,15 +50,20 @@ CMPI_String* string2CMPIString(const String &s) {
 
 extern "C" {
 
-PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr) {
-   // cout<<"--- cmpi stringRelease()"<<endl;
+PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr) 
+{
    char* str=(char*)eStr->hdl;
-   if (str) {
+   if (str) 
+   {
       free(str);
       (reinterpret_cast<CMPI_Object*>(eStr))->unlinkAndDelete();
-	  str = NULL;
+      str = NULL;
+      CMReturn(CMPI_RC_OK);
    }
-   CMReturn(CMPI_RC_OK);
+   else
+   {
+       CMReturn (CMPI_RC_ERR_INVALID_HANDLE);
+   }
 }
 
    PEGASUS_STATIC CMPIString* stringClone(const CMPIString *eStr, CMPIStatus* rc) {
@@ -71,9 +76,16 @@ PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr) {
       return reinterpret_cast<CMPIString*>(obj);
    }
 
-   PEGASUS_STATIC const char * stringGetCharPtr(const CMPIString *eStr, CMPIStatus* rc) {
+   PEGASUS_STATIC const char * stringGetCharPtr(const CMPIString *eStr, 
+                                                CMPIStatus* rc)
+   {
       char* ptr=(char*)eStr->hdl;
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      if (!ptr)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return NULL;
+      }
+      CMSetStatus(rc,CMPI_RC_OK);
       return ptr;
    }
 

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -48,25 +44,28 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   static CMPIStatus refRelease(CMPIObjectPath* eRef) {
-   //   cout<<"--- refRelease()"<<endl;
+   static CMPIStatus refRelease(CMPIObjectPath* eRef) 
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-      if (ref) {
+      if (ref)
+      {
          delete ref;
          (reinterpret_cast<CMPI_Object*>(eRef))->unlinkAndDelete();
-      }
       CMReturn(CMPI_RC_OK);
+   }
+      CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
    }
 
    static CMPIStatus refReleaseNop(CMPIObjectPath* eRef) {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIObjectPath* refClone(const CMPIObjectPath* eRef, CMPIStatus* rc) {
-   //   cout<<"--- refClone()"<<endl;
+   static CMPIObjectPath* refClone(const CMPIObjectPath* eRef, CMPIStatus* rc)
+   {
       CIMObjectPath *ref=(CIMObjectPath*)eRef->hdl;
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return NULL;
 	  }
       CIMObjectPath *nRef=new CIMObjectPath(ref->getHost(),
@@ -81,18 +80,28 @@ extern "C" {
       return neRef;
    }
 
-   static CMPIStatus refSetNameSpace(CMPIObjectPath* eRef, const char *ns) {
+   static CMPIStatus refSetNameSpace(CMPIObjectPath* eRef, const char *ns)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
 	  if (!ref) 
+      {
+          CMReturn( CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (!ns)
+      {
 		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
+      }       
       ref->setNameSpace(String(ns));
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIString* refGetNameSpace(const CMPIObjectPath* eRef, CMPIStatus* rc) {
+   static CMPIString* refGetNameSpace(const CMPIObjectPath* eRef, 
+                                      CMPIStatus* rc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return NULL;
       }
       const CIMNamespaceName &ns=ref->getNameSpace();
@@ -101,18 +110,27 @@ extern "C" {
       return eNs;
    }
 
-   static CMPIStatus refSetHostname(CMPIObjectPath* eRef, const char *hn) {
+   static CMPIStatus refSetHostname(CMPIObjectPath* eRef, const char *hn)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
 	  if (!ref) 
+      {
+          CMReturn( CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (!hn)
+      {
 		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
+      }
       ref->setHost(String(hn));
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIString* refGetHostname(const CMPIObjectPath* eRef, CMPIStatus* rc) {
+   static CMPIString* refGetHostname(const CMPIObjectPath* eRef, CMPIStatus* rc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return NULL;
       }
       const String &hn=ref->getHost();
@@ -121,19 +139,27 @@ extern "C" {
       return eHn;
    }
 
-   static CMPIStatus refSetClassName(CMPIObjectPath* eRef, const char *cn) {
+   static CMPIStatus refSetClassName(CMPIObjectPath* eRef, const char *cn)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
 	  if (!ref) 
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (!cn)
+      {
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-      
+      }
       ref->setClassName(String(cn));
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIString* refGetClassName(const CMPIObjectPath* eRef, CMPIStatus* rc) {
+   static CMPIString* refGetClassName(const CMPIObjectPath* eRef, CMPIStatus* rc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref) 
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return NULL;
       }
       const CIMName &cn=ref->getClassName();
@@ -152,10 +178,17 @@ extern "C" {
    }
 
    static CMPIStatus refAddKey(CMPIObjectPath* eRef, const char *name,
-            const CMPIValue* data,  const CMPIType type) {
+            const CMPIValue* data,  const CMPIType type)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
 	  if (!ref) 
+      {
+          CMReturn( CMPI_RC_ERR_INVALID_HANDLE);
+      }
+      if (!name)
+      {
 		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
+      }
       Array<CIMKeyBinding> keyBindings=ref->getKeyBindings();
       CIMName key(name);
       CMPIrc rc;
@@ -169,15 +202,22 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIData refGetKey(const CMPIObjectPath* eRef, const char *name, CMPIStatus* rc) {
+   static CMPIData refGetKey(const CMPIObjectPath* eRef, const char *name, 
+                             CMPIStatus* rc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
       CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+          return data;
+      }
+      if (!name)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return data;
       }
-
       const CIMName eName(name);
       const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
@@ -191,21 +231,24 @@ extern "C" {
       return data;
    }
 
-   static CMPIData refGetKeyAt(const CMPIObjectPath* eRef, unsigned pos, CMPIString** name,
-            CMPIStatus* rc) {
+   static CMPIData refGetKeyAt(const CMPIObjectPath* eRef, unsigned pos, 
+                               CMPIString** name, CMPIStatus* rc)
+  {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
       CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return data;
       }
 
       const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
-      if (pos>=akb.size()) {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      if (pos >= akb.size())
+      {
+         CMSetStatus(rc,CMPI_RC_ERR_NO_SUCH_PROPERTY);
          return data;
       }
 
@@ -218,10 +261,12 @@ extern "C" {
       return data;
    }
 
-   static CMPICount refGetKeyCount(const CMPIObjectPath* eRef, CMPIStatus* rc) {
+   static CMPICount refGetKeyCount(const CMPIObjectPath* eRef, CMPIStatus* rc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return 0;
       }
       const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
@@ -230,32 +275,38 @@ extern "C" {
    }
 
    static CMPIStatus refSetNameSpaceFromObjectPath(CMPIObjectPath* eRef,
-            const CMPIObjectPath* eSrc) {
+            const CMPIObjectPath* eSrc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
       CIMObjectPath* src=(CIMObjectPath*)eSrc->hdl;
-	  if ((ref == NULL) || (src == NULL)) 
-		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
-
+      if (!ref || !src)
+      {
+          CMReturn( CMPI_RC_ERR_INVALID_HANDLE);
+      }
       ref->setNameSpace(src->getNameSpace());
       CMReturn(CMPI_RC_OK);
    }
 
    static CMPIStatus refSetHostAndNameSpaceFromObjectPath(CMPIObjectPath* eRef,
-            const CMPIObjectPath* eSrc) {
+            const CMPIObjectPath* eSrc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
       CIMObjectPath* src=(CIMObjectPath*)eSrc->hdl;
-	  if ((ref==NULL) || (src == NULL))
-		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
-
+      if (!ref || !src)
+      {
+         CMReturn( CMPI_RC_ERR_INVALID_HANDLE);
+      }
       ref->setNameSpace(src->getNameSpace());
       ref->setHost(src->getHost());
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIString *refToString(const CMPIObjectPath* eRef, CMPIStatus* rc) {
+   static CMPIString *refToString(const CMPIObjectPath* eRef, CMPIStatus* rc)
+   {
       CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
-	  if (!ref) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!ref)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return NULL;
       }
       String str=ref->toString();

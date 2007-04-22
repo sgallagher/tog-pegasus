@@ -66,10 +66,15 @@ PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr)
    }
 }
 
-   PEGASUS_STATIC CMPIString* stringClone(const CMPIString *eStr, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPIString* stringClone(const CMPIString *eStr, 
+                                          CMPIStatus* rc)
+   {
       char* str=(char*)eStr->hdl;
-      //char* newstr=::strdup(str);
-      //The CMPI_Object cstr copies the string.
+      if (!str)
+      {
+          CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE); 
+          return NULL;
+      }
       CMPI_Object* obj=new CMPI_Object(str);
       obj->unlink();
       if (rc) CMSetStatus(rc,CMPI_RC_OK);

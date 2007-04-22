@@ -47,14 +47,19 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   static CMPIStatus dtRelease(CMPIDateTime* eDt) {
-   //   cout<<"--- dtRelease()"<<endl;
+   static CMPIStatus dtRelease(CMPIDateTime* eDt) 
+   {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-      if (dt) {
+      if (dt)
+      {
          delete dt;
          (reinterpret_cast<CMPI_Object*>(eDt))->unlinkAndDelete();
+         CMReturn(CMPI_RC_OK);
       }
-      CMReturn(CMPI_RC_OK);
+      else
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
    }
 
    CMPIDateTime *newDateTime() {
@@ -94,21 +99,25 @@ extern "C" {
       return neDt;
    }
 
-   static CMPIBoolean dtIsInterval(const CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIBoolean dtIsInterval(const CMPIDateTime* eDt, CMPIStatus* rc) 
+   {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-      if (!dt) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!dt) 
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return false;
       }
 		
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return dt->isInterval();
    }
 
-   static CMPIString *dtGetStringFormat(const CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIString *dtGetStringFormat(const CMPIDateTime* eDt, CMPIStatus* rc) 
+   {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-      if (!dt) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!dt) 
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return NULL;
       }
       CMPIString *str=reinterpret_cast<CMPIString*>(new CMPI_Object(dt->toString()));
@@ -116,10 +125,12 @@ extern "C" {
       return str;
    }
 
-   static CMPIUint64 dtGetBinaryFormat(const CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIUint64 dtGetBinaryFormat(const CMPIDateTime* eDt, CMPIStatus* rc)
+   {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
-      if (!dt) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+      if (!dt)
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
 	    return 0;
       }
       CMPIUint64 days,hours,mins,secs,usecs,utc,lTime;

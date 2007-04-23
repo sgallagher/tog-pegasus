@@ -36,8 +36,7 @@
 
 struct Options
 {
-    int policy; /* --policy */
-    int macros; /* --macros */
+    int dump; /* --dump */
     int version; /* --version or -v */
     int help; /* --help or -h */
     int shutdown; /* -s */

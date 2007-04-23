@@ -92,11 +92,8 @@ void GetOptions(int* argc, char*** argv, struct Options* options)
 {
     memset(options, 0, sizeof(struct Options));
 
-    if (_TestFlagOption(argc, argv, "--policy", 1) == 0)
-        options->policy = 1;
-
-    if (_TestFlagOption(argc, argv, "--macros", 1) == 0)
-        options->macros = 1;
+    if (_TestFlagOption(argc, argv, "--dump", 1) == 0)
+        options->dump = 1;
 
     if (_TestFlagOption(argc, argv, "--version", 0) == 0)
         options->version = 1;

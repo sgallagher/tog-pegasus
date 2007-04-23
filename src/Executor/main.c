@@ -338,14 +338,10 @@ int main(int argc, char** argv)
 
     /* Process --policy and --macros options. */
 
-    if (options.policy || options.macros)
+    if (options.dump)
     {
-        if (options.policy)
-            DumpPolicy(1);
-
-        if (options.macros)
-            DumpMacros();
-
+        DumpPolicy(1);
+        DumpMacros();
         exit(0);
     }
 

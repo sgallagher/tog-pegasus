@@ -109,7 +109,4 @@ void GetOptions(int* argc, char*** argv, struct Options* options)
 
     if (_TestFlagOption(argc, argv, "-s", 0) == 0)
         options->shutdown = 1;
-
-    if (_TestFlagOption(argc, argv, "--perror", 1) == 0)
-        options->perror = 1;
 }

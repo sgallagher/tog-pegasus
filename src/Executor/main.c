@@ -390,7 +390,7 @@ int main(int argc, char** argv)
 
     /* Open the log. */
 
-    OpenLog("cimserver", options.perror);
+    OpenLog("cimserver");
 
     Log(LL_INFORMATION, "starting");
 

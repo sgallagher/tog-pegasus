@@ -41,16 +41,9 @@
 
 static enum LogLevel _level = LL_INFORMATION;
 
-void OpenLog(const char* ident, int perror)
+void OpenLog(const char* ident)
 {
     int options = LOG_PID;
-
-#if defined(PEGASUS_OS_LINUX)
-    if (perror)
-        options |= LOG_PERROR;
-#else
-    perror = 0;
-#endif
 
     openlog(ident, options, LOG_DAEMON);
 }

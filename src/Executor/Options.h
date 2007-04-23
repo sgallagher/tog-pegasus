@@ -40,7 +40,6 @@ struct Options
     int version; /* --version or -v */
     int help; /* --help or -h */
     int shutdown; /* -s */
-    int perror; /* --perror (removed from argc-argv by GetOptions(). */
 };
 
 void GetOptions(int* argc, char*** argv, struct Options* options);

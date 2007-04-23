@@ -47,7 +47,7 @@ enum LogLevel
 
 void GetLogLevel();
 
-void OpenLog(const char* ident, int perror);
+void OpenLog(const char* ident);
 
 void SetLogLevel(enum LogLevel level);
 

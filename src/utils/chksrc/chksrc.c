@@ -209,14 +209,14 @@ int main(int argc, char** argv)
 {
     int i;
 
-    arg0 = argv[0];
-
     int checktab = 0;
     int checklen = 0;
     int summarize = 0;
     int checkbadcr = 0;
 
     char c;
+
+    arg0 = argv[0];
 
     if (argc < 2)
     {

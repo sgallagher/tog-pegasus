@@ -33,7 +33,6 @@
 
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TraceFileHandler.h>
-#include <Pegasus/Common/Executor.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <Pegasus/Common/TraceFileHandlerWindows.cpp>
@@ -124,9 +123,10 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
 FILE* TraceFileHandler::_openFile(const char* fileName)
 {
 #ifdef PEGASUS_OS_VMS
+//    FILE* fileHandle = fopen(fileName,"a+", "shr=get,put,upd");
     FILE* fileHandle = fopen(fileName,"w", "shr=get,put,upd");
 #else
-    FILE* fileHandle = Executor::openFile(fileName, 'a');
+    FILE* fileHandle = fopen(fileName,"a+");
 #endif
     if (!fileHandle)
     {
@@ -136,12 +136,6 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
             "Failed to open file $0", fileName);
         return 0;
     }
-
-    // We are done if the executor was used to perform this. Otherwise, we
-    // must proceed to fix file ownership and permissions.
-
-    if (Executor::detectExecutor() == 0)
-        return fileHandle;
 
     //
     // Verify that the file has the correct owner
@@ -177,14 +171,6 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
     return fileHandle;
 }
 
-static bool _canWrite(const String& path)
-{
-    if (Executor::detectExecutor() == 0)
-        return true;
-    else
-        return FileSystem::canWrite(path);
-}
-
 Boolean TraceFileHandler::isValidFilePath(const char* filePath)
 {
     String fileName = String(filePath);
@@ -199,7 +185,7 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
     // Check if the file exists and is writable
     if (FileSystem::exists(fileName))
     {
-        if (!_canWrite(fileName))
+        if (!FileSystem::canWrite(fileName))
         {
             return 0;
         }
@@ -220,7 +206,7 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
             {
                 return 0;
             }
-            if (!_canWrite(dirName) )
+            if (!FileSystem::canWrite(dirName) )
             {
                 return 0;
             }
@@ -237,7 +223,7 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
             // current working directory
             FileSystem::getCurrentDirectory(currentDir);
 
-            if (!_canWrite(currentDir))
+            if (!FileSystem::canWrite(currentDir))
             {
                 return 0;
             }
@@ -249,5 +235,4 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
     }
     PEGASUS_UNREACHABLE(return 1;)
 }
-
 PEGASUS_NAMESPACE_END

@@ -64,7 +64,9 @@ void Child(
     char username[EXECUTOR_BUFFER_SIZE];
     char** execArgv;
 
-    /* Build argument list, adding "-x <sock>" option if sock non-negative. */
+    /* Build argument list, adding "--executor-socket <sock>" option if 
+     * sock non-negative. 
+     */
 
     execArgv = (char**)malloc(sizeof(char*) * (argc + 3));
     memcpy(execArgv + 3, argv + 1, sizeof(char*) * argc);
@@ -72,7 +74,7 @@ void Child(
     sprintf(sockStr, "%d", sock);
 
     execArgv[0] = CIMSERVERMAIN;
-    execArgv[1] = "-x";
+    execArgv[1] = "--executor-socket";
     execArgv[2] = strdup(sockStr);
 
     /*

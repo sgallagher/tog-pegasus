@@ -97,7 +97,8 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 ##               This will set runtime library search path for ICU libraries to ${ICU_INSTALL}/lib
 ##               
      ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
+	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) > $(PROGRAM).llst
+	@ $(ZIP) -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst
      else
       ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
         ifdef PEGASUS_HAS_MESSAGES  

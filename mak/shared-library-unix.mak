@@ -144,6 +144,9 @@ ifeq ($(COMPILER),ibm)
   LINK_COMMAND = $(CXX) $(FLAGS)
   LINK_ARGUMENTS = -W "l,XPLINK,dll,EDIT=NO"
   LINK_OUT = -o
+  ifdef PEGASUS_GENERATE_LISTINGS
+    LINK_ARGUMENTS += -W"l,MAP,LIST"
+  endif
 endif
 
 ##==============================================================================
@@ -187,13 +190,17 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	rm -f $(FULL_LIB)
     endif
 
-	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(EXTRA_LIBRARIES) $(SYS_LIBS)
-
     ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(EXTRA_LIBRARIES) $(SYS_LIBS) > lib$(LIBRARY).llst
+	@ $(ZIP) $(FULL_LIB).llst.zip lib$(LIBRARY).llst
       ## z/OS needs side definition files to link executables to
       ## dynamic libraries, so we have to copy them into the lib_dir
 	touch $(ROOT)/src/$(DIR)/lib$(LIBRARY).x
-	cp $(ROOT)/src/$(DIR)/lib$(LIBRARY).x $(LIB_DIR)
+	mv $(ROOT)/src/$(DIR)/lib$(LIBRARY).x $(LIB_DIR)
+    else
+
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(EXTRA_LIBRARIES) $(SYS_LIBS)
+
     endif
   else
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(EXTRA_LIBRARIES) $(SYS_LIBS)

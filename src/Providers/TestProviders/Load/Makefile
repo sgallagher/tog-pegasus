@@ -66,7 +66,6 @@ ifndef PEGASUS_DISABLE_PERFINST
 	PEGASUS_BUILD_INTEROP=TRUE
 endif
 
-EI_SCHEMA_DIR = $(ROOT)/Schemas/CIM2101
 EI_DYNAMIC_TEST_NAMESPACE = test/EmbeddedInstance/Dynamic
 EI_STATIC_TEST_NAMESPACE = test/EmbeddedInstance/Static
 ##
@@ -179,19 +178,19 @@ endif
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_DYNAMIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" CIMError.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Core.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Event.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Interop.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_DYNAMIC_TEST_NAMESPACE) $(CIM_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" CIMError.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
 
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_STATIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" CIMError.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Core.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Event.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Interop.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_STATIC_TEST_NAMESPACE) $(CIM_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" CIMError.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
 
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" EmbeddedInstanceProviderR.mof
 endif
@@ -284,19 +283,19 @@ endif
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
-	@ cimmof -n$(EI_DYNAMIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" CIMError.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Core.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Event.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Interop.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
+	@ cimmof -n$(EI_DYNAMIC_TEST_NAMESPACE) $(CIM_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" CIMError.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
 
-	@ cimmof "-n$(EI_STATIC_TEST_NAMESPACE)" $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" CIMError.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Core.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Event.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(EI_SCHEMA_DIR)/CIM_Interop.mof
-	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
+	@ cimmof "-n$(EI_STATIC_TEST_NAMESPACE)" $(CIM_SCHEMA_DIR)/Core_Qualifiers.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" CIMError.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Core.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Event.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
 
 	@ cimmof "-n$(INTEROPNS)" EmbeddedInstanceProviderR.mof
 endif

@@ -3109,11 +3109,11 @@ int main(int argc, char** argv)
         //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true,
         //CIMPropertyList(), 4);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true,
-                CIMPropertyList(), 21);
+                CIMPropertyList(), 22);
         //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false,
         //CIMPropertyList(), 4);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false,
-                CIMPropertyList(), 21);
+                CIMPropertyList(), 22);
 
         CIMPropertyList pl1;
         Array<CIMName> pla1;
@@ -3145,13 +3145,13 @@ int main(int argc, char** argv)
         // Repeat the tests for the superclass.
         // classname, lo, di, propertylist, expected rtn count
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true,
-                CIMPropertyList(),21);
+                CIMPropertyList(),22);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true,
-                CIMPropertyList(), 21);
+                CIMPropertyList(), 22);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false,
-                CIMPropertyList(), 20);
+                CIMPropertyList(), 21);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false,
-                CIMPropertyList(), 20);
+                CIMPropertyList(), 21);
 
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true,
                 pl1, 1);

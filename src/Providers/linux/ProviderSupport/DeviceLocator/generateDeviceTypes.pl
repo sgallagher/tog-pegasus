@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 #//%2006////////////////////////////////////////////////////////////////////////
 #//
 #// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -28,14 +29,6 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-#!/usr/bin/perl
-#//
-#// Author: Christopher Neufeld <neufeld@linuxcare.com>
-#//         David Kennedy       <dkennedy@linuxcare.com>
-#//
-#// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-#//              Christopher Neufeld <neufeld@linuxcare.com>
-#//              Al Stone            <ahs3@fc.hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 #

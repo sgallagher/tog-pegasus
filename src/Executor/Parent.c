@@ -381,13 +381,9 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* ATTN: do we need to call setsid()? */
-    /* ATTN: do we need to fork twice? */
-    /* ATTN: compare with Stevens daemonization example. */
-
     Log(LL_TRACE, "HandleDaemonizeExecutorRequest()");
 
-    /* Fork: */
+    /* Fork (parent exits; child continues) */
 
     pid = fork();
 
@@ -395,25 +391,41 @@ static void HandleDaemonizeExecutorRequest(int sock)
     {
         response.status = -1;
         Fatal(FL, "fork() failed");
-
-        if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-            Fatal(FL, "Failed to write response");
     }
 
-    /* Parent exits: */
-
     if (pid > 0)
-        exit(0);
+        _exit(0);
+
+    /* Become session leader */
+
+    if (setsid() < 0)
+    {
+        response.status = -1;
+        Fatal(FL, "setsid() failed");
+    }
 
     /* Ignore SIGHUP: */
 
     signal(SIGHUP, SIG_IGN);
 
+    /* Fork again: */
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        response.status = -1;
+        Fatal(FL, "fork() failed");
+    }
+
+    if (pid > 0)
+        _exit(0);
+
     /* Catch SIGTERM: */
 
     signal(SIGTERM, _sigHandler);
 
-    /* Set current directory to root: */
+    /* Make root the current directory. */
 
     chdir("/");
 

@@ -737,17 +737,23 @@ void InteropProvider::initProvider()
         //
         Array<CIMNamespaceName> namespaceNames = 
             repository->enumerateNameSpaces();
+        //get the PG_ElementConformstoProfile class without the qualifiers
+        //and then add just the required ASSOCIATION qualifier, so that resolveclass
+        //doesn't fail for the test/EmbeddedInstance/Dynamic namespace, which uses 
+        //the CIM25 schema that doesn't include any of the new qualifiers added to this class
+        //in later versions of the CIMSchema.
         CIMClass conformsClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
+            PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE, true, false);
+        conformsClass.addQualifier(CIMQualifier(CIMName("ASSOCIATION"),
+                              CIMValue(true)));
         CIMClass profileClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE, true, false);
         for(Uint32 i = 0, n = namespaceNames.size(); i < n; ++i)
         {
             // Check if the PG_ElementConformsToProfile class is present
             CIMNamespaceName & currentNamespace = namespaceNames[i];
-
             CIMClass tmpCimClass;
             CIMClass tmpPgClass;
             CIMClass tmpPgProfileClass;
@@ -788,19 +794,21 @@ void InteropProvider::initProvider()
             {
                 if(tmpPgClass.isUninitialized())
                 {
+                    CIMClass newclass = conformsClass.clone();
                     CIMObjectPath newPath = conformsClass.getPath();
                     newPath.setNameSpace(currentNamespace);
-                    conformsClass.setPath(newPath);
+                    newclass.setPath(newPath);
                     repository->createClass(currentNamespace,
-                        conformsClass);
+                        newclass);
                 }
                 if(tmpPgProfileClass.isUninitialized())
                 {
-                    CIMObjectPath newPath = conformsClass.getPath();
+                    CIMClass newclass = profileClass.clone();
+                    CIMObjectPath newPath = profileClass.getPath();
                     newPath.setNameSpace(currentNamespace);
-                    conformsClass.setPath(newPath);
+                    newclass.setPath(newPath);
                     repository->createClass(currentNamespace,
-                        profileClass);
+                        newclass);
                 }
             }
         }

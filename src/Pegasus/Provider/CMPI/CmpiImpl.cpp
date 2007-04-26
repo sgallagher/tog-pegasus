@@ -1418,6 +1418,13 @@ void CmpiData::setSint64 (const CMPISint64 d)
    _data.type=CMPI_sint64;
 }
 
+void CmpiData::setUint64 (const CMPIUint64 d)
+{
+   _data.state=CMPI_goodValue;
+   _data.value.uint64=d;
+   _data.type=CMPI_uint64;
+}
+
 void CmpiData::setReal32 (const CMPIReal32 d)
 {
    _data.state=CMPI_goodValue;

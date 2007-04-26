@@ -3,6 +3,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -50,7 +51,9 @@ void Parent(int pid, int sock)
 
     memset(buffer, 0xFF, sizeof(buffer));
 
+    SetBlocking(sock);
     assert(RecvDescriptorArray(sock, &fd, 1) == 0);
+    SetNonBlocking(sock);
 
     assert(read(fd, buffer, sizeof(token)) == sizeof(token));
     assert(close(fd) == 0);

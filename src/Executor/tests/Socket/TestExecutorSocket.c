@@ -51,9 +51,9 @@ void Parent(int pid, int sock)
 
     memset(buffer, 0xFF, sizeof(buffer));
 
-    SetBlocking(sock);
+    assert(SetBlocking(sock) == 0);
     assert(RecvDescriptorArray(sock, &fd, 1) == 0);
-    SetNonBlocking(sock);
+    assert(SetNonBlocking(sock) == 0);
 
     assert(read(fd, buffer, sizeof(token)) == sizeof(token));
     assert(close(fd) == 0);

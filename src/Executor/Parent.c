@@ -384,6 +384,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
     Log(LL_TRACE, "HandleDaemonizeExecutorRequest()");
 
     /* Fork (parent exits; child continues) */
+    /* (Ensures we are not a session leader so that setsid() will succeed.) */
 
     pid = fork();
 
@@ -396,7 +397,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
     if (pid > 0)
         _exit(0);
 
-    /* Become session leader */
+    /* Become session leader (so that our child process will not be one) */
 
     if (setsid() < 0)
     {
@@ -408,7 +409,7 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
     signal(SIGHUP, SIG_IGN);
 
-    /* Fork again: */
+    /* Fork again (so we are not a session leader because our parent is): */
 
     pid = fork();
 

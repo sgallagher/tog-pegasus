@@ -1038,8 +1038,8 @@ CmpiData::CmpiData(CMPIReal64 d) {
 
 CmpiData::CmpiData(const CmpiString& d) {
    _data.state=CMPI_goodValue;
-   _data.value.chars=(char*)d.charPtr();
-   _data.type=CMPI_chars;
+   _data.value.string=d.getEnc();
+   _data.type=CMPI_string;
 }
 
 CmpiData::CmpiData(const char* d) {
@@ -1100,7 +1100,7 @@ CmpiData::operator CmpiString() const {
 }
 
 CmpiData::operator const char* () const {
-   if (_data.type!=CMPI_string)
+   if (_data.type!=CMPI_chars)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
       return CmpiString(_data.value.string).charPtr();
@@ -1318,10 +1318,10 @@ CmpiString CmpiData::getString() const
 
 const char* CmpiData::getCString() const
 {
-   if (_data.type!=CMPI_string)
+   if (_data.type!=CMPI_chars)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return CMGetCharPtr(_data.value.string);
+      return _data.value.chars;
 }
 
 CmpiDateTime CmpiData::getDateTime() const
@@ -1442,8 +1442,8 @@ void CmpiData::setChar16 (const CMPIChar16 d)
 void CmpiData::setString (const CmpiString d)
 {
    _data.state=CMPI_goodValue;
-   _data.value.chars=(char*)d.charPtr();
-   _data.type=CMPI_chars;
+   _data.value.string=d.getEnc();
+   _data.type=CMPI_string;
 }
 
 void CmpiData::setCString (const char* d)

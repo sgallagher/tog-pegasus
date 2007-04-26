@@ -7,7 +7,6 @@ DIRS = \
     Macro \
     Match \
     Messages \
-    PAMAuth \
     PasswordFile \
     Path \
     Process \

@@ -75,27 +75,35 @@ public:
    /** Extracting String.
    */
    operator CmpiString() const;
+
    /** Extracting const char *
    */
    operator const char* () const;
+
    /** Extracting CmpiDataTime.
    */
    operator CmpiDateTime() const;
+
    /** Extracting CmpiInstance.
    */
    operator CmpiInstance() const;
+
    /** Extracting CmpiObjectPath.
    */
    operator CmpiObjectPath() const;
+
    /** Extracting CMPISint8.
    */
    operator CMPISint8() const;
+
    /** Extracting signed 16 bit.
    */
    operator CMPISint16() const;
+
    /** Extracting signed 32 bit.
    */
    operator CMPISint32() const;
+
    /** Extracting signed 64 bit.
    */
    operator CMPISint64() const;
@@ -103,18 +111,23 @@ public:
    /** Extracting unsigned 8 bit or boolean.
    */
    operator unsigned char() const;
+
    /** Extracting unsigned 16 bit or char16.
    */
    operator unsigned short() const;
+
    /** Extracting unsigned 32 bit.
    */
    operator CMPIUint32() const;
+
    /** Extracting unsigned 64 bit.
    */
    operator CMPIUint64() const;
+
    /** Extracting float 32 bit.
    */
    operator CMPIReal32() const;
+
    /** Extracting float 64 bit.
    */
    operator CMPIReal64() const;
@@ -216,7 +229,7 @@ public:
        Type mismatches will be signalled by exceptions.
 */
 
-class CmpiArray : public CmpiObject {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArray : public CmpiObject {
    friend class CmpiArrayIdx;
    friend class CmpiData;
    friend class CmpiEnumeration;
@@ -234,6 +247,3 @@ public:
 };
 
 #endif
-
-
-

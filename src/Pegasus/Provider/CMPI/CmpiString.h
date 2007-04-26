@@ -76,8 +76,6 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiString { //: public CmpiObject {
    friend class CmpiObject;
    friend class CmpiArgs;
    friend class CmpiArrayIdx;
-private:
-protected:
    void *enc;
    /** Constructor - Internal use only
    */
@@ -92,6 +90,10 @@ public:
    /** Constructor - Empty string
    */
    CmpiString();
+
+   /** Constructor - char*
+   */
+   CmpiString(const char *s);
 
    /** Constructor - Copy constructor
    */
@@ -113,5 +115,3 @@ public:
 };
 
 #endif
-
-

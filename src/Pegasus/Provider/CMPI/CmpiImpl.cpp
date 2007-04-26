@@ -2015,6 +2015,10 @@ CmpiString::CmpiString(const CmpiString& s) {
   enc=CMNewString(CmpiProviderBase::getBroker(),(char*)s.charPtr(),NULL);
 }
 
+CmpiString::CmpiString(const char *s) {
+  enc=CMNewString(CmpiProviderBase::getBroker(),(char*)s,NULL);
+}
+
 CmpiString::CmpiString(CMPIString* c) {
    enc=c;
 }

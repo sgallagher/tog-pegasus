@@ -940,9 +940,24 @@ CmpiString CmpiArrayIdx::getString() const
     return getData().getString();
 }
 
+const char *CmpiArrayIdx::getCString() const
+{
+    return getData().getCString();
+}
+
 CmpiDateTime CmpiArrayIdx::getDateTime() const
 {
     return getData().getDateTime();
+}
+
+CmpiInstance CmpiArrayIdx::getInstance() const
+{
+    return getData().getInstance();
+}
+
+CmpiObjectPath CmpiArrayIdx::getObjectPath() const
+{
+    return getData().getObjectPath();
 }
 
 //---------------------------------------------------

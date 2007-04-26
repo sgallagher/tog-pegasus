@@ -793,10 +793,20 @@ CmpiArrayIdx::CmpiArrayIdx(const CmpiArray &a, CMPICount i)
 
 CmpiArrayIdx& CmpiArrayIdx::operator=(const CmpiData& v) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   if (ar.getEnc()->ft->getSimpleType(ar.getEnc(),&rc)!=v._data.type)
-      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+   CMPIType arType=CMPI_null;
+   arType = ar.getEnc()->ft->getSimpleType(ar.getEnc(),&rc);
+   if (arType != v._data.type)
+   {
+      if (!(  ((arType == CMPI_boolean) && (v._data.type == CMPI_uint8))
+           || ((arType == CMPI_char16)  && (v._data.type == CMPI_uint16))
+           )
+         )
+      {
+         throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
+      }
+   }
    rc=ar.getEnc()->ft->setElementAt(ar.getEnc(),idx,(CMPIValue*)&v._data.value,
-				    v._data.type);
+				    arType);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return *this;
 }

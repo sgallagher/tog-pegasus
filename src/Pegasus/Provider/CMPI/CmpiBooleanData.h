@@ -59,10 +59,7 @@ public:
 
 };
 
-extern CmpiBooleanData CmpiTrue;
-extern CmpiBooleanData CmpiFalse;
+extern PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBooleanData CmpiTrue;
+extern PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBooleanData CmpiFalse;
 
 #endif
-
-
-

@@ -53,18 +53,9 @@ If this build variable is not set, the cimserver runs as the user under which
 it was started and all privelege separation functionality is disabled.
 
 The nonprivileged user for privilege separation is the user under which the
-cimservermain component executes.  
+cimservermain component executes.  The name of this user is specified by the
+PEGASUS_CIMSERVERMAIN_USER macro, whose default value is defined in
+Constants.h.  The specified user MUST exist or cimserver will terminate
+immediately.
 
-Upon startup the cimserver uses the config parameter "serverUser" to determine
-this user name.
-
-This user name is defined as follows:
-
-1. optional serverUser=<user name> on the cimserver commandline
-2. optional value of serverUser config parameter
-3. default of "pegasus" if the the config parameter is not found in the
-   commandline or planned config file.
-
-The defined user MUST exist or cimserver will terminate immediately.
-
-4/9/2007
+4/27/2007

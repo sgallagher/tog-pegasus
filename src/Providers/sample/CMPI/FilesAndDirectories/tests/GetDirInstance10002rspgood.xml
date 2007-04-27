@@ -19,6 +19,8 @@
 </PROPERTY.ARRAY>
 <PROPERTY NAME="Status" TYPE="string">
 </PROPERTY>
+<PROPERTY NAME="HealthState" TYPE="uint16">
+</PROPERTY>
 <PROPERTY NAME="CompressionMethod" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="EncryptionMethod" TYPE="string">

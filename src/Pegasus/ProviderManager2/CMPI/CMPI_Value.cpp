@@ -59,6 +59,11 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
    CIMValue v;
    if (rc) *rc=CMPI_RC_OK;
 
+   // check data for NULL if type is not CMPIArray.
+   if ( !(type & CMPI_ARRAY) && !data)
+   {
+       return CIMValue(type2CIMType(type), false);
+   }
    if (type & CMPI_ARRAY) {
 
       if (data==NULL || data->array==NULL) {
@@ -152,7 +157,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
       }
    }
 
-   else if (type==CMPI_string) v.set(data->string->hdl ?
+   else if (type==CMPI_string) v.set( data->string && data->string->hdl ?
         String((char*)data->string->hdl) : String::EMPTY);
 
    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
@@ -166,11 +171,36 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
    }
    else if (type ==CMPI_instance)
 	{
+            if (data->inst && data->inst->hdl)
+            {
 		v.set(*((CIMObject*) data->inst->hdl));
 	}
+            else
+            {
+                return CIMValue(CIMTYPE_OBJECT, false);
+            }   
+	}
    else switch (type) {
-      case CMPI_ref:      v.set(*((CIMObjectPath*)data->ref->hdl)); break;
-      case CMPI_dateTime: v.set(*((CIMDateTime*)data->dateTime->hdl)); break;
+      case CMPI_ref:      
+          if (data->ref && data->ref->hdl)
+          {
+              v.set(*((CIMObjectPath*)data->ref->hdl));
+          }
+          else
+          {
+              return CIMValue(CIMTYPE_REFERENCE, false);
+          }
+          break;
+      case CMPI_dateTime: 
+          if (data->dateTime && data->dateTime->hdl)
+          {
+              v.set(*((CIMDateTime*)data->dateTime->hdl)); 
+          }
+          else
+          {
+              return CIMValue(CIMTYPE_DATETIME, false);
+          }
+          break;
       case CMPI_boolean:  v.set((Boolean&)data->boolean); break;
       case CMPI_char16:   v.set((Char16)data->char16); break;
       case CMPI_real32:   v.set((Real32)data->real32); break;
@@ -376,9 +406,12 @@ CIMType type2CIMType(CMPIType pt) {
 
    case CMPI_string:    return CIMTYPE_STRING;
    case CMPI_chars:     return CIMTYPE_STRING;
+   case CMPI_charsptr:  return CIMTYPE_STRING;
    case CMPI_dateTime:  return CIMTYPE_DATETIME;
    case CMPI_ref:       return CIMTYPE_REFERENCE;
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+   case CMPI_instance:  return CIMTYPE_INSTANCE;
+#endif
    default:             return (CIMType)0;
    }
  }

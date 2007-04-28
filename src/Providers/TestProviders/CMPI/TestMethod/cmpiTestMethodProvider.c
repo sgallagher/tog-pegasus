@@ -45,6 +45,7 @@
 #define _ClassName "TestCMPI_Method"
 #define _ClassName_size strlen(_ClassName)
 #define _Namespace    "test/TestProvider"
+#define _PersonClass  "CMPI_TEST_Person"
 
 #define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestMethod/tests/"
 
@@ -58,6 +59,39 @@ static CMPIBroker *_broker;
 /*                       CMPI Helper function                        */
 /* ---------------------------------------------------------------------------*/
 
+CMPIObjectPath * make_ObjectPath (
+    const CMPIBroker *broker,
+    const char *ns,
+    const char *className)
+{
+    CMPIObjectPath *objPath = NULL;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    PROV_LOG ("++++  make_ObjectPath: CMNewObjectPath");
+    objPath = CMNewObjectPath (broker, ns, className, &rc);
+
+    PROV_LOG ("++++  CMNewObjectPath : (%s)", strCMPIStatus (rc));
+    CMAddKey (objPath, "ElementName", (CMPIValue *) className, CMPI_chars);
+
+    return objPath;
+}
+
+CMPIInstance * make_Instance (const CMPIObjectPath * op)
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIInstance *ci = NULL;
+
+    PROV_LOG ("++++ make_Instance: CMNewInstance");
+    ci = CMNewInstance (_broker, op, &rc);
+    PROV_LOG ("++++  CMNewInstance : (%s)", strCMPIStatus (rc));
+    if (rc.rc == CMPI_RC_ERR_NOT_FOUND)
+    {
+        PROV_LOG (" ---- Class %s is not found in the %s namespace!",
+            _ClassName, _Namespace);
+        return NULL;
+    }
+    return ci;
+}
 
 /* 
  * Test routines 
@@ -400,6 +434,1390 @@ _createInstance()
 
   return inst;  
 }
+
+// Test for CMPIEnumeration and its error paths.
+static int _testCMPIEnumeration (const CMPIContext* ctx)
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIEnumeration *enum_ptr = NULL;
+    CMPIData data;
+    unsigned int initCount = 0;
+    CMPIObjectPath* objPath = NULL;
+    CMPIArray* arr_ptr = NULL;
+    CMPICount returnedArraySize;
+    void *eptr;
+    PROV_LOG("++++ _testCMPIEnumeration");
+
+    objPath = make_ObjectPath(_broker, _Namespace, _PersonClass);
+    enum_ptr = CBEnumInstances(_broker, ctx, objPath, NULL, &rc);
+    PROV_LOG ("++++  CBEnumInstances : (%s)", strCMPIStatus (rc));
+    if (enum_ptr == NULL)
+    {
+        PROV_LOG("---- CBEnumInstances failed  ----");
+        return 1;
+    }
+
+    arr_ptr = CMToArray(enum_ptr, &rc);
+    PROV_LOG ("++++  CMToArray : (%s)", strCMPIStatus (rc));
+    if (arr_ptr == NULL)
+    {
+        PROV_LOG("---- CMToArray failed  ----");
+        return 1;
+    }
+
+    returnedArraySize = CMGetArrayCount(arr_ptr, &rc);
+    PROV_LOG ("++++ ReturnedArraySize :%d", returnedArraySize);
+    PROV_LOG("++++ Calling CMHasNext");
+    while (CMHasNext(enum_ptr, &rc))
+    {
+        PROV_LOG("++++ Calling CMGetNext");
+        data = CMGetNext(enum_ptr, &rc);
+        PROV_LOG ("++++  CMGetNext : (%s)", strCMPIStatus (rc));
+        if (data.type != CMPI_instance)
+        {
+            return 1;
+        }
+        initCount++;
+    }
+    PROV_LOG("++++ Enum count %d ", initCount);
+
+    //Error Paths
+
+    eptr = enum_ptr->hdl;
+    enum_ptr->hdl = NULL;
+
+    PROV_LOG ("++++  Testing Error Path for CMToArray():  " );
+    CMToArray(enum_ptr, &rc);
+    PROV_LOG ("++++ CMToArray Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    PROV_LOG ("++++  Testing Error Path : Invalid Handle test for CMGetNext " );
+    CMGetNext(enum_ptr, &rc);
+    PROV_LOG ("CMGetNext Error Path-Invalid Handle: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    PROV_LOG ("++++  Testing Error Path : Invalid Handle test for CMHasNext " );
+    CMHasNext(enum_ptr, &rc);
+    PROV_LOG ("++++  CMHasNext Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+    enum_ptr->hdl = eptr;
+    rc = CMRelease (enum_ptr);
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+// Test for CMPIArray and its error paths.
+static int _testCMPIArray ()
+{
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIArray *arr_ptr = NULL;
+    CMPIArray *new_arr_ptr = NULL;
+    CMPIData data[3];
+    CMPIData clonedData[3];
+    CMPIValue value;
+    CMPIType initArrayType = CMPI_uint32;
+    CMPIType initErrArrayType = CMPI_REAL;
+    CMPIType returnedArrayType;
+    CMPICount initArraySize = 3;
+    CMPICount returnedArraySize;
+    CMPIUint32 i;
+    CMPIBoolean cloneSuccessful = 0;
+    CMPIBoolean getDataSuccessful;
+    void *aptr;
+
+    PROV_LOG ("++++ _testCMPIArray" );
+
+    PROV_LOG ("++++ creating CMPIArray : CMNewArray");
+    arr_ptr = CMNewArray(_broker, initArraySize, initArrayType, &rc);
+    if (arr_ptr == NULL)
+    {
+        PROV_LOG("---- CMNewArray failed ----");
+        return 1;
+    }
+    PROV_LOG ("++++  CMNewArray : (%s)", strCMPIStatus (rc));
+    returnedArraySize = CMGetArrayCount(arr_ptr, &rc);
+    PROV_LOG ("++++  CMGetArrayCount : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++ returnedArraySize :%d", returnedArraySize);
+    returnedArrayType = CMGetArrayType(arr_ptr, &rc);
+    PROV_LOG ("++++  CMGetArrayType : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++ returnedArrayType :%d", returnedArrayType);
+
+    value.uint32 = 10;
+    rc = CMSetArrayElementAt(arr_ptr, 0, &value, initArrayType);
+    PROV_LOG ("++++  CMSetArrayElementAt : (%s)", strCMPIStatus (rc));
+    value.uint32 = 20;
+    rc = CMSetArrayElementAt(arr_ptr, 1, &value, initArrayType);
+    PROV_LOG ("++++  CMSetArrayElementAt : (%s)", strCMPIStatus (rc));
+    value.uint32 = 30;
+    rc = CMSetArrayElementAt(arr_ptr, 2, &value, initArrayType);
+    PROV_LOG ("++++  CMSetArrayElementAt : (%s)", strCMPIStatus (rc));
+
+    i = 0;
+    while (i < 3)
+    {
+        data[i] = CMGetArrayElementAt(arr_ptr, i, &rc);
+        PROV_LOG("++++ Value of data[%d]:%d", i, data[i].value.uint32);
+        i++;
+    }
+
+    i = 0;
+    getDataSuccessful = 1;
+    while (i < 3)
+    {
+        if (data[i].value.uint32 != (i + 1) * 10)
+        {
+            getDataSuccessful = 0;
+            break;
+        }
+        i++;
+    }
+    PROV_LOG("++++ Getting Data Successful : %d ", getDataSuccessful);
+
+    // Testing CMPIArrayFT.clone()
+    PROV_LOG("++++ cloning Array");
+    new_arr_ptr = arr_ptr->ft->clone(arr_ptr, &rc);
+    PROV_LOG ("++++  ArrayClone : (%s)", strCMPIStatus (rc));
+
+    i = 0;
+    while (i < 3)
+    {
+        clonedData[i] = CMGetArrayElementAt(new_arr_ptr, i, &rc);
+        i++;
+    }
+
+    //Compare the Contents of data and clonedData
+    cloneSuccessful = 1;
+    for (i = 0; i < initArraySize; i++)
+    {
+        if (data[i].value.uint32 != clonedData[i].value.uint32)
+        {
+            cloneSuccessful = 0;
+            break;
+        }
+    }
+    PROV_LOG("++++ clone Successful: %d", cloneSuccessful);
+
+    //Error Paths
+
+    aptr = arr_ptr->hdl;
+    arr_ptr->hdl = NULL;
+
+    returnedArraySize = CMGetArrayCount(arr_ptr, &rc);
+    PROV_LOG ("++++  CMGetArrayCount Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    returnedArrayType = CMGetArrayType(arr_ptr, &rc);
+    PROV_LOG ("++++  CMGetArrayType Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    rc = CMSetArrayElementAt(arr_ptr, 2, &value, initArrayType);
+    PROV_LOG ("++++  CMSetArrayElementAt Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetArrayElementAt(arr_ptr, 5, &rc);
+    PROV_LOG ("++++  CMGetArrayElementAt Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+    arr_ptr->ft->clone(arr_ptr, &rc);
+    PROV_LOG ("++++  ArrayClone Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    rc = arr_ptr->ft->release(arr_ptr);
+    PROV_LOG ("++++  Array Release Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    arr_ptr->hdl = aptr;
+
+    CMGetArrayElementAt(arr_ptr, 5, &rc);
+    PROV_LOG ("++++  CMGetArrayElementAt Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
+    {
+        return 1;
+    }
+
+    rc = CMSetArrayElementAt(arr_ptr, 2, &value, initErrArrayType);
+    PROV_LOG ("++++  CMSetArrayElementAt Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_TYPE_MISMATCH)
+    {
+        return 1;
+    }
+
+    rc = arr_ptr->ft->release(arr_ptr);
+    PROV_LOG ("++++  Array Release : (%s)", strCMPIStatus (rc));
+
+    return 0;
+}
+
+// Test for CMPIContext and its error paths.
+static int _testCMPIcontext (const CMPIContext* ctx)
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIValue value;
+    CMPIData data;
+    CMPIUint32 count = 0;
+    CMPIUint32  count_for_new_context = 0;
+    CMPIContext* new_ctx = NULL;
+    void *cptr;
+    PROV_LOG ("++++ _testCMPIContext");
+
+    value.uint32 = 40;
+    PROV_LOG ("++++ CMAddContextEntry");
+    rc = CMAddContextEntry(ctx, "name1", &value, CMPI_uint32);
+    PROV_LOG ("++++ CMAddContextEntry : (%s)", strCMPIStatus (rc));
+
+    value.real32 = 40.123;
+    PROV_LOG ("++++ CMAddContextEntry");
+    rc = CMAddContextEntry(ctx, "name2", &value, CMPI_real32);
+    PROV_LOG ("++++ CMAddContextEntry : (%s)", strCMPIStatus (rc));
+
+    rc = CMAddContextEntry (ctx, "SnmpTrapOidContainer",
+                         "1.3.6.1.4.1.900.2.3.9002.9600", CMPI_chars);
+    PROV_LOG ("++++  CMAddContextEntry 2: (%s)", strCMPIStatus (rc));
+
+    data = CMGetContextEntry(ctx, "name1", &rc);
+    PROV_LOG ("++++ CMGetContextEntry : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++ Data added : %d ", data.value.uint32 );
+    PROV_LOG ("++++ Getting data sucessful : %s", strCMPIStatus (rc));
+
+    data = CMGetContextEntry(ctx, "name2", &rc);
+    PROV_LOG ("++++ CMGetContextEntry : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++ Data added : %d ", data.value.real32 );
+    PROV_LOG ("++++ Getting data sucessful : %s", strCMPIStatus (rc));
+
+    count = CMGetContextEntryCount(ctx, &rc);
+    PROV_LOG ("++++  CMGetContextEntryCount : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++ Total number of data added : %d", count);
+
+    //Error Paths
+    new_ctx = CBPrepareAttachThread (_broker, ctx);
+    cptr = new_ctx->hdl;
+    new_ctx->hdl = NULL;
+
+    rc = CMAddContextEntry(new_ctx, "ctxEntry",
+             "threadType", CMPI_chars);
+    PROV_LOG ("++++  CMAddContextEntry Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+    CMGetContextEntryCount(new_ctx, &rc);
+    PROV_LOG ("++++  CMGetContextEntryCount Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+    new_ctx->hdl = cptr;
+    CMGetContextEntry(ctx, "noEntry", &rc);
+    PROV_LOG ("++++ CMGetContextEntry Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+// Test for CMPIDateTime and its error paths.
+static int _testCMPIDateTime ()
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    CMPIBoolean isInterval = 0;
+    CMPIBoolean interval = 0;
+    CMPIBoolean cloneSuccessful = 0;
+    CMPIBoolean binaryDateTimeEqual = 0;
+    CMPIBoolean charDateTimeEqual = 0;
+
+    CMPIDateTime *dateTime = NULL;
+    CMPIDateTime *new_dateTime = NULL;
+    CMPIDateTime *clonedDateTime = NULL;
+    CMPIDateTime *dateTimeFromBinary = NULL;
+
+    CMPIUint64 dateTimeInBinary = (CMPIUint64) 1170892800000000; //07/02/2007
+    CMPIUint64 returnedDateTimeInBinary = 0;
+
+    CMPIString* stringDate = NULL;
+    CMPIString* clonedStringDate = NULL;
+
+    const char *normalString = NULL;
+    const char *clonedString = NULL;
+    void *dtptr;
+
+    PROV_LOG("++++ _testCMPIDateTime" );
+
+    PROV_LOG("++++ creating CMPIDateTime : CMNewDateTime");
+
+    dateTime = CMNewDateTime(_broker, &rc);
+    PROV_LOG ("++++  CMNewDateTime : (%s)", strCMPIStatus (rc));
+    if (dateTime == NULL)
+    {
+        PROV_LOG("---- CMNewDateTime failed ----");
+        return 1;
+    }
+
+    PROV_LOG("++++ creating CMPIDateTime from binary: CMNewDateTimeFromBinary");
+
+    dateTimeFromBinary = CMNewDateTimeFromBinary(
+        _broker, dateTimeInBinary, interval, &rc);
+    PROV_LOG ("++++  CMNewDateTimeFromBinary : (%s)", strCMPIStatus (rc));
+
+    returnedDateTimeInBinary = CMGetBinaryFormat(dateTimeFromBinary, &rc);
+    PROV_LOG ("++++  CMGetBinaryFormat : (%s)", strCMPIStatus (rc));
+    if (dateTimeInBinary != returnedDateTimeInBinary)
+    {
+        binaryDateTimeEqual = 1;
+    }
+    PROV_LOG("++++ Created time sucessfully : %d", binaryDateTimeEqual);
+    isInterval = CMIsInterval(dateTime, &rc);
+    PROV_LOG ("++++  CMIsInterval : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ is interval : %d", isInterval);
+
+    //Create new dateTime with interval = true
+    PROV_LOG("++++ Setting interval as true");
+    interval = 1;
+    new_dateTime = CMNewDateTimeFromBinary(
+        _broker, dateTimeInBinary, interval,&rc);
+    PROV_LOG ("++++  CMNewDateTimeFromBinary : (%s)", strCMPIStatus (rc));
+
+    isInterval = CMIsInterval(new_dateTime, &rc);
+    PROV_LOG ("++++  CMIsInterval-Binary : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ is interval : %d", isInterval);
+
+    PROV_LOG("++++ cloning DateTime");
+    clonedDateTime = dateTime->ft->clone(dateTime, &rc);
+    PROV_LOG ("++++  Cloning DateTime : (%s)", strCMPIStatus (rc));
+
+    stringDate = CMGetStringFormat(dateTime, &rc);
+    clonedStringDate = CMGetStringFormat(clonedDateTime, &rc);
+    normalString = CMGetCharsPtr(stringDate, &rc);
+    clonedString = CMGetCharsPtr(clonedStringDate, &rc);
+
+    if (strcmp(normalString,clonedString) == 0)
+    {
+        cloneSuccessful = 1;
+    }
+    PROV_LOG("++++ clone Successful : %d ",cloneSuccessful);
+
+    //Error Paths
+
+    dtptr = dateTime->hdl;
+    dateTime->hdl = NULL;
+
+    CMGetBinaryFormat(dateTime, &rc);
+    PROV_LOG ("++++  CMGetBinaryFormat ErrorPath: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    dateTime->ft->clone(dateTime, &rc);
+    PROV_LOG ("++++  DateTimeClone Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetStringFormat(dateTime, &rc);
+    PROV_LOG ("DateTime getStringFormat Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+                  }
+
+    rc = dateTime->ft->release(dateTime);
+    PROV_LOG ("++++  DateTimeRelease Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    dateTime->hdl = dtptr;
+    rc = dateTime->ft->release(dateTime);
+    PROV_LOG ("++++  DateTime Release : (%s)", strCMPIStatus (rc));
+
+    return 0;
+}
+
+// Test for CMPIInstance and its error paths.
+static int _testCMPIInstance ()
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    CMPIInstance* instance = NULL;
+    CMPIInstance* clonedInstance = NULL;
+    CMPIObjectPath* objPath = NULL;
+    CMPIObjectPath* newObjPath = NULL;
+    CMPIObjectPath* returnedObjPath = NULL;
+
+    CMPIData returnedData1;
+    CMPIData returnedData2;
+    CMPIData errReturnedData;
+    CMPIData clonedData1;
+
+    CMPIString* returnedName = NULL;
+    unsigned int count = 0;
+    const char* name1 = "firstPropertyName";
+    CMPIValue value1;
+    const char* name2 = "secondPropertyName";
+    CMPIValue value2;
+    CMPIType type = CMPI_uint64;
+    CMPIType typeError = CMPI_instance;
+    CMPIBoolean dataEqual = 0;
+    CMPIBoolean objectPathEqual = 0;
+    CMPIBoolean cloneSuccessful = 0;
+    CMPIString* beforeObjPath = NULL;
+    CMPIString* afterObjPath = NULL;
+    const char* beforeString = NULL;
+    const char* afterString = NULL;
+    void *instptr;
+
+    PROV_LOG("++++ _testCMPIInstance" );
+
+    objPath = make_ObjectPath(_broker, _Namespace, _ClassName);
+    instance = make_Instance(objPath);
+    value1.uint32 = 10;
+    rc = CMSetProperty(instance, name1, &value1, type);
+    PROV_LOG("++++  CMSetProperty-1 : (%s)", strCMPIStatus (rc));
+    value2.uint32 = 20;
+    rc = CMSetProperty(instance, name2, &value2, type);
+    PROV_LOG("++++  CMSetProperty-2 : (%s)", strCMPIStatus (rc));
+    count = CMGetPropertyCount(instance, &rc);
+    PROV_LOG("++++  CMGetPropertyCount : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Number of values added : %d", count);
+
+    returnedData1 = CMGetProperty(instance, name1, &rc);
+    PROV_LOG("++++  CMGetProperty : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ First value  : %d", returnedData1.value.uint32);
+    if (returnedData1.value.uint32 == 10)
+    {
+        dataEqual = 1 ;
+    }
+    PROV_LOG("++++ CMSetProperty successful : %d ", dataEqual);
+
+    returnedData2 = CMGetPropertyAt(instance, 1, &returnedName, &rc);
+    PROV_LOG("++++  CMGetPropertyAt : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Second value : %d", returnedData2.value.uint32);
+    if (returnedData2.value.uint32 == 20)
+    {
+        dataEqual = 1 ;
+    }
+    PROV_LOG("++++ CMGetProperty successful : %d ", dataEqual);
+
+    PROV_LOG("++++ Setting new ObjectPath");
+
+    newObjPath = make_ObjectPath(_broker, _Namespace, _ClassName);
+    returnedObjPath = CMGetObjectPath(instance, &rc);
+    beforeObjPath = CMObjectPathToString(returnedObjPath, &rc);
+    beforeString = CMGetCharsPtr(beforeObjPath, &rc);
+    PROV_LOG("++++ Before ObjectPath was : %s", beforeString);
+
+    rc = CMSetNameSpace(newObjPath, "newNamespace");
+    PROV_LOG("++++  CMSetNameSpace : (%s)", strCMPIStatus (rc));
+
+    rc = CMSetObjectPath(instance, newObjPath);
+    PROV_LOG("++++  CMSetObjectPath : (%s)", strCMPIStatus (rc));
+
+    returnedObjPath = CMGetObjectPath(instance, &rc);
+    afterObjPath = CMObjectPathToString(returnedObjPath, &rc);
+    afterString = CMGetCharsPtr(afterObjPath,&rc);
+    PROV_LOG("++++ New ObjectPath is : %s", afterString);
+
+    //Get namespace of this object path
+    afterString = CMGetCharsPtr(CMGetNameSpace(returnedObjPath, &rc), &rc);
+    if (strcmp("newNamespace",afterString) == 0)
+    {
+        objectPathEqual = 1;
+    }
+    PROV_LOG("++++ New ObjectPath set successfully : %d" , objectPathEqual);
+
+    PROV_LOG("++++ cloning CMPIInstance");
+    clonedInstance = instance->ft->clone(instance, &rc);
+    PROV_LOG("++++  Cloning CMPIInstance : (%s)", strCMPIStatus (rc));
+
+    clonedData1 = CMGetProperty(clonedInstance, name1, &rc);
+    PROV_LOG("++++ cloned data value %d : ", clonedData1.value.uint32);
+
+    if (returnedData1.value.uint32 == clonedData1.value.uint32)
+    {
+        cloneSuccessful = 1;
+    }
+    else
+    {
+        cloneSuccessful = 0;
+    }
+    PROV_LOG("++++ clone Successful : %d ",cloneSuccessful);
+
+    //Error Paths
+
+    instptr = instance->hdl;
+    instance->hdl = NULL;
+
+    rc = CMSetProperty(instance, name2, &value2, type);
+    PROV_LOG("++++  CMSetProperty Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetPropertyCount(instance, &rc);
+    PROV_LOG("++++  CMGetPropertyCount Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetProperty(instance, name1, &rc);
+    PROV_LOG("++++  CMGetProperty : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetPropertyAt(instance, 1, &returnedName, &rc);
+    PROV_LOG("++++  CMGetPropertyAt Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetObjectPath(instance, &rc);
+    PROV_LOG("++++  CMPIInstance setOP Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetObjectPath(instance, &rc);
+    PROV_LOG("++++  CMPIInstance getOP Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    instance->ft->clone(instance, &rc);
+    PROV_LOG("++++  InstanceClone Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    rc = instance->ft->release(instance);
+    PROV_LOG("++++   Instance Release Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    instance->hdl = (CMPIInstance *)instptr;
+    CMGetProperty(instance, "noProperty", &rc);
+    PROV_LOG("++++  CMGetProperty : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
+    {
+        return 1;
+    }
+
+    CMGetPropertyAt(instance, 100, &returnedName, &rc);
+    PROV_LOG("++++  CMGetPropertyAt Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
+    {
+        return 1;
+    }
+    rc = instance->ft->release(instance);
+    PROV_LOG("++++   Instance Release : (%s)", strCMPIStatus (rc));
+
+    return 0;
+}
+
+// Test for CMPIObjectPath and its error paths.
+static int _testCMPIObjectPath ()
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    CMPIObjectPath* objPath = NULL;
+    CMPIObjectPath* clonedObjPath = NULL;
+    CMPIObjectPath* otherObjPath = NULL;
+    CMPIObjectPath *fakeObjPath  = NULL;
+
+    const char* hostName = "HOSTNAME";
+    const char* nameSpace = "root/dummy";
+    const char* className = "classname";
+
+    CMPIString* returnedHostname = NULL;
+    CMPIBoolean equalHostname = 0;
+    CMPIString* returnedNamespace = NULL;
+    CMPIBoolean equalNamespace = 0;
+    CMPIString* returnedClassName;
+    CMPIBoolean equalClassName = 0;
+    CMPIString* returnedObjectPath;
+    CMPIBoolean cloneSuccessful = 0;
+    CMPIBoolean getKeySuccessful = 0;
+    CMPIBoolean getKeyCountSuccessful = 0;
+    CMPIBoolean getKeyAtSuccessful = 0;
+    CMPIBoolean getKeyAtErrorPathSuccessful = 0;
+    const char* objectPath1 = NULL;
+    const char* objectPath2 = NULL;
+    CMPIData data;
+    unsigned int keyCount = 0;
+    void *opptr;
+
+    PROV_LOG("++++ _testCMPIObjectPath" );
+
+    objPath = make_ObjectPath(_broker, _Namespace, _ClassName);
+    PROV_LOG("++++ setting Hostname");
+    rc = CMSetHostname(objPath, hostName);
+    PROV_LOG ("++++  CMSetHostname : (%s)", strCMPIStatus (rc));
+
+    returnedHostname = CMGetHostname(objPath, &rc);
+    PROV_LOG ("++++  CMGetHostname : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Hostname : %s", CMGetCharsPtr(returnedHostname,&rc));
+    if (strcmp(hostName,CMGetCharsPtr(returnedHostname,&rc)) == 0)
+    {
+        equalHostname = 1;
+    }
+    PROV_LOG("++++ Hostname set successfuly : %d", equalHostname);
+
+    PROV_LOG("++++ setting Namespace");
+    rc = CMSetNameSpace(objPath, nameSpace);
+    PROV_LOG("++++  CMSetNameSpace : (%s)", strCMPIStatus (rc));
+    returnedNamespace = CMGetNameSpace(objPath, &rc);
+    PROV_LOG ("++++  CMGetNameSpace : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Namespace : %s", CMGetCharsPtr(returnedNamespace, &rc));
+    if (strcmp(nameSpace, CMGetCharsPtr(returnedNamespace, &rc)) == 0)
+    {
+        equalNamespace = 1;
+    }
+    PROV_LOG("++++ Namespace set successfuly : %d", equalNamespace);
+
+    PROV_LOG("++++ setting classname");
+    rc = CMSetClassName(objPath, className);
+    PROV_LOG ("++++  CMSetClassName : (%s)", strCMPIStatus (rc));
+
+    returnedClassName = CMGetClassName(objPath, &rc);
+    PROV_LOG ("++++  CMGetClassName : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Classname : %s", CMGetCharsPtr(returnedClassName, &rc));
+    if (strcmp(className,CMGetCharsPtr(returnedClassName, &rc)) == 0)
+    {
+        equalClassName = 1;
+    }
+    PROV_LOG("++++ Classname set successfuly : %d", equalClassName);
+
+    PROV_LOG("++++ calling CMSetNameSpaceFromObjectPath");
+    otherObjPath = make_ObjectPath(_broker, _Namespace, _ClassName);
+    returnedNamespace = CMGetNameSpace(otherObjPath, &rc);
+
+    PROV_LOG("++++ Before:Namespace:%s",CMGetCharsPtr(returnedNamespace, &rc));
+    rc = CMSetNameSpaceFromObjectPath(otherObjPath, objPath);
+    PROV_LOG ("++++  CMSetNameSpaceFromObjectPath : (%s)", strCMPIStatus (rc));
+
+    returnedNamespace = CMGetNameSpace(otherObjPath, &rc);
+    PROV_LOG("++++ After:Namespace: %s",CMGetCharsPtr(returnedNamespace, &rc));
+    if (strcmp(nameSpace,CMGetCharsPtr(returnedNamespace, &rc)) == 0)
+    {
+        equalNamespace = 1;
+    }
+    PROV_LOG("++++ Namespace set successfuly : %d", equalNamespace);
+
+    PROV_LOG("++++ calling CMSetHostAndNameSpaceFromObjectPath");
+    returnedHostname = CMGetHostname(otherObjPath, &rc);
+    PROV_LOG("++++ Before:Hostname: %s ",CMGetCharsPtr(returnedHostname, &rc));
+    rc = CMSetHostAndNameSpaceFromObjectPath(otherObjPath,objPath);
+    PROV_LOG ("++++  CMSetHostAndNameSpaceFromObjectPath : (%s)",
+        strCMPIStatus (rc));
+
+    returnedHostname = CMGetHostname(otherObjPath, &rc);
+    PROV_LOG("++++ After:Hostname: %s ",CMGetCharsPtr(returnedHostname, &rc));
+    if (strcmp(hostName,CMGetCharsPtr(returnedHostname,&rc)) == 0)
+    {
+        equalHostname = 1;
+    }
+    PROV_LOG("++++ Hostname set successfuly : %d", equalHostname);
+
+    returnedObjectPath = CMObjectPathToString(objPath, &rc);
+
+    PROV_LOG("++++ cloning objectpath");
+    objectPath1 = CMGetCharsPtr(returnedObjectPath, &rc);
+
+    clonedObjPath = objPath->ft->clone(objPath, &rc);
+    PROV_LOG ("++++  Cloning Objectpath : (%s)", strCMPIStatus (rc));
+    returnedObjectPath = CMObjectPathToString(clonedObjPath, &rc);
+    objectPath2 = CMGetCharsPtr(returnedObjectPath, &rc);
+
+    if (strcmp(objectPath1,objectPath2) == 0)
+    {
+        cloneSuccessful = 1;
+    }
+    else
+    {
+        cloneSuccessful = 0;
+    }
+    PROV_LOG("++++ clone Successful : %d ",cloneSuccessful);
+
+    // Create a new ObjectPath, in a different namespace.
+
+    fakeObjPath = CMNewObjectPath (_broker, "root#cimv2",
+        "TestCMPI_Instance", &rc);
+    PROV_LOG ("++++  CMNewObjectPath : (%s)", strCMPIStatus (rc));
+    rc = CMAddKey (fakeObjPath, "ElementName",
+        (CMPIValue *) "Fake", CMPI_chars);
+    PROV_LOG ("++++  CMAddKey : (%s)", strCMPIStatus (rc));
+    rc = CMAddKey (otherObjPath, "ElementName1",
+        (CMPIValue *) "otherObjPath", CMPI_chars);
+    PROV_LOG ("++++  CMAddKey : (%s)", strCMPIStatus (rc));
+
+
+    PROV_LOG("++++ calling CMGetKey");
+    data = CMGetKey(fakeObjPath, "ElementName", &rc);
+    PROV_LOG ("++++  CMGetKey : (%s)", strCMPIStatus (rc));
+
+    if (strcmp(CMGetCharsPtr(data.value.string, &rc),"Fake") == 0)
+    {
+        getKeySuccessful = 1;
+    }
+    PROV_LOG("++++ CMGetKey Successful : %d ",getKeySuccessful);
+
+    PROV_LOG("++++ calling CMGetKeyCount");
+    keyCount = CMGetKeyCount(fakeObjPath, &rc);
+    PROV_LOG ("++++  CMGetKeyCount : (%d)", keyCount);
+    if (keyCount == 1)
+    {
+        getKeyCountSuccessful = 1;
+    }
+    PROV_LOG("++++ CMGetKeyCount Successful : %d ",getKeyCountSuccessful);
+
+    PROV_LOG("++++ calling CMGetKeyAt");
+    data = CMGetKeyAt(fakeObjPath, 0, NULL, &rc);
+    PROV_LOG ("++++  CMGetKeyCount : (%s)", strCMPIStatus (rc));
+    if (strcmp(strCMPIStatus (rc), "CMPI_RC_OK") == 0)
+    {
+        getKeyAtSuccessful = 1;
+    }
+    PROV_LOG("++++ CMGetKeyAt Successful : %d ",getKeyAtSuccessful);
+
+    PROV_LOG("++++ calling CMGetKeyAt");
+    data = CMGetKeyAt(fakeObjPath, 1, NULL, &rc);
+    PROV_LOG ("++++  CMGetKeyCount : (%s)", strCMPIStatus (rc));
+    if (strcmp(strCMPIStatus (rc), "CMPI_RC_ERR_NOT_FOUND") == 0)
+    {
+        getKeyAtErrorPathSuccessful = 1;
+    }
+    PROV_LOG("++++ CMGetKeyAtErrorPath Successful : %d ",
+        getKeyAtErrorPathSuccessful);
+
+    //Error Paths
+
+    opptr = objPath->hdl;
+    objPath->hdl = NULL;
+
+    rc = CMSetHostname(objPath, "host");
+    PROV_LOG ("ObjectPath SetHostname Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    rc = CMSetNameSpace(objPath, nameSpace);
+    PROV_LOG ("ObjectPath setNameSpace Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    rc = CMSetClassName(objPath, className);
+    PROV_LOG ("ObjectPath SetClassName Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetClassName(objPath, &rc);
+    PROV_LOG ("ObjectPath GetClassName Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+
+    rc = CMSetNameSpaceFromObjectPath(otherObjPath, objPath);
+    PROV_LOG ("ObjectPath SetNameSpaceFromObjectPath Error Path: (%s)",
+    strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetNameSpace(objPath, &rc);
+    PROV_LOG ("ObjectPath GetNameSpace Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+
+    rc = CMSetHostAndNameSpaceFromObjectPath(otherObjPath, objPath);
+    PROV_LOG ("ObjectPath SetHostAndNameSpaceFromObjectPath Error Path: (%s)",
+        strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+
+    CMGetHostname(objPath, &rc);
+    PROV_LOG ("ObjectPath GetHostName Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    rc = CMAddKey (objPath, "ElementName",
+        (CMPIValue *) "Fake", CMPI_chars);
+    PROV_LOG ("++++  ObjectPathAddKey Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetKey (objPath, "ElementName", &rc);
+    PROV_LOG ("++++  ObjectPathGetKey Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetKeyCount (objPath, &rc);
+    PROV_LOG ("ObjectPath GetKeycount Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+
+    CMGetKeyAt(objPath, 0, NULL, &rc);
+    PROV_LOG ("++++  ObjectPath getKeyAt Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+
+    objPath->ft->clone(objPath, &rc);
+    PROV_LOG ("++++  ObjectPathClone Error Path: (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+
+    rc = objPath->ft->release(objPath);
+    PROV_LOG ("++++   ObjectPath Release Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+    objPath->hdl = (CMPIObjectPath *)opptr;
+
+    CMGetKeyAt(objPath, 500, NULL, &rc);
+    PROV_LOG ("++++  ObjectPathGetKeyAt Error Path : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
+    {
+        return 1;
+    }
+    rc = objPath->ft->release(objPath);
+    PROV_LOG ("++++  ObjectPath Release : (%s)", strCMPIStatus (rc));
+
+    rc = fakeObjPath->ft->release(fakeObjPath);
+    PROV_LOG ("++++  Fake ObjectPath Release : (%s)", strCMPIStatus (rc));
+
+    return 0;
+}
+
+// Test for CMPIResult and its error paths.
+static int _testCMPIResult (const CMPIResult *rslt)
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    CMPIValue value;
+    CMPIType type;
+    CMPIType type_error = CMPI_instance;
+    CMPIInstance* instance = NULL;
+    const CMPIObjectPath* objPath = NULL;
+    CMPIBoolean returnDataSuccessful = 0;
+
+    PROV_LOG("++++ _testCMPIResult" );
+
+    value.uint32 = 10;
+    type = CMPI_uint32;
+
+	rc = CMReturnData(rslt, &value, type);
+    PROV_LOG("++++  CMReturnData : (%s)", strCMPIStatus (rc));
+    if (rc.rc == CMPI_RC_OK)
+    {
+        returnDataSuccessful == 1;
+    }
+    PROV_LOG("++++ CMReturnData Successful : %d ", returnDataSuccessful);
+
+    objPath = make_ObjectPath(_broker, _Namespace, _ClassName);
+    rc = CMReturnObjectPath(rslt, objPath);
+    PROV_LOG("++++  CMReturnObjectPath : (%s)", strCMPIStatus (rc));
+
+    rc = CMReturnDone(rslt);
+    PROV_LOG("++++  CMReturnDone : (%s)", strCMPIStatus (rc));
+
+    //Error Paths
+    rc = CMReturnData(rslt, NULL, type);
+    PROV_LOG("++++  CMReturnData : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_PARAMETER)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+// Test for CMPIString and its error paths.
+static int _testCMPIString()
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    CMPIString* string = NULL;
+    CMPIString* clonedString = NULL;
+    const char* actual_string = NULL;
+    const char* cloned_string = NULL;
+    const char* error_c_string = NULL;
+    const char *data = "dataString";
+    CMPIBoolean cloneSuccessful = 0;
+    void *string_ptr;
+
+    PROV_LOG("++++ _testCMPIString" );
+
+    PROV_LOG("++++ creating CMPIString : CMNewString");
+    string = CMNewString(_broker, data, &rc);
+    PROV_LOG ("++++  CMNewString : (%s)", strCMPIStatus (rc));
+    actual_string = CMGetCharsPtr(string, &rc);
+    PROV_LOG("++++ CString is : %s", actual_string);
+
+    PROV_LOG("++++ Clone on CMPIString");
+    clonedString = string->ft->clone(string, &rc);
+
+    PROV_LOG ("++++  Cloning String status : (%s)", strCMPIStatus (rc));
+
+    cloned_string = CMGetCharsPtr(clonedString, &rc);
+    PROV_LOG("++++ Cloned String is : %s", cloned_string);
+    if (strcmp(actual_string,cloned_string) == 0)
+    {
+        cloneSuccessful = 1;
+    }
+    PROV_LOG("++++ clone Successful : %d ",cloneSuccessful);
+
+    //Error Paths
+
+    string_ptr = string->hdl;
+    string->hdl = NULL;
+
+    string->ft->clone(string, &rc);
+    PROV_LOG ("++++ Error Cloning String : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    rc = string->ft->release(string);
+    PROV_LOG ("++++  Error String Release : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+     	return 1;
+    }
+
+    CMGetCharsPtr(string, &rc);
+    PROV_LOG ("++++  Error String getCharsPtr : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    string->hdl = string_ptr;
+    rc = string->ft->release(string);
+    PROV_LOG ("++++  String Release : (%s)", strCMPIStatus (rc));
+
+    return 0;
+}
+
+// Test for CMPIArgs and its error paths.
+static int _testCMPIArgs()
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    CMPIArgs* args = NULL;
+    CMPIArgs* nullArgs = NULL;
+    CMPIArgs* clonedArgs = NULL;
+    CMPIUint32 count = 0;
+    CMPIType type = CMPI_uint32;
+    CMPIType type_error = CMPI_instance;
+    char *arg1 = "arg1";
+    char *arg2 = "arg2";
+    CMPIValue value;
+    CMPIData data;
+    CMPIData clonedData;
+    CMPIBoolean cloneSuccessful = 0;
+    CMPIBoolean getArgCountSuccessful = 0;
+    void *args_ptr;
+
+    PROV_LOG("++++ _testCMPIArgs" );
+
+    PROV_LOG("++++ creating CMPIArgs : CMNewArgs");
+    args = CMNewArgs(_broker, &rc);
+    PROV_LOG ("++++  CMNewArgs : (%s)", strCMPIStatus (rc));
+
+    value.uint32 = 10;
+    rc = CMAddArg(args, arg1, &value, type);
+    PROV_LOG("++++  CMAddArg : (%s)", strCMPIStatus (rc));
+
+    count = CMGetArgCount(args, &rc);
+    PROV_LOG("++++  CMGetArgCount : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Number of value added %d", count);
+    if (count == 1)
+    {
+        getArgCountSuccessful = 1;
+    }
+    PROV_LOG("++++ GetArgCount Successful : %d ",getArgCountSuccessful);
+
+    value.uint32 = 20;
+    rc = CMAddArg(args, arg2, &value, type);
+    PROV_LOG("++++  CMAddArg-2 : (%s)", strCMPIStatus (rc));
+
+    count = CMGetArgCount(args, &rc);
+    PROV_LOG("++++  CMGetArgCount-2 : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Number of value added %d", count);
+    if (count == 2)
+    {
+        getArgCountSuccessful = 1;
+    }
+    PROV_LOG("++++ GetArgCount Successful : %d ", getArgCountSuccessful);
+
+    data = CMGetArg(args, arg2, &rc);
+    PROV_LOG("++++  CMGetArg : (%s)", strCMPIStatus (rc));
+    PROV_LOG("++++ Added data value is %d" , data.value.uint32);
+    rc = CMAddArg(args, arg1, &value, type);
+
+    PROV_LOG("++++ cloning Args");
+    clonedArgs = args->ft->clone(args, &rc);
+    PROV_LOG("++++  Cloning Args : (%s)", strCMPIStatus (rc));
+    clonedData = CMGetArg(clonedArgs, arg2, &rc);
+    PROV_LOG("++++  CMGetArg-2 : (%s)", strCMPIStatus (rc));
+    if (data.value.uint32 == clonedData.value.uint32)
+    {
+        cloneSuccessful = 1;
+    }
+    PROV_LOG("++++ clone Successful : %d ",cloneSuccessful);
+
+    // Error Paths
+
+    args_ptr = args->hdl;
+    args->hdl = NULL;
+    args->ft->clone(args, &rc);
+    PROV_LOG("++++ Error Cloning Args : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+    	return 1;
+    }
+
+    args->ft->release(args);
+    PROV_LOG("++++  Error Args Release : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    CMGetArgCount(args, &rc);
+    PROV_LOG(" CMGetArgCount : (%s)", strCMPIStatus (rc));
+    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
+    {
+        return 1;
+    }
+
+    args->hdl = (CMPIArgs *)args_ptr;
+    rc = args->ft->release(args);
+    PROV_LOG("++++  Args Release : (%s)", strCMPIStatus (rc));
+
+    return 0;
+}
+
+
+// Test for CMPIBroker and its error paths.
+static int _testCMPIBroker (const CMPIContext* ctx)
+{
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+    const char *properties_for_assoc[] = {"name", NULL};
+    CMPIInstance* instOfAssocClass = NULL;
+    unsigned int i = 0;
+    unsigned int count = 0;
+    int brokerVersion = 0;
+    const char* brokerName = NULL;
+
+    //Boolean Variables used to Cross-Check the Functions' Success
+    CMPIBoolean associatorsObjectPathSuccessful = 0;
+    CMPIBoolean associatorNamesObjectPathSuccessful = 0;
+    CMPIBoolean referenceObjectPathSuccessful = 0;
+    CMPIBoolean referenceNamesObjectPathSuccessful = 0;
+
+    //Enumeration Variables
+    CMPIEnumeration* testEnumerationForAssociators = NULL;
+    CMPIEnumeration* testErrorEnumerationForAssociators = NULL;
+    CMPIEnumeration* testEnumerationForAssociatorNames = NULL;
+    CMPIEnumeration* testErrorEnumerationForAssociatorNames = NULL;
+    CMPIEnumeration* testEnumerationForReferences = NULL;
+    CMPIEnumeration* testErrorEnumerationForReferences = NULL;
+    CMPIEnumeration* testEnumerationForReferenceNames = NULL;
+
+    //data Arrays to store the values
+    CMPIData data[10];
+    CMPIData dataAN[10];
+    CMPIData dataR[10];
+    CMPIData dataRN[10];
+
+    //ObjectPaths for Associator-related Functions
+    CMPIObjectPath* opForAssociatorFunctions = NULL;
+    CMPIObjectPath* opForErrorAssociatorFunctions = NULL;
+    CMPIObjectPath* opAssociators = NULL;
+    CMPIObjectPath* opAssociatorNames = NULL;
+    CMPIObjectPath* opReferences = NULL;
+    CMPIObjectPath* opReferenceNames = NULL;
+
+    //String Variables
+    CMPIString* objPathAssociators = NULL;
+    CMPIString* objPathAssociatorNames = NULL;
+    CMPIString* objPathReferences = NULL;
+    CMPIString* objPathReferenceNames = NULL;
+
+    const char* getInstanceStringAssociators = NULL;
+    const char* getInstanceStringAssociatorNames = NULL;
+    const char* getInstanceStringReferences = NULL;
+    const char* getInstanceStringReferenceNames = NULL;
+    const char* errorCheck = "CMPI_TEST_erson";
+
+	PROV_LOG("++++ _testCMPIBroker" );
+
+    //Getting ObjectPaths for different Classes
+    opForAssociatorFunctions = make_ObjectPath(_broker, _Namespace,
+        _PersonClass);
+
+    opForErrorAssociatorFunctions = make_ObjectPath(_broker, _Namespace,
+        _PersonClass);
+
+    opReferences = make_ObjectPath(_broker, _Namespace, "CMPI_TEST_Racing");
+
+    //Getting Instances of Class
+    instOfAssocClass = make_Instance(opForAssociatorFunctions);
+
+    PROV_LOG("++++ BrokerName-Broker : CBBrokerName");
+    brokerName = CBBrokerName(_broker);
+    PROV_LOG("++++ Broker Name %s ", brokerName);
+
+    //==============================CBAssociators==============================
+
+    PROV_LOG("++++ Associators-Broker : CBAssociators");
+    testEnumerationForAssociators = CBAssociators( _broker, ctx,
+        opForAssociatorFunctions,"CMPI_TEST_Racing", NULL, NULL, NULL,
+        properties_for_assoc, &rc);
+
+    PROV_LOG("++++  CBAssociators : (rc:%s)", strCMPIStatus (rc));
+
+    while(CMHasNext(testEnumerationForAssociators, &rc))
+    {
+        data[count] = CMGetNext(testEnumerationForAssociators, &rc);
+        opAssociators = CMGetObjectPath(data[count].value.inst, &rc);
+        objPathAssociators = CMObjectPathToString(opAssociators, &rc);;
+        getInstanceStringAssociators = CMGetCharsPtr(objPathAssociators,&rc);
+        count++;
+    }
+
+    PROV_LOG("++++ Number of Associators : %d)", count);
+
+    if (count == 2)
+    {
+        associatorsObjectPathSuccessful = 1;
+    }
+    PROV_LOG("++++ Associators success status : %d",
+        associatorsObjectPathSuccessful);
+
+    // testing with an Invalid Class Name
+    testErrorEnumerationForAssociators = CBAssociators( _broker, ctx,
+        opForAssociatorFunctions,"CMPI_TEST_acing", NULL, NULL, NULL,
+        properties_for_assoc, &rc);
+
+    if (rc.rc != CMPI_RC_ERR_INVALID_PARAMETER)
+    {
+    	return 1;
+    }
+    PROV_LOG("++++  CBAssociators Error Path 1: (rc:%s)", strCMPIStatus (rc));
+
+    // testing with a class that is not an ASSOCIATION class
+    testEnumerationForAssociators = CBAssociators( _broker, ctx,
+        opForAssociatorFunctions,_PersonClass, NULL, NULL, NULL,
+        properties_for_assoc, &rc);
+
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return 1;
+    }
+    PROV_LOG("++++  CBAssociators Error Path 2: (rc:%s)", strCMPIStatus (rc));
+
+
+    //============================CBAssociatorNames============================
+
+    PROV_LOG("++++ Associators-Broker : CBAssociatorNames");
+
+    testEnumerationForAssociatorNames = CBAssociatorNames
+        (_broker, ctx, opForAssociatorFunctions, "CMPI_TEST_Racing", NULL,
+        NULL, NULL, &rc);
+
+    PROV_LOG("++++  CBAssociatorNames : (rc:%s)", strCMPIStatus (rc));
+
+    count = 0;
+    while(CMHasNext(testEnumerationForAssociatorNames, &rc))
+    {
+        dataAN[count] = CMGetNext(testEnumerationForAssociatorNames, &rc);
+        opAssociatorNames = dataAN[count].value.ref;
+        objPathAssociatorNames = CMObjectPathToString(opAssociatorNames, &rc);
+        getInstanceStringAssociatorNames = CMGetCharsPtr(
+            objPathAssociatorNames,&rc);
+        count++;
+    }
+
+    PROV_LOG("++++ Number of AssociatorNames : %d)", count);
+    if (count == 2)
+    {
+        associatorNamesObjectPathSuccessful = 1;
+    }
+    PROV_LOG("++++ AssociatorNames success status : %d",
+        associatorNamesObjectPathSuccessful);
+
+    //Checking for Error Paths
+
+    testErrorEnumerationForAssociatorNames = CBAssociatorNames
+        (_broker, ctx, opForAssociatorFunctions, "CMPI_TEST_acing", NULL,
+        NULL, NULL, &rc);
+
+    if (testErrorEnumerationForAssociatorNames == NULL)
+    {
+        PROV_LOG("++++ CBAssociatorNames - Error Path : NULL value returned");
+    }
+    else
+    {
+        PROV_LOG("++++ CBAssociatorNames - Error Path not reached");
+    }
+
+    //==============================CBReferences===============================
+
+    PROV_LOG("++++ Associators-Broker : CBReferences");
+
+    testEnumerationForReferences = CBReferences
+        (_broker, ctx, opReferences, "CMPI_TEST_Racing", NULL,
+        properties_for_assoc, &rc);
+
+    PROV_LOG("++++  CBReferences : (rc:%s)", strCMPIStatus (rc));
+
+    count = 0;
+    while(CMHasNext(testEnumerationForReferences, &rc))
+    {
+        dataR[count] = CMGetNext(testEnumerationForReferences, &rc);
+        opReferences = dataR[count].value.ref;
+        objPathReferences = CMObjectPathToString(opReferences, &rc);
+        getInstanceStringReferences = CMGetCharsPtr(objPathReferences, &rc);
+        count++;
+    }
+
+    PROV_LOG("++++ Number of References : %d)", count);
+
+    if (count == 0)
+    {
+        referenceObjectPathSuccessful = 1;
+    }
+    PROV_LOG("++++ References success status : %d",
+        referenceObjectPathSuccessful);
+
+    //Checking for Error Paths
+
+    testErrorEnumerationForReferences = CBReferences
+        (_broker, ctx, opReferences, "CMPI_TEST_acing", NULL,
+        properties_for_assoc, &rc);
+
+
+    if (testErrorEnumerationForReferences != NULL)
+    {
+        return 1;
+    }
+
+    //============================CBReferenceNames=============================
+
+    PROV_LOG("++++ Associators-Broker : CBReferenceNames");
+
+    testEnumerationForReferenceNames = CBReferenceNames
+        (_broker, ctx, opForAssociatorFunctions, NULL, NULL, &rc);
+
+    PROV_LOG("++++  CBReferenceNames : (rc:%s)", strCMPIStatus (rc));
+
+    count = 0;
+    while(CMHasNext(testEnumerationForReferenceNames, &rc))
+    {
+        dataRN[count] = CMGetNext(testEnumerationForReferenceNames, &rc);
+        opReferenceNames = dataRN[count].value.ref;
+        objPathReferenceNames = CMObjectPathToString(opReferenceNames, &rc);
+        getInstanceStringReferenceNames = CMGetCharsPtr(
+             objPathReferenceNames,&rc);
+        count++;
+    }
+
+    PROV_LOG("++++ Number of ReferenceNames : %d)", count);
+
+    if (count == 2)
+    {
+        referenceNamesObjectPathSuccessful = 1;
+    }
+    else
+    {
+        referenceNamesObjectPathSuccessful = 0;
+    }
+    PROV_LOG("++++ ReferenceNames success status : %d",
+        referenceNamesObjectPathSuccessful);
+
+    //Checking for Error Paths
+
+    testEnumerationForReferenceNames = CBReferenceNames
+        (_broker, ctx, opForErrorAssociatorFunctions, errorCheck, NULL, &rc);
+
+    if (testErrorEnumerationForReferences != NULL)
+    {
+        return 1;
+    }
+
+    return 0;
+}
           /* and many more soon to come */
 
 /* ---------------------------------------------------------------------------*/
@@ -550,6 +1968,35 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                           );
                       break;
                   }
+                case 8:
+                    oper_rc = _testCMPIEnumeration (ctx);
+                    break;
+                case 9:
+                    oper_rc = _testCMPIArray ();
+                    break;
+                case 10:
+                    oper_rc = _testCMPIcontext (ctx);
+                    break;
+                case 11:
+                    oper_rc = _testCMPIDateTime ();
+                    break;
+                case 12:
+                    oper_rc = _testCMPIInstance ();
+                    break;
+                case 13:
+                    oper_rc = _testCMPIObjectPath ();
+                    break;
+                case 14:
+                    oper_rc = _testCMPIResult (rslt);
+                    break;
+                case 15:
+                    oper_rc = _testCMPIString ();
+                    break;
+                case 16:
+                    oper_rc = _testCMPIArgs ();
+                    break;
+                case 17:
+                    oper_rc = _testCMPIBroker(ctx);
                 default:
                   break;
                 }

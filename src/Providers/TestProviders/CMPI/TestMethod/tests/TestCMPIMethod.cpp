@@ -296,7 +296,7 @@ test03 (CIMClient & client)
   inParams.clear ();
   outParams.clear ();
   {
-      /* CMGetMessage2 */
+//       CMGetMessage2 
       inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (7))));
       inParams.append (CIMParamValue ("msgFile", CIMValue (String ("test/pegasusTest"))));
       inParams.append (CIMParamValue ("msgId", CIMValue (String ("CIMStatusCode.CIM_ERR_SUCCESS"))));
@@ -334,8 +334,7 @@ test03 (CIMClient & client)
           contLangs = client.getResponseContentLanguages();
           cout << "ContentLanguage size == " << contLangs.size() << endl;
           PEGASUS_TEST_ASSERT (contLangs.size() == 1);
-          cout << "ContentLanguage == " << 
-              contLangs.getLanguageTag(0).toString() << endl;
+          cout << "ContentLanguage == " << contLangs.getLanguageTag(0).toString();
           PEGASUS_TEST_ASSERT (contLangs.getLanguageTag(0).toString() == "en-US");
       }
 #endif
@@ -343,6 +342,204 @@ test03 (CIMClient & client)
       accLangs.clear();
       client.setRequestAcceptLanguages(accLangs);
   }
+
+
+    inParams.clear();
+    outParams.clear();
+    {
+        // _testCMPIEnumeration
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (8))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    
+    inParams.clear();
+    outParams.clear();
+    {
+        // _testCMPIArray
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (9))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    inParams.clear();
+    outParams.clear();
+    {
+        // _testCMPIcontext
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (10))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                             instanceName,
+                             "TestCMPIBroker",
+                             inParams,
+                             outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    inParams.clear();
+    outParams.clear();
+    {
+        // _testCMPIDateTime
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (11))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+        // Nothing is returned
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    inParams.clear();
+    outParams.clear();
+    {
+      //   _testCMPIInstance
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (12))));
+
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+        // Nothing is returned
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    inParams.clear();
+    outParams.clear();
+    {
+    //     _testCMPIObjectPath
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (13))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+        // Nothing is returned
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    inParams.clear();
+    outParams.clear();
+    {
+        //  _testCMPIResult
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (14))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+        // Nothing is returned
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    inParams.clear();
+    outParams.clear();
+    {
+        //  _testCMPIString
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (15))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        // Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+        // Nothing is returned
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
+    inParams.clear();
+    outParams.clear();
+    {
+        //_testCMPIArgs
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (16))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        //Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+        // Nothing is returned
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+
+        CIMValue paramValue = outParams[0].getValue ();
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+    inParams.clear();
+    outParams.clear();
+    {
+         //_testCMPIBroker
+
+        inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (17))));
+        CIMValue retValue = client.invokeMethod (providerNamespace,
+                                                 instanceName,
+                                                 "TestCMPIBroker",
+                                                 inParams,
+                                                 outParams);
+        //Check the return value. Make sure it is 0.
+        _checkUint32Value (retValue, 0);
+        // Nothing is returned
+        PEGASUS_TEST_ASSERT (outParams.size () == 1);
+
+        CIMValue paramValue = outParams[0].getValue ();
+
+        PEGASUS_TEST_ASSERT (paramValue.isNull ());
+    }
+
 }
 void
 test04 (CIMClient & client)

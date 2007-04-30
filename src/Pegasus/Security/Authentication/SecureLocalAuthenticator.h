@@ -78,11 +78,13 @@ public:
         @param authType String containing the authentication type
         @param userName String containing the user name
         @param secret   String to store the authentication secret
+        @param secret   String to store the authentication file path
         @return A string containing the authentication challenge header.
     */
     String getAuthResponseHeader(
-        const String& authType, 
-        const String& userName, 
+        const String& authType,
+        const String& userName,
+        String& filePath,
         String& secret);
 };
 

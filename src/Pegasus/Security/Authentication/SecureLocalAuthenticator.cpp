@@ -88,8 +88,13 @@ Boolean SecureLocalAuthenticator::authenticate(
 
     if (Executor::detectExecutor() == 0)
     {
-        if (Executor::authenticateLocal(
-            (const char*)secretKept.getCString(),
+        if (!String::equal(secretKept, String::EMPTY) &&
+            String::equal(secretKept, secretReceived))
+        {
+            authenticated = true;
+        }
+        else if (Executor::authenticateLocal(
+            (const char*)filePath.getCString(),
             (const char*)secretReceived.getCString()) == 0)
         {
             authenticated = true;
@@ -99,13 +104,10 @@ Boolean SecureLocalAuthenticator::authenticate(
     {
         // Check secret.
 
-        if ((!String::equal(secretReceived, String::EMPTY)) &&
-            (!String::equal(secretKept, String::EMPTY)))
+        if (!String::equal(secretKept, String::EMPTY) &&
+            String::equal(secretKept, secretReceived))
         {
-            if (String::equal(secretKept, secretReceived))
-            {
-                authenticated = true;
-            }
+            authenticated = true;
         }
 
         // Remove the auth file created for this user request
@@ -144,8 +146,9 @@ Boolean SecureLocalAuthenticator::validateUser (const String& userName)
 // Create authentication response header
 //
 String SecureLocalAuthenticator::getAuthResponseHeader(
-    const String& authType, 
-    const String& userName, 
+    const String& authType,
+    const String& userName,
+    String& filePath,
     String& secret)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
@@ -159,22 +162,24 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
 
     if (Executor::detectExecutor() == 0)
     {
-        char challenge[EXECUTOR_BUFFER_SIZE];
+        char filePathBuffer[EXECUTOR_BUFFER_SIZE];
 
-        if (Executor::challengeLocal(userName.getCString(), challenge) != 0)
+        if (Executor::challengeLocal(
+                userName.getCString(), filePathBuffer) != 0)
         {
-            throw CannotOpenFile(challenge);
+            throw CannotOpenFile(filePathBuffer);
         }
-        secret = challenge;
+        filePath = filePathBuffer;
+        secret.clear();
 
-        responseHeader.append(challenge);
+        responseHeader.append(filePath);
         responseHeader.append("\"");
     }
     else
     {
         // create a file using user name and write a random number in it.
         LocalAuthFile localAuthFile(userName);
-        String filePath = localAuthFile.create();
+        filePath = localAuthFile.create();
 
         //
         // get the secret string

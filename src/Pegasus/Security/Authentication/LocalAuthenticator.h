@@ -73,12 +73,14 @@ public:
     /** Construct and return the Peagaus Local authentication challenge header
         @param authType String containing the authentication type
         @param userName String containing the user name
+        @param filePath String to store the authentication file path
         @param secret String to store the authentication secret
         @return A string containing the authentication challenge header.
     */
     virtual String getAuthResponseHeader(
         const String& authType, 
         const String& userName, 
+        String& filePath, 
         String& secret) = 0;
 
     /**

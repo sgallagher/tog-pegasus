@@ -122,10 +122,10 @@ public:
 
     virtual int challengeLocal(
         const char* username,
-        char challenge[EXECUTOR_BUFFER_SIZE]) = 0;
+        char challengeFilePath[EXECUTOR_BUFFER_SIZE]) = 0;
 
     virtual int authenticateLocal(
-        const char* challenge,
+        const char* challengeFilePath,
         const char* response) = 0;
 };
 
@@ -471,14 +471,14 @@ public:
 
     virtual int challengeLocal(
         const char* username,
-        char challenge[EXECUTOR_BUFFER_SIZE])
+        char challengeFilePath[EXECUTOR_BUFFER_SIZE])
     {
         // ATTN: not handled so don't call in this case.
         return -1;
     }
 
     virtual int authenticateLocal(
-        const char* challenge,
+        const char* challengeFilePath,
         const char* response)
     {
         // ATTN: not handled so don't call in this case.
@@ -882,7 +882,7 @@ public:
 
     virtual int challengeLocal(
         const char* username,
-        char challenge[EXECUTOR_BUFFER_SIZE])
+        char challengeFilePath[EXECUTOR_BUFFER_SIZE])
     {
         AutoMutex autoMutex(_mutex);
 
@@ -910,13 +910,13 @@ public:
         if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
-        Strlcpy(challenge, response.challenge, EXECUTOR_BUFFER_SIZE);
+        Strlcpy(challengeFilePath, response.challenge, EXECUTOR_BUFFER_SIZE);
 
         return response.status;
     }
 
     virtual int authenticateLocal(
-        const char* challenge,
+        const char* challengeFilePath,
         const char* response)
     {
         AutoMutex autoMutex(_mutex);
@@ -933,7 +933,7 @@ public:
 
         ExecutorAuthenticateLocalRequest request;
         memset(&request, 0, sizeof(request));
-        Strlcpy(request.challenge, challenge, EXECUTOR_BUFFER_SIZE);
+        Strlcpy(request.challenge, challengeFilePath, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.response, response, EXECUTOR_BUFFER_SIZE);
 
         if (_send(_sock, &request, sizeof(request)) != sizeof(request))
@@ -1119,16 +1119,16 @@ int Executor::validateUser(
 
 int Executor::challengeLocal(
     const char* user,
-    char challenge[EXECUTOR_BUFFER_SIZE])
+    char challengeFilePath[EXECUTOR_BUFFER_SIZE])
 {
-    return _getImpl()->challengeLocal(user, challenge);
+    return _getImpl()->challengeLocal(user, challengeFilePath);
 }
 
 int Executor::authenticateLocal(
-    const char* challenge,
+    const char* challengeFilePath,
     const char* response)
 {
-    return _getImpl()->authenticateLocal(challenge, response);
+    return _getImpl()->authenticateLocal(challengeFilePath, response);
 }
 
 PEGASUS_NAMESPACE_END

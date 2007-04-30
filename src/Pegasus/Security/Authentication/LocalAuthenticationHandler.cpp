@@ -106,6 +106,15 @@ Boolean LocalAuthenticationHandler::authenticate(
     }
 
     //
+    // Check for the expected file path in the authentication header
+    //
+    if (filePath != authInfo->getLocalAuthFilePath())
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    //
     // Check if the authentication information is present
     //
     if (secretReceived.size() == 0 || userName.size() == 0)
@@ -150,21 +159,24 @@ Boolean LocalAuthenticationHandler::authenticate(
     }
 #endif
 
-    // it is not necessary to check remote privileged user access local
-    // set the flag to "check done"
+    // It is not necessary to check remote privileged user access for local
+    // connections; set the flag to "check done"
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    Boolean authenticated = _localAuthenticator->authenticate(filePath, 
-        secretReceived, authInfo->getLocalAuthSecret());
-
-    PEG_AUDIT_LOG(logLocalAuthentication(
-                     userName,
-                     authenticated));
+    // Authenticate
+    Boolean authenticated = _localAuthenticator->authenticate(
+        filePath, secretReceived, authInfo->getLocalAuthSecret());
 
     if (authenticated)
     {
         authInfo->setAuthenticatedUser(userName);
+        // For Privilege Separation, remember the secret on subsequent requests
+        authInfo->setLocalAuthSecret(secretReceived);
     }
+
+    PEG_AUDIT_LOG(logLocalAuthentication(
+                     userName,
+                     authenticated));
 
     PEG_METHOD_EXIT();
 
@@ -185,6 +197,7 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
         "LocalAuthenticationHandler::getAuthResponseHeader()");
 
     String secret;
+    String filePath;
     String authResp;
 
     //
@@ -196,8 +209,10 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
         return ( authResp );
     }
 
-    authResp = _localAuthenticator->getAuthResponseHeader(authType, userName, secret);
+    authResp = _localAuthenticator->getAuthResponseHeader(
+        authType, userName, filePath, secret);
 
+    authInfo->setLocalAuthFilePath(filePath);
     authInfo->setLocalAuthSecret(secret);
 
     PEG_METHOD_EXIT();

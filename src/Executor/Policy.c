@@ -118,6 +118,27 @@ static struct Policy _staticPolicyTable[] =
         "${currentConfigFilePath}.bak",
         NULL,
     },
+    /* cimserver_planned.conf policies */
+    {
+        EXECUTOR_OPEN_FILE_MESSAGE,
+        "${plannedConfigFilePath}",
+        "w",
+    },
+    { 
+        EXECUTOR_RENAME_FILE_MESSAGE,
+        "${plannedConfigFilePath}",
+        "${plannedConfigFilePath}.bak",
+    },
+    { 
+        EXECUTOR_REMOVE_FILE_MESSAGE,
+        "${plannedConfigFilePath}",
+        NULL,
+    },
+    { 
+        EXECUTOR_REMOVE_FILE_MESSAGE,
+        "${plannedConfigFilePath}.bak",
+        NULL,
+    },
     /* cimserver.passwd policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,

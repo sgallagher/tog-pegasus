@@ -268,6 +268,19 @@ void DefineExecutorMacros()
         DefineMacro("currentConfigFilePath", path);
     }
 
+    /* Define ${plannedConfigFilePath} */
+    {
+        char path[EXECUTOR_BUFFER_SIZE];
+
+        if (GetHomedPath(PEGASUS_PLANNED_CONFIG_FILE_PATH, path) != 0)
+        {
+            Fatal(FL, "GetHomedPath() failed on \"%s\"", 
+                PEGASUS_PLANNED_CONFIG_FILE_PATH);
+        }
+
+        DefineMacro("plannedConfigFilePath", path);
+    }
+
     /* Define ${passwordFilePath} */
 
     if (DefineConfigPathMacro("passwordFilePath", "cimserver.passwd") != 0)

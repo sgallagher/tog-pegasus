@@ -286,11 +286,6 @@ void DefineExecutorMacros()
     if (DefineConfigPathMacro("passwordFilePath", "cimserver.passwd") != 0)
         Fatal(FL, "missing \"passwordFilePath\" configuration parameter.");
 
-    /* Define ${traceFilePath} */
-
-    if (DefineConfigPathMacro("traceFilePath", NULL) != 0)
-        Fatal(FL, "missing \"traceFilePath\" configuration parameter.");
-
     /* Define ${sslKeyFilePath} */
 
     if (DefineConfigPathMacro("sslKeyFilePath", "file.pem") != 0)

@@ -165,12 +165,6 @@ static struct Policy _staticPolicyTable[] =
         "${passwordFilePath}",
         NULL,
     },
-    /* cimserver.trc policies */
-    {
-        EXECUTOR_OPEN_FILE_MESSAGE,
-        "${traceFilePath}/cimserver.trc*",
-        "a",
-    },
     /* SSL key file policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,

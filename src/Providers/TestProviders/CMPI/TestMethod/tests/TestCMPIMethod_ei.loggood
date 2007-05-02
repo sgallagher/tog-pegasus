@@ -230,7 +230,7 @@
  ++++ Data added : 40 
  ++++ Getting data sucessful : CMPI_RC_OK
  ++++ CMGetContextEntry : (CMPI_RC_OK)
- ++++ Data added : -2147483648 
+ ++++ Data added : 40.123 
  ++++ Getting data sucessful : CMPI_RC_OK
  ++++  CMGetContextEntryCount : (CMPI_RC_OK)
  ++++ Total number of data added : 5

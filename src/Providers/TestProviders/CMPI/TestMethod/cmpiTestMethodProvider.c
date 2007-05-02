@@ -711,7 +711,7 @@ static int _testCMPIcontext (const CMPIContext* ctx)
 
     data = CMGetContextEntry(ctx, "name2", &rc);
     PROV_LOG ("++++ CMGetContextEntry : (%s)", strCMPIStatus (rc));
-    PROV_LOG ("++++ Data added : %d ", data.value.real32 );
+    PROV_LOG ("++++ Data added : %.3f ", data.value.real32 );
     PROV_LOG ("++++ Getting data sucessful : %s", strCMPIStatus (rc));
 
     count = CMGetContextEntryCount(ctx, &rc);

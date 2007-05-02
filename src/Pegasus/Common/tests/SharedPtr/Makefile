@@ -28,89 +28,23 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../../..
 
-DIRS = \
-    Abstract \
-    AnonymousPipe \
-    Array \
-    AutoPtr \
-    AuditLogger \
-    async_callback \
-    AtomicInt \
-    AuthenticationInfo \
-    Base64 \
-    Buffer \
-	CIMError\
-    Cimom \
-    ClassDecl \
-    Compare \
-    Config \
-    DateTime \
-    Dir \
-    DynLib \
-    DynamicLibrary \
-    FileLock \
-    FileSystem \
-    Flavor \
-    Formatter \
-    HashTable \
-    HTTPMessage \
-    InstanceDecl \
-    IndicationFormatter \
-    L10N \
-    L10N/msg \
-    Logger \
-    MessageQueue \
-    MessageQueueService \
-    MessageSerializer \
-    Method \
-    ModuleController \
-    Mutex \
-    Object \
-    ObjectNormalizer \
-    OperationContext \
-    OptionManager \
-    ParamValue \
-    Parameter \
-    Property \
-    Qualifier \
-    QualifierDecl \
-    QualifierList \
-    Reference \
-    Resolve \
-    Scope \
-    SpinLock \
-    Stack \
-    Stopwatch \
-    StrToInstName \
-    String \
-    System \
-    Thread \
-    ThreadPool \
-    TimeValue \
-    ToMof \
-    Tracer \
-    ValidateClass \
-    Value \
-    XmlDump \
-    XmlParser \
-    XmlPrint \
-    XmlReader \
-    List \
-    AsyncQueue \
-    IDFactory \
-    SharedPtr
-    
+DIR = Pegasus/Common/tests/SharedPtr
 
-ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	StatisticalData
-endif
+include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-	Attribute
-endif
+include ../libraries.mak
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+PROGRAM = TestSharedPtr
+
+SOURCES = TestSharedPtr.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

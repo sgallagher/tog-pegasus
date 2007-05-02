@@ -47,7 +47,7 @@
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 
@@ -84,7 +84,7 @@ public:
     /** Constructor. */
     HTTPConnection(
         Monitor* monitor,
-        AutoPtr<MP_Socket>& socket,
+        SharedPtr<MP_Socket>& socket,
         const String& ipAddress,
         MessageQueue * ownerMessageQueue,
         MessageQueue * outputMessageQueue);
@@ -163,7 +163,7 @@ private:
 
     Monitor* _monitor;
 
-    AutoPtr<MP_Socket> _socket;
+    SharedPtr<MP_Socket> _socket;
     String _ipAddress;
     MessageQueue* _ownerMessageQueue;
     MessageQueue* _outputMessageQueue;
@@ -171,7 +171,7 @@ private:
     Sint32 _contentOffset;
     Sint32 _contentLength;
     Buffer _incomingBuffer;
-    AutoPtr<AuthenticationInfo> _authInfo;
+    SharedPtr<AuthenticationInfo> _authInfo;
     static AtomicInt _requestCount;
 
     // _connectionRequestCount contains the number of

@@ -59,7 +59,7 @@ void Test001a(void)
 
     CIMClass cimClass;
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         false,
@@ -146,7 +146,7 @@ void Test002a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -195,7 +195,7 @@ void Test002b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -248,7 +248,7 @@ void Test002c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -302,7 +302,7 @@ void Test002d(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -360,7 +360,7 @@ void Test003a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -405,7 +405,7 @@ void Test003b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -458,7 +458,7 @@ void Test003c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -513,7 +513,7 @@ void Test003d(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -577,7 +577,7 @@ void Test003e(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -640,7 +640,7 @@ void Test004a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -694,7 +694,7 @@ void Test004b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -761,7 +761,7 @@ void Test005a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -834,7 +834,7 @@ void Test005b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -908,7 +908,7 @@ void Test005c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -993,7 +993,7 @@ void Test005d(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -1071,7 +1071,7 @@ void Test100a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -1128,7 +1128,7 @@ void Test101a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -1208,7 +1208,7 @@ void Test101b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
@@ -1289,7 +1289,7 @@ void Test101c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    AutoPtr<NormalizerContext> nullContext(0);
+    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,

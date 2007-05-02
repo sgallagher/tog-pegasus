@@ -742,7 +742,7 @@ void HTTPAcceptor::_acceptConnection()
     PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 0,
         "HTTPAcceptor - accept() success.  Socket: $1" ,socket));
 
-    AutoPtr<MP_Socket> mp_socket(new MP_Socket(
+    SharedPtr<MP_Socket> mp_socket(new MP_Socket(
         socket, _sslcontext, _sslContextObjectLock));
 
     mp_socket->setSocketWriteTimeout(_socketWriteTimeout);

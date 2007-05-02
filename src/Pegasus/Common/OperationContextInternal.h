@@ -39,7 +39,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
-
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ObjectNormalizer.h>
 
 PEGASUS_NAMESPACE_BEGIN

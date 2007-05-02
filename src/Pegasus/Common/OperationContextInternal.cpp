@@ -282,7 +282,7 @@ NormalizerContextContainer::NormalizerContextContainer(
 {
     if (this != &container)
     {
-        normalizerContext.reset(container.normalizerContext->clone().release());
+        normalizerContext.reset(container.normalizerContext->clone());
     }
 }
 
@@ -298,7 +298,7 @@ NormalizerContextContainer& NormalizerContextContainer::operator=(
         return *this;
     }
 
-    normalizerContext.reset(container.normalizerContext->clone().release());
+    normalizerContext.reset(container.normalizerContext->clone());
 
     return *this;
 }

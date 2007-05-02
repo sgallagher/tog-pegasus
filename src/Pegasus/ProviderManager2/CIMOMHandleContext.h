@@ -34,7 +34,6 @@
 #ifndef Pegasus_CIMOMHandleContext_h
 #define Pegasus_CIMOMHandleContext_h
 
-#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/ObjectNormalizer.h>
@@ -61,7 +60,7 @@ public:
         const CIMName& className,
         bool deepInheritance);
 
-    virtual AutoPtr<NormalizerContext> clone();
+    virtual NormalizerContext* clone();
 
 private:
     CIMOMHandleContext(const CIMOMHandleContext&);

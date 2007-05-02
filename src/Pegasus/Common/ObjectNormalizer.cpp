@@ -261,8 +261,7 @@ CIMProperty ObjectNormalizer::_processProperty(
                         embeddedClassDefs.append(embeddedClassDef);
                     }
 
-                    AutoPtr<NormalizerContext> tmpContext(
-                        context->clone().release());
+                    SharedPtr<NormalizerContext> tmpContext(context->clone());
                     ObjectNormalizer tmpNormalizer(embeddedClassDef,
                         includeQualifiers, includeClassOrigin, nameSpace,
                         tmpContext);
@@ -316,7 +315,7 @@ ObjectNormalizer::ObjectNormalizer(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMNamespaceName& nameSpace,
-    AutoPtr<NormalizerContext>& context)
+    SharedPtr<NormalizerContext>& context)
   : _cimClass(cimClass),
     _includeQualifiers(includeQualifiers),
     _includeClassOrigin(includeClassOrigin),

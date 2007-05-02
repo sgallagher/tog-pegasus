@@ -215,7 +215,7 @@ void * sigabrt_generator(void * parm)
 
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
-    AutoPtr<MP_Socket>& socket,
+    SharedPtr<MP_Socket>& socket,
     const String& ipAddress,
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue)

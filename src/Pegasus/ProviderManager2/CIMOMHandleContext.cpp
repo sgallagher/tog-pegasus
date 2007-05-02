@@ -56,9 +56,8 @@ Array<CIMName> CIMOMHandleContext::enumerateClassNames(
         deepInheritance);
 }
 
-AutoPtr<NormalizerContext> CIMOMHandleContext::clone()
+NormalizerContext* CIMOMHandleContext::clone()
 {
-  AutoPtr<NormalizerContext> tmpPtr(new CIMOMHandleContext(handle));
-  return tmpPtr;
+    return new CIMOMHandleContext(handle);
 }
 

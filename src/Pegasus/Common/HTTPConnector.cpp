@@ -344,7 +344,7 @@ HTTPConnection* HTTPConnector::connect(
 
     // Create HTTPConnection object:
 
-    AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, 0));
+    SharedPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, 0));
     if (mp_socket->connect() < 0)
     {
         char portStr[32];

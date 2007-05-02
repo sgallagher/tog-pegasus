@@ -35,7 +35,7 @@
 #include "CIMOMHandleContext.h"
 
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -302,7 +302,7 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
         cimClass = container.getClass();
     }
 
-    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
     ObjectNormalizer tmpNormalizer(
         cimClass,
         request->includeQualifiers,
@@ -419,7 +419,7 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
         cimClass = container.getClass();
     }
 
-    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
     ObjectNormalizer tmpNormalizer(
         cimClass,
         request->includeQualifiers,
@@ -488,7 +488,7 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
         cimClass = container.getClass();
     }
 
-    AutoPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+    SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
     ObjectNormalizer tmpNormalizer(
         cimClass,
         false,

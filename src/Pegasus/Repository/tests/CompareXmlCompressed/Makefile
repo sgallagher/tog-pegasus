@@ -28,6 +28,7 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
+
 #
 # CompareXmlCompressed Makefile
 #
@@ -40,25 +41,16 @@
 # make repo_build_Internal  	build the repository with Interanal namespace 
 # make repo_build_Interop	build the repository with InterOp namespace
 # make repo_build_ManagedSystem	build the repository with ManagedSystem namespace
-#	
+#
 # make run_test			runs the test
-# make repo_clean		cleans the repsoitory
 # make clean			cleans all
 #
-#
-#
-TESTNAME = CompareXmlCompressed
+
 ROOT = ../../../../..
-DIR = Pegasus/Repository/tests/$(TESTNAME)
+DIR = Pegasus/Repository/tests/CompareXmlCompressed
 
 include $(ROOT)/mak/config.mak
-### include ../libraries.mak
-
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
-LOCAL_CLEAN_TARGET=local-clean
-
-PROGRAM = TestCompareRepositories
-SOURCES = 
+include $(ROOT)/mak/test.mak
 
 ##
 ## REPO_DIR : Directory to build the test repositories in.
@@ -81,9 +73,9 @@ REPO_CMP = repository_cmp
 
 ## include $(ROOT)/mak/program.mak
 
-.PHONY: FORCE repo_build run_test repo_clean tests poststarttests
+.PHONY: repo_build run_test tests poststarttests
 
-FORCE: 
+TESTNAME = CompareXmlCompressed
 
 ##
 ## if PEGASUS_ENABLE_COMPRESSED_REPOSITORY then
@@ -96,8 +88,6 @@ FORCE:
 ##        recompile the repository for no compression	
 ## else
 ##   don't run the tests
-##
-##
 ##
 ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
@@ -138,27 +128,22 @@ repo_regular_compile:
 # or a file. Build one (XML) repository in the server and the BIN 
 # in a local file then compare them. It might be an interesting test
 #
-# poststarttests: repo_Server_build run_test repo_clean
+# poststarttests: repo_Server_build run_test clean
 # 	@ $(ECHO) $(TESTNAME) +++++ FINISHED with test
 #
 
 poststarttests:
 
-clean: local-clean
+clean:
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_CMP)
 
 messages:
 
 depend:
 
-repo_clean:
-	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
-	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_CMP)
-
-local-clean: repo_clean
-	@ - $(RM) -rf file1 file2
-
 run_test:
-	$(PROGRAM) $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_CMP) 
+	TestCompareRepositories $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_CMP) 
 #
 # build both XML and CMP in local files 
 #
@@ -203,6 +188,4 @@ repo_build_ManagedSystems:
 repo_Server_build:
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_ENABLE_COMPRESSED_REPOSITORY=build_non_compressed
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_CMP) REPOSITORY_MODE=XML
-
-
 

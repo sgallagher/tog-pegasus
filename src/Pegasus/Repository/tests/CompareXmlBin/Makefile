@@ -28,8 +28,9 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
+
 #
-# CompareXmlBin MAkefile
+# CompareXmlBin Makefile
 #
 # Commands available are:
 #
@@ -40,24 +41,16 @@
 # make repo_build_Internal  	build the repository with Interanal namespace 
 # make repo_build_Interop	build the repository with InterOp namespace
 # make repo_build_ManagedSystem	build the repository with ManagedSystem namespace
-#	
+#
 # make run_test			runs the test
-# make repo_clean		cleans the repsoitory
 # make clean			cleans all
 #
-#
-#
+
 ROOT = ../../../../..
 DIR = Pegasus/Repository/tests/CompareXmlBin
 
 include $(ROOT)/mak/config.mak
-### include ../libraries.mak
-
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
-LOCAL_CLEAN_TARGET=local-clean
-
-PROGRAM = TestCompareRepositories
-SOURCES = 
+include $(ROOT)/mak/test.mak
 
 ##
 ## REPO_DIR : Directory to build the test repositories in.
@@ -79,12 +72,7 @@ REPO_DIR = $(ROOT)/src/Pegasus/Repository/tests/CompareXmlBin
 REPO_XML = repository_xml
 REPO_BIN = repository_bin
 
-## include $(ROOT)/mak/program.mak
-
-.PHONY: FORCE repo_build run_test repo_clean tests poststarttests
-
-FORCE: 
-
+.PHONY: repo_build run_test tests poststarttests
 
 tests:  repo_build run_test clean
 	@ $(ECHO) +++++ CompareXmlBin repository test: FINISHED with test
@@ -95,27 +83,23 @@ tests:  repo_build run_test clean
 # or a file. Build one (XML) repository in the server and the BIN 
 # in a local file then compare them. It might be an interesting test
 #
-# poststarttests: repo_Server_build run_test repo_clean
+# poststarttests: repo_Server_build run_test clean
 # 	@ $(ECHO) +++++ CompareXmlBin repository test: FINISHED with test
 #
 
 poststarttests:
 
-clean: local-clean
+clean:
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
+	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)
 
 messages:
 
 depend:
 
-repo_clean:
-	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
-	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)
-
-local-clean: repo_clean
-	@ - $(RM) -rf file1 file2
-
 run_test:
-	$(PROGRAM) $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_BIN) 
+	TestCompareRepositories $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_BIN) 
+
 #
 # build both XML and BIN in local files 
 #
@@ -160,6 +144,4 @@ repo_build_ManagedSystems:
 repo_Server_build:
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
-
-
 

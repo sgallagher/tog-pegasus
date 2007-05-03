@@ -250,16 +250,35 @@ void callMethodRefParamArray(CIMClient* client, const CIMName& methodName)
         exit(1);
     }
 }
+
+/** This method handles the SSLCertificate verification part. */
+static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
+{
+    //
+    // If server certificate was found in trust store and validated, then
+    // return 'true' to accept the certificate, otherwise return 'false'.
+    //
+    if (certInfo.getResponseCode() == 1)
+    {
+cout<<"Here in true returning of verifyCertificate..."<<endl;
+        return true;
+    }
+    else
+    {
+cout<<"Here in false returning of verifyCertificate..."<<endl;
+        return false;
+    }
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-asm ("int $3");
     if ((argc < 3) || (argc > 6))
     {
         PEGASUS_STD(cout) << "Wrong number of arguments" << PEGASUS_STD(endl);
         exit(1);
     }
-
+    
     String certpath = String::EMPTY;
     if (argv[1])
     {
@@ -271,13 +290,14 @@ asm ("int $3");
     {
         keypath = argv[2];
     }
+cout<<"Cert = "<<certpath<<"  Key = "<<keypath<<endl;
 
+    const char* pegasusHome = getenv("PEGASUS_HOME");
     String randFile = String::EMPTY;
     if (argc >=4)
     {
         if (strcmp(argv[3],"CONFIG") == 0)
         {
-            const char* pegasusHome = getenv("PEGASUS_HOME");
             randFile = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
         }
@@ -298,17 +318,28 @@ asm ("int $3");
     {
         password = argv[5];
     }
+   
+    String trustStore = FileSystem::getAbsolutePath(pegasusHome,
+        "client.pem");
 
     try
     {
-        SSLContext *pCtx = 0;
+        SSLContext *pCtx = NULL;
         if (certpath != String::EMPTY)
         {
-           pCtx = new SSLContext(String::EMPTY, certpath, keypath, 0, randFile);
+           pCtx = new SSLContext(
+               trustStore,
+               certpath,
+               keypath,
+               verifyCertificate,
+               randFile);
         }
         else
         {
-           pCtx = new SSLContext(String::EMPTY, 0, randFile);
+           pCtx = new SSLContext(
+               trustStore,
+               verifyCertificate,
+               randFile);
         }
 
         CIMClient* client = new CIMClient();
@@ -318,31 +349,31 @@ asm ("int $3");
         {
             cout << "Calling test2" << endl;
         }
-        callMethod(client, "test2");
+        callMethod(client, "Test2");
 
         if (verbose)
         {
             cout << "Calling test1" << endl;
         }
-        callMethod(client, "test1");
+        callMethod(client, "Test1");
 
         if (verbose)
         {
             cout << "Calling test3" << endl;
         }
-        callMethodRefParam(client, "test3");
+        callMethodRefParam(client, "Test3");
         if (verbose)
         {
             cout << "Calling test4" << endl;
         }
-        callMethodRefParamArray(client, "test4");
+        callMethodRefParamArray(client, "Test4");
         if (verbose)
         {
             cout << "Calling getIdentity" << endl;
         }
         callMethod(client, "getIdentity");
 
-    }
+    } 
     catch (Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;

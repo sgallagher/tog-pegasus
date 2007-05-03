@@ -41,7 +41,8 @@ OPENSSL_CNF = openssl.cnf
 ifeq ($(OS_TYPE),windows)
     CURRENT_USER=Administrator
 else
-    CURRENT_USER=root
+    CURRENT_USER=`whoami`
+#    CURRENT_USER=guest
 endif
 
 ifeq ($(OPENSSL_SET_SERIAL_SUPPORTED),true)
@@ -70,23 +71,40 @@ SOURCES = TestMethodTestProviderSSL.cpp
 
 include $(ROOT)/mak/program.mak
 
-cleanup:
-	@$(RM) $(PEGASUS_HOME)/testca1.cert
-	@$(RM) $(PEGASUS_HOME)/testca1.key
-	@$(RM) $(PEGASUS_HOME)/ssltest_setup
-
 tests:
 
-poststarttests: $(OPENSSL_CNF) testca1.txt
-	@$(MAKE) -i -s cleanup
-	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
+poststarttests:
+	@$(ECHO) ++++MethodTestProviderSSL Test
+#	@cimtrust -a -U $(CURRENT_USER) -f $(PEGASUS_HOME)/client.pem -Ts
+	@cimtrust -a -U $(CURRENT_USER) -f $(PEGASUS_HOME)/server.pem -Ts
+	$(TOUCH) $(PEGASUS_HOME)/cimserver_current.conf
+	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf $(PEGASUS_HOME)/cimserver_current.conf.bkup
+	@$(ECHO) Stopping cimserver
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
+	@$(ECHO) Stopped.
 
-	@# Create a self-signed CA
-	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testca1.key 1024
-	@$(OPENSSL_COMMAND) req -new -key $(PEGASUS_HOME)/testca1.key -x509 -config $(OPENSSL_CNF) $(SETSERIAL_0) -days 365 -out $(PEGASUS_HOME)/testca1.cert < testca1.txt
+ifeq ($(OS_TYPE),windows)
+	$(COPY) cimserver_planned.conf.win32 $(PEGASUS_HOME)/cimserver_planned.conf
+else
+	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)/cimserver_planned.conf
+	@$(ECHO) user is $(CURRENT_USER)
+	sed 's/%CURRENT_USER%/'$(CURRENT_USER)'/' $(PEGASUS_HOME)/cimserver_planned.conf > $(PEGASUS_HOME)/cimserver_planned.conf.2
+	$(MOVE) $(PEGASUS_HOME)/cimserver_planned.conf.2 $(PEGASUS_HOME)/cimserver_planned.conf
+endif
 
-	@$(ECHO) "Add the CA certificate to the truststore."
-	@cimtrust -a -T a -U $(CURRENT_USER) -f $(PEGASUS_HOME)/testca1.cert
-
-	$(PROGRAM) $(PEGASUS_HOME)/testca1.cert $(PEGASUS_HOME)/testca1.key
+	@$(ECHO) Starting cimserver
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
+	@$(ECHO) Running
+	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStore
+	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStoreUserName
+	$(PEGASUS_HOME)/bin/cimconfig -g sslClientVerificationMode
+	$(PEGASUS_HOME)/bin/$(PROGRAM) $(PEGASUS_HOME)/client_cert.pem $(PEGASUS_HOME)/client_file.pem $(PEGASUS_HOME)/ssl.rnd
+	@$(ECHO) Stopping cimserver
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
+	@$(ECHO) Stopped.
+	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf.bkup $(PEGASUS_HOME)/cimserver_planned.conf
+	@$(ECHO) Starting cimserver with previous configuration
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
+	@$(ECHO) Running.
+	@$(ECHO) ++++MethodTestProviderSSL test completed.
 

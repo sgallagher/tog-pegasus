@@ -102,6 +102,7 @@ public:
 
     virtual int startProviderAgent(
         const char* module, 
+        const String& userName,
         int uid,
         int gid, 
         int& pid,
@@ -192,6 +193,7 @@ public:
 
     virtual int startProviderAgent(
         const char* module, 
+        const String& userName,
         int uid,
         int gid, 
         int& pid,
@@ -367,16 +369,22 @@ public:
 
                 if (uid != -1 && gid != -1)
                 {
-                    if ((int)getgid() != gid)
+                    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+                        "Changing user context to: userName=%s uid=%d, gid=%d",
+                        (const char*)userName.getCString(), uid, gid));
+
+                    if (setgid(gid) != 0)
                     {
-                        // ATTN: log failure!
-                        setgid(gid);
+                        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                          String("setgid failed: ") + String(strerror(errno)));
+                        return false;
                     }
 
-                    if ((int)getuid() != uid)
+                    if (setuid(uid) != 0)
                     {
-                        // ATTN: log failure!
-                        setuid(uid);
+                        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                          String("setuid failed: ") + String(strerror(errno)));
+                        return false;
                     }
                 }
 
@@ -398,8 +406,6 @@ public:
                         _exit(1);
                     }
                 }
-
-                // ATTN: log failure!
             }
         }
         while (0);
@@ -682,6 +688,7 @@ public:
 
     virtual int startProviderAgent(
         const char* module, 
+        const String& userName,
         int uid,
         int gid, 
         int& pid,
@@ -1083,6 +1090,7 @@ int Executor::removeFile(
 
 int Executor::startProviderAgent(
     const char* module, 
+    const String& userName,
     int uid,
     int gid, 
     int& pid,
@@ -1090,7 +1098,7 @@ int Executor::startProviderAgent(
     AnonymousPipe*& writePipe)
 {
     return _getImpl()->startProviderAgent(module, 
-        uid, gid, pid, readPipe, writePipe);
+        userName, uid, gid, pid, readPipe, writePipe);
 }
 
 int Executor::daemonizeExecutor()

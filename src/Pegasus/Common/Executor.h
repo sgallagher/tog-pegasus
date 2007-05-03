@@ -154,6 +154,7 @@ public:
     */
     static int startProviderAgent(
         const char* module, 
+        const String& userName,
         int uid,
         int gid, 
         int& pid,

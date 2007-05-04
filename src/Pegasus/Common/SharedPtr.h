@@ -36,44 +36,109 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AtomicInt.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class T>
-struct SharedPtrImpl
+/** Rep class for SharedPtr<> and SharedArrayPtr<>.
+*/
+template<class T, class D>
+class SharedPtrRep
 {
-    AtomicInt refs;
-    T* ptr;
+public:
 
-    SharedPtrImpl(T* ptr_) : refs(1), ptr(ptr_)
+    SharedPtrRep()
     {
+        _impl = new Impl(0);
     }
 
-    ~SharedPtrImpl()
+    SharedPtrRep(const SharedPtrRep<T, D>& x)
     {
-	delete ptr;
+        Impl::ref(_impl = x._impl);
     }
+
+    explicit SharedPtrRep(T* ptr)
+    {
+        _impl = new Impl(ptr);
+    }
+
+    ~SharedPtrRep()
+    {
+        Impl::unref(_impl);
+    }
+
+    void assign(const SharedPtrRep<T, D>& x)
+    {
+        if (_impl != x._impl)
+        {
+            Impl::unref(_impl);
+            Impl::ref(_impl = x._impl);
+        }
+    }
+
+    void reset(T* ptr = 0)
+    {
+        if (ptr == _impl->ptr)
+            return;
+
+        if (_impl->refs.get() == 1)
+        {
+            _impl->d(_impl->ptr);
+            _impl->ptr = ptr;
+        }
+        else
+        {
+            Impl::unref(_impl);
+            _impl = new Impl(ptr);
+        }
+    }
+
+    T* get() const
+    {
+        return _impl->ptr;
+    }
+
+    size_t count() const
+    {
+        return _impl->refs.get();
+    }
+
+private:
+
+    struct Impl
+    {
+        D d;
+        AtomicInt refs;
+        T* ptr;
+
+        Impl(T* ptr_) : refs(1), ptr(ptr_)
+        {
+        }
+
+        ~Impl()
+        {
+            d(ptr);
+        }
+
+        static void ref(Impl* impl_)
+        {
+            Impl* impl = (Impl*)(impl_);
+
+            if (impl)
+                impl->refs++;
+        }
+
+        static void unref(Impl* impl_)
+        {
+            Impl* impl = (Impl*)(impl_);
+
+            if (impl && impl->refs.decAndTestIfZero())
+                delete impl;
+        }
+    };
+
+    Impl* _impl;
 };
-
-template<class T>
-inline void ref(const SharedPtrImpl<T>* impl_)
-{
-    SharedPtrImpl<T>* impl = (SharedPtrImpl<T>*)(impl_);
-
-    if (impl)
-    {
-	impl->refs++;
-    }
-}
-
-template<class T>
-inline void unref(SharedPtrImpl<T>* impl_)
-{
-    SharedPtrImpl<T>* impl = (SharedPtrImpl<T>*)(impl_);
-
-    if (impl && impl->refs.decAndTestIfZero())
-	delete impl;
-}
 
 /** This class implements a shared pointer, similar to the one found in BOOST
     (and in countless other libraries). The implementation maintains a pointer
@@ -126,8 +191,8 @@ inline void unref(SharedPtrImpl<T>* impl_)
 
     if (p)
     {
-	// Print the monkey object (print() is a member of the Monkey class).
-	p->print();
+        // Print the monkey object (print() is a member of the Monkey class).
+        p->print();
     }
     \endcode
 
@@ -153,185 +218,91 @@ inline void unref(SharedPtrImpl<T>* impl_)
     SharedPtr p2(p1.get());
     \endcode
 */
-template<class T>
+template<class T, class D = DeletePtr<T> >
 class SharedPtr
 {
 public:
 
-    /** Default constructor.
-    */
-    SharedPtr();
+    typedef SharedPtrRep<T, D> Rep;
 
-    /** Copy constructor.
-    */
-    SharedPtr(const SharedPtr<T>& x);
+    SharedPtr()
+    {
+    }
 
-    /** Explicit constructor for creating a SharedPtr from a target pointer.
-    */
-    explicit SharedPtr(T* ptr);
+    SharedPtr(const SharedPtr<T, D>& x) : _rep(x._rep)
+    {
+    }
 
-    /** Destructor.
-    */
-    ~SharedPtr();
+    explicit SharedPtr(T* ptr) : _rep(ptr)
+    {
+    }
 
-    /** Assignment operator.
-    */
-    SharedPtr& operator=(const SharedPtr& x);
+    ~SharedPtr()
+    {
+    }
 
-    /** Reset the pointer to refer to the ptr argument. The previous target
-	instance is released (deleted if this shared poitner was the only
-	one referring to it).
-    */
-    void reset(T* ptr = 0);
+    SharedPtr<T, D>& operator=(const SharedPtr<T, D>& x)
+    {
+        _rep.assign(x._rep);
+        return *this;
+    }
 
-    /** Operator.
-    */
-    const T* operator->() const;
+    void reset(T* ptr = 0) 
+    { 
+        _rep.reset(ptr); 
+    }
 
-    /** Operator.
-    */
-    T* operator->();
+    T& operator*() const 
+    { 
+        return *get(); 
+    }
 
-    /** Obtain a pointer to the target instance.
-    */
-    T* get() const;
+    T* operator->() const 
+    { 
+        return get(); 
+    }
 
-    /** Operator.
-    */
-    T& operator*();
+    T* get() const 
+    { 
+        return _rep.get(); 
+    }
 
-    /** Operator.
-    */
-    const T& operator*() const;
+    operator bool() const 
+    { 
+        return get() != 0; 
+    }
 
-    /** Returns true if the target pointer is non-null.
-    */
-    operator bool() const;
+    size_t count() const 
+    {
+        return _rep.count(); 
+    }
 
-    /** Returns true if the target pointer is null.
-    */
-    bool operator!() const;
+protected:
 
-    /** Returns the number of SharedPtr objects refering to the target
-	object.
-    */
-    size_t count() const;
-
-private:
-    typedef SharedPtrImpl<T> Impl;
-    Impl* _impl;
+    Rep _rep;
 };
 
-template<class T>
-inline SharedPtr<T>::SharedPtr()
+/** SharedArrayPtr<> has the same interface as SharedPtr<> but works on
+    arrays.
+*/
+template<class T, class D = DeleteArrayPtr<T> >
+class SharedArrayPtr : public SharedPtr<T, D>
 {
-    _impl = new Impl(0);
-}
+public:
 
-template<class T>
-inline SharedPtr<T>::SharedPtr(const SharedPtr<T>& x)
-{
-    ref(_impl = x._impl);
-}
-
-template<class T>
-inline SharedPtr<T>::SharedPtr(T* ptr)
-{
-    _impl = new Impl(ptr);
-}
-
-template<class T>
-inline SharedPtr<T>::~SharedPtr()
-{
-    unref(_impl);
-}
-
-template<class T>
-SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr& x)
-{
-    if (_impl != x._impl)
+    SharedArrayPtr()
     {
-	unref(_impl);
-	ref(_impl = x._impl);
     }
-    return *this;
-}
 
-template<class T>
-void SharedPtr<T>::reset(T* ptr)
-{
-    if (ptr == _impl->ptr)
-	return;
-
-    if (_impl->refs.get() == 1)
+    explicit SharedArrayPtr(T* ptr) : SharedPtr<T, D>(ptr)
     {
-	delete _impl->ptr;
-	_impl->ptr = ptr;
     }
-    else
+
+    T& operator[](size_t i) const
     {
-	unref(_impl);
-	_impl = new Impl(ptr);
+        return this->_rep.get()[i];
     }
-}
-
-template<class T>
-inline const T* SharedPtr<T>::operator->() const
-{
-    return _impl->ptr;
-}
-
-template<class T>
-inline T* SharedPtr<T>::operator->()
-{
-    return _impl->ptr;
-}
-
-template<class T>
-inline T* SharedPtr<T>::get() const
-{
-    return _impl->ptr;
-}
-
-template<class T>
-inline T& SharedPtr<T>::operator*()
-{
-    // Note: even with a shared pointer, it is possible to dereference a 
-    // null pointer.
-    return *_impl->ptr;
-}
-
-template<class T>
-inline const T& SharedPtr<T>::operator*() const
-{
-    // Note: even with a shared pointer, it is possible to dereference a 
-    // null pointer.
-    return *_impl->ptr;
-}
-
-template<class T>
-inline SharedPtr<T>::operator bool() const
-{
-    return _impl->ptr != 0;
-}
-
-template<class T>
-inline bool SharedPtr<T>::operator!() const
-{
-    return _impl->ptr == 0;
-}
-
-template<class T>
-inline size_t SharedPtr<T>::count() const
-{
-    return _impl->refs.get();
-}
-
-template<class T>
-inline bool operator==(const SharedPtr<T>& x, const SharedPtr<T>& y)
-{
-    return x.ptr() == y.ptr();
-}
+};
 
 PEGASUS_NAMESPACE_END
 

@@ -63,6 +63,9 @@ Uint32 Monkey::numDestructions = 0;
 
 void testSharedPtr()
 {
+    Monkey::numConstructions = 0;
+    Monkey::numDestructions = 0;
+
     {
         SharedPtr<Monkey> p1(new Monkey);
         SharedPtr<Monkey> p2(p1);
@@ -133,9 +136,51 @@ void testSharedPtr()
     PEGASUS_TEST_ASSERT(Monkey::numDestructions == 2);
 }
 
+void testSharedArrayPtr()
+{
+    Monkey::numConstructions = 0;
+    Monkey::numDestructions = 0;
+
+    {
+        SharedArrayPtr<Monkey> p1(new Monkey[3]);
+
+        PEGASUS_TEST_ASSERT(Monkey::numConstructions == 3);
+        PEGASUS_TEST_ASSERT(Monkey::numDestructions == 0);
+
+        SharedArrayPtr<Monkey> p5(new Monkey[2]);
+        p1 = p5;
+
+        PEGASUS_TEST_ASSERT(Monkey::numConstructions == 5);
+        PEGASUS_TEST_ASSERT(Monkey::numDestructions == 3);
+
+        PEGASUS_TEST_ASSERT(p1[0].index == p5[0].index);
+        PEGASUS_TEST_ASSERT(p1[1].index == p5[1].index);
+        PEGASUS_TEST_ASSERT(p1[0].index != p1[1].index);
+    }
+
+    PEGASUS_TEST_ASSERT(Monkey::numConstructions == 5);
+    PEGASUS_TEST_ASSERT(Monkey::numDestructions == 5);
+}
+
+struct FreeCharPtr
+{
+    void operator()(char* ptr)
+    {
+        free(ptr);
+    }
+};
+
+void testCharPtr()
+{
+    // Test with FreeCharPtr<> function object.
+    SharedPtr<char, FreeCharPtr> s((char*)malloc(1024));
+}
+
 int main()
 {
     testSharedPtr();
+    testSharedArrayPtr();
+    testCharPtr();
     printf("+++++ passed all tests\n");
 
     return 0;

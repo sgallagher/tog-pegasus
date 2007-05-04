@@ -29,326 +29,216 @@
 //
 //==============================================================================
 //
-// Author:  Amit K Arora (amita@in.ibm.com) - Bug#2179
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
-
-PEGASUS_NAMESPACE_BEGIN
 
 class TestClass
 {
 public:
     TestClass()
     {
-      staticVar  = 0;
+        value = 0;
+        instanceCount++;
     }
 
+    // Do not pass a value of -1 to this constructor.
     TestClass(int i)
     {
-      staticVar = i;
+        PEGASUS_TEST_ASSERT(i != -1);
+        value = i;
+        instanceCount++;
     }
 
     ~TestClass()
     {
-      staticVar = -1;
+        PEGASUS_TEST_ASSERT(value != -1);
+        value = -1;
+        instanceCount--;
     }
 
-    void set(int i)
+    // Do not pass a value of -1 to this method.
+    void setValue(int i)
     {
-       staticVar = i;
+        PEGASUS_TEST_ASSERT(i != -1);
+        PEGASUS_TEST_ASSERT(value != -1);
+        value = i;
     }
 
-    static int get(void)
+    int getValue()
     {
-        return staticVar;
+        PEGASUS_TEST_ASSERT(value != -1);
+        return value;
     }
+
+    static int instanceCount;
 
 private:
-    static int staticVar;
+    int value;
 };
 
+int TestClass::instanceCount = 0;
 
-int TestClass::staticVar=0;
-
-void TestDefaultConstructor()
+void testConstructorAndDestructor()
 {
-  AutoPtr<TestClass> autoP;
-  AutoArrayPtr<TestClass> autoAP;
-  
-  if(autoP.get() != NULL || autoAP.get() != NULL)
-  {
-     Exception e("TestDefaultConstructor() failed.");
-     throw e;
-  }
+    // Test default constructor
+    {
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 0);
+
+        AutoPtr<TestClass> autoPtr;
+        AutoArrayPtr<TestClass> autoArrayPtr;
+
+        PEGASUS_TEST_ASSERT(autoPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 0);
+    }
+    PEGASUS_TEST_ASSERT(TestClass::instanceCount == 0);
+
+    // Test constructor with pointer argument
+    {
+        TestClass* testClassPtr = new TestClass();
+        TestClass* testClassArrayPtr = new TestClass[4];
+
+        AutoPtr<TestClass> autoPtr(testClassPtr);
+        AutoArrayPtr<TestClass> autoArrayPtr(testClassArrayPtr);
+
+        PEGASUS_TEST_ASSERT(autoPtr.get() == testClassPtr);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == testClassArrayPtr);
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 5);
+    }
+    PEGASUS_TEST_ASSERT(TestClass::instanceCount == 0);
 }
 
-void TestConstructorWithPtrArg()
+void testMethods()
 {
-  TestClass* tcPtr, *tcAPtr;
+    // Test get and reset methods
+    {
+        TestClass* testClassPtr = new TestClass();
+        TestClass* testClassArrayPtr = new TestClass[4];
 
-  tcPtr = new TestClass(); // This should set 'staticVar' to "0"
-  tcAPtr = new TestClass[4]; // This should set 'staticVar' to "0"
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 5);
 
-  AutoPtr<TestClass> autoP(tcPtr); 
-  AutoArrayPtr<TestClass> autoAP(tcAPtr); 
+        AutoPtr<TestClass> autoPtr;
+        AutoArrayPtr<TestClass> autoArrayPtr;
 
-  if(autoP.get() == tcPtr && autoAP.get() == tcAPtr) 
-       return;  // if true, test passed.
- 
-  // If we are here ... its a failure !
-  Exception e("TestConstructorWithPtrArg() failed.");  
-  throw e;
+        PEGASUS_TEST_ASSERT(autoPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 5);
 
+        autoPtr.reset(testClassPtr);
+        autoArrayPtr.reset(testClassArrayPtr);
+
+        PEGASUS_TEST_ASSERT(autoPtr.get() == testClassPtr);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == testClassArrayPtr);
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 5);
+
+        autoPtr.reset();
+        autoArrayPtr.reset();
+
+        PEGASUS_TEST_ASSERT(autoPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 0);
+    }
+    PEGASUS_TEST_ASSERT(TestClass::instanceCount == 0);
+
+    // Test release method
+    {
+        TestClass* testClassPtr = new TestClass();
+        TestClass* testClassArrayPtr = new TestClass[4];
+
+        AutoPtr<TestClass> autoPtr(testClassPtr);
+        AutoArrayPtr<TestClass> autoArrayPtr(testClassArrayPtr);
+
+        PEGASUS_TEST_ASSERT(autoPtr.get() == testClassPtr);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == testClassArrayPtr);
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 5);
+
+        autoPtr.release();
+        autoArrayPtr.release();
+
+        PEGASUS_TEST_ASSERT(autoPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == 0);
+        PEGASUS_TEST_ASSERT(TestClass::instanceCount == 5);
+
+        delete testClassPtr;
+        delete [] testClassArrayPtr;
+    }
+    PEGASUS_TEST_ASSERT(TestClass::instanceCount == 0);
 }
 
-void TestDestructor()
+void testOperators()
 {
-  TestClass* tcPtr, *tcAPtr;
-  Exception e("TestDestructor() failed.");  
+    // Test operator*
+    {
+        TestClass* testClassPtr = new TestClass(5);
+        TestClass* testClassArrayPtr = new TestClass[4];
+        testClassArrayPtr[0].setValue(50);
 
-  tcPtr = new TestClass();
-  tcAPtr = new TestClass[5];
+        AutoPtr<TestClass> autoPtr(testClassPtr);
+        AutoArrayPtr<TestClass> autoArrayPtr(testClassArrayPtr);
 
-  // TEST AutoPtr //
+        PEGASUS_TEST_ASSERT(autoPtr.get() == testClassPtr);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == testClassArrayPtr);
 
-  // Create a scope for AutoPtr object. 
-  // The destructor of AutoPtr would be called at the end of the scope,
-  // which in turn SHOULD call the destructor of TestClass.
-  {
-    AutoPtr<TestClass> autoP(tcPtr);
-    autoP.get()->set(1);
-  }
+        PEGASUS_TEST_ASSERT(autoPtr.get()->getValue() == 5);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get()[0].getValue() == 50);
+        PEGASUS_TEST_ASSERT((*autoPtr).getValue() == 5);
+        PEGASUS_TEST_ASSERT((*autoArrayPtr).getValue() == 50);
+    }
 
-  // Destructor of AutoPtr should have deleted the memory pointed by
-  // 'tc', and thus destructor of TestClass should have set the 'staticVar'
-  // to "-1". Lets Confirm it ...
+    // Test operator->
+    {
+        TestClass* testClassPtr = new TestClass(5);
+        TestClass* testClassArrayPtr = new TestClass[4];
+        testClassArrayPtr[0].setValue(50);
 
-  if(TestClass::get() != -1) throw e;
+        AutoPtr<TestClass> autoPtr(testClassPtr);
+        AutoArrayPtr<TestClass> autoArrayPtr(testClassArrayPtr);
 
+        PEGASUS_TEST_ASSERT(autoPtr.get() == testClassPtr);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == testClassArrayPtr);
 
-  // TEST AutoArrayPtr //
-  // Create a scope for AutoArrayPtr object. 
-  {
-    AutoArrayPtr<TestClass> autoAP(tcAPtr);
-    autoAP.get()->set(1);
-  }
+        PEGASUS_TEST_ASSERT(autoPtr.get()->getValue() == 5);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get()[0].getValue() == 50);
+        PEGASUS_TEST_ASSERT(autoPtr->getValue() == 5);
+        PEGASUS_TEST_ASSERT(autoArrayPtr->getValue() == 50);
+    }
 
-  // Destructor of AutoArrayPtr should have deleted the memory pointed by
-  // 'tc', and thus destructor of TestClass should have set the 'staticVar'
-  // to "-1". Lets Confirm it ...
+    // Test operator[]
+    {
+        TestClass* testClassArrayPtr = new TestClass[4];
+        testClassArrayPtr[1].setValue(1000);
+        testClassArrayPtr[2].setValue(80);
 
-  if(TestClass::get() == -1) return;
+        AutoArrayPtr<TestClass> autoArrayPtr(testClassArrayPtr);
 
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get() == testClassArrayPtr);
 
-  // If we are here ... its an error !
-  throw e;
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get()[1].getValue() == 1000);
+        PEGASUS_TEST_ASSERT(autoArrayPtr[1].getValue() == 1000);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get()[2].getValue() == 80);
+        PEGASUS_TEST_ASSERT(autoArrayPtr[2].getValue() == 80);
+
+        autoArrayPtr[1].setValue(2000);
+
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get()[1].getValue() == 2000);
+        PEGASUS_TEST_ASSERT(autoArrayPtr[1].getValue() == 2000);
+        PEGASUS_TEST_ASSERT(autoArrayPtr.get()[2].getValue() == 80);
+        PEGASUS_TEST_ASSERT(autoArrayPtr[2].getValue() == 80);
+    }
 }
 
-
-void TestCopyConstructor()
-{
-   int testVal=100;
-   Exception e("TestCopyConstructor() failed.");
-
-   // TEST AutoPtr //
-   AutoPtr<TestClass> autoP1(new TestClass(testVal));
-   AutoPtr<TestClass> autoP2(autoP1);
-   if(autoP1.get() != NULL) throw e;
-   if(autoP2.get()->get() != testVal) throw e;
-
-   // TEST AutoArrayPtr //
-   AutoArrayPtr<TestClass> autoAP1(new TestClass[4]);
-   for(int i=0;i<4;i++)
-   {
-    ((TestClass *)autoAP1.get() + i)->set(testVal);
-   }
-
-   AutoArrayPtr<TestClass> autoAP2(autoAP1);
-   if(autoAP1.get() != NULL) throw e;
-   for(int i=0;i<4;i++)
-   {
-    if(((TestClass *)autoAP1.get() + i)->get() != testVal) throw e;
-   }
-
-   // If we are here, the test passed.
-   return;
-}
-
-void TestEqualsOperator()
-{
-   int testVal=200;
-   Exception e("TestEqualsOperator() failed.");
-
-   // TEST AutoPtr //
-   AutoPtr<TestClass> autoP1(new TestClass(testVal));
-   AutoPtr<TestClass> autoP2;
-
-   autoP2 = autoP1;
-
-   if(autoP1.get() != NULL) throw e;
-   if(autoP2.get()->get() != testVal) throw e;
-
-   // TEST AutoArrayPtr //
-   AutoArrayPtr<TestClass> autoAP1(new TestClass[4]);
-   for(int i=0;i<4;i++)
-   {
-     ((TestClass *)autoAP1.get() + i)->set(testVal);
-   }
-
-   AutoArrayPtr<TestClass> autoAP2;
-
-   autoAP2 = autoAP1;
-
-   if(autoAP1.get() != NULL) throw e;
-   for(int i=0;i<4;i++)
-   {
-       if(((TestClass *)autoAP1.get() + i)->get() != testVal) throw e;
-   }
-
-   // If we are here, the test passed.
-   return; 
-}
-
-void TestArrowOperator()   // Test "->" Operator
-{
-   int testVal=300;
-   Exception e("TestArrowOperator() failed.");
-
-   // TEST AutoPtr //
-   AutoPtr<TestClass> autoP(new TestClass(testVal));
-   if(autoP->get() != testVal) throw e;
-
-   // TEST AutoArrayPtr //
-   AutoArrayPtr<TestClass> autoAP(new TestClass[3]);
-   if(autoAP->get() != 0) throw e;
-   // Test passed if we are here ..
-   return;
-}
-
-
-void TestOtherMethods()
-{
-   int testVal=400;
-
-   AutoPtr<TestClass> autoP(new TestClass(testVal));
-   AutoArrayPtr<TestClass> autoAP(new TestClass[3]);
-   for(int i=0; i<4; i++)
-   {
-     ((TestClass *)autoAP.get() + i)->set(testVal);
-   }
-   
-   // TestGetMethod 
-   if(autoP.get()->get() != testVal)
-   {
-      Exception e("TestGetMethod failed in TestOtherMethods().");
-      throw e;
-   }
-
-   for(int i=0; i<4; i++)
-   {
-     if(((TestClass *)autoAP.get() + i)->get() != testVal)
-     {
-       Exception e("TestGetMethod failed in TestOtherMethods().");
-       throw e;
-     }
-   }
-
-
-   // TestReleaseMethod 
-   TestClass* tcPtr = autoP.release();
-   TestClass* tcAPtr = autoAP.release();
-   delete tcPtr;
-   delete [] tcAPtr;
-
-   if(autoP.get() != NULL || autoAP.get() != NULL)
-   {
-      Exception e("TestReleaseMethod failed in TestOtherMethods().");
-      throw e;
-   }
-
-   // TestResetMethod 
-   tcPtr = new TestClass(testVal);
-   tcAPtr = new TestClass[3];
-
-   for(int i=0; i<4; i++)
-   {
-     (tcAPtr + i)->set(testVal);
-   }
-
-
-   autoP.reset(tcPtr);
-   autoAP.reset(tcAPtr);
-   if(autoP.get()->get() != testVal)
-   {
-      Exception e("TestResetMethod failed in TestOtherMethods().");
-      throw e;
-   }
-
-   for(int i=0; i<4; i++)
-   {
-     if(((TestClass *)autoAP.get() + i)->get() != testVal)
-     {
-       Exception e("TestGetMethod failed in TestOtherMethods().");
-       throw e;
-     }
-   }
-   
-   autoP.reset();
-   autoAP.reset();
-
-   if(TestClass::get() != -1 || autoP.get() != NULL || autoAP.get() != NULL)
-   {
-      Exception e("TestResetMethod failed in TestOtherMethods().");
-      throw e;
-   }
-}
-
-PEGASUS_NAMESPACE_END
-
-
-// main function
 int main(int argc, char** argv)
 {
+    testConstructorAndDestructor();
+    testMethods();
+    testOperators();
 
- try
- {
-
-  TestDefaultConstructor();
-
-  TestConstructorWithPtrArg();
-
-  TestDestructor();
-
-  TestCopyConstructor();
-
-  TestEqualsOperator();
-
-  TestArrowOperator();  // "->" operator
-
-  TestOtherMethods();
-
- }
- catch(Exception &e)
- {
-    cout << "AutoPtrTest: " << e.getMessage() << endl;
-    exit(1);
- }
- catch(...)
- {
-    cout << "AutoPtrTest Failed." << endl;
-    exit(1);
- }
-
-cout << argv[0] << " +++++ passed all tests" << endl;
-
-return 0;
+    cout << argv[0] << " +++++ passed all tests" << endl;
+    return 0;
 }
-

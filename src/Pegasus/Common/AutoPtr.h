@@ -38,115 +38,67 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** Function object for deleting pointer referring to a single object.
+*/
+template<class T>
+struct DeletePtr
+{
+    void operator()(T* ptr)
+    {
+        delete ptr;
+    }
+};
+
+/** Function object for deleting a pointer referring to an array.
+*/
+template<class T>
+struct DeleteArrayPtr
+{
+    void operator()(T* ptr)
+    {
+        delete [] ptr;
+    }
+};
+
 /**
-    This class provides a convenient way of disposing off a heap object.
+    This class provides a convenient way of disposing of a heap object.
     It automatically deletes the enclosed pointer on destruction. For
     example:
 
     <pre>
         A* a = new A;
-        AutoPtr<A> dummy = a;
+        AutoPtr<A> dummy(a);
     </pre>
 
     When the AutoPtr object destructs, it frees the instance of A.
-    This is particularly useful when a function has multiple returns.
+    This is particularly useful when a function has multiple returns or
+    exception conditions.
 
     There are two classes here: AutoPtr<> and AutoArrayPtr<>. The
     AutoArrayPtr<> class is used when a pointer must be deleted using the
-    array form as shown below:
-
-    <pre>
-        delete [] ptr;
-    <pre>
+    array form of the delete operator ("delete []").
 */
 
-template<class X> class AutoPtr;
-
-template<class X> class AutoPtrRef {
+template<class X, class D = DeletePtr<X> > class AutoPtr
+{
 public:
-    inline AutoPtrRef(AutoPtr<X> &ref) : _ref(ref)
-    {
-        // This block intentionally left blank
-    }
 
-    inline AutoPtr<X> get()
-    {
-        return _ref;
-    }
-
-private:
-    AutoPtr<X> &_ref;
-};
-
-
-template<class X> class AutoArrayPtr;
-
-template<class X> class AutoArrayPtrRef {
-public:
-    inline AutoArrayPtrRef(AutoArrayPtr<X> &ref) : _ref(ref)
-    {
-       // This block intentionally left blank
-    }
-
-    inline AutoArrayPtr<X> get()
-    {
-        return _ref;
-    }
-
-private:
-    AutoArrayPtr<X> &_ref;
-};
-
-
-
-template<class X> class AutoPtr {
-public:
     // This constructor helps this AutoPtr to take ownership of the memory
     // object pointed by p. It also acts as a default constructor (if no
     // argument is passed, it assigns a value of "0" to _ptr.
     // Example:  AutoPtr<SSLContext> sslContextA(new SSLContext());
     //           AutoPtr<SSLContext> sslContextB;
     //   sslContextB here has _ptr set to "0".
-    inline explicit AutoPtr(X* p = 0) throw()
+    explicit AutoPtr(X* p = 0) throw()
         : _ptr(p)
     {
-        // This block intentionally left blank
     }
 
     // Destructor makes sure to delete the object pointed by _ptr thus
     // avoiding memory leaks
-    inline ~AutoPtr() throw()
+    ~AutoPtr() throw()
     {
-        delete _ptr;
-    }
-
-    // The copy constructor takes the ownership of the heap object from
-    // the source AutoPtr object. And since there should be only one
-    // legitimate owner, it sets the _ptr of the source to "0"
-    inline AutoPtr(AutoPtrRef<X> &a) throw()
-        : _ptr((a.get()).release())
-    {
-        //a._ptr = 0;
-    }
-
-    inline AutoPtr(AutoPtr<X> &a) throw() : _ptr(a.release())
-    {
-    }
-
-    // Overloading of "=" operator makes sure that the ownership of the memory
-    // gets transferred properly to 'this' AutoPtr object.
-    // Example:   AutoPtr<HTTPConnection> httpConnectionB = httpConnectionA;
-    AutoPtr<X> &operator=(AutoPtr<X>& a) throw()
-    {
-        if ( this != &a )
-            reset(a.release());
-        return *this;
-    }
-
-    inline AutoPtr<X> &operator=(AutoPtrRef<X> &a) throw()
-    {
-        reset((a.get()).release());
-        return *this;
+        d(_ptr);
     }
 
     // This method can be used to get the pointer to heap object encapsulated
@@ -155,13 +107,13 @@ public:
     //            func1(objA.get(), NULL);
     // Here func1() is a function which takes first argument as pointer to the
     // object of classA.
-    inline X *get() const throw()
+    inline X* get() const throw()
     {
         return _ptr;
     }
 
     // Returns the heap object itself (not the pointer to it)
-    inline X &operator*() const throw()
+    inline X& operator*() const throw()
     {
         return *_ptr;
     }
@@ -174,7 +126,7 @@ public:
     // funcA() is a function in the classA. Although objA is an AutoPtr, still
     // "->" operator would result in calling _ptr->funcA() because of this
     // overloading only.
-    inline X *operator->() const throw()
+    inline X* operator->() const throw()
     {
         return _ptr;
     }
@@ -183,132 +135,56 @@ public:
     // Return the pointer to the heap object and set _ptr to "0".
     inline X* release() throw()
     {
-        X *t = _ptr;
+        X* t = _ptr;
         _ptr = 0;
         return t;
     }
 
     // Delete the heap object and thus release ownership
-    inline void reset(X *p = 0) throw()
+    inline void reset(X* p = 0) throw()
     {
         if (p != _ptr)
         {
-            delete _ptr;
+            d(_ptr);
             _ptr = p;
         }
     }
 
-    AutoPtr(AutoPtrRef<X> obj) throw()
-        : _ptr((obj.get()).get())
-    {
-        // This block intentionally left blank
-    }
-
-    template<class Y> operator AutoPtrRef<Y>() throw()
-    {
-        return AutoPtrRef<Y>(*this);
-    }
-
-    template<class Y> operator AutoPtr<Y>() throw()
-    {
-        return AutoPtr<Y>(release());
-    }
-
 private:
+    AutoPtr(const AutoPtr<X>&);
+    AutoPtr<X>& operator=(const AutoPtr<X>&);
+
+    // An object that knows how to delete the dynamic memory correctly
+    D d;
+
     // A pointer to the heap object
-     X* _ptr;
-};
-
-
-template<class X> class AutoArrayPtr {
-public:
-    inline explicit AutoArrayPtr(X* p = 0) throw()
-        : _ptr(p)
-    {
-        // This block intentionally left blank
-    }
-
-    inline ~AutoArrayPtr() throw()
-    {
-        delete [] _ptr;
-    }
-
-    inline AutoArrayPtr(AutoArrayPtrRef<X> &a) throw()
-        : _ptr((a.get()).release())
-    {
-        //a._ptr = 0;
-    }
-
-    inline AutoArrayPtr(AutoArrayPtr<X> &a) throw() : _ptr(a.release())
-    {
-    }
-
-    AutoArrayPtr<X> &operator=(AutoArrayPtr<X>& a) throw()
-    {
-        reset(a.release());
-        return *this;
-    }
-
-    inline AutoArrayPtr<X> &operator=(AutoArrayPtrRef<X> &a) throw()
-    {
-        if (this != a)
-            reset((a.get()).release());
-        return *this;
-    }
-
-    inline X *get() const throw()
-    {
-        return _ptr;
-    }
-
-    inline X &operator*() const throw()
-    {
-        return *_ptr;
-    }
-
-    inline X *operator->() const throw()
-    {
-        return _ptr;
-    }
-
-    inline X* release() throw()
-    {
-        X *t = _ptr;
-        _ptr = 0;
-        return t;
-    }
-
-    inline void reset(X *p = 0) throw()
-    {
-        if (p != _ptr)
-        {
-            // use "[]" since _ptr is pointer to an array
-            delete [] _ptr;
-            _ptr = p;
-        }
-    }
-
-    AutoArrayPtr(AutoArrayPtrRef<X> obj) throw()
-        : _ptr((obj.get()).get())
-    {
-        // This block intentionally left blank
-    }
-
-    template<class Y> operator AutoArrayPtrRef<Y>() throw()
-    {
-        return AutoArrayPtrRef<Y>(*this);
-    }
-
-    template<class Y> operator AutoArrayPtr<Y>() throw()
-    {
-        return AutoArrayPtr<Y>(release());
-    }
-
-
-private:
     X* _ptr;
 };
 
+
+template<class X> class AutoArrayPtr : public AutoPtr<X, DeleteArrayPtr<X> >
+{
+public:
+
+    explicit AutoArrayPtr(X* p = 0) throw()
+        : AutoPtr<X, DeleteArrayPtr<X> >(p)
+    {
+    }
+
+    X& operator[](Uint32 index) throw()
+    {
+        return this->get()[index];
+    }
+
+    const X& operator[](Uint32 index) const throw()
+    {
+        return this->get()[index];
+    }
+
+private:
+    AutoArrayPtr(const AutoArrayPtr<X>&);
+    AutoArrayPtr<X>& operator=(const AutoArrayPtr<X>&);
+};
 
 PEGASUS_NAMESPACE_END
 

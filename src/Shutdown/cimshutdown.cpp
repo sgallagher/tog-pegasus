@@ -33,19 +33,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Client/CIMClient.h>
-#include <Executor/Defines.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/signal.h>
-#include <unistd.h>
-
-#if defined(PEGASUS_OS_HPUX)
-# include <sys/pstat.h>
-#endif
-
-#define PEGASUS_BUFFER_SIZE 1024
+#include <Service/ServerRunStatus.h>
+#include <Service/ServerShutdownClient.h>
 
 #ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 # define PEGASUS_PROCESS_NAME "cimservermain"
@@ -56,286 +45,52 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const char* arg0;
-
-//==============================================================================
-//
-// _getProcessName()
-//
-//==============================================================================
-
-#if defined(PEGASUS_OS_HPUX)
-
-static int _getProcessName(int pid, char name[PEGASUS_BUFFER_SIZE])
-{
-    struct pst_status psts;
-
-    if (pstat_getproc(&psts, sizeof(psts), 0, pid) == -1)
-        return -1;
-
-    name[0] = '\0';
-    strncat(name, psts.pst_ucomm, PEGASUS_BUFFER_SIZE);
-
-    return 0;
-}
-
-#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-
-static int _getProcessName(int pid, char name[PEGASUS_BUFFER_SIZE])
-{
-    // Read the process name from the file.
-
-    static char buffer[1024];
-    sprintf(buffer, "/proc/%d/stat", pid);
-    FILE* is = fopen(buffer, "r");
-
-
-    if (!is)
-        return -1;
-
-    // Read the first line of the file.
-
-    if (fgets(buffer, sizeof(buffer), is) == NULL)
-    {
-        fclose(is);
-        return -1;
-    }
-
-    fclose(is);
-
-    // Extract the PID enclosed in parentheses.
-
-    const char* start = strchr(buffer, '(');
-
-    if (!start)
-        return -1;
-
-    start++;
-
-    const char* end = strchr(start, ')');
-
-    if (!end)
-        return -1;
-
-    if (start == end)
-        return -1;
-
-    name[0] = '\0';
-    strncat(name, start, end - start);
-
-    return 0;
-}
-
-#else
-# error "not implemented on this platform."
-#endif /* PEGASUS_PLATFORM_LINUX_GENERIC_GNU */
-
-//==============================================================================
-//
-// _readPidFile()
-//
-//==============================================================================
-
-static int _readPidFile(const char* path, int& pid)
-{
-    FILE* is = fopen(path, "r");
-
-    if (!is) 
-        return -1;
-
-    pid = 0;
-
-    fscanf(is, "%d\n", &pid);
-    fclose(is);
-
-    if (pid == 0)
-        return -1;
-
-    return 0;
-}
-
-//==============================================================================
-//
-// _killCimServer()
-//
-//     Kill the CIM server. Obtain the PID of the server from the PID file.
-//
-//==============================================================================
-
-static int _killCimServer()
-{
-    // Read the PID from the PID file.
-
-    int pid;
-
-    if (_readPidFile(PEGASUS_CIMSERVER_START_FILE, pid) != 0)
-        return -1;
-
-    // Kill the cimserver process:
-
-    char name[PEGASUS_BUFFER_SIZE];
-
-    if (_getProcessName(pid, name) != 0)
-        return -1;
-
-    if (strcmp(name, PEGASUS_PROCESS_NAME) != 0)
-        return -1;
-
-    kill(pid, SIGKILL);
-  
-    return 0;
-}
-
-//==============================================================================
-//
-// _waitForTerminationOrTimeout()
-//
-//     Kill the CIM server. Obtain the PID of the server from the PID file.
-//
-//==============================================================================
-
-static void _waitForTerminationOrTimeout(Uint32 timeout)
-{
-    bool running = true;
-
-    for (; running && timeout; timeout--)
-    {
-        // If PID file disappeared, process no longer running.
-
-        int pid;
-
-        if (_readPidFile(PEGASUS_CIMSERVER_START_FILE, pid) != 0)
-        {
-            running = false;
-            break;
-        }
-
-        // If process name changed, process no longer running.
-
-        char name[PEGASUS_BUFFER_SIZE];
-
-        if (_getProcessName(pid, name) != 0 ||
-            strcmp(name, PEGASUS_PROCESS_NAME) != 0)
-        {
-            running = false;
-            break;
-        }
-
-        sleep(1);
-    }
-
-    if (running)
-    {
-        if (_killCimServer() == 0)
-        {
-            cerr << "Timeout expired forced shutdown initiated" << endl;
-        }
-    }
-}
-
-//==============================================================================
-//
-// _shutdownCimServer()
-//
-//==============================================================================
-
-static void _shutdownCimServer(Uint32 timeout)
-{
-    // Connect locally to CIM server.
-
-    CIMClient client;
-
-    try
-    {
-        client.connectLocal();
-        client.setTimeout(2000);
-    }
-    catch(Exception& e)
-    {
-        cerr << "Unable to connect to CIM Server." << endl;
-        cerr << "CIM Server may not be running." << endl;
-        exit(0);
-    }
-
-    // Invoke extrinsic PG_ShutdownService.shutdown() method.
-
-    try
-    {
-        String referenceStr = "//";
-        referenceStr.append(System::getHostName());
-        referenceStr.append("/");
-        referenceStr.append(PEGASUS_NAMESPACENAME_SHUTDOWN.getString());
-        referenceStr.append(":");
-        referenceStr.append(PEGASUS_CLASSNAME_SHUTDOWN.getString());
-        CIMObjectPath reference(referenceStr);
-
-        Array<CIMParamValue> inParams;
-        inParams.append(CIMParamValue("force", CIMValue(Boolean(true))));
-
-        inParams.append(CIMParamValue("timeout", CIMValue(Uint32(timeout))));
-        Array<CIMParamValue> outParams;
-
-        CIMValue retValue = client.invokeMethod(
-            PEGASUS_NAMESPACENAME_SHUTDOWN,
-            reference,
-            "shutdown",
-            inParams,
-            outParams);
-    }
-    catch(CIMException& e)
-    {
-        cerr << arg0 << "Error in server shutdown: ";
-
-        if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
-            cerr << "The repository may be empty." << endl;
-        else
-            cerr << e.getMessage() << endl;
-
-        if (_killCimServer() != 0)
-            cerr << arg0 << ": failed to kill CIM server" << endl;
-    }
-    catch(Exception& e)
-    {
-        _waitForTerminationOrTimeout(timeout - 2);
-    }
-
-    _waitForTerminationOrTimeout(timeout);
-
-    cerr << "CIM Server stopped." << endl;
-}
+ServerRunStatus _serverRunStatus(
+    PEGASUS_PROCESS_NAME, PEGASUS_CIMSERVER_START_FILE);
 
 int main(int argc, char** argv)
 {
-    arg0 = argv[0];
+    MessageLoader::_useProcessLocale = true;
+    MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
     // Check arguments.
 
-    if (argc != 1 && argc != 2)
+    if (argc != 2)
     {
-        fprintf(stderr, "Usage: %s [shutdown-timeout-in-seconds]\n", argv[0]);
-        fprintf(stderr, "%s is an internal OpenPegasus program. "
-            "Please do not invoke directly.\n", argv[0]);
+        fprintf(stderr, "Usage: %s shutdown-timeout-in-seconds\n", argv[0]);
+        fprintf(stderr, "%s is an internal program.  Please do not invoke it directly.\n", argv[0]);
         exit(1);
     }
 
     // Extract timeout argument.
 
-    Uint32 timeout = 5;
-    
-    if (argc == 2)
-    {
-        char* end;
-        timeout = (Uint32)strtoul(argv[1], &end, 0);
+    char* end;
+    Uint32 timeout = (Uint32)strtoul(argv[1], &end, 0);
 
-        if (*end != '\0' || timeout == 0)
-        {
-            fprintf(stderr, 
-                "%s: bad timeout argument: \"%s\"\n", argv[0], argv[1]);
-            exit(1);
-        }
+    if (*end != '\0' || timeout == 0)
+    {
+        fprintf(stderr, 
+            "%s: bad timeout argument: \"%s\"\n", argv[0], argv[1]);
+        exit(1);
     }
 
     // Shutdown.
 
-    _shutdownCimServer(timeout);
+    try
+    {
+        ServerShutdownClient serverShutdownClient(&_serverRunStatus);
+        serverShutdownClient.shutdown(timeout);
+
+        MessageLoaderParms parms(
+            "src.Server.cimserver.SERVER_STOPPED",
+            "CIM Server stopped.");
+        cout << MessageLoader::getMessage(parms) << endl;
+    }
+    catch (Exception& e)
+    {
+        cout << e.getMessage() << endl;
+        exit(1);
+    }
+
+    return 0;
 }

@@ -37,7 +37,10 @@ PROGRAM = cimshutdown
 
 SOURCES = cimshutdown.cpp
 
-LIBRARIES = pegclient pegcommon
+LIBRARIES = \
+    pegservice \
+    pegclient \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

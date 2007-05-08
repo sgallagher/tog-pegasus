@@ -101,7 +101,6 @@ int ServerProcess::cimserver_fork(void)
 
     getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
     getSigHandle()->activate(SIGTERM);
-    server_pid = getpid();
     umask(S_IRWXG | S_IRWXO);
 
     return 0;

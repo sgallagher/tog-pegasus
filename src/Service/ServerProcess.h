@@ -91,17 +91,7 @@ public:
 
     void notify_parent(int id);
 
-    long get_server_pid(void);
-
-    void set_parent_pid(int pid);
-
-    int get_proc(int pid);
-
-    bool isCIMServerRunning(void);
-
     void cimserver_set_process(void* p);
-
-    int cimserver_kill(int id);
 
     void cimserver_exitRC(int rc);
 

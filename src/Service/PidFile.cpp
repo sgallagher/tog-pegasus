@@ -29,67 +29,63 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Service/PidFile.h>
 
-#define MAX_WAIT_TIME 25
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-Boolean handleSigUsr1 = false;
-
-String newPortNumber = "";
-String pegasusTrace  = "";
-
-
-void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+PidFile::PidFile(const char* pidFilePath)
+    : _pidFilePath(pidFilePath)
 {
-    handleSigUsr1 = true;
 }
 
-//constructor
-ServerProcess::ServerProcess() {}
-
-//destructor
-ServerProcess::~ServerProcess() {}
-
-// no-ops
-int ServerProcess::cimserver_fork(void) { return 0; }
-void ServerProcess::cimserver_set_process(void* p) {}
-void ServerProcess::cimserver_exitRC(int rc) {}
-int ServerProcess::cimserver_initialize(void) { return 1; }
-int ServerProcess::cimserver_wait(void) { return 1; }
-String ServerProcess::getHome(void) { return String::EMPTY; }
-
-// notify parent process to terminate so user knows that cimserver
-// is ready to serve CIM requests.
-void ServerProcess::notify_parent(int id)
+PidFile::~PidFile()
 {
-  pid_t ppid = getppid();
-  if (id)
-   kill(ppid, SIGTERM);
-  else
-   kill(ppid, PEGASUS_SIGUSR1);
 }
 
-// Platform specific run
-int ServerProcess::platform_run(
-    int argc,
-    char** argv,
-    Boolean shutdownOption,
-    Boolean debugOutputOption)
+unsigned long PidFile::getPid()
 {
-//  newPortNumber = "";
-//  pegasusTrace = "";
-    return cimserver_run(argc, argv, shutdownOption, debugOutputOption);
+    FILE* pidFile;
+    unsigned long pid = 0;
+
+    // open the PID file
+    pidFile = fopen(_pidFilePath, "r");
+    if (!pidFile)
+    {
+        return 0;
+    }
+
+    // get the pid from the file
+    fscanf(pidFile, "%lu\n", &pid);
+
+    fclose(pidFile);
+
+    return pid;
 }
 
+void PidFile::setPid(unsigned long pid)
+{
+    // Remove the old file if it exists
+    remove();
 
+    // Open the file
+    FILE *pidFile = fopen(_pidFilePath, "w");
+
+    if (pidFile)
+    {
+        // Save the pid in the file
+        fprintf(pidFile, "%lu\n", (unsigned long)pid);
+        fclose(pidFile);
+    }
+}
+
+void PidFile::remove()
+{
+    System::removeFile(_pidFilePath);
+}
+
+PEGASUS_NAMESPACE_END

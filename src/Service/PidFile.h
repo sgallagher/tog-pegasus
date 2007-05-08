@@ -29,67 +29,45 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <Pegasus/Common/Signal.h>
+#ifndef Pegasus_PidFile_h
+#define Pegasus_PidFile_h
 
-#define MAX_WAIT_TIME 25
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Service/Linkage.h>
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-Boolean handleSigUsr1 = false;
-
-String newPortNumber = "";
-String pegasusTrace  = "";
-
-
-void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+class PEGASUS_SERVICE_LINKAGE PidFile
 {
-    handleSigUsr1 = true;
-}
+public:
 
-//constructor
-ServerProcess::ServerProcess() {}
+    PidFile(const char* pidFilePath);
 
-//destructor
-ServerProcess::~ServerProcess() {}
+    ~PidFile();
 
-// no-ops
-int ServerProcess::cimserver_fork(void) { return 0; }
-void ServerProcess::cimserver_set_process(void* p) {}
-void ServerProcess::cimserver_exitRC(int rc) {}
-int ServerProcess::cimserver_initialize(void) { return 1; }
-int ServerProcess::cimserver_wait(void) { return 1; }
-String ServerProcess::getHome(void) { return String::EMPTY; }
+    /**
+        Gets the PID from the specified file.
+    */
+    unsigned long getPid();
 
-// notify parent process to terminate so user knows that cimserver
-// is ready to serve CIM requests.
-void ServerProcess::notify_parent(int id)
-{
-  pid_t ppid = getppid();
-  if (id)
-   kill(ppid, SIGTERM);
-  else
-   kill(ppid, PEGASUS_SIGUSR1);
-}
+    /**
+        Writes the PID to the specified file.
+    */
+    void setPid(unsigned long pid);
 
-// Platform specific run
-int ServerProcess::platform_run(
-    int argc,
-    char** argv,
-    Boolean shutdownOption,
-    Boolean debugOutputOption)
-{
-//  newPortNumber = "";
-//  pegasusTrace = "";
-    return cimserver_run(argc, argv, shutdownOption, debugOutputOption);
-}
+    /**
+        Removes the PID file.
+    */
+    void remove();
 
+private:
 
+    const char* _pidFilePath;
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif // Pegasus_PidFile_h

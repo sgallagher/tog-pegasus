@@ -29,67 +29,52 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <Pegasus/Common/Signal.h>
+#ifndef Pegasus_ServerShutdownClient_h
+#define Pegasus_ServerShutdownClient_h
 
-#define MAX_WAIT_TIME 25
+#include <Pegasus/Common/Config.h>
+#include <Service/ServerRunStatus.h>
+#include <Service/Linkage.h>
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-Boolean handleSigUsr1 = false;
-
-String newPortNumber = "";
-String pegasusTrace  = "";
-
-
-void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+/**
+    The ServerShutdownClient shuts down a specified server using a CIM shutdown
+    request.
+*/
+class PEGASUS_SERVICE_LINKAGE ServerShutdownClient
 {
-    handleSigUsr1 = true;
-}
+public:
 
-//constructor
-ServerProcess::ServerProcess() {}
+    /**
+       Constructs a ServerShutdownClient.  The specified ServerRunStatus
+       object is used to determine whether the server is running and to kill
+       it if necessary.
+    */
+    ServerShutdownClient(ServerRunStatus* serverRunStatus);
 
-//destructor
-ServerProcess::~ServerProcess() {}
+    /**
+        Destructs the ServerShutdownClient object.
+    */
+    ~ServerShutdownClient();
 
-// no-ops
-int ServerProcess::cimserver_fork(void) { return 0; }
-void ServerProcess::cimserver_set_process(void* p) {}
-void ServerProcess::cimserver_exitRC(int rc) {}
-int ServerProcess::cimserver_initialize(void) { return 1; }
-int ServerProcess::cimserver_wait(void) { return 1; }
-String ServerProcess::getHome(void) { return String::EMPTY; }
+    /**
+        Shuts down the server.  If the shutdown is not successful within the
+        specified timeoutValue, the server is killed.
+    */
+    void shutdown(Uint32 timeoutValue);
 
-// notify parent process to terminate so user knows that cimserver
-// is ready to serve CIM requests.
-void ServerProcess::notify_parent(int id)
-{
-  pid_t ppid = getppid();
-  if (id)
-   kill(ppid, SIGTERM);
-  else
-   kill(ppid, PEGASUS_SIGUSR1);
-}
+private:
 
-// Platform specific run
-int ServerProcess::platform_run(
-    int argc,
-    char** argv,
-    Boolean shutdownOption,
-    Boolean debugOutputOption)
-{
-//  newPortNumber = "";
-//  pegasusTrace = "";
-    return cimserver_run(argc, argv, shutdownOption, debugOutputOption);
-}
+    ServerShutdownClient();
 
+    void _waitForTerminationOrTimeout(Uint32 maxWaitTime);
 
+    ServerRunStatus* _serverRunStatus;
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif // Pegasus_ServerShutdownClient_h

@@ -38,13 +38,12 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Server/CIMServer.h>
+#include <Service/ServerRunStatus.h>
 
 #include "Service.cpp"
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-static const char* _ALREADY_RUNNING_NAME = 0;
 
 //-------------------------------------------------------------------------
 // GLOBALS
@@ -77,10 +76,6 @@ static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue);
 //-------------------------------------------------------------------------
 int ServerProcess::cimserver_fork(void) { return(0); }
 void ServerProcess::notify_parent(int id) { return; }
-long ServerProcess::get_server_pid(void) { return 0; }
-void ServerProcess::set_parent_pid(int pid) {}
-int ServerProcess::get_proc(int pid) { return 0; }
-int ServerProcess::cimserver_kill(int id) { return(0); }
 void cimserver_exitRC(int rc) {}
 int ServerProcess::cimserver_initialize(void) { return 0; }
 int ServerProcess::cimserver_wait(void) { return 0; }
@@ -107,7 +102,6 @@ void ServerProcess::cimserver_set_process(void* p)
         _server_proc->cimserver_stop();
 
     pegasus_service = Service(getProcessName());
-    _ALREADY_RUNNING_NAME = getProcessName();
 }
 
 void signal_shutdown()
@@ -190,56 +184,6 @@ int cimserver_windows_main(int flag, int argc, char *argv[])
     return 0;
 }
 
-//-------------------------------------------------------------------------
-// IS RUNNING?
-//-------------------------------------------------------------------------
-
-class AlreadyRunning
-{
-public:
-    AlreadyRunning(): alreadyRunning( true ), event( NULL )
-    {
-    }
-    ~AlreadyRunning()
-    {
-        if( event != NULL )
-            CloseHandle( event );
-    }
-
-    void Init()
-    {
-        if( event == NULL )
-        {
-            event = CreateEvent( NULL, TRUE, TRUE, _ALREADY_RUNNING_NAME );
-            if( event != NULL && GetLastError() != ERROR_ALREADY_EXISTS )
-                alreadyRunning = false;
-        }
-    }
-
-    bool IsAlreadyRunning()
-    {
-        return alreadyRunning;
-    }
-
-    bool alreadyRunning;
-    HANDLE event;
-};
-
-AlreadyRunning _alreadyRunning;
-
-
-Boolean ServerProcess::isCIMServerRunning(void)
-{
-    //Service::State state;
-    //pegasus_service.GetState(&state);
-    //return (state == Service::SERVICE_STATE_RUNNING) ? true : false;
-
-    // We do it this way so this will work when run as a 
-    // console process and a Windows service.
-    AlreadyRunning ar;
-    ar.Init();
-    return ar.IsAlreadyRunning();
-}
 
 //-------------------------------------------------------------------------
 // INSTALL
@@ -642,8 +586,13 @@ int ServerProcess::platform_run(
     // Signal ourself as running
     //
 
-    if( !shutdownOption )
-        _alreadyRunning.Init();
+    // NOTE: This object must persist for the life of the server process
+    ServerRunStatus serverRunStatus(getProcessName(), getPIDFileName());
+
+    if (!shutdownOption)
+    {
+        serverRunStatus.setServerRunning(0);
+    }
 
     //
     // Check if already running
@@ -654,7 +603,7 @@ int ServerProcess::platform_run(
     // then the service will start up then die silently.
     //
 
-    if( !shutdownOption && _alreadyRunning.IsAlreadyRunning() )
+    if (!shutdownOption && serverRunStatus.isServerRunning())
     {
         MessageLoaderParms parms(
             "src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",

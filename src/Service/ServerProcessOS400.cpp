@@ -84,9 +84,6 @@ ServerProcess::~ServerProcess() {}
 // no-ops
 void ServerProcess::notify_parent(int id) {}
 void ServerProcess::cimserver_set_process(void* p) {}
-long ServerProcess::get_server_pid(void) { return 0; }
-void ServerProcess::set_parent_pid(int pid) {}
-int ServerProcess::get_proc(int pid) { return 0; }
 int ServerProcess::cimserver_wait(void) { return 1; }
 String ServerProcess::getHome(void) { return String::EMPTY; }
 
@@ -293,91 +290,6 @@ int ServerProcess::cimserver_initialize(void)
 //  #pragma disable_handler
 
     return(0);
-}
-
-///////////////////////////////////////////////////////////////////////
-// cimserver_kill()
-//
-// The iSeries qycmctlcimCimomServer.C (QYCMCTLCIM program) code has
-// already checked that the CIMOM server is already running prior to
-// calling the CIMOM server (QYCMCIMOM) and telling it to shutdown.
-// However, a check is still made in this method because we have to
-// find the job number in order to kill the job.
-//
-// For iSeries, this method is called regardless of whether we took
-// errors trying to connect to the server - if the CIMOM server job
-// is anywhere on the system, in any state, this method will find it
-// and kill it dead!!
-//
-// NEVER call this method unless the server is unable to be shut down
-// gracefully.
-///////////////////////////////////////////////////////////////////////
-int ServerProcess::cimserver_kill(int id)
-{  // Need to kill the server
-#pragma convert(37)
-  char rc2[3] = "02"; // CIMOM server failed to end
-  char cppServ[10] = "QYCMCIMOM";
-
-  // Construct a ycmJob object
-  ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
-  // Find the QYCMCIMOM job
-  char cppStatus  = cppJob.find(YCMJOB_ALL_NUMBERS);
-
-  if (cppStatus == YCMJOB_FOUND)       // CIMOM Server is Running
-  {
-    if (cppJob.end((char *)cppJob.getNumber().c_str(), 'C', 30) == YCMJOB_END_FAILED)
-    {
-
-      char chData[sizeof(rc2)+sizeof(cppServ)];
-      strcpy((char *)&chData,rc2);
-      strcat(chData,cppServ);
-
-      ycmMessage message("CPDDF81",
-                         chData,
-             strlen(chData),
-                         "cimserver_os400::cimserver_kill()",
-                         ycmCTLCIMID,
-             utf8);
-      message.joblogIt(UserError,ycmMessage::Diagnostic);
-
-#pragma convert(0)
-
-      //l10n
-      //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-          //"cimserver_os400::cimserver_kill - FAILED to end the QYCMCIMOM job!!");
-    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "src.Server.cimserver_os400.FAILED_TO_END_JOB",
-            "$0 FAILED to end the $1 job!!",
-            "cimserver_os400::cimserver_kill -",
-            "QYCMCIMOM");
-
-
-      return -1; // Note: this return code is ignored by the CIMOM server.
-    }
-  }
-  // The case of the job not found is already handled in QYCMCTLCIM program
-    return(0);
-}
-
-////////////////////////////////////////////////////
-//  Checks if the QYCMCIMOM server job is running.
-////////////////////////////////////////////////////
-Boolean ServerProcess::isCIMServerRunning(void)
-{
-#pragma convert(37)
-  // Construct a ycmJob object
-  ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
-
-  // Find the QYCMCIMOM job
-  char cppStatus  = cppJob.find(YCMJOB_ALL_NUMBERS);
-
-  if (cppStatus == YCMJOB_FOUND)       // CIMOM Server is Running
-  {
-      return true; 
-  }
-
-  return false;
-#pragma convert(0)
 }
 
 ////////////////////////////////////////////////////

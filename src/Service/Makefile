@@ -40,11 +40,14 @@ STATIC=1
 LIBRARY = pegservice
 
 LIBRARIES = \
-	pegcommon
+    pegcommon
 
 SOURCES = \
-	ServerProcess.cpp
-	
+    PidFile.cpp \
+    ServerProcess.cpp \
+    ServerRunStatus.cpp \
+    ServerShutdownClient.cpp
+
 
 SOURCES_ZOS = ARM_zOS.cpp AutoRestartMgr_ZOS_ZSERIES_IBM.s
 

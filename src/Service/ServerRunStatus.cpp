@@ -1,0 +1,563 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/AutoPtr.h>
+#include <Service/PidFile.h>
+#include <Service/ServerRunStatus.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#if defined(PEGASUS_OS_HPUX)
+# include <sys/pstat.h>
+# include <libgen.h>
+#endif
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include <sys/ps.h>
+#endif
+
+#if defined(PEGASUS_OS_AIX)
+extern "C"
+{
+# include <procinfo.h>
+extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
+# define PROCSIZE sizeof(struct procsinfo)
+}
+#endif
+
+#if defined(PEGASUS_OS_OS400)
+# include <Pegasus/Common/Logger.h>
+# include "OS400ConvertChar.h"
+#endif
+
+PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+
+//////////////////////////////////////
+//
+// Windows implementation
+//
+//////////////////////////////////////
+
+ServerRunStatus::ServerRunStatus(
+    const char* serverName,
+    const char* pidFilePath)
+    : _serverName(serverName),
+      _pidFilePath(pidFilePath),
+      _parentPid(0),
+      _event(NULL),
+      _wasAlreadyRunning(false)
+{
+}
+
+ServerRunStatus::~ServerRunStatus()
+{
+    if (_event != NULL)
+    {
+        CloseHandle(_event);
+    }
+}
+
+Boolean ServerRunStatus::isServerRunning()
+{
+    return _wasAlreadyRunning();
+}
+
+void ServerRunStatus::setServerRunning()
+{
+    if (_event == NULL)
+    {
+        _event = CreateEvent(NULL, TRUE, TRUE, _serverName);
+        if ((_event != NULL) && (GetLastError() != ERROR_ALREADY_EXISTS))
+        {
+            _wasAlreadyRunning = false;
+        }
+    }
+}
+
+void ServerRunStatus::setParentPid(PEGASUS_PID_T parentPid)
+{
+}
+
+Boolean ServerRunStatus::kill()
+{
+    return true;
+}
+
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+
+//////////////////////////////////////
+//
+// Unix and OpenVMS implementation
+//
+//////////////////////////////////////
+
+ServerRunStatus::ServerRunStatus(
+    const char* serverName,
+    const char* pidFilePath)
+    : _serverName(serverName),
+      _pidFilePath(pidFilePath),
+      _parentPid(0)
+{
+}
+
+ServerRunStatus::~ServerRunStatus()
+{
+}
+
+Boolean ServerRunStatus::isServerRunning()
+{
+    PidFile pidFile(_pidFilePath);
+    PEGASUS_PID_T pid = (PEGASUS_PID_T) pidFile.getPid();
+
+    if (pid == 0)
+    {
+        return false;
+    }
+
+    return (pid != (PEGASUS_PID_T) System::getPID()) &&
+           (pid != _parentPid) &&
+           _isServerProcess(pid);
+}
+
+void ServerRunStatus::setServerRunning()
+{
+    PidFile pidFile(_pidFilePath);
+    pidFile.setPid(System::getPID());
+}
+
+void ServerRunStatus::setParentPid(PEGASUS_PID_T parentPid)
+{
+    _parentPid = parentPid;
+}
+
+Boolean ServerRunStatus::kill()
+{
+    PidFile pidFile(_pidFilePath);
+    PEGASUS_PID_T pid = (PEGASUS_PID_T) pidFile.getPid();
+
+    if ((pid == 0) ||
+        (pid == (PEGASUS_PID_T) System::getPID()) ||
+        (pid == _parentPid) ||
+        !_isServerProcess(pid))
+    {
+        pidFile.remove();
+        return false;
+    }
+
+#if defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
+    defined(PEGASUS_OS_SOLARIS) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
+    defined(PEGASUS_OS_AIX)
+
+    ::kill(pid, SIGKILL);
+
+#endif
+
+    pidFile.remove();
+    return true;
+}
+
+# if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+
+///////////////////////////////////////////////////////
+// z/OS implementation of _isServerProcess
+///////////////////////////////////////////////////////
+Boolean ServerRunStatus::_isServerProcess(PEGASUS_PID_T pid)
+{
+    W_PSPROC buf;
+    int token = 0;
+    memset(&buf, 0x00, sizeof(buf));
+    buf.ps_conttyptr =(char *) malloc(buf.ps_conttylen =PS_CONTTYBLEN);
+    buf.ps_pathptr   =(char *) malloc(buf.ps_pathlen   =PS_PATHBLEN);
+    buf.ps_cmdptr    =(char *) malloc(buf.ps_cmdlen    =PS_CMDBLEN);
+    Boolean returnValue = false;
+
+    while ((token = w_getpsent(token, &buf, sizeof(buf))) > 0)
+    {
+        if (buf.ps_pid == pid)
+        {
+            // If the process id is associated with the server program,
+            // then a server is still running.
+            if (strstr(buf.ps_pathptr, _serverName) != NULL)
+            {
+                returnValue = true;
+            }
+            // else the pid was not associated with the server
+            break;
+        }
+    }
+
+    free(buf.ps_conttyptr);
+    free(buf.ps_pathptr);
+    free(buf.ps_cmdptr);
+    return returnValue;
+}
+
+# elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
+    defined(PEGASUS_OS_SOLARIS)
+
+///////////////////////////////////////////////////////
+// Linux and Solaris implementation of _isServerProcess
+///////////////////////////////////////////////////////
+/*
+   Opens the 'stat' file in the /proc/<pid> directory to
+   verify that the process name is that of the server.
+*/
+static Boolean _isServerPidDir(
+    const char *directory,
+    const char* serverProcessName)
+{
+    static char filename[80];
+    static char buffer[512];
+    int fd, bytesRead;
+
+    // generate the name of the stat file in the process's /proc directory,
+    // and open it
+    sprintf(filename, "%s/%s", directory, "stat");
+    if ( (fd = open(filename, O_RDONLY, 0)) == -1 )
+    {
+        return false;
+    }
+
+    // read the contents
+    if ( (bytesRead = read( fd, buffer, (sizeof buffer) - 1 )) <= 0 )
+    {
+        close(fd);
+        return false;
+    }
+
+    // null terminate the file contents
+    buffer[bytesRead] = 0;
+
+    close(fd);
+
+    // the process name is the second element of the file contents and
+    // is surrounded by parentheses.
+    //
+    // find the positions of the parentheses in the file contents
+    const char* openParen;
+    const char* closeParen;
+
+    openParen = strchr(buffer, '(');
+    closeParen = strchr(buffer, ')');
+    if (openParen == NULL || closeParen == NULL || closeParen < openParen)
+    {
+        return false;
+    }
+
+    // allocate memory for the result
+    AutoArrayPtr<char> processName(new char[closeParen - openParen]);
+
+    // copy the process name into the result
+    strncpy(processName.get(), openParen + 1, closeParen - openParen -1);
+
+    // strncpy doesn't NULL-terminate the result, so do it here
+    processName[closeParen - openParen -1] = '\0';
+
+    return strcmp(processName.get(), serverProcessName) == 0;
+}
+
+Boolean ServerRunStatus::_isServerProcess(PEGASUS_PID_T pid)
+{
+    // This method makes a stat() system call on the directory in /proc
+    // with a name that matches the pid of the server.  It returns true
+    // if it successfully located the process dir and verified that the
+    // process name matches that of the server.
+
+    static char path[32];
+    static struct stat statBuffer;
+
+    sprintf(path, "/proc/%d", pid);
+    if (stat(path, &statBuffer) == -1)          // process stopped running
+    {
+        return false;
+    }
+
+    // get the process name to make sure it is the cimserver process
+// ATTN: skip verify for Solaris
+#  if !defined(PEGASUS_OS_SOLARIS)
+    if (!_isServerPidDir(path, _serverName))
+    {
+        return false;
+    }
+#  endif
+
+    return true;
+}
+
+# elif defined(PEGASUS_OS_AIX)
+
+///////////////////////////////////////////////////////
+// AIX implementation of _isServerProcess
+///////////////////////////////////////////////////////
+/*
+   Calls subroutine getprocs() to get information about all processes.
+   If successful, an array of procsinfo structures filled with process table
+   entries is returned.  Otherwise, a null pointer is returned.
+   The output parameter cnt specifies the number of the processes in the
+   returned table.
+*/
+static struct procsinfo* _getProcessData(int& cnt)
+{
+    struct procsinfo* proctable = NULL;
+    struct procsinfo* rtnp = NULL;
+    int count = 1048576;
+    int rtncnt;
+    int repeat = 1;
+    int nextp = 0;
+
+    cnt = 0;
+    while (repeat &&
+           (rtncnt = getprocs(rtnp, PROCSIZE, 0, 0, &nextp, count) > 0))
+    {
+        if (!rtnp)
+        {
+            count=rtncnt;
+            proctable = (struct procsinfo*) malloc((size_t) PROCSIZE*count);
+            if (!proctable)
+            {
+                return NULL;
+            }
+            rtnp = proctable;
+            nextp = 0;
+        }
+        else
+        {
+            cnt += rtncnt;
+            if (rtncnt >= count)
+            {
+                proctable=(struct procsinfo *) realloc(
+                    (void*)proctable, (size_t) (PROCSIZE*(cnt+count)));
+                if (!proctable)
+                {
+                    return NULL;
+                }
+                rtnp = proctable+(cnt);
+            }
+            else
+            {
+                repeat = 0;
+            }
+        } // end of if(!rtnp)
+    } //end of while
+    return proctable;
+}
+
+Boolean ServerRunStatus::_isServerProcess(PEGASUS_PID_T pid)
+{
+    int count;
+    struct procsinfo* proctable;
+
+    proctable = _getProcessData(count);
+    if (proctable == NULL)
+    {
+        return false;
+    }
+
+    for (int i=0; i < count; i++)
+    {
+        if (!strcmp(proctable[i].pi_comm, _serverName) && \
+            proctable[i].pi_pid == pid)
+        {
+            free(proctable);
+            return true;
+        }
+    }
+
+    free(proctable);
+    return false;
+}
+
+# elif defined(PEGASUS_OS_HPUX)
+
+///////////////////////////////////////////////////////
+// HP-UX implementation of _isServerProcess
+///////////////////////////////////////////////////////
+Boolean ServerRunStatus::_isServerProcess(PEGASUS_PID_T pid)
+{
+    struct pst_status pstru;
+
+    if (pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid) != -1)
+    {
+        //
+        // Gets the command basename disregarding the command parameters
+        //
+        char *execName = strchr(pstru.pst_cmd,' ');
+        if (execName)
+        {
+            *execName = '\0';
+        }
+        execName = basename(pstru.pst_cmd);
+
+        if (strcmp(execName, _serverName) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+# else
+
+///////////////////////////////////////////////////////
+// Generic implementation of _isServerProcess
+///////////////////////////////////////////////////////
+Boolean ServerRunStatus::_isServerProcess(PEGASUS_PID_T pid)
+{
+    return false;
+}
+
+# endif
+
+#elif defined(PEGASUS_OS_OS400)
+
+//////////////////////////////////////
+//
+// OS/400 implementation
+//
+//////////////////////////////////////
+
+ServerRunStatus::ServerRunStatus(
+    const char* serverName,
+    const char* pidFilePath)
+    : _serverName(serverName),
+      _pidFilePath(pidFilePath),
+      _parentPid(0)
+{
+}
+
+ServerRunStatus::~ServerRunStatus()
+{
+}
+
+/*
+   NOTE: This implementation is specific to the CIM Server.
+*/
+Boolean ServerRunStatus::isServerRunning()
+{
+#pragma convert(37)
+    // Construct a ycmJob object
+    ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
+
+    // Find the QYCMCIMOM job
+    char cppStatus  = cppJob.find(YCMJOB_ALL_NUMBERS);
+
+    if (cppStatus == YCMJOB_FOUND)       // CIMOM Server is Running
+    {
+        return true;
+    }
+
+    return false;
+#pragma convert(0)
+}
+
+void ServerRunStatus::setServerRunning()
+{
+}
+
+void ServerRunStatus::setParentPid(PEGASUS_PID_T parentPid)
+{
+}
+
+/*
+   The iSeries qycmctlcimCimomServer.C (QYCMCTLCIM program) code has
+   already checked that the server is already running prior to calling
+   the CIMOM server (QYCMCIMOM) and telling it to shutdown.
+   However, a check is still made in this method because we have to
+   find the job number in order to kill the job.
+  
+   For iSeries, this method is called regardless of whether we took
+   errors trying to connect to the server - if the CIMOM server job
+   is anywhere on the system, in any state, this method will find it
+   and kill it dead!!
+  
+   NEVER call this method unless the server is unable to be shut down
+   gracefully.
+
+   NOTE: This implementation is specific to the CIM Server.
+*/
+Boolean ServerRunStatus::kill()
+{
+#pragma convert(37)
+    char rc2[3] = "02"; // CIMOM server failed to end
+    char cppServ[10] = "QYCMCIMOM";
+
+    // Construct a ycmJob object
+    ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
+    // Find the QYCMCIMOM job
+    char cppStatus  = cppJob.find(YCMJOB_ALL_NUMBERS);
+
+    if (cppStatus == YCMJOB_FOUND)       // CIMOM Server is Running
+    {
+        if (cppJob.end((char *)cppJob.getNumber().c_str(), 'C', 30) ==
+                YCMJOB_END_FAILED)
+        {
+            char chData[sizeof(rc2)+sizeof(cppServ)];
+            strcpy((char *)&chData,rc2);
+            strcat(chData,cppServ);
+
+            ycmMessage message(
+                "CPDDF81",
+                chData,
+                strlen(chData),
+                "cimserver_os400::cimserver_kill()",
+                ycmCTLCIMID,
+                utf8);
+            message.joblogIt(UserError,ycmMessage::Diagnostic);
+
+#pragma convert(0)
+
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "src.Server.cimserver_os400.FAILED_TO_END_JOB",
+                "$0 FAILED to end the $1 job!!",
+                "cimserver_os400::cimserver_kill -",
+                "QYCMCIMOM");
+
+            return false; // Note: this return code is ignored
+        }
+    }
+
+    // The case of the job not found is already handled in QYCMCTLCIM program
+    return true;
+}
+
+#endif
+
+PEGASUS_NAMESPACE_END

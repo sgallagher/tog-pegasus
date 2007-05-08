@@ -75,15 +75,12 @@
 // Alternatively, you can use the windows service manager. Pegasus listener shows up
 // in the service database as "Pegasus CIM Listener"
 //
-// Mike Day, mdday@us.ibm.com
-//
 //////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <cstdlib>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
@@ -95,6 +92,8 @@
 #include <Pegasus/DynListener/DynamicListener.h>
 #include <Pegasus/DynListener/DynamicListenerConfig.h>
 #include <Service/ServerProcess.h>
+#include <Service/ServerRunStatus.h>
+#include <Service/PidFile.h>
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
 # if defined(PEGASUS_OS_OS400)
@@ -110,7 +109,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-#define PEGASUS_LISTENER_PROCESS_NAME "cimlistener";
+#define PEGASUS_LISTENER_PROCESS_NAME "cimlistener"
 
 //Windows service variables are not defined elsewhere in the product
 //enable ability to override these
@@ -194,6 +193,8 @@ public:
     void cimserver_stop(void);
 };
 
+ServerRunStatus _serverRunStatus(
+    PEGASUS_LISTENER_PROCESS_NAME, LISTENER_START_FILE);
 AutoPtr<CIMListenerProcess> _cimListenerProcess(new CIMListenerProcess());
 AutoPtr<DynamicListenerConfig> configManager(DynamicListenerConfig::getInstance());
 static DynamicListener* _cimListener = 0;
@@ -622,24 +623,12 @@ int CIMListenerProcess::cimserver_run(
         //Uncomment the following line when signals are implemented on all platforms.
         //The workaround is to use a file.
 #ifdef PEGASUS_HAS_SIGNALS
-        FILE *pid_file;
-        pid_t pid = 0;
-
-        // open the file containing the CIMServer process ID
-        pid_file = fopen(getPIDFileName(), "r");
-        if (!pid_file) 
-        {
-            return (-1);
-        }
-
-        // get the pid from the file
-        fscanf(pid_file, "%d\n", &pid);
-
-        fclose(pid_file);
+        PidFile pidFile(getPIDFileName());
+        PEGASUS_PID_T pid = (PEGASUS_PID_T) pidFile.getPid();
 
         if (pid == 0)
         {
-           System::removeFile(getPIDFileName());
+           pidFile.remove();
            return (-1);
         }
 
@@ -672,7 +661,7 @@ int CIMListenerProcess::cimserver_run(
     || defined(PEGASUS_OS_VMS)
 
         // Check to see if the CIM Listener is running. No need to stop if not running.
-        if(_cimListenerProcess->isCIMServerRunning())
+        if (_serverRunStatus.isServerRunning())
         {
             // remove the old file if it exists
             System::removeFile(LISTENER_STOP_FILE);
@@ -821,7 +810,7 @@ MessageLoader::_useProcessLocale = false;
 //l10n
 
     // Get the parent's PID before forking
-    _cimListenerProcess->set_parent_pid(System::getPID());
+    _serverRunStatus.setParentPid(System::getPID());
 
     // do we need to run as a daemon ?
     if (daemonOption)
@@ -893,22 +882,23 @@ MessageLoader::_useProcessLocale = false;
     // if CIMServer is already running, print message and
     // notify parent process (if there is a parent process) to terminate
     //
-    if(_cimListenerProcess->isCIMServerRunning())
+    if (_serverRunStatus.isServerRunning())
     {
-    //l10n
-        //cout << "Unable to start CIMServer." << endl;
-        //cout << "CIMServer is already running." << endl;
-        MessageLoaderParms parms("DynListener.cimlistener.UNABLE_TO_START_LISTENER_ALREADY_RUNNING",
-                                 "Unable to start CIM Listener.\nCIM Listener is already running.");
-    PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+        MessageLoaderParms parms(
+            "DynListener.cimlistener.UNABLE_TO_START_LISTENER_ALREADY_RUNNING",
+            "Unable to start CIM Listener.\nCIM Listener is already running.");
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
+            PEGASUS_STD(endl);
 
-    //
+        //
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)
-                _cimListenerProcess->notify_parent(1);
+        {
+            _cimListenerProcess->notify_parent(1);
+        }
 
-        return(1);
+        return 1;
     }
 
 #endif
@@ -959,25 +949,14 @@ MessageLoader::_useProcessLocale = false;
 
     time_t last = 0;
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
-    || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_SOLARIS) \
-    || defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || \
+    defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
         //
         // create a file to indicate that the cimserver has started and
         // save the process id of the cimserver process in the file
         //
-        // remove the old file if it exists
-        System::removeFile(_cimListenerProcess->getPIDFileName());
-
-        // open the file
-        FILE *pid_file = fopen(_cimListenerProcess->getPIDFileName(), "w");
-
-        if (pid_file)
-        {
-            // save the pid in the file
-            fprintf(pid_file, "%ld\n", _cimListenerProcess->get_server_pid());
-            fclose(pid_file);
-        }
+        _serverRunStatus.setServerRunning();
 #endif
 
 //#if defined(PEGASUS_DEBUG)

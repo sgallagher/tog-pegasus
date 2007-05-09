@@ -92,6 +92,10 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Registering FilesAndDir CXX schema Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CWS_FilesAndDir_CXX_R.mof
 
+	@ $(ECHO) +++++ Registering TestCMPI_CXX schema Providers  ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" TestCMPI_CXX.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestCMPI_CXX_R.mof
+
 	@ $(ECHO) +++++ Installing the MOF file for SampleClass CMPI Provider
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" CMPISampleClass.mof
 	@ $(ECHO) +++++ Registering CMPI SampleClass Provider  ...
@@ -136,6 +140,10 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 
 	@ $(ECHO) +++++ Registering FilesAndDir_CXX_R schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" CWS_FilesAndDir_CXX_R.mof
+	
+	@ $(ECHO) +++++ Registering TestCMPI_CXX_R schema Providers  ...
+	@ cimmof "-n$(SAMPLEPROVIDERNS)" TestCMPI_CXX.mof
+	@ cimmof "-n$(INTEROPNS)" TestCMPI_CXX_R.mof
 	
 	@ $(ECHO) +++++ Installing the MOF file for SampleClass CMPI Provider
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" CMPISampleClass.mof

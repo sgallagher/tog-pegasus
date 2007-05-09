@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,30 +28,22 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = $(PEGASUS_ROOT)
 
-DIRS = \
-	InstanceProvider \
-	InstanceQueryProvider \
-	MethodProvider \
-	IndicationProvider \
-	SNMPIndicationProvider \
-	RT_Indication \
-	AssociationProvider \
-	AssociationProvider/testclient
+DIR = Providers/sample/CMPI/TestCMPI_CXX
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI/CWS_Util \
-	CMPI/FilesAndDirectories \
-	CMPI/FilesAndDirectories/tests \
-	CMPI/FilesAndDirectories_CXX \
-	CMPI/FilesAndDirectories_CXX/tests \
-	CMPI/ProcessIndication \
-	CMPI/ProcessIndication/tests \
-	CMPI/SampleClass \
-	CMPI/SampleClass/tests \
-	CMPI/TestCMPI_CXX
-endif
+include $(ROOT)/mak/config.mak
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+SOURCES = \
+	TestCMPI_CXX.cpp
+
+LIBRARY = TestCMPI_CXX
+
+LIBRARIES = \
+	pegcommon \
+	cmpiCppImpl
+
+include $(ROOT)/mak/library.mak
+
+poststarttests:
+	@cimcli -n root/SampleProvider ni TestCMPI_CXX_Class

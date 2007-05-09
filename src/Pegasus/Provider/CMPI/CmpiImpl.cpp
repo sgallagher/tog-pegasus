@@ -759,7 +759,11 @@ CmpiArray::CmpiArray(CMPICount max, CMPIType type) {
 CmpiArray::CmpiArray() {
 }
 
-CmpiArrayIdx CmpiArray::operator[](int idx) const {
+CmpiArrayIdx CmpiArray::operator[](CMPICount idx) const {
+   if (idx >= size ())
+   {
+      throw CmpiStatus(CMPI_RC_ERR_NO_SUCH_PROPERTY);
+   }
    return CmpiArrayIdx(*this,idx);
 }
 

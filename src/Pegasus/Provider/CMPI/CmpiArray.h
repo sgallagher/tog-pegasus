@@ -239,7 +239,7 @@ public:
    CmpiArray(CMPICount max, CMPIType type);
    CmpiArray();
    CMPICount size() const;
-   CmpiArrayIdx operator[](int idx) const;
+   CmpiArrayIdx operator[](CMPICount idx) const;
 };
 
 #endif

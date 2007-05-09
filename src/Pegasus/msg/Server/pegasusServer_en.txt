@@ -13,10 +13,18 @@
 //     text, it is not necessary to create a new message, but the existing one should
 //     be updated.
 //
+//     If OpenPegasus code is changed such that a message is no longer used, that
+//     message should *NOT* be removed from this message bundle. The old message
+//     acts as a placeholder so that a new and different message using the same
+//     message prefix is not added. Instead, it is recommended that a note be
+//     added to the comment before the message indicating it is no longer used,
+//     such as:
+//         *    This message is no longer used in OpenPegasus release x.y.
+//
 // 1)  The message key naming convention is:
 //        <directory-name>.<sourcecode-file-name>.<MESSAGE_IDENTIFIER_UPPER_CASE>
 //     For example:
-//        ProviderManager.ProviderAdapter.ADAPTER_NOT_PA
+//        Common.String.BAD_UTF8
 //
 //     This will allow us to tell which source code file is using a message.
 //     Please try to follow this naming convention.
@@ -25,25 +33,28 @@
 //     new messages for a source code file, please add those messages to the same
 //     group as the other messages for that file.
 //
-//     Be sure to include the message identifier as the first element of the
-//     message and include the documented message prefix at the beginning of
-//     the message identifier (in upper case):
-//        <MESSAGEPREFIX><MESSAGEIDENTIFIER>: <message>
+//     Be sure to include the message prefix as the first element of the
+//     message. The message prefix for Server messages all begin with "PGS" 
+//     (upper case) followed by a 5 digit numeric value from the range assigned
+//     to that particular "group" of messages.
 //
 //     For example:
-//        "PGS03600:  Adapter {0} is not a ProviderAdapter."
-//          (1) where PGS03600 is the documented message prefix for
-//              ProviderAdapter messages,
-//          (2) ADAPTER_NOT_PA is the message identifier
-//          (3) and 'Adapter {0} is not a ProviderAdapter.' is the message
+//        Common.String.BAD_UTF8:string {"PGS09700: The byte sequence starting at index {0} is not valid UTF-8 encoding."}
+//          (1) This message is issued by the String source code file, which
+//              resides in the Common directory.
+//          (2) BAD_UTF8 is the message identifier.
+//          (3) PGS09700 is the documented message prefix for this message.
+//          (4) "The byte sequence starting at index {0} is not valid UTF-8 encoding."
+//              is the message. This message has one variable substitution
+//              inserted at run-time, indicated by {0}.
 //
 //     Also - please use a @note inside a comment block to document any
 //     substitution data and indicate any words that should not be translated.
 //     For example:
 //
-//      * @note PGS03600
-//      *    Substitution {0} is the name of the provider adapter (a string)
-//      *    Do not translate the word 'ProviderAdapter' since it is a class name.
+//      * @note  PGS09700:
+//      *    Substitution {0} is a number
+//      *    Do not translate UTF-8 because it is a type of character
 //
 //
 // 3)  Place any messages from platform-specific source files in the section
@@ -2200,6 +2211,8 @@ not be valid."}
         * @note   PGS05406:
         *    Substitution {0} is the name of the CIMOperation (a string that contains a method to call)
         *    Do not translate the word 'CIMOperation' since it is an HTTP extension header for CIM
+        *    ATTN: This is a nonstandard message identifier and prefix, 
+        *          but this message is no longer used.
         */
         Server.CIMOperationRequestDecoder.PGS05406:string{"CIMOP_CIMOPERATION_VALUE_NOT_SUPPORTED: CIMOperation value \"{0}\" not supported."}
 

@@ -1,43 +1,21 @@
 // ==============================================================================
 // Developer's notes:
 //
-// 1)  The message key naming convention is:
-//        <directory-name>.<sourcecode-file-name>.<MESSAGE_IDENTIFIER_UPPER_CASE>
-//     For example:
-//	  ProviderManager.ProviderAdapter.ADAPTER_NOT_PA
+// ***** IMPORTANT NOTE ***** IMPORTANT NOTE ***** IMPORTANT NOTE *****
 //
-//     This will allow us to tell which source code file is using a message.
-//     Please try to follow this naming convention.
+// To avoid unnecessary duplication, the notes for creating messages are
+// documented in the Server message file:
 //
-// 2)  All the messages for a source code file are grouped together.  When adding 
-//     new messages for a source code file, please add those messages to the same 
-//     group as the other messages for that file.
+//     Pegasus/msg/Server/pegasusServer_en.txt
 //
-//     Be sure to include the message identifier as the first element of the 
-//     message and include the documented message prefix at the beginning of
-//     the message identifier (in upper case):
-//       <MESSAGEPREFIX><MESSAGEIDENTIFIER>: <message>  
+// YOU MUST conform to those notes when adding messages here.
 //
-//     For example:
-//	  "PGC00001:  Adapter {0} is not a ProviderAdapter."
-//          (1) where PGC00001 is the documented message prefix for
-//	        ProviderAdapter messages,
-//          (3) and 'Adapter {0} is not a ProviderAdapter.' is the message
+// The only deviation for CLI messages is that the message "prefix" that
+// is included at the start of the message text begins with "PGC" for CLI
+// messages (whereas the Server message prefix begins with "PGS").
 //
-//     Also - please use a @note inside a comment block to document any
-//     substitution data and indicate any words that should not be translated.
-//     For example:
-//
-//	* @note PGC00001 
-// 	*    Substitution {0} is the name of the provider adapter (a string)
-//	*    Do not translate the word 'ProviderAdapter' since it is a class name.
-//
-//
-// 3)  Place any messages from platform-specific source files in the section
-//     at the end of this file.
-//
-// 4)  To compile this message bundle, run make messages (but refer to 
-//     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).
+// ***** IMPORTANT NOTE ***** IMPORTANT NOTE ***** IMPORTANT NOTE *****
+// 
 // ==============================================================================
 
 
@@ -47,7 +25,7 @@
 	*          each message prior to the colon ':'.
 	*
  	*        Do not translate the following strings in this file:
-	*         'CGI', 'CIM', 'CIMOM', 'CIMMOF','DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME', 
+	*         'CGI', 'CIM', 'CIMOM', 'CIMMOF', 'CQL', 'DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME', 
 	*         'root/cimv2', 'SNMP', 'SSL', 'URL', 'URI', 'UTF-8', 'XML',
 	*         'NT', 'Windows NT', 'OS/400',
 	*/

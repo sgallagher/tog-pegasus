@@ -40,6 +40,7 @@ STATIC=1
 LIBRARY = pegservice
 
 LIBRARIES = \
+    pegclient \
     pegcommon
 
 SOURCES = \

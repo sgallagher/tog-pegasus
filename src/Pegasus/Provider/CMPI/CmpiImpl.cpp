@@ -2214,22 +2214,37 @@ CmpiEnumeration::CmpiEnumeration() {
 }
 
 CmpiBoolean CmpiEnumeration::hasNext() {
+   CMPIEnumeration *enc = getEnc ();
+   if (!enc)
+   {
+      throw CmpiStatus(CMPI_RC_ERR_INVALID_HANDLE);
+   }
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   CmpiBoolean bv=getEnc()->ft->hasNext(getEnc(),&rc);
+   CmpiBoolean bv=enc->ft->hasNext(enc,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return bv;
 }
 
 CmpiData CmpiEnumeration::getNext() {
+   CMPIEnumeration *enc = getEnc ();
+   if (!enc)
+   {
+      throw CmpiStatus(CMPI_RC_ERR_INVALID_HANDLE);
+   }
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   CMPIData d=getEnc()->ft->getNext(getEnc(),&rc);
+   CMPIData d=enc->ft->getNext(enc,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return CmpiData(d);
 }
 
 CmpiData CmpiEnumeration::toArray() {
+   CMPIEnumeration *enc = getEnc ();
+   if (!enc)
+   {
+      throw CmpiStatus(CMPI_RC_ERR_INVALID_HANDLE);
+   }
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   CMPIArray* a=getEnc()->ft->toArray(getEnc(),&rc);
+   CMPIArray* a=enc->ft->toArray(enc,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return CmpiData(CmpiArray(a));
 }

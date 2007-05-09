@@ -67,13 +67,11 @@ protected:
    */
    CMPIEnumeration *getEnc() const;
 
-private:
+public:
 
-   /** Constructor - Should not be called
+   /** Default constructor
    */
    CmpiEnumeration();
-
-public:
 
    /** getNext - Gets next entry.
    */

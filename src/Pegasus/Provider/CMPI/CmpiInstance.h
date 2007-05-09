@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiInstance_h_
@@ -84,7 +79,7 @@ private:
    */
    void *makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop);
 
-   CmpiBoolean doInstanceIsA(CMPIBroker *mb, const char *className);
+   CmpiBoolean doInstanceIsA(CMPIBroker *mb, const char *className) const;
 
 public:
    /** Constructor - Creates an Instance object with the classname
@@ -98,13 +93,13 @@ public:
    @param className CIM classname to be tested for.
    @return True or False
    */
-   CmpiBoolean instanceIsA(const char *className);
+   CmpiBoolean instanceIsA(const char *className) const;
 
    /** getPropertyCount - Gets the number of Properties
    defined for this Instance.
    @return Number of Properties of this instance.
    */
-   unsigned int getPropertyCount();
+   unsigned int getPropertyCount() const;
 
    /** getProperty - Gets the CmpiData object representing the value
        associated with the property name
@@ -119,7 +114,7 @@ public:
    @param name Optional output parameter returning the property name.
    @return CmpiData value object corresponding to the index.
    */
-   CmpiData getProperty(const int index, CmpiString *name=NULL);
+   CmpiData getProperty(const int index, CmpiString *name=NULL) const;
 
    /** setProperty - adds/replaces a property value defined by the input
    parameter to the Instance

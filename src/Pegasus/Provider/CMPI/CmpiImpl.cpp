@@ -1569,7 +1569,7 @@ CmpiInstance::CmpiInstance(const CmpiObjectPath& op) {
    enc=makeInstance(CmpiProviderBase::getBroker(),op);
 }
 
-CmpiBoolean CmpiInstance::instanceIsA(const char *className) {
+CmpiBoolean CmpiInstance::instanceIsA(const char *className) const {
    return doInstanceIsA(CmpiProviderBase::getBroker(),className);
 }
 
@@ -1583,12 +1583,12 @@ void *CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop) {
    return inst;
 }
 
-CmpiBoolean CmpiInstance::doInstanceIsA(CMPIBroker *mb, const char *className) {
+CmpiBoolean CmpiInstance::doInstanceIsA(CMPIBroker *mb, const char *className) const {
    CmpiObjectPath cop=getObjectPath();
    return cop.doClassPathIsA(mb,className);
 }
 
-CmpiData CmpiInstance::getProperty(const char* name) const{
+CmpiData CmpiInstance::getProperty(const char* name) const {
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    d._data=getEnc()->ft->getProperty(getEnc(),name,&rc);
@@ -1601,7 +1601,7 @@ CmpiData CmpiInstance::getProperty(const char* name) const{
    return CmpiData (d);
 }
 
-CmpiData CmpiInstance::getProperty(const int pos, CmpiString *name) {
+CmpiData CmpiInstance::getProperty(const int pos, CmpiString *name) const {
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s;
@@ -1616,7 +1616,7 @@ CmpiData CmpiInstance::getProperty(const int pos, CmpiString *name) {
    return CmpiData (d);
 };
 
-unsigned int CmpiInstance::getPropertyCount() {
+unsigned int CmpiInstance::getPropertyCount() const {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    unsigned int c=getEnc()->ft->getPropertyCount(getEnc(),&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);

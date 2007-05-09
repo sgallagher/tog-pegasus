@@ -371,12 +371,12 @@ setlocale(LC_ALL, "");
     FileSystem::translateSlashes(pegasusHome);
 #else
 
-  // windows only
-	char exeDir[MAX_PATH];
-	HMODULE hExe = GetModuleHandle(NULL);
-	GetModuleFileName(hExe, exeDir, sizeof(exeDir));
-	*strrchr(exeDir, '\\') = '\0';
-	pegasusHome = String(exeDir);
+    // windows only
+    char exeDir[MAX_PATH];
+    HMODULE hExe = GetModuleHandle(NULL);
+    GetModuleFileName(hExe, exeDir, sizeof(exeDir));
+    *strrchr(exeDir, '\\') = '\0';
+    pegasusHome = String(exeDir);
 
 #endif
 
@@ -585,8 +585,8 @@ int CIMListenerProcess::cimserver_run(
 #ifdef PEGASUS_OS_OS400
     if (os400StartupOption == false)
 #endif
-		String configFilePath = homeDir + "/" + DEFAULT_CONFIG_FILE;
-		FileSystem::translateSlashes(configFilePath);
+        String configFilePath = homeDir + "/" + DEFAULT_CONFIG_FILE;
+        FileSystem::translateSlashes(configFilePath);
         configManager->initOptions(configFilePath);
     }
     catch (Exception& e)
@@ -610,9 +610,9 @@ int CIMListenerProcess::cimserver_run(
     // Set the home directory, msg sub-dir, into the MessageLoader.
     // This will be the default directory where the resource bundles
     // are found.
-	String msgHome = homeDir + "/msg";
-	FileSystem::translateSlashes(msgHome);
-	MessageLoader::setPegasusMsgHome(msgHome);
+    String msgHome = homeDir + "/msg";
+    FileSystem::translateSlashes(msgHome);
+    MessageLoader::setPegasusMsgHome(msgHome);
 
     //
     // Check to see if we need to shutdown CIMOM
@@ -663,19 +663,11 @@ int CIMListenerProcess::cimserver_run(
         // Check to see if the CIM Listener is running. No need to stop if not running.
         if (_serverRunStatus.isServerRunning())
         {
-            // remove the old file if it exists
-            System::removeFile(LISTENER_STOP_FILE);
-
-            // open the file
-            FILE *pid_file = fopen(LISTENER_STOP_FILE, "w");
-
-            if (pid_file)
-            {
-                // save the pid in the file
-                fprintf(pid_file, "%ld\n", _cimListenerProcess->get_server_pid());
-                fclose(pid_file);
-            }
-        } else {
+            PidFile pidFile(LISTENER_STOP_FILE);
+            pidFile.setPid(System::getPID());
+        }
+        else
+        {
             printf("CIM Listener may not be running.\n");
             return(0);
         }
@@ -702,7 +694,7 @@ int CIMListenerProcess::cimserver_run(
 #endif
     }
 
-	//get config options.  note that the paths will be converted to homedPaths in the lookup calls.
+    //get config options.  note that the paths will be converted to homedPaths in the lookup calls.
     Uint32 listenerPort;
     Boolean httpsConnection;
     String sslKeyFilePath;
@@ -735,7 +727,7 @@ int CIMListenerProcess::cimserver_run(
     } else
     {
 #endif
-	try
+    try
     {
     configManager->lookupIntegerValue("listenerPort", listenerPort);
     httpsConnection = configManager->isTrue("enableHttpsListenerConnection");
@@ -751,14 +743,14 @@ int CIMListenerProcess::cimserver_run(
     configManager->lookupIntegerValue("traceLevel", traceLevel);
     configManager->lookupValue("traceComponents", traceComponents);
 
-	} catch (Exception& ex)
-	{
-		MessageLoaderParms parms("src.Server.cimserver.INVALID_CONFIG_OPTION",
-								 "Invalid configuration option: $0",
-								 ex.getMessage());
-		cout << MessageLoader::getMessage(parms) << endl;
-		exit(0);
-	}
+    } catch (Exception& ex)
+    {
+        MessageLoaderParms parms("src.Server.cimserver.INVALID_CONFIG_OPTION",
+                                 "Invalid configuration option: $0",
+                                 ex.getMessage());
+        cout << MessageLoader::getMessage(parms) << endl;
+        exit(0);
+    }
 #ifdef PEGASUS_OS_OS400
     }
 #endif
@@ -939,7 +931,7 @@ MessageLoader::_useProcessLocale = false;
         printf("\ttraceFilePath %s\n", (const char*)traceFile.getCString());
         printf("\ttraceLevel %d\n", traceLevel);
         printf("\ttraceComponents %s\n", (const char*)traceComponents.getCString());
-		printf("\tMessage home is %s\n", (const char*)msgHome.getCString());
+        printf("\tMessage home is %s\n", (const char*)msgHome.getCString());
 #endif
 
     // notify parent process (if there is a parent process) to terminate

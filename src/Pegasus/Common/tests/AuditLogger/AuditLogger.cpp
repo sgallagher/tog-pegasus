@@ -274,28 +274,83 @@ void testLogLocalAuthentication()
 {
     // log success message
     AuditLogger::logLocalAuthentication(
-                    TEST_USER,
-                    true);
+        TEST_USER,
+        true);
 
     // log failure message
     AuditLogger::logLocalAuthentication(
-                    TEST_USER,
-                    false);
+        TEST_USER,
+        false);
 }
 
 void testLogBasicAuthentication()
 {
     // log success message
     AuditLogger::logBasicAuthentication(
-                    TEST_USER,
-                    TEST_IP,
-                    true);
+        TEST_USER,
+        TEST_IP,
+        true);
 
     // log failure message
     AuditLogger::logBasicAuthentication(
-                    TEST_USER,
-                    TEST_IP,
-                    false);
+        TEST_USER,
+        TEST_IP,
+        false);
+}
+
+void testLogCertBasedAuthentication()
+{   
+    const String TEST_ISSUER = 
+       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun";
+    const String TEST_SUBJECT = 
+       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun";
+    const String TEST_SERIAL_NUM = "9000a46a9c7e78118567699555108792";
+
+    // log success message
+    AuditLogger::logCertificateBasedAuthentication(
+        TEST_ISSUER,
+        TEST_SUBJECT,
+        TEST_SERIAL_NUM,
+        TEST_IP,
+        true);
+
+    // log failure message
+    AuditLogger::logCertificateBasedAuthentication(
+        TEST_ISSUER,
+        TEST_SUBJECT,
+        TEST_SERIAL_NUM,
+        TEST_IP,
+        false);
+}
+
+void testLogCertBasedUserValidation()
+{
+    const String TEST_ISSUER =
+       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus"
+           "/CN=TestSelfSigned1-Jun";
+    const String TEST_SUBJECT =
+       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus"
+            "/CN=TestSelfSigned1-Jun";
+    const String TEST_SERIAL_NUM = "9000a46a9c7e78118567699555108792";
+    const String TEST_CERT_USER = "guest";
+
+    // log success message
+    AuditLogger::logCertificateBasedUserValidation(
+        TEST_CERT_USER,
+        TEST_ISSUER,
+        TEST_SUBJECT,
+        TEST_SERIAL_NUM,
+        TEST_IP,
+        true);
+
+    // log failure message
+    AuditLogger::logCertificateBasedUserValidation(
+        TEST_CERT_USER,
+        TEST_ISSUER,
+        TEST_SUBJECT,
+        TEST_SERIAL_NUM,
+        TEST_IP,
+        false);
 }
 
 void auditLogInitializeCallback()
@@ -355,6 +410,8 @@ int main(int argc, char** argv)
         testLogUpdateProvModuleStatus();
         testLogLocalAuthentication();
         testLogBasicAuthentication();
+        testLogCertBasedAuthentication();
+        testLogCertBasedUserValidation();
         testSetEnabled(false);
         testDisabled();
 

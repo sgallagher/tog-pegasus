@@ -55,6 +55,12 @@ public:
     SSLCertificateVerifyFunction* verifyCertificateCallback;
     Array<SSLCertificateInfo*> peerCertificate;
     X509_STORE* crlStore;
+
+    String ipAddress;
+
+    friend class SSLCallback;
+
+    friend class SSLCallbackInfo;
 };
 
 class SSLContextRep

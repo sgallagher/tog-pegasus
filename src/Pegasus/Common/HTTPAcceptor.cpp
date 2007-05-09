@@ -743,7 +743,7 @@ void HTTPAcceptor::_acceptConnection()
         "HTTPAcceptor - accept() success.  Socket: $1" ,socket));
 
     SharedPtr<MP_Socket> mp_socket(new MP_Socket(
-        socket, _sslcontext, _sslContextObjectLock));
+        socket, _sslcontext, _sslContextObjectLock, ipAddress));
 
     mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
 

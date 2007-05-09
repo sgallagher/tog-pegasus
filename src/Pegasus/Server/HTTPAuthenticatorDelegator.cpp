@@ -31,6 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
@@ -321,6 +322,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // certificate chain, if necessary).
 
         String certUserName;
+        String issuerName;
+        String subjectName;
+        char serialNumber[32];
+
         if (isRequestAuthenticated &&
             (String::equal(httpMessage->authInfo->getAuthType(),
                 AuthenticationInfoRep::AUTH_TYPE_SSL)))
@@ -374,10 +379,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             clientCertificate->toString());
 
                     //get certificate properties
-                    String issuerName = clientCertificate->getIssuerName();
-                    char serialNumber[256];
+                    issuerName = clientCertificate->getIssuerName();
                     sprintf(serialNumber, "%lu",
                         clientCertificate->getSerialNumber());
+                    subjectName = clientCertificate->getSubjectName();
 
                     //
                     // The truststore type key property is deprecated. To retain
@@ -548,6 +553,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
             if (!_authenticationManager->validateUserForHttpAuth(certUserName))
             {
+                PEG_AUDIT_LOG(logCertificateBasedUserValidation(
+                    certUserName,
+                    issuerName,
+                    subjectName,
+                    serialNumber,
+                    httpMessage->ipAddress,
+                    false));
                 MessageLoaderParms msgParms(
                     "Pegasus.Server.HTTPAuthenticatorDelegator."
                         "CERTIFICATE_USER_NOT_VALID",
@@ -562,6 +574,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 PEG_METHOD_EXIT();
                 return;
             }
+
+            PEG_AUDIT_LOG(logCertificateBasedUserValidation(
+                certUserName,
+                issuerName,
+                subjectName,
+                serialNumber,
+                httpMessage->ipAddress,
+                true));
 
             httpMessage->authInfo->setAuthenticatedUser(certUserName);
 

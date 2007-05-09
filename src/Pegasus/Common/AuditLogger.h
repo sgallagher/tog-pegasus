@@ -65,6 +65,7 @@ public:
         SUBTYPE_LOCAL_AUTHENTICATION,
         SUBTYPE_BASIC_AUTHENTICATION,
         SUBTYPE_CERTIFICATE_BASED_AUTHENTICATION,
+        SUBTYPE_CERTIFICATE_BASED_USER_VALIDATION,
         SUBTYPE_USER_GROUP_AUTHORIZATION,
         SUBTYPE_NAMESPACE_AUTHORIZATION,
         SUBTYPE_PRIVILEGED_USER_CHECK,
@@ -245,6 +246,37 @@ public:
     */
     static void logBasicAuthentication(
         const String& userName,
+        const String& ipAddr,
+        Boolean successful);
+
+    /** Constructs and logs audit message of certificate based authentication
+        @param issuerName - The issuer name of this certificate
+        @param sertialNumber - The serial number of this certificate
+        @param ipAddr - Client IP address for this operation
+        @param successful - True on successful basic authentication,
+                            false otherwise
+    */
+    static void logCertificateBasedAuthentication(
+        const String& issuerName,
+        const String& subjectName,
+        const String& serialNumber,
+        const String& ipAddr,
+        Boolean successful);
+
+    /** Constructs and logs audit message of certificate based user validation
+        @param userName - The username associated with this certificate
+        @param issuerName - The issuer name of this certificate
+        @param sertialNumber - The serial number of this certificate
+        @param userName - The user name associated with the certificate
+        @param ipAddr - Client IP address for this operation
+        @param successful - True on successful user validation,
+                            false otherwise
+    */
+    static void logCertificateBasedUserValidation(
+        const String& userName,
+        const String& issuerName,
+        const String& subjectName,
+        const String& serialNumber,
         const String& ipAddr,
         Boolean successful);
 

@@ -91,7 +91,13 @@ public:
 
 private:
 
+    SSLCallbackInfo(
+        SSLCertificateVerifyFunction* verifyCert,
+        X509_STORE* crlStore,
+        String ipAddress);
+
     SSLCallbackInfo();
+
     SSLCallbackInfo(const SSLCallbackInfo& sslCallbackInfo);
     SSLCallbackInfo& operator=(const SSLCallbackInfo& sslCallbackInfo);
 

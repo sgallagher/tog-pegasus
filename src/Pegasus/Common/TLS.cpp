@@ -59,7 +59,8 @@ PEGASUS_NAMESPACE_BEGIN
 SSLSocket::SSLSocket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock)
+    ReadWriteSem * sslContextObjectLock,
+    const String& ipAddress)
    :
    _SSLConnection(0),
    _socket(socket),
@@ -101,12 +102,13 @@ SSLSocket::SSLSocket(
         // Create a new callback info for each new connection
         //
         _SSLCallbackInfo.reset(new SSLCallbackInfo(
-            _SSLContext->getSSLCertificateVerifyFunction()
+            _SSLContext->getSSLCertificateVerifyFunction(),
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-            , _SSLContext->getCRLStore()));
+            _SSLContext->getCRLStore(), 
 #else
-            ));
+            NULL,
 #endif
+            ipAddress ));
 
         if (SSL_set_ex_data(
                 _SSLConnection,
@@ -552,20 +554,22 @@ MP_Socket::MP_Socket(SocketHandle socket)
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock)
+    ReadWriteSem * sslContextObjectLock,
+    const String& ipAddress)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
     {
         _isSecure = true;
         _sslsock = new SSLSocket(
-            socket, sslcontext, sslContextObjectLock);
+            socket, sslcontext, sslContextObjectLock, ipAddress);
     }
     else
     {
         _isSecure = false;
         _socket = socket;
     }
+
     // PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS
     // seconds are the default for client timeouts
     _socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
@@ -704,7 +708,8 @@ MP_Socket::MP_Socket(SocketHandle socket)
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock)
+    ReadWriteSem * sslContextObjectLock,
+    const String& ipAddress)
  : _socket(socket), _isSecure(false),
    _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
 

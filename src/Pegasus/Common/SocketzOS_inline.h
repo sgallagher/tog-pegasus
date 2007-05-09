@@ -35,6 +35,7 @@
 #define SocketzOS_inline_h
 
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/AuditLogger.h>
 #include <sys/ioctl.h>
 #include <net/rtrouteh.h>
 #include <net/if.h>
@@ -55,10 +56,12 @@ MP_Socket::MP_Socket(SocketHandle socket)
 MP_Socket::MP_Socket(
     SocketHandle socket,
     SSLContext * sslcontext,
-    ReadWriteSem * sslContextObjectLock)
+    ReadWriteSem * sslContextObjectLock,
+    const String& ipAddress)
     : _socket(socket),
       _userAuthenticated(false),
-      _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS)
+      _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS),
+      _clientIPAddress(ipAddress)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     _username[0]=0;
@@ -221,6 +224,18 @@ int MP_Socket::ATTLS_zOS_query()
            PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
                "---> ATTLS Security Type is SAFCHK. Resolved user ID \'%s\'",
                _username));
+           // For audit loging, only the mapping of the client IP to the 
+           // resolved user ID is from interest.
+           // The SAF facility logs the certificate validation and the 
+           // mapping of certificate subject to a local userID.
+           PEG_AUDIT_LOG(logCertificateBasedUserValidation(
+                            _username,
+                            String::EMPTY,
+                            String::EMPTY,
+                            String::EMPTY,
+                            _clientIPAddress,
+                            true));
+           
            PEG_METHOD_EXIT();
            return 1;
 

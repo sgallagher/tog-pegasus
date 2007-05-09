@@ -68,7 +68,8 @@ public:
     SSLSocket(
         SocketHandle socket,
         SSLContext * sslcontext,
-        ReadWriteSem * sslContextObjectLock);
+        ReadWriteSem * sslContextObjectLock,
+        const String& ipAddress);
 
     ~SSLSocket();
 
@@ -146,7 +147,8 @@ public:
     MP_Socket(
         SocketHandle socket,
         SSLContext * sslcontext,
-        ReadWriteSem * sslContextObjectLock);
+        ReadWriteSem * sslContextObjectLock,
+        const String& ipAddress = String::EMPTY);
 
     ~MP_Socket();
 
@@ -198,11 +200,14 @@ public:
 private:
     Boolean   _isSecure;
     Uint32    _socketWriteTimeout;
+
 #ifdef PEGASUS_OS_ZOS
 
     int ATTLS_zOS_query();
     // The user name if authenticated through ATTLS.
     char _username[10];
+    // The client IP address for audit logging.
+    String _clientIPAddress;
     Boolean _userAuthenticated;
 #endif
 

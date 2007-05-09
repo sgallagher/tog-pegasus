@@ -40,4 +40,8 @@ Local authentication attempt: successful = TRUE, user = guest.
 Local authentication attempt: successful = FALSE, user = guest. 
 Basic authentication attempt: successful = TRUE, user = guest, IP address = 127.0.0.1.
 Basic authentication attempt: successful = FALSE, user = guest, IP address = 127.0.0.1.
+Certificate based authentication attempt: successful = TRUE, issuer = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, subject = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, serialNumber = 9000a46a9c7e78118567699555108792, IP address = 127.0.0.1.
+Certificate based authentication attempt: successful = FALSE, issuer = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, subject = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, serialNumber = 9000a46a9c7e78118567699555108792, IP address = 127.0.0.1.
+Certificate based user validation attempt: successful = TRUE, userName = guest, issuer = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, subject = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, serialNumber = 9000a46a9c7e78118567699555108792, IP address = 127.0.0.1.
+Certificate based user validation attempt: successful = FALSE, userName = guest, issuer = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, subject = /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun, serialNumber = 9000a46a9c7e78118567699555108792, IP address = 127.0.0.1.
 Audit logging is disabled.

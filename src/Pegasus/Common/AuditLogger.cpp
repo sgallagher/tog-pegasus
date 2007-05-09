@@ -363,17 +363,15 @@ void AuditLogger::logUpdateProvModuleStatus(
 }
 
 void AuditLogger::logLocalAuthentication(
-        const String& userName,
-        Boolean successful)
+    const String& userName,
+    Boolean successful)
 {
-    CIMValue result(successful);
-
     MessageLoaderParms msgParms(
-       "Common.AuditLogger.LOCAL_AUTHENTICATION",
-       "Local authentication attempt: "
-       "successful = $0, user = $1. ",
-       result.toString(),
-       userName);
+        "Common.AuditLogger.LOCAL_AUTHENTICATION",
+        "Local authentication attempt: "
+        "successful = $0, user = $1. ",
+        CIMValue(successful).toString(),
+        userName);
 
     _writeAuditMessageToFile(
         TYPE_AUTHENTICATION,
@@ -384,22 +382,72 @@ void AuditLogger::logLocalAuthentication(
 }
 
 void AuditLogger::logBasicAuthentication(
-        const String& userName,
-        const String& ipAddr,
-        Boolean successful)
+    const String& userName,
+    const String& ipAddr,
+    Boolean successful)
 {
-    CIMValue result(successful);
-
     MessageLoaderParms msgParms(
-       "Common.AuditLogger.BASIC_AUTHENTICATION",
-       "Basic authentication attempt: "
-       "successful = $0, user = $1, IP address = $2.",
-       result.toString(),
-       userName,
-       ipAddr);
+        "Common.AuditLogger.BASIC_AUTHENTICATION",
+        "Basic authentication attempt: "
+        "successful = $0, user = $1, IP address = $2.",
+        CIMValue(successful).toString(),
+        userName,
+        ipAddr);
 
     _writeAuditMessageToFile( TYPE_AUTHENTICATION,
         SUBTYPE_BASIC_AUTHENTICATION,
+        successful ? EVENT_AUTH_SUCCESS : EVENT_AUTH_FAILURE,
+        successful ? Logger::INFORMATION: Logger::WARNING,
+        msgParms);
+}
+
+void AuditLogger::logCertificateBasedAuthentication(
+    const String& issuerName,
+    const String& subjectName,
+    const String& serialNumber,
+    const String& ipAddr,
+    Boolean successful)
+{
+    MessageLoaderParms msgParms(
+        "Common.AuditLogger.CERTIFICATE_BASED_AUTHENTICATION",
+        "Certificate based authentication attempt: "
+            "successful = $0, issuer = $1, subject = $2, serialNumber = $3, "
+            "IP address = $4.",
+        CIMValue(successful).toString(),
+        issuerName,
+        subjectName,
+        serialNumber,
+        ipAddr);
+
+    _writeAuditMessageToFile(TYPE_AUTHENTICATION,
+        SUBTYPE_CERTIFICATE_BASED_AUTHENTICATION,
+        successful ? EVENT_AUTH_SUCCESS : EVENT_AUTH_FAILURE,
+        successful ? Logger::INFORMATION: Logger::WARNING,
+        msgParms);
+}
+
+void AuditLogger::logCertificateBasedUserValidation(
+    const String& userName,
+    const String& issuerName,
+    const String& subjectName,
+    const String& serialNumber,
+    const String& ipAddr,
+    Boolean successful)
+{
+    MessageLoaderParms msgParms(
+        "Common.AuditLogger.CERTIFICATE_BASED_USER_VALIDATION",
+        "Certificate based user validation attempt: "
+            "successful = $0, userName = $1, issuer = $2, subject = $3, "
+            "serialNumber = $4, IP address = $5.",
+        CIMValue(successful).toString(),
+        userName,
+        issuerName,
+        subjectName,
+        serialNumber,
+        ipAddr);
+
+    _writeAuditMessageToFile( TYPE_AUTHORIZATION,
+        SUBTYPE_CERTIFICATE_BASED_USER_VALIDATION,
         successful ? EVENT_AUTH_SUCCESS : EVENT_AUTH_FAILURE,
         successful ? Logger::INFORMATION: Logger::WARNING,
         msgParms);

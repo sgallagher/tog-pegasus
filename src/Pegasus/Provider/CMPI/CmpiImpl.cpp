@@ -1518,6 +1518,9 @@ int CmpiData::isNotFound() const {
   return (_data.state & CMPI_notFound);
 }
 
+CMPIType CmpiData::getType() const {
+   return _data.type;
+}
 
 //---------------------------------------------------
 //--

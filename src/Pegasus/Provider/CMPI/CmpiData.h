@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiData_h_
@@ -192,11 +187,11 @@ public:
 
    /** Extracting String.
    */
-    operator CmpiString() const;
+   operator CmpiString() const;
 
    /** Extracting const char *.
    */
-    operator const char* () const;
+   operator const char* () const;
 
    /** Extracting CmpiDataTime.
    */
@@ -205,6 +200,7 @@ public:
    /** Extracting signed 8 bit.
    */
    operator CMPISint8() const;
+
    /** Extracting signed 16 bit.
    */
    operator CMPISint16() const;
@@ -406,9 +402,10 @@ public:
    /** test for not found value
    */
    int isNotFound() const;
+
+   /** return the type
+    */
+   CMPIType getType() const;
 };
 
 #endif
-
-
-

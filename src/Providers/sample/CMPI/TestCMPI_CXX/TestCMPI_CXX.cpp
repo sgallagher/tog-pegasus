@@ -29,9 +29,9 @@
 //
 //==============================================================================
 //
-// Please be aware that the CMPI C++ API is NOT a standard currently.
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
+// Please be aware that the CMPI C++ API is NOT a standard currently.
 
 #include "TestCMPI_CXX.h"
 

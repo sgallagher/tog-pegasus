@@ -29,9 +29,10 @@
 //
 //==============================================================================
 //
-// Please be aware that the CMPI C++ API is NOT a standard currently.
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
+// Please be aware that the CMPI C++ API is NOT a standard currently.
+
 #ifndef TESTCMPI_CXX_H
 #define TESTCMPI_CXX_H
 

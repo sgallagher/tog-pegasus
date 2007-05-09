@@ -2319,8 +2319,8 @@ CmpiDateTime::CmpiDateTime() {
 CmpiDateTime::CmpiDateTime(const CmpiDateTime& original)
     : CmpiObject(0) {
    enc=makeDateTime(CmpiProviderBase::getBroker(),
-                    ((CmpiDateTime&)original).getDateTime(),
-                    ((CmpiDateTime&)original).isInterval());
+                    original.getDateTime(),
+                    original.isInterval());
 }
 
 CmpiDateTime::CmpiDateTime(const char* utcTime) {
@@ -2358,6 +2358,10 @@ void *CmpiDateTime::makeDateTime(CMPIBroker *mb, const CMPIUint64 binTime,
 }
 
 CmpiBoolean CmpiDateTime::isInterval() const{
+   if (!enc)
+   {
+      throw CmpiStatus(CMPI_RC_ERR_INVALID_HANDLE);
+   }
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CmpiBoolean bv=getEnc()->ft->isInterval(getEnc(),&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
@@ -2365,6 +2369,10 @@ CmpiBoolean CmpiDateTime::isInterval() const{
 }
 
 CMPIUint64 CmpiDateTime::getDateTime() const{
+   if (!enc)
+   {
+      throw CmpiStatus(CMPI_RC_ERR_INVALID_HANDLE);
+   }
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIUint64 rv=getEnc()->ft->getBinaryFormat(getEnc(),&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);

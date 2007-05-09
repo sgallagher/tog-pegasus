@@ -33,6 +33,7 @@ DIR = Server
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
+    pegservice \
     pegclient \
     pegserver \
     peguser \
@@ -96,8 +97,7 @@ LIBRARIES += \
     pegexportserver \
     pegrepository \
     pegconfig \
-    pegcommon \
-    pegservice
+    pegcommon 
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiArray_h_
@@ -44,17 +39,22 @@
 #endif
 
 #include "cmpidt.h"
-#include "CmpiString.h"
 
+class CmpiString;
+class CmpiObjectPath;
+class CmpiInstance;
+class CmpiDateTime;
+class CmpiArray;
+class CmpiData;
+
+#include "CmpiString.h"
 #include "CmpiObjectPath.h"
 #include "CmpiInstance.h"
-#include "CmpiBaseMI.h"
+#include "CmpiDateTime.h"
+#include "CmpiArray.h"
 #include "CmpiData.h"
+#include "CmpiBaseMI.h"
 #include "Linkage.h"
-
-class CmpiArray;
-class CmpiInstance;
-class CmpiData;
 
 // ATTN: consider implementing homogeneous arrays rather than these
 // heterogeneous ones.

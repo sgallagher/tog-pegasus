@@ -46,20 +46,21 @@
 
 #include "cmpidt.h"
 #include "cmpift.h"
-#include "CmpiString.h"
-#include "CmpiDateTime.h"
 
-class CmpiInstance;
+class CmpiString;
 class CmpiObjectPath;
-
-#include "CmpiObjectPath.h"
-#include "CmpiInstance.h"
-#include "CmpiArray.h"
-#include "Linkage.h"
-
+class CmpiInstance;
+class CmpiDateTime;
+class CmpiArray;
 class CmpiBooleanData;
 class CmpiCharData;
 
+#include "CmpiString.h"
+#include "CmpiObjectPath.h"
+#include "CmpiInstance.h"
+#include "CmpiDateTime.h"
+#include "CmpiArray.h"
+#include "Linkage.h"
 
 /** This class wraps a CMPIData value item. Data extraction uses type conversion operators.
       Extraction operations can be appended to a property type retrieval statement

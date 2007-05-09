@@ -3033,12 +3033,18 @@ CMPIInstanceMI *CMInstanceMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-       provider->initialize(ctx); \
+     CmpiStatus rc = provider->initialize(ctx); \
+     if (rc.rc ()) \
+     { \
+        delete provider; \
+        provider = 0; \
+        throw rc; \
+     } \
      base##pn.setBaseMI(provider); \
     } \
    mi.hdl=provider; \
    base##pn.incUseCount(); \
-    return &mi; \
+   return &mi; \
  }
 #   endif
 
@@ -3077,7 +3083,13 @@ CMPIAssociationMI *CMAssociationMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-       provider->initialize(ctx); \
+     CmpiStatus rc = provider->initialize(ctx); \
+     if (rc.rc ()) \
+     { \
+        delete provider; \
+        provider = 0; \
+        throw rc; \
+     } \
      base##pn.setBaseMI(provider); \
     } \
    mi.hdl=provider; \
@@ -3118,7 +3130,13 @@ CMPIMethodMI *CMMethodMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-       provider->initialize(ctx); \
+     CmpiStatus rc = provider->initialize(ctx); \
+     if (rc.rc ()) \
+     { \
+        delete provider; \
+        provider = 0; \
+        throw rc; \
+     } \
      base##pn.setBaseMI(provider); \
     } \
    mi.hdl=provider; \
@@ -3160,7 +3178,13 @@ CMPropertyMIFactory (chars cn, chars pn):
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-       provider->initialize(ctx); \
+     CmpiStatus rc = provider->initialize(ctx); \
+     if (rc.rc ()) \
+     { \
+        delete provider; \
+        provider = 0; \
+        throw rc; \
+     } \
      base##pn.setBaseMI(provider); \
     } \
    mi.hdl=provider; \
@@ -3213,7 +3237,13 @@ CMPIIndicationMI *CMIndicationMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-       provider->initialize(ctx); \
+     CmpiStatus rc = provider->initialize(ctx); \
+     if (rc.rc ()) \
+     { \
+        delete provider; \
+        provider = 0; \
+        throw rc; \
+     } \
      base##pn.setBaseMI(provider); \
     } \
    mi.hdl=provider; \

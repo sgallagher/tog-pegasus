@@ -39,11 +39,6 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Service/ServerShutdownClient.h>
 
-#if defined(PEGASUS_OS_TYPE_UNIX)
-# include <unistd.h>
-# include <sys/types.h>
-#endif
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN

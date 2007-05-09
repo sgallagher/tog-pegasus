@@ -118,7 +118,7 @@ Boolean ServerRunStatus::kill()
     return true;
 }
 
-#elif defined(PEGASUS_OS_TYPE_UNIX)
+#elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
 
 //////////////////////////////////////
 //

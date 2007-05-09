@@ -1069,9 +1069,15 @@ CmpiData::CmpiData(const CmpiDateTime& d) {
 }
 
 CmpiData::CmpiData(const CmpiArray& d) {
-   _data.state=CMPI_goodValue;
-   _data.value.array=d.getEnc();
-   _data.type=((CMPIArrayFT*)d.getEnc()->ft)->getSimpleType(d.getEnc(),0) | CMPI_ARRAY;
+
+   CMPIArray *array = d.getEnc ();
+
+   if (array)
+   {
+      _data.state=CMPI_goodValue;
+      _data.value.array=array;
+      _data.type=(array->ft)->getSimpleType(array,0) | CMPI_ARRAY;
+   }
 }
 
 CmpiData::CmpiData(const CmpiObjectPath& d) {

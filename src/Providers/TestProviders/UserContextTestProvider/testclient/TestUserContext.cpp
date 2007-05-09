@@ -52,7 +52,6 @@ static String testUserContext;
 
 void testUserContextRequestor()
 {
-printf("testUserContextRequestor()\n");
     try
     {
         CIMClient client;
@@ -110,7 +109,6 @@ printf("testUserContextRequestor()\n");
 
 void testUserContextPrivileged()
 {
-printf("testUserContextPrivileged()\n");
     try
     {
         CIMClient client;
@@ -146,7 +144,6 @@ printf("testUserContextPrivileged()\n");
 
 void testUserContextDesignated()
 {
-printf("testUserContextDesignated()\n");
     try
     {
         if (!System::isSystemUser(alternateUserContext))
@@ -190,7 +187,6 @@ printf("testUserContextDesignated()\n");
 
 void testUserContextCIMServer()
 {
-printf("testUserContextCIMServer()\n");
     try
     {
         CIMClient client;

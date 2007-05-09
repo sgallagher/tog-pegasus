@@ -196,10 +196,6 @@ public:
 
    /** Get value.
    */
-   CmpiArray getArray() const;
-
-   /** Get value.
-   */
    CmpiInstance getInstance() const;
 
    /** Get value.

@@ -33,33 +33,33 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cstdlib>
 #include <cstring>
+
+#include <Pegasus/Common/Config.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>
 #else
-# include <Executor/Socket.h>
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <sys/wait.h>
-# include <unistd.h>
 # include <sys/time.h>
 # include <sys/resource.h>
 #endif
 
-#include "Constants.h"
-#include "Executor.h"
-#include "Mutex.h"
-#include "FileSystem.h"
-#include "String.h"
-#include "Tracer.h"
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Executor.h>
+
 #include <Executor/Strlcpy.h>
-#include <Executor/Strlcat.h>
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+# include <Executor/Socket.h>
 # include <Executor/Messages.h>
 #endif
 
@@ -444,10 +444,12 @@ public:
     virtual int reapProviderAgent(
         int pid)
     {
-        int status;
+        int status = 0;
 
+#if defined(PEGASUS_HAS_SIGNALS)
         while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
             ;
+#endif
 
         return status;
     }

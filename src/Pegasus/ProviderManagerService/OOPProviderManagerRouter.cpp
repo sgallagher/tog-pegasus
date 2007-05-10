@@ -628,7 +628,7 @@ void ProviderAgentContainer::_initialize()
         if (_isInitialized)
         {
             // Harvest the status of the agent process to prevent a zombie
-            pid_t status = Executor::reapProviderAgent(_pid);
+            int status = Executor::reapProviderAgent(_pid);
 
             if (status == -1)
             {
@@ -739,7 +739,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 #if defined(PEGASUS_HAS_SIGNALS)
     // Harvest the status of the agent process to prevent a zombie.  Do not
     // hold the _agentMutex during this operation.
-    pid_t status = Executor::reapProviderAgent(_pid);
+    int status = Executor::reapProviderAgent(_pid);
 
     if (status == -1)
     {

@@ -35,7 +35,6 @@
 #define _Executor_Socket_h
 
 #include <stdlib.h>
-#include "Defines.h"
 #include <sys/socket.h>
 #include <string.h>
 #include "Defines.h"

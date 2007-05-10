@@ -40,13 +40,14 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>
 #else
-# include <sys/types.h>
-# include <sys/socket.h>
 # include <unistd.h>
-# include <fcntl.h>
-# include <sys/wait.h>
+# include <sys/types.h>
 # include <sys/time.h>
 # include <sys/resource.h>
+#endif
+
+#if defined(PEGASUS_HAS_SIGNALS)
+# include <sys/wait.h>
 #endif
 
 #include <Pegasus/Common/Constants.h>

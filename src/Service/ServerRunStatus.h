@@ -34,6 +34,9 @@
 #ifndef Pegasus_ServerRunStatus_h
 #define Pegasus_ServerRunStatus_h
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#include <windows.h>
+#endif
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Service/Linkage.h>

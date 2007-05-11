@@ -94,7 +94,7 @@ ServerRunStatus::~ServerRunStatus()
 
 Boolean ServerRunStatus::isServerRunning()
 {
-    return _wasAlreadyRunning();
+    return _wasAlreadyRunning;
 }
 
 void ServerRunStatus::setServerRunning()

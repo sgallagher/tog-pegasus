@@ -591,7 +591,7 @@ int ServerProcess::platform_run(
 
     if (!shutdownOption)
     {
-        serverRunStatus.setServerRunning(0);
+        serverRunStatus.setServerRunning();
     }
 
     //

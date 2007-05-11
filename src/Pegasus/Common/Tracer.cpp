@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/HTTPMessage.h>
 
 PEGASUS_USING_STD;
 
@@ -187,6 +188,47 @@ void Tracer::_traceCIMException(
         TraceableCIMException(cimException).getTraceDescription().getCString();
     // trace the string
     _traceCString(traceComponent, "", (const char*) traceMsg);
+}
+
+SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
+    const Buffer& requestMessage)
+{
+    const Uint32 requestSize = requestMessage.size();
+
+    // Make a copy of the request message.
+    SharedArrayPtr<char>
+        requestBuf(new char [requestSize + 1]);
+    strncpy(requestBuf.get(), requestMessage.getData(), requestSize);
+    requestBuf.get()[requestSize] = 0;
+
+    //
+    // Check if requestBuffer contains a Basic authorization header.
+    // If true, suppress the user/passwd info in the request buffer.
+    //
+    char* sep;
+    const char* line = requestBuf.get();
+
+    while ((sep = HTTPMessage::findSeparator(
+        line, (Uint32)(requestSize - (line - requestBuf.get())))) &&
+        (line != sep))
+    {
+        if (HTTPMessage::expectHeaderToken(line, "Authorization") &&
+             HTTPMessage::expectHeaderToken(line, ":") &&
+             HTTPMessage::expectHeaderToken(line, "Basic"))
+        {
+            // Suppress the user/passwd info
+            HTTPMessage::skipHeaderWhitespace(line);
+            for ( char* userpass = (char*)line ; 
+                userpass < sep; 
+                *userpass = 'X', userpass++);
+
+            break;
+        }
+
+        line = sep + ((*sep == '\r') ? 2 : 1);
+    }
+
+    return requestBuf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

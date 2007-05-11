@@ -65,21 +65,9 @@ static const String _HTTP_HEADER_CONTENT_TYPE = "content-type";
 //
 //------------------------------------------------------------------------------
 
-static char* _FindSeparator(const char* data, Uint32 size)
+char* HTTPMessage::findSeparator(const char* data, Uint32 size)
 {
     const char* p = data;
-
-    // Short-circuit by using memchr(). This will work whenever there is a
-    // "\r\n" sequence. Some clients may send incorrect headers which are
-    // only separated by "\n". In this case the code below this block
-    // will handle it.
-    {
-        const char* q = (char*)memchr(data, '\r', size);
-
-        if (q && q[1] == '\n')
-          return (char*)q;
-    }
-
     const char* end = p + size;
 
     while (p != end)
@@ -100,25 +88,19 @@ static char* _FindSeparator(const char* data, Uint32 size)
     return 0;
 }
 
-/**
-    Utility functions to validate Content-Type header.
-*/
-static void _skipWhitespace(const char*& str)
+void HTTPMessage::skipHeaderWhitespace(const char*& str)
 {
-    while (*str && isspace(*str))
+    while (*str && (*str == ' ' || *str == '\t'))
     {
         ++str;
     }
 }
 
-// Finds the token in the string by skipping initial LWS and
-// returns true if "token" can be found in "str" else false.
-// Token should be the first in the string.
-static Boolean _expectToken(const char*& str, const char *token)
+Boolean HTTPMessage::expectHeaderToken(const char*& str, const char *token)
 {
     PEGASUS_ASSERT(token);
-    // skip LWS.
-    _skipWhitespace(str);
+
+    skipHeaderWhitespace(str);
     for ( ; *token ; ++str, ++token)
     {
         if (!*str || tolower(*str) != tolower(*token))
@@ -126,7 +108,6 @@ static Boolean _expectToken(const char*& str, const char *token)
             return false;
         }
     }
-
     return true;
 }
 
@@ -175,7 +156,7 @@ void HTTPMessage::parse(
     char* sep;
     Boolean firstTime = true;
 
-    while ((sep = _FindSeparator(line, (Uint32)(size - (line - data)))))
+    while ((sep = findSeparator(line, (Uint32)(size - (line - data)))))
     {
         // Look for double separator which terminates the header?
 
@@ -499,31 +480,31 @@ Boolean HTTPMessage::isSupportedContentType(const String& cimContentType)
     CString cstr = cimContentType.getCString();
     const char *str = (const char*) cstr;
 
-    if (!_expectToken(str, "application/xml"))
+    if (!expectHeaderToken(str, "application/xml"))
     {
         str = (const char*) cstr;
-        if (!_expectToken(str, "text/xml"))
+        if (!expectHeaderToken(str, "text/xml"))
         {
             return false;
         }
     }
 
     // Check for missing charset.
-    _skipWhitespace(str);
+    skipHeaderWhitespace(str);
     if (!*str)
     {
         return true; //We assume "utf-8".
     }
 
     // charset is present, should be "utf-8", case insensitive.
-    if (!_expectToken(str, ";") || !_expectToken(str, "charset") ||
-        !_expectToken (str, "=") ||!_expectToken(str, "\"utf-8\""))
+    if (!expectHeaderToken(str, ";") || !expectHeaderToken(str, "charset") ||
+        !expectHeaderToken (str, "=") || !expectHeaderToken(str, "\"utf-8\""))
     {
         return false;
     }
 
     // Check for any extra characters
-    _skipWhitespace(str);
+    skipHeaderWhitespace(str);
 
     return !*str;
 }

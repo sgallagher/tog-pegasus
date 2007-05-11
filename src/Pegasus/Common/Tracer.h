@@ -42,7 +42,7 @@
 #include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/SharedPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -144,6 +144,22 @@ public:
         const Uint32 traceComponent,
         const Uint32 level,
         const CIMException& cimException);
+
+    /** Gets an HTTP request message.
+        
+        Given an HTTP request message, this method checks if the
+        message contains a "Basic" authorization header. 
+   
+        If true, the username/passwd is suppressed and returned.
+        Otherwise the request message is returned without any changes.
+
+        @param requestMessage  requestMessage to be checked
+ 
+        @return request message
+ 
+    */
+    static SharedArrayPtr<char> getHTTPRequestMessage(
+        const Buffer& requestMessage);
 
     /** Set the trace file to the given file
         @param  traceFile  full path of the trace file
@@ -408,6 +424,13 @@ inline void Tracer::traceCIMException(
     const CIMException& cimException)
 {
     // empty function
+}
+
+static SharedArrayPtr<char> getHTTPRequestMessage(
+        const Buffer& requestMessage)
+{
+    //empty function
+    return SharedArrayPtr<char>();
 }
 
 inline Uint32 Tracer::setTraceFile(const char* traceFile)

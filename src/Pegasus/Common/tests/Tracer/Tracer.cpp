@@ -36,6 +36,12 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/SharedPtr.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -575,6 +581,115 @@ Uint32 test23()
     return(compare(FILE4,"Test message for Level4 in test23."));
 }
 
+// 
+// Description:
+// Test the getHTTPRequestMessage method.
+//
+// Type:
+// Positive
+// Tests with a HTTP Request without a basic authorization header.
+// Message is written to trace file without any changes.
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test24()
+{
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("xmlio");
+    Tracer::setTraceLevel(Tracer::LEVEL2);
+
+    Uint32 queueId = 18;
+    CIMPropertyList propertyList;
+    Buffer params;
+    AcceptLanguageList al;
+    ContentLanguageList cl; 
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ClassName", CIMName("testclass"));
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(
+        "localhost",
+        CIMNamespaceName("test/cimv2"), 
+        CIMName ("EnumerateInstanceNames"),
+        "12345", 
+        HTTP_METHOD__POST,
+        "Basic: Authorization AAAAA",
+        al,
+        cl,
+        params);
+
+    SharedArrayPtr<char> reqMsg(Tracer::getHTTPRequestMessage(
+            buffer));
+
+    PEG_TRACE((
+        TRC_XML_IO, 
+        Tracer::LEVEL2,
+        "<!-- Request: queue id: %u -->\n%s",
+        queueId,
+        reqMsg.get()));
+
+    return(compare(FILE4, buffer.getData()));
+} 
+    
+// 
+// Description:
+// Test the getHTTPRequestMessage method.
+//
+// Type:
+// Positive
+// Tests with a HTTP Request that contains a Basic authorization header.
+// The user/password info in the message is suppressed before writing it to 
+// the trace file.
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test25()
+{   
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("xmlio");
+    Tracer::setTraceLevel(Tracer::LEVEL2);
+
+    Uint32 queueId = 18;
+    CIMPropertyList propertyList;
+    Buffer params;
+    AcceptLanguageList al;
+    ContentLanguageList cl;
+    String authHeader = "Authorization: Basic ABCDEABCDE==";
+    String MSGID = "32423424";
+
+    XmlWriter::appendClassNameIParameter(
+        params, 
+        "ClassName", 
+        CIMName("testclass"));
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(
+        "localhost",
+        CIMNamespaceName("test/cimv2"), 
+        CIMName ("EnumerateInstanceNames"),
+        MSGID, 
+        HTTP_METHOD__POST,
+        authHeader,
+        al,
+        cl,
+        params);
+
+    PEG_TRACE((
+        TRC_XML_IO, 
+        Tracer::LEVEL2,
+        "<!-- Request: queue id: %u -->\n%s",
+        queueId,
+        Tracer::getHTTPRequestMessage(
+            buffer).get()));
+    
+    String testStr(buffer.getData());
+    Uint32 pos = testStr.find("ABCDEABCDE==");
+    
+    for ( Uint32 i = pos; i < pos+strlen("ABCDEABCDE=="); i++)
+        testStr[i] = 'X';
+
+    return(compare(FILE4, testStr.getCString()));
+}
+
 int main(int argc, char** argv)
 {
 
@@ -718,6 +833,18 @@ int main(int argc, char** argv)
        cout << "Tracer test (test23) failed" << endl;
        exit(1);
     }
+    if (test24() != 0)
+    {
+       cout << "Tracer test (test24) failed" << endl;
+       exit(1);
+    }
+
+    if (test25() != 0)
+    {
+       cout << "Tracer test (test25) failed" << endl;
+       exit(1);
+    }
+
     cout << argv[0] << " +++++ passed all tests" << endl;
     System::removeFile(FILE1);
     System::removeFile(FILE2);

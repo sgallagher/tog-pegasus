@@ -109,6 +109,39 @@ public:
         Uint32& statusCode,
         String& reasonPhrase);
 
+    /**
+        Advances a given pointer to the first character that is not
+        HTTP header whitespace (space or tabs).
+
+        @param  str    Input string.
+    */
+    static void skipHeaderWhitespace(const char*& str);
+
+    /**
+        Looks for a token in the beginning of a given string.
+
+        @param  str    input string to be searched
+        @param  token  token to look for
+ 
+        @return true   if the token is found in the string after skipping 
+                        the leading whitespaces if any.
+        @return false  if the token is not found.
+    */
+    static Boolean expectHeaderToken(const char*& str, const char *token);
+
+    /**
+        Returns a pointer to the first CRLF or a LF separator.
+
+        @param  data   input string. 
+        @param  size   size of the input string.
+ 
+        @return pointer to the first CRLF or LF separator if any, else 
+                returns NULL.
+    */
+    static char* findSeparator(
+        const char* data,
+        Uint32 size);
+
     static Boolean isSupportedContentType(
         const String& cimContentType);
 };

@@ -272,7 +272,7 @@ static int CimserveraAuthenticate(const char* username, const char* password)
 /*
 **==============================================================================
 **
-** CimserveraAuthenticate()
+** CimserveraValidateUser()
 **
 **==============================================================================
 */

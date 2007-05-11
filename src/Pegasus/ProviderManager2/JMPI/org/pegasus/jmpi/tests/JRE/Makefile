@@ -61,6 +61,11 @@ ifeq ($(PEGASUS_JVM),ibm)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
    EXTRA_LIBRARIES += -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm -lhpi -lcrypt
 endif
+ifeq ($(PEGASUS_JVM),ibm64)
+   JAVALIBS=$(JAVA_SDK)/jre/bin
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/j9vm/ -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm
+endif
 ifeq ($(PEGASUS_JVM),bea)
    JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include/ -I$(JAVA_SDK)/include/linux/

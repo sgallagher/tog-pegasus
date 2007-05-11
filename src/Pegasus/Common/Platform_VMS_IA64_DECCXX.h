@@ -90,4 +90,6 @@
 
 #define PEGASUS_HAVE_PTHREADS
 
+#define PEGASUS_HAVE_NANOSLEEP
+
 #endif /* Pegasus_Platform_VMS_IA64_DECCXX_h */

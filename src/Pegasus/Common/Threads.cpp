@@ -107,10 +107,6 @@ void Threads::sleep(int msec)
         // Usleep the remaining micro seconds
         usleep( (msec*1000) % 1000000 );
     }
-#elif defined(PEGASUS_OS_VMS)
-
-    ::sleep(msec / 1000);
-
 #endif
 }
 

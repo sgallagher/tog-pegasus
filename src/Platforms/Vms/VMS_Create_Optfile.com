@@ -145,8 +145,8 @@ $ !
 $  ssllibdir = f$trnlnm("PEGASUS_OPENSSLLIB")
 $  if (ssllibdir .EQS. "") then goto No_ssl
 $ ! 
-$  ssllib1 = "pegasus_openssllib:libssl32/lib"
-$  ssllib2 = "libcrypto32/lib"
+$  ssllib1 = "pegasus_openssllib:ssl$libssl_shr32/share"
+$  ssllib2 = "ssl$libcrypto_shr32/share"
 $  write/error=optfile_writeerror optfile "''ssllib1'"
 $  write/error=optfile_writeerror optfile "''ssllib2'"
 $No_ssl:

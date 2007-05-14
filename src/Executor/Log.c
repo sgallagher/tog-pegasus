@@ -55,14 +55,16 @@ void SetLogLevel(enum LogLevel level)
 
 void Log(enum LogLevel type, const char *format, ...)
 {
+    // These definitions are consistent with System::syslog in SystemPOSIX.cpp.
     static int _priorities[] =
     {
-        LOG_ALERT, /* LL_FATAL, */
-        LOG_CRIT, /* LL_SEVERE */
+        LOG_CRIT, /* LL_FATAL, */
+        LOG_ERR, /* LL_SEVERE */
         LOG_WARNING, /* LL_WARNING */
-        LOG_NOTICE, /* LL_INFORMATION */
-        LOG_INFO, /* LL_TRACE */
+        LOG_INFO, /* LL_INFORMATION */
+        LOG_DEBUG, /* LL_TRACE */
     };
+
     static const char* _prefix[] =
     {
         "FATAL",
@@ -71,6 +73,7 @@ void Log(enum LogLevel type, const char *format, ...)
         "INFORMATION",
         "TRACE"
     };
+
     char prefixedFormat[EXECUTOR_BUFFER_SIZE];
 
     /* Prefix the format with the log level. */

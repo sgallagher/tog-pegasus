@@ -148,12 +148,14 @@ static int CreateLocalAuthFile(
     if (GetUserInfo(user, &uid, &gid) != 0)
     {
         close(fd);
+        unlink(path);
         return -1;
     }
 
     if (fchown(fd, uid, gid) != 0)
     {
         close(fd);
+        unlink(path);
         return -1;
     }
 

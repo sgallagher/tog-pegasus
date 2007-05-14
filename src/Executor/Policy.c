@@ -201,21 +201,6 @@ static const size_t _staticPolicyTableSize =
 /*
 **==============================================================================
 **
-** _dynamicPolicyTable[]
-**
-**     This array defines the dynamic policy table for the executor (this
-**     includes the START_PROVIDER_AGENT policies.
-**
-**==============================================================================
-*/
-static struct Policy* _dynamicPolicyTable = 0;
-
-static size_t _dynamicPolicyTableSize = 
-    sizeof(_dynamicPolicyTable) / sizeof(_dynamicPolicyTable[0]);
-
-/*
-**==============================================================================
-**
 ** CheckPolicy()
 **
 **==============================================================================
@@ -460,9 +445,6 @@ void DumpPolicy(int expandMacros)
 
     _DumpPolicyHelper(
         _staticPolicyTable, _staticPolicyTableSize, expandMacros);
-
-    _DumpPolicyHelper(
-        _dynamicPolicyTable, _dynamicPolicyTableSize, expandMacros);
 
     putchar('\n');
 }

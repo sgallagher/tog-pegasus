@@ -35,9 +35,29 @@
 
 #include "TestCMPI_CXX.h"
 
+#include <ctime>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/Config.h>
 
 PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+std::ostream& operator<<(std::ostream& os, CMPIUint64 i)
+{
+    char buf[65];
+    sprintf (buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", i);
+    os << buf;
+    return os;
+}
+std::ostream& operator<<(std::ostream& os, CMPISint64 i)
+{
+    char buf[65];
+    sprintf (buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", i);
+    os << buf;
+    return os;
+}
+#endif
 
 /* -----------------------------------------------------------------------*/
 /*      Provider Factory - IMPORTANT for entry point generation           */
@@ -85,7 +105,11 @@ convertTime (CmpiDateTime& dtTime)
    ui64Time = dtTime.getDateTime ();
    tTime    = ui64Time / 1000000;
 
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+   return ctime (&tTime);
+#else
    return ctime_r (&tTime, timeBuffer);
+#endif
 }
 
 void
@@ -770,9 +794,9 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         CmpiDateTime dtData4 ("20070501152143.164592-300");
         // echo `date --date='2007-05-01 15:21:43' +%s`*1000000+164592 | bc
         // 1178050903164592LL (which is wrong.  off by an hour.)
-        CmpiDateTime dtData5 (1178047303164592LL, false);
+        CmpiDateTime dtData5 (PEGASUS_UINT64_LITERAL(1178047303164592), false);
         CmpiDateTime dtData6 ("00000011125959.123456:000");
-        CmpiDateTime dtData7 (997199123456LL, true);
+        CmpiDateTime dtData7 (PEGASUS_UINT64_LITERAL(997199123456), true);
 
 #ifdef PEGASUS_DEBUG
         cout << "Comparing dtData2 to dtData3" << endl;

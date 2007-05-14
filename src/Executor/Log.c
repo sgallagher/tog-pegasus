@@ -55,7 +55,8 @@ void SetLogLevel(enum LogLevel level)
 
 void Log(enum LogLevel type, const char *format, ...)
 {
-    // These definitions are consistent with System::syslog in SystemPOSIX.cpp.
+    /* These definitions are consistent with System::syslog in
+       SystemPOSIX.cpp. */
     static int _priorities[] =
     {
         LOG_CRIT, /* LL_FATAL, */

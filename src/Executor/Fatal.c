@@ -58,6 +58,7 @@ void Fatal(const char* file, size_t line, const char* format, ...)
     char prefixedFormat[EXECUTOR_BUFFER_SIZE];
     char lineStr[32];
 
+#ifdef PEGASUS_DEBUG
     /* Prepend "__FILE__(__LINE__): FATAL: " to format. */
 
     Strlcpy(prefixedFormat, file, sizeof(prefixedFormat));
@@ -65,7 +66,9 @@ void Fatal(const char* file, size_t line, const char* format, ...)
     sprintf(lineStr, "%u", (unsigned int)line);
     Strlcat(prefixedFormat, lineStr, sizeof(prefixedFormat));
     Strlcat(prefixedFormat, "): FATAL: ", sizeof(prefixedFormat));
-    Strlcat(prefixedFormat,  format, sizeof(prefixedFormat));
+#endif
+
+    Strlcat(prefixedFormat, format, sizeof(prefixedFormat));
 
     /* Print to syslog. */
     {

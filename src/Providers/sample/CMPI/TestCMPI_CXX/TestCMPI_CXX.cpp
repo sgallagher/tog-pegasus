@@ -575,10 +575,10 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         }
         catch (const CmpiStatus& e)
         {
-           if (e.rc () != CMPI_RC_ERR_FAILED)
+           if (e.rc () != CMPI_RC_ERR_NO_SUCH_PROPERTY)
            {
               cerr << "Error: Set array out of bounds (#1) expecting "
-                   << "CMPI_RC_ERR_FAILED"
+                   << "CMPI_RC_ERR_NO_SUCH_PROPERTY"
                    << endl;
               return CmpiStatus (CMPI_RC_ERR_FAILED);
            }
@@ -593,10 +593,10 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         }
         catch (const CmpiStatus& e)
         {
-           if (e.rc () != CMPI_RC_ERR_FAILED)
+           if (e.rc () != CMPI_RC_ERR_NO_SUCH_PROPERTY)
            {
               cerr << "Error: Set array out of bounds (#2) expecting "
-                   << "CMPI_RC_ERR_FAILED"
+                   << "CMPI_RC_ERR_NO_SUCH_PROPERTY"
                    << endl;
               return CmpiStatus (CMPI_RC_ERR_FAILED);
            }

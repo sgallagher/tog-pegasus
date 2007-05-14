@@ -59,8 +59,6 @@
 **
 **     Determine which user to run CIMSERVERMAIN as.
 **
-**     Note: this algorithm is no longer in use.
-**
 **==============================================================================
 */
 
@@ -71,12 +69,11 @@ int GetServerUser(int* uid, int* gid)
     if (GetUserInfo(username, uid, gid) != 0)
     {
         Fatal(FL, 
-            "The %s user does not exist: \"%s\". Please create "
-            "a system user with that name or use an OpenPegasus build that "
-            "disables privilege separation.", CIMSERVERMAIN, username);
+            "The %s user \"%s\" does not exist.",
+            CIMSERVERMAIN, username);
     }
 
-    return -1;
+    return 0;
 }
 
 /*

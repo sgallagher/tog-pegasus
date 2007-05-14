@@ -43,7 +43,7 @@
 
 static void Exit(int status)
 {
-    syslog(LOG_INFO, "exit(%d)", status);
+    syslog(LOG_DEBUG, "exit(%d)", status);
     exit(status);
 }
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     /* Open syslog: */
 
     openlog("cimservera", LOG_PID, LOG_AUTH);
-    syslog(LOG_INFO, "started");
+    syslog(LOG_DEBUG, "started");
 
     /* Check argumnents. */
 

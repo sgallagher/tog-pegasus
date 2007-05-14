@@ -482,7 +482,7 @@ public:
 
             for (Uint32 octet=1; octet<=4; octet++)
             {
-                Uint32 octetValue = 0;
+                Uint32 octetValue = 0, j = 0;
 
                 //----------------------------------------------------------
                 // If a non-digit is encountered in the input parameter,
@@ -497,8 +497,14 @@ public:
                 // skip over digits
                 while (isascii(hostname[i]) && isdigit(hostname[i]))
                 {
+                    if (j == 3)
+                    {
+                       isValid = false;
+                       break;
+                    }
                     octetValue = octetValue*10 + (hostname[i] - '0');
                     i++;
+                    j++;
                 }
 
                 if (octetValue > 255)

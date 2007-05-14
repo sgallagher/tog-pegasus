@@ -787,7 +787,7 @@ static void HandleChallengeLocalRequest(int sock)
 
     Log(LL_TRACE, "HandleChallengeLocalRequest(): user=%s", request.user);
 
-    /* Peform operation. */
+    /* Perform operation. */
 
     status = StartLocalAuthentication(request.user, challenge);
 
@@ -831,7 +831,7 @@ static void HandleAuthenticateLocalRequest(int sock)
 
     Log(LL_TRACE, "HandleAuthenticateLocalRequest()");
 
-    /* Peform operation. */
+    /* Perform operation. */
 
     status = FinishLocalAuthentication(request.challenge, request.response);
 

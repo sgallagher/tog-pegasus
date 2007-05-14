@@ -443,7 +443,7 @@ static int PAMValidateUserCallback(
 **
 ** PAMAuthenticateInProcess()
 **
-**     Peforms basic PAM authentication on the given username and password.
+**     Performs basic PAM authentication on the given username and password.
 **
 **==============================================================================
 */
@@ -518,7 +518,7 @@ static int PAMValidateUserInProcess(const char* username)
 **
 ** PAMAuthenticate()
 **
-**     Peforms basic PAM authentication on the given username and password.
+**     Performs basic PAM authentication on the given username and password.
 **
 **==============================================================================
 */

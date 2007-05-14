@@ -71,7 +71,7 @@ int GetUserInfo(const char* user, int* uid, int* gid)
 **
 ** GetUserName()
 **
-**     Lookup the given user's uid and gid.
+**     Lookup the user name for the specified user ID.
 **
 **==============================================================================
 */

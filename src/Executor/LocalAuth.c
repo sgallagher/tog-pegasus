@@ -205,6 +205,7 @@ static int CheckLocalAuthToken(
     }
 
     /* Okay! */
+    close(fd);
     return 0;
 }
 

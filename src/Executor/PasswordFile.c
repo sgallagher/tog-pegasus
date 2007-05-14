@@ -71,7 +71,10 @@ int CheckPasswordFile(
         /* If password is null, we are done. */
 
         if (password == NULL)
-            return 0;
+        {
+            fclose(is);
+            return -1;
+        }
 
         /* Get encrypted password. */
 

@@ -793,8 +793,8 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         CmpiDateTime dtData3 (dtData2);
         CmpiDateTime dtData4 ("20070501152143.164592-300");
         // echo `date --date='2007-05-01 15:21:43' +%s`*1000000+164592 | bc
-        // 1178050903164592LL (which is wrong.  off by an hour.)
-        CmpiDateTime dtData5 (PEGASUS_UINT64_LITERAL(1178047303164592), false);
+        // 1178050903164592LL
+        CmpiDateTime dtData5 (PEGASUS_UINT64_LITERAL(1178050903164592), false);
         CmpiDateTime dtData6 ("00000011125959.123456:000");
         CmpiDateTime dtData7 (PEGASUS_UINT64_LITERAL(997199123456), true);
 
@@ -826,6 +826,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
 ////////cout << "dtData4 = " << dtData4.getDateTime () << endl;
 ////////cout << "dtData5 = " << dtData5.getDateTime () << endl;
 ////////cout << "dtData6 = " << dtData6.getDateTime () << endl;
+////////cout << "dtData7 = " << dtData7.getDateTime () << endl;
 #endif
 
         // Test CmpiInstance

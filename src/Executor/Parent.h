@@ -34,6 +34,6 @@
 #ifndef _Executor_Parent_h
 #define _Executor_Parent_h
 
-void Parent(int sock, int childPid);
+void Parent(int sock, int childPid, int bindVerbose);
 
 #endif /* _Executor_Parent_h */

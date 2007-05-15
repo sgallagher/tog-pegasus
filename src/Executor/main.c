@@ -438,7 +438,7 @@ int main(int argc, char** argv)
     {
         /* Parent. */
         close(pair[0]);
-        Parent(pair[1], childPid);
+        Parent(pair[1], childPid, options.bindVerbose);
     }
     else
     {

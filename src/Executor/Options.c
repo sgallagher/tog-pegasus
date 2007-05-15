@@ -109,4 +109,7 @@ void GetOptions(int* argc, char*** argv, struct Options* options)
 
     if (_TestFlagOption(argc, argv, "-s", 0) == 0)
         options->shutdown = 1;
+
+    if (_TestFlagOption(argc, argv, "-X", 0) == 0)
+        options->bindVerbose = 1;
 }

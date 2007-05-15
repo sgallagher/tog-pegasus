@@ -40,6 +40,7 @@ struct Options
     int version; /* --version or -v */
     int help; /* --help or -h */
     int shutdown; /* -s */
+    int bindVerbose; /* -X */
 };
 
 void GetOptions(int* argc, char*** argv, struct Options* options);

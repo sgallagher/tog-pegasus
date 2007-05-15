@@ -374,7 +374,7 @@ static void HandleStartProviderAgentRequest(int sock)
 **==============================================================================
 */
 
-static void HandleDaemonizeExecutorRequest(int sock)
+static void HandleDaemonizeExecutorRequest(int sock, int bindVerbose)
 {
     struct ExecutorDaemonizeExecutorResponse response;
     int pid;
@@ -430,17 +430,20 @@ static void HandleDaemonizeExecutorRequest(int sock)
 
     chdir("/");
 
-    /* Close these file descriptors (stdin, stdout, stderr). */
+    if (!bindVerbose)
+    {
+        /* Close these file descriptors (stdin, stdout, stderr). */
 
-    close(0);
-    close(1);
-    close(2);
+        close(0);
+        close(1);
+        close(2);
 
-    /* Direct standard input, output, and error to /dev/null: */
+        /* Direct standard input, output, and error to /dev/null: */
 
-    open("/dev/null", O_RDONLY);
-    open("/dev/null", O_RDWR);
-    open("/dev/null", O_RDWR);
+        open("/dev/null", O_RDONLY);
+        open("/dev/null", O_RDWR);
+        open("/dev/null", O_RDWR);
+    }
 
     response.status = 0;
 
@@ -860,7 +863,7 @@ static void HandleAuthenticateLocalRequest(int sock)
 **==============================================================================
 */
 
-void Parent(int sock, int childPid)
+void Parent(int sock, int childPid, int bindVerbose)
 {
     /* Handle Ctrl-C. */
 
@@ -927,7 +930,7 @@ void Parent(int sock, int childPid)
                 break;
 
             case EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE:
-                HandleDaemonizeExecutorRequest(sock);
+                HandleDaemonizeExecutorRequest(sock, bindVerbose);
                 break;
 
             case EXECUTOR_RENAME_FILE_MESSAGE:

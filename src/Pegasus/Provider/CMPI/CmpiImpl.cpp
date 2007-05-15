@@ -1234,7 +1234,7 @@ CmpiData::operator CmpiArray() const {
 
 CMPIBoolean CmpiData::getBoolean() const
 {
-   if (_data.type != CMPI_boolean)
+   if (_data.type != CMPI_boolean && _data.type != CMPI_uint8)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
       return _data.value.boolean;
@@ -1322,7 +1322,7 @@ CMPIReal64 CmpiData::getReal64() const
 
 CMPIChar16 CmpiData::getChar16() const
 {
-   if (_data.type != CMPI_char16)
+   if (_data.type != CMPI_char16 && _data.type != CMPI_uint16)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
       return _data.value.char16;

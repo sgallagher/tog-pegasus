@@ -42,7 +42,8 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
+// Microsoft Visual C++ version 6.0 cannot output 64 bit values
+#if defined(_MSC_VER) && _MSC_VER < 1300
 std::ostream& operator<<(std::ostream& os, CMPIUint64 i)
 {
     char buf[65];

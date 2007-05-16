@@ -116,7 +116,7 @@ static void HandleOpenFileRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
@@ -466,12 +466,12 @@ static void HandleRenameFileRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
 
-    /* Rename the file. */
+    /* Log request. */
 
     Log(LL_TRACE, "HandleRenameFileRequest(): oldPath=%s newPath=%s", 
         request.oldPath, request.newPath);
@@ -521,12 +521,12 @@ static void HandleRemoveFileRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
 
-    /* Remove the file. */
+    /* Log request. */
 
     Log(LL_TRACE, "HandleRemoveFileRequest(): path=%s", request.path);
 
@@ -575,7 +575,7 @@ static void HandleReapProviderAgentRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
@@ -625,12 +625,12 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
 
-    /* Rename the file. */
+    /* Log request. */
 
     Log(LL_TRACE, "HandleAuthenticatePasswordRequest(): username=%s",
         request.username);
@@ -714,7 +714,7 @@ static void HandleValidateUserRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
@@ -783,7 +783,7 @@ static void HandleChallengeLocalRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");
@@ -827,7 +827,7 @@ static void HandleAuthenticateLocalRequest(int sock)
 
     memset(&response, 0, sizeof(response));
 
-    /* Read the request request. */
+    /* Read the request message. */
 
     if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
         Fatal(FL, "Failed to read request");

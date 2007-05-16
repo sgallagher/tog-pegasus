@@ -174,7 +174,7 @@ createBINRPM:
 	@$(RPM) -i $(PEGASUS_RPM_DIRECTORY)/SRPMS/$(SRC_RPM)
 	@$(RPMBUILD) -bb --define 'LINUX_VERSION $(PEGASUS_DISTRO_SUFFIX)' --define 'PEGASUS_BUILD_TEST_RPM 1' $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
 
-buildRPM: createSRCRPM createBINRPM
+buildRPM: clean createSRCRPM createBINRPM
 
 buildall: exportSRC buildRPM
 
@@ -185,8 +185,5 @@ clean:
 	-$(RPM) -e $(filter tog-pegasus-test%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
-	-$(RM) -rf $(PEGASUS_RPM_DIRECTORY)/BUILD/tog-pegasus-$(VERSION)
-	-$(REMOVE_PEGASUS_DIRECTORY)
-	-$(RM) -rf pegasus	tog-pegasus-*
-	-$(RM) -rf /var/tmp/tog-pegasus-*
+	-$(RM) -rf  tog-pegasus-$(PEGASUS_RPM_VERSION)
 

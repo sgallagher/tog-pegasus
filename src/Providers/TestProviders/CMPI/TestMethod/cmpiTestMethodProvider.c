@@ -793,7 +793,7 @@ static int _testCMPIDateTime ()
 
     returnedDateTimeInBinary = CMGetBinaryFormat(dateTimeFromBinary, &rc);
     PROV_LOG ("++++  CMGetBinaryFormat : (%s)", strCMPIStatus (rc));
-    if (dateTimeInBinary != returnedDateTimeInBinary)
+    if (dateTimeInBinary == returnedDateTimeInBinary)
     {
         binaryDateTimeEqual = 1;
     }

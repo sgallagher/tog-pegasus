@@ -68,6 +68,7 @@ The second says which JRE to use.  The choices are as follows:
    export PEGASUS_JVM=gcj     Gnu's jvm (ex: gcj (GCC) 4.1.1 20061011 (Red Hat 4.1.1-30))
    export PEGASUS_JVM=sun	Sun's jvm (ex: j2sdk1.4.2_07)
    export PEGASUS_JVM=ibm	IBM's jvm (ex: IBMJava2-142)
+   export PEGASUS_JVM=ibm64     IBM's jvm for 64 bit machine. 
    export PEGASUS_JVM=bea	Suse's IBM jvm (ex: BEAJava2-1.4.2)
 So, pick one and export that variable to the environment.  For example,
    export PEGASUS_JVM=sun

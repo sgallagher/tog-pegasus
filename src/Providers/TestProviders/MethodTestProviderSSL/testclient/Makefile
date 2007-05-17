@@ -36,13 +36,13 @@ DIR = Providers/TestProviders/MethodTestProviderSSL/testclient
 
 include $(ROOT)/mak/config.mak
 
-OPENSSL_CNF = openssl.cnf
+OPENSSL_CNF_SERVER = openssl_server.cnf
+OPENSSL_CNF_CLIENT = openssl_client.cnf
 
 ifeq ($(OS_TYPE),windows)
     CURRENT_USER=Administrator
 else
     CURRENT_USER=`whoami`
-#    CURRENT_USER=guest
 endif
 
 ifeq ($(OPENSSL_SET_SERIAL_SUPPORTED),true)
@@ -71,17 +71,79 @@ SOURCES = TestMethodTestProviderSSL.cpp
 
 include $(ROOT)/mak/program.mak
 
+cleanup:
+	@$(RM) $(PEGASUS_HOME)/testsslserverca.cert
+	@$(RM) $(PEGASUS_HOME)/testsslserverca.key
+	@$(RM) $(PEGASUS_HOME)/testsslserverdn.cert
+	@$(RM) $(PEGASUS_HOME)/testsslserverdn.key
+	@$(RM) $(PEGASUS_HOME)/testsslclientca.cert
+	@$(RM) $(PEGASUS_HOME)/testsslclientca.key
+	@$(RM) $(PEGASUS_HOME)/testsslclientdn.cert
+	@$(RM) $(PEGASUS_HOME)/testsslclientdn.key
+	@$(RM) $(PEGASUS_HOME)/ssltest_setup
+
 tests:
 
-poststarttests:
-	@$(ECHO) ++++MethodTestProviderSSL Test
-#	@cimtrust -a -U $(CURRENT_USER) -f $(PEGASUS_HOME)/client.pem -Ts
-	@cimtrust -a -U $(CURRENT_USER) -f $(PEGASUS_HOME)/server.pem -Ts
+create_Client_Certificates: $(OPENSSL_CNF_CLIENT) testsslclient.txt
+	@$(MAKE) -i -s cleanup
+	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
+
+        # Create a self signed Client Certificate
+	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testsslclient.key 1024
+	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF_CLIENT) -new -key $(PEGASUS_HOME)/testsslclient.key -out $(PEGASUS_HOME)/testsslclient.csr < testsslclient.txt
+	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testsslclient.csr -out $(PEGASUS_HOME)/testsslclient.cert -req -signkey $(PEGASUS_HOME)/testsslclient.key $(SETSERIAL_0) -days 356
+	@$(RM) $(PEGASUS_HOME)/testsslclient.csr
+
+create_Server_Certificates: $(OPENSSL_CNF_SERVER) testsslserver.txt
+	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
+
+        # Create a self Signed Server Certificate
+	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testsslserver.key 1024
+	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF_SERVER) -new -key $(PEGASUS_HOME)/testsslserver.key -out $(PEGASUS_HOME)/testsslserver.csr < testsslserver.txt
+	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testsslserver.csr -out $(PEGASUS_HOME)/testsslserver.cert -req -signkey $(PEGASUS_HOME)/testsslserver.key $(SETSERIAL_0) -days 356
+	@$(RM) $(PEGASUS_HOME)/testsslserver.csr
+
+	@$(ECHO) Create clientTruststore and clientKeystore
+	$(MKDIRHIER) $(PEGASUS_HOME)/clientTruststore
+	$(MKDIRHIER) $(PEGASUS_HOME)/clientKeystore
+
+	@$(MOVE) $(PEGASUS_HOME)/testsslclient.cert $(PEGASUS_HOME)/clientKeystore/testSSLClient_Cert.pem
+	@$(MOVE) $(PEGASUS_HOME)/testsslclient.key $(PEGASUS_HOME)/clientKeystore/testSSLClient_Key.pem
+
+ifndef PEGASUS_PAM_AUTHENTICATION
+    ifneq ($(OS), zos)
+	@cimuser -r -u $(CURRENT_USER)
+	@cimuser -a -u $(CURRENT_USER) -w $(CURRENT_USER)
+    endif
+endif
+
+create_trustStore:
+	@$(ECHO) Add Server Certificate to cimserver_trust trust store
+	@cimtrust -a -T a -U $(CURRENT_USER) -f $(PEGASUS_HOME)/testsslserver.cert
+	
+	@$(ECHO) Add Client Certificate to clientTruststore
+#	@$(COPY) $(PEGASUS_HOME)/clientKeystore/testSSLClient_Cert.pem $(PEGASUS_HOME)/clientTruststore/a692cc3b.0
+	@$(MOVE) $(PEGASUS_HOME)/client.pem $(PEGASUS_HOME)/client_org.pem
+	@$(COPY) $(PEGASUS_HOME)/testsslserver.cert $(PEGASUS_HOME)/client.pem
+
+poststarttests: create_Client_Certificates create_Server_Certificates create_trustStore
 	$(TOUCH) $(PEGASUS_HOME)/cimserver_current.conf
 	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf $(PEGASUS_HOME)/cimserver_current.conf.bkup
 	@$(ECHO) Stopping cimserver
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 	@$(ECHO) Stopped.
+
+	@$(MOVE) $(PEGASUS_HOME)/server.pem $(PEGASUS_HOME)/server_org.pem
+	@$(MOVE) $(PEGASUS_HOME)/cert.pem $(PEGASUS_HOME)/cert_org.pem
+	@$(MOVE) $(PEGASUS_HOME)/file.pem $(PEGASUS_HOME)/file_org.pem
+	@$(MOVE) $(PEGASUS_HOME)/testsslserver.key $(PEGASUS_HOME)/file.pem
+	@$(COPY) $(PEGASUS_HOME)/testsslserver.cert $(PEGASUS_HOME)/server.pem
+	@$(MOVE) $(PEGASUS_HOME)/testsslserver.cert $(PEGASUS_HOME)/cert.pem
+
+	@chmod 700 $(PEGASUS_HOME)/file.pem
+	@chmod 755 $(PEGASUS_HOME)/cert.pem
+	@chmod 755 $(PEGASUS_HOME)/server.pem
+	@chmod 755 $(PEGASUS_HOME)/client.pem
 
 ifeq ($(OS_TYPE),windows)
 	$(COPY) cimserver_planned.conf.win32 $(PEGASUS_HOME)/cimserver_planned.conf
@@ -98,13 +160,24 @@ endif
 	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStore
 	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStoreUserName
 	$(PEGASUS_HOME)/bin/cimconfig -g sslClientVerificationMode
-	$(PEGASUS_HOME)/bin/$(PROGRAM) $(PEGASUS_HOME)/client_cert.pem $(PEGASUS_HOME)/client_file.pem $(PEGASUS_HOME)/ssl.rnd
+
+	$(PEGASUS_HOME)/bin/$(PROGRAM) $(PEGASUS_HOME)/clientkeystore/testSSLClient_Cert.pem $(PEGASUS_HOME)/clientkeystore/testSSLClient_Key.pem $(PEGASUS_HOME)/ssl.rnd
+
 	@$(ECHO) Stopping cimserver
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 	@$(ECHO) Stopped.
 	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf.bkup $(PEGASUS_HOME)/cimserver_planned.conf
+	
+	$(RMDIRHIER) $(PEGASUS_HOME)/clientTruststore
+	$(RMDIRHIER) $(PEGASUS_HOME)/clientKeystore
+
+	@$(MOVE) $(PEGASUS_HOME)/server_org.pem $(PEGASUS_HOME)/server.pem
+	@$(MOVE) $(PEGASUS_HOME)/file_org.pem $(PEGASUS_HOME)/file.pem
+	@$(MOVE) $(PEGASUS_HOME)/cert_org.pem $(PEGASUS_HOME)/cert.pem
+	@$(MOVE) $(PEGASUS_HOME)/client_org.pem $(PEGASUS_HOME)/client.pem
+
 	@$(ECHO) Starting cimserver with previous configuration
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	@$(ECHO) Running.
-	@$(ECHO) ++++MethodTestProviderSSL test completed.
+	@$(MAKE) -i -s cleanup
 

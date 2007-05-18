@@ -172,44 +172,19 @@ void InteropProvider::extractSoftwareIdentityInfo(
     providerName = getRequiredValue<String>(providerInstance,
         PROVIDER_PROPERTY_NAME);
 
-    // Now retrieve the software info from the desired PG_ProviderModule
-    Array<CIMName> propertyList;
-    propertyList.append(PROVIDERMODULE_PROPERTY_NAME);
-    propertyList.append(PROVIDERMODULE_PROPERTY_VENDOR);
-    propertyList.append(PROVIDERMODULE_PROPERTY_VERSION);
-    propertyList.append(PROVIDERMODULE_PROPERTY_INTERFACETYPE);
-
     // Need to find the ProviderModule instance for this provider to retrieve
     // version information.
-    Array<CIMInstance> providerModules = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERMODULE,
-        false, false, false, CIMPropertyList(propertyList));
-
-    Uint32 moduleIndex = PEG_NOT_FOUND;
-    for(Uint32 i = 0, n = providerModules.size(); i < n; ++i)
-    {
-        CIMInstance & currentModule = providerModules[i];
-        Uint32 index = currentModule.findProperty(
-            PROVIDERMODULE_PROPERTY_NAME);
-        if(index != PEG_NOT_FOUND)
-        {
-            String currentModuleName;
-            currentModule.getProperty(index).getValue().get(currentModuleName);
-            if(moduleName == currentModuleName)
-            {
-                moduleIndex = i;
-                break;
-            }
-        }
-    }
-    if(moduleIndex == PEG_NOT_FOUND)
-    {
-        throw CIMOperationFailedException(
-            "Could not retrieve provider module for provider " +
-            providerInstance.getPath().toString());
-    }
-
-    CIMInstance & providerModule = (CIMInstance &)providerModules[moduleIndex];
+    CIMKeyBinding pmKey(PROVIDERMODULE_PROPERTY_NAME, moduleName);
+    Array<CIMKeyBinding> pmKeyBindings;
+    pmKeyBindings.append(pmKey);
+    CIMObjectPath providerModuleName(
+        String::EMPTY,
+        CIMNamespaceName(),
+        PEGASUS_CLASSNAME_PROVIDERMODULE,
+        pmKeyBindings);
+    CIMInstance providerModule = repository->getInstance(
+        PEGASUS_NAMESPACENAME_INTEROP, providerModuleName,
+        false, false, false, CIMPropertyList());
 
     version = getRequiredValue<String>(providerModule,
         PROVIDERMODULE_PROPERTY_VERSION);

@@ -1151,6 +1151,15 @@ void CQLValueRep::_validate(const CQLValueRep& x)
 
   switch(_valueType)
     {
+    case CQLValue::Null_type:
+      if(x._valueType != CQLValue::Null_type)
+    {
+      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
+                   String("Validation type mismatch error for type: $0"),
+                   String("NULLVALUE"));
+      throw CQLRuntimeException(mload);
+    }
+      break;
     case CQLValue::Boolean_type:
       if(x._valueType != CQLValue::Boolean_type)
     {
@@ -1239,6 +1248,9 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
   if(cv.isNull())
     {
       _valueType = CQLValue::Null_type;
+      _isResolved = true;
+      PEG_METHOD_EXIT();
+      return;
     }
   if(key != -1)
     {
@@ -2019,6 +2031,19 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::_compareArray()");
 
+  if ((_valueType == CQLValue::Null_type) &&
+      (_in._valueType == CQLValue::Null_type))
+  {
+      PEG_METHOD_EXIT();
+      return true;
+  }
+  
+  if ((_valueType == CQLValue::Null_type) ||
+      (_in._valueType == CQLValue::Null_type))
+  {
+      PEG_METHOD_EXIT();
+      return false;
+  }
   
   Boolean result;
   Array<Boolean>       _bool1;

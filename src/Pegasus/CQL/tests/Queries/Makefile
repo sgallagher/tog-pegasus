@@ -149,9 +149,10 @@ poststarttests: \
 	Misc.query.res \
 	NormalizeToDOC.query.res \
 	general.query.res \
-	Function.query.res \
 	Function2.query.res
 
+BROKEN_TESTS = \
+	Function.query.res
 
 general:
 

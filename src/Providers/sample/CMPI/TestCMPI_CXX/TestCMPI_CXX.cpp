@@ -42,6 +42,11 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+// This solves the problem of figuring out what line causes
+// the exception.
+#define L line = __LINE__
+int line = 0;
+
 // Microsoft Visual C++ version 6.0 cannot output 64 bit values
 #if defined(_MSC_VER) && _MSC_VER < 1300
 std::ostream& operator<<(std::ostream& os, CMPIUint64 i)
@@ -374,168 +379,168 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
 
     try
     {
-        CMPIBoolean    bData1     = true;
-        CMPIChar16     chData1    = '1';
-        CMPIUint8      ui8Data1   = 2;
-        CMPIUint16     ui16Data1  = 3;
-        CMPIUint32     ui32Data1  = 4;
-        CMPIUint64     ui64Data1  = 5;
-        CMPISint8      si8Data1   = 6;
-        CMPISint16     si16Data1  = 7;
-        CMPISint32     si32Data1  = 8;
-        CMPISint64     si64Data1  = 9;
-        CMPIReal32     r32Data1   = 10;
-        CMPIReal64     r64Data1   = 11;
-        CmpiString     strData1   = "12";
-        const char     achData1[] = { '1', '3', '\0' };
-        CmpiDateTime   dtData1;
-        CmpiObjectPath copData1 ("root/SampleProvider", "CWS_PlainFile_CXX");
-        CmpiInstance   ciData1 (copData1);
-        CmpiData       d;
+        L;CMPIBoolean    bData1     = true;
+        L;CMPIChar16     chData1    = '1';
+        L;CMPIUint8      ui8Data1   = 2;
+        L;CMPIUint16     ui16Data1  = 3;
+        L;CMPIUint32     ui32Data1  = 4;
+        L;CMPIUint64     ui64Data1  = 5;
+        L;CMPISint8      si8Data1   = 6;
+        L;CMPISint16     si16Data1  = 7;
+        L;CMPISint32     si32Data1  = 8;
+        L;CMPISint64     si64Data1  = 9;
+        L;CMPIReal32     r32Data1   = 10;
+        L;CMPIReal64     r64Data1   = 11;
+        L;CmpiString     strData1   = "12";
+        L;const char     achData1[] = { '1', '3', '\0' };
+        L;CmpiDateTime   dtData1;
+        L;CmpiObjectPath copData1 ("root/SampleProvider", "CWS_PlainFile_CXX");
+        L;CmpiInstance   ciData1 (copData1);
+        L;CmpiData       d;
 
         // Test CmpiArray constructors
-        CmpiArray      abData1 (1, CMPI_boolean);
-        CmpiArray      achData2 (1, CMPI_char16);
-        CmpiArray      ar32Data3 (1, CMPI_real32);
-        CmpiArray      ar64Data4 (1, CMPI_real64);
-        CmpiArray      aui8Data5 (1, CMPI_uint8);
-        CmpiArray      aui16Data6 (1, CMPI_uint16);
-        CmpiArray      aui32Data7 (1, CMPI_uint32);
-        CmpiArray      aui64Data8 (1, CMPI_uint64);
-        CmpiArray      asi8Data9 (1, CMPI_sint8);
-        CmpiArray      asi16Data10 (1, CMPI_sint16);
-        CmpiArray      asi32Data11 (1, CMPI_sint32);
-        CmpiArray      asi64Data12 (1, CMPI_sint64);
-        CmpiArray      ainstData13 (1, CMPI_instance);
-        CmpiArray      arefData14 (1, CMPI_ref);
-        CmpiArray      aargData15 (1, CMPI_args);
-        CmpiArray      aclaData16 (1, CMPI_class);
-        CmpiArray      afilData17 (1, CMPI_filter);
-        CmpiArray      aenuData18 (1, CMPI_enumeration);
-        CmpiArray      astrData19 (1, CMPI_string);
-        CmpiArray      achData20 (1, CMPI_chars);
-        CmpiArray      adtData21 (1, CMPI_dateTime);
-        CmpiArray      aptrData22 (1, CMPI_ptr);
-        CmpiArray      achptrData23 (1, CMPI_charsptr);
-        CmpiArray      aData24;
+        L;CmpiArray      abData1 (1, CMPI_boolean);
+        L;CmpiArray      achData2 (1, CMPI_char16);
+        L;CmpiArray      ar32Data3 (1, CMPI_real32);
+        L;CmpiArray      ar64Data4 (1, CMPI_real64);
+        L;CmpiArray      aui8Data5 (1, CMPI_uint8);
+        L;CmpiArray      aui16Data6 (1, CMPI_uint16);
+        L;CmpiArray      aui32Data7 (1, CMPI_uint32);
+        L;CmpiArray      aui64Data8 (1, CMPI_uint64);
+        L;CmpiArray      asi8Data9 (1, CMPI_sint8);
+        L;CmpiArray      asi16Data10 (1, CMPI_sint16);
+        L;CmpiArray      asi32Data11 (1, CMPI_sint32);
+        L;CmpiArray      asi64Data12 (1, CMPI_sint64);
+        L;CmpiArray      ainstData13 (1, CMPI_instance);
+        L;CmpiArray      arefData14 (1, CMPI_ref);
+        L;CmpiArray      aargData15 (1, CMPI_args);
+        L;CmpiArray      aclaData16 (1, CMPI_class);
+        L;CmpiArray      afilData17 (1, CMPI_filter);
+        L;CmpiArray      aenuData18 (1, CMPI_enumeration);
+        L;CmpiArray      astrData19 (1, CMPI_string);
+        L;CmpiArray      achData20 (1, CMPI_chars);
+        L;CmpiArray      adtData21 (1, CMPI_dateTime);
+        L;CmpiArray      aptrData22 (1, CMPI_ptr);
+        L;CmpiArray      achptrData23 (1, CMPI_charsptr);
+        L;CmpiArray      aData24;
 
         // Test CmpiArray size
-        if (abData1.size () != 1)
+        L;if (abData1.size () != 1)
         {
             cerr << "Error: abData1.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (achData2.size () != 1)
+        L;if (achData2.size () != 1)
         {
             cerr << "Error: achData2.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (ar32Data3.size () != 1)
+        L;if (ar32Data3.size () != 1)
         {
             cerr << "Error: ar32Data3.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (ar64Data4.size () != 1)
+        L;if (ar64Data4.size () != 1)
         {
             cerr << "Error: ar64Data4.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aui8Data5.size () != 1)
+        L;if (aui8Data5.size () != 1)
         {
             cerr << "Error: aui8Data5.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aui16Data6.size () != 1)
+        L;if (aui16Data6.size () != 1)
         {
             cerr << "Error: aui16Data6.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aui32Data7.size () != 1)
+        L;if (aui32Data7.size () != 1)
         {
             cerr << "Error: aui32Data7.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aui64Data8.size () != 1)
+        L;if (aui64Data8.size () != 1)
         {
             cerr << "Error: aui64Data8.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (asi8Data9.size () != 1)
+        L;if (asi8Data9.size () != 1)
         {
             cerr << "Error: asi8Data9.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (asi16Data10.size () != 1)
+        L;if (asi16Data10.size () != 1)
         {
             cerr << "Error: asi16Data10.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (asi32Data11.size () != 1)
+        L;if (asi32Data11.size () != 1)
         {
             cerr << "Error: asi32Data11.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (asi64Data12.size () != 1)
+        L;if (asi64Data12.size () != 1)
         {
             cerr << "Error: asi64Data12.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (ainstData13.size () != 1)
+        L;if (ainstData13.size () != 1)
         {
             cerr << "Error: ainstData13.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (arefData14.size () != 1)
+        L;if (arefData14.size () != 1)
         {
             cerr << "Error: arefData14.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aargData15.size () != 1)
+        L;if (aargData15.size () != 1)
         {
             cerr << "Error: aargData15.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aclaData16.size () != 1)
+        L;if (aclaData16.size () != 1)
         {
             cerr << "Error: aclaData16.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (afilData17.size () != 1)
+        L;if (afilData17.size () != 1)
         {
             cerr << "Error: afilData17.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aenuData18.size () != 1)
+        L;if (aenuData18.size () != 1)
         {
             cerr << "Error: aenuData18.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (astrData19.size () != 1)
+        L;if (astrData19.size () != 1)
         {
             cerr << "Error: astrData19.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (achData20.size () != 1)
+        L;if (achData20.size () != 1)
         {
             cerr << "Error: achData20.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (adtData21.size () != 1)
+        L;if (adtData21.size () != 1)
         {
             cerr << "Error: adtData21.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aptrData22.size () != 1)
+        L;if (aptrData22.size () != 1)
         {
             cerr << "Error: aptrData22.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (achptrData23.size () != 1)
+        L;if (achptrData23.size () != 1)
         {
             cerr << "Error: achptrData23.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (aData24.size () != 0)
+        L;if (aData24.size () != 0)
         {
             cerr << "Error: aData24.size () != 1" << endl;
             return CmpiStatus (CMPI_RC_ERR_FAILED);
@@ -543,36 +548,36 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
 
 #ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
         // Test CmpiArray operator[] and CmpiArrayIdx operatorXXX
-        abData1[0]      = bData1;
-        achData2[0]     = chData1;
-        ar32Data3[0]    = r32Data1;
-        ar64Data4[0]    = r64Data1;
-        aui8Data5[0]    = ui8Data1;
-        aui16Data6[0]   = ui16Data1;
-        aui32Data7[0]   = ui32Data1;
-        aui64Data8[0]   = ui64Data1;
-        asi8Data9[0]    = si8Data1;
-        asi16Data10[0]  = si16Data1;
-        asi32Data11[0]  = si32Data1;
-        asi64Data12[0]  = si64Data1;
-        ainstData13[0]  = ciData1;
-////////arefData14[0]   =
-////////aargData15[0]   =
-////////aclaData16[0]   =
-////////afilData17[0]   =
-////////aenuData18[0]   =
-        astrData19[0]   = strData1;
-        achData20[0]    = achData1;
-        adtData21[0]    = dtData1;
-////////aptrData22[0]   =
-////////achptrData23[0] =
+        L;abData1[0]      = bData1;
+        L;achData2[0]     = chData1;
+        L;ar32Data3[0]    = r32Data1;
+        L;ar64Data4[0]    = r64Data1;
+        L;aui8Data5[0]    = ui8Data1;
+        L;aui16Data6[0]   = ui16Data1;
+        L;aui32Data7[0]   = ui32Data1;
+        L;aui64Data8[0]   = ui64Data1;
+        L;asi8Data9[0]    = si8Data1;
+        L;asi16Data10[0]  = si16Data1;
+        L;asi32Data11[0]  = si32Data1;
+        L;asi64Data12[0]  = si64Data1;
+        L;ainstData13[0]  = ciData1;
+////////L;arefData14[0]   =
+////////L;aargData15[0]   =
+////////L;aclaData16[0]   =
+////////L;afilData17[0]   =
+////////L;aenuData18[0]   =
+        L;astrData19[0]   = strData1;
+        L;achData20[0]    = achData1;
+        L;adtData21[0]    = dtData1;
+////////L;aptrData22[0]   =
+////////L;achptrData23[0] =
         try
         {
-           aData24[0] = abData1;
+           L;aData24[0] = abData1;
 
            cerr << "Error: Set array out of bounds (#1) succeeded!"
                 << endl;
-           return CmpiStatus (CMPI_RC_ERR_FAILED);
+           throw CmpiStatus (CMPI_RC_ERR_FAILED);
         }
         catch (const CmpiStatus& e)
         {
@@ -586,7 +591,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         }
         try
         {
-           abData1[1] = abData1;
+           L;abData1[1] = abData1;
 
            cerr << "Error: Set array out of bounds (#2) succeeded!"
                 << endl;
@@ -599,187 +604,187 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
               cerr << "Error: Set array out of bounds (#2) expecting "
                    << "CMPI_RC_ERR_NO_SUCH_PROPERTY"
                    << endl;
-              return CmpiStatus (CMPI_RC_ERR_FAILED);
+              throw CmpiStatus (CMPI_RC_ERR_FAILED);
            }
         }
 #endif
 
         // Test CmpiArrayIdx getData
-        d = abData1[0].getData ();
+        L;d = abData1[0].getData ();
 
         // Test CmpiArray operator[] and CmpiArrayIdx getXXX
-        abData1[0].getBoolean ();
-        asi8Data9[0].getSint8 ();
-        aui8Data5[0].getUint8 ();
-        asi16Data10[0].getSint16 ();
-        aui16Data6[0].getUint16 ();
-        asi32Data11[0].getSint32 ();
-        aui32Data7[0].getUint32 ();
-        asi64Data12[0].getSint64 ();
-        aui64Data8[0].getUint64 ();
-        ar32Data3[0].getReal32 ();
-        ar64Data4[0].getReal64 ();
-        achData2[0].getChar16 ();
-        astrData19[0].getString ();
-        achData20[0].getCString ();
-        adtData21[0].getDateTime ();
-        ainstData13[0].getInstance ();
-        arefData14[0].getObjectPath ();
+        L;abData1[0].getSint8 ();
+        L;asi8Data9[0].getSint8 ();
+        L;aui8Data5[0].getUint8 ();
+        L;asi16Data10[0].getSint16 ();
+        L;aui16Data6[0].getUint16 ();
+        L;asi32Data11[0].getSint32 ();
+        L;aui32Data7[0].getUint32 ();
+        L;asi64Data12[0].getSint64 ();
+        L;aui64Data8[0].getUint64 ();
+        L;ar32Data3[0].getReal32 ();
+        L;ar64Data4[0].getReal64 ();
+        L;achData2[0].getChar16 ();
+        L;astrData19[0].getString ();
+        L;achData20[0].getCString ();
+        L;adtData21[0].getDateTime ();
+        L;ainstData13[0].getInstance ();
+        L;arefData14[0].getObjectPath ();
 
         // Test CmpiArray operator[] and CmpiArrayIdx setXXX
         // @TBD
 
         // Test CmpiBooleanData assignment
-        CmpiBooleanData bdData1 (true);
-        CmpiBooleanData bdData2 (false);
-        CmpiBooleanData bdData (true);
+        L;CmpiBooleanData bdData1 (true);
+        L;CmpiBooleanData bdData2 (false);
+        L;CmpiBooleanData bdData (true);
 
         // Test CmpiBooleanData assignment
-        bdData = true;
-        bdData = false;
-        bdData = CmpiTrue;
-        bdData = CmpiFalse;
+        L;bdData = true;
+        L;bdData = false;
+        L;bdData = CmpiTrue;
+        L;bdData = CmpiFalse;
 
         // Test CmpiData constructors
         {
-           CmpiData d1;
+           L;CmpiData d1;
 #ifdef PEGASUS_CMPI_PROVIDE_BOOLEAN_CHAR16
-           CmpiData d2 (bData1);
-           CmpiData d3 (chData1);
+           L;CmpiData d2 (bData1);
+           L;CmpiData d3 (chData1);
 #endif
-           CmpiData d4 (si8Data1);
-           CmpiData d5 (si16Data1);
-           CmpiData d6 (si32Data1);
-           CmpiData d7 (si64Data1);
-           CmpiData d8 (ui8Data1);
-           CmpiData d9 (ui16Data1);
-           CmpiData d10 (ui32Data1);
-           CmpiData d11 (ui64Data1);
-           CmpiData d12 (r32Data1);
-           CmpiData d13 (r64Data1);
-           CmpiData d14 (strData1);
-           CmpiData d15 (achData1);
-           CmpiData d16 (copData1);
-           CmpiData d17 (ciData1);
-           CmpiData d18 (dtData1);
-           CmpiData d19 (abData1);
-           CmpiData d20 (abData1);
-           CmpiData d21 (achData2);
-           CmpiData d22 (ar32Data3);
-           CmpiData d23 (ar64Data4);
-           CmpiData d24 (aui8Data5);
-           CmpiData d25 (aui16Data6);
-           CmpiData d26 (aui32Data7);
-           CmpiData d27 (aui64Data8);
-           CmpiData d38 (asi8Data9);
-           CmpiData d39 (asi16Data10);
-           CmpiData d30 (asi32Data11);
-           CmpiData d31 (asi64Data12);
-           CmpiData d32 (ainstData13);
-           CmpiData d33 (arefData14);
-           CmpiData d34 (aargData15);
-           CmpiData d35 (aclaData16);
-           CmpiData d36 (afilData17);
-           CmpiData d37 (aenuData18);
-           CmpiData d48 (astrData19);
-           CmpiData d49 (achData20);
-           CmpiData d40 (adtData21);
-           CmpiData d41 (aptrData22);
-           CmpiData d42 (achptrData23);
-           CmpiData d43 (aData24);
+           L;CmpiData d4 (si8Data1);
+           L;CmpiData d5 (si16Data1);
+           L;CmpiData d6 (si32Data1);
+           L;CmpiData d7 (si64Data1);
+           L;CmpiData d8 (ui8Data1);
+           L;CmpiData d9 (ui16Data1);
+           L;CmpiData d10 (ui32Data1);
+           L;CmpiData d11 (ui64Data1);
+           L;CmpiData d12 (r32Data1);
+           L;CmpiData d13 (r64Data1);
+           L;CmpiData d14 (strData1);
+           L;CmpiData d15 (achData1);
+           L;CmpiData d16 (copData1);
+           L;CmpiData d17 (ciData1);
+           L;CmpiData d18 (dtData1);
+           L;CmpiData d19 (abData1);
+           L;CmpiData d20 (abData1);
+           L;CmpiData d21 (achData2);
+           L;CmpiData d22 (ar32Data3);
+           L;CmpiData d23 (ar64Data4);
+           L;CmpiData d24 (aui8Data5);
+           L;CmpiData d25 (aui16Data6);
+           L;CmpiData d26 (aui32Data7);
+           L;CmpiData d27 (aui64Data8);
+           L;CmpiData d38 (asi8Data9);
+           L;CmpiData d39 (asi16Data10);
+           L;CmpiData d30 (asi32Data11);
+           L;CmpiData d31 (asi64Data12);
+           L;CmpiData d32 (ainstData13);
+           L;CmpiData d33 (arefData14);
+           L;CmpiData d34 (aargData15);
+           L;CmpiData d35 (aclaData16);
+           L;CmpiData d36 (afilData17);
+           L;CmpiData d37 (aenuData18);
+           L;CmpiData d48 (astrData19);
+           L;CmpiData d49 (achData20);
+           L;CmpiData d40 (adtData21);
+           L;CmpiData d41 (aptrData22);
+           L;CmpiData d42 (achptrData23);
+           L;CmpiData d43 (aData24);
         }
 
         // Test CmpiData operator=
-        d = bData1;
-        d = chData1;
-        d = ui8Data1;
-        d = ui16Data1;
-        d = ui32Data1;
-        d = ui64Data1;
-        d = si8Data1;
-        d = si16Data1;
-        d = si32Data1;
-        d = si64Data1;
-        d = r32Data1;
-        d = r64Data1;
-        d = strData1;
-        d = achData1;
-        d = dtData1;
-        d = copData1;
-        d = ciData1;
-        d = d;
+        L;d = bData1;
+        L;d = chData1;
+        L;d = ui8Data1;
+        L;d = ui16Data1;
+        L;d = ui32Data1;
+        L;d = ui64Data1;
+        L;d = si8Data1;
+        L;d = si16Data1;
+        L;d = si32Data1;
+        L;d = si64Data1;
+        L;d = r32Data1;
+        L;d = r64Data1;
+        L;d = strData1;
+        L;d = achData1;
+        L;d = dtData1;
+        L;d = copData1;
+        L;d = ciData1;
+        L;d = d;
 
 #ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
         // Test CmpiData operatorXXX
 #ifdef PEGASUS_CMPI_PROVIDE_BOOLEAN_CHAR16
-        d = bData1;    (CMPIBoolean)d;
-        d = chData1;   (CMPIChar16)d;
+        L;d = bData1;    (CMPIBoolean)d;
+        L;d = chData1;   (CMPIChar16)d;
 #endif
-        d = ui8Data1;  (CMPIUint8)d;
-        d = ui16Data1; (CMPIUint16)d;
-        d = ui32Data1; (CMPIUint32)d;
-        d = ui64Data1; (CMPIUint64)d;
-        d = si8Data1;  (CMPISint8)d;
-        d = si16Data1; (CMPISint16)d;
-        d = si32Data1; (CMPISint32)d;
-        d = si64Data1; (CMPISint64)d;
-        d = r32Data1;  (CMPIReal32)d;
-        d = r64Data1;  (CMPIReal64)d;
-        d = strData1;  (CmpiString&)d;
-        d = achData1;  (const char *)d;
-        d = dtData1;   (CmpiDateTime&)d;
-        d = copData1;  (CmpiObjectPath&)d;
-        d = ciData1;   (CmpiInstance&)d;
+        L;d = ui8Data1;  (CMPIUint8)d;
+        L;d = ui16Data1; (CMPIUint16)d;
+        L;d = ui32Data1; (CMPIUint32)d;
+        L;d = ui64Data1; (CMPIUint64)d;
+        L;d = si8Data1;  (CMPISint8)d;
+        L;d = si16Data1; (CMPISint16)d;
+        L;d = si32Data1; (CMPISint32)d;
+        L;d = si64Data1; (CMPISint64)d;
+        L;d = r32Data1;  (CMPIReal32)d;
+        L;d = r64Data1;  (CMPIReal64)d;
+        L;d = strData1;  (CmpiString&)d;
+        L;d = achData1;  (const char *)d;
+        L;d = dtData1;   (CmpiDateTime&)d;
+        L;d = copData1;  (CmpiObjectPath&)d;
+        L;d = ciData1;   (CmpiInstance&)d;
 #endif
 
         // Test CmpiData getXXX
-        d = bData1;    PEGASUS_TEST_ASSERT (d.getBoolean () == bData1);
-        d = chData1;   PEGASUS_TEST_ASSERT (d.getChar16 () == chData1);
-        d = ui8Data1;  PEGASUS_TEST_ASSERT (d.getUint8 () == ui8Data1);
-        d = ui16Data1; PEGASUS_TEST_ASSERT (d.getUint16 () == ui16Data1);
-        d = ui32Data1; PEGASUS_TEST_ASSERT (d.getUint32 () == ui32Data1);
-        d = ui64Data1; PEGASUS_TEST_ASSERT (d.getUint64 () == ui64Data1);
-        d = si8Data1;  PEGASUS_TEST_ASSERT (d.getSint8 () == si8Data1);
-        d = si16Data1; PEGASUS_TEST_ASSERT (d.getSint16 () == si16Data1);
-        d = si32Data1; PEGASUS_TEST_ASSERT (d.getSint32 () == si32Data1);
-        d = si64Data1; PEGASUS_TEST_ASSERT (d.getSint64 () == si64Data1);
-        d = r32Data1;  PEGASUS_TEST_ASSERT (d.getReal32 () == r32Data1);
-        d = r64Data1;  PEGASUS_TEST_ASSERT (d.getReal64 () == r64Data1);
-        d = strData1;//PEGASUS_TEST_ASSERT (d.getString () == strData1);
-        d = achData1;//PEGASUS_TEST_ASSERT (d.getCString () == achData1);
-        d = dtData1; //PEGASUS_TEST_ASSERT (d.getDateTime () == dtData1);
-        d = copData1;//PEGASUS_TEST_ASSERT (d.getObjectPath () == copData1);
-        d = ciData1; //PEGASUS_TEST_ASSERT (d.getInstance () == ciData1);
+        L;d = bData1;    PEGASUS_TEST_ASSERT (d.getBoolean () == bData1);
+        L;d = chData1;   PEGASUS_TEST_ASSERT (d.getChar16 () == chData1);
+        L;d = ui8Data1;  PEGASUS_TEST_ASSERT (d.getUint8 () == ui8Data1);
+        L;d = ui16Data1; PEGASUS_TEST_ASSERT (d.getUint16 () == ui16Data1);
+        L;d = ui32Data1; PEGASUS_TEST_ASSERT (d.getUint32 () == ui32Data1);
+        L;d = ui64Data1; PEGASUS_TEST_ASSERT (d.getUint64 () == ui64Data1);
+        L;d = si8Data1;  PEGASUS_TEST_ASSERT (d.getSint8 () == si8Data1);
+        L;d = si16Data1; PEGASUS_TEST_ASSERT (d.getSint16 () == si16Data1);
+        L;d = si32Data1; PEGASUS_TEST_ASSERT (d.getSint32 () == si32Data1);
+        L;d = si64Data1; PEGASUS_TEST_ASSERT (d.getSint64 () == si64Data1);
+        L;d = r32Data1;  PEGASUS_TEST_ASSERT (d.getReal32 () == r32Data1);
+        L;d = r64Data1;  PEGASUS_TEST_ASSERT (d.getReal64 () == r64Data1);
+        L;d = strData1;//PEGASUS_TEST_ASSERT (d.getString () == strData1);
+        L;d = achData1;//PEGASUS_TEST_ASSERT (d.getCString () == achData1);
+        L;d = dtData1; //PEGASUS_TEST_ASSERT (d.getDateTime () == dtData1);
+        L;d = copData1;//PEGASUS_TEST_ASSERT (d.getObjectPath () == copData1);
+        L;d = ciData1; //PEGASUS_TEST_ASSERT (d.getInstance () == ciData1);
 
         // Test CmpiData setXXX
-        d.setBoolean (bData1);
-        d.setChar16 (chData1);
-        d.setUint8 (ui8Data1);
-        d.setUint16 (ui16Data1);
-        d.setUint32 (ui32Data1);
-        d.setUint64 (ui64Data1);
-        d.setSint8 (si8Data1);
-        d.setSint16 (si16Data1);
-        d.setSint32 (si32Data1);
-        d.setSint64 (si64Data1);
-        d.setReal32 (r32Data1);
-        d.setReal64 (r64Data1);
-        d.setString (strData1);
-        d.setCString (achData1);
-        d.setDateTime (dtData1);
-        d.setObjectPath (copData1);
-        d.setInstance (ciData1);
+        L;d.setBoolean (bData1);
+        L;d.setChar16 (chData1);
+        L;d.setUint8 (ui8Data1);
+        L;d.setUint16 (ui16Data1);
+        L;d.setUint32 (ui32Data1);
+        L;d.setUint64 (ui64Data1);
+        L;d.setSint8 (si8Data1);
+        L;d.setSint16 (si16Data1);
+        L;d.setSint32 (si32Data1);
+        L;d.setSint64 (si64Data1);
+        L;d.setReal32 (r32Data1);
+        L;d.setReal64 (r64Data1);
+        L;d.setString (strData1);
+        L;d.setCString (achData1);
+        L;d.setDateTime (dtData1);
+        L;d.setObjectPath (copData1);
+        L;d.setInstance (ciData1);
 
         // Test CmpiData isNullValue
-        CmpiData dNull;
+        L;CmpiData dNull;
 
-        if (!dNull.isNullValue ())
+        L;if (!dNull.isNullValue ())
         {
            cerr << "Error: CmpiData.isNullValue (#1) failed!"
                 << endl;
            return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (d.isNullValue ())
+        L;if (d.isNullValue ())
         {
            cerr << "Error: CmpiData.isNullValue (#1) failed!"
                 << endl;
@@ -790,14 +795,23 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         // @TBD
 
         // Test CmpiDateTime
-        CmpiDateTime dtData2;
-        CmpiDateTime dtData3 (dtData2);
-        CmpiDateTime dtData4 ("20070501152143.164592-300");
+        L;CmpiDateTime dtData2;
+        L;CmpiDateTime dtData3 (dtData2);
+        L;CmpiDateTime dtData4 ("20070501152143.164592-300");
         // echo `date --date='2007-05-01 15:21:43' +%s`*1000000+164592 | bc
         // 1178050903164592LL
-        CmpiDateTime dtData5 (PEGASUS_UINT64_LITERAL(1178050903164592), false);
-        CmpiDateTime dtData6 ("00000011125959.123456:000");
-        CmpiDateTime dtData7 (PEGASUS_UINT64_LITERAL(997199123456), true);
+        L;CmpiDateTime dtData5 (PEGASUS_UINT64_LITERAL(1178050903164592), false);
+        L;CmpiDateTime dtData6 ("00000011125959.123456:000");
+        L;CmpiDateTime dtData7 (PEGASUS_UINT64_LITERAL(997199123456), true);
+
+#ifdef PEGASUS_DEBUG
+        L;cout << "dtData2 = " << dtData2.getDateTime () << endl;
+        L;cout << "dtData3 = " << dtData3.getDateTime () << endl;
+        L;cout << "dtData4 = " << dtData4.getDateTime () << endl;
+        L;cout << "dtData5 = " << dtData5.getDateTime () << endl;
+        L;cout << "dtData6 = " << dtData6.getDateTime () << endl;
+        L;cout << "dtData7 = " << dtData7.getDateTime () << endl;
+#endif
 
 #ifdef PEGASUS_DEBUG
         cout << "Comparing dtData2 to dtData3" << endl;
@@ -818,73 +832,69 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         PEGASUS_TEST_ASSERT (dtData7.isInterval ());
 
 #ifdef PEGASUS_DEBUG
-////////cout << "dtData2 = " << convertTime (dtData2) << endl;
-////////cout << "dtData3 = " << convertTime (dtData3) << endl;
-////////cout << "dtData4 = " << convertTime (dtData4) << endl;
-////////cout << "dtData5 = " << convertTime (dtData5) << endl;
-////////cout << "dtData2 = " << dtData2.getDateTime () << endl;
-////////cout << "dtData3 = " << dtData3.getDateTime () << endl;
-////////cout << "dtData4 = " << dtData4.getDateTime () << endl;
-////////cout << "dtData5 = " << dtData5.getDateTime () << endl;
-////////cout << "dtData6 = " << dtData6.getDateTime () << endl;
-////////cout << "dtData7 = " << dtData7.getDateTime () << endl;
+////////L;cout << "dtData2 = " << convertTime (dtData2) << endl;
+////////L;cout << "dtData3 = " << convertTime (dtData3) << endl;
+////////L;cout << "dtData4 = " << convertTime (dtData4) << endl;
+////////L;cout << "dtData5 = " << convertTime (dtData5) << endl;
+////////L;cout << "dtData6 = " << convertTime (dtData6) << endl;
+////////L;cout << "dtData7 = " << convertTime (dtData7) << endl;
 #endif
 
         // Test CmpiInstance
 #if 0
-        copData1.setKey ("CSCreationClassName",
-                         "CIM_UnitaryComputerSystem");
-        copData1.setKey ("CSName",
-                         "localhost");
-        copData1.setKey ("FSCreationClassName",
-                         "CIM_FileSystem");
-        copData1.setKey ("FSName",
-                         "/Simulated/CMPI/tests/");
-        copData1.setKey ("Name",
-                         "/Simulated/CMPI/tests/Providers/CWS_Directory.c");
+        L;copData1.setKey ("CSCreationClassName",
+                           "CIM_UnitaryComputerSystem");
+        L;copData1.setKey ("CSName",
+                           "localhost");
+        L;copData1.setKey ("FSCreationClassName",
+                           "CIM_FileSystem");
+        L;copData1.setKey ("FSName",
+                           "/Simulated/CMPI/tests/");
+        L;copData1.setKey ("Name",
+                           "/Simulated/CMPI/tests/Providers/CWS_Directory.c");
 #endif
 
-        CmpiObjectPath copData2 ("root/PG_InterOp", "CIM_NameSpace");
-//      copData2.setNameSpace ("root/PG_InterOp");
-//      copData2.setClassName ("CIM_NameSpace");
+        L;CmpiObjectPath copData2 ("root/PG_InterOp", "CIM_NameSpace");
+//      L;copData2.setNameSpace ("root/PG_InterOp");
+//      L;copData2.setClassName ("CIM_NameSpace");
 
-        CmpiEnumeration enumer;
+        L;CmpiEnumeration enumer;
 
-        enumer = cppBroker.enumInstances (ctx,
-                                          copData1,
-                                          0);
+        L;enumer = cppBroker.enumInstances (ctx,
+                                            copData1,
+                                            0);
 
-        if (enumer.hasNext ())
+        L;if (enumer.hasNext ())
         {
            CmpiInstance inst = enumer.getNext ();
 
            printInstance (inst);
         }
 
-        enumer = cppBroker.enumInstanceNames (ctx,
-                                              copData1);
+        L;enumer = cppBroker.enumInstanceNames (ctx,
+                                                copData1);
 
-        if (enumer.hasNext ())
+        L;if (enumer.hasNext ())
         {
-           CmpiObjectPath cop = enumer.getNext ();
+           L;CmpiObjectPath cop = enumer.getNext ();
 
-           printObjectPath (cop);
+           L;printObjectPath (cop);
 
-           CmpiInstance inst = cppBroker.getInstance (ctx,
-                                                      cop,
-                                                      0);
+           L;CmpiInstance inst = cppBroker.getInstance (ctx,
+                                                        cop,
+                                                        0);
 
-           printInstance (inst);
+           L;printInstance (inst);
         }
 
         // Test CmpiString
-        CmpiString string1 ("abcdef");
-        CmpiString string2 ("aBcdef");
-        CmpiString string3 ("abcdef");
-        CmpiString string4 ("fedcba");
-        CmpiString string5;
+        L;CmpiString string1 ("abcdef");
+        L;CmpiString string2 ("aBcdef");
+        L;CmpiString string3 ("abcdef");
+        L;CmpiString string4 ("fedcba");
+        L;CmpiString string5;
 
-        if (  string1.equals (string2)
+        L;if (  string1.equals (string2)
            || !string1.equals (string3)
            || string1.equals ("aBcdef")
            || !string1.equals ("abcdef")
@@ -893,7 +903,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
            cerr << "Error: String.equals (#1) failed!" << endl;
            return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (  !string1.equalsIgnoreCase (string2)
+        L;if (  !string1.equalsIgnoreCase (string2)
            || string1.equalsIgnoreCase (string4)
            || !string1.equalsIgnoreCase ("aBcdef")
            || string1.equalsIgnoreCase ("fdecba")
@@ -902,7 +912,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
            cerr << "Error: String.equals (#2) failed!" << endl;
            return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
-        if (string5.charPtr ())
+        L;if (string5.charPtr ())
         {
            cerr << "Error: String.charPtr (#1) failed!" << endl;
            return CmpiStatus (CMPI_RC_ERR_FAILED);
@@ -910,6 +920,8 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
     }
     catch (const CmpiStatus& e)
     {
+        static char achMessage[512];
+
 #ifdef PEGASUS_DEBUG
         cout << "TestCMPI_CXX::initialize: Caught exception. rc = "
              << e.rc ();
@@ -917,10 +929,15 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         {
            cout << "msg = \"" << e.msg () << "\"";
         }
-        cout << endl;
+        cout << ", line # " << line << endl;
 #endif
 
-        return e;
+        sprintf (achMessage,
+                 "TestCMPI_CXX::initialize: Caught exception. rc = %d line = %d",
+                 e.rc (),
+                 line);
+
+        return CmpiStatus (e.rc (), achMessage);
     }
 
 #ifdef PEGASUS_DEBUG

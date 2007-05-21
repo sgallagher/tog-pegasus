@@ -637,7 +637,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         L;d = abData1[0].getData ();
 
         // Test CmpiArray operator[] and CmpiArrayIdx getXXX
-        L;abData1[0].getSint8 ();
+        L;abData1[0].getBoolean ();
         L;asi8Data9[0].getSint8 ();
         L;aui8Data5[0].getUint8 ();
         L;asi16Data10[0].getSint16 ();

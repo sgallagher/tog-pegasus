@@ -287,6 +287,14 @@ printData (const CmpiData& d)
       {
          cout << "(null)";
       }
+      catch (...)
+      {
+         cerr << "Error: Caught unknown exception @ line "
+              << __LINE__
+              << ". Rethrowing."
+              << endl;
+         throw;
+      }
       break;
    }
    case CMPI_ptr:
@@ -577,7 +585,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
 
            cerr << "Error: Set array out of bounds (#1) succeeded!"
                 << endl;
-           throw CmpiStatus (CMPI_RC_ERR_FAILED);
+           return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
         catch (const CmpiStatus& e)
         {
@@ -588,6 +596,14 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
                    << endl;
               return CmpiStatus (CMPI_RC_ERR_FAILED);
            }
+        }
+        catch (...)
+        {
+           cerr << "Error: Caught unknown exception @ line "
+                << __LINE__
+                << ". Rethrowing."
+                << endl;
+           throw;
         }
         try
         {
@@ -606,6 +622,14 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
                    << endl;
               throw CmpiStatus (CMPI_RC_ERR_FAILED);
            }
+        }
+        catch (...)
+        {
+           cerr << "Error: Caught unknown exception @ line "
+                << __LINE__
+                << ". Rethrowing."
+                << endl;
+           throw;
         }
 #endif
 
@@ -938,6 +962,14 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
                  line);
 
         return CmpiStatus (e.rc (), achMessage);
+    }
+    catch (...)
+    {
+       cerr << "Error: Caught unknown exception @ line "
+            << __LINE__
+            << ". Rethrowing."
+            << endl;
+       throw;
     }
 
 #ifdef PEGASUS_DEBUG

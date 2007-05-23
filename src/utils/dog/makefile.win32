@@ -1,3 +1,0 @@
-
-all:
-	cl -Od -Zi -MDd dog.c

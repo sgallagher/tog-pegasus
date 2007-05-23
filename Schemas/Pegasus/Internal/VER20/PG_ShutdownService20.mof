@@ -43,12 +43,13 @@
 // ===================================================================
 // PG_ShutdownService    
 // ===================================================================
-[Version("2.3.0"), Description (
+[Version("2.7.0"), Description (
    "PG_ShutdownService is a representation of the Pegasus Shutdown Service")]
 
 class PG_ShutdownService
 {
-     [Description 
+     [Static,
+      Description 
          ("Method to shutdown the CIM server. If force is set "
           "to TRUE, the CIM server will be shutdown regardless if there "
           "are outstanding CIM operation requests. The timeout value "

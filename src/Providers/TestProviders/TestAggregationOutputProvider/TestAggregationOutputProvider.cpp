@@ -29,31 +29,27 @@
 //
 //==============================================================================
 //
-// Author: Aruran, IBM (ashanmug@in.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*
     This provider implements the TEST_AggregationOutputProvider mof in the /MOF
-	directory. It implements the instance and associator functions for the classes
+    directory. It implements the instance and associator functions for the
+    classes
     TEST_PersonDynamic
     TEST_TeachesDynamic
 
-	This provider would also return CIM_NOT_SUPPORTED for the following classes 
-	TEST_WorksDynamic
-	TEST_MarriageDynamic
-	The reason for returning CIM_ERR_NOT_SUPPORTED exception would be to test the
-	aggregation of Provider results with one or more CIM_ERR_NOT_SUPPORTED Exception.
-
-	This provider would return CIM_ERR_NOT_FOUND Exception for the TEST_FamilyDynamic
-    class. The reason for returning CIM_ERR_NOT_FOUND exception would be to test the
-    aggregation of Provider results with one or more CIM_ERR_NOT_FOUND exception.
+    This provider would also return CIM_NOT_SUPPORTED for the following classes
+    TEST_WorksDynamic
+    TEST_MarriageDynamic
+    The reason for returning CIM_ERR_NOT_SUPPORTED exception would be to test
+    the aggregation of Provider results with one or more CIM_ERR_NOT_SUPPORTED
+    Exception.  This provider would return CIM_ERR_NOT_FOUND Exception for the
+    TEST_FamilyDynamic class. The reason for returning CIM_ERR_NOT_FOUND
+    exception would be to test the aggregation of Provider results with one or
+    more CIM_ERR_NOT_FOUND exception.
 */
 
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Logger.h>
 #include "TestAggregationOutputProvider.h"
 
 PEGASUS_USING_STD;
@@ -101,9 +97,9 @@ static targetClass _verifyValidClassInput(const CIMName& className)
         return TEST_MARRIAGEDYNAMIC;
     if (className.equal(familyAssocClassName))
         return TEST_FAMILYDYNAMIC;
-    
-	throw CIMNotSupportedException(className.getString() + " Not supported by "
-		                           + TestAggregationOutputProviderName);
+
+    throw CIMNotSupportedException(className.getString() + " Not supported by "
+                                   + TestAggregationOutputProviderName);
 }
 
 static targetClass _verifyValidAssocClassInput(const CIMName& className)
@@ -117,20 +113,20 @@ static targetClass _verifyValidAssocClassInput(const CIMName& className)
     if (className.equal(familyAssocClassName))
         return TEST_FAMILYDYNAMIC;
 
-    throw CIMNotSupportedException(className.getString() + 
-		                           " not supported by Test Association Provider");
+    throw CIMNotSupportedException(
+        className.getString() + " not supported by Test Association Provider");
 }
 
-/** returns a local (no namespace or host component) version of the input CIMObjectPath.
+/** returns a local (no namespace or host component) version of the input
+    CIMObjectPath.
     @param p CIMObjectPath input
-    @returns CIMObjectPath object with only className and keybinding 
-    components
+    @returns CIMObjectPath object with only className and keybinding components
 */
 CIMObjectPath _makeRefLocal(const CIMObjectPath& path)
 {
   CIMObjectPath rtn(path);
   rtn.setHost(String());
-  rtn.setNameSpace(CIMNamespaceName()); 
+  rtn.setNameSpace(CIMNamespaceName());
   return(rtn);
 }
 
@@ -159,20 +155,23 @@ CIMInstance _filter(const CIMInstance& instance,
     return(rtnInstance);
 }
 
-/** _filterInstancesToTargetPaths - Filters one associaton and returns references
-    that represent the result of filtering on resultclass and role.  Any reference
-	that matches the resultclass and role and not the target is returned
+/** _filterInstancesToTargetPaths - Filters one associaton and returns
+    references that represent the result of filtering on resultclass and role.
+    Any reference that matches the resultclass and role and not the target is
+    returned
     @param assocInstance - The association instance being processed.
-    @param targetObjectPath - The original target. This is required since this is
-	 the one reference we don't want.
+    @param targetObjectPath - The original target. This is required since this
+    is the one reference we don't want.
     @resultClass - The resultClass we want to filter on
     @resultRole  - The result role we want to filter on
     @return - returns the CIMObjectPaths that represent the other side of the
-	 association that pass the resultClass and resultRole filters.
+    association that pass the resultClass and resultRole filters.
  */
-Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(const CIMInstance & assocInstance, 
-            const CIMObjectPath & targetObjectPath,
-            const CIMName resultClass, const String resultRole)
+Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(
+    const CIMInstance & assocInstance,
+    const CIMObjectPath & targetObjectPath,
+    const CIMName resultClass,
+    const String resultRole)
 {
     Array<CIMObjectPath> returnPaths;
     // get all reference properties except for target.
@@ -185,12 +184,13 @@ Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(const CIMInstance & assoc
             CIMValue v = p.getValue();
             CIMObjectPath path;
             v.get(path);
-            
+
             if (!targetObjectPath.identical(path))
             {
                 if (resultClass.isNull() || resultClass == path.getClassName())
                 {
-                    if (String::EMPTY == resultRole || p.getName().getString() == resultRole)
+                    if (String::EMPTY == resultRole ||
+                        p.getName().getString() == resultRole)
                     {
                         returnPaths.append(path);
                     }
@@ -201,25 +201,29 @@ Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(const CIMInstance & assoc
     return( returnPaths );
 }
 
-/** Test for valid CIMReferences from an association instance. If there is a role 
-    property, gets all but the role property.
+/** Test for valid CIMReferences from an association instance. If there is a
+    role property, gets all but the role property.
     @param target - The target path for the association. Localization assumed.
-    @param instance - The association class instance we are searching for references
-    @param role - The role we require. If there is no role, this is String::EMPTY
+    @param instance - The association class instance we are searching for
+    references
+    @param role - The role we require. If there is no role, this is
+    String::EMPTY
     @return - returns Boolean true if target is found in a reference that is
     the same role
  */
-Boolean _isInstanceValidReference(const CIMObjectPath& target, CIMInstance& instance,
-								  const String& role)
+Boolean _isInstanceValidReference(
+    const CIMObjectPath& target,
+    CIMInstance& instance,
+    const String& role)
 {
     Uint32 pos;
-	// Test if role parameter is valid property.
+    // Test if role parameter is valid property.
     if (role != String::EMPTY)
     {
-		// Test if property with this role exists.
+        // Test if property with this role exists.
         if (PEG_NOT_FOUND == (pos = instance.findProperty(role)))
             throw CIMException(CIM_ERR_INVALID_PARAMETER);
-     
+
          // Check to be sure this is a reference property
          if (instance.getProperty(pos).getType() != CIMTYPE_REFERENCE)
              throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -235,12 +239,12 @@ Boolean _isInstanceValidReference(const CIMObjectPath& target, CIMInstance& inst
             CIMValue v = p.getValue();
             CIMObjectPath path;
             v.get(path);
-		    
-			// if no role or role == this role and target = this path, rtn true.
+
+            // if no role or role == this role and target = this path, rtn true.
             if ((String::EMPTY == role) || (role == p.getName().getString()))
             {
-				Boolean compare =  target.identical(path);
-			    if (compare)
+                Boolean compare =  target.identical(path);
+                if (compare)
                 {
                     return(true);
                 }
@@ -272,33 +276,34 @@ Array<CIMInstance> _filterReferenceNames(
     const CIMName & resultClass,
     const String & role)
 {
-    CDEBUG("_filterReferenceNames. objName= " << objectName.toString() << " resultClass= " 
-         << resultClass << " role= " << role);
-	CIMObjectPath targetReference = CIMObjectPath(
-                            String(),
-                            CIMNamespaceName(),
-                            objectName.getClassName(),
-                            objectName.getKeyBindings());
+    CDEBUG("_filterReferenceNames. objName= " << objectName.toString() <<
+        " resultClass= " << resultClass << " role= " << role);
+    CIMObjectPath targetReference = CIMObjectPath(
+        String(),
+        CIMNamespaceName(),
+        objectName.getClassName(),
+        objectName.getKeyBindings());
 
     Array<CIMInstance> foundList;
-    
-	for (Uint32 i = 0 ; i < targetAssociationInstanceList.size() ; ++i)
+
+    for (Uint32 i = 0 ; i < targetAssociationInstanceList.size() ; ++i)
     {
         CIMInstance instance = targetAssociationInstanceList[i];
         if (resultClass.isNull() || resultClass.equal(instance.getClassName()))
         {
-            // if this association instance has this role in targetReference, then true
+            // if this association instance has this role in targetReference,
+            // then true
             if (_isInstanceValidReference(targetReference, instance, role))
-                {
-                    foundList.append(instance);
-                }
+            {
+                foundList.append(instance);
+            }
         }
-	}
-	CDEBUG("_filterReferenceNames return. Count= " << foundList.size());
+    }
+    CDEBUG("_filterReferenceNames return. Count= " << foundList.size());
     return( foundList );
 }
 
-/* build an instance of the class from the input properties and set the path. 
+/* build an instance of the class from the input properties and set the path.
    Note that path is set without host and namespace and these are added at the
    last minute after prep for response.
     @param thisClass CIMClass that this instance is created from
@@ -309,24 +314,26 @@ Array<CIMInstance> _filterReferenceNames(
 CIMInstance _buildPersonInstance(const CIMClass& thisClass, const String& name)
 {
     CIMInstance instance(personDynamicClassName);
-    instance.addProperty(CIMProperty("Name", name));   
+    instance.addProperty(CIMProperty("Name", name));
     CIMObjectPath p = instance.buildPath(thisClass);
     instance.setPath(p);
     return(instance);
 }
 
-CIMInstance _buildInstanceTeaches(const CIMClass& thisClass, 
+CIMInstance _buildInstanceTeaches(const CIMClass& thisClass,
     const CIMObjectPath& teacher, const CIMObjectPath& student)
 {
     CIMInstance instance(teachesAssocClassName);
-    instance.addProperty(CIMProperty("teacher", teacher,0,personDynamicClassName));
-    instance.addProperty(CIMProperty("student", student, 0, personDynamicClassName));
+    instance.addProperty(
+        CIMProperty("teacher", teacher,0,personDynamicClassName));
+    instance.addProperty(
+        CIMProperty("student", student, 0, personDynamicClassName));
     CIMObjectPath p = instance.buildPath(thisClass);
     instance.setPath(p);
     return(instance);
 }
 
-/**************************** TestAggregationOutputProvider class Implementation*********/
+/*********** TestAggregationOutputProvider class Implementation *********/
 TestAggregationOutputProvider::TestAggregationOutputProvider(void)
 {
 }
@@ -350,15 +357,18 @@ CIMClass TestAggregationOutputProvider::_getClass(const CIMName& className)
             OperationContext(),
             nameSpace,
             CIMName(className),
-            false,        
+            false,
             true,
             true,
             CIMPropertyList());
     }
-    catch(CIMException&)
+    catch (CIMException& e)
     {
-        Logger::put(Logger::ERROR_LOG, TestAggregationOutputProviderName, Logger::SEVERE,
-            "Class Creation Failed: Class $0", className.getString());
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "TestAggregationOutputProvider GetClass operation failed: "
+                "Class %s. Msg %s",
+            (const char*) className.getString().getCString(),
+            (const char*) e.getMessage().getCString()));
     }
     return(c);
 }
@@ -366,11 +376,12 @@ CIMClass TestAggregationOutputProvider::_getClass(const CIMName& className)
 
 void TestAggregationOutputProvider::initialize(CIMOMHandle & cimom)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"TestAggregationOutputProvider::initialize");
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "TestAggregationOutputProvider::initialize");
 
     _initError = false;
     _cimomHandle = cimom;
-    {   
+    {
         CIMClass personclass = _getClass(personDynamicClassName);
         if (personclass.isUninitialized())
             _initError = true;
@@ -405,15 +416,20 @@ void TestAggregationOutputProvider::initialize(CIMOMHandle & cimom)
     {
         // build the instances of TEST_Person
         Uint32 Teacher = _instances.size();
-        _instances.append(_buildPersonInstance(_personClass, String("Teacher")));
+        _instances.append(
+            _buildPersonInstance(_personClass, String("Teacher")));
         Uint32 Student = _instances.size();
-        _instances.append(_buildPersonInstance(_personClass, String("Student")));
+        _instances.append(
+            _buildPersonInstance(_personClass, String("Student")));
         Uint32 Employee = _instances.size();
-        _instances.append(_buildPersonInstance(_personClass, String("Employee")));
+        _instances.append(
+            _buildPersonInstance(_personClass, String("Employee")));
         Uint32 Manager = _instances.size();
-        _instances.append(_buildPersonInstance(_personClass, String("Manager")));
+        _instances.append(
+            _buildPersonInstance(_personClass, String("Manager")));
         Uint32 Husband = _instances.size();
-        _instances.append(_buildPersonInstance(_personClass, String("Husband")));
+        _instances.append(
+            _buildPersonInstance(_personClass, String("Husband")));
         Uint32 Wife = _instances.size();
         _instances.append(_buildPersonInstance(_personClass, String("Wife")));
         Uint32 Father = _instances.size();
@@ -430,19 +446,21 @@ void TestAggregationOutputProvider::initialize(CIMOMHandle & cimom)
         Uint32 temp  = _instancesTeaches.size();
 
         CIMInstance ciminstance;
-        ciminstance = _buildInstanceTeaches(_teachesClass, _instanceNames[Teacher],_instanceNames[Student]);
-        _instancesTeaches.append(_buildInstanceTeaches(_teachesClass, _instanceNames[Teacher],_instanceNames[Student]));
+        ciminstance = _buildInstanceTeaches(
+            _teachesClass, _instanceNames[Teacher],_instanceNames[Student]);
+        _instancesTeaches.append(_buildInstanceTeaches(
+            _teachesClass, _instanceNames[Teacher],_instanceNames[Student]));
         for(Uint32 i = 0, n = _instancesTeaches.size(); i < n; ++i)
         {
-            _instanceNamesTeaches.append(_instancesTeaches[i].buildPath(teachesAssocClassName));
+            _instanceNamesTeaches.append(
+                _instancesTeaches[i].buildPath(teachesAssocClassName));
         }
     }
     catch(Exception &e)
     {
         cerr << "Exception occured :  " << e.getMessage() << endl;
     }
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-        "$0 initialization Complete", TestAggregationOutputProviderName);
+
     PEG_METHOD_EXIT();
 }
 
@@ -453,15 +471,17 @@ void TestAggregationOutputProvider::terminate(void)
 }
 
 
-/* local get instance, gets from instanceArray for the array provided.  Gets the instance defined by
-   localReference from the array defined by instanceArray and _filters it(clone + information
-   filter) before delivering it.
-   @param instanceArray Array<CIMInstance> to search for this instance.
-   @localReference CIMObjectPath with the localized reference information (class and keybindings)
-   @exception Returns CIM_ERR_NOT_FOUND if the instance cannot be found.
+/*  local get instance, gets from instanceArray for the array provided.  Gets
+    the instance defined by localReference from the array defined by
+    instanceArray and _filters it(clone + information filter) before
+    delivering it.
+    @param instanceArray Array<CIMInstance> to search for this instance.
+    @localReference CIMObjectPath with the localized reference information
+    (class and keybindings)
+    @exception Returns CIM_ERR_NOT_FOUND if the instance cannot be found.
 */
 void TestAggregationOutputProvider::_getInstance(
-    const Array<CIMInstance> & instanceArray,    
+    const Array<CIMInstance> & instanceArray,
     const OperationContext & context,
     const CIMObjectPath & localReference,
     const Boolean includeQualifiers,
@@ -469,7 +489,7 @@ void TestAggregationOutputProvider::_getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-	CIMObjectPath localReference1 = _makeRefLocal(localReference);
+    CIMObjectPath localReference1 = _makeRefLocal(localReference);
 
     for(Uint32 i = 0, n = instanceArray.size(); i < n; ++i)
     {
@@ -484,13 +504,13 @@ void TestAggregationOutputProvider::_getInstance(
     throw CIMException(CIM_ERR_NOT_FOUND);
 }
 
-/* getInstance call from another service.
+/*  getInstance call from another service.
     Based on the input instance reference, it gets the instance
     from the appropriate list of created instances.
     This would return the instances for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.  This would return CIM_ERR_NOT_SUPPORTED for
-    TEST_WorksDynamic and TEST_MarriageDynamic. This would return CIM_ERR_NOT_FOUND
-    for TEST_FamilyDynamic 
+    TEST_WorksDynamic and TEST_MarriageDynamic. This would return
+    CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::getInstance(
     const OperationContext & context,
@@ -502,7 +522,8 @@ void TestAggregationOutputProvider::getInstance(
 {
     // begin processing the request
     handler.processing();
-    targetClass myClassEnum  = _verifyValidClassInput(instanceReference.getClassName()); 
+    targetClass myClassEnum =
+        _verifyValidClassInput(instanceReference.getClassName());
     switch (myClassEnum)
     {
         case TEST_PERSONDYNAMIC:
@@ -530,7 +551,7 @@ void TestAggregationOutputProvider::getInstance(
     properties plus the instance array reference.
 */
 void TestAggregationOutputProvider::_enumerateInstances(
-    const Array<CIMInstance> & instanceArray,    
+    const Array<CIMInstance> & instanceArray,
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const Boolean includeQualifiers,
@@ -552,11 +573,11 @@ void TestAggregationOutputProvider::_enumerateInstances(
     }
 }
 
-/* enumerateInstances call from another service.
+/*  enumerateInstances call from another service.
     This would return the instances for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.  This would return CIM_ERR_NOT_SUPPORTED for
-    TEST_WorksDynamic and TEST_MarriageDynamic. This would return CIM_ERR_NOT_FOUND
-    for TEST_FamilyDynamic 
+    TEST_WorksDynamic and TEST_MarriageDynamic. This would return
+    CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::enumerateInstances(
     const OperationContext & context,
@@ -568,7 +589,8 @@ void TestAggregationOutputProvider::enumerateInstances(
 {
     // begin processing the request
     handler.processing();
-    targetClass myClassEnum  = _verifyValidClassInput(classReference.getClassName()); 
+    targetClass myClassEnum =
+        _verifyValidClassInput(classReference.getClassName());
     switch (myClassEnum)
     {
         case TEST_PERSONDYNAMIC:
@@ -598,7 +620,7 @@ void TestAggregationOutputProvider::enumerateInstances(
     properties plus the instance array reference.
 */
 void TestAggregationOutputProvider::_enumerateInstanceNames(
-    const Array<CIMInstance> & instanceArray,    
+    const Array<CIMInstance> & instanceArray,
     const OperationContext & context,
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
@@ -619,8 +641,8 @@ void TestAggregationOutputProvider::_enumerateInstanceNames(
 /* enumerateInstanceNames call from another service.
     This would return the instance names for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.  This would return CIM_ERR_NOT_SUPPORTED for
-    TEST_WorksDynamic and TEST_MarriageDynamic. This would return CIM_ERR_NOT_FOUND
-    for TEST_FamilyDynamic 
+    TEST_WorksDynamic and TEST_MarriageDynamic. This would return
+    CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::enumerateInstanceNames(
     const OperationContext & context,
@@ -629,14 +651,17 @@ void TestAggregationOutputProvider::enumerateInstanceNames(
 {
     // begin processing the request
     handler.processing();
-    targetClass MyClassEnum  = _verifyValidClassInput(classReference.getClassName()); 
+    targetClass MyClassEnum =
+        _verifyValidClassInput(classReference.getClassName());
     switch (MyClassEnum)
     {
         case TEST_PERSONDYNAMIC:
-            _enumerateInstanceNames( _instances, context, classReference,handler);
+            _enumerateInstanceNames(
+                _instances, context, classReference,handler);
             break;
         case TEST_TEACHESDYNAMIC:
-            _enumerateInstanceNames( _instancesTeaches, context, classReference,handler);
+            _enumerateInstanceNames(
+                _instancesTeaches, context, classReference,handler);
             break;
         case TEST_WORKSDYNAMIC:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -670,24 +695,27 @@ void TestAggregationOutputProvider::_associators(
 {
     try
     {
-		CIMObjectPath localObjectName1 = _makeRefLocal(localObjectName);
+        CIMObjectPath localObjectName1 = _makeRefLocal(localObjectName);
 
-		// Filter out the required objectpaths from the association list.
-        Array<CIMInstance> assocInstances = _filterReferenceNames(instanceArray,
-                                                localObjectName,
-                                                associationClass,
-                                                role);
+        // Filter out the required objectpaths from the association list.
+        Array<CIMInstance> assocInstances = _filterReferenceNames(
+            instanceArray,
+            localObjectName,
+            associationClass,
+            role);
         for (Uint32 i = 0 ; i < assocInstances.size() ; ++i)
         {
-            Array<CIMObjectPath> resultPaths = _filterAssocInstanceToTargetPaths(assocInstances[i],
-                                        localObjectName1, 
-                                        resultClass,
-                                        resultRole);
-			
+            Array<CIMObjectPath> resultPaths =
+                _filterAssocInstanceToTargetPaths(
+                    assocInstances[i],
+                    localObjectName1,
+                    resultClass,
+                    resultRole);
+
             // Loop to process all resultPaths
             for (Uint32 i = 0 ; i < resultPaths.size() ; ++i)
             {
-				// instance index corresponds to reference index
+                // instance index corresponds to reference index
                 // For each resultInstance, if matches result path, Deliver.
                 for(Uint32 j = 0, n = resultInstanceArray.size(); j < n; ++j)
                 {
@@ -695,8 +723,11 @@ void TestAggregationOutputProvider::_associators(
 
                     if(resultPaths[i].identical(newPath))
                     {
-                        handler.deliver(_filter(resultInstanceArray[j],
-                            includeQualifiers, includeClassOrigin, propertyList));
+                        handler.deliver(_filter(
+                            resultInstanceArray[j],
+                            includeQualifiers,
+                            includeClassOrigin,
+                            propertyList));
                     }
                 }
             }
@@ -708,11 +739,11 @@ void TestAggregationOutputProvider::_associators(
     }
 }
 
-/* associators call from another service.
+/*  associators call from another service.
     This would return the associators for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.  This would return CIM_ERR_NOT_SUPPORTED for
-    TEST_WorksDynamic and TEST_MarriageDynamic. This would return CIM_ERR_NOT_FOUND
-    for TEST_FamilyDynamic 
+    TEST_WorksDynamic and TEST_MarriageDynamic. This would return
+    CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::associators(
     const OperationContext & context,
@@ -731,17 +762,17 @@ void TestAggregationOutputProvider::associators(
     targetClass myClassEnum  = _verifyValidAssocClassInput(associationClass);
     switch (myClassEnum)
     {
-        case TEST_TEACHESDYNAMIC: 
-			_associators (_instancesTeaches, _instances, context,
+        case TEST_TEACHESDYNAMIC:
+            _associators (_instancesTeaches, _instances, context,
                 objectName, associationClass, resultClass, role, resultRole,
                 includeQualifiers, includeClassOrigin, propertyList,
                 handler);
             break;
         case TEST_WORKSDYNAMIC:
-			throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_MARRIAGEDYNAMIC: 
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_FAMILYDYNAMIC: 
+        case TEST_MARRIAGEDYNAMIC:
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        case TEST_FAMILYDYNAMIC:
             throw CIMException(CIM_ERR_NOT_FOUND);
         default:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -775,8 +806,12 @@ void TestAggregationOutputProvider::_associatorNames(
 
         for (Uint32 i = 0 ; i < assocInstances.size() ; ++i)
         {
-            Array<CIMObjectPath> resultPaths = _filterAssocInstanceToTargetPaths(assocInstances[i],
-                            localObjectName, resultClass, resultRole);
+            Array<CIMObjectPath> resultPaths =
+                _filterAssocInstanceToTargetPaths(
+                    assocInstances[i],
+                    localObjectName,
+                    resultClass,
+                    resultRole);
 
             for (Uint32 i = 0 ; i < resultPaths.size() ; ++i)
             {
@@ -800,8 +835,8 @@ void TestAggregationOutputProvider::_associatorNames(
 /* associatorNames call from another service.
     This would return the associator names for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.  This would return CIM_ERR_NOT_SUPPORTED for
-    TEST_WorksDynamic and TEST_MarriageDynamic. This would return CIM_ERR_NOT_FOUND
-    for TEST_FamilyDynamic 
+    TEST_WorksDynamic and TEST_MarriageDynamic. This would return
+    CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::associatorNames(
     const OperationContext & context,
@@ -814,8 +849,8 @@ void TestAggregationOutputProvider::associatorNames(
 {
     // Get the namespace and host names to create the CIMObjectPath
     String host = System::getHostName();
-	CIMObjectPath localobjectName = _makeRefLocal (objectName);
-	handler.processing();
+    CIMObjectPath localobjectName = _makeRefLocal (objectName);
+    handler.processing();
     targetClass myClassEnum  = _verifyValidAssocClassInput(associationClass);
     switch (myClassEnum)
     {
@@ -823,11 +858,11 @@ void TestAggregationOutputProvider::associatorNames(
             _associatorNames(_instancesTeaches, context, localobjectName,
                 associationClass, resultClass, role, resultRole, handler);
             break;
-        case TEST_WORKSDYNAMIC: 
+        case TEST_WORKSDYNAMIC:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_MARRIAGEDYNAMIC: 
+        case TEST_MARRIAGEDYNAMIC:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_FAMILYDYNAMIC: 
+        case TEST_FAMILYDYNAMIC:
             throw CIMException(CIM_ERR_NOT_FOUND);
         default:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -852,13 +887,14 @@ void TestAggregationOutputProvider::_references(
 {
     try
     {
-		String host = System::getHostName();
+        String host = System::getHostName();
         CIMObjectPath localobjectName = _makeRefLocal (objectName);
-		// Filter out the required objectpaths from the association list.
-        Array<CIMInstance> returnInstances = _filterReferenceNames(instanceArray,
-                                                localobjectName,
-                                                resultClass,
-                                                role);
+        // Filter out the required objectpaths from the association list.
+        Array<CIMInstance> returnInstances = _filterReferenceNames(
+            instanceArray,
+            localobjectName,
+            resultClass,
+            role);
 
         for (Uint32 i = 0 ; i < returnInstances.size() ; ++i)
         {
@@ -869,7 +905,11 @@ void TestAggregationOutputProvider::_references(
                 objectPath.setNameSpace(nameSpace);
 
             returnInstances[i].setPath(objectPath);
-            CIMInstance inst = _filter(returnInstances[i],includeQualifiers, includeClassOrigin, propertyList);
+            CIMInstance inst = _filter(
+                returnInstances[i],
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
             handler.deliver(inst);
         }
     }
@@ -879,11 +919,12 @@ void TestAggregationOutputProvider::_references(
     }
 }
 
-/* references call from another service.
-    This would return the referencesreferences(association instances) for the Classes 
-    TEST_PersonDynamic and TEST_TeachesDynamic.
-    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and TEST_MarriageDynamic.
-    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic 
+/*  references call from another service.
+    This would return the referencesreferences(association instances) for the
+    Classes TEST_PersonDynamic and TEST_TeachesDynamic.
+    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and
+    TEST_MarriageDynamic.
+    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::references(
     const OperationContext & context,
@@ -900,14 +941,15 @@ void TestAggregationOutputProvider::references(
     switch (myClassEnum)
     {
         case TEST_TEACHESDYNAMIC:
-             _references (_instancesTeaches, context,objectName, resultClass, role,
+            _references(
+                _instancesTeaches, context,objectName, resultClass, role,
                  includeQualifiers, includeClassOrigin, propertyList,handler);
             break;
-        case TEST_WORKSDYNAMIC: 
+        case TEST_WORKSDYNAMIC:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_MARRIAGEDYNAMIC: 
+        case TEST_MARRIAGEDYNAMIC:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_FAMILYDYNAMIC: 
+        case TEST_FAMILYDYNAMIC:
             throw CIMException(CIM_ERR_NOT_FOUND);
         default:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -930,8 +972,9 @@ void TestAggregationOutputProvider::_referenceNames(
     try
     {
         String host = System::getHostName();
-        Array<CIMInstance> returnInstances = _filterReferenceNames(instanceArray,
-                                            objectName,resultClass,role);
+        Array<CIMInstance> returnInstances =
+            _filterReferenceNames(
+                instanceArray, objectName,resultClass,role);
         for (Uint32 i = 0 ; i < returnInstances.size() ; ++i)
         {
             CIMObjectPath sendPath =  returnInstances[i].getPath();
@@ -948,11 +991,11 @@ void TestAggregationOutputProvider::_referenceNames(
     }
 }
 
-/* referenceNames call from another service.
-    This would return the references(association instance names) for the Classes TEST_PersonDynamic
-    and TEST_TeachesDynamic.  This would return CIM_ERR_NOT_SUPPORTED for
-    TEST_WorksDynamic and TEST_MarriageDynamic. This would return CIM_ERR_NOT_FOUND
-    for TEST_FamilyDynamic 
+/*  referenceNames call from another service.
+    This would return the references(association instance names) for the
+    Classes TEST_PersonDynamic and TEST_TeachesDynamic.  This would return
+    CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and TEST_MarriageDynamic.
+    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::referenceNames(
     const OperationContext & context,
@@ -966,15 +1009,15 @@ void TestAggregationOutputProvider::referenceNames(
     handler.processing();
     switch (myClassEnum)
     {
-        case TEST_TEACHESDYNAMIC: 
+        case TEST_TEACHESDYNAMIC:
             _referenceNames(_instancesTeaches, context,
                 objectName, resultClass, role, handler);
             break;
-        case TEST_WORKSDYNAMIC: 
+        case TEST_WORKSDYNAMIC:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_MARRIAGEDYNAMIC: 
+        case TEST_MARRIAGEDYNAMIC:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
-        case TEST_FAMILYDYNAMIC: 
+        case TEST_FAMILYDYNAMIC:
             throw CIMException(CIM_ERR_NOT_FOUND);
         default:
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -1014,11 +1057,13 @@ void TestAggregationOutputProvider::_createInstance(
         cerr << "Exception Occured "<<e.getMessage() << endl;
     }
 }
+
 /*  createInstance call from another service.
     This would create the instances for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.
-    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and TEST_MarriageDynamic.
-    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic 
+    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and
+    TEST_MarriageDynamic.
+    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::createInstance(
     const OperationContext & context,
@@ -1027,7 +1072,8 @@ void TestAggregationOutputProvider::createInstance(
     ObjectPathResponseHandler & handler)
 {
     handler.processing();
-    targetClass myClassEnum  = _verifyValidClassInput(instanceReference.getClassName());    
+    targetClass myClassEnum =
+        _verifyValidClassInput(instanceReference.getClassName());
     switch (myClassEnum)
     {
         case TEST_PERSONDYNAMIC:
@@ -1065,8 +1111,8 @@ void TestAggregationOutputProvider::_modifyInstance(
 {
     try
     {
-       	CIMObjectPath localReference1 = _makeRefLocal (localReference);
-		for(Uint32 i = 0, n = instanceArray.size(); i < n; ++i)
+        CIMObjectPath localReference1 = _makeRefLocal (localReference);
+        for(Uint32 i = 0, n = instanceArray.size(); i < n; ++i)
         {
             if(localReference1 == instanceArray[i].getPath())
             {
@@ -1083,8 +1129,9 @@ void TestAggregationOutputProvider::_modifyInstance(
 /*  modifyInstance call from another service.
     This would modify the instances for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.
-    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and TEST_MarriageDynamic.
-    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic 
+    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and
+    TEST_MarriageDynamic.
+    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::modifyInstance(
     const OperationContext & context,
@@ -1097,7 +1144,8 @@ void TestAggregationOutputProvider::modifyInstance(
     Boolean instanceFound = false;
     // begin processing the request
     handler.processing();
-    targetClass myClassEnum  = _verifyValidClassInput(instanceReference.getClassName());    
+    targetClass myClassEnum =
+        _verifyValidClassInput(instanceReference.getClassName());
     if (TEST_PERSONDYNAMIC == myClassEnum )
     {
         _modifyInstance(_instances, context, instanceReference,
@@ -1157,11 +1205,13 @@ void TestAggregationOutputProvider::_deleteInstance(
     }
     return;
 }
+
 /*  deleteInstance call from another service.
     This would delete the instances for the Classes TEST_PersonDynamic
     and TEST_TeachesDynamic.
-    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and TEST_MarriageDynamic.
-    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic 
+    This would return CIM_ERR_NOT_SUPPORTED for TEST_WorksDynamic and
+    TEST_MarriageDynamic.
+    This would return CIM_ERR_NOT_FOUND for TEST_FamilyDynamic
 */
 void TestAggregationOutputProvider::deleteInstance(
     const OperationContext & context,
@@ -1172,7 +1222,8 @@ void TestAggregationOutputProvider::deleteInstance(
     CIMName myClassName = instanceReference.getClassName();
 
     handler.processing();
-    targetClass myClassEnum  = _verifyValidClassInput(instanceReference.getClassName());    
+    targetClass myClassEnum =
+        _verifyValidClassInput(instanceReference.getClassName());
     switch (myClassEnum)
     {
         case TEST_PERSONDYNAMIC:

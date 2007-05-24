@@ -70,35 +70,35 @@ extern "C" {
       if (dta->type & CMPI_ENC) for (unsigned int i=1; i<=dta->value.uint32; i++)
          nDta[i].state=CMPI_nullValue;
 
-      for (unsigned int i=0; i<=dta->value.uint32; i++) {
+      for (unsigned int i=1; i<=dta->value.uint32; i++) {
          nDta[i]=dta[i];
          if (dta->type & CMPI_ENC && dta[i].state==CMPI_goodValue) {
 
-	   if ((dta[i].type & CMPI_instance) && (dta[i].value.inst))
+	   if ((dta[i].type == CMPI_instance) && (dta[i].value.inst))
 	       nDta[i].value.inst=
 		 (dta[i].value.inst)->ft->clone(dta[i].value.inst,&rrc);
 
-	   if ((dta[i].type & CMPI_ref) && (dta[i].value.ref))
+	   if ((dta[i].type == CMPI_ref) && (dta[i].value.ref))
 	       nDta[i].value.ref=
 		 (dta[i].value.ref)->ft->clone(dta[i].value.ref,&rrc);
 
-	   if ((dta[i].type & CMPI_args) && (dta[i].value.args))
+	   if ((dta[i].type == CMPI_args) && (dta[i].value.args))
 	       nDta[i].value.args=
 		 (dta[i].value.args)->ft->clone(dta[i].value.args,&rrc);
 
-	   if ((dta[i].type & CMPI_dateTime) && (dta[i].value.dateTime))
+	   if ((dta[i].type == CMPI_dateTime) && (dta[i].value.dateTime))
 	       nDta[i].value.dateTime=
 		 (dta[i].value.dateTime)->ft->clone(dta[i].value.dateTime,&rrc);
 
-	   if ((dta[i].type & CMPI_enumeration) && (dta[i].value.Enum))
+	   if ((dta[i].type == CMPI_enumeration) && (dta[i].value.Enum))
 	       nDta[i].value.Enum=
 		 (dta[i].value.Enum)->ft->clone(dta[i].value.Enum,&rrc);
 
-	   if ((dta[i].type & CMPI_filter) && (dta[i].value.filter))
+	   if ((dta[i].type == CMPI_filter) && (dta[i].value.filter))
 	       nDta[i].value.filter=
 		 (dta[i].value.filter)->ft->clone(dta[i].value.filter,&rrc);
 
-	   if ((dta[i].type & CMPI_charsptr) && (dta[i].value.dataPtr.length>0)) {
+	   if ((dta[i].type == CMPI_charsptr) && (dta[i].value.dataPtr.length>0)) {
 	       nDta[i].value.dataPtr.length=
 		 dta[i].value.dataPtr.length;
                nDta[i].value.dataPtr.ptr = malloc(nDta[i].value.dataPtr.length);
@@ -112,7 +112,7 @@ extern "C" {
 		      dta[i].value.dataPtr.length);
 	   }
 
-	   if ((dta[i].type & CMPI_string) && (dta[i].value.string))
+	   if ((dta[i].type == CMPI_string) && (dta[i].value.string))
 	       nDta[i].value.string=
 		 (dta[i].value.string)->ft->clone(dta[i].value.string,&rrc);
 

@@ -82,7 +82,7 @@ class ExecutorImpl
 {
 public:
 
-    virtual ~ExecutorImpl() 
+    virtual ~ExecutorImpl()
     {
     }
 
@@ -102,10 +102,11 @@ public:
         const char* path) = 0;
 
     virtual int startProviderAgent(
-        const char* module, 
+        const char* module,
+        const String& pegasusHome,
         const String& userName,
         int uid,
-        int gid, 
+        int gid,
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe) = 0;
@@ -143,7 +144,7 @@ class ExecutorLoopbackImpl : public ExecutorImpl
 {
 public:
 
-    virtual ~ExecutorLoopbackImpl() 
+    virtual ~ExecutorLoopbackImpl()
     {
     }
 
@@ -193,10 +194,11 @@ public:
 
 
     virtual int startProviderAgent(
-        const char* module, 
+        const char* module,
+        const String& pegasusHome,
         const String& userName,
         int uid,
-        int gid, 
+        int gid,
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
@@ -215,8 +217,8 @@ public:
 
         // Create pipes. Export handles to string.
 
-        AnonymousPipe* pipeFromAgent = new AnonymousPipe();
-        AnonymousPipe* pipeToAgent = new AnonymousPipe();
+        AutoPtr<AnonymousPipe> pipeFromAgent(new AnonymousPipe());
+        AutoPtr<AnonymousPipe> pipeToAgent(new AnonymousPipe());
 
         char readHandle[32];
         char writeHandle[32];
@@ -236,14 +238,8 @@ public:
 
         // Build full path of "cimprovagt" program.
 
-        String path;
-
-        if (_getProviderAgentPath(path) != 0)
-        {
-            delete pipeToAgent;
-            delete pipeFromAgent;
-            return -1;
-        }
+        String path = FileSystem::getAbsolutePath(
+            pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
         // Format command line.
 
@@ -251,8 +247,8 @@ public:
 
         sprintf(cmdLine, "\"%s\" %s %s \"%s\"",
             (const char*)path.getCString(),
-            readHandle, 
-            writeHandle, 
+            readHandle,
+            writeHandle,
             module);
 
         //  Create provider agent proess.
@@ -269,8 +265,6 @@ public:
             &siStartInfo,  //  STARTUPINFO
             &piProcInfo))  //  PROCESS_INFORMATION
         {
-            delete pipeToAgent;
-            delete pipeFromAgent;
             return -1;
         }
 
@@ -282,8 +276,8 @@ public:
         pipeToAgent->closeReadHandle();
         pipeFromAgent->closeWriteHandle();
 
-        readPipe = pipeFromAgent;
-        writePipe = pipeToAgent;
+        readPipe = pipeFromAgent.release();
+        writePipe = pipeToAgent.release();
 
         return 0;
 
@@ -311,10 +305,8 @@ public:
         {
             // Resolve full path of "cimprovagt".
 
-            String path;
-
-            if (_getProviderAgentPath(path) != 0)
-                return -1;
+            String path = FileSystem::getAbsolutePath(
+                pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
             // Create "to-agent" pipe:
 
@@ -348,7 +340,7 @@ public:
                 close(from[0]);
 
 
-                // Close unused descriptors. Leave stdin, stdout, stderr, 
+                // Close unused descriptors. Leave stdin, stdout, stderr,
                 // and the child's pipe descriptors open.
 
                 struct rlimit rlim;
@@ -378,14 +370,14 @@ public:
                     {
                         PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                           String("setgid failed: ") + String(strerror(errno)));
-                        return false;
+                        return -1;
                     }
 
                     if (setuid(uid) != 0)
                     {
                         PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                           String("setuid failed: ") + String(strerror(errno)));
-                        return false;
+                        return -1;
                     }
                 }
 
@@ -496,23 +488,6 @@ public:
 
 private:
 
-    static int _getProviderAgentPath(String& path)
-    {
-        path = PEGASUS_PROVIDER_AGENT_PROC_NAME;
-
-        if (path[0] != '/')
-        {
-            const char* env = getenv("PEGASUS_HOME");
-
-            if (!env)
-                return -1;
-
-            path = String(env) + String("/") + path;
-        }
-
-        return 0;
-    }
-
     Mutex _mutex;
 };
 
@@ -534,7 +509,7 @@ public:
     {
     }
 
-    virtual ~ExecutorSocketImpl() 
+    virtual ~ExecutorSocketImpl()
     {
     }
 
@@ -690,10 +665,11 @@ public:
     }
 
     virtual int startProviderAgent(
-        const char* module, 
+        const char* module,
+        const String& pegasusHome,
         const String& userName,
         int uid,
-        int gid, 
+        int gid,
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
@@ -755,7 +731,7 @@ public:
             int readFd = descriptors[0];
             int writeFd = descriptors[1];
 
-            // Create to and from AnonymousPipe instances to correspond to 
+            // Create to and from AnonymousPipe instances to correspond to
             // the pipe descriptors created above.
 
             char readFdStr[32];
@@ -1089,15 +1065,16 @@ int Executor::removeFile(
 }
 
 int Executor::startProviderAgent(
-    const char* module, 
+    const char* module,
+    const String& pegasusHome,
     const String& userName,
     int uid,
-    int gid, 
+    int gid,
     int& pid,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
-    return _getImpl()->startProviderAgent(module, 
+    return _getImpl()->startProviderAgent(module, pegasusHome,
         userName, uid, gid, pid, readPipe, writePipe);
 }
 

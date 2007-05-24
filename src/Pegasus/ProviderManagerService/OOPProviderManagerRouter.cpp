@@ -429,6 +429,7 @@ void ProviderAgentContainer::_startAgentProcess()
 
     int status = Executor::startProviderAgent(
         (const char*)_moduleName.getCString(),
+        ConfigManager::getPegasusHome(),
         _userName,
         newUid,
         newGid,

@@ -144,6 +144,8 @@ public:
         load the given provider module.
 
         @param module name of provider module to be loaded.
+        @param pegasusHome the Pegasus home directory to use to find the
+            cimprovagt executable.
         @param uid the UID to run the provider agent as.
         @param gid the GID to run the provider agent as.
         @param pid the PID of the new process (to be eventually passed to 
@@ -154,6 +156,7 @@ public:
     */
     static int startProviderAgent(
         const char* module, 
+        const String& pegasusHome,
         const String& userName,
         int uid,
         int gid, 

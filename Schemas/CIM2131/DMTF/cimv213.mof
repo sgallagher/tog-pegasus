@@ -37,7 +37,7 @@
 #pragma locale ("en_US")
 #pragma include ("qualifiers.mof")
 #pragma include ("qualifiers_optional.mof")
-//MOF Revision: $Revision: 1.1 $
+//MOF Revision: $Revision: 1.2 $
 
 #pragma include ("System\CIM_DiagnosticResult.mof")
 #pragma include ("Event\CIM_Indication.mof")
@@ -45,9 +45,6 @@
 #pragma include ("Metrics\CIM_BaseMetricDefinition.mof")
 #pragma include ("Metrics\CIM_BaseMetricValue.mof")
 #pragma include ("Device\CIM_BlockStatisticsManifest.mof")
-#pragma include ("Core\CIM_Setting.mof")
-#pragma include ("Core\CIM_SettingContext.mof")
-#pragma include ("Core\CIM_SettingData.mof")
 #pragma include ("Core\CIM_Capabilities.mof")
 #pragma include ("Event\CIM_ClassIndication.mof")
 #pragma include ("Event\CIM_ClassModification.mof")
@@ -154,6 +151,9 @@
 #pragma include ("IPsecPolicy\CIM_SAStaticAction.mof")
 #pragma include ("Network\CIM_SchedulingElement.mof")
 #pragma include ("User\CIM_SecuritySensitivity.mof")
+#pragma include ("Core\CIM_Setting.mof")
+#pragma include ("Core\CIM_SettingContext.mof")
+#pragma include ("Core\CIM_SettingData.mof")
 #pragma include ("User\CIM_SharedSecret.mof")
 #pragma include ("Event\CIM_SNMPTrapIndication.mof")
 #pragma include ("Core\CIM_Spared.mof")

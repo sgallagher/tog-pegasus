@@ -203,12 +203,14 @@ void ConfigSettingProvider::modifyInstance(
 
         //
         // verify user authorizations
+        // z/OS: authorization check is done in CIMOpReqAuth already
         //
+#ifndef PEGASUS_OS_ZOS
         if (userName != String::EMPTY)
         {
             _verifyAuthorization(userName);
         }
-
+#endif
         // NOTE: Qualifiers are not processed by this provider, so the
         // IncludeQualifiers flag is ignored.
 

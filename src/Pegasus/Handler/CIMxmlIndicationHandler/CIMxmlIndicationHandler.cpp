@@ -144,6 +144,17 @@ public:
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
         }
 
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            "CIM_ListenerDestinationCIMXML %s:%s.%s processing %s Indication "
+            "for destination %s",
+           (const char*)(nameSpace.getCString()),
+           (const char*)(indicationHandlerInstance.getClassName().getString().
+           getCString()),
+           (const char*)(indicationHandlerInstance.getProperty(
+           indicationHandlerInstance.findProperty(PEGASUS_PROPERTYNAME_NAME)).
+           getValue().toString().getCString()),
+           (const char*)(indicationInstance.getClassName().getString().
+           getCString()), (const char*)(dest.getCString())));
         try
         {
             static String PROPERTY_NAME__SSLCERT_FILEPATH =

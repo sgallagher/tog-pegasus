@@ -85,6 +85,16 @@ void EmailListenerDestination::handleIndication(
 
     try
     {
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            "EmailListenerDestination %s:%s.%s processing %s Indication",
+           (const char*)(nameSpace.getCString()),
+           (const char*)(handler.getClassName().getString().getCString()),
+           (const char*)(handler.getProperty(
+           handler.findProperty(PEGASUS_PROPERTYNAME_NAME)).
+           getValue().toString().getCString()),
+           (const char*)(indication.getClassName().getString().
+           getCString())));
+
         // gets formatted indication message
         indicationText = IndicationFormatter::getFormattedIndText(
             subscription, indication, contentLanguages);
@@ -283,6 +293,9 @@ void EmailListenerDestination::_buildMailHeader(
                  "DO_NOT_HAVE_EMAIL_ADDRESS",
              "Do not have an e-mail address."));
     }
+    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+       "EmailListenerDestination sending Indication via email to %s",
+       (const char*)(mailToStr.getCString())));
 
 #ifdef PEGASUS_OS_VMS
 

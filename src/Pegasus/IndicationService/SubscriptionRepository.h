@@ -213,12 +213,14 @@ public:
                                        subscription
         @param   queryLanguage     Output query language in which the filter
                                        query is expressed
+        @param   filterName        Output name of the filter
      */
     void getFilterProperties (
         const CIMInstance & subscription,
         String & query,
         CIMNamespaceName & sourceNameSpace,
-        String & queryLanguage);
+        String & queryLanguage,
+        String & filterName);
 
     /**
         Retrieves the values of the filter query and source namespace

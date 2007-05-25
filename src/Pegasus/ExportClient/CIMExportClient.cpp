@@ -280,8 +280,22 @@ void CIMExportClient::exportIndication(
         request->operationContext.set
             (ContentLanguageListContainer(contentLanguages));
 
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            "Exporting %s Indication for destination %s:%d%s",
+            (const char*)(instanceName.getClassName().getString().
+            getCString()),
+            (const char*)(_connectHost.getCString()), _connectPortNumber,
+            (const char*)(url.getCString())));
+
         Message* message = _doRequest(request,
             CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);
+
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            "%s Indication for destination %s:%d%s exported successfully",
+            (const char*)(instanceName.getClassName().getString().
+            getCString()),
+            (const char*)(_connectHost.getCString()), _connectPortNumber,
+            (const char*)(url.getCString())));
 
         CIMExportIndicationResponseMessage* response =
             (CIMExportIndicationResponseMessage*)message;
@@ -300,7 +314,6 @@ void CIMExportClient::exportIndication(
             "Failed to export indication");
         throw;
     }
-
     PEG_METHOD_EXIT();
 }
 

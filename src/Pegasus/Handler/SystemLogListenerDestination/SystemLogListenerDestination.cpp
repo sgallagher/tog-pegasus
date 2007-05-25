@@ -69,6 +69,15 @@ void SystemLogListenerDestination::handleIndication(
 
     try
     {
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            "SystemLogListenerDestination %s:%s.%s processing %s Indication",
+           (const char*)(nameSpace.getCString()),
+           (const char*)(handler.getClassName().getString().getCString()),
+           (const char*)(handler.getProperty(
+           handler.findProperty(PEGASUS_PROPERTYNAME_NAME)).
+           getValue().toString().getCString()),
+           (const char*)(indication.getClassName().getString().
+           getCString())));
         // gets formatted indication message
         indicationText = IndicationFormatter::getFormattedIndText(
             subscription, indication, contentLanguages);
@@ -134,8 +143,14 @@ void SystemLogListenerDestination::handleIndication(
             }
         }
 
-        // writes the formatted indication to a system log file
+       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+           "SystemLogListenerDestination writing %s Indication to system log",
+           (const char*)(indication.getClassName().getString().getCString())));
+       // writes the formatted indication to a system log file
         _writeToSystemLog(ident_name, severity, indicationText);
+       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+           "%s Indication written to system log successfully",
+           (const char*)(indication.getClassName().getString().getCString())));
     }
     catch (CIMException& c)
     {
@@ -180,6 +195,8 @@ void SystemLogListenerDestination::_writeToSystemLog(
 
 #else
 
+    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+       "SystemLogListenerDestination writing to PegasusStandard.log"));
     // PEGASUS_USE_SYSLOGS is not defined, writes the formatted
     // indications into PegasusStandard.log file
     Logger::put(Logger::STANDARD_LOG , identifier, severity,

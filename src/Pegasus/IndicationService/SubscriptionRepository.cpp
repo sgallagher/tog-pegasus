@@ -694,7 +694,8 @@ void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
     String & query,
     CIMNamespaceName & sourceNameSpace,
-    String & queryLanguage)
+    String & queryLanguage,
+    String & filterName)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getFilterProperties");
@@ -742,6 +743,10 @@ void SubscriptionRepository::getFilterProperties (
 
     queryLanguage = filterInstance.getProperty
         (filterInstance.findProperty (PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).
+        getValue ().toString ();
+
+    filterName = filterInstance.getProperty
+        (filterInstance.findProperty (PEGASUS_PROPERTYNAME_NAME)).
         getValue ().toString ();
 
     PEG_METHOD_EXIT ();

@@ -166,6 +166,14 @@ IndicationHandlerService::_handleIndication(
     CIMInstance indication = request->indicationInstance;
     CIMInstance handler = request->handlerInstance;
 
+    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+        "Handler service received %s Indication %s for %s:%s.%s Handler",
+        (const char*)(indication.getClassName().getString().getCString()),
+        (const char*)(request->messageId.getCString()),
+        (const char*)(request->nameSpace.getString().getCString()),
+        (const char*)(handler.getClassName().getString().getCString()),
+        (const char*)(handler.getProperty(handler.findProperty(
+        PEGASUS_PROPERTYNAME_NAME)).getValue().toString().getCString())));
     Uint32 pos = PEG_NOT_FOUND;
 
     if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
@@ -205,7 +213,6 @@ IndicationHandlerService::_handleIndication(
                           &exportServer);
 
                 // Listener is build with Cimom, so send message to ExportServer
-
                AutoPtr<CIMExportIndicationRequestMessage> exportmessage( 
                     new CIMExportIndicationRequestMessage(
                         XmlWriter::getNextMessageId(),
@@ -237,6 +244,12 @@ IndicationHandlerService::_handleIndication(
                             String(((MessageQueue::lookup(exportServer[0]))->
                                 getQueueName())) :
                             String("BAD queue name")));
+                PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                    "Sending %s Indication %s to destination %s",
+                    (const char*) (indication.getClassName().getString().
+                    getCString()),
+                    (const char*)(request->messageId.getCString()),
+                    (const char*) destination.getCString()));
 
                 //SendAsync(op,
                 //      exportServer[0],

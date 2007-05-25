@@ -1981,12 +1981,17 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     CIMInstance handlerNamedInstance;
 
     CIMInstance indication = request->indicationInstance;
-
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-        "Received Indication " + indication.getClassName().getString());
-
+    
     try
     {
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+           "Received %s Indication %s from namespace %s from provider %s",
+           (const char*)(indication.getClassName().getString().getCString()),
+           (const char*)(request->messageId.getCString()),
+           (const char*)(request->nameSpace.getString().getCString()),
+           (const char*)(request->provider.getProperty(request->provider.
+           findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue().toString().
+           getCString())));
         //
         //  Check if property list contains all properties of class
         //  If so, set to null
@@ -2101,6 +2106,12 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         //  criteria are met by the generated indication, and if so, forward to
         //  the handler
         //
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            "%d subscriptions found for %s Indication %s in namespace %s",
+            matchedSubscriptions.size(),
+            (const char*)(indication.getClassName().getString().getCString()),
+            (const char*)(request->messageId.getCString()),
+            (const char*)(request->nameSpace.getString().getCString())));
         for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
         {
             match = true;
@@ -2120,8 +2131,13 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 {
                     CIMObjectPath path = matchedSubscriptions [i].getPath ();
                     _deleteExpiredSubscription (path);
-                    // If the subscription is expired, delete and continue to the next one.
-                    continue;
+                    // If the subscription is expired, delete and continue
+                    // to the next one.
+                    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                        "%s Indication Subscription expired",
+                        (const char*)(indication.
+                        getClassName().getString().getCString())));
+                   continue;
                 }
             } catch (DateTimeOutOfRangeException &)
             {
@@ -2134,11 +2150,13 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
             String queryLanguage;
             CIMNamespaceName sourceNamespace;
+            String filterName;
             _subscriptionRepository->getFilterProperties (
                 matchedSubscriptions[i],
                 filterQuery,
                 sourceNamespace,
-                queryLanguage);
+                queryLanguage,
+                filterName);
 
             QueryExpression queryExpr = _getQueryExpression(filterQuery,
                                                             queryLanguage,
@@ -2162,6 +2180,15 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
             if (match)
             {
+                PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                    "%s Indication %s satisfies filter %s:%s query expression"
+                    "  \"%s\"", 
+                    (const char*)(indication.getClassName().getString().
+                    getCString()),
+                    (const char*)(request->messageId.getCString()),
+                    (const char*)(sourceNamespace.getString().getCString()),
+                    (const char*)(filterName.getCString()),
+                    (const char*)(filterQuery.getCString())));
                 //
                 // Format the indication
                 //
@@ -2224,6 +2251,18 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
                 handlerNamedInstance = _subscriptionRepository->getHandler
                     (matchedSubscriptions[i]);
+                PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                    "Handler %s:%s.%s found for %s Indication %s",
+                    (const char*)(request->nameSpace.getString().getCString()),
+                    (const char*)(handlerNamedInstance.getClassName().
+                    getString().getCString()),
+                    (const char*)(handlerNamedInstance.getProperty(
+                    handlerNamedInstance.findProperty(
+                    PEGASUS_PROPERTYNAME_NAME)).getValue().toString().
+                    getCString()),
+                    (const char*)(indication.getClassName().getString().
+                    getCString()),
+                    (const char*)(request->messageId.getCString())));
 
 // l10n
 // Note: not expecting any language in the response
@@ -2270,10 +2309,11 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         //
         if (matchedSubscriptions.size() == 0)
         {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2,
-                "No matching subscriptions found for "
-                + indication.getClassName ().getString () +
-                " indication");
+           PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL2,
+               "No matching subscriptions found for %s Indication %s",
+               (const char*)(indication.getClassName().getString().
+               getCString()),
+               (const char*)(request->messageId.getCString())));
         }
     }
     catch (CIMException& exception)
@@ -3477,11 +3517,12 @@ Boolean IndicationService::_canCreate (
                     CIMNamespaceName sourceNameSpace;
                     String query;
                     String queryLanguage;
+                    String filterName;
                     CIMPropertyList propertyList;
 
                     //  Get filter properties
                     _subscriptionRepository->getFilterProperties (instance,
-                        query, sourceNameSpace, queryLanguage);
+                        query, sourceNameSpace, queryLanguage, filterName);
 
                     //  Build the query expression from the filter query
                     QueryExpression queryExpression = _getQueryExpression(query,
@@ -4792,13 +4833,14 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             CIMName indicationClassName;
             CIMNamespaceName sourceNameSpace;
             CIMPropertyList propertyList;
+            String filterName;
 
             //
             //  Get filter properties
             //
             _subscriptionRepository->getFilterProperties
                 (subscriptions [i], filterQuery, sourceNameSpace,
-                 queryLanguage);
+                 queryLanguage, filterName);
 
             QueryExpression queryExpr = _getQueryExpression(filterQuery,
                                                             queryLanguage,
@@ -4947,12 +4989,13 @@ void IndicationService::_getModifiedSubscriptions (
         CIMName indicationClassName;
         CIMNamespaceName sourceNameSpace;
         CIMPropertyList requiredProperties;
+        String filterName;
 
         //
         //  Get filter properties
         //
         _subscriptionRepository->getFilterProperties (newList [n], filterQuery,
-            sourceNameSpace, queryLanguage);
+            sourceNameSpace, queryLanguage, filterName);
         QueryExpression queryExpression = _getQueryExpression(filterQuery,
                                                               queryLanguage,
                                                               sourceNameSpace);
@@ -5007,12 +5050,13 @@ void IndicationService::_getModifiedSubscriptions (
         CIMPropertyList requiredProperties;
         Boolean newMatch = false;
         Boolean formerMatch = false;
+        String filterName;
 
         //
         //  Get filter properties
         //
         _subscriptionRepository->getFilterProperties (bothList [b], filterQuery,
-            sourceNameSpace, queryLanguage);
+            sourceNameSpace, queryLanguage, filterName);
         QueryExpression queryExpression = _getQueryExpression(filterQuery,
                                                               queryLanguage,
                                                               sourceNameSpace);
@@ -5813,12 +5857,13 @@ void IndicationService::_getCreateParams (
     condition = String::EMPTY;
     query = String::EMPTY;
     queryLanguage = String::EMPTY;
+    String filterName;
 
     //
     //  Get filter properties
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance, query,
-        sourceNameSpace, queryLanguage);
+        sourceNameSpace, queryLanguage, filterName);
 
     //
     //  Build the query expression from the filter query
@@ -5872,12 +5917,13 @@ void IndicationService::_getCreateParams (
     condition = String::EMPTY;
     query = String::EMPTY;
     queryLanguage = String::EMPTY;
+    String filterName;
 
     //
     //  Get filter properties
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance, query,
-        sourceNameSpace, queryLanguage);
+        sourceNameSpace, queryLanguage, filterName);
     QueryExpression queryExpression = _getQueryExpression(query,
                                                          queryLanguage,
                                                          sourceNameSpace);
@@ -5917,6 +5963,7 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
 
     String filterQuery;
     String queryLanguage;
+    String filterName;
     CIMName indicationClassName;
     Array <ProviderClassList> indicationProviders;
 
@@ -5924,7 +5971,7 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
     //  Get filter properties
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance,
-        filterQuery, sourceNameSpace, queryLanguage);
+        filterQuery, sourceNameSpace, queryLanguage, filterName);
     QueryExpression queryExpression = _getQueryExpression(filterQuery,
                                                          queryLanguage,
                                                          sourceNameSpace);
@@ -7358,10 +7405,11 @@ CIMClass IndicationService::_getIndicationClass (
     String queryLanguage;
     CIMName indicationClassName;
     CIMClass indicationClass;
+    String filterName;
 
     //  Get filter properties
     _subscriptionRepository->getFilterProperties (subscriptionInstance, query,
-        sourceNameSpace, queryLanguage);
+        sourceNameSpace, queryLanguage, filterName);
 
     //  Build the query expression from the filter query
     QueryExpression queryExpression = _getQueryExpression(query,

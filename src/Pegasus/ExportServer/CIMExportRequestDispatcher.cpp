@@ -170,6 +170,12 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &serviceIds);
     PEGASUS_ASSERT(serviceIds.size() != 0);
 
+    PEG_TRACE ((TRC_INDICATION_RECEIPT, Tracer::LEVEL3,
+        "%s Indication %s received in export server for destination %s",
+         (const char*)(request->indicationInstance.getClassName().getString().
+         getCString()),
+         (const char*)(request->messageId.getCString()),
+         (const char*)(request->destinationPath.getCString())));
     AsyncOpNode* op = this->get_op();
 
     AsyncLegacyOperationStart * asyncRequest =

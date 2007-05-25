@@ -123,6 +123,15 @@ void snmpIndicationHandler::handleIndication(
 
     try
     {
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            "snmpIndicationHandler %s:%s.%s processing %s Indication",
+           (const char*)(nameSpace.getCString()),
+           (const char*)(handler.getClassName().getString().getCString()),
+           (const char*)(handler.getProperty(
+           handler.findProperty(PEGASUS_PROPERTYNAME_NAME)).
+           getValue().toString().getCString()),
+           (const char*)(indication.getClassName().getString().
+           getCString())));
         CIMClass indicationClass = _repository->getClass(
             nameSpace, indication.getClassName(), false, true,
             false, CIMPropertyList());
@@ -216,9 +225,46 @@ void snmpIndicationHandler::handleIndication(
             handler.findProperty(CIMName("SNMPSecurityName"));
         Uint32 engineIDPos = handler.findProperty(CIMName("SNMPEngineID"));
 
-        if ((targetHostPos != PEG_NOT_FOUND) &&
-            (targetHostFormatPos != PEG_NOT_FOUND) &&
-            (snmpVersionPos != PEG_NOT_FOUND))
+        if (targetHostPos == PEG_NOT_FOUND)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                "Target host is not set for IndicationHandlerSNMPMapper %s"
+                " Indication.",
+                (const char*)(indication.getClassName().getString().
+                getCString())));
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+                "Handler.snmpIndicationHandler.snmpIndicationHandler."
+                "INVALID_SNMP_INSTANCE",
+                "Invalid IndicationHandlerSNMPMapper instance"));
+        }
+        if (targetHostFormatPos == PEG_NOT_FOUND)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                "Target host format is not set for IndicationHandlerSNMPMapper"
+                " %s Indication.",
+                (const char*)(indication.getClassName().getString().
+                getCString())));
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+                "Handler.snmpIndicationHandler.snmpIndicationHandler."
+                "INVALID_SNMP_INSTANCE",
+                "Invalid IndicationHandlerSNMPMapper instance"));
+        }
+        if (snmpVersionPos == PEG_NOT_FOUND)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                "SNMP Version is not set for IndicationHandlerSNMPMapper %s"
+                " Indication.",
+                (const char*)(indication.getClassName().getString().
+                getCString())));
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+                "Handler.snmpIndicationHandler.snmpIndicationHandler."
+                "INVALID_SNMP_INSTANCE",
+                "Invalid IndicationHandlerSNMPMapper instance"));
+        }
+        else
         {
             // properties from the handler instance
             String targetHost;
@@ -341,7 +387,14 @@ void snmpIndicationHandler::handleIndication(
                 handler.getProperty(engineIDPos).getValue().get(engineID);
             }
 
-            _snmpTrapSender->deliverTrap(
+            PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+               "snmpIndicationHandler sending %s Indication trap %s to target"
+               " host %s target port %d",
+               (const char*)(indication.getClassName().getString().
+               getCString()),
+               (const char*)(trapOid.getCString()),
+               (const char*)(targetHost.getCString()),portNumber));
+           _snmpTrapSender->deliverTrap(
                 trapOid,
                 securityName,
                 targetHost,
@@ -353,16 +406,13 @@ void snmpIndicationHandler::handleIndication(
                 propOIDs,
                 propTYPEs,
                 propVALUEs);
-        }
-        else
-        {
-            PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-                "Invalid IndicationHandlerSNMPMapper instance.");
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "Handler.snmpIndicationHandler.snmpIndicationHandler."
-                    "INVALID_SNMP_INSTANCE",
-                "Invalid IndicationHandlerSNMPMapper instance"));
+
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+           "%s Indication trap %s sent to target host %s target port %d "
+           "successfully",
+           (const char*)(indication.getClassName().getString().getCString()),
+           (const char*)(trapOid.getCString()),
+           (const char*)(targetHost.getCString()),portNumber));
         }
     }
     catch (CIMException& c)
@@ -389,7 +439,6 @@ void snmpIndicationHandler::handleIndication(
                 "FAILED_TO_DELIVER_TRAP",
             "Failed to deliver trap."));
     }
-
     PEG_METHOD_EXIT();
 }
 

@@ -472,6 +472,9 @@ Boolean ComputerSystem::getOtherIdentifyingInfo(CIMProperty& p)
    if ($VMS_STATUS_SUCCESS(status))
    {
 	_otherInfo.assign(hwname);
+#ifdef  PEGASUS_PLATFORM_VMS_IA64_DECCXX
+        _otherInfo = String("ia64 hp server, ") + _otherInfo;
+#endif
 	s.append(_otherInfo);
 	p = CIMProperty(PROPERTY_OTHER_IDENTIFYING_INFO,s);
         return true;

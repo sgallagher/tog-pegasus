@@ -155,7 +155,7 @@ extern "C" {
           // be either an EmbeddedObject or EmbeddedInstance. We must find the
           // method signature in the class definition to find out what the
           // return type is.
-          if(type & CMPI_instance)
+          if (type == CMPI_instance)
           {
               try 
               {

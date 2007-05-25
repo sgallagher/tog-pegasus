@@ -2523,6 +2523,8 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
 void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
 {
+    PEGASUS_DEBUG_ASSERT(request->magic);
+
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnqueue(Message* request)");
     if (!request)

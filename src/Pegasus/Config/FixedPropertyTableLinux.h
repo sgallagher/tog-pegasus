@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -30,6 +31,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #if defined(PEGASUS_USE_RELEASE_DIRS) && \
     defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
@@ -84,5 +86,5 @@
 #endif /* defined(PEGASUS_USE_RELEASE_DIRS) */
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
     !defined(PEGASUS_USE_RELEASE_DIRS)
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+    {"bogus", "MyBogusValue"} /* Remove this line if others are added */
 #endif

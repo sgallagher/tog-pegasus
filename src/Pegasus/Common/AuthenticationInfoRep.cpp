@@ -91,6 +91,16 @@ void AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
     PEG_METHOD_EXIT();
 }
 
+void AuthenticationInfoRep::setLocalAuthFilePath(const String& filePath)
+{
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setLocalAuthFilePath");
+
+    _localAuthFilePath = filePath;
+
+    PEG_METHOD_EXIT();
+}
+
 void AuthenticationInfoRep::setLocalAuthSecret(const String& secret)
 {
     PEG_METHOD_ENTER(

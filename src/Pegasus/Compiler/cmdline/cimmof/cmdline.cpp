@@ -85,20 +85,22 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+#include <Pegasus/Common/Constants.h>
+#include <pwd.h>
+#endif
 
 #include <Pegasus/Compiler/mofCompilerOptions.h>
 #include "cmdlineExceptions.h"
 #include "cmdline.h"
-#include "cmdlineExceptions.h"
 #include <Pegasus/getoopt/getoopt.h>
-#include <Pegasus/Common/String.h>
 #ifdef PEGASUS_OS_OS400
 #include <qycmutiltyUtility.H>
 #include <qycmutilu2.H>
 #endif
 
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 #define DEFAULT_SERVER_AND_PORT "localhost:5988"
 
@@ -429,8 +431,7 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
 
 // This function looks at a string (which we suppose to be argv[0]
 // and decides if it represents cimmof or cimmofl
-int
-getType(const char *name)
+Boolean isCimmoflCommandName(const char *name)
 {
 #if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
     // Only the local compiler is shipped on OS/400, and
@@ -469,15 +470,42 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	       ostream &helpos = cerr) {
   getoopt cmdline;
   int type = -1;
-  setCmdLineOpts(cmdline, getType(argv[0]));
+
+  Boolean isCimmoflCommand = isCimmoflCommandName(argv[0]);
+  setCmdLineOpts(cmdline, isCimmoflCommand);
   cmdline.parse(argc, argv);
 #ifdef PEGASUS_OS_OS400
   String os400MarkerFile("/QIBM/USERDATA/OS400/CIM/QYCM53PTF");
 #endif
-  switch (getType(argv[0])) {
-  case 1: cmdlinedata.set_is_local();
-    #ifdef PEGASUS_OS_OS400
-    	// check if we are in qsh, if we are NOT running in a qsh environment then
+  if (isCimmoflCommand)
+  {
+      cmdlinedata.set_is_local();
+
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+      // Create the repository files with the correct owner and permissions
+
+# define PWD_BUFF_SIZE 4096
+
+      struct passwd pwd;
+      char buffer[PWD_BUFF_SIZE];
+      struct passwd* ptr = 0;
+
+      if (getpwnam_r(
+              PEGASUS_CIMSERVERMAIN_USER,
+              &pwd,
+              buffer,
+              PWD_BUFF_SIZE,
+              &ptr) == 0)
+      {
+          setgid(ptr->pw_gid);
+          setuid(ptr->pw_uid);
+      }
+
+      umask(S_IRWXG|S_IRWXO);
+#endif
+
+#ifdef PEGASUS_OS_OS400
+      // check if we are in qsh, if we are NOT running in a qsh environment then
       // send and escape message,
       // if we ARE then call ycmServerIsActive without the quiet option
 #pragma convert(37)
@@ -498,9 +526,12 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       }
 #pragma convert(0)
 #endif
-    break;
-  default: cmdlinedata.reset_is_local();
   }
+  else
+  {
+      cmdlinedata.reset_is_local();
+  }
+
   applyDefaults(cmdlinedata);
   if (cmdline.hasErrors()) {
 
@@ -520,7 +551,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 
   for (unsigned int i = cmdline.first(); i < cmdline.last(); i++) {
     const Optarg &arg = cmdline[i];
-    opttypes c = catagorize(arg, getType(argv[0]));
+    opttypes c = catagorize(arg, isCimmoflCommand);
     if(type == HELPFLAG || type == VERSIONFLAG)
           throw ArgumentErrorsException(parms);
     switch (c)
@@ -699,7 +730,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   }
   else if(type == HELPFLAG)
   {
-     help(helpos, getType(argv[0]));
+     help(helpos, isCimmoflCommand);
      return(-1);
   }
 

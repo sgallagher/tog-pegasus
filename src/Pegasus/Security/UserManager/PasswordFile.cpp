@@ -38,6 +38,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Executor.h>
 #if defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"
 #endif
@@ -127,7 +128,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
     {
 	if (FileSystem::exists(_passwordFile))
 	{
-	    if (! FileSystem::removeFile(_passwordFile))
+	    if (Executor::removeFile(_passwordFile.getCString()) != 0)
 	    {
 		throw CannotRemoveFile(_passwordFile);
             }
@@ -138,7 +139,8 @@ void PasswordFile::load (PasswordTable& passwordTable)
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Security.UserManager.PasswordFile.TRYING_TO_BACKUP_FILE",
             "Trying to use the backup file : $0.", _passwordBackupFile);
-	if (! FileSystem::renameFile(_passwordBackupFile, _passwordFile))
+	if (Executor::renameFile(
+            _passwordBackupFile.getCString(),  _passwordFile.getCString()) != 0)
 	{
 			//l10n
             //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
@@ -294,7 +296,7 @@ void PasswordFile::save (const PasswordTable& passwordTable)
     {
 	if ( FileSystem::exists(_passwordFile))
 	{
-            if ( ! FileSystem::removeFile(_passwordFile))
+            if (Executor::removeFile(_passwordFile.getCString()) != 0)
 	    {
 	    		//l10n
                 //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -310,7 +312,8 @@ void PasswordFile::save (const PasswordTable& passwordTable)
     {
 	if ( FileSystem::exists(_passwordFile))
 	{
-            if ( ! FileSystem::renameFile(_passwordFile, _passwordBackupFile))
+            if (Executor::renameFile(_passwordFile.getCString(), 
+                _passwordBackupFile.getCString()) != 0)
 	    {
 	    		//l10n
                 //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -326,32 +329,30 @@ void PasswordFile::save (const PasswordTable& passwordTable)
     //
     // Open the password file for writing
     //
-#if defined(PEGASUS_OS_OS400)
-    ofstream ofs(_passwordFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
-    ofstream ofs(_passwordFile.getCString());
-#endif
+
+    FILE* ofs = Executor::openFile(_passwordFile.getCString(), 'w');
+
     if (!ofs)
     {
         PEG_METHOD_EXIT();
 	throw CannotOpenFile(getFileName());
     }
 	
-    ofs.clear();
-
     //
     // Save user names and passwords to the new file
     //
     for (PasswordTable::Iterator i = passwordTable.start(); i; i++)
     {
-        ofs << i.key() << ":" << i.value() << endl;
+        CString key = i.key().getCString();
+        CString value = i.value().getCString();
+        fprintf(ofs, "%s:%s\n", (const char*)key, (const char*)value);
     }
 
-    ofs.close();
+    fclose(ofs);
 
     if ( FileSystem::exists(_passwordBackupFile))
     {
-	if ( ! FileSystem::removeFile(_passwordBackupFile))
+	if (Executor::removeFile(_passwordBackupFile.getCString()) != 0)
 	{
 		//l10n
             //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 

@@ -32,14 +32,33 @@ ROOT = ..
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS = Platforms utils Pegasus slp Clients Providers Service Server
-else
-DIRS = Platforms utils Pegasus Clients Providers Service Server
+DIRS =
+
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+    DIRS += \
+        Executor \
+        Executor/tests
 endif
 
 DIRS += \
-	Pegasus/DynListener/Service
+    Platforms \
+    utils \
+    Pegasus
+
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+    DIRS += slp
+endif
+
+DIRS += \
+    Clients \
+    Providers \
+    Service \
+    Server
+
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+    DIRS += Shutdown
+endif
+
+DIRS += Pegasus/DynListener/Service
 
 include $(ROOT)/mak/recurse.mak
-

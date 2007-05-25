@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../..
 
 DIR = Pegasus/Common
@@ -52,6 +52,7 @@ LIBRARY = pegcommon
 ##
 
 SOURCES1 = \
+    Executor.cpp \
     CIMError.cpp \
     PropertyAccessor.cpp \
     Once.cpp \

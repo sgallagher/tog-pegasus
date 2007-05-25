@@ -34,7 +34,9 @@
 #ifndef Pegasus_Platform_HPUX_IA64_ACC_h
 #define Pegasus_Platform_HPUX_IA64_ACC_h
 
-#include <cstddef>
+#ifdef __cplusplus
+# include <cstddef>
+#endif
 
 #define PEGASUS_OS_TYPE_UNIX
 

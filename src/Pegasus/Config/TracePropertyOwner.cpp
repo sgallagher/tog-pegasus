@@ -73,11 +73,14 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_OS_OS400
     {"traceFilePath", "/qibm/userdata/os400/cim/cimserver.trc",
          IS_DYNAMIC, 0, 0, IS_VISIBLE},
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && \
-    defined(PEGASUS_USE_RELEASE_DIRS)
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# if defined(PEGASUS_USE_RELEASE_DIRS)
     {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-#else
+# else
     {"traceFilePath", "cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+# endif
+#else
+    {"traceFilePath", "trace/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
 };
 

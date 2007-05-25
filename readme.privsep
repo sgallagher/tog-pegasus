@@ -1,0 +1,61 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+
+Using Pegasus Privilege Separation Functionality
+
+Privilege separation was added to Pegasus starting with Pegasus 2.7.  This
+is a security feature. It allows separation of the functionality so that
+only a minimal set of code runs as a privileged user (ex. root) in a
+separate process (the executor).  The majority of pegasus runs as a
+nonprivileged user (the cim server).  The CIM Server makes requests on the
+executor for functions that require root privilege.
+
+The privilege separation functionality is documented in PEP 286.
+
+cimserver is the executor program (see src/Executor).
+cimservermain is the server program (see src/Server and
+src/Pegasus/Common/Executor.h).
+
+Privilege separation is build-time optional functionality. To enable privilege
+separation, define the following environment variable before compiling.
+
+    PEGASUS_ENABLE_PRIVILEGE_SEPARATION=true
+
+If this build variable is not set, the cimserver runs as the user under which
+it was started and all privelege separation functionality is disabled.
+
+The nonprivileged user for privilege separation is the user under which the
+cimservermain component executes.  The name of this user is specified by the
+PEGASUS_CIMSERVERMAIN_USER macro, whose default value is defined in
+Constants.h.  The specified user MUST exist or cimserver will terminate
+immediately.
+
+4/27/2007

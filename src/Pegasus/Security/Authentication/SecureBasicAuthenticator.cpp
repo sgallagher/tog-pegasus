@@ -41,8 +41,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
-
 #include "SecureBasicAuthenticator.h"
+#include <Pegasus/Common/Executor.h>
 
 #ifdef PEGASUS_OS_OS400
 #include "qycmutiltyUtility.H"
@@ -111,8 +111,8 @@ SecureBasicAuthenticator::~SecureBasicAuthenticator()
 }
 
 Boolean SecureBasicAuthenticator::authenticate(
-    const String& userName, 
-    const String& password) 
+    const String & userName,
+    const String & password)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureBasicAuthenticator::authenticate()");
@@ -120,53 +120,65 @@ Boolean SecureBasicAuthenticator::authenticate(
     Boolean authenticated = false;
 
 #ifdef PEGASUS_OS_OS400
+
     // Use OS400 APIs to do user name and password verification
     // (note - need to convert to EBCDIC before calling ycm)
     CString userCStr = userName.getCString();
-    const char * user = (const char *)userCStr;
-    AtoE((char *)user);
+    const char * user = (const char *) userCStr;
+    AtoE((char *) user);
     CString pwCStr = password.getCString();
-    const char * pw = (const char *)pwCStr;
-    AtoE((char *)pw);
-    int os400auth =
-      ycmVerifyUserAuthorization(user, pw);
-    if (os400auth == TRUE) 
-		authenticated = true;
-	#else
-	#if defined(PEGASUS_OS_ZOS)
-		// use zOS API to do the user name and password verification
-		// note: write possible errors to the tracelog
-		if ( (password.size()>0) && (__passwd((const char*) userName.getCString(), (const char*) password.getCString(), NULL) == 0))
-		{
-#ifdef PEGASUS_ZOS_SECURITY
-            if (CheckProfileCIMSERVclassWBEM( userName , __READ_RESOURCE))
-            {
-                authenticated = true;
-            }
-            else
-            {
-                authenticated = false;
-                // no READ access to security resource profile CIMSERV CL(WBEM)
-                Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
-                    "Security.Authentication.SecureBasicAuthenticator"
-                    ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
-                    "Request UserID $0 misses READ permission to profile CIMSERV CL(WBEM).",
-                    userName);
-            }
-#else
-			authenticated = true;
-#endif
+    const char *pw = (const char *) pwCStr;
+    AtoE((char *) pw);
+    int os400auth = ycmVerifyUserAuthorization(user, pw);
+    if (os400auth == TRUE)
+        authenticated = true;
+
+#elif defined(PEGASUS_OS_ZOS)
+
+    // use zOS API to do the user name and password verification
+    // note: write possible errors to the tracelog
+    if ((password.size() > 0) &&
+        (__passwd
+         ((const char *) userName.getCString(),
+          (const char *) password.getCString(), NULL) == 0))
+    {
+# ifdef PEGASUS_ZOS_SECURITY
+
+        if (CheckProfileCIMSERVclassWBEM(userName, __READ_RESOURCE))
+        {
+            authenticated = true;
         }
-		else
-		{
-			authenticated = false;
-			PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL4,"Authentication failed.");
-		}
-#else
-    //
-    // Check if the user is a valid system user
-    //
-    if ( !System::isSystemUser( userName.getCString() ) )
+        else
+        {
+            authenticated = false;
+            // no READ access to security resource profile CIMSERV CL(WBEM)
+            Logger::put_l(
+                Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+                "Security.Authentication.SecureBasicAuthenticator"
+                ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+                "Request UserID $0 misses READ permission to profile CIMSERV "
+                "CL(WBEM).",
+                userName);
+        }
+
+# else /* PEGASUS_OS_ZOS */
+
+        authenticated = true;
+
+# endif /* !PEGASUS_OS_ZOS */
+    }
+    else
+    {
+        authenticated = false;
+        PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
+            "Authentication failed.");
+    }
+
+#else /* DEFAULT (!PEGASUS_OS_ZOS && !PEGASUS_OS_OS400) */
+
+    // Check whether valid system user.
+
+    if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
         return (authenticated);
@@ -174,26 +186,35 @@ Boolean SecureBasicAuthenticator::authenticate(
 
     try
     {
-        //
-        // Verify the CIM user password
-        //
-        if (_userManager->verifyCIMUserPassword( userName, password ))
+        // Verify the CIM user password. Use executor if present. Else, use
+        // conventional method.
+
+        if (Executor::detectExecutor() == 0)
         {
-            authenticated = true;
+            if (Executor::authenticatePassword(
+                userName.getCString(), password.getCString()) == 0)
+            {
+                authenticated = true;
+            }
+        }
+        else
+        {
+            if (_userManager->verifyCIMUserPassword(userName, password))
+                authenticated = true;
         }
     }
-    catch (InvalidUser& )
+    catch(InvalidUser &)
     {
         PEG_METHOD_EXIT();
         return (authenticated);
     }
-    catch (Exception& e)
+    catch(Exception & e)
     {
         PEG_METHOD_EXIT();
         throw e;
     }
-#endif	// PEGASUS_OS_ZOS
-#endif
+
+#endif /* DEFAULT (!PEGASUS_OS_ZOS && !PEGASUS_OS_OS400) */
 
     PEG_METHOD_EXIT();
 
@@ -207,11 +228,18 @@ Boolean SecureBasicAuthenticator::validateUser(const String& userName)
 
     Boolean authenticated = false;
 
-    if ( System::isSystemUser(userName.getCString())
-		  && _userManager->verifyCIMUser(userName))
+    if ( System::isSystemUser(userName.getCString()))
     {
-        authenticated = true;
-    } 
+        if (Executor::detectExecutor() == 0)
+        {
+            if (Executor::validateUser(userName.getCString()) != 0)
+                authenticated = true;
+        }
+        else if (_userManager->verifyCIMUser(userName))
+        {
+            authenticated = true;
+        }
+    }
 
     PEG_METHOD_EXIT();
     return (authenticated);

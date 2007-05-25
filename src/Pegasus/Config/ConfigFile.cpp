@@ -37,6 +37,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Executor.h>
 
 #include "ConfigExceptions.h"
 #include "ConfigFile.h"
@@ -132,19 +133,22 @@ void ConfigFile::load(ConfigTable* confTable)
     //
     // Delete the backup configuration file
     //
+
     if (FileSystem::exists(_configBackupFile))
     {
-        FileSystem::removeFile(_configBackupFile);
+        Executor::removeFile(_configBackupFile.getCString());
     }
 
     //
     // Open the config file
     //
+
 #if defined(PEGASUS_OS_OS400)
     ifstream ifs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
     ifstream ifs(_configFile.getCString());
 #endif
+
     if (!ifs)
     {
         return;
@@ -264,15 +268,17 @@ void ConfigFile::save(ConfigTable* confTable)
     //
     if (FileSystem::exists(_configBackupFile))
     {
-        FileSystem::removeFile(_configBackupFile);
+        Executor::removeFile(_configBackupFile.getCString());
     }
 
     //
     // Rename the configuration file as a backup file
     //
+
     if (FileSystem::exists(_configFile))
     {
-        if (!FileSystem::renameFile(_configFile, _configBackupFile))
+        if (Executor::renameFile(
+            _configFile.getCString(), _configBackupFile.getCString()) != 0)
         {
             throw CannotRenameFile(_configFile);
         }
@@ -281,43 +287,51 @@ void ConfigFile::save(ConfigTable* confTable)
     //
     // Open the config file for writing
     //
-#if defined(PEGASUS_OS_OS400)
-    ofstream ofs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
-    ofstream ofs(_configFile.getCString());
-#endif
-    ofs.clear();
 
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    //
-    // Set permissions on the config file to 0644
-    //
-    if ( !FileSystem::changeFilePermissions(_configFile,
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) )    // set 0644
+    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
+
+    if (!ofs)
     {
         throw CannotOpenFile(_configFile);
     }
-#endif
 
     //
     // Write config file header information
     //
+
     for (int index = 0; index < HEADER_SIZE; index++)
     {
-        ofs << ConfigHeader[index] << endl;
+        fputs(ConfigHeader[index], ofs);
+        fputc('\n', ofs);
     }
-
-    ofs << endl;
 
     //
     // Save config properties and values to the file
     //
+
     for (Table::Iterator i = confTable->table.start(); i; i++)
     {
-        ofs << i.key() << "=" << i.value() << endl;
+        CString key = i.key().getCString();
+        CString value = i.value().getCString();
+        fprintf(ofs, "%s=%s\n", (const char*)key, (const char*)value);
     }
 
-    ofs.close();
+    fclose(ofs);
+
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    // Note:  The Executor process sets the permissions to 0644 whenever it
+    // opens a file for writing.
+# if !defined(PEGASUS_OS_TYPE_WINDOWS)
+    //
+    // Set permissions on the config file to 0644
+    //
+    if (!FileSystem::changeFilePermissions(_configFile,
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
+    {
+        throw CannotOpenFile(_configFile);
+    }
+# endif
+#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 }
 
 
@@ -327,33 +341,36 @@ void ConfigFile::save(ConfigTable* confTable)
 */
 void ConfigFile::replace (const String& fileName)
 {
-    String line;
-
     //
     // Open the given config file for reading
     //
-#if defined(PEGASUS_OS_OS400)
-    ifstream ifs(fileName.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
-    ifstream ifs(fileName.getCString());
-#endif
+
+    FILE* ifs = fopen(fileName.getCString(), "rb");
+
+    if (!ifs)
+    {
+        throw CannotOpenFile(fileName);
+    }
 
     //
     // Delete the backup configuration file
     //
+
     if (FileSystem::exists(_configBackupFile))
     {
-        FileSystem::removeFile(_configBackupFile);
+        Executor::removeFile(_configBackupFile.getCString());
     }
 
     //
     // Rename the existing config file as a backup file
     //
+
     if (FileSystem::exists(_configFile))
     {
-        if (!FileSystem::renameFile(_configFile, _configBackupFile))
+        if (Executor::renameFile(
+            _configFile.getCString(), _configBackupFile.getCString()) != 0)
         {
-            ifs.close();
+            fclose(ifs);
             throw CannotRenameFile(_configFile);
         }
     }
@@ -361,37 +378,43 @@ void ConfigFile::replace (const String& fileName)
     //
     // Open the existing config file for writing
     //
-#if defined(PEGASUS_OS_OS400)
-    ofstream ofs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
-    ofstream ofs(_configFile.getCString());
-#endif
-    ofs.clear();
 
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    //
-    // Set permissions on the config file to 0644
-    //
-    if ( !FileSystem::changeFilePermissions(_configFile,
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) )    // set 0644
+    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
+
+    if (!ofs)
     {
+        fclose(ifs);
         throw CannotOpenFile(_configFile);
     }
-#endif
 
     //
     // Read each line of the new file and write to the config file.
     //
-    for (Uint32 lineNumber = 1; GetLine(ifs, line); lineNumber++)
-    {
-        ofs << line << endl;
-    }
+
+    char buffer[4096];
+
+    while ((fgets(buffer, sizeof(buffer), ifs)) != NULL)
+        fputs(buffer, ofs);
 
     //
     // Close the file handles
     //
-    ifs.close();
-    ofs.close();
+
+    fclose(ifs);
+    fclose(ofs);
+
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+# if !defined(PEGASUS_OS_TYPE_WINDOWS)
+    //
+    // Set permissions on the config file to 0644
+    //
+    if (!FileSystem::changeFilePermissions(_configFile,
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
+    {
+        throw CannotOpenFile(_configFile);
+    }
+# endif
+#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 }
 
 PEGASUS_NAMESPACE_END

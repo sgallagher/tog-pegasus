@@ -215,8 +215,10 @@ void testAuthenticationSuccess()
     authHeader.append(":");
     authHeader.append(secret);
 
+    authInfo->setLocalAuthFilePath(filePath);
     Boolean authenticated =
         localAuthHandler.authenticate(authHeader, authInfo);
+    authInfo->setLocalAuthFilePath(String::EMPTY);
 
     if (verbose) cout << "authHeader: " << authHeader << endl;
 

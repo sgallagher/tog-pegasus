@@ -107,8 +107,8 @@ LIB_DIR = $(HOME_DIR)/lib
 MSG_ROOT = $(HOME_DIR)/msg
 
 #############################################################################
-##  The following REPOSITORY_XXX variables are only used within the 
-## makefiles for building the repository (cimmofl) and running the tests. 
+##  The following REPOSITORY_XXX variables are only used within the
+## makefiles for building the repository (cimmofl) and running the tests.
 ## They have no effect on CIMconfig initial startup configuration.
 
 #
@@ -116,16 +116,16 @@ MSG_ROOT = $(HOME_DIR)/msg
 #
 # NOTE: There is another variable efined in many of the test makefiles
 # called REPOSITORYDIR. It is a local variable in each of those Makefiles
-# to localally control where the temporay small repository they 
+# to localally control where the temporay small repository they
 # build, use and then delete is located. Most of the time it is set to TMP_DIR.
 #
 
 REPOSITORY_DIR = $(HOME_DIR)
 
 #
-# WARNING: The REPOSITORY_NAME varible is not used by all the test, 
+# WARNING: The REPOSITORY_NAME varible is not used by all the test,
 # many of them are still hardcoded to "repository".  What this means
-# is that you can change the repository name and build it. But you 
+# is that you can change the repository name and build it. But you
 # cannot run the test without many of them failing
 #
 
@@ -134,14 +134,14 @@ REPOSITORY_NAME = repository
 
 REPOSITORY_ROOT = $(REPOSITORY_DIR)/$(REPOSITORY_NAME)
 
-# define the repository mode 
+# define the repository mode
 #       XML = XML format
 #       BIN = Binary format
 #
 ifndef PEGASUS_REPOSITORY_MODE
    ## set to default value
    REPOSITORY_MODE = XML
-else 
+else
    ## validate assigned value
    ifeq ($(PEGASUS_REPOSITORY_MODE),XML)
        REPOSITORY_MODE = XML
@@ -226,13 +226,13 @@ LEX = flex
 
 ## ======================================================================
 ##
-## PEGASUS_ENABLE_SORTED_DIFF 
+## PEGASUS_ENABLE_SORTED_DIFF
 ## This controls if the DIFFSORT function is used rather than a simple DIFF of
 ##  of the test results files to the static results file.
 ##
 ##   Set to "true" enables the sorted diffs of results to static results files.
 ##   otherwise results in regular diffs of results to static results files.
-##   see bug 2283 for background information concerning this config variable. 
+##   see bug 2283 for background information concerning this config variable.
 ##
 ##  Defaults to true.
 ##
@@ -242,9 +242,9 @@ PEGASUS_ENABLE_SORTED_DIFF=true
 endif
 
 ## ========================================================================
-## DIFFSORT function definition 
+## DIFFSORT function definition
 ## Here is an example using the DIFFSORT function:
-## 
+##
 ## difftest: FORCE
 ##      @ test > result
 ##      @ $(call DIFFSORT,result,standard_result)
@@ -256,8 +256,8 @@ define NL
 
 endef
 
-ifndef FORCE_NOCASE	    
-	    
+ifndef FORCE_NOCASE
+
 DIFFSORT = $(SORT) $(1) > $(1).tmp $(NL) \
 $(SORT) $(2) > $(2).tmp $(NL) \
 $(DIFF) $(1).tmp $(2).tmp $(NL) \
@@ -334,7 +334,7 @@ ifdef PEGASUS_MAX_THREADS_PER_SVC_QUEUE
 endif
 
 ##############################################################################
-## 
+##
 ## PEGASUS_INDICATIONS_Q_THRESHOLD
 ##
 ## Controls if indications providers are stalled if the indications
@@ -351,7 +351,7 @@ endif
 ## If set to any value then providers are stalled by forcing them to sleep
 ## when they try to deliver an indication and the indications service queue
 ## exceeds this value. They are resumed when the queue count falls 10 percent
-## below this value. 
+## below this value.
 ##
 ## Stall and resume log entries are made to inform the administrator
 ## the condition has occured.
@@ -363,7 +363,7 @@ endif
 ##    OOP Prividers mix indications and operations on these two pipes.
 ##    This means the operations will also be blocked as a side effect of
 ##    the indications being stalled.
-##    
+##
 ##
 
 ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
@@ -430,7 +430,7 @@ ifdef PEGASUS_DEFAULT_ENABLE_OOP
   else
     ifneq ($(PEGASUS_DEFAULT_ENABLE_OOP),false)
       $(error PEGASUS_DEFAULT_ENABLE_OOP ($(PEGASUS_DEFAULT_ENABLE_OOP)) invalid, must be true or false)
-    endif 
+    endif
   endif
 endif
 
@@ -446,7 +446,7 @@ ifdef PEGASUS_DEFAULT_USERCTXT_REQUESTOR
   else
     ifneq ($(PEGASUS_DEFAULT_USERCTXT_REQUESTOR),false)
       $(error PEGASUS_DEFAULT_USERCTXT_REQUESTOR ($(PEGASUS_DEFAULT_USERCTXT_REQUESTOR)) invalid, must be true or false)
-    endif 
+    endif
   endif
 endif
 
@@ -526,7 +526,7 @@ ifdef PEGASUS_HAS_SSL
     endif
  endif
 
-# Enable CRL verification 
+# Enable CRL verification
 ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     PEGASUS_ENABLE_SSL_CRL_VERIFICATION = true
 endif
@@ -551,13 +551,13 @@ endif
 #
 ifdef PEGASUS_DISABLE_AUDIT_LOGGER
   ifeq ($(PEGASUS_DISABLE_AUDIT_LOGGER),true)
-    DEFINES += -DPEGASUS_DISABLE_AUDIT_LOGGER 
+    DEFINES += -DPEGASUS_DISABLE_AUDIT_LOGGER
   else
     ifneq ($(PEGASUS_DISABLE_AUDIT_LOGGER),false)
       $(error PEGASUS_DISABLE_AUDIT_LOGGER ($(PEGASUS_DISABLE_AUDIT_LOGGER)) \
        invalid, must be true or false)
-    endif 
-  endif 
+    endif
+  endif
 endif
 
 #
@@ -567,14 +567,14 @@ endif
 #
 # Use PEGASUS_ENABLE_SLP=true  to enable  compilation of SLP functions.
 #
-# Use PEGASUS_ENABLE_SLP=false to disable compilation of SLP functions. 
+# Use PEGASUS_ENABLE_SLP=false to disable compilation of SLP functions.
 #
-# Currently (Aug. 12, 2005) Windows is the only platform that enables SLP 
+# Currently (Aug. 12, 2005) Windows is the only platform that enables SLP
 # by default.
 #
 # NOTE. Effective with Bug # 2633 some platforms enable SLP.
 # To see which platforms look for platform make files that set
-# the variable PEGASUS_ENABLE_SLP. 
+# the variable PEGASUS_ENABLE_SLP.
 #
 #
 
@@ -597,7 +597,7 @@ ifdef PEGASUS_ENABLE_SLP
   else
     ifneq ($(PEGASUS_ENABLE_SLP),false)
       $(error PEGASUS_ENABLE_SLP ($(PEGASUS_ENABLE_SLP)) invalid, must be true or false)
-    endif 
+    endif
   endif
 endif
 
@@ -616,10 +616,10 @@ endif
 # to match this.  At this moment, this is a change specifically for
 # adaptec but we expect to generalize it to provide openslp as a
 # generalized alternative to ldapslp.
-# to use this. To set this function up, 
+# to use this. To set this function up,
 #
 # Use this variable in conjunction with PEGASUS_OPENSLP_HOME
-# to enable OpenSlp as the slp implementation.  
+# to enable OpenSlp as the slp implementation.
 #
 # NOTE that it has no affect if the PEGASUS_ENABLE_SLP etc. flags are not set.
 #
@@ -649,21 +649,21 @@ ifdef PEGASUS_SLP_REG_TIMEOUT
 # PEGASUS_OPENSLP_HOME
 #
 # Environment variable to set home location for OpenSLP include and library
-# files if they are located somewhere other than /usr/include and /usr/lib. 
+# files if they are located somewhere other than /usr/include and /usr/lib.
 #
 # PEGASUS_USE_OPENSLP must also be defined for this environment variable
 # to have any effect.
 #
-# This is the directory level within which both the include and lib 
-# directories holding the OpenSLP files will be found.  
+# This is the directory level within which both the include and lib
+# directories holding the OpenSLP files will be found.
 #
-# EG: If the are located in /opt/OpenSLP/include and /opt/OpenSLP/lib 
+# EG: If the are located in /opt/OpenSLP/include and /opt/OpenSLP/lib
 #     then this environment variable should be set to /opt/OpenSLP.
 #
 
 
 #
-# Enable this flag to allow the handshake to continue regardless of verification result 
+# Enable this flag to allow the handshake to continue regardless of verification result
 #
 ifdef PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
   DEFINES += -DPEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
@@ -837,10 +837,47 @@ ifdef PEGASUS_USE_STATIC_LIBRARIES
   else
     ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),false)
       $(error PEGASUS_USE_STATIC_LIBRARIES ($(PEGASUS_USE_STATIC_LIBRARIES)) invalid, must be true or false)
-    endif 
+    endif
   endif
 endif
 
+##==============================================================================
+##
+## PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+##
+##     Enables privilege separation support (uses the executor process to
+##     perform privileged operations).
+##
+##==============================================================================
+
+ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+  ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+    DEFINES += -DPEGASUS_ENABLE_PRIVILEGE_SEPARATION
+  else
+    ifneq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),false)
+      $(error PEGASUS_ENABLE_PRIVILEGE_SEPARATION \
+        ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)) invalid, must be true or false)
+    endif
+  endif
+
+  ## Specifies the user context of the cimservermain process when privilege
+  ## separation is enabled.
+  ifdef PEGASUS_CIMSERVERMAIN_USER
+    DEFINES += -DPEGASUS_CIMSERVERMAIN_USER=\"$(PEGASUS_CIMSERVERMAIN_USER)\"
+  endif
+endif
+
+##==============================================================================
+##
+## PEGASUS_USE_PAM_STANDALONE_PROC
+##
+##==============================================================================
+
+ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+  DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
+endif
+
+##==============================================================================
 
 ifndef PEGASUS_JAVA_CLASSPATH_DELIMITER
     PEGASUS_JAVA_CLASSPATH_DELIMITER = :

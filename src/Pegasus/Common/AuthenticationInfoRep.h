@@ -84,6 +84,13 @@ public:
 
     void   setAuthenticatedPassword(const String& password);
 
+    String getLocalAuthFilePath() const
+    {
+        return _localAuthFilePath;
+    }
+
+    void setLocalAuthFilePath(const String& filePath);
+
     String getLocalAuthSecret() const
     {
         return _localAuthSecret;
@@ -152,6 +159,7 @@ private:
     String  _authUser;
     String  _authPassword;
     String  _localAuthSecret;
+    String  _localAuthFilePath;
     String  _authType;
     Boolean _connectionAuthenticated;
     String  _ipAddress;

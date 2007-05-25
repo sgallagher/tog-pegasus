@@ -64,7 +64,11 @@ include $(ROOT)/mak/test.mak
 ##
 
 ## REPO_DIR = $(REPOSITORY_DIR) 
-REPO_DIR = $(ROOT)/src/$(DIR)
+ifeq ($(TMP_DIR),.)
+    REPO_DIR = $(PEGASUS_ROOT)/src/$(DIR)
+else
+    REPO_DIR = $(TMP_DIR)
+endif
 
 ## REPO_XXX : The file name to be used for each type of test repository.
 ## 

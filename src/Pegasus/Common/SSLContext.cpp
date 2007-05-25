@@ -33,6 +33,7 @@
 
 #ifdef PEGASUS_HAS_SSL
 # include <Pegasus/Common/Config.h>
+# include <Pegasus/Common/Executor.h>
 # include <Pegasus/Common/Network.h>
 # define OPENSSL_NO_KRB5 1
 # include <openssl/err.h>
@@ -1145,14 +1146,44 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
 {
     PEG_METHOD_ENTER(TRC_SSL, "_verifyPrivateKey()");
 
-    if (SSL_CTX_use_PrivateKey_file(
-            ctx, keyPath.getCString(), SSL_FILETYPE_PEM) <= 0)
+    // Open the private key file.
+
+    FILE* is = Executor::openFile(keyPath.getCString(), 'r');
+
+    if (!is)
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+            String("failed to open private key file: ") + String(keyPath));
+        return false;
+    }
+
+    // Read the private key from the input stream.
+
+    EVP_PKEY* pkey;
+    pkey = PEM_read_PrivateKey(is, NULL, NULL, NULL);
+
+    if (!pkey)
+    {
+        PEG_TRACE_STRING(
+            TRC_SSL, Tracer::LEVEL2, "failed to create private key");
+        return false;
+    }
+
+    // Close the input stream.
+
+    fclose(is);
+
+    // Associate the new private key with the SSL context object.
+
+    if (SSL_CTX_use_PrivateKey(ctx, pkey) <= 0)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
             "---> SSL: no private key found in " + String(keyPath));
         PEG_METHOD_EXIT();
         return false;
     }
+
+    // Check private key for validity.
 
     if (!SSL_CTX_check_private_key(ctx))
     {

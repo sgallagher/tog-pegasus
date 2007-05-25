@@ -1225,6 +1225,9 @@ ConfigureAuthorizations:
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4/test5 -R -W
 	cimauth -a -u $(PEGASUS_TEST_USER_ID) -n test1/test2/test3/test4/test5/test6 -R -W
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+	cimauth -a -u pegasus -n root/cimv2 -R -W
+endif
 
 startcimWithoutSSL: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart

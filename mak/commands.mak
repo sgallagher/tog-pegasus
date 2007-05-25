@@ -156,9 +156,9 @@ endif
     ECHO = echo
     ECHO-E = mu echo-e 
     COPY = cp
-    CHMOD =
-    CHOWN =
-    CHGRP =
+    CHMOD = chmod
+    CHOWN = chown
+    CHGRP = chgrp
     CURRENT_USER=`whoami`
 endif
 
@@ -308,9 +308,9 @@ ifeq ($(OS),aix)
     ECHO = echo
     ECHO-E = 
     COPY = cp
-    CHMOD =
-    CHOWN =
-    CHGRP =
+    CHMOD = chmod
+    CHOWN = chown
+    CHGRP = chgrp
     CAT = cat
 endif
 

@@ -183,6 +183,24 @@ public:
         _rep->setAuthenticatedPassword(password);
     }
 
+    /** Get the local authentication file path that was sent to client
+        @return string containing the authentication file path
+    */
+    String getLocalAuthFilePath() const
+    {
+        _checkRep();
+        return _rep->getLocalAuthFilePath();
+    }
+
+    /** Set the local authentication file path to the specified file path
+        @param filePath String containing the authentication file path
+    */
+    void setLocalAuthFilePath(const String& filePath)
+    {
+        _checkRep();
+        _rep->setLocalAuthFilePath(filePath);
+    }
+
     /** Get the local authentication secret that was sent to client
         @return string containing the authentication secret
     */

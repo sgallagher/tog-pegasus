@@ -62,6 +62,8 @@
 
 #include <stdlib.h>
 
+#include <Pegasus/Common/Executor.h>
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -643,8 +645,12 @@ void CertificateProvider::enumerateInstances(
 
         FileSystem::translateSlashes(_crlStore);
 
-        if (FileSystem::isDirectory(_crlStore)
-                && FileSystem::canWrite(_crlStore))
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+        if (FileSystem::isDirectory(_crlStore))
+#else
+        if (FileSystem::isDirectory(_crlStore) && 
+            FileSystem::canWrite(_crlStore))
+#endif
         {
             Array<String> crlFiles;
             if (FileSystem::getDirectoryContents(_crlStore, crlFiles))
@@ -829,8 +835,13 @@ void CertificateProvider::enumerateInstanceNames(
         handler.processing();
 
         FileSystem::translateSlashes(_crlStore);
-        if (FileSystem::isDirectory(_crlStore)
-                && FileSystem::canWrite(_crlStore))
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+        if (FileSystem::isDirectory(_crlStore))
+#else
+        if (FileSystem::isDirectory(_crlStore) &&
+            FileSystem::canWrite(_crlStore))
+#endif
         {
             Array<String> crlFiles;
             if (FileSystem::getDirectoryContents(_crlStore, crlFiles))
@@ -1227,7 +1238,7 @@ void CertificateProvider::deleteInstance(
         String crlFileName = _getCRLFileName(_crlStore, X509_NAME_hash(name));
         if (FileSystem::exists(crlFileName))
         {
-            if (FileSystem::removeFile(crlFileName))
+            if (Executor::removeFile(crlFileName.getCString()) == 0)
             {
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                     "Successfully deleted CRL file " + crlFileName);
@@ -1351,7 +1362,8 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
                  "WARNING: Certificate file does not exist, "
                      "remove entry from repository anyway.");
         }
-        else if (!FileSystem::removeFile(certificateFileName))
+        else if (Executor::removeFile(
+            certificateFileName.getCString()) != 0)
         {
             PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                 "Could not delete file.");
@@ -1477,7 +1489,11 @@ String CertificateProvider::_getCRLFileName(
         "Searching for files like " + hashString + "in " + crlStore);
 
     FileSystem::translateSlashes(crlStore);
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    if (FileSystem::isDirectory(crlStore))
+#else
     if (FileSystem::isDirectory(crlStore) && FileSystem::canWrite(crlStore))
+#endif
     {
         if (FileSystem::exists(filename))
         {
@@ -1543,7 +1559,12 @@ String CertificateProvider::_getNewCertificateFileName(
 
     Uint32 index = 0;
     FileSystem::translateSlashes(trustStore);
+
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    if (FileSystem::isDirectory(trustStore))
+#else
     if (FileSystem::isDirectory(trustStore) && FileSystem::canWrite(trustStore))
+#endif
     {
         Array<String> trustedCerts;
         if (FileSystem::getDirectoryContents(trustStore, trustedCerts))
@@ -1599,6 +1620,38 @@ String CertificateProvider::_getNewCertificateFileName(
     PEG_METHOD_EXIT();
 
     return String(filename);
+}
+
+
+static BIO* _openBIOForWrite(const char* path)
+{
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
+    FILE* is = Executor::openFile(path, 'w');
+
+    if (!is)
+        return 0;
+
+    BIO* bio = BIO_new_fp(is, BIO_CLOSE);
+
+    if (!bio)
+        return 0;
+
+    return bio;
+
+#else /* !defined(PEGASUS_PRIVILEGE_SEPARATION) */
+
+    BIO* bio = BIO_new(BIO_s_file());
+
+    if (!bio)
+        return 0;
+
+    if (!BIO_write_filename(bio, (char*)path))
+        return 0;
+
+    return bio;
+
+#endif /* !defined(PEGASUS_PRIVILEGE_SEPARATION) */
 }
 
 /** Calls an extrinsic method on the class.
@@ -1789,8 +1842,9 @@ void CertificateProvider::invokeMethod(
                             "Check the timestamps on your machine.");
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
-                if (CIMDateTime::getDifference(notAfter,
-                        CIMDateTime::getCurrentDateTime()) > 0)
+
+                if (CIMDateTime::getDifference(
+                        notAfter, CIMDateTime::getCurrentDateTime()) > 0)
                 {
                     PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                         "Certificate or CRL is expired.");
@@ -1799,7 +1853,6 @@ void CertificateProvider::invokeMethod(
                         "The certificate has expired.");
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
-
             }
             catch (DateTimeOutOfRangeException& ex)
             {
@@ -1891,47 +1944,31 @@ void CertificateProvider::invokeMethod(
             //
             if ( ! (certType == TYPE_AUTHORITY_END_ENTITY ))
             {
-                //ATTN: Take care of this conversion
-                char newFileName[256];
-                sprintf(newFileName, "%s",
-                        (const char*) certificateFileName.getCString());
+                BIO* bio = _openBIOForWrite(
+                    certificateFileName.getCString());
 
-                //use the ssl functions to write out the client x509 certificate
-                BIO* outFile = BIO_new(BIO_s_file());
-
-                if (outFile == NULL)
+                if (!bio)
                 {
-                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2,
-                        "Unable to add certificate to truststore. "
-                            "Error while trying to write certificate, "
-                            "BIO_new returned error");
+                    BIO_free_all(bio);
+
+                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                        "Unable to add certificate to truststore. Failed "
+                            "to open certificate file for write.");
+
                     MessageLoaderParms parms(
                         "ControlProviders.CertificateProvider."
                             "ERROR_WRITING_CERT",
-                        "Unable to add certificate to truststore."
-                            " Error while trying to write certificate.");
+                        "Unable to add certificate to truststore. Error while "
+                            "trying to write certificate.");
+
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
 
-                if (!BIO_write_filename(outFile, newFileName))
+                if (!PEM_write_bio_X509(bio, xCert))
                 {
-                    BIO_free_all(outFile);
-                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2,
-                        "Unable to add certificate to truststore. "
-                            "Error while trying to write certificate, "
-                            "BIO_write_filename returned error");
-                    MessageLoaderParms parms(
-                        "ControlProviders.CertificateProvider."
-                            "ERROR_WRITING_CERT",
-                        "Unable to add certificate to truststore. "
-                            "Error while trying to write certificate.");
-                    throw CIMException(CIM_ERR_FAILED, parms);
-                }
-                if (!PEM_write_bio_X509(outFile, xCert))
-                {
-                    BIO_free_all(outFile);
-                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2,
-                        "Unable to add certificate to truststore. "
+                    BIO_free_all(bio);
+                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                        "Unable to add certificate to truststore. " 
                             "Error while trying to write certificate, "
                             "PEM_write_bio_X509 returned error");
                     MessageLoaderParms parms(
@@ -1942,7 +1979,7 @@ void CertificateProvider::invokeMethod(
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
 
-                BIO_free_all(outFile);
+                BIO_free_all(bio);
 
                 if (userName == String::EMPTY)
                 {
@@ -2108,44 +2145,34 @@ void CertificateProvider::invokeMethod(
 
             //ATTN: Take care of this conversion
             //For some reason i cannot do this in the BIO_write_filename call
-            char newFileName[256];
-            sprintf(newFileName, "%s", (const char*) crlFileName.getCString());
 
-            //use the ssl functions to write out the client x509 certificate
-            BIO* outFile = BIO_new(BIO_s_file());
-            if (outFile == NULL)
-            {
-                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2,
-                    "Unable to add CRL to truststore. "
-                    "Error while trying to write CRL, BIO_new returned error");
-                MessageLoaderParms parms(
-                    "ControlProviders.CertificateProvider.ERROR_WRITING_CRL",
-                    "Unable to add CRL to truststore. "
-                        "Error while trying to write CRL.");
-                throw CIMException(CIM_ERR_FAILED, parms);
-            }
+            BIO* bio = _openBIOForWrite(crlFileName.getCString());
 
-            if (!BIO_write_filename(outFile, newFileName))
+            if (!bio)
             {
-                BIO_free_all(outFile);
-                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2,
-                    "Unable to add CRL to truststore. Error trying to "
-                        "write CRL, BIO_write_filename returned error");
-                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2,
+                BIO_free_all(bio);
+                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add CRL to truststore. Failed to open CRL file "
+                        "for write ");
+
+                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
                     "Error: Unable to store CRL");
+
                 MessageLoaderParms parms(
                     "ControlProviders.CertificateProvider.ERROR_WRITING_CRL",
-                    "Unable to add CRL to truststore. "
-                        "Error while trying to write CRL.");
+                    "Unable to add CRL to truststore. Error while trying to "
+                        "write CRL.");
+
                 throw CIMException(CIM_ERR_FAILED, parms);
             }
 
-            if (!PEM_write_bio_X509_CRL(outFile, xCrl))
+            if (!PEM_write_bio_X509_CRL(bio, xCrl))
             {
-                BIO_free_all(outFile);
-                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2,
-                    "Unable to add CRL to truststore. Error trying to "
-                        "write CRL, PEM_write_bio_X509_CRL returned error");
+                BIO_free_all(bio);
+                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
+                    "Unable to add CRL to truststore. " 
+                    "Error trying to write CRL,"
+                    " PEM_write_bio_X509_CRL returned error");
                 MessageLoaderParms parms(
                     "ControlProviders.CertificateProvider.ERROR_WRITING_CRL",
                     "Unable to add CRL to truststore. "
@@ -2153,7 +2180,7 @@ void CertificateProvider::invokeMethod(
                 throw CIMException(CIM_ERR_FAILED, parms);
             }
 
-            BIO_free_all(outFile);
+            BIO_free_all(bio);
 
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 "The CRL for issuer $1 has been updated.",

@@ -27,21 +27,16 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
+
 ROOT = ../../../..
 
 DIR = Pegasus/Security/Cimservera
-
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_SECURITY_INTERNAL -DPEGASUS_INTERNALONLY
+PROGRAM = cimservera
 
-LIBRARIES = \
-    pegcommon \
-    pegauthentication \
-    pegconfig
-
-PRE_DEPEND_INCLUDES = -I./depends
+SOURCES = cimservera.c
 
 ifeq ($(OS),HPUX)
     EXTRA_LIBRARIES += -lsec 
@@ -51,23 +46,16 @@ ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
     SYS_LIBS += -lpam
 endif
 
-PROGRAM = cimservera
-
-SOURCES = \
-    cimservera.cpp
+ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
+    FLAGS += -pedantic -ansi -Werror -Wunused -Wno-unused-function
+    CXX=gcc
+endif
 
 include $(ROOT)/mak/program.mak
-
-all:
-	@$(MAKE)
 
 tests:
 
 poststarttests:
 
-
-rebuild: clean depend all
-	$(MAKE) -s tests
-
-build: depend all
-	$(MAKE) -s tests
+ff:
+	flawfinder -m 3 cimservera.h cimservera.c

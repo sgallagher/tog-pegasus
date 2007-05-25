@@ -92,7 +92,7 @@ PAMBasicAuthenticator::~PAMBasicAuthenticator()
 
 Boolean PAMBasicAuthenticator::authenticate(
     const String& userName, 
-    const String& password) 
+    const String& password)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
@@ -141,22 +141,6 @@ String PAMBasicAuthenticator::getAuthResponseHeader()
     PEG_METHOD_EXIT();
 
     return (responseHeader);
-}
-
-//
-// Call back function, the pointer to this function is passed to the PAM module.
-//
-Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **msg,
-        struct pam_response **resp, void *appdata_ptr)
-{
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "PAMBasicAuthenticator::PAMCallback()");
-
-    //FUTURE: No implementation on non Unix platforms
-
-    PEG_METHOD_EXIT();
-
-    return 0;
 }
 
 PEGASUS_NAMESPACE_END

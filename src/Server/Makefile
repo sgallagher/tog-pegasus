@@ -103,7 +103,11 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = cimserver
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+  PROGRAM = cimservermain
+else
+  PROGRAM = cimserver
+endif
 
 SOURCES = cimserver.cpp
 
@@ -234,10 +238,21 @@ stageCIMServerConfigurationFiles:
 
 install_run: $(PEGASUS_HOME)/setupserverdev
 
+##
+## Note: the $(PEGASUS_HOME)/trace dir must be writable by all users for
+## the tracing facility to work.
+
 $(PEGASUS_HOME)/setupserverdev: cert.pem file.pem cimserver.rnd ssl.rnd ssl.cnf
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageServerSSLFiles-SystemIndependent
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageClientSSLFiles-SystemIndependent
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageCIMServerConfigurationFiles
+	$(MKDIRHIER) $(PEGASUS_HOME)/trace
+ifeq ($(OS_TYPE),unix)
+# Allow the repository to be created as the cimserver user
+	$(CHMOD) 777 $(PEGASUS_HOME)
+# Allow trace files to be created by cimserver and cimprovagt process owners
+	$(CHMOD) 777 $(PEGASUS_HOME)/trace
+endif
 ifeq ($(OS_TYPE),windows)
 	-@$(PEGASUS_HOME)/bin/cimserver -install
 endif

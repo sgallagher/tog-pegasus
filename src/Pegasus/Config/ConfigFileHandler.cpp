@@ -37,6 +37,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Executor.h>
 #include "ConfigFileHandler.h"
 #include "ConfigManager.h"
 #if  defined(PEGASUS_OS_OS400)
@@ -128,20 +129,18 @@ ConfigFileHandler::ConfigFileHandler(
         // try creating one so that planned file contents
         // can be copied over.
         //
-#if defined(PEGASUS_OS_OS400)
-        ofstream ofs(cFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
-        ofstream ofs(cFile.getCString());
-#endif
-        if (!ofs)
+
+        FILE* is = Executor::openFile(cFile.getCString(), 'w');
+
+        if (!is)
         {
             // unable to create file
             PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
-                "Failed to create config file: " + cFile + ", " +
-                    strerror(errno));
+                "Failed to create config file: " + cFile);
             throw NoSuchFile(cFile);
         }
-        ofs.close();
+
+        fclose(is);
     }
 
     //
@@ -186,10 +185,11 @@ void ConfigFileHandler::copyPlannedFileOverCurrentFile()
         //
         // Remove the current file
         //
-        FileSystem::removeFileNoCase(_currentConfFile->getFileName());
+
+        Executor::removeFile(
+            _currentConfFile->getFileName().getCString());
     }
 }
-
 
 /**
     Load the config properties from the config files.
@@ -330,19 +330,17 @@ Boolean ConfigFileHandler::updatePlannedValue(
         {
             String pFile = _plannedConfFile->getFileName();
 
-#if defined(PEGASUS_OS_OS400)
-            ofstream ofs(pFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
-            ofstream ofs(pFile.getCString());
-#endif
-            if (!ofs)
+            FILE* fs = Executor::openFile(pFile.getCString(), 'w');
+
+            if (!fs)
             {
                 PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
                     "Failed to create config file: " + pFile + ", " +
                         strerror(errno));
                 throw NoSuchFile(pFile);
             }
-            ofs.close();
+
+            fclose(fs);
         }
 
         //

@@ -121,10 +121,16 @@
 # include <fcntl.h>
 #endif
 
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+# define PEGASUS_PROCESS_NAME "cimservermain"
+#else
+# define PEGASUS_PROCESS_NAME "cimserver"
+#endif
+
+#include <Pegasus/Common/Executor.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-#define PEGASUS_PROCESS_NAME "cimserver"
 
 //Windows service variables are not defined elsewhere in the product
 //enable ability to override these
@@ -168,9 +174,9 @@ public:
     virtual const char* getCompleteVersion() const
     {
       if (*PEGASUS_PRODUCT_STATUS == '\0' )
-	return PEGASUS_PRODUCT_VERSION;
+        return PEGASUS_PRODUCT_VERSION;
       else
-	return PEGASUS_PRODUCT_VERSION " " PEGASUS_PRODUCT_STATUS;      
+        return PEGASUS_PRODUCT_VERSION " " PEGASUS_PRODUCT_STATUS;      
     }
 
     //defined in PegasusVersion.h
@@ -340,8 +346,8 @@ void deleteCIMServer()
     delete _monitor;
    if (dummyInitialThread)
    {
-	Thread::clearLanguages();
-	delete dummyInitialThread;
+        Thread::clearLanguages();
+        delete dummyInitialThread;
    }
 }
 
@@ -357,10 +363,83 @@ ThreadReturnType PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
    return((ThreadReturnType)0);
 }
 
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+
+static int _extractExecutorSockOpt(int& argc, char**& argv)
+{
+    // Extract the "--executor-socket <sock>" option if any. This indicates
+    // that the e[x]ecutor is running. The option argument is the socket used
+    // to communicate with the executor. Remove the option from the
+    // argv list and decrease argc by two.
+
+    int sock = -1;
+    const char OPT[] = "--executor-socket";
+
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], OPT) == 0)
+        {
+            // Check for missing option argument.
+
+            if (i + 1 == argc)
+            {
+                MessageLoaderParms parms(
+                    "src.Server.cimserver.MISSING_OPTION_ARGUMENT",
+                    "Missing argument for $0 option.",
+                    OPT);
+                cerr << argv[0] << ": " << MessageLoader::getMessage(parms) <<
+                    endl;
+                exit(1);
+            }
+
+            // Convert argument to positive integer.
+
+            char* end;
+            unsigned long x = strtoul(argv[i+1], &end, 10);
+
+            // Check whether option argument will fit in a signed integer.
+
+            if (*end != '\0' || x > 2147483647)
+            {
+                MessageLoaderParms parms(
+                    "src.Server.cimserver.BAD_OPTION_ARGUMENT",
+                    "Bad $0 option argument: $1.",
+                    OPT,
+                    argv[i+1]);
+                cerr << argv[0] << ": " << MessageLoader::getMessage(parms) <<
+                    endl;
+                exit(1);
+            }
+
+            sock = int(x);
+
+            // Remove "-x <sock>" from argv-argc.
+
+            memmove(argv + i, argv + i + 2, sizeof(char*) * (argc - i - 1));
+            argc -= 2;
+            break;
+        }
+    }
+
+    if (sock == -1)
+    {
+        MessageLoaderParms parms(
+            "src.Server.cimserver.MISSING_OPTION",
+            "Missing $0 option.",
+            OPT);
+        cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
+        exit(1);
+    }
+
+    return sock;
+}
+
+#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
 
 /////////////////////////////////////////////////////////////////////////
 //  MAIN
 //////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char** argv)
 {
     String pegasusHome;
@@ -435,6 +514,24 @@ setlocale(LC_ALL, "");
   //setHome(pegasusHome);
   pegasusHome = _cimServerProcess->getHome();
 #endif
+
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+
+    // If invoked with "--executor-socket <socket>" option, then use executor.
+
+    Executor::setSock(_extractExecutorSockOpt(argc, argv));
+
+    // Ping executor to verify the specified socket is valid.
+
+    if (Executor::ping() != 0)
+    {
+        MessageLoaderParms parms("src.Server.cimserver.EXECUTOR_PING_FAILED",
+            "Failed to ping the executor on the specified socket.");
+        cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
+        exit(1);
+    }
+
+#endif /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 
         // Get help, version, and shutdown options
 
@@ -909,24 +1006,18 @@ MessageLoader::_useProcessLocale = false;
     // Get the parent's PID before forking
     _serverRunStatus.setParentPid(System::getPID());
 
-    // do we need to run as a daemon ?
+// Do not fork when using privilege separation (executor will daemonize itself
+// later).
     if (daemonOption)
     {
         if(-1 == _cimServerProcess->cimserver_fork())
-#ifndef PEGASUS_OS_OS400
-    {
-        return(-1);
-    }
-#else
-    {
+# ifndef PEGASUS_OS_OS400
             return(-1);
-    }
-    else
-    {
-        return(0);
-    }
-#endif
-
+# else
+            return(-1);
+        else
+            return(0);
+# endif
     }
 
 // l10n
@@ -1084,11 +1175,16 @@ MessageLoader::_useProcessLocale = false;
 #endif
 
         _cimServer->bind();
+
         // notify parent process (if there is a parent process) to terminate
         // so user knows that there is cimserver ready to serve CIM requests.
         if (daemonOption)
         {
+#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+            Executor::daemonizeExecutor();
+#else
             _cimServerProcess->notify_parent(0);
+#endif
         }
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
@@ -1127,7 +1223,8 @@ MessageLoader::_useProcessLocale = false;
             Logger::INFORMATION,
             "src.Server.cimserver.STARTED_VERSION",
             "Started $0 version $1.",
-		      _cimServerProcess->getProductName(), _cimServerProcess->getCompleteVersion());
+            _cimServerProcess->getProductName(),
+            _cimServerProcess->getCompleteVersion());
 
 #if defined(PEGASUS_OS_TYPE_UNIX) && !defined(PEGASUS_OS_ZOS)
         if (daemonOption && !debugOutputOption)
@@ -1155,8 +1252,6 @@ MessageLoader::_useProcessLocale = false;
         automaticRestartManager.Register();
 
 #endif
-
-
 
         //
         // Loop to call CIMServer's runForever() method until CIMServer
@@ -1241,4 +1336,3 @@ MessageLoader::_useProcessLocale = false;
     deleteCIMServer();
     return 0;
 }
-

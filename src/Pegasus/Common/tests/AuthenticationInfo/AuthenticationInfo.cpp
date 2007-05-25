@@ -72,6 +72,16 @@ void test01()
 
     /**
         Added to cover the Function
+        void AuthenticationInfo::setLocalAuthFilePath(const String& secret)
+    */
+#define TEST_FILEPATH "/tmp/localauthfilename.txt"
+    PEGASUS_TEST_ASSERT(authInfo.getLocalAuthFilePath() == String::EMPTY);
+    authInfo.setLocalAuthFilePath(TEST_FILEPATH);
+    String ret_setAuthFilePath = authInfo.getLocalAuthFilePath();
+    PEGASUS_TEST_ASSERT(ret_setAuthFilePath == TEST_FILEPATH);
+
+    /**
+        Added to cover the Function
         void AuthenticationInfo::setLocalAuthSecret(const String& secret)
     */
 #define TEST_SECRET "My Test Secret"

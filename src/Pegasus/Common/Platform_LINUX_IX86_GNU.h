@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -30,6 +31,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef Pegasus_Platform_LINUX_IX86_GNU_h
 #define Pegasus_Platform_LINUX_IX86_GNU_h
@@ -73,8 +75,8 @@
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/param.h> // For MAXHOSTNAMELEN
-#include <limits.h>    // _POSIX_HOST_NAME_MAX 
+#include <sys/param.h> /* For MAXHOSTNAMELEN */
+#include <limits.h>    /* _POSIX_HOST_NAME_MAX */
 
 #if (__GNUC__ >= 4)
 # define PEGASUS_EXPORT __attribute__ ((visibility("default")))

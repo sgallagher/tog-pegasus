@@ -135,6 +135,7 @@ else
 	$(COMPARERESULTS)
 endif
 	@$(ECHO) +++ Test passed +++
+	@$(RM) $(RESULTFILE)
 endif
 endif
 

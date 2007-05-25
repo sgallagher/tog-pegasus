@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes (sushma_fernandes@hp.com)
-//
-// Modified By: Jenny Yu (jenny_yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
@@ -45,16 +36,14 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
-
-// If Windows platform then set the EOF_CHAR to 2
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-    #define EOF_CHAR 2
-#else
-    #define EOF_CHAR 1
-#endif
 
 // Trace files for test purposes
 // Will be created in the $(PEGASUS_TMP) directory, or if not set,
@@ -71,32 +60,54 @@ CString FILE4;
 // return 0 if the strings match
 // return 1 if the strings do not match
 //
-Uint32 compare(const char* fileName, const char* compareStr)
+Uint32 compare(const char* fileName, const char* expectedMessage)
 {
-    Uint32 count=0;
-    Uint32 retCode=0;
-    fstream file;
-    Uint32 size= static_cast<Uint32>(strlen(compareStr));
-    AutoArrayPtr<char> readStr(new char[size+EOF_CHAR+1]);
+    int expectedMessageLength = strlen(expectedMessage);
 
-    file.open(fileName,fstream::in);
+    // Compute the size of the message in the trace file.  Include the final
+    // EOL character added by the Tracer.  This size will be used to seek
+    // from the end of the file back to the beginning of the trace message.
+    int seekBytes = expectedMessageLength + 1;
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    // Windows converts all '\n' characters to "\r\n" sequences in the trace
+    // file.  Increase the seekBytes by the number of '\r' characters added
+    // when the message is written to the file.
+    for (const char* newlineChar = expectedMessage;
+         ((newlineChar = strchr(newlineChar, '\n')) != 0);
+         newlineChar++)
+    {
+        seekBytes++;
+    }
+
+    // Count the '\r' character added with the final '\n' written by the Tracer
+    seekBytes++;
+#endif
+
+    AutoArrayPtr<char> actualMessage(new char[expectedMessageLength + 1]);
+
+    // Read the trace message from the file, minus the message prefix and
+    // minus the trailing newline.
+    fstream file;
+    file.open(fileName, fstream::in);
     if (!file.good())
     {
-      return 1;
+        return 1;
     }
-    file.seekg((Sint32) -(static_cast<Sint32>(size)+EOF_CHAR),fstream::end);
-    memset(readStr.get(), 0, (size+EOF_CHAR+1)*sizeof(char));
-    file.read(readStr.get(),size+EOF_CHAR);
-    (readStr.get())[size]='\0';
-    retCode=strcmp(compareStr,readStr.get());
+    file.seekg(-seekBytes, fstream::end);
+    file.read(actualMessage.get(), expectedMessageLength);
+    file.close();
+    actualMessage.get()[expectedMessageLength] = 0;
 
-    /* Diagnostic to determnine string differences
-    if (!retCode)
-        cout << "Compare Error: compareStr= \n\"" << compareStr 
-            << "\". readStr= \n\"" << readStr.get() << "\"" << endl;
+    // Compare the expected and actual messages
+    Uint32 retCode = strcmp(expectedMessage, actualMessage.get());
+
+    /* Diagnostic to determine string differences
+    if (retCode)
+        cout << "Compare Error: expectedMessage= \n\"" << expectedMessage <<
+            "\". actualMessage= \n\"" << actualMessage.get() << "\"" << endl;
     */
 
-    file.close();
     return retCode;
 }
 
@@ -582,6 +593,116 @@ Uint32 test23()
     return(compare(FILE4,"Test message for Level4 in test23."));
 }
 
+//
+// Description:
+// Test the getHTTPRequestMessage method.
+//
+// Type:
+// Positive
+// Tests with a HTTP Request without a basic authorization header.
+// Message is written to trace file without any changes.
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test24()
+{
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("xmlio");
+    Tracer::setTraceLevel(Tracer::LEVEL2);
+
+    Uint32 queueId = 18;
+    CIMPropertyList propertyList;
+    Buffer params;
+    AcceptLanguageList al;
+    ContentLanguageList cl;
+
+    XmlWriter::appendClassNameIParameter(
+        params, "ClassName", CIMName("testclass"));
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(
+        "localhost",
+        CIMNamespaceName("test/cimv2"),
+        CIMName ("EnumerateInstanceNames"),
+        "12345",
+        HTTP_METHOD__POST,
+        "Basic: Authorization AAAAA",
+        al,
+        cl,
+        params);
+
+    AutoArrayPtr<char> reqMsg(Tracer::getHTTPRequestMessage(
+            buffer));
+
+    PEG_TRACE((
+        TRC_XML_IO,
+        Tracer::LEVEL2,
+        "<!-- Request: queue id: %u -->\n%s",
+        queueId,
+        reqMsg.get()));
+
+    return(compare(FILE4, buffer.getData()));
+}
+
+//
+// Description:
+// Test the getHTTPRequestMessage method.
+//
+// Type:
+// Positive
+// Tests with a HTTP Request that contains a Basic authorization header.
+// The user/password info in the message is suppressed before writing it to
+// the trace file.
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test25()
+{
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("xmlio");
+    Tracer::setTraceLevel(Tracer::LEVEL2);
+
+    Uint32 queueId = 18;
+    CIMPropertyList propertyList;
+    Buffer params;
+    AcceptLanguageList al;
+    ContentLanguageList cl;
+    String authHeader = "Authorization: Basic ABCDEABCDE==";
+    String MSGID = "32423424";
+
+    XmlWriter::appendClassNameIParameter(
+        params,
+        "ClassName",
+        CIMName("testclass"));
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(
+        "localhost",
+        CIMNamespaceName("test/cimv2"),
+        CIMName ("EnumerateInstanceNames"),
+        MSGID,
+        HTTP_METHOD__POST,
+        authHeader,
+        al,
+        cl,
+        params);
+
+    AutoArrayPtr<char> reqMsg(Tracer::getHTTPRequestMessage(buffer));
+
+    PEG_TRACE((
+        TRC_XML_IO,
+        Tracer::LEVEL2,
+        "<!-- Request: queue id: %u -->\n%s",
+        queueId,
+        reqMsg.get()));
+
+    String testStr(buffer.getData());
+    Uint32 pos = testStr.find("ABCDEABCDE==");
+
+    for ( Uint32 i = pos; i < pos+strlen("ABCDEABCDE=="); i++)
+        testStr[i] = 'X';
+
+    return(compare(FILE4, testStr.getCString()));
+}
+
 int main(int argc, char** argv)
 {
 
@@ -723,6 +844,17 @@ int main(int argc, char** argv)
     if (test23() != 0)
     {
        cout << "Tracer test (test23) failed" << endl;
+       exit(1);
+    }
+    if (test24() != 0)
+    {
+       cout << "Tracer test (test24) failed" << endl;
+       exit(1);
+    }
+
+    if (test25() != 0)
+    {
+       cout << "Tracer test (test25) failed" << endl;
        exit(1);
     }
     cout << argv[0] << " +++++ passed all tests" << endl;

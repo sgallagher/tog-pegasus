@@ -145,6 +145,23 @@ public:
         const Uint32 level,
         const CIMException& cimException);
 
+    /** Gets an HTTP request message.
+
+        Given an HTTP request message, this method checks if the
+        message contains a "Basic" authorization header.
+
+        If true, the username/passwd is suppressed and returned.
+        Otherwise the request message is returned without any changes.
+
+        The caller is responsible for deleting the returned character array.
+
+        @param requestMessage  requestMessage to be checked
+
+        @return request message
+    */
+    static char* getHTTPRequestMessage(
+        const Buffer& requestMessage);
+
     /** Set the trace file to the given file
         @param  traceFile  full path of the trace file
         @return 0          if the filepath is valid
@@ -400,6 +417,13 @@ inline void Tracer::traceCString(
     const char* cstring)
 {
     // empty function
+}
+
+static char* getHTTPRequestMessage(
+    const Buffer& requestMessage)
+{
+    //empty function
+    return 0;
 }
 
 inline void Tracer::traceCIMException(

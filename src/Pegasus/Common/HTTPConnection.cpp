@@ -176,29 +176,6 @@ static inline Uint32 _Min(Uint32 x, Uint32 y)
     return x < y ? x : y;
 }
 
-static char* _FindSeparator(const char* data, Uint32 size)
-{
-    const char* p = data;
-    const char* end = p + size;
-
-    while (p != end)
-    {
-        if (*p == '\r')
-        {
-            Uint32 n = end - p;
-
-            if (n >= 2 && p[1] == '\n')
-                return (char*)p;
-        }
-        else if (*p == '\n')
-            return (char*)p;
-
-        p++;
-    }
-
-    return 0;
-}
-
 // Used to test signal handling
 void * sigabrt_generator(void * parm)
 {
@@ -1124,7 +1101,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
     Boolean gotContentLanguage = false;
     Boolean gotTransferTE = false;
 
-    while ((sep = _FindSeparator(line, size - (line - data))))
+    while ((sep = HTTPMessage::findSeparator(line, size - (line - data))))
     {
         char save = *sep;
         *sep = '\0';
@@ -2050,10 +2027,17 @@ void HTTPConnection::_handleReadEvent()
 
         if (_isClient() == false)
         {
-            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
-                "<!-- Request: queue id: %u -->\n%s",
-                getQueueId(),
-                _incomingBuffer.getData()));
+#ifndef PEGASUS_REMOVE_TRACE
+            if (Tracer::isTraceOn())
+            {
+                AutoArrayPtr<char> requestTrace(
+                    Tracer::getHTTPRequestMessage(_incomingBuffer));
+                PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
+                    "<!-- Request: queue id: %u -->\n%s",
+                    getQueueId(),
+                    requestTrace.get()));
+            }
+#endif
         }
 
         //

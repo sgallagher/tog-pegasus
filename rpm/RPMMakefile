@@ -38,6 +38,7 @@
 ###############################################################################
 
 
+HOME_DIR=$(shell pwd)
 RELEASE:=$(shell lsb_release -r -s)
 IDISTRO:=$(shell lsb_release -i -s)
 PLATFORM:=$(shell /bin/rpm --eval %_target_cpu)
@@ -50,7 +51,14 @@ CP:=cp
 GREP:=grep
 ECHO:=echo
 TOG_INSTALLED_RPMS:=$(shell $(RPM) -qa|grep tog-pegasus)
-REMOVE_PEGASUS_DIRECTORY:=$(RM) -Rf pegasus.old; $(MV) pegasus pegasus.old
+PEGASUS_BIN_DIR:=/usr/bin
+PEGASUS_SBIN_DIR:=/usr/sbin
+PEGASUS_SAMPLES_DIR:=/usr/share/Pegasus/samples
+PEGASUS_RPM_TEST_DIR:=/usr/share/Pegasus/test
+PEGASUS_TEST_BIN_DIR:=/usr/share/Pegasus/test/bin
+PEGASUS_SCRIPT_DIR:=/usr/share/Pegasus/scripts
+CIMSERVER_START_SERVICE:=$(PEGASUS_SBIN_DIR)/cimserver
+CIMSERVER_STOP_SERVICE:=$(PEGASUS_SBIN_DIR)/cimserver -s
 
 ifndef PEGASUS_SRC_RELEASE
     PEGASUS_SRC_RELEASE:=1
@@ -138,8 +146,11 @@ usage:
 	$(USAGE)"                       rpm from the source rpm"
 	$(USAGE)"buildRPM             - createSRCRPM createBINRPM"
 	$(USAGE)"buildall             - exportSRC buildRPM"
-	$(USAGE)"list                 - list the installed pegasus rpms"
-	$(USAGE)"clean                - cleans build and target directories"
+	$(USAGE)"list                 - list installed tog-pegasus rpms"
+	$(USAGE)"tests                - runs sample tests and test rpm tests"
+	$(USAGE)"install              - installs tog-pegasus core and devel rpms"
+	$(USAGE)"world                - cleanRPM buildall install tests"
+	$(USAGE)"cleanRPM             - uninstalls tog-pegasus rpms"
 	$(USAGE)""
 	$(USAGE)"Input variables:"
 	$(USAGE)"PEGASUS_BUILD_BRANCH - pegasus branch to build"
@@ -174,16 +185,72 @@ createBINRPM:
 	@$(RPM) -i $(PEGASUS_RPM_DIRECTORY)/SRPMS/$(SRC_RPM)
 	@$(RPMBUILD) -bb --define 'LINUX_VERSION $(PEGASUS_DISTRO_SUFFIX)' --define 'PEGASUS_BUILD_TEST_RPM 1' $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
 
-buildRPM: clean createSRCRPM createBINRPM
-
-buildall: exportSRC buildRPM
-
 list: 
 	@$(RPM) -qa|$(GREP) tog-pegasus
 
-clean:
+tests:
+	# Start cimserver
+	-$(CIMSERVER_STOP_SERVICE)
+	$(CIMSERVER_START_SERVICE)
+	@$(HOME_DIR)/check_for_core
+
+	# Run some sanity tests
+	# osinfo, cimserver -v, cimprovider -l -s, cimconfig -l -c etc
+	@$(ECHO) "+++++ Running sanity checks +++++"
+	@$(ECHO) "+++++ Running osinfo +++++"
+	$(PEGASUS_BIN_DIR)/osinfo
+	-@$(HOME_DIR)/check_for_core
+
+	@$(ECHO) "+++++ Running cimserver -v +++++"
+	$(PEGASUS_SBIN_DIR)/cimserver -v
+	@$(HOME_DIR)/check_for_core
+
+	@$(ECHO) "+++++ Running cimconfig +++++"
+	$(PEGASUS_SBIN_DIR)/cimconfig -l -c
+	@$(HOME_DIR)/check_for_core
+
+	@$(ECHO) "+++++ Running cimprovider +++++"
+	$(PEGASUS_BIN_DIR)/cimprovider -l -s
+	@$(HOME_DIR)/check_for_core
+
+	@$(ECHO) "+++++ Stopping cimserver +++++"
+	@$(CIMSERVER_STOP_SERVICE)
+	@$(HOME_DIR)/check_for_core
+
+	@$(ECHO) "+++++ Starting cimserver +++++"
+	$(CIMSERVER_START_SERVICE)
+	@$(HOME_DIR)/check_for_core
+
+	# Run samples
+	@$(ECHO) "+++++ Running samples +++++"
+	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile
+	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile setupSDK
+	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile testSDK
+	@$(HOME_DIR)/check_for_core
+
+	# Install the test RPM after running SDK tests. This is because
+	# the test RPM over-writes the repository.
+	@$(ECHO) "+++++ Installing Test RPM +++++"
+	$(RPM) -ih $(PEGASUS_RPM_DIRECTORY)/RPMS/$(PLATFORM)/$(TEST_RPM)
+	$(MAKE) --directory=$(PEGASUS_RPM_TEST_DIR) -f Makefile setupTEST
+	$(MAKE) --directory=$(PEGASUS_RPM_TEST_DIR) -f Makefile tests
+	@$(HOME_DIR)/check_for_core
+
+# Install rpms
+install:
+	@$(ECHO) "+++++ Installing RPMs +++++"
+	$(RPM) -ih $(PEGASUS_RPM_DIRECTORY)/RPMS/$(PLATFORM)/$(CORE_RPM)
+	$(RPM) -ih $(PEGASUS_RPM_DIRECTORY)/RPMS/$(PLATFORM)/$(SDK_RPM)
+	$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+
+cleanRPM:
 	-$(RPM) -e $(filter tog-pegasus-test%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
 	-$(RM) -rf  tog-pegasus-$(PEGASUS_RPM_VERSION)
 
+buildRPM: cleanRPM createSRCRPM createBINRPM
+
+buildall: exportSRC buildRPM
+
+world: buildall install tests

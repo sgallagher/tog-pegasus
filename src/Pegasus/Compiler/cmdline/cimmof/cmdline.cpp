@@ -491,10 +491,14 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       struct passwd* ptr = 0;
 
       if (getpwnam_r(
-              PEGASUS_CIMSERVERMAIN_USER, &pwd, buffer, PWD_BUFF_SIZE, &ptr) == 0)
+              PEGASUS_CIMSERVERMAIN_USER,
+              &pwd,
+              buffer,
+              PWD_BUFF_SIZE,
+              &ptr) == 0)
       {
-          setuid(ptr->pw_uid);
           setgid(ptr->pw_gid);
+          setuid(ptr->pw_uid);
       }
 
       umask(S_IRWXG|S_IRWXO);

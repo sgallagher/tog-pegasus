@@ -70,8 +70,10 @@ extern "C" {
       if (dta->type & CMPI_ENC) for (unsigned int i=1; i<=dta->value.uint32; i++)
          nDta[i].state=CMPI_nullValue;
 
-      for (unsigned int i=1; i<=dta->value.uint32; i++) {
+      for (unsigned int i=0; i<=dta->value.uint32; i++) {
          nDta[i]=dta[i];
+         if (i == 0)
+            continue;
          if (dta->type & CMPI_ENC && dta[i].state==CMPI_goodValue) {
 
 	   if ((dta[i].type == CMPI_instance) && (dta[i].value.inst))

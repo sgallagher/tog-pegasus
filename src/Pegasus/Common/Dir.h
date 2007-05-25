@@ -45,46 +45,44 @@
 # include <dirent.h>
 #endif
 #ifdef PEGASUS_OS_ZOS
-#include <dirent.h>
+# include <dirent.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
- #include <io.h>
-typedef struct
-{
-#if _MSC_VER < 1300
+# include <io.h>
+ typedef struct
+ {
+# if _MSC_VER < 1300
     long file;
-#else
+# else
     intptr_t file;
-#endif
+# endif
     struct _finddata_t findData;
-} DirRep;
+ } DirRep;
 #elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
- #if defined(PEGASUS_OS_SOLARIS)
-  #include <sys/param.h>
- #endif /* if defined(PEGASUS_OS_SOLARIS) */
+# if defined(PEGASUS_OS_SOLARIS)
+#  include <sys/param.h>
+# endif /* if defined(PEGASUS_OS_SOLARIS) */
 
- #include <dirent.h>
+# include <dirent.h>
 
- #ifndef PEGASUS_OS_VMS
-  #define PEGASUS_HAS_READDIR_R
- #endif /* ifndef PEGASUS_OS_VMS */
+# define PEGASUS_HAS_READDIR_R
 
-struct DirRep
-{
+ struct DirRep
+ {
     DIR* dir;
- #ifdef PEGASUS_OS_OS400
+# ifdef PEGASUS_OS_OS400
     struct dirent_lg* entry;
- #else /* ifdef PEGASUS_OS_OS400 */
+# else /* ifdef PEGASUS_OS_OS400 */
     struct dirent* entry;
- #endif /* ifdef PEGASUS_OS_OS400 */
- #ifdef PEGASUS_HAS_READDIR_R
-  #ifdef PEGASUS_OS_OS400
-    struct dirent_lg buffer;
-  #else /* ifdef PEGASUS_OS_OS400 */
-   #ifdef PEGASUS_OS_SOLARIS
+# endif /* ifdef PEGASUS_OS_OS400 */
+# ifdef PEGASUS_HAS_READDIR_R
+#  ifdef PEGASUS_OS_OS400
+     struct dirent_lg buffer;
+#  else /* ifdef PEGASUS_OS_OS400 */
+#   ifdef PEGASUS_OS_SOLARIS
 private:
         char buf[sizeof(dirent) + MAXNAMELEN];
 public:
@@ -92,11 +90,11 @@ public:
         inline DirRep()
                 : buffer(*reinterpret_cast<struct dirent *>(buf))
         { }
-   #else /* ifdef PEGASUS_OS_SOLARIS */
+#   else /* ifdef PEGASUS_OS_SOLARIS */
     struct dirent buffer;
-   #endif /* ifdef PEGASUS_OS_SOLARIS */
-  #endif /* ifdef PEGASUS_OS_OS400 */
- #endif /* ifdef PEGASUS_HAS_READDIR_R */
+#   endif /* ifdef PEGASUS_OS_SOLARIS */
+#  endif /* ifdef PEGASUS_OS_OS400 */
+# endif /* ifdef PEGASUS_HAS_READDIR_R */
 };
 #endif /* elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS) */
 

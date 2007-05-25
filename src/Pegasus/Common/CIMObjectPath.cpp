@@ -589,14 +589,27 @@ public:
         if (hostname[i] == ':')
         {
             i++;
+            // First check that there is at least one digit specified for the
+            // port number if the ':' delimiter is present. Note that there is
+            // a question as to whether ':' can exist without the port number.
+            // ATTN: See bug 6424.
             if (!(isascii(hostname[i]) && isdigit(hostname[i])))
             {
                 return false;
             }
+
+            Uint32 port = (hostname[i] - '0');
             i++;
 
+            // Check that remaining characters in port number are all digits,
+            // and that the port number can be represented by 16-bits.
             while (isascii(hostname[i]) && isdigit(hostname[i]))
             {
+                port = port*10 + (hostname[i] - '0');
+                if(port > 65535)
+                {
+                    return false;
+                }
                 i++;
             }
         }

@@ -177,7 +177,9 @@ void test01()
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     CIMObjectPath h3("//usoPen-9.ustA-1-a.org:0/root/cimv25:"
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h4("//usoPen-9.ustA-1-a.org:9876543210/root/cimv25:"
+    CIMObjectPath h4("//usoPen-9.ustA-1-a.org:9876/root/cimv25:"
+        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    CIMObjectPath h5("//usoPen-9.ustA-1-a.org:65535/root/cimv25:"
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     CIMObjectPath h6("//usopen-9.usta-1-a.1org:77/root/cimv25:"
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
@@ -223,6 +225,45 @@ void test01()
 
     Boolean errorDetected = false;
 
+    try
+    {
+       //Port number out of range.
+       CIMObjectPath h_Port("//usoPen-9.ustA-1-a.org:9876543210/root/cimv25:"
+           "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    }
+    catch (const Exception&)
+    {
+       errorDetected = true;
+    } 
+    PEGASUS_TEST_ASSERT(errorDetected);
+
+    errorDetected = false;
+    try
+    {
+       //Port number out of range.
+       CIMObjectPath h_Port("//usoPen-9.ustA-1-a.org:65536/root/cimv25:"
+           "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    }
+    catch (const Exception&)
+    {
+       errorDetected = true;
+    } 
+    PEGASUS_TEST_ASSERT(errorDetected);
+
+    errorDetected = false;
+    try
+    {
+       //Port number out of range.
+       CIMObjectPath h_Port("//usoPen-9.ustA-1-a.org:100000/root/cimv25:"
+           "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    }
+    catch (const Exception&)
+    {
+       errorDetected = true;
+    } 
+    PEGASUS_TEST_ASSERT(errorDetected);
+
+    errorDetected = false;
     try
     {
         //more than three digits in an octect

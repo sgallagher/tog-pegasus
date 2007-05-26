@@ -234,9 +234,8 @@ extern "C" {
          String(query),
          String(lang));
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         CMPI_Object *obj =
-             new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
-         return (CMPI_ObjEnumeration *)obj->getHdl();
+         return  reinterpret_cast<CMPIEnumeration*> (new CMPI_Object(
+            new CMPI_ObjEnumeration(new Array<CIMObject>(en))));
 
       }
       catch (const CIMException &e) {
@@ -282,13 +281,8 @@ extern "C" {
              (*aInst)[index].setPath(orgCop);
          }
 
-         CMPI_Object *obj = new CMPI_Object(new CMPI_InstEnumeration(aInst));
-
-         /*CMPI_Object *obj =
-             new CMPI_Object(new CMPI_InstEnumeration(new Array<CIMInstance>(en)));*/
-         // End of workaround for bugzilla 4677
-
-         return (CMPI_InstEnumeration*)obj->getHdl();
+         return  reinterpret_cast<CMPIEnumeration*>
+             (new CMPI_Object(new CMPI_InstEnumeration(aInst)));
 
       }
       catch (const CIMException &e) {
@@ -323,9 +317,8 @@ extern "C" {
             (*aObj)[index].setNameSpace(CM_ObjectPath(cop)->getNameSpace());
           }
 
-          CMPI_Object *obj = new CMPI_Object(new CMPI_OpEnumeration(aObj));
-
-         return (CMPI_OpEnumeration *)obj->getHdl();
+          return  reinterpret_cast<CMPIEnumeration*>
+             (new CMPI_Object(new CMPI_OpEnumeration(aObj)));
 
       }
       catch (const CIMException &e) {
@@ -376,13 +369,8 @@ extern "C" {
              (*aInst)[index].setPath(orgCop);
          }
 
-         CMPI_Object *obj = new CMPI_Object(new CMPI_ObjEnumeration(aInst));
-
-         /*CMPI_Object *obj =
-                new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));*/
-         // End of workaround for bugzilla 4677
-
-         return (CMPI_ObjEnumeration *)obj->getHdl();
+         return  reinterpret_cast<CMPIEnumeration*>
+            (new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
 
       }
       catch (const CIMException &e) {
@@ -428,9 +416,8 @@ extern "C" {
              (*aObj)[index].setNameSpace(CM_ObjectPath(cop)->getNameSpace());
          }
 
-         CMPI_Object *obj = new CMPI_Object(new CMPI_OpEnumeration(aObj));
-
-         return (CMPI_OpEnumeration *)obj->getHdl();
+         return  reinterpret_cast<CMPIEnumeration*>
+            (new CMPI_Object(new CMPI_OpEnumeration(aObj)));
       }
       catch (const CIMException &e) {
          DDD(cout<<"### exception: mbAssociatorsNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -477,13 +464,8 @@ extern "C" {
              (*aInst)[index].setPath(orgCop);
          }
 
-         CMPI_Object *obj = new CMPI_Object(new CMPI_ObjEnumeration(aInst));
-
-         /*CMPI_Object *obj =
-                new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));*/
-         // End of workaround for bugzilla 4677
-
-         return (CMPI_ObjEnumeration *)obj->getHdl();
+         return  reinterpret_cast<CMPIEnumeration*>
+            (new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
       }
       catch (const CIMException &e) {
          DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -523,9 +505,8 @@ extern "C" {
              (*aObj)[index].setNameSpace(CM_ObjectPath(cop)->getNameSpace());
          }
 
-         CMPI_Object *obj = new CMPI_Object(new CMPI_OpEnumeration(aObj));
-
-         return (CMPI_OpEnumeration *)obj->getHdl();
+         return  reinterpret_cast<CMPIEnumeration*>
+            (new CMPI_Object(new CMPI_OpEnumeration(aObj)));
       }
       catch (const CIMException &e) {
          DDD(cout<<"### exception: mbReferencesNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);

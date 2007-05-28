@@ -132,7 +132,7 @@ static void _debug_print(int dc, const char* format, ...)
 
     if (DEBUG_PRINT_CONTROL & dc)
     {
-      fprintf(fdout, "SLP_CLIENT: line= %5d", __LINE__);
+      fprintf(fdout, "SLP_CLIENT: ");
 
 	if (DEBUG_ENTER & dc)
           fprintf(fdout, " ENTER -- ");

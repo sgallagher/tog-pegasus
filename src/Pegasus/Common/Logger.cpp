@@ -234,22 +234,8 @@ void Logger::_putInternal(
         if (!_rep)
            _rep = new LoggerRep(_homeDirectory);
 
-        // Get the logLevel String
-        // This converts bitmap to string based on highest order
-        // bit set
-        // ATTN: KS Fix this more efficiently.
-        static const char* svNames[] =
-        {
-            "TRACE   ",
-            "INFO    ",
-            "WARNING ",
-            "SEVERE  ",
-            "FATAL   "
-        };
-        // NUM_LEVELS = 5
-        int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
 
-// l10n start
+        // l10n start
         // The localized message to be sent to the system log.
         String localizedMsg;
 
@@ -292,6 +278,10 @@ void Logger::_putInternal(
         messageString.append(": ");
         messageString.append(localizedMsg);  // l10n
 
+        // Get the logLevel String
+        // This converts bitmap to string based on highest order
+        // bit set
+        // ATTN: KS Fix this more efficiently.
         const char* tmp = "";
         if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
         if (logLevel & Logger::INFORMATION) tmp = "INFO    ";

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -47,54 +43,77 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   CMPIStatus scndRelease(CMPISelectCond* eSc) {
-	  CMPI_SelectCond *sc = (CMPI_SelectCond*)eSc->hdl;
-      if (sc) {
-		 CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
-		 if (data) 
-		 	delete data;
-         delete sc;
-         reinterpret_cast<CMPI_Object*>(eSc)->unlinkAndDelete();
-      }
- 
-      CMReturn(CMPI_RC_OK);
+   CMPIStatus scndRelease(CMPISelectCond* eSc)
+   {
+       CMPI_SelectCond *sc = (CMPI_SelectCond*)eSc->hdl;
+       if (sc)
+       {
+           CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
+            if (data) 
+            { 
+                delete data;
+            }
+            delete sc;
+            reinterpret_cast<CMPI_Object*>(eSc)->unlinkAndDelete();
+            CMReturn(CMPI_RC_OK);
+       }
+       else
+       {
+            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+       }
    }
 
-   CMPISelectCond* scndClone(const CMPISelectCond* eSc, CMPIStatus* rc) {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+   CMPISelectCond* scndClone(const CMPISelectCond* eSc, CMPIStatus* rc)
+   {
+         CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
          return NULL;
    }
 
-   CMPICount scndGetCountAndType(const CMPISelectCond* eSc, int* type, CMPIStatus* rc) {
+   CMPICount scndGetCountAndType(const CMPISelectCond* eSc, int* type, CMPIStatus* rc)
+   {
 
-	  CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
-	  CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
+       CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc->hdl;
+       if (!sc)
+       {
+           CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE);
+           return 0;
+       }
+       CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
 
 	  if (data)
-	   {
-      		if (type!=NULL) *type=data->type;
-      		if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      		return data->tableau->size();
-		}
+	  {
+      	      if (type!=NULL) *type=data->type;
+      	      CMSetStatus(rc,CMPI_RC_OK);
+      	      return data->tableau->size();
+          }
 	  return 0;
    }
 
-   CMPISubCond* scndGetSubCondAt(const CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
-      CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
+   CMPISubCond* scndGetSubCondAt(const CMPISelectCond* eSc, unsigned int index,
+       CMPIStatus* rc)
+   {
+      CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc->hdl;
+       if (!sc)
+       {
+           CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE);
+           return 0;
+       }
       CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
-	  if (data)
-		{
+      if (data)
+      {
       	  if (index<=data->tableau->size()) {
          	const CMPI_TableauRow *row=(data->tableau->getData())+index;
 
          	CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
 			CMPI_Object *obj = new CMPI_Object(sbc);
-			obj->priv = ((CMPI_SubCond *)(sbc))->priv;
-         	if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         	CMSetStatus(rc,CMPI_RC_OK);
          	return reinterpret_cast<CMPISubCond *>(obj);
 		}
-      } else  
-      	if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      } 
+      else 
+      {   
+          CMSetStatus(rc,CMPI_RC_ERR_NO_SUCH_PROPERTY);
+      }
       return NULL; 
    }
 
@@ -118,6 +137,5 @@ CMPI_SelectCond::CMPI_SelectCond(CMPI_Tableau* tblo, int t)
    priv = new CMPI_SelectCondData(tblo, t);
    ft=CMPI_SelectCond_Ftab;
 }
-
 
 PEGASUS_NAMESPACE_END

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -47,25 +43,36 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   CMPIStatus prdRelease(CMPIPredicate* sc) {
-	  CMPI_Predicate *pred = (CMPI_Predicate*)sc->hdl;
-      if (pred) {
-         delete pred;
-         reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
-      }
-      CMReturn(CMPI_RC_OK);
+   CMPIStatus prdRelease(CMPIPredicate* sc)
+   {
+       CMPI_Predicate *pred = (CMPI_Predicate*)sc->hdl;
+       if (pred)
+       {
+           delete pred;
+           reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
+           CMReturn(CMPI_RC_OK);
+       }
+       else
+       {
+           CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+       } 
    }
 
-   CMPIPredicate* prdClone(const CMPIPredicate* ePrd, CMPIStatus* rc) {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-         return NULL;
+   CMPIPredicate* prdClone(const CMPIPredicate* ePrd, CMPIStatus* rc)
+   {
+       CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+       return NULL;
    }
 
    CMPIStatus prdGetData(const CMPIPredicate* ePrd, CMPIType* type,
-                  CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) {
-      //CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
-	  const CMPI_Object *obj=reinterpret_cast<const CMPI_Object*>(ePrd);
-	  CMPI_term_el *term =  (CMPI_term_el *)obj->priv;
+       CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) 
+   {
+       const CMPI_Predicate *prd=(CMPI_Predicate*)ePrd->hdl;
+       if (!prd)
+       {
+           CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+       }
+       CMPI_term_el *term =  (CMPI_term_el *)prd->priv;
 	 
       if (term) 
 	   { 
@@ -86,16 +93,19 @@ extern "C" {
 
 #if defined (CMPI_VER_87) && !defined(CMPI_VER_100)
    int prdEvaluate(CMPIPredicate* pr, CMPIValue* value,
-                  CMPIType type, CMPIStatus* rc) {
-		 if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-         return 0;
+                  CMPIType type, CMPIStatus* rc)
+   {
+       CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+       return 0;
    }
 #endif
 
-  CMPIBoolean prdEvaluateUsingAccessor (const CMPIPredicate*,  CMPIAccessor *f, void *p, CMPIStatus *rc) {
+  CMPIBoolean prdEvaluateUsingAccessor (const CMPIPredicate*,  CMPIAccessor *f,
+      void *p, CMPIStatus *rc)
+  {
 
-    	 if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-         return 0;
+      CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+      return 0;
   }
 
 }

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -47,35 +43,53 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   CMPIStatus sbcRelease(CMPISubCond* sc) {
-	  CMPI_SubCond *sbc = (CMPI_SubCond*)sc->hdl;
-      if (sbc) {
+   CMPIStatus sbcRelease(CMPISubCond* sc)
+   {
+      CMPI_SubCond *sbc = (CMPI_SubCond*)sc->hdl;
+      if (sbc)
+      {
          delete sbc;
          reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
+         CMReturn(CMPI_RC_OK);
       }
-
-      CMReturn(CMPI_RC_OK);
+      else
+      {
+          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+      }
    }
 
-   CMPISubCond* sbcClone(const CMPISubCond* eSc, CMPIStatus* rc) {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+   CMPISubCond* sbcClone(const CMPISubCond* eSc, CMPIStatus* rc)
+   {
+         CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
          return NULL;
    }
 
-   CMPICount sbcGetCount(const CMPISubCond* eSbc, CMPIStatus* rc) {
+   CMPICount sbcGetCount(const CMPISubCond* eSbc, CMPIStatus* rc)
+   {
       
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
-	  const CMPI_Object *obj=reinterpret_cast<const CMPI_Object*>(eSbc);
-	  CMPI_TableauRow* row = (CMPI_TableauRow* )obj->priv;
+       const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
+       if (!sbc)
+       {
+           CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+           return 0;
+       }
+       CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
+       CMSetStatus(rc,CMPI_RC_OK);
 	  if (row)	  
       	return row->size();
 	  return 0;
    }
 
-   CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
-
-	  const CMPI_Object *obj=reinterpret_cast<const CMPI_Object*>(eSbc);
-	  CMPI_TableauRow* row = (CMPI_TableauRow* )obj->priv;
+   CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc, 
+       unsigned int index, CMPIStatus* rc)
+   {
+       const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
+       if (!sbc)
+       {
+           CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+           return 0;
+       }
+       CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
 
 	  if (row)
       	if (index<=row->size()) {
@@ -86,13 +100,11 @@ extern "C" {
 			The sbcRelease will use that pointer to de-allocate the CMPI_Predicate
 			structure.  */
 		 CMPI_Object *obj = new CMPI_Object(prd);
-		 /* We add our private data - the row in the priv pointer */
-		 obj->priv = ((CMPI_Predicate *)prd)->priv;
 
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
          return reinterpret_cast<CMPIPredicate*>(obj);
       }   
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+      CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
       return NULL; 
    }
 

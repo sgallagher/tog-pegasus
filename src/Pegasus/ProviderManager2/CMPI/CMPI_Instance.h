@@ -47,7 +47,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_InstanceOnStack : CMPIInstance {
    CMPI_Object *next,*prev;
-   void *priv;    // CMPI type specific usage
    CMPI_InstanceOnStack(const CIMInstance& ci);
 };
 

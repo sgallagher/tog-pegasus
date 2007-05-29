@@ -139,30 +139,12 @@ $ !
 $  Goto makefile_loop3
 $ !
 $makefile_loop3_exit:
-$ !
-$ ! example: define PEGASUS_VMSLINKER_GSMATCH "LEQUAL,2,5400"
-$  gsmatch = f$trnlnm("PEGASUS_VMSLINKER_GSMATCH")
-$  if "''gsmatch'" .nes. "" 
-$  then
-$    write/error=optfile_writeerror optfile "GSMATCH=''gsmatch'"
-$  endif
-$!
-$  ! example: define PEGASUS_VMS_LINKER_IDENT "2.5400"
-$  ident = f$trnlnm("PEGASUS_VMSLINKER_IDENT")
-$  if "''ident'" .nes. "" 
-$  then
-$    write/error=optfile_writeerror optfile "IDENTIFICATION=''id'"
-$  endif
-$ !
-$No_gsmatch:
-$ !
+$ ! 
 $ ! Add the SSL libraries
 $ ! 
 $  ssllibdir = f$trnlnm("PEGASUS_OPENSSLLIB")
 $  if (ssllibdir .EQS. "") then goto No_ssl
 $ ! 
-$!  ssllib1 = "pegasus_openssllib:libssl32/lib"
-$!  ssllib2 = "libcrypto32/lib"
 $  ssllib1 = "pegasus_openssllib:ssl$libssl_shr32/share"
 $  ssllib2 = "ssl$libcrypto_shr32/share"
 $  write/error=optfile_writeerror optfile "''ssllib1'"

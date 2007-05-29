@@ -92,7 +92,7 @@ public:
         @exception DynamicCastFailedException If a CIMInstance can not be
             created from the given CIMObject.
     */
-    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x);
+    explicit CIMInstance(const CIMObject& x);
 
     /**
         Constructs a CIMInstance object with the specified class name.
@@ -402,7 +402,7 @@ public:
         @exception DynamicCastFailedException If a CIMConstInstance can not be
             created from the given CIMObject.
     */
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x);
+    explicit CIMConstInstance(const CIMObject& x);
 
     /**
         Constructs a CIMConstInstance object from the value of a specified
@@ -413,7 +413,7 @@ public:
         @exception DynamicCastFailedException If a CIMConstInstance can not be
             created from the given CIMConstObject.
     */
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x);
+    explicit CIMConstInstance(const CIMConstObject& x);
 
     /**
         Constructs a CIMConstInstance object with the specified class name.

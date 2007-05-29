@@ -179,18 +179,6 @@
 # define PEGASUS_USING_PEGASUS
 #endif
 
-#ifdef PEGASUS_HAVE_EXPLICIT
-# define PEGASUS_EXPLICIT explicit
-#else
-# define PEGASUS_EXPLICIT /* empty */
-#endif
-
-#ifdef PEGASUS_HAVE_MUTABLE
-# define PEGASUS_MUTABLE mutable
-#else
-# define PEGASUS_MUTABLE /* empty */
-#endif
-
 #ifndef PEGASUS_HAVE_FOR_SCOPE
 # define for if (0) ; else for
 #endif

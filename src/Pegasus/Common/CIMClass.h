@@ -89,7 +89,7 @@ public:
         @exception DynamicCastFailedException If a CIMClass can not be
             created from the given CIMObject.
     */
-    PEGASUS_EXPLICIT CIMClass(const CIMObject& x);
+    explicit CIMClass(const CIMObject& x);
 
     /**
         Constructs a CIMClass object with the specified attributes.
@@ -522,7 +522,7 @@ public:
         @exception DynamicCastFailedException If a CIMConstClass can not be
             created from the given CIMObject.
     */
-    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x);
+    explicit CIMConstClass(const CIMObject& x);
 
     /**
         Constructs a CIMConstClass object from the value of a specified
@@ -533,7 +533,7 @@ public:
         @exception DynamicCastFailedException If a CIMConstClass can not be
             created from the given CIMConstObject.
     */
-    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x);
+    explicit CIMConstClass(const CIMConstObject& x);
 
     /**
         Constructs a CIMConstClass object with the specified attributes.

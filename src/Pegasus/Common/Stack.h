@@ -65,7 +65,7 @@ public:
         initialization of a stack with the type of T.
         which
     */
-    PEGASUS_EXPLICIT Stack(const T& x) { _rep.append(x); }
+    explicit Stack(const T& x) { _rep.append(x); }
 
     /** Destructor. */
     ~Stack() { }

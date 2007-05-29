@@ -404,9 +404,9 @@ public:
 
     QueueIdStack(const QueueIdStack& x);
 
-    PEGASUS_EXPLICIT QueueIdStack(Uint32 x);
+    explicit QueueIdStack(Uint32 x);
 
-    PEGASUS_EXPLICIT QueueIdStack(Uint32 x1, Uint32 x2);
+    explicit QueueIdStack(Uint32 x1, Uint32 x2);
 
     ~QueueIdStack()
     {

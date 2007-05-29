@@ -498,7 +498,7 @@ private:
         construction would effectively allow modification of CIMConstMethod
         objects.
     */
-    PEGASUS_EXPLICIT CIMMethod(const CIMConstMethod& x);
+    explicit CIMMethod(const CIMConstMethod& x);
 
     void _checkRep() const;
 

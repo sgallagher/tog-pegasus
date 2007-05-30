@@ -55,6 +55,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Executor.h>
 
 #include <Executor/Strlcpy.h>
@@ -105,8 +106,6 @@ public:
         const char* module,
         const String& pegasusHome,
         const String& userName,
-        int uid,
-        int gid,
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe) = 0;
@@ -197,8 +196,6 @@ public:
         const char* module,
         const String& pegasusHome,
         const String& userName,
-        int uid,
-        int gid,
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
@@ -308,6 +305,25 @@ public:
             String path = FileSystem::getAbsolutePath(
                 pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
+# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+
+            PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
+            PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
+
+            if (userName != System::getEffectiveUserName())
+            {
+                if (!System::lookupUserId(
+                         userName.getCString(), newUid, newGid))
+                {
+                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "System::lookupUserId(%s) failed.",
+                        (const char*)userName.getCString()));
+                    return -1;
+                }
+            }
+
+# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+
             // Create "to-agent" pipe:
 
             if (pipe(to) != 0)
@@ -320,11 +336,11 @@ public:
 
             // Fork process:
 
-#if defined(PEGASUS_OS_VMS)
+# if defined(PEGASUS_OS_VMS)
             pid = (int)vfork();
-#else
+# else
             pid = (int)fork();
-#endif
+# endif
 
             if (pid < 0)
                 return -1;
@@ -333,7 +349,7 @@ public:
 
             if (pid == 0)
             {
-#if !defined(PEGASUS_OS_VMS)
+# if !defined(PEGASUS_OS_VMS)
                 // Close unused pipe descriptors:
 
                 close(to[1]);
@@ -354,29 +370,17 @@ public:
                     }
                 }
 
-#endif /* !defined(PEGASUS_OS_VMS) */
-
-                // Set uid and gid for the new provider agent process.
+# endif /* !defined(PEGASUS_OS_VMS) */
 
 # if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
-                if (uid != -1 && gid != -1)
+                // Set uid and gid for the new provider agent process.
+
+                if (newUid != (PEGASUS_UID_T)-1 && newGid != (PEGASUS_GID_T)-1)
                 {
-                    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL4,
-                        "Changing user context to: userName=%s uid=%d, gid=%d",
-                        (const char*)userName.getCString(), uid, gid));
-
-                    if (setgid(gid) != 0)
+                    if (!System::changeUserContext_SingleThreaded(
+                             userName.getCString(), newUid, newGid))
                     {
-                        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                          String("setgid failed: ") + String(strerror(errno)));
-                        return -1;
-                    }
-
-                    if (setuid(uid) != 0)
-                    {
-                        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                          String("setuid failed: ") + String(strerror(errno)));
                         return -1;
                     }
                 }
@@ -668,8 +672,6 @@ public:
         const char* module,
         const String& pegasusHome,
         const String& userName,
-        int uid,
-        int gid,
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
@@ -681,9 +683,15 @@ public:
 
         // Reject strings longer than EXECUTOR_BUFFER_SIZE.
 
-        size_t n = strlen(module);
+        size_t moduleNameLength = strlen(module);
 
-        if (n >= EXECUTOR_BUFFER_SIZE)
+        if (moduleNameLength >= EXECUTOR_BUFFER_SIZE)
+            return -1;
+
+        CString userNameCString = userName.getCString();
+        size_t userNameLength = strlen(userNameCString);
+
+        if (userNameLength >= EXECUTOR_BUFFER_SIZE)
             return -1;
 
         // _send request header:
@@ -698,9 +706,8 @@ public:
 
         ExecutorStartProviderAgentRequest request;
         memset(&request, 0, sizeof(request));
-        memcpy(request.module, module, n);
-        request.uid = uid;
-        request.gid = gid;
+        memcpy(request.module, module, moduleNameLength);
+        memcpy(request.userName, userNameCString, userNameLength);
 
         if (_send(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
@@ -1068,14 +1075,12 @@ int Executor::startProviderAgent(
     const char* module,
     const String& pegasusHome,
     const String& userName,
-    int uid,
-    int gid,
     int& pid,
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
-    return _getImpl()->startProviderAgent(module, pegasusHome,
-        userName, uid, gid, pid, readPipe, writePipe);
+    return _getImpl()->startProviderAgent(
+        module, pegasusHome, userName, pid, readPipe, writePipe);
 }
 
 int Executor::daemonizeExecutor()

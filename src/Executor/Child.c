@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <grp.h>
 #include "Defines.h"
 #include "Fatal.h"
 #include "Path.h"
@@ -56,6 +57,7 @@ void Child(
     int argc,
     char** argv,
     const char* path,
+    const char* userName,
     int uid,
     int gid,
     int sock)
@@ -91,6 +93,11 @@ void Child(
     if (setgid(gid) != 0)
     {
         Fatal(FL, "Failed to set gid to %d", gid);
+    }
+
+    if (initgroups(userName, gid) != 0)
+    {
+        Fatal(FL, "Failed to initialize groups for user %s", userName);
     }
 
     if (setuid(uid) != 0)

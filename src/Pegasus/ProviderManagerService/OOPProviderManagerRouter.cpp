@@ -393,34 +393,6 @@ void ProviderAgentContainer::_startAgentProcess()
     PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER, "ProviderAgentContainer::_startAgentProcess");
 
-    PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
-    PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
-
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT
-
-    newUid = getuid();
-    newGid = getgid();
-
-    // Get and save the effective user name and the uid/gid for the user
-    // context of the agent process
-
-    String effectiveUserName = System::getEffectiveUserName();
-
-    if (_userName != effectiveUserName)
-    {
-        if (!System::lookupUserId(_userName.getCString(), newUid, newGid))
-        {
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.OOPProviderManagerRouter."
-                        "USER_CONTEXT_CHANGE_FAILED",
-                    "Unable to change user context to \"$0\".", _userName));
-        }
-    }
-
-# endif /* PEGASUS_DISABLE_PROV_USERCTXT */
-
     // Start the provider agent.
 
     int pid;
@@ -431,8 +403,6 @@ void ProviderAgentContainer::_startAgentProcess()
         (const char*)_moduleName.getCString(),
         ConfigManager::getPegasusHome(),
         _userName,
-        newUid,
-        newGid,
         pid,
         readPipe,
         writePipe);

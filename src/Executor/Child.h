@@ -40,6 +40,7 @@ void Child(
     int argc,
     char** argv,
     const char* path,
+    const char* userName,
     int uid,
     int gid,
     int sock);

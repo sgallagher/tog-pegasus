@@ -40,6 +40,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <grp.h>
 #include "Parent.h"
 #include "Log.h"
 #include "Messages.h"
@@ -206,6 +207,8 @@ static void HandleOpenFileRequest(int sock)
 static void HandleStartProviderAgentRequest(int sock)
 {
     int status;
+    int uid;
+    int gid;
     int pid;
     int to[2];
     int from[2];
@@ -222,7 +225,7 @@ static void HandleStartProviderAgentRequest(int sock)
     /* Log request. */
 
     Log(LL_TRACE, "HandleStartProviderAgentRequest(): "
-        "module=%s gid=%d uid=%d", request.module, request.gid, request.uid);
+        "module=%s userName=%s", request.module, request.userName);
 
     /* Process request. */
 
@@ -237,6 +240,21 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if ((path = FindMacro("cimprovagtPath")) == NULL)
             Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
+
+#if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+
+        /* Look up the user ID and group ID of the specified user. */
+
+        if (GetUserInfo(request.userName, &uid, &gid) != 0)
+        {
+            status = -1;
+            break;
+        }
+
+        Log(LL_TRACE, "cimprovagt user context: "
+            "userName=%s uid=%d gid=%d", request.userName, uid, gid);
+
+#endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
 
         /* Create "to-agent" pipe: */
 
@@ -269,7 +287,6 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pid == 0)
         {
-            char username[EXECUTOR_BUFFER_SIZE];
             struct rlimit rlim;
             char arg1[32];
             char arg2[32];
@@ -295,30 +312,38 @@ static void HandleStartProviderAgentRequest(int sock)
                 }
             }
 
-# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+#if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
-            if (request.uid != -1 && request.gid != -1)
+            if ((int)getgid() != gid)
             {
-                if ((int)getgid() != request.gid)
+                if (setgid((gid_t)gid) != 0)
                 {
-                    if (setgid(request.gid) != 0)
-                        Log(LL_SEVERE, "setgid(%d) failed\n", request.gid);
-                }
-
-                if ((int)getuid() != request.uid)
-                {
-                    if (setuid(request.uid) != 0)
-                        Log(LL_SEVERE, "setuid(%d) failed\n", request.uid);
+                    Log(LL_SEVERE, "setgid(%d) failed\n", gid);
+                    _exit(1);
                 }
             }
 
-            if (GetUserName(getuid(), username) != 0)
-                Fatal(FL, "Failed to resolve username for uid=%d", getuid());
+            if ((int)getuid() != uid)
+            {
+                if (initgroups(request.userName, gid) != 0)
+                {
+                    Log(LL_SEVERE, "initgroups(%s, %d) failed\n",
+                        request.userName,
+                        gid);
+                    _exit(1);
+                }
+
+                if (setuid((uid_t)uid) != 0)
+                {
+                    Log(LL_SEVERE, "setuid(%d) failed\n", uid);
+                    _exit(1);
+                }
+            }
 
             Log(LL_TRACE, "starting %s on module %s as user %s",
-                path, request.module, username);
+                path, request.module, request.userName);
 
-# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+#endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
 
             /* Exec the CIMPROVAGT program. */
 

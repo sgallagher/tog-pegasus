@@ -166,8 +166,7 @@ struct ExecutorRenameFileResponse
 struct ExecutorStartProviderAgentRequest
 {
     char module[EXECUTOR_BUFFER_SIZE];
-    int uid;
-    int gid;
+    char userName[EXECUTOR_BUFFER_SIZE];
 };
 
 struct ExecutorStartProviderAgentResponse

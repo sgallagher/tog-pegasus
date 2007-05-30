@@ -57,6 +57,9 @@ struct Globals
     /* PID of child process (CIMSERVERMAIN). */
     int childPid;
 
+    /* User name of child process (CIMSERVERMAIN). */
+    const char* childUserName;
+
     /* UID of child process (CIMSERVERMAIN). */
     int childUid;
 

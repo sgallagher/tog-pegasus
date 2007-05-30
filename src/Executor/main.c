@@ -62,15 +62,15 @@
 **==============================================================================
 */
 
-int GetServerUser(int* uid, int* gid)
+int GetServerUser(const char** userName, int* uid, int* gid)
 {
-    const char* username = PEGASUS_CIMSERVERMAIN_USER;
+    *userName = PEGASUS_CIMSERVERMAIN_USER;
 
-    if (GetUserInfo(username, uid, gid) != 0)
+    if (GetUserInfo(*userName, uid, gid) != 0)
     {
         Fatal(FL,
             "The %s user \"%s\" does not exist.",
-            CIMSERVERMAIN, username);
+            CIMSERVERMAIN, *userName);
     }
 
     return 0;
@@ -421,7 +421,7 @@ int main(int argc, char** argv)
 
     /* Determine user for running CIMSERVERMAIN. */
 
-    GetServerUser(&globals.childUid, &globals.childGid);
+    GetServerUser(&globals.childUserName, &globals.childUid, &globals.childGid);
 
     /* Fork child process. */
 
@@ -431,8 +431,14 @@ int main(int argc, char** argv)
     {
         /* Child. */
         close(pair[1]);
-        Child(argc, argv, cimservermainPath, globals.childUid,
-            globals.childGid, pair[0]);
+        Child(
+            argc,
+            argv,
+            cimservermainPath,
+            globals.childUserName,
+            globals.childUid,
+            globals.childGid,
+            pair[0]);
     }
     else if (childPid > 0)
     {

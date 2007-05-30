@@ -146,8 +146,7 @@ public:
         @param module name of provider module to be loaded.
         @param pegasusHome the Pegasus home directory to use to find the
             cimprovagt executable.
-        @param uid the UID to run the provider agent as.
-        @param gid the GID to run the provider agent as.
+        @param userName the user name to run the provider agent as.
         @param pid the PID of the new process (to be eventually passed to
             reapProviderAgent()).
         @param readPipe pipe used to read data from provider agent.
@@ -158,8 +157,6 @@ public:
         const char* module,
         const String& pegasusHome,
         const String& userName,
-        int uid,
-        int gid,
         int& pid,
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe);

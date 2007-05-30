@@ -851,7 +851,8 @@ Boolean System::lookupUserId(
     return false;
 }
 
-Boolean System::changeUserContext(
+Boolean System::changeUserContext_SingleThreaded(
+    const char* userName,
     const PEGASUS_UID_T& uid,
     const PEGASUS_GID_T& gid)
 {

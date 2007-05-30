@@ -260,14 +260,18 @@ public:
 #endif
 
     /**
-        Changes the process user context to the specified user and group ID.
+        Changes the process user context to the specified user and group.
+        IMPORTANT:  This method uses non-reentrant functions and should only
+        be called in a single-threaded program.
+        @param userName  User name to set as the process user context.
         @param uid       User ID to set as the process user context.
         @param gid       Group ID to set as the process group context.
         @return          True if the user context is successfully changed,
                          false otherwise.
     */
 #ifndef PEGASUS_OS_OS400
-    static Boolean changeUserContext(
+    static Boolean changeUserContext_SingleThreaded(
+        const char* userName,
         const PEGASUS_UID_T& uid,
         const PEGASUS_GID_T& gid);
 #endif

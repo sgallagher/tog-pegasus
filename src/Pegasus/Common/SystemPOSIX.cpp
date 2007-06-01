@@ -1111,7 +1111,8 @@ Boolean System::lookupUserId(
     return true;
 }
 
-Boolean System::changeUserContext(
+Boolean System::changeUserContext_SingleThreaded(
+    const char* userName,
     const PEGASUS_UID_T& uid,
     const PEGASUS_GID_T& gid)
 {
@@ -1125,6 +1126,17 @@ Boolean System::changeUserContext(
             String("setgid failed: ") + String(strerror(errno)));
         return false;
     }
+
+#if !defined(PEGASUS_OS_VMS)
+    // NOTE: initgroups() uses non-reentrant functions and should only be
+    // called from a single-threaded process.
+    if (initgroups(userName, gid) != 0)
+    {
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            String("initgroups failed: ") + String(strerror(errno)));
+        return false;
+    }
+#endif
 
     if (setuid(uid) != 0)
     {

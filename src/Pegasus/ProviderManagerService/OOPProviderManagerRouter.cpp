@@ -602,7 +602,8 @@ void ProviderAgentContainer::_startAgentProcess()
             // Set the user context of the Provider Agent process
             if (_userName != effectiveUserName)
             {
-                if (!System::changeUserContext(newUid, newGid))
+                if (!System::changeUserContext_SingleThreaded(
+                         _userName.getCString(), newUid, newGid))
                 {
                     PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "System::changeUserContext() failed.  userName = %s.",

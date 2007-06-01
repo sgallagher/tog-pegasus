@@ -862,9 +862,10 @@ ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 
   ## Specifies the user context of the cimservermain process when privilege
   ## separation is enabled.
-  ifdef PEGASUS_CIMSERVERMAIN_USER
-    DEFINES += -DPEGASUS_CIMSERVERMAIN_USER=\"$(PEGASUS_CIMSERVERMAIN_USER)\"
+  ifndef PEGASUS_CIMSERVERMAIN_USER
+    PEGASUS_CIMSERVERMAIN_USER = pegasus
   endif
+  DEFINES += -DPEGASUS_CIMSERVERMAIN_USER=\"$(PEGASUS_CIMSERVERMAIN_USER)\"
 endif
 
 ##==============================================================================

@@ -1,59 +1,60 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Venkateswara Rao Puvvada, IBM, vpuvvada@in.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-    \file CreateExtNs.c
-    \brief Creates an extended namespaces
+   \file CreateExtNs.c
+   \brief Creates an extended namespaces
 
-    This program enables the creation of namespaces exploiting Shared Schema
-    facilities and namespaces designated to be used as remote namespaces using
-    Remote CMPI facilities.
+   This program enables the creation of namespaces exploiting Shared Schema facilities and
+   namespaces designated to be used as remote namespaces using Remote CMPI facilities.
 
-    Usage:
+   Usage:
 
-         CreateExtNs -n <namespace-name>
-             [ -p <parent-namespace> -l <remote-location> ]
+        CreateExtNs -n <namespace-name> [ -p <parent-namespace> -l <remote-location> ]
 
-    Where
-         -n defines the name of the new nameplates.
+   Where
+        -n defines the name of the new nameplates.
                 Examples: -n root/test
                           -n root/local
 
-         -p Optionally define the new namespace to share schema data with an
-            exciting parent namespace.
+        -p Optionally define the new namespace to share schema data with an exciting parent
+            namespace.
                 Example: -p root/cimv2
 
-         -l Optionally defines this namespace to be represeting a remote
-            locaton with hostname <remote-location>. CMPIRDeamon must be
-            running at this location.
+        -l Optionally defines this namespace to be represeting a remote locaton with
+           hostname <remote-location>. CMPIRDeamon must be running at this location.
                 Example: -l localhost
                          -l hpc4711
 */
@@ -63,14 +64,14 @@
 #include <stdlib.h>
 #include "../Common/getopts.h"
 
-#define RMAXPATHLEN 4096
+#define MAXPATHLEN 4096
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-# define RCMPI_MKDIR(dir) mkdir(dir)
+#define RCMPI_MKDIR(dir) mkdir(dir)
 #else
-# include <sys/stat.h>
-# include <unistd.h>
-# define RCMPI_MKDIR(dir) mkdir(dir,0775)
+#include <sys/stat.h>
+#include <unistd.h>
+#define RCMPI_MKDIR(dir) mkdir(dir,0775)
 #endif
 
 int main(int argc, char* argv[])
@@ -85,7 +86,7 @@ int main(int argc, char* argv[])
     char *pegasushome = 0;
     char *pathseparator = 0;
     char *repositoryname = "repository";
-    char rdir[RMAXPATHLEN];
+    char rdir[MAXPATHLEN];
     int  rlen;
 
 
@@ -98,8 +99,8 @@ int main(int argc, char* argv[])
     if (2 > argc)
     {
         printf(
-            "Usage: CreateExtNs -n <namespace-name> [ -p <parent-namespace>"
-            " -l <remote-location> ] \n");
+               "Usage: CreateExtNs -n <namespace-name> [ -p <parent-namespace>"
+               " -l <remote-location> ] \n");
         return 0;
     }
 
@@ -124,7 +125,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    pathseparator = "/";
+        pathseparator = "/";
 
     /* check for repository */
     strcpy(rdir,pegasushome);
@@ -155,7 +156,7 @@ int main(int argc, char* argv[])
     }
     if (0 == access(rdir,0))
     {
-        printf("%s : Namespace already exisists\n",rdir);
+    printf("%s : Namespace already exisists\n",rdir);
         return 0;
     }
 
@@ -187,9 +188,9 @@ int main(int argc, char* argv[])
     }
     if (0 != RCMPI_MKDIR(rdir))
     {
-        printf("Create Namespace\n");
-        perror(rdir);
-        return -1;
+     printf("Create Namespace\n");
+         perror(rdir);
+         return -1;
     }
 
     strcat(rdir,pathseparator);
@@ -199,7 +200,7 @@ int main(int argc, char* argv[])
     strcat(rdir,"classes");
     if (0 != RCMPI_MKDIR(rdir))
     {
-        printf("Create classes\n");
+    printf("Create classes\n");
         perror(rdir);
         return -1;
     }
@@ -209,17 +210,17 @@ int main(int argc, char* argv[])
     strcat(rdir,"qualifiers");
     if (0 != RCMPI_MKDIR(rdir))
     {
-        printf("Create qualifiers\n");
+    printf("Create qualifiers\n");
         perror(rdir);
         return -1;
     }
     rdir[rlen] ='\0';
 
-    /* instances */
+     /* instances */
     strcat(rdir,"instances");
     if (0 != RCMPI_MKDIR(rdir))
     {
-        printf("Create instances\n");
+    printf("Create instances\n");
         perror(rdir);
         return -1;
     }
@@ -237,7 +238,7 @@ int main(int argc, char* argv[])
         }
         if (0 != RCMPI_MKDIR(rdir))
         {
-            printf("Create SRS parent Namespace\n");
+        printf("Create SRS parent Namespace\n");
             perror(rdir);
             return -1;
         }
@@ -251,7 +252,7 @@ int main(int argc, char* argv[])
         strcat(rdir,remotelocation);
         if (0 != RCMPI_MKDIR(rdir))
         {
-            printf("Create remote location\n");
+        printf("Create remote location\n");
             perror(rdir);
             return -1;
         }

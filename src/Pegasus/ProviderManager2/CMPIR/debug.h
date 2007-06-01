@@ -1,44 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-    \file debug.h
-    \brief Bug tracing facility.
+  \file debug.h
+  \brief Bug tracing facility.
 
-    This header file defines macros for tracing output
-    using different debug levels, which can be defined during runtime as
-    environment variable.
+  This header file defines macros and functions for tracing output
+  using different debug levels, which can be defined during runtime as
+  environment variable.
 
-    Modules including this header file have to be compiled used -DDEBUG to
-    enable debug support.
+  Modules including this header file have to be compiled used -DDEBUG to
+  enable debug support.
 
 */
 
@@ -53,15 +55,15 @@
 
 
 #ifdef PEGASUS_OS_TYPE_UNIX
-# include <unistd.h>
-# if defined PEGASUS_OS_ZOS
-#  include <strings.h>
-# else
-#  include <string.h>
-# endif
+#include <unistd.h>
+#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <strings.h>
+#else
+#include <string.h>
+#endif
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-# include <process.h>
-# include <string.h>
+#include <process.h>
+#include <string.h>
 #endif
 
 #define DEBUG_VERBOSE  3
@@ -70,14 +72,13 @@
 #define DEBUG_CRITICAL 0
 
 #define TRACE(level,args) \
-    if ( trace_level ( (level) ) ) \
-    { \
-        char * __msg = trace_format args; \
-        trace_this ( \
-            (level), \
-            __FILE__, __LINE__, \
-            __msg ); \
+        if ( __trace_level ( (level) ) ) { \
+                char * __msg = __trace_format args; \
+                __trace_this ( (level), \
+                               __FILE__, __LINE__, \
+                               __msg ); \
         }
+
 
 #if defined PEGASUS_DEBUG
  #define TRACE_VERBOSE(args)  TRACE(DEBUG_VERBOSE,args)
@@ -104,30 +105,135 @@
 #endif
 
 #if defined PEGASUS_DEBUG
-# define START_DEBUGGER start_debugger ()
+#define START_DEBUGGER __start_debugger ()
 #else
-# define START_DEBUGGER
+#define START_DEBUGGER
+#endif
+/****************************************************************************/
+
+#if defined PEGASUS_DEBUG
+
+#ifdef __GNUC__
+static int __trace_level ( int ) __attribute__ ((unused));
+
+static char * __trace_format ( const char *, ... )
+     __attribute__ ((unused, format (printf, 1, 2)));
+
+static void __trace_this ( int, const char *, int, char * )
+     __attribute__ ((unused));
+
+static void __start_debugger () __attribute__ ((unused));
 #endif
 
-#if defined (PEGASUS_CMPI_PROXY_INTERNAL) || \
-    defined (PEGASUS_CMPI_NATIVE_INTERNAL)
-# define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_EXPORT
-#else
-# define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_IMPORT
+/****************************************************************************/
+
+static char * __debug_levels[] = {
+    "critical", "normal", "info", "verbose"
+};
+
+/****************************************************************************/
+
+static int __trace_level ( int level )
+{
+    char * l = getenv ( "RCMPI_DEBUG" );
+    int i = sizeof ( __debug_levels ) / sizeof ( char * );
+
+    if ( l == NULL ) return 0;
+
+    while ( i-- )
+        if ( PEGASUS_CMPIR_STRCASECMP ( l, __debug_levels[i] ) == 0 )
+            return ( level <= i );
+
+    return 0;
+}
+
+static char * __trace_format ( const char * fmt, ... )
+{
+    va_list ap;
+    char * msg = (char *) malloc ( 512 );
+
+    va_start ( ap, fmt );
+
+    PEGASUS_CMPIR_VSPRINTF(msg, 512, fmt, ap );
+
+    return msg;
+}
+
+
+static void __trace_this ( int level,
+               const char * file,
+               int line,
+               char * msg )
+{
+    fprintf ( stderr,
+          "--rcmpi(%s)--[%d(%d,%d)]:%s:(%d): %s\n",
+           __debug_levels[level],
+          PEGASUS_CMPIR_GETPID(), PEGASUS_CMPIR_GETUID(), PEGASUS_CMPIR_GETGID(),
+          file, line,
+          msg );
+    free ( msg ); \
+}
+
+static void __start_debugger ()
+{
+
+#ifdef PEGASUS_OS_TYPE_UNIX
+    int ch;
+    char * debugger = getenv ( "RCMPI_DEBUGGER" );
+
+    if ( debugger != NULL ) {
+
+        if ( ( ch = fork () ) ) {
+
+            sleep ( 20 ); // wait until debugger traces us
+
+        } else {
+
+            char pid[10];
+            char * argv[] = { debugger,
+                      "OOP-Provider",
+                      pid,
+                      NULL };
+
+            sprintf ( pid, "%d", getppid () );
+
+            execv ( debugger, argv );
+
+            TRACE_CRITICAL(("could not start debugger \"%s\", "
+                    "check RCMPI_DEBUGGER environment "
+                    "variable.",
+                    debugger));
+            exit ( -1 );
+        }
+    }
 #endif
-
-#ifdef PEGASUS_DEBUG
-
-PEGASUS_RCMPI_DEBUG_VISIBILITY int trace_level(int);
-PEGASUS_RCMPI_DEBUG_VISIBILITY char* trace_format(const char *fmt, ...);
-PEGASUS_RCMPI_DEBUG_VISIBILITY void trace_this(int, const char *, int, char *);
-PEGASUS_RCMPI_DEBUG_VISIBILITY void start_debugger();
-
-#endif /* PEGASUS_DEBUG */
+}
+#endif
 
 #ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-PEGASUS_RCMPI_DEBUG_VISIBILITY void error_at_line(int a_num, int error,
-    char* filename, int line, char* message, ...);
+static void error_at_line( int a_num, int error, char* filename, int line, char* message, ... )
+{
+   va_list ap;
+   char * msg = (char *) malloc ( 512 );
+
+   va_start ( ap, message );
+   vsprintf ( msg, message, ap );
+
+   fprintf(stderr, "Error in line %d of file %s: %s - %s\n", line, filename, strerror(error), msg);
+
+   free (msg);
+
+   if (a_num < 0)
+   {
+      exit(a_num);
+   }
+}
 #endif
 
-#endif /* _REMOTE_CMPI_DEBUG_H */
+#endif
+
+
+/*** Local Variables:  ***/
+/*** mode: C           ***/
+/*** c-basic-offset: 8 ***/
+/*** End:              ***/

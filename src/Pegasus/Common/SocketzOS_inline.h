@@ -35,6 +35,11 @@
 #define SocketzOS_inline_h
 
 #include <Pegasus/Common/Logger.h>
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/Common/safCheckzOS_inline.h>
+#endif
 #include <Pegasus/Common/AuditLogger.h>
 #include <sys/ioctl.h>
 #include <net/rtrouteh.h>
@@ -224,6 +229,20 @@ int MP_Socket::ATTLS_zOS_query()
            PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
                "---> ATTLS Security Type is SAFCHK. Resolved user ID \'%s\'",
                _username));
+
+           // Check if the user is authorized to CIMSERV
+#ifdef PEGASUS_ZOS_SECURITY
+           if ( !CheckProfileCIMSERVclassWBEM(_username, __READ_RESOURCE) )
+           {
+               Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, 
+                   Logger::WARNING,
+                   "Pegasus.Common.SocketzOS_inline.NOREAD_CIMSERV_ACCESS",
+                   "Request UserID $0 doesn't have READ permission"
+                   " to profile CIMSERV CL(WBEM).",
+                   _username);
+               return -1;
+           }
+#endif
            // For audit loging, only the mapping of the client IP to the 
            // resolved user ID is from interest.
            // The SAF facility logs the certificate validation and the 

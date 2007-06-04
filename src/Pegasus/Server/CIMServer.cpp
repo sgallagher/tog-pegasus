@@ -168,8 +168,21 @@ void* waitForStopCommand(void*)
 
         if (rc != 0)
         {
-            PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
-                "Failed to issue __console command");
+            int errornumber = errno;
+            char str_errno2[10];
+            sprintf(str_errno2,"%08X",__errno2());
+
+            PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+                "Failed to issue __console() command: %s",strerror(errornumber)));
+            Logger::put_l(
+                Logger::ERROR_LOG, "CIM Server", Logger::SEVERE,
+                "Server.CIMServer.CONSOLE_ERROR.PEGASUS_OS_ZOS",
+                "Console Communication Service failed:"
+                "$0 ( errno $1, reason code 0x$2 ).",
+                strerror(errornumber),
+                errornumber,
+                str_errno2);
+
             break;
         }
 

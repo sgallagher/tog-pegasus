@@ -110,14 +110,11 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
-    ifeq ($(OS_TYPE),windows)
-        $(error Error: Remote CMPI is not currently supported on Windows.)
-    endif
 
     DIRS += \
+        ProviderManager2/CMPIR/native \
         ProviderManager2/CMPIR \
         ProviderManager2/CMPIR/tcpcomm \
-        ProviderManager2/CMPIR/native \
         ProviderManager2/CMPIR/tcpcommrem \
         ProviderManager2/CMPIR/daemon \
         ProviderManager2/CMPIR/tools

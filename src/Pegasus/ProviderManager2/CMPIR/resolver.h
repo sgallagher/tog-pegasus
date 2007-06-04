@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -41,12 +37,10 @@
 
   Defines the interface for a resolver component.
 
-  \author Frank Scheffler
 */
 
 #ifndef _REMOTE_CMPI_RESOLVER_H
 #define _REMOTE_CMPI_RESOLVER_H
-
 
 typedef struct provider_address provider_address;
 
@@ -55,11 +49,11 @@ typedef struct provider_address provider_address;
 #define CMPI_VER_100
 #endif
 
-#ifndef CONST 
-  #ifdef CMPI_VER_100 
+#ifndef CONST
+  #ifdef CMPI_VER_100
     #define CONST const
   #else
-    #define CONST 
+    #define CONST
   #endif
 #endif
 
@@ -67,15 +61,15 @@ typedef struct provider_address provider_address;
 /*!
   This holds the address of one remote provider location in a linked list.
  */
-struct provider_address {
-  char * comm_layer_id;		/*!< the communication layer responsible for
-				 connecting to the remote provider */
-  char * dst_address;		/*!< the destination address of the remote
-				 provider in comm-layer specific format */
-  char * provider_module;	/*!< the provider module containing the
-				 remote provider on the remote host */
+struct  provider_address {
+  char * comm_layer_id;     /*!< the communication layer responsible for
+                 connecting to the remote provider */
+  char * dst_address;       /*!< the destination address of the remote
+                 provider in comm-layer specific format */
+  char * provider_module;   /*!< the provider module containing the
+                 remote provider on the remote host */
   struct provider_address * next; /*!< pointer to the next address */
-  
+
   void (*destructor)(struct provider_address*); /*!< address of destructor */
 };
 
@@ -84,18 +78,19 @@ struct provider_address {
 
 //! Resolves a list of remote provider addresses for an enumerative request.
 
-provider_address * resolve_class ( CONST CMPIBroker *,
-				   CONST CMPIContext *,
-				   CONST CMPIObjectPath *,
-                                   const char *,
-				   CMPIStatus *);
+ provider_address * resolve_class ( CONST CMPIBroker *,
+                   CONST CMPIContext *,
+                   CONST CMPIObjectPath *,
+                   const char *,
+                   CMPIStatus *);
 
 //! Resolves a single address of a remote provider.
-provider_address * resolve_instance ( CONST CMPIBroker *,
-				      CONST CMPIContext *,
-				      CONST CMPIObjectPath *,
+ provider_address * resolve_instance ( CONST CMPIBroker *,
+                      CONST CMPIContext *,
+                      CONST CMPIObjectPath *,
                                       const char *,
-				      CMPIStatus *);
+                      CMPIStatus *);
+
 //! Frees previously resolved address(es).
 //void free_addresses ( provider_address * );
 

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,28 +42,34 @@
   Modules including this header file have to be compiled used -DDEBUG to
   enable debug support.
 
-  \author Frank Scheffler
 */
 
 #ifndef _REMOTE_CMPI_DEBUG_H
 #define _REMOTE_CMPI_DEBUG_H
 
+#include "cmpir_common.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
 #include <sys/types.h>
+
+
+#ifdef PEGASUS_OS_TYPE_UNIX
 #include <unistd.h>
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <strings.h>
+#else
+#include <string.h>
+#endif
+#elif defined PEGASUS_OS_TYPE_WINDOWS
+#include <process.h>
+#include <string.h>
 #endif
 
 #define DEBUG_VERBOSE  3
 #define DEBUG_INFO     2
 #define DEBUG_NORMAL   1
 #define DEBUG_CRITICAL 0
-
-
 
 #define TRACE(level,args) \
         if ( __trace_level ( (level) ) ) { \
@@ -80,27 +81,27 @@
 
 
 #if defined PEGASUS_DEBUG
-#define TRACE_VERBOSE(args)  TRACE(DEBUG_VERBOSE,args)
+ #define TRACE_VERBOSE(args)  TRACE(DEBUG_VERBOSE,args)
 #else
-#define TRACE_VERBOSE(args)
+ #define TRACE_VERBOSE(args)
 #endif
 
 #if defined PEGASUS_DEBUG
-#define TRACE_INFO(args)     TRACE(DEBUG_INFO,args)
+ #define TRACE_INFO(args)     TRACE(DEBUG_INFO,args)
 #else
-#define TRACE_INFO(args)
+ #define TRACE_INFO(args)
 #endif
 
 #if defined PEGASUS_DEBUG
-#define TRACE_NORMAL(args)   TRACE(DEBUG_NORMAL,args)
+ #define TRACE_NORMAL(args)   TRACE(DEBUG_NORMAL,args)
 #else
-#define TRACE_NORMAL(args)
+ #define TRACE_NORMAL(args)
 #endif
 
 #if defined PEGASUS_DEBUG
-#define TRACE_CRITICAL(args) TRACE(DEBUG_CRITICAL,args)
+ #define TRACE_CRITICAL(args) TRACE(DEBUG_CRITICAL,args)
 #else
-#define TRACE_CRITICAL(args)
+ #define TRACE_CRITICAL(args)
 #endif
 
 #if defined PEGASUS_DEBUG
@@ -108,8 +109,6 @@
 #else
 #define START_DEBUGGER
 #endif
-
-
 /****************************************************************************/
 
 #if defined PEGASUS_DEBUG
@@ -129,98 +128,96 @@ static void __start_debugger () __attribute__ ((unused));
 /****************************************************************************/
 
 static char * __debug_levels[] = {
-	"critical", "normal", "info", "verbose"
+    "critical", "normal", "info", "verbose"
 };
 
 /****************************************************************************/
 
 static int __trace_level ( int level )
 {
-	char * l = getenv ( "RCMPI_DEBUG" );
-	int i = sizeof ( __debug_levels ) / sizeof ( char * );
+    char * l = getenv ( "RCMPI_DEBUG" );
+    int i = sizeof ( __debug_levels ) / sizeof ( char * );
 
-	if ( l == NULL ) return 0;
+    if ( l == NULL ) return 0;
 
-	while ( i-- )
-		if ( strcasecmp ( l, __debug_levels[i] ) == 0 )
-			return ( level <= i );
+    while ( i-- )
+        if ( PEGASUS_CMPIR_STRCASECMP ( l, __debug_levels[i] ) == 0 )
+            return ( level <= i );
 
-	return 0;
+    return 0;
 }
-
 
 static char * __trace_format ( const char * fmt, ... )
 {
-	va_list ap;
-	char * msg = (char *) malloc ( 512 );
+    va_list ap;
+    char * msg = (char *) malloc ( 512 );
 
-	va_start ( ap, fmt );
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-	vsprintf ( msg, fmt, ap );
-#else
-	vsnprintf ( msg, 512, fmt, ap );
-#endif
-	return msg;
+    va_start ( ap, fmt );
+
+    PEGASUS_CMPIR_VSPRINTF(msg, 512, fmt, ap );
+
+    return msg;
 }
 
 
 static void __trace_this ( int level,
-			   const char * file,
-			   int line,
-			   char * msg )
+               const char * file,
+               int line,
+               char * msg )
 {
-	fprintf ( stderr,
-		  "--rcmpi(%s)--[%d(%d,%d)]:%s:(%d): %s\n",
-		   __debug_levels[level],
-		  getpid (), getuid (), getgid (),
-		  file, line,
-		  msg );
-	free ( msg ); \
+    fprintf ( stderr,
+          "--rcmpi(%s)--[%d(%d,%d)]:%s:(%d): %s\n",
+           __debug_levels[level],
+          PEGASUS_CMPIR_GETPID(), PEGASUS_CMPIR_GETUID(), PEGASUS_CMPIR_GETGID(),
+          file, line,
+          msg );
+    free ( msg ); \
 }
-
 
 static void __start_debugger ()
 {
-	int ch;
-	char * debugger = getenv ( "RCMPI_DEBUGGER" );
 
-	if ( debugger != NULL ) {
+#ifdef PEGASUS_OS_TYPE_UNIX
+    int ch;
+    char * debugger = getenv ( "RCMPI_DEBUGGER" );
 
-		if ( ( ch = fork () ) ) {
+    if ( debugger != NULL ) {
 
-			sleep ( 20 ); // wait until debugger traces us
+        if ( ( ch = fork () ) ) {
 
-		} else {
+            sleep ( 20 ); // wait until debugger traces us
 
-			char pid[10];
-			char * argv[] = { debugger,
-					  "OOP-Provider",
-					  pid,
-					  NULL };
+        } else {
 
-			sprintf ( pid, "%d", getppid () );
+            char pid[10];
+            char * argv[] = { debugger,
+                      "OOP-Provider",
+                      pid,
+                      NULL };
 
-			execv ( debugger, argv );
+            sprintf ( pid, "%d", getppid () );
 
-			TRACE_CRITICAL(("could not start debugger \"%s\", "
-					"check RCMPI_DEBUGGER environment "
-					"variable.",
-					debugger));
-			exit ( -1 );
-		}
-	}
-}
+            execv ( debugger, argv );
 
-
+            TRACE_CRITICAL(("could not start debugger \"%s\", "
+                    "check RCMPI_DEBUGGER environment "
+                    "variable.",
+                    debugger));
+            exit ( -1 );
+        }
+    }
 #endif
-#ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU 
+}
+#endif
+
+#ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 static void error_at_line( int a_num, int error, char* filename, int line, char* message, ... )
 {
    va_list ap;
    char * msg = (char *) malloc ( 512 );
 
    va_start ( ap, message );
-   vsprintf ( msg/*, 512*/, message, ap );
+   vsprintf ( msg, message, ap );
 
    fprintf(stderr, "Error in line %d of file %s: %s - %s\n", line, filename, strerror(error), msg);
 

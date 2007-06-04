@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,25 +34,23 @@
 /*!
   \file tcpcomm.h
   \brief TCP/IP Communication layer common functionality.
-
-  \author Frank Scheffler
 */
 
 #ifndef _TCP_COMM_H
-#define _TCP_COMM_H
+ #define _TCP_COMM_H
 
-#define CIMOM_LISTEN_PORT 9000
-#define REMOTE_LISTEN_PORT 9001
+ #define CIMOM_LISTEN_PORT 9000
+ #define REMOTE_LISTEN_PORT 9001
 
-#ifndef CMPI_VER_100
-#define CMPI_VER_100
-#endif
+ #ifndef CMPI_VER_100
+  #define CMPI_VER_100
+ #endif
 
-#ifndef CONST 
-  #ifdef CMPI_VER_100 
+#ifndef CONST
+  #ifdef CMPI_VER_100
   #define CONST const
   #else
-  #define CONST 
+  #define CONST
   #endif
 #endif
 
@@ -60,7 +58,7 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include "ip.h"
 
-struct accept_thread {
+struct  accept_thread {
         int socket;
         CONST CMPIBroker * broker;
         CONST CMPIContext * context;

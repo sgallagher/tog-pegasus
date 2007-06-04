@@ -34,7 +34,9 @@
 #ifndef Pegasus_Platform_LINUX_ZSERIES_GNU_h
 #define Pegasus_Platform_LINUX_ZSERIES_GNU_h
 
+#ifdef __cplusplus
 #include <cstddef>
+#endif
 
 #define PEGASUS_OS_TYPE_UNIX
 

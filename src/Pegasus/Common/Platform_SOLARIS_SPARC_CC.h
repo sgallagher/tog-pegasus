@@ -36,10 +36,17 @@
 
 //++EMC Solaris Port
 #include <limits.h>
+#ifdef __cplusplus
 #include <cstdio>
 //--EMC Solaris Port
 
 #include <cstddef>
+
+#ifdef PEGASUS_INTERNALONLY 
+using namespace std;
+#endif
+
+#endif
 
 #define PEGASUS_OS_TYPE_UNIX
 
@@ -61,9 +68,6 @@
 
 #define PEGASUS_DISABLE_INTERNAL_INLINES
 
-#ifdef PEGASUS_INTERNALONLY
-using namespace std;
-#endif
 
 #define PEGASUS_HAVE_PTHREADS
 

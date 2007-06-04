@@ -158,6 +158,7 @@
 #endif
 
 #ifdef PEGASUS_HAVE_NAMESPACES
+#ifdef __cplusplus
 # define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {
 # define PEGASUS_NAMESPACE_END }
 # define PEGASUS_NAMESPACE(X) Pegasus::X
@@ -178,24 +179,61 @@
 # define PEGASUS_USING_STD
 # define PEGASUS_USING_PEGASUS
 #endif
+#else
+# define PEGASUS_NAMESPACE_BEGIN /* empty */
+# define PEGASUS_NAMESPACE_END /* empty */
+# define PEGASUS_NAMESPACE(X) X
+# define PEGASUS_STD(X) X
+# define PEGASUS_USING_STD
+# define PEGASUS_USING_PEGASUS
+#endif
+
+#ifdef PEGASUS_HAVE_EXPLICIT
+#ifdef __cplusplus
+# define PEGASUS_EXPLICIT explicit
+#else
+# define PEGASUS_EXPLICIT /* empty */
+#endif
+#else
+# define PEGASUS_EXPLICIT /* empty */
+#endif
+
+#ifdef PEGASUS_HAVE_MUTABLE
+#ifdef __cplusplus
+# define PEGASUS_MUTABLE mutable
+#else
+# define PEGASUS_MUTABLE /* empty */
+#endif
+#else
+# define PEGASUS_MUTABLE /* empty */
+#endif
 
 #ifndef PEGASUS_HAVE_FOR_SCOPE
 # define for if (0) ; else for
 #endif
 
 #ifdef PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+#ifdef __cplusplus
 # define PEGASUS_TEMPLATE_SPECIALIZATION template <>
+#else
+# define PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
 #else
 # define PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 
 #ifdef PEGASUS_HAVE_IOS_BINARY
+#ifdef __cplusplus
 #if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #define PEGASUS_IOS_BINARY ,std::ios::binary,PEGASUS_STD(_CCSID_T(1208))
 #else
 #define PEGASUS_IOS_BINARY ,std::ios::binary
 #endif
 #define PEGASUS_OR_IOS_BINARY | std::ios::binary
+#else
+#define PEGASUS_IOS_BINARY /* empty */
+#define PEGASUS_OR_IOS_BINARY /* empty */
+#endif
 #else
 #define PEGASUS_IOS_BINARY /* empty */
 #define PEGASUS_OR_IOS_BINARY /* empty */

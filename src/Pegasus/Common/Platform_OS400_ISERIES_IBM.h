@@ -44,8 +44,9 @@
 
 #define _MULTI_THREADED
 
+#ifdef __cplusplus
 #include <cstddef>
-
+#endif
 
 
 #define OS400_DEFAULT_PEGASUS_HOME "/QIBM/UserData/OS400/CIM"

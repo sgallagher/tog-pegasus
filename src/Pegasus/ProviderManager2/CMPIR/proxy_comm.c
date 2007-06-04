@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -44,48 +39,43 @@
   layers, as requested by the proxy provider. These are required to
   communicate with remote providers.
 
-  \author Frank Scheffler
 */
-
+#include "cmpir_common.h"
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-  #include <dll.h>
-#else
-#include <dlfcn.h>
-#endif
 #include <string.h>
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include <error.h>
-#endif
 #include <errno.h>
 #include "proxy.h"
-//#include "tool.h"
+#include "tool.h"
 #include "debug.h"
+
+#if defined PEGASUS_OS_TYPE_WINDOWS
+#include <winsock2.h>
+#include <Winbase.h>
+#include <Windows.h>
+#else
+#include <dlfcn.h>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <error.h>
+#endif
+#endif
 
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 #define INIT_LOCK(l) if (l==NULL) l=CMPI_BrokerExt_Ftab->newMutex(0);
 
 static void * _load_lib ( const char * libname )
 {
-  char filename[255];
-  sprintf ( filename, "lib%s.so", libname );
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-  return dllload( filename );
-#else
-  return dlopen ( filename, RTLD_LAZY );
-#endif
+    char filename[255];
+    //PEGASUS_CMPIR_LIBTYPE appends libname with the lib extn based on os.
+    sprintf ( filename, PEGASUS_CMPIR_LIBTYPE, libname );
+    //invoke dlopen under unix and LoadLibrary under windows OS.
+    return PEGASUS_CMPIR_LOADLIBRARY( filename, RTLD_LAZY );
 }
 
 static void _unload_lib ( void * libhandle )
 {
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-  dllfree( (dllhandle*) libhandle );
-#else
-  dlclose ( libhandle );
-#endif
+    PEGASUS_CMPIR_FREELIBRARY(libhandle);
 }
-
 
 //! Loads a server-side communication layer library.
 /*!
@@ -100,54 +90,46 @@ static void _unload_lib ( void * libhandle )
 
   \return pointer to the provider_comm structure from the comm-layer, or NULL.
  */
-static provider_comm * load_comm_library ( const char * id,
-					   CONST CMPIBroker * broker,
-					   CONST CMPIContext * ctx )
+static provider_comm * load_comm_library (
+    const char * id,
+    CONST CMPIBroker * broker,
+    CONST CMPIContext * ctx )
 {
-	void * hLibrary;
+    void * hLibrary;
+    char function[255];
     CMPIStatus rc = {CMPI_RC_OK, NULL};
 
-	TRACE_VERBOSE(("entered function."));
-	TRACE_NORMAL(("loading comm-layer library: lib%s.so", id));
+    TRACE_VERBOSE(("entered function."));
+    TRACE_NORMAL(("loading comm-layer library: lib%s.so", id));
 
-	hLibrary = _load_lib ( id );
+    hLibrary = _load_lib ( id );
 
-	if ( hLibrary != NULL ) {
-		char function[255];
-		INIT_COMM_LAYER fp;
-		sprintf ( function, "%s_InitCommLayer", id );
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-		fp = (INIT_COMM_LAYER) dllqueryfn ( (dllhandle *) hLibrary, function );
-#else
-		fp = (INIT_COMM_LAYER) dlsym ( hLibrary, function );
-#endif
+    if ( hLibrary != NULL )
+    {
+        INIT_COMM_LAYER fp;
+        sprintf ( function, "%s_InitCommLayer", id );
+        //invokes dlsym on unix and GetProcAddress on windows
+        fp = (INIT_COMM_LAYER)PEGASUS_CMPIR_GETPROCADDRESS(hLibrary,function);
+        if ( fp != NULL )
+        {
+            provider_comm * result = fp ( broker, ctx );
+            result->id = strdup ( id );
+            result->handle = hLibrary;
 
-		if ( fp != NULL ) {
-			provider_comm * result = fp ( broker, ctx );
-			result->id = strdup ( id );
-			result->handle = hLibrary;
-
-			TRACE_INFO(("comm-layer successfully initialized."));
-			TRACE_VERBOSE(("leaving function."));
-			return result;
-		}
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-		dllfree ( (dllhandle*) hLibrary );
-#else
-		dlclose ( hLibrary );
-#endif
-	}
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-	error_at_line ( 0, errno, __FILE__, __LINE__,
-			"Unable to load/init communication-layer library.");
-#else
-	error_at_line ( 0, 0, __FILE__, __LINE__,
-			"Unable to load/init communication-layer library: %s",
-			dlerror () );
-#endif
-	TRACE_VERBOSE(("leaving function."));
-	return NULL;
+            TRACE_INFO(("comm-layer successfully initialized."));
+            TRACE_VERBOSE(("leaving function."));
+            return result;
+        }
+        //invokes dlfree call on unix and FreeLibrary on windows
+        PEGASUS_CMPIR_FREELIBRARY( hLibrary );
+    }
+    error_at_line ( 0, errno, __FILE__, __LINE__,
+        "Unable to load/init communication-layer library.%s Error",id);
+    TRACE_VERBOSE(("leaving function."));
+    return NULL;
 }
+
+
 
 //! Unloads a server-side communication layer library.
 /*!
@@ -158,12 +140,12 @@ static provider_comm * load_comm_library ( const char * id,
  */
 static void unload_comm_library ( provider_comm * comm )
 {
-	TRACE_VERBOSE(("entered function."));
-	TRACE_NORMAL(("unloading comm-layer library: %s", comm->id));
+    TRACE_VERBOSE(("entered function."));
+    TRACE_NORMAL(("unloading comm-layer library: %s", comm->id));
 
-	_unload_lib ( comm->handle );
+    _unload_lib ( comm->handle );
 
-	TRACE_VERBOSE(("leaving function."));
+    TRACE_VERBOSE(("leaving function."));
 }
 
 
@@ -183,40 +165,42 @@ static CMPI_MUTEX_TYPE __mutex=NULL;
 
   \return the comm-layer matching the id or NULL if it cannot be loaded.
  */
-provider_comm * load_provider_comm ( const char * comm_id,
-				     CONST CMPIBroker * broker,
-				     CONST CMPIContext * ctx )
+provider_comm * load_provider_comm (
+    const char * comm_id,
+    CONST CMPIBroker * broker,
+    CONST CMPIContext * ctx )
 {
-	provider_comm * tmp;
+    provider_comm * tmp;
 
-	TRACE_VERBOSE(("entered function."));
-	TRACE_NORMAL(("loading remote communication layer: %s", comm_id ));
+    TRACE_VERBOSE(("entered function."));
+    TRACE_NORMAL(("loading remote communication layer: %s", comm_id ));
 
-        INIT_LOCK(__mutex);
-        CMPI_BrokerExt_Ftab->lockMutex(__mutex);
+    INIT_LOCK(__mutex);
+    CMPI_BrokerExt_Ftab->lockMutex(__mutex);
 
-	for ( tmp = __comm_layers; tmp != NULL; tmp = tmp->next ) {
+    for ( tmp = __comm_layers; tmp != NULL; tmp = tmp->next )
+    {
+        if ( strcmp ( tmp->id, comm_id ) == 0 )
+        {
+            CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
+            TRACE_INFO(("found previously loaded comm-layer."));
+            TRACE_VERBOSE(("leaving function."));
+            return tmp;
+        }
+    }
 
-		if ( strcmp ( tmp->id, comm_id ) == 0 ) {
-                        CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
+    tmp = load_comm_library ( comm_id, broker, ctx );
 
-			TRACE_INFO(("found previously loaded comm-layer."));
-			TRACE_VERBOSE(("leaving function."));
-			return tmp;
-		}
-	}
+    if ( tmp != NULL )
+    {
+        tmp->next     = __comm_layers;
+        __comm_layers = tmp;
+    }
 
-	tmp = load_comm_library ( comm_id, broker, ctx );
+    CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
 
-	if ( tmp != NULL ) {
-		tmp->next     = __comm_layers;
-		__comm_layers = tmp;
-	}
-
-        CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
-
-	TRACE_VERBOSE(("leaving function."));
-  	return tmp;
+    TRACE_VERBOSE(("leaving function."));
+    return tmp;
 }
 
 //! Unloads communication layers (usually after provider terminsation.)
@@ -232,36 +216,36 @@ provider_comm * load_provider_comm ( const char * comm_id,
  */
 void unload_provider_comms ( void )
 {
-	provider_comm * tmp;
-	provider_comm * next;
-	TRACE_VERBOSE(("entered function."));
-	TRACE_NORMAL(("unloading remote communication layers"));
+    provider_comm * tmp;
+    provider_comm * next;
+    TRACE_VERBOSE(("entered function."));
+    TRACE_NORMAL(("unloading remote communication layers"));
 
-        INIT_LOCK(__mutex);
-        CMPI_BrokerExt_Ftab->lockMutex(__mutex);
+    INIT_LOCK(__mutex);
+    CMPI_BrokerExt_Ftab->lockMutex(__mutex);
 
-	for ( tmp = __comm_layers; tmp != NULL; tmp = next ) {
-		TRACE_INFO(("unloading comm-layer: %s.", tmp->id));
-		next = tmp->next;
-	    	// IBMKR: Call the cleanup function of comm library.
-	    	tmp->terminate();
-		// IBMKR: free the library name.
-		free (tmp->id); tmp->id = 0;
-		unload_comm_library(tmp);
-	}
+    for ( tmp = __comm_layers; tmp != NULL; tmp = next )
+    {
+        TRACE_INFO(("unloading comm-layer: %s.", tmp->id));
+        next = tmp->next;
+        // IBMKR: Call the cleanup function of comm library.
+        tmp->terminate();
+        // IBMKR: free the library name.
+        free (tmp->id); tmp->id = 0;
+        unload_comm_library(tmp);
+    }
 
-	__comm_layers = NULL;
-        CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
+    __comm_layers = NULL;
+    CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
 
-	TRACE_VERBOSE(("leaving function."));
+    TRACE_VERBOSE(("leaving function."));
 }
 
 
 void cleanup_provider_comms ( void )
 {
-
-        CMPI_BrokerExt_Ftab->destroyMutex(__mutex);
-		__mutex = 0;
+    CMPI_BrokerExt_Ftab->destroyMutex(__mutex);
+    __mutex = 0;
 }
 /****************************************************************************/
 

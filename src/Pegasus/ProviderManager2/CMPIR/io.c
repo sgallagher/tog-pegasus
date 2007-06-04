@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,40 +29,30 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file io.c
   \brief General I/O routines.
-
-  \author Frank Scheffler
 */
-
+#include "cmpir_common.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <errno.h>
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-  #include <error.h>
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#include <winsock2.h>
+#include <sys/types.h>
 #else
-  #include "debug.h"
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <error.h>
 #endif
+#endif
+
+#include "debug.h"
 #include <stdlib.h>
 #include "io.h"
 
-/*
-void out_hex(unsigned char b)
-{
-   static char* h="0123456789ABCDEF";
-   int hb=b>>8;
-   fprintf ( stderr,"%c%c",*(h+(b>>8)),*(h+(b&0x0f)));
-}
-*/
 
 //! Writes fixed length buffer into a file descriptor.
 /*!
@@ -76,43 +66,47 @@ void out_hex(unsigned char b)
   \return zero on success.
  */
 
-int io_read_fixed_length ( int fd, void * buf, size_t count )
+int io_read_fixed_length ( int fd,
+                           PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
+                           size_t count )
 {
-	ssize_t bytes;
+    ssize_t bytes;
 
-	while ( count > 0 ) {
-
-		bytes = read ( fd, buf, count );
-
-		if ( bytes == 0 ) {
-
-			error_at_line ( 0, 0, __FILE__, __LINE__,
-					"EOF before reading complete "
-					"chunk of data from fd: %d",
-					fd );
-			return -1;
-		} else if ( bytes == -1 ) {
-
-			if ( errno != EINTR && errno != EAGAIN ) {
-				error_at_line ( 0, errno, __FILE__, __LINE__,
-						"could not read all the "
-						"requested data from fd: %d",
-						fd );
-				return -1;
-			}
-		} else {
-
-			count -= bytes;
+    while ( count > 0 )
+    {
+        //invokes read on unix and recv on windows systems
+        bytes = PEGASUS_CMPIR_RECV ( fd, (char *)buf, count,0 );
+        if ( bytes == 0 )
+        {
+            error_at_line ( 0, 0, __FILE__, __LINE__,
+                "EOF before reading complete "
+                "chunk of data from fd: %d",
+                fd );
+            return -1;
+        }
+        else if ( bytes == -1 )
+        {
+            if ( errno != EINTR && errno != EAGAIN )
+            {
+                error_at_line ( 0, errno, __FILE__, __LINE__,
+                    "could not read all the "
+                    "requested data from fd: %d",
+                    fd );
+                return -1;
+            }
+        }
+        else
+        {
+            count -= bytes;
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-			buf   += bytes;
+            buf   += bytes;
 #else
-			buf   = (void*) ((long) buf + (long) bytes);
+            buf   = (void*) ((long) buf + (long) bytes);
 #endif
-		}
-	}
-	return 0;
+        }
+    }
+    return 0;
 }
-
 
 //! Reads fixed number of bytes from a file descriptor.
 /*!
@@ -126,41 +120,46 @@ int io_read_fixed_length ( int fd, void * buf, size_t count )
   \return zero on success.
  */
 
-int io_write_fixed_length ( int fd, const void * buf, size_t count )
+int io_write_fixed_length ( int fd,
+                            const PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
+                            size_t count )
 {
-	ssize_t bytes;
+    ssize_t bytes;
 
-	while ( count > 0 ) {
-
-		bytes = write ( fd, buf, count );
-
-		if ( bytes == 0 ) {
-
-			error_at_line ( 0, 0, __FILE__, __LINE__,
-					"EOF before writing complete "
-					"chunk of data to fd: %d",
-					fd );
-			return -1;
-		} else if ( bytes == -1 ) {
-
-			if ( errno != EINTR && errno != EAGAIN ) {
-				error_at_line ( 0, errno, __FILE__, __LINE__,
-						"could not write all the "
-						"requested data to fd: %d",
-						fd );
-				return -1;
-			}
-		} else {
-
-			count -= bytes;
+    while ( count > 0 )
+    {
+        //invokes write on unix and send on windows
+        bytes = PEGASUS_CMPIR_SEND(fd,(char *) buf, count, 0 );
+        if ( bytes == 0 )
+        {
+            error_at_line ( 0, 0, __FILE__, __LINE__,
+                "EOF before writing complete "
+                "chunk of data to fd: %d",
+                fd );
+            return -1;
+        }
+        else if ( bytes == -1 )
+        {
+            if ( errno != EINTR && errno != EAGAIN )
+             {
+                error_at_line ( 0, errno, __FILE__, __LINE__,
+                    "could not write all the "
+                    "requested data to fd: %d",
+                    fd );
+                return -1;
+             }
+        }
+        else
+        {
+            count -= bytes;
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-			buf   += bytes;
+            buf += bytes;
 #else
-			buf   = (void*) ((long) buf + (long) bytes);
+            buf = (void*) ((long) buf + (long) bytes);
 #endif
-		}
-	}
-	return 0;
+        }
+    }
+    return 0;
 }
 
 /****************************************************************************/
@@ -169,3 +168,4 @@ int io_write_fixed_length ( int fd, const void * buf, size_t count )
 /*** mode: C           ***/
 /*** c-basic-offset: 8 ***/
 /*** End:              ***/
+

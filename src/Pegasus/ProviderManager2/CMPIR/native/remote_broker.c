@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -59,22 +59,21 @@
   the acquire() call, and implicitly by activateFilter() calls issued
   against indication providers.
 
-  \author Frank Scheffler
 */
 
+#include "cmpir_common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <dlfcn.h>
-#include <error.h>
-#else
-  #include <dll.h>
-  #include <pthread.h> /*timespec structure define in z/OS */
-#endif
-#include <sys/time.h>
 #include <errno.h>
+
+#if defined PEGASUS_OS_TYPE_WINDOWS
+#include <winsock2.h>
+#else
+#include <sys/time.h>
+#include <dlfcn.h>
+#include <pthread.h>    /*timespec structure define in z/OS */
+#endif
 
 #include "tool.h"
 #include "mm.h"
@@ -85,7 +84,6 @@
 
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 #define INIT_LOCK(l) if (l==NULL) l=CMPI_BrokerExt_Ftab->newMutex(0);
-
 
 //! CMPIIndicationMI extension to track filter de-/activations.
 /*!
@@ -100,9 +98,9 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
   \sa remote_broker
 */
 struct tracked_indication {
-	CMPIIndicationMI mi;	       /*!< indication MI to be extended  */
-	CMPIIndicationMI * saved_mi;   /*!< pointer to the provider's MI */
-	remote_broker * rb;            /*!< reference to the remote broker  */
+    CMPIIndicationMI mi;           /*!< indication MI to be extended  */
+    CMPIIndicationMI * saved_mi;   /*!< pointer to the provider's MI */
+    remote_broker * rb;            /*!< reference to the remote broker  */
 };
 
 
@@ -116,29 +114,29 @@ struct tracked_indication {
   on a timely basis, depending on its usage.
  */
 struct __remote_broker {
-	remote_broker rb;	/*!< holds the actual broker and FTs  */
+    remote_broker rb;   /*!< holds the actual broker and FTs  */
 
-	char * comm_layer_id;	/*!< the comm-layer associated with the MI */
-	char * broker_address;	/*!< the broker address used for up-calls */
-	char * provider;	/*!< the name of the associated provider */
-	char * provider_module;	/*!< the name of the MI library/module */
-	comm_ticket ticket;	/*!< the comm. ticket used for up-calls */
-	void * library;		/*!< the library handle */
+    char * comm_layer_id;   /*!< the comm-layer associated with the MI */
+    char * broker_address;  /*!< the broker address used for up-calls */
+    char * provider;    /*!< the name of the associated provider */
+    char * provider_module; /*!< the name of the MI library/module */
+    comm_ticket ticket; /*!< the comm. ticket used for up-calls */
+    void * library;     /*!< the library handle */
 
-	unsigned int use_count;	           /*!< number of comm-layer and
-					     filters currently using this
-					     provider */
-	struct timeval last_used;          /*!< time of last usage  */
-        CMPI_MUTEX_TYPE lock;	           /*!< lock to provide clean access
-					     to use_count  */
+    unsigned int use_count;            /*!< number of comm-layer and
+                         filters currently using this
+                         provider */
+    struct timeval last_used;          /*!< time of last usage  */
+        CMPI_MUTEX_TYPE lock;              /*!< lock to provide clean access
+                         to use_count  */
 
-	CMPIInstanceMI * instanceMI;       /*!< instance MI handle */
-	CMPIAssociationMI * associationMI; /*!< association MI handle */
-	CMPIMethodMI * methodMI;           /*!< method MI handle */
-	CMPIPropertyMI * propertyMI;       /*!< property MI handle */
-	CMPIIndicationMI * indicationMI;   /*!< indication MI handle */
+    CMPIInstanceMI * instanceMI;       /*!< instance MI handle */
+    CMPIAssociationMI * associationMI; /*!< association MI handle */
+    CMPIMethodMI * methodMI;           /*!< method MI handle */
+    CMPIPropertyMI * propertyMI;       /*!< property MI handle */
+    CMPIIndicationMI * indicationMI;   /*!< indication MI handle */
 
-	struct __remote_broker * next;     /*!< pointer to next element  */
+    struct __remote_broker * next;     /*!< pointer to next element  */
 };
 
 
@@ -177,29 +175,29 @@ static CMPIContext * __remote_brokers_context = NULL;
 #ifdef CMPI_VER_100
 
 static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
-					 CONST CMPIContext * ctx,
-					 CMPIBoolean term)
+                     CONST CMPIContext * ctx,
+                     CMPIBoolean term)
 #else
 static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
-					 CMPIContext * ctx)
-					 
+                     CMPIContext * ctx)
+
 #endif
-					 
+
 {
-	struct tracked_indication * __mi =
-		(struct tracked_indication *) mi;
-	CMPIStatus rc;
+    struct tracked_indication * __mi =
+        (struct tracked_indication *) mi;
+    CMPIStatus rc;
 
-	TRACE_INFO(("relaying call to real provider."));
+    TRACE_INFO(("relaying call to real provider."));
 #ifdef CMPI_VER_100
-	rc = __mi->saved_mi->ft->cleanup ( __mi->saved_mi, ctx, term);
+    rc = __mi->saved_mi->ft->cleanup ( __mi->saved_mi, ctx, term);
 #else
-	rc = __mi->saved_mi->ft->cleanup ( __mi->saved_mi, ctx );
+    rc = __mi->saved_mi->ft->cleanup ( __mi->saved_mi, ctx );
 #endif
 
-	TRACE_INFO(("freeing wrapper CMPIIndicationMIFT."));
-	free ( __mi );
-	return rc;
+    TRACE_INFO(("freeing wrapper CMPIIndicationMIFT."));
+    free ( __mi );
+    return rc;
 }
 
 
@@ -211,25 +209,25 @@ static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
   \return the status of the provider's authorizeFilter() call.
  */
 static CMPIStatus __indication_authorizeFilter ( CMPIIndicationMI * mi,
-						 CONST CMPIContext * ctx,
+                         CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
-						 CMPIResult * result,
+                         CMPIResult * result,
 #endif
-						 CONST CMPISelectExp * sexp,
-						 const char * ns,
-						 CONST CMPIObjectPath * cop,
-						 const char * user )
+                         CONST CMPISelectExp * sexp,
+                         const char * ns,
+                         CONST CMPIObjectPath * cop,
+                         const char * user )
 {
-	struct tracked_indication * __mi =
-		(struct tracked_indication *) mi;
+    struct tracked_indication * __mi =
+        (struct tracked_indication *) mi;
 
-	TRACE_INFO(("relaying call to real provider."));
-	return __mi->saved_mi->ft->authorizeFilter ( __mi->saved_mi, ctx,
+    TRACE_INFO(("relaying call to real provider."));
+    return __mi->saved_mi->ft->authorizeFilter ( __mi->saved_mi, ctx,
 #ifndef CMPI_VER_100
-						     result, 
+                             result,
 #endif
-						     sexp,
-						     ns, cop, user );
+                             sexp,
+                             ns, cop, user );
 
 
 }
@@ -243,23 +241,23 @@ static CMPIStatus __indication_authorizeFilter ( CMPIIndicationMI * mi,
   \return the status of the provider's mustPoll() call.
  */
 static CMPIStatus __indication_mustPoll ( CMPIIndicationMI * mi,
-					  CONST CMPIContext * ctx,
-#ifndef CMPI_VER_100					  
-					  CMPIResult * result,
-#endif
-					  CONST CMPISelectExp * sexp,
-					  const char * ns,
-					  CONST CMPIObjectPath * cop )
-{
-	struct tracked_indication * __mi =
-		(struct tracked_indication *) mi;
-
-	TRACE_INFO(("relaying call to real provider."));
-	return __mi->saved_mi->ft->mustPoll ( __mi->saved_mi, ctx, 
+                      CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
-					      result,
+                      CMPIResult * result,
 #endif
-					      sexp, ns, cop );
+                      CONST CMPISelectExp * sexp,
+                      const char * ns,
+                      CONST CMPIObjectPath * cop )
+{
+    struct tracked_indication * __mi =
+        (struct tracked_indication *) mi;
+
+    TRACE_INFO(("relaying call to real provider."));
+    return __mi->saved_mi->ft->mustPoll ( __mi->saved_mi, ctx,
+#ifndef CMPI_VER_100
+                          result,
+#endif
+                          sexp, ns, cop );
 }
 
 
@@ -274,29 +272,29 @@ static CMPIStatus __indication_mustPoll ( CMPIIndicationMI * mi,
   \return the status of the provider's activateFilter() call.
  */
 static CMPIStatus __indication_activateFilter ( CMPIIndicationMI * mi,
-						CONST CMPIContext * ctx,
+                        CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
-						CMPIResult * result,
+                        CMPIResult * result,
 #endif
-						CONST CMPISelectExp * sexp,
-						const char * ns,
-						CONST CMPIObjectPath * cop,
-						CMPIBoolean first )
+                        CONST CMPISelectExp * sexp,
+                        const char * ns,
+                        CONST CMPIObjectPath * cop,
+                        CMPIBoolean first )
 {
-	struct tracked_indication * __mi =
-		(struct tracked_indication *) mi;
+    struct tracked_indication * __mi =
+        (struct tracked_indication *) mi;
 
-	TRACE_VERBOSE(("entered function."));
+    TRACE_VERBOSE(("entered function."));
 
-	RBAcquireMI ( __mi->rb );
+    RBAcquireMI ( __mi->rb );
 
-	TRACE_INFO(("relaying call to real provider."));
-	return __mi->saved_mi->ft->activateFilter (__mi->saved_mi, ctx,
-#ifndef CMPI_VER_100						   
-						    result, 
+    TRACE_INFO(("relaying call to real provider."));
+    return __mi->saved_mi->ft->activateFilter (__mi->saved_mi, ctx,
+#ifndef CMPI_VER_100
+                            result,
 #endif
-						    sexp,
-						    ns, cop, first );
+                            sexp,
+                            ns, cop, first );
 }
 
 
@@ -310,67 +308,66 @@ static CMPIStatus __indication_activateFilter ( CMPIIndicationMI * mi,
   \return the status of the provider's deActivateFilter() call.
  */
 static CMPIStatus __indication_deactivateFilter ( CMPIIndicationMI * mi,
-						  CONST CMPIContext * ctx,
+                          CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
-						  CMPIResult * result,
+                          CMPIResult * result,
 #endif
-						  CONST CMPISelectExp * sexp,
-						  const char * ns,
-						  CONST CMPIObjectPath * cop,
-						  CMPIBoolean last )
-{
-	struct tracked_indication * __mi =
-		(struct tracked_indication *) mi;
-
-	TRACE_VERBOSE(("entered function."));
-
-	RBReleaseMI ( __mi->rb );
-
-	TRACE_INFO(("relaying call to real provider."));
-	return __mi->saved_mi->ft->deActivateFilter ( __mi->saved_mi, ctx,
-#ifndef CMPI_VER_100
-						      result,
-#endif
-						      sexp,
-						      ns, cop, last );
-}
-
-static CMPIStatus __indication_enableIndications (CMPIIndicationMI* mi
-#ifdef CMPI_VER_100
-      , const CMPIContext *ctx
-#endif
-     )
+                          CONST CMPISelectExp * sexp,
+                          const char * ns,
+                          CONST CMPIObjectPath * cop,
+                          CMPIBoolean last )
 {
     struct tracked_indication * __mi =
         (struct tracked_indication *) mi;
 
     TRACE_VERBOSE(("entered function."));
 
+    RBReleaseMI ( __mi->rb );
+
+    TRACE_INFO(("relaying call to real provider."));
+    return __mi->saved_mi->ft->deActivateFilter ( __mi->saved_mi, ctx,
+#ifndef CMPI_VER_100
+                              result,
+#endif
+                              sexp,
+                              ns, cop, last );
+}
+
+static CMPIStatus __indication_enableIndications (CMPIIndicationMI* mi
+#ifdef CMPI_VER_100
+    , const CMPIContext *ctx
+#endif
+    )
+{
+    struct tracked_indication * __mi = (struct tracked_indication *) mi;
+
+    TRACE_VERBOSE(("entered function."));
+
     TRACE_INFO(("relaying call to real provider."));
     return __mi->saved_mi->ft->enableIndications (__mi->saved_mi
 #ifdef CMPI_VER_100
-    ,ctx
+       ,ctx
 #endif
-    );
+       );
 }
 
 static CMPIStatus __indication_disableIndications (CMPIIndicationMI* mi
 #ifdef CMPI_VER_100
-      , const CMPIContext *ctx
+    , const CMPIContext *ctx
 #endif
-     )
+)
 {
-    struct tracked_indication * __mi =
-         (struct tracked_indication *) mi;
+    struct tracked_indication * __mi = (struct tracked_indication *) mi;
 
     TRACE_VERBOSE(("entered function."));
 
     TRACE_INFO(("relaying call to real provider."));
     return __mi->saved_mi->ft->disableIndications ( __mi->saved_mi
 #ifdef CMPI_VER_100
-    ,ctx
+       ,ctx
 #endif
-    );
+       );
+
 }
 
 
@@ -389,30 +386,30 @@ static CMPIStatus __indication_disableIndications (CMPIIndicationMI* mi
   \sa __indication_activateFilter, __indication_deactivateFilter
  */
 static CMPIIndicationMI * __track_indicationMI ( CMPIIndicationMI * mi,
-						 remote_broker * rb)
+                         remote_broker * rb)
 {
-	static CMPIIndicationMIFT __indicationMIFT = {
-		0, 0, NULL,
-		__indication_cleanup,
-		__indication_authorizeFilter,
-		__indication_mustPoll,
-		__indication_activateFilter,
-		__indication_deactivateFilter,
-		__indication_enableIndications,
-		__indication_disableIndications,
-	};
+    static CMPIIndicationMIFT __indicationMIFT = {
+        0, 0, NULL,
+        __indication_cleanup,
+        __indication_authorizeFilter,
+        __indication_mustPoll,
+        __indication_activateFilter,
+        __indication_deactivateFilter,
+        __indication_enableIndications,
+        __indication_disableIndications,
+    };
 
-	struct tracked_indication * __mi =
-		(struct tracked_indication *)
-		malloc ( sizeof ( struct tracked_indication ) );
+    struct tracked_indication * __mi =
+        (struct tracked_indication *)
+        malloc ( sizeof ( struct tracked_indication ) );
 
-	TRACE_NORMAL(("building wrapper CMPIIndicationMIFT."));
+    TRACE_NORMAL(("building wrapper CMPIIndicationMIFT."));
 
-	__mi->mi.ft    = &__indicationMIFT;
-	__mi->saved_mi =  mi;
-	__mi->rb     = rb;
+    __mi->mi.ft    = &__indicationMIFT;
+    __mi->saved_mi =  mi;
+    __mi->rb     = rb;
 
-	return (CMPIIndicationMI *) __mi;
+    return (CMPIIndicationMI *) __mi;
 }
 
 
@@ -422,45 +419,45 @@ static CMPIIndicationMI * __track_indicationMI ( CMPIIndicationMI * mi,
 
 static char * __get_broker_address ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("returning broker address: %s", __rb->broker_address));
-	return __rb->broker_address;
+    TRACE_NORMAL(("returning broker address: %s", __rb->broker_address));
+    return __rb->broker_address;
 }
 
 
 static char * __get_provider ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("returning provider name: %s", __rb->provider));
-	return __rb->provider;
+    TRACE_NORMAL(("returning provider name: %s", __rb->provider));
+    return __rb->provider;
 }
 
 
 static comm_ticket * __get_ticket ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("returning broker ticket."));
-	return &__rb->ticket;
+    TRACE_NORMAL(("returning broker ticket."));
+    return &__rb->ticket;
 }
 
 
 static void __acquireMI ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("Acquiring remote broker handle."));
+    TRACE_NORMAL(("Acquiring remote broker handle."));
 
         CMPI_BrokerExt_Ftab->lockMutex(__rb->lock);
 
-	__rb->use_count++;
-	TRACE_INFO(("use count increased to: %d", __rb->use_count ));
+    __rb->use_count++;
+    TRACE_INFO(("use count increased to: %d", __rb->use_count ));
 
         CMPI_BrokerExt_Ftab->unlockMutex(__rb->lock);
 }
@@ -468,16 +465,16 @@ static void __acquireMI ( remote_broker * rb )
 
 static void __releaseMI ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("releasing remote broker handle."));
+    TRACE_NORMAL(("releasing remote broker handle."));
 
         CMPI_BrokerExt_Ftab->lockMutex(__rb->lock);
 
-	gettimeofday ( &__rb->last_used, NULL );
-	__rb->use_count--;
-	TRACE_INFO(("use count decreased to: %d", __rb->use_count ));
+    gettimeofday ( &__rb->last_used, NULL );
+    __rb->use_count--;
+    TRACE_INFO(("use count decreased to: %d", __rb->use_count ));
 
         CMPI_BrokerExt_Ftab->unlockMutex(__rb->lock);
 }
@@ -485,342 +482,326 @@ static void __releaseMI ( remote_broker * rb )
 
 static unsigned int __get_use_count ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	return __rb->use_count;
+    return __rb->use_count;
 }
 
 
 static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 {
-	TRACE_VERBOSE(("entered function."));
-	TRACE_NORMAL(("Deactivating remote provider."));
+
 #ifdef CMPI_VER_100
-	CMPIBoolean term = 0;
+    CMPIBoolean term = 0;
 #endif
-
-	if ( __rb->instanceMI != NULL ) {
-		TRACE_INFO(("Calling cleanup() on instanceMI handle."));
-		__rb->instanceMI->ft->cleanup ( __rb->instanceMI,
-						__remote_brokers_context
+TRACE_VERBOSE(("entered function."));
+    TRACE_NORMAL(("Deactivating remote provider."));
+    if ( __rb->instanceMI != NULL ) {
+        TRACE_INFO(("Calling cleanup() on instanceMI handle."));
+        __rb->instanceMI->ft->cleanup ( __rb->instanceMI,
+                        __remote_brokers_context
 #ifdef CMPI_VER_100
-						,term
+                        ,term
 #endif
-						);
-	}
+                        );
+    }
 
-	if ( __rb->associationMI != NULL ) {
-		TRACE_INFO(("Calling cleanup() on associationMI handle."));
-		__rb->associationMI->ft->cleanup ( __rb->associationMI,
-						   __remote_brokers_context
+    if ( __rb->associationMI != NULL ) {
+        TRACE_INFO(("Calling cleanup() on associationMI handle."));
+        __rb->associationMI->ft->cleanup ( __rb->associationMI,
+                           __remote_brokers_context
 #ifdef CMPI_VER_100
-						,term
+                        ,term
 #endif
-						   );
-	}
+                           );
+    }
 
-	if ( __rb->methodMI != NULL ) {
-		TRACE_INFO(("Calling cleanup() on methodMI handle."));
-		__rb->methodMI->ft->cleanup ( __rb->methodMI,
-					      __remote_brokers_context
+    if ( __rb->methodMI != NULL ) {
+        TRACE_INFO(("Calling cleanup() on methodMI handle."));
+        __rb->methodMI->ft->cleanup ( __rb->methodMI,
+                          __remote_brokers_context
 #ifdef CMPI_VER_100
-						,term
+                        ,term
 #endif
-					      );
-	}
+                          );
+    }
 
-	if ( __rb->propertyMI != NULL ) {
-		TRACE_INFO(("Calling cleanup() on propertyMI handle."));
-		__rb->propertyMI->ft->cleanup ( __rb->propertyMI,
-						__remote_brokers_context 
+    if ( __rb->propertyMI != NULL ) {
+        TRACE_INFO(("Calling cleanup() on propertyMI handle."));
+        __rb->propertyMI->ft->cleanup ( __rb->propertyMI,
+                        __remote_brokers_context
 #ifdef CMPI_VER_100
-						,term
+                        ,term
 #endif
-						);
-	}
+                        );
+    }
 
-	if ( __rb->indicationMI != NULL ) {
-		TRACE_INFO(("Calling cleanup() on indicationMI handle."));
-		__rb->indicationMI->ft->cleanup ( __rb->indicationMI,
-						  __remote_brokers_context 
+    if ( __rb->indicationMI != NULL ) {
+        TRACE_INFO(("Calling cleanup() on indicationMI handle."));
+        __rb->indicationMI->ft->cleanup ( __rb->indicationMI,
+                          __remote_brokers_context
 #ifdef CMPI_VER_100
-						,term
+                        ,term
 #endif
-						  );
-	}
-	tool_mm_flush ();
+                          );
+    }
+    tool_mm_flush ();
 
 
-	TRACE_INFO(("Closing provider module library."));
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-	dlclose ( __rb->library );
-#else
-	dllfree ( (dllhandle *) __rb->library);
-#endif
+    TRACE_INFO(("Closing provider module library."));
+    //invokes dlfree call on unix and FreeLibrary on windows
+    PEGASUS_CMPIR_FREELIBRARY ( __rb->library );
 
-	__rb->library = NULL;
+    __rb->library = NULL;
 
-	TRACE_INFO(("Freeing allocated memory."));
-	free ( __rb->comm_layer_id );
-	free ( __rb->broker_address );
-	free ( __rb->provider );
-	free ( __rb->provider_module );
+    TRACE_INFO(("Freeing allocated memory."));
+    free ( __rb->comm_layer_id );
+    free ( __rb->broker_address );
+    free ( __rb->provider );
+    free ( __rb->provider_module );
         CMPI_BrokerExt_Ftab->destroyMutex(__rb->lock);
-	free ( __rb );
+    free ( __rb );
 
-	TRACE_VERBOSE(("leaving function."));
+    TRACE_VERBOSE(("leaving function."));
 }
 
 
 static CMPIInstanceMI * __get_instanceMI ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("Retrieving instanceMI handle."));
+    TRACE_NORMAL(("Retrieving instanceMI handle."));
 
-	if ( __rb->instanceMI == NULL ) {
-		__rb->instanceMI =
-			tool_load_InstanceMI ( __rb->provider,
-					       __rb->library,
-					       (CMPIBroker *) rb,
-					       __remote_brokers_context );
-	}
-	return __rb->instanceMI;
+    if ( __rb->instanceMI == NULL ) {
+        __rb->instanceMI =
+            tool_load_InstanceMI ( __rb->provider,
+                           __rb->library,
+                           (CMPIBroker *) rb,
+                           __remote_brokers_context );
+    }
+    return __rb->instanceMI;
 }
 
 
 static CMPIAssociationMI * __get_associationMI ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("Retrieving associationMI handle."));
+    TRACE_NORMAL(("Retrieving associationMI handle."));
 
-	if ( __rb->associationMI == NULL ) {
-		__rb->associationMI =
-			tool_load_AssociationMI ( __rb->provider,
-						  __rb->library,
-						  (CMPIBroker *) rb,
-						  __remote_brokers_context );
-	}
-	return __rb->associationMI;
+    if ( __rb->associationMI == NULL ) {
+        __rb->associationMI =
+            tool_load_AssociationMI ( __rb->provider,
+                          __rb->library,
+                          (CMPIBroker *) rb,
+                          __remote_brokers_context );
+    }
+    return __rb->associationMI;
 }
 
 
 static CMPIMethodMI * __get_methodMI ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("Retrieving methodMI handle."));
+    TRACE_NORMAL(("Retrieving methodMI handle."));
 
-	if ( __rb->methodMI == NULL ) {
-		__rb->methodMI =
-			tool_load_MethodMI ( __rb->provider,
-					     __rb->library,
-					     (CMPIBroker *) rb,
-					     __remote_brokers_context );
-	}
-	return __rb->methodMI;
+    if ( __rb->methodMI == NULL ) {
+        __rb->methodMI =
+            tool_load_MethodMI ( __rb->provider,
+                         __rb->library,
+                         (CMPIBroker *) rb,
+                         __remote_brokers_context );
+    }
+    return __rb->methodMI;
 }
 
 
 static CMPIPropertyMI * __get_propertyMI ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
 
-	TRACE_NORMAL(("Retrieving propertyMI handle."));
+    TRACE_NORMAL(("Retrieving propertyMI handle."));
 
-	if ( __rb->propertyMI == NULL ) {
-		__rb->propertyMI =
-			tool_load_PropertyMI ( __rb->provider,
-					       __rb->library,
-					       (CMPIBroker *) rb,
-					       __remote_brokers_context );
-	}
-	return __rb->propertyMI;
+    if ( __rb->propertyMI == NULL ) {
+        __rb->propertyMI =
+            tool_load_PropertyMI ( __rb->provider,
+                           __rb->library,
+                           (CMPIBroker *) rb,
+                           __remote_brokers_context );
+    }
+    return __rb->propertyMI;
 }
 
 
 static CMPIIndicationMI * __get_indicationMI ( remote_broker * rb )
 {
-	struct __remote_broker * __rb =
-		(struct __remote_broker *) rb;
-	CMPIIndicationMI * mi;
+    struct __remote_broker * __rb =
+        (struct __remote_broker *) rb;
+    CMPIIndicationMI * mi;
 
-	TRACE_NORMAL(("Retrieving indicationMI handle."));
+    TRACE_NORMAL(("Retrieving indicationMI handle."));
 
-	if ( __rb->indicationMI == NULL &&
-	     ( mi = tool_load_IndicationMI ( __rb->provider,
-					     __rb->library,
-					     (CMPIBroker *) rb,
-					     __remote_brokers_context ) )
-	     != NULL ) {
+    if ( __rb->indicationMI == NULL &&
+         ( mi = tool_load_IndicationMI ( __rb->provider,
+                         __rb->library,
+                         (CMPIBroker *) rb,
+                         __remote_brokers_context ) )
+         != NULL ) {
 
-		__rb->indicationMI =
-			__track_indicationMI ( mi, (remote_broker *) __rb );
-	}
-	return __rb->indicationMI;
+        __rb->indicationMI =
+            __track_indicationMI ( mi, (remote_broker *) __rb );
+    }
+    return __rb->indicationMI;
 }
 
 
 static struct __remote_broker *
 __new_remote_broker ( const char * comm_layer_id,
-		      const char * broker_address,
-		      const char * provider,
-		      const char * provider_module,
-		      const comm_ticket * ticket,
-		      CMPIBrokerFT * brokerFT )
+              const char * broker_address,
+              const char * provider,
+              const char * provider_module,
+              const comm_ticket * ticket,
+              CMPIBrokerFT * brokerFT )
 {
-	static struct remote_brokerFT rbFT = {
-		__get_broker_address,
-		__get_provider,
-		__get_ticket,
-		__acquireMI,
-		__releaseMI,
-		__get_use_count,
-		__get_instanceMI,
-		__get_associationMI,
-		__get_methodMI,
-		__get_propertyMI,
-		__get_indicationMI
-	};
+    static struct remote_brokerFT rbFT = {
+        __get_broker_address,
+        __get_provider,
+        __get_ticket,
+        __acquireMI,
+        __releaseMI,
+        __get_use_count,
+        __get_instanceMI,
+        __get_associationMI,
+        __get_methodMI,
+        __get_propertyMI,
+        __get_indicationMI
+    };
 
-	struct __remote_broker * __rb;
+    struct __remote_broker * __rb;
 
-	TRACE_VERBOSE(("entered function."));
+    TRACE_VERBOSE(("entered function."));
 
-	__rb = (struct __remote_broker *)
-		calloc ( 1, sizeof ( struct __remote_broker ) );
+    __rb = (struct __remote_broker *)
+        calloc ( 1, sizeof ( struct __remote_broker ) );
         __rb->lock=CMPI_BrokerExt_Ftab->newMutex(0);
 
-	TRACE_NORMAL(("Setting up new remote broker structure."));
-	TRACE_INFO(("Storing:\ncomm_layer_id: %s\nbroker_address: %s\n"
-		    "provider: %s\nprovider_module: %s",
-		    comm_layer_id, broker_address, provider, provider_module));
+    TRACE_NORMAL(("Setting up new remote broker structure."));
+    TRACE_INFO(("Storing:\ncomm_layer_id: %s\nbroker_address: %s\n"
+            "provider: %s\nprovider_module: %s",
+            comm_layer_id, broker_address, provider, provider_module));
 
-	__rb->rb.ft         = &rbFT;
-	__rb->rb.broker.bft = brokerFT;
-	__rb->rb.broker.eft = &native_brokerEncFT;
-	__rb->rb.broker.xft = CMPI_BrokerExt_Ftab;
+    __rb->rb.ft         = &rbFT;
+    __rb->rb.broker.bft = brokerFT;
+    __rb->rb.broker.eft = &native_brokerEncFT;
+    __rb->rb.broker.xft = CMPI_BrokerExt_Ftab;
 
-	__rb->comm_layer_id =
-		( comm_layer_id )? strdup ( comm_layer_id ): NULL;
-	__rb->broker_address =
-		( broker_address )? strdup ( broker_address ): NULL;
-	__rb->provider = ( provider )? strdup ( provider ): NULL;
-	__rb->provider_module =
-		( provider_module )? strdup ( provider_module ): NULL;
-	__rb->ticket = *ticket;
+    __rb->comm_layer_id =
+        ( comm_layer_id )? strdup ( comm_layer_id ): NULL;
+    __rb->broker_address =
+        ( broker_address )? strdup ( broker_address ): NULL;
+    __rb->provider = ( provider )? strdup ( provider ): NULL;
+    __rb->provider_module =
+        ( provider_module )? strdup ( provider_module ): NULL;
+    __rb->ticket = *ticket;
 
-	gettimeofday ( &__rb->last_used, NULL );
+    gettimeofday ( &__rb->last_used, NULL );
 
-	{
-	   char dlName[512];
-           #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-               defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-               defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-	      strcpy(dlName,provider_module);
-              strcat(dlName,".dll");
-           #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-	      strcpy(dlName,"lib");
-	      strcat(dlName,provider_module);
-              strcat(dlName,".so");
-           #elif defined(PEGASUS_OS_HPUX)
-             #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-	        strcpy(dlName,"lib");
-	        strcat(dlName,provider_module);
-                strcat(dlName,".sl");
-             #else
-	        strcpy(dlName,"lib");
-	        strcat(dlName,provider_module);
-                strcat(dlName,".so");
-             #endif
-           #elif defined(PEGASUS_OS_OS400)
-	      strcpy(dlName,provider_module);
-           #elif defined(PEGASUS_OS_DARWIN)
-	      strcpy(dlName,"lib");
-	      strcat(dlName,provider_module);
-              strcat(dlName,".dylib");
-           #else
-	      strcpy(dlName,"lib");
-	      strcat(dlName,provider_module);
-              strcat(dlName,".so");
-           #endif
+    {
+        char dlName[512];
 
-	   TRACE_INFO(("loading provider module: %s.", provider_module ));
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-	   __rb->library = dlopen ( dlName, RTLD_NOW );
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+        strcpy(dlName,provider_module);
+        strcat(dlName,".dll");
+#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+        strcpy(dlName,"lib");
+        strcat(dlName,provider_module);
+        strcat(dlName,".sl");
+#elif defined(PEGASUS_OS_OS400)
+        strcpy(dlName,provider_module);
+#elif defined(PEGASUS_OS_DARWIN)
+        strcpy(dlName,"lib");
+        strcat(dlName,provider_module);
+        strcat(dlName,".dylib");
 #else
-	   __rb->library = (void *) dllload ( dlName );
-	   if (__rb->library == 0) TRACE_CRITICAL(("Trying to load library %s failed with %s\n",dlName, strerror(errno)));
+        strcpy(dlName,"lib");
+        strcat(dlName,provider_module);
+        strcat(dlName,".so");
 #endif
-	}
 
-	TRACE_VERBOSE(("leaving function."));
-	return __rb;
+       TRACE_INFO(("loading provider module: %s.", provider_module ));
+       //invoke dlopen under unix and LoadLibrary under windows OS.
+       __rb->library = PEGASUS_CMPIR_LOADLIBRARY ( dlName, RTLD_NOW );
+    }
+
+    TRACE_VERBOSE(("leaving function."));
+    return __rb;
 }
 
 
-remote_broker * find_remote_broker ( const char * comm_layer_id,
-				     const char * broker_address,
-				     const char * provider,
-				     const char * provider_module,
-				     const comm_ticket * ticket,
-				     CMPIBrokerFT * brokerFT )
+PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker ( const char * comm_layer_id,
+                     const char * broker_address,
+                     const char * provider,
+                     const char * provider_module,
+                     const comm_ticket * ticket,
+                     CMPIBrokerFT * brokerFT )
 {
-	struct __remote_broker * __rb;
+    struct __remote_broker * __rb;
 
-	TRACE_VERBOSE(("entered function."));
-	TRACE_NORMAL(("Looking up remote broker handle."));
-	TRACE_INFO(("Matching:\n"
-		    "comm_layer_id: %s\nbroker_address: %s\n"
-		    "provider: %s\nprovider_module: %s",
-		    comm_layer_id, broker_address, provider,
-		    provider_module));
+    TRACE_VERBOSE(("entered function."));
+    TRACE_NORMAL(("Looking up remote broker handle."));
+    TRACE_INFO(("Matching:\n"
+            "comm_layer_id: %s\nbroker_address: %s\n"
+            "provider: %s\nprovider_module: %s",
+            comm_layer_id, broker_address, provider,
+            provider_module));
 
         INIT_LOCK(__remote_brokers_lock);
         CMPI_BrokerExt_Ftab->lockMutex(__remote_brokers_lock);
 
-	for ( __rb = __remote_brokers; __rb != NULL; __rb = __rb->next ) {
+    for ( __rb = __remote_brokers; __rb != NULL; __rb = __rb->next ) {
 
-		if ( strcmp ( comm_layer_id,  __rb->comm_layer_id )  == 0 &&
-		     strcmp ( broker_address, __rb->broker_address ) == 0 &&
-		     strcmp ( provider,       __rb->provider )       == 0 &&
-		     strcmp ( provider_module,__rb->provider_module) == 0 &&
-		     compare_ticket ( ticket, &__rb->ticket ) ) {
+        if ( strcmp ( comm_layer_id,  __rb->comm_layer_id )  == 0 &&
+             strcmp ( broker_address, __rb->broker_address ) == 0 &&
+             strcmp ( provider,       __rb->provider )       == 0 &&
+             strcmp ( provider_module,__rb->provider_module) == 0 &&
+             compare_ticket ( ticket, &__rb->ticket ) ) {
 
                         CMPI_BrokerExt_Ftab->unlockMutex(__remote_brokers_lock);
 
-			TRACE_INFO(("returning existing handle."));
+            TRACE_INFO(("returning existing handle."));
 
-			RBAcquireMI ( (remote_broker *) __rb );
+            RBAcquireMI ( (remote_broker *) __rb );
 
-			TRACE_VERBOSE(("leaving function."));
-			return (remote_broker *) __rb;
-		}
-	}
+            TRACE_VERBOSE(("leaving function."));
+            return (remote_broker *) __rb;
+        }
+    }
 
-	__rb = __new_remote_broker ( comm_layer_id,
-				     broker_address,
-				     provider,
-				     provider_module,
-				     ticket,
-				     brokerFT );
-	__rb->next        = __remote_brokers;
-	__remote_brokers  = __rb;
+    __rb = __new_remote_broker ( comm_layer_id,
+                     broker_address,
+                     provider,
+                     provider_module,
+                     ticket,
+                     brokerFT );
+    __rb->next        = __remote_brokers;
+    __remote_brokers  = __rb;
 
         CMPI_BrokerExt_Ftab->unlockMutex(__remote_brokers_lock);
 
-	TRACE_INFO(("returning fresh handle."));
+    TRACE_INFO(("returning fresh handle."));
 
-	RBAcquireMI ( (remote_broker *) __rb );
+    RBAcquireMI ( (remote_broker *) __rb );
 
-	TRACE_VERBOSE(("leaving function."));
-	return (remote_broker *) __rb;
+    TRACE_VERBOSE(("leaving function."));
+    return (remote_broker *) __rb;
 }
 
 
@@ -839,60 +820,59 @@ remote_broker * find_remote_broker ( const char * comm_layer_id,
 
   \sa __deactivate_remote_broker()
  */
-void cleanup_remote_brokers ( long timeout,
-			      time_t check_interval )
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers ( long timeout,
+                  time_t check_interval )
 {
-	CMPI_COND_TYPE  c = NULL;
-	CMPI_MUTEX_TYPE m = NULL;
-	struct timespec wait = {0,0};
-	struct timeval t;
-	struct __remote_broker ** __rb, * tmp;
+    CMPI_COND_TYPE  c = NULL;
+    CMPI_MUTEX_TYPE m = NULL;
+    struct timespec wait = {0,0};
+    struct timeval t;
+    struct __remote_broker ** __rb, * tmp;
     int rc = 0;
 
-	TRACE_VERBOSE(("entered function."));
-	TRACE_NORMAL(("Cleaning up remote providers."));
-	TRACE_INFO(("timeout interval: %ld (secs)", timeout));
-	TRACE_INFO(("check interval: %ld (secs)", check_interval));
+    TRACE_VERBOSE(("entered function."));
+    TRACE_NORMAL(("Cleaning up remote providers."));
+    TRACE_INFO(("timeout interval: %ld (secs)", timeout));
+    TRACE_INFO(("check interval: %ld (secs)", check_interval));
 
-	c=CMPI_BrokerExt_Ftab->newCondition(0);
-	m=CMPI_BrokerExt_Ftab->newMutex(0);
+    c=CMPI_BrokerExt_Ftab->newCondition(0);
+    m=CMPI_BrokerExt_Ftab->newMutex(0);
 
-
-	do {
-		TRACE_NORMAL(("Looking for remote providers "
-			      "to be cleaned up."));
+    do {
+        TRACE_NORMAL(("Looking for remote providers "
+                  "to be cleaned up."));
 
                 INIT_LOCK(__remote_brokers_lock);
                 CMPI_BrokerExt_Ftab->lockMutex(__remote_brokers_lock);
-		gettimeofday ( &t, NULL );
+        gettimeofday ( &t, NULL );
 
-		for ( __rb = &__remote_brokers;
-		      *__rb != NULL; ) {
+        for ( __rb = &__remote_brokers;
+              *__rb != NULL; ) {
 
-			if ( (*__rb)->use_count == 0 &&
-			     t.tv_sec >= (*__rb)->last_used.tv_sec + timeout) {
+            if ( (*__rb)->use_count == 0 &&
+                 t.tv_sec >= (*__rb)->last_used.tv_sec + timeout) {
 
-				tmp = *__rb;
-				*__rb = tmp->next;
-				__cleanup_remote_broker ( tmp );
+                tmp = *__rb;
+                *__rb = tmp->next;
+                __cleanup_remote_broker ( tmp );
 
-			} else __rb = &(*__rb)->next;
-		}
+            } else __rb = &(*__rb)->next;
+        }
                 CMPI_BrokerExt_Ftab->unlockMutex(__remote_brokers_lock);
 
-		wait.tv_sec = t.tv_sec + check_interval;
-		wait.tv_nsec = 0;
-
-	    CMPI_BrokerExt_Ftab->lockMutex(m);
+        wait.tv_sec = t.tv_sec + check_interval;
+        wait.tv_nsec = 0;
+        CMPI_BrokerExt_Ftab->lockMutex(m);
         rc = CMPI_BrokerExt_Ftab->timedCondWait( c, m, &wait );
-	    CMPI_BrokerExt_Ftab->unlockMutex(m);
+        CMPI_BrokerExt_Ftab->unlockMutex(m);
 
-	} while (  rc );
+    } while (  rc );
 
-	CMPI_BrokerExt_Ftab->destroyMutex(m);
-	CMPI_BrokerExt_Ftab->destroyCondition(c);
 
-	TRACE_CRITICAL(("Timed wait failed, leaving function."));
+    CMPI_BrokerExt_Ftab->destroyMutex(m);
+    CMPI_BrokerExt_Ftab->destroyCondition(c);
+
+    TRACE_CRITICAL(("Timed wait failed, leaving function."));
 }
 
 
@@ -908,10 +888,11 @@ void cleanup_remote_brokers ( long timeout,
   \sa __get_propertyMI()
   \sa __get_indicationMI()
  */
-void init_activation_context ( CMPIContext * ctx )
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL init_activation_context ( CMPIContext * ctx )
 {
-	__remote_brokers_context = ctx;
+    __remote_brokers_context = ctx;
 }
+
 
 /****************************************************************************/
 

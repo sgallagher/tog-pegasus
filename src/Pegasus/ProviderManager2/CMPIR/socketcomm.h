@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,19 +40,15 @@
   data types, however, those which cannot be fully serialized or
   deserialized due to API restrictions are not included, e.g. CMPIResult,
   CMPIContext or CMPIEnumeration.
-
-  \author Frank Scheffler
-*/
+ */
 
 #ifndef _SOCKETCOMM_H
-#define _SOCKETCOMM_H
+ #define _SOCKETCOMM_H
 
-#include "serialization.h"
-#include "debug.h"
+ #include "serialization.h"
+ #include "debug.h"
 
 /****************************************************************************/
-
-
 //! MI service request identifier.
 /*!
   This struct holds the function name and a function pointer for
@@ -64,12 +56,12 @@
   appropriate method may then resolve the handler function to be called.
 
 */
-struct socket_mi_function {
-	char * name;		/*!< function name */
-	void (* function) ( int,
-			    CONST CMPIBroker *,
-			    CONST CMPIContext *,
-			    CONST CMPIObjectPath * ); /*!< function pointer */
+struct  socket_mi_function {
+    char * name;        /*!< function name */
+    void (* function) ( int,
+                CONST CMPIBroker *,
+                CONST CMPIContext *,
+                CONST CMPIObjectPath * ); /*!< function pointer */
 };
 
 
@@ -80,10 +72,10 @@ struct socket_mi_function {
   appropriate method may then resolve the handler function to be called.
 
  */
-struct socket_mb_function {
-	char * name;		/*!< function name  */
-	void (* function) ( int, CONST CMPIBroker *, CONST CMPIContext * );	/*!< function
-								  pointer  */
+struct  socket_mb_function {
+    char * name;        /*!< function name  */
+    void (* function) ( int, CONST CMPIBroker *, CONST CMPIContext * ); /*!< function
+                                  pointer  */
 };
 
 
@@ -94,24 +86,24 @@ extern char * RCMPI_CTX_ID;
 
 /****************************************************************************/
 
-void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst );
+ void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst );
 
-void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result );
+ void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result );
 
-void socketcomm_serialize_props ( int socket,
-				  const struct BinarySerializerFT * sft,
-				  char ** props );
-char ** socketcomm_deserialize_props ( int socket,
-				       const struct BinarySerializerFT * sft,
-				       CONST CMPIBroker * broker );
+ void socketcomm_serialize_props ( int socket,
+                  const struct BinarySerializerFT * sft,
+                  char ** props );
+ char ** socketcomm_deserialize_props ( int socket,
+                       const struct BinarySerializerFT * sft,
+                       CONST CMPIBroker * broker );
 
-void socketcomm_serialize_context ( int socket,
-				    const struct BinarySerializerFT * sft,
-				    CONST CMPIContext * ctx );
-void socketcomm_deserialize_context ( int socket,
-				      const struct BinarySerializerFT * sft,
-				      CONST CMPIBroker * broker,
-				      CONST CMPIContext * ctx );
+ void socketcomm_serialize_context ( int socket,
+                    const struct BinarySerializerFT * sft,
+                    CONST CMPIContext * ctx );
+ void socketcomm_deserialize_context ( int socket,
+                      const struct BinarySerializerFT * sft,
+                      CONST CMPIBroker * broker,
+                      CONST CMPIContext * ctx );
 
 #endif
 

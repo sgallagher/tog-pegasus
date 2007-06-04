@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -45,91 +45,94 @@
 #ifndef _SERIALIZATION_H
 #define _SERIALIZATION_H
 
-extern const struct BinarySerializerFT binarySerializerFT;
+#include "cmpir_common.h"
 
 #ifndef CMPI_VER_100
 #define CMPI_VER_100
 #endif
 
-#ifndef CONST 
-  #ifdef CMPI_VER_100 
+ #ifndef CONST
+  #ifdef CMPI_VER_100
   #define CONST const
   #else
-  #define CONST 
+  #define CONST
   #endif
 #endif
 
-
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 
+
 struct BinarySerializerFT {
-	ssize_t (* serialize_UINT8) ( int, CMPIUint8 );
-	CMPIUint8 (* deserialize_UINT8) ( int );
-	
-	ssize_t (* serialize_UINT16) ( int, CMPIUint16 );
-	CMPIUint16 (* deserialize_UINT16) ( int );
+    ssize_t (* serialize_UINT8) ( int, CMPIUint8 );
+    CMPIUint8 (* deserialize_UINT8) ( int );
 
-	ssize_t (* serialize_UINT32) ( int, CMPIUint32 );
-	CMPIUint32 (* deserialize_UINT32) ( int );
+    ssize_t (* serialize_UINT16) ( int, CMPIUint16 );
+    CMPIUint16 (* deserialize_UINT16) ( int );
 
-	ssize_t (* serialize_UINT64) ( int, CMPIUint64 );
-	CMPIUint64 (* deserialize_UINT64) ( int );
+    ssize_t (* serialize_UINT32) ( int, CMPIUint32 );
+    CMPIUint32 (* deserialize_UINT32) ( int );
 
-	ssize_t (* serialize_CMPIValue) ( int, CONST CMPIType, CONST CMPIValue * );
-	CMPIValue (* deserialize_CMPIValue) ( int, CMPIType, CONST CMPIBroker * );
+    ssize_t (* serialize_UINT64) ( int, CMPIUint64 );
+    CMPIUint64 (* deserialize_UINT64) ( int );
 
-	ssize_t (* serialize_CMPIType) ( int, CMPIType );
-	CMPIType (* deserialize_CMPIType) ( int );
+    ssize_t (* serialize_CMPIValue) ( int, CONST CMPIType, CONST CMPIValue * );
+    CMPIValue (* deserialize_CMPIValue) ( int, CMPIType, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIData) ( int, CMPIData );
-	CMPIData (* deserialize_CMPIData) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIType) ( int, CMPIType );
+    CMPIType (* deserialize_CMPIType) ( int );
 
-	ssize_t (* serialize_CMPIStatus) ( int, CMPIStatus * );
-	CMPIStatus (* deserialize_CMPIStatus) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIData) ( int, CMPIData );
+    CMPIData (* deserialize_CMPIData) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_string) ( int, const char * );
-	char * (* deserialize_string) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIStatus) ( int, CMPIStatus * );
+    CMPIStatus (* deserialize_CMPIStatus) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIString) ( int, CONST CMPIString * );
-	CMPIString * (* deserialize_CMPIString) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_string) ( int, const char * );
+    char * (* deserialize_string) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIArgs) ( int, CONST CMPIArgs * );
-	CMPIArgs * (* deserialize_CMPIArgs) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIString) ( int, CONST CMPIString * );
+    CMPIString * (* deserialize_CMPIString) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIObjectPath) ( int, CONST CMPIObjectPath * );
-	CMPIObjectPath * (* deserialize_CMPIObjectPath) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIArgs) ( int, CONST CMPIArgs * );
+    CMPIArgs * (* deserialize_CMPIArgs) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIArray) ( int, CONST CMPIArray * );
-	CMPIArray * (* deserialize_CMPIArray) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIObjectPath) ( int, CONST CMPIObjectPath * );
+    CMPIObjectPath * (* deserialize_CMPIObjectPath) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIInstance) ( int, CONST CMPIInstance * );
-	CMPIInstance * (* deserialize_CMPIInstance) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIArray) ( int, CONST CMPIArray * );
+    CMPIArray * (* deserialize_CMPIArray) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPISelectExp) ( int, CONST CMPISelectExp *,
+    ssize_t (* serialize_CMPIInstance) ( int, CONST CMPIInstance * );
+    CMPIInstance * (* deserialize_CMPIInstance) ( int, CONST CMPIBroker * );
+
+    ssize_t (* serialize_CMPISelectExp) ( int, CONST CMPISelectExp *,
                                           CMPIUint32);
-	CMPISelectExp * (* deserialize_CMPISelectExp) ( int, CONST CMPIBroker *,
-                                          CMPIUint32);
+    CMPISelectExp * (* deserialize_CMPISelectExp) ( int, CONST CMPIBroker *,
+                                                    CMPIUint32);
 
-	ssize_t (* serialize_CMPIDateTime) ( int, CMPIDateTime * );
-	CMPIDateTime * (* deserialize_CMPIDateTime) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIDateTime) ( int, CMPIDateTime * );
+    CMPIDateTime * (* deserialize_CMPIDateTime) ( int, CONST CMPIBroker * );
 
 #ifdef CMPI_VER_200
-	ssize_t (* serialize_CMPIError) ( int, CMPIError * );
-	CMPIError * (* deserialize_CMPIError) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIError) ( int, CMPIError * );
+    CMPIError * (* deserialize_CMPIError) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIErrorSeverity) ( int, CMPIErrorSeverity );
-	CMPIErrorSeverity (* deserialize_CMPIErrorSeverity) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIErrorSeverity) ( int, CMPIErrorSeverity );
+    CMPIErrorSeverity (* deserialize_CMPIErrorSeverity) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIErrorProbableCause) ( int, CMPIErrorProbableCause );
-	CMPIErrorProbableCause (* deserialize_CMPIErrorProbableCause) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIErrorProbableCause) ( int, CMPIErrorProbableCause );
+    CMPIErrorProbableCause (* deserialize_CMPIErrorProbableCause) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIrc) ( int, CMPIrc );
-	CMPIrc (* deserialize_CMPIrc) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIrc) ( int, CMPIrc );
+    CMPIrc (* deserialize_CMPIrc) ( int, CONST CMPIBroker * );
 
-	ssize_t (* serialize_CMPIMsgFileHandle) ( int, CMPIMsgFileHandle );
-	CMPIMsgFileHandle (* deserialize_CMPIMsgFileHandle) ( int, CONST CMPIBroker * );
+    ssize_t (* serialize_CMPIMsgFileHandle) ( int, CMPIMsgFileHandle );
+    CMPIMsgFileHandle (* deserialize_CMPIMsgFileHandle) ( int, CONST CMPIBroker * );
 #endif
+
 };
+
+extern const struct BinarySerializerFT binarySerializerFT;
 
 #endif
 

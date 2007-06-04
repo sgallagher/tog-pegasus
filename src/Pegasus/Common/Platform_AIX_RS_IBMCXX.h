@@ -34,8 +34,10 @@
 #ifndef Pegasus_Platform_AIX_RS_IBMCXX_h
 #define Pegasus_Platform_AIX_RS_IBMCXX_h
 
+#ifdef __cplusplus
 #include <cstdlib>
 #include <cstddef>
+#endif
 
 #include <sys/param.h>
 

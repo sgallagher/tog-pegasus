@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -75,7 +75,7 @@ static void __release_list(char ** list)
     {
         char ** tmp = list;
 
-        while (*tmp) 
+        while (*tmp)
             tool_mm_add(*tmp++);
         tool_mm_add(list);
     }
@@ -99,7 +99,7 @@ static  char ** __duplicate_list(char ** list, int mem_state)
         for (tmp = result; *list; tmp++)
         {
             *tmp = strdup(*list++);
-            if (mem_state == TOOL_MM_ADD) 
+            if (mem_state == TOOL_MM_ADD)
                 tool_mm_add(*tmp);
         }
     }
@@ -114,7 +114,7 @@ static int __contained_list(char ** list, const char * name)
     {
 
         while (*list)
-            if (strcmp(*list++, name) == 0) 
+            if (strcmp(*list++, name) == 0)
                 return 1;
     }
     return 0;
@@ -141,6 +141,7 @@ static CMPIStatus __ift_release(CMPIInstance * instance)
         __release_list(i->key_list);
 
         propertyFT.release(i->props);
+
     }
 
     return rc;
@@ -148,19 +149,21 @@ static CMPIStatus __ift_release(CMPIInstance * instance)
 
 
 static CMPIInstance * __ift_clone(
-    CONST CMPIInstance * instance, 
+    CONST CMPIInstance * instance,
     CMPIStatus * rc)
 {
     struct native_instance * i = (struct native_instance *) instance;
-    struct native_instance *new;
+    struct native_instance * new;
 
     if (!checkArgs(instance, rc) )
     {
         return 0;
     }
-    new = (struct native_instance *) tool_mm_alloc(
+
+    new = (struct native_instance *)tool_mm_alloc(
             TOOL_MM_NO_ADD,
-           sizeof(struct native_instance) );
+            sizeof(struct native_instance)
+            );
     // Copy CMPIInstance and native_instance extensions.
     new->instance = i->instance;
     new->classname = strdup(i->classname);
@@ -178,6 +181,7 @@ static CMPIData __ift_getProperty ( CONST CMPIInstance * instance,
     CMPIStatus * rc )
 {
     struct native_instance * i = (struct native_instance *) instance;
+
     CMPIData data = checkArgsReturnData(instance, rc);
 
     if (data.state == CMPI_badValue)
@@ -196,6 +200,7 @@ static CMPIData __ift_getPropertyAt(
     CMPIStatus * rc)
 {
     struct native_instance * i = (struct native_instance *) instance;
+
     CMPIData data = checkArgsReturnData(instance, rc);
 
     if (data.state == CMPI_badValue)
@@ -212,7 +217,6 @@ static unsigned int __ift_getPropertyCount(
     CMPIStatus * rc)
 {
     struct native_instance * i = (struct native_instance *) instance;
-
     if (!checkArgs(instance, rc) )
     {
         return 0;
@@ -229,12 +233,13 @@ static CMPIStatus __ift_setProperty(
     CMPIType type)
 {
     struct native_instance * i = (struct native_instance *) instance;
-    CMPIStatus rc = checkArgsReturnStatus(instance);
 
+    CMPIStatus rc = checkArgsReturnStatus(instance);
     if (rc.rc != CMPI_RC_OK)
     {
         return rc;
-    } 
+    }
+
     if (i->filtered == 0 ||
         i->property_list == NULL ||
         __contained_list ( i->property_list, name ) ||
@@ -268,6 +273,7 @@ static CMPIObjectPath * __ift_getObjectPath(
     {
         return 0;
     }
+
     cop = native_new_CMPIObjectPath(
         i->namespace,
         i->classname,
@@ -324,12 +330,14 @@ static CMPIStatus __ift_setPropertyFilter(
     CONST char ** keys)
 {
     struct native_instance * i = (struct native_instance *) instance;
+
     CMPIStatus rc = checkArgsReturnStatus(instance);
 
     if (rc.rc != CMPI_RC_OK)
     {
         return rc;
-    } 
+    }
+
     if (i->filtered && i->mem_state == TOOL_MM_NO_ADD)
     {
         __release_list(i->property_list);
@@ -353,7 +361,7 @@ static CMPIStatus __ift_setObjectPath(
 
 void add(char **buf, unsigned int *p, unsigned int *m, char *data)
 {
-    unsigned int ds = strlen(data) + 1;
+    unsigned int ds = (unsigned int) strlen(data) + 1;
 
     if (*buf == NULL)
     {
@@ -365,7 +373,7 @@ void add(char **buf, unsigned int *p, unsigned int *m, char *data)
     {
         unsigned nm = *m;
         char *nb;
-        while ((ds + (*p)) >= nm) 
+        while ((ds + (*p)) >= nm)
             nm*=2;
         nb = (char*)malloc(nm);
         memcpy(nb, *buf, *p);
@@ -472,7 +480,7 @@ CMPIInstance * native_new_CMPIInstance(
         tmp2.rc != CMPI_RC_OK ||
         tmp3.rc != CMPI_RC_OK)
     {
-        if (rc) 
+        if (rc)
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
     }
     else
@@ -491,7 +499,7 @@ CMPIInstance * native_new_CMPIInstance(
                 &tmp.value);
         }
 
-        if (rc) 
+        if (rc)
             CMSetStatus(rc, tmp1.rc);
     }
 

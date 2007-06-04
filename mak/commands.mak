@@ -349,7 +349,8 @@ endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     ifeq ($(OS_TYPE),windows)
-        $(error Error: Remote CMPI is not currently supported on Windows.)
+        CMPIR_START_DAEMON = start "/K $(CIMSERVER_PATH)" CMPIRDaemon
+        CMPIR_STOP_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon --stop
     else
         CMPIR_START_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon
         CMPIR_STOP_DAEMON = $(CIMSERVER_PATH)CMPIRDaemon --stop

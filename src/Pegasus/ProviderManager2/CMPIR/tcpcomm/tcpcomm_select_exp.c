@@ -33,9 +33,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef PEGASUS_OS_TYPE_UNIX
 #include <netinet/in.h>
+#elif defined PEGASUS_OS_TYPE_WINDOWS
+#include <winsock2.h>
+#endif
+
 #include "tcpcomm_select_exp.h"
 #include "indication_objects.h"
+
 /*
    This file contains necessary methods for manipulation of CMPISelectExp
    on MB side.

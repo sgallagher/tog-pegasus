@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,21 +50,24 @@
   communication layer to ensure that a retrieved context is still active
   and has not been garbage-collected for instance.
 
-  \author Frank Scheffler
 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+
+#ifdef PEGASUS_OS_TYPE_UNIX
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <error.h>
 #endif
+#endif
 
+#include "cmpir_common.h"
 #include "proxy.h"
 #include "debug.h"
 
-extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
+PEGASUS_IMPORT extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
+
 #define INIT_LOCK(l) if (l==NULL) l=CMPI_BrokerExt_Ftab->newMutex(0);
 
 
@@ -79,9 +77,9 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
   ID in a linked list.
  */
 struct mi_context {
-	unsigned long int id;	/*!< the ID of the stored context */
-	CONST CMPIContext * ctx;	/*!< the stored CMPIContext object */
-	struct mi_context * next; /*!< pointer to the next element */
+    unsigned long int id;   /*!< the ID of the stored context */
+    CONST CMPIContext * ctx;    /*!< the stored CMPIContext object */
+    struct mi_context * next; /*!< pointer to the next element */
 };
 
 /****************************************************************************/
@@ -105,25 +103,25 @@ static struct mi_context * __contexts = NULL;
  */
 unsigned long int save_context ( CONST CMPIContext * ctx )
 {
-	struct mi_context * tmp =
-		(struct mi_context *) malloc ( sizeof ( struct mi_context ) );
-	unsigned long int r;
+    struct mi_context * tmp =
+        (struct mi_context *) malloc ( sizeof ( struct mi_context ) );
+    unsigned long int r;
 
-	TRACE_NORMAL(("saving context."));
+    TRACE_NORMAL(("saving context."));
 
-        INIT_LOCK(__context_lock);
-        CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
+    INIT_LOCK(__context_lock);
+    CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
 
-	tmp->id   = ( r = __context_id++ );
-	tmp->ctx  = ctx;
-	tmp->next = __contexts;
+    tmp->id   = ( r = __context_id++ );
+    tmp->ctx  = ctx;
+    tmp->next = __contexts;
 
-	__contexts = tmp;
+    __contexts = tmp;
 
-        CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
+    CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 
-	TRACE_INFO(("returned id: %ld", r ));
-	return r;
+    TRACE_INFO(("returned id: %ld", r ));
+    return r;
 }
 
 
@@ -138,29 +136,29 @@ unsigned long int save_context ( CONST CMPIContext * ctx )
  */
 CONST CMPIContext * get_context ( unsigned long int id )
 {
-	struct mi_context * tmp;
+    struct mi_context * tmp;
 
-	TRACE_NORMAL(("looking up context for id: %ld", id ));
+    TRACE_NORMAL(("looking up context for id: %ld", id ));
 
         INIT_LOCK(__context_lock);
         CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
 
-	for ( tmp = __contexts; tmp != NULL; tmp = tmp->next ) {
+    for ( tmp = __contexts; tmp != NULL; tmp = tmp->next ) {
 
-		if ( tmp->id == id ) {
+        if ( tmp->id == id ) {
 
-			CONST CMPIContext * ctx = tmp->ctx;
+            CONST CMPIContext * ctx = tmp->ctx;
                         CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 
-			TRACE_INFO(("returning context."));
-			return ctx;
-		}
-	}
+            TRACE_INFO(("returning context."));
+            return ctx;
+        }
+    }
 
         CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 
-	TRACE_CRITICAL(("context not found, returning NULL."));
-	return NULL;
+    TRACE_CRITICAL(("context not found, returning NULL."));
+    return NULL;
 }
 
 
@@ -173,40 +171,40 @@ CONST CMPIContext * get_context ( unsigned long int id )
  */
 void remove_context ( unsigned long int id )
 {
-	struct mi_context ** tmp;
+    struct mi_context ** tmp;
 
-	TRACE_NORMAL(("trying to remove context for id: %ld", id ));
+    TRACE_NORMAL(("trying to remove context for id: %ld", id ));
 
         INIT_LOCK(__context_lock);
         CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
 
-	for ( tmp = &__contexts; *tmp != NULL; tmp = & (*tmp)->next ) {
+    for ( tmp = &__contexts; *tmp != NULL; tmp = & (*tmp)->next ) {
 
-		if ( (*tmp)->id == id ) {
+        if ( (*tmp)->id == id ) {
 
-			struct mi_context * rm = (*tmp);
-			(*tmp) = rm->next;
+            struct mi_context * rm = (*tmp);
+            (*tmp) = rm->next;
 
                         CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
-			free ( rm );
+            free ( rm );
 
-			TRACE_INFO(("successfully removed context."));
-			return;
-		}
-	}
+            TRACE_INFO(("successfully removed context."));
+            return;
+        }
+    }
 
-	TRACE_CRITICAL(("failed to remove context."));
+    TRACE_CRITICAL(("failed to remove context."));
         CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 }
 
 void cleanup_context ( void )
 {
 
-	TRACE_NORMAL(("cleaning up context facility" ));
+    TRACE_NORMAL(("cleaning up context facility" ));
 
-	CMPI_BrokerExt_Ftab->destroyMutex(__context_lock);
-	__context_lock = NULL;
-	
+    CMPI_BrokerExt_Ftab->destroyMutex(__context_lock);
+    __context_lock = NULL;
+
 }
 /****************************************************************************/
 

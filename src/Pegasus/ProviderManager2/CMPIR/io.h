@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,24 +29,17 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file io.h
   \brief I/O routine header file.
 
-  \author Frank Scheffler
 */
 
 #ifndef _REMOTE_CMPI_IO_H
-#define _REMOTE_CMPI_IO_H
-
-int io_read_fixed_length ( int fd, void * buf, size_t count );
-int io_write_fixed_length ( int fd, const void * buf, size_t count );
-
-
+ #define _REMOTE_CMPI_IO_H
+ #include "cmpir_common.h"
+ PEGASUS_EXPORT int io_read_fixed_length ( int fd, void * buf, size_t count );
+ PEGASUS_EXPORT int io_write_fixed_length ( int fd, const void * buf, size_t count );
 #endif

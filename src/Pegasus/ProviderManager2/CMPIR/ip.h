@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,12 +34,10 @@
 /*!
   \file ip.h
   \brief General TCP/IP routines.
-
 */
-
-#ifndef _IP_H
-#define _IP_H
-
+#ifndef _IP_H_
+#define _IP_H_
+#include "cmpir_common.h"
 #include "proxy.h"
 
 #define PEGASUS_SUPPRESS_ERROR_MESSAGE 0
@@ -51,12 +49,16 @@ static struct hostent * _getHostByName (
     char *tmphbuf,
     int hbuflen);
 
-void accept_connections ( int port,
-			  void (* __connection_handler) ( int ),
-			  int multithreaded );
-int open_connection ( const char * address, int port, int print_errmsg );
+PEGASUS_EXPORT void accept_connections (
+    int port,
+    void (* __connection_handler) ( int ),
+    int multithreaded );
 
-int close_connection( int port );
-void get_peer_address ( int socket, char * buf );
+PEGASUS_EXPORT int open_connection ( const char * address, int port, int print_errmsg );
+
+ int close_connection( int port );
+
+ void get_peer_address ( int socket, char * buf );
 
 #endif
+

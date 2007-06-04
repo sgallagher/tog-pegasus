@@ -42,7 +42,7 @@ endif
 PROGRAM = AppendNS
 
 SOURCES = \
-   AppendNs.cpp
+   AppendNs.c
 
 include $(ROOT)/mak/program.mak
 

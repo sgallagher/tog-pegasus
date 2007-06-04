@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,35 +31,41 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "cmpir_common.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+
+#ifdef PEGASUS_OS_TYPE_UNIX
+#include <dlfcn.h>
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <error.h>
 #endif
-#include <errno.h>
+#elif defined PEGASUS_OS_TYPE_WINDOWS
+#include <windows.h>
+#endif
+
 #include "mm.h"
 #include "native.h"
 #include "debug.h"
 
-
 /**
- * Exits the program with an error message in case the given condition
- * holds.
- */
+* Exits the program with an error message in case the given condition
+* holds.
+*/
 #define __ALLOC_ERROR(cond) \
   if ( cond ) { \
     error_at_line ( -1, errno, __FILE__, __LINE__, \
-		    "unable to allocate requested memory." ); \
+            "unable to allocate requested memory." ); \
   }
-
 
 /**
  * flag to ensure MM is initialized only once
  */
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES
-static int __once = 0;
+ static int __once = 0;
 #else
-pthread_once_t __once = PTHREAD_ONCE_INIT;
+ pthread_once_t __once = PTHREAD_ONCE_INIT;
 #endif
 
 /**
@@ -69,78 +75,69 @@ static CMPI_THREAD_KEY_TYPE __mm_key;
 
 /****************************************************************************/
 
-void * tool_mm_load_lib ( const char * libname )
+PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib ( const char * libname )
 {
+
   char filename[255];
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-  dllhandle *  lib_handle;
-#endif
-  sprintf ( filename, "lib%s.so", libname );
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-  return dlopen ( filename, RTLD_LAZY );
-#else
-  return dllload ( filename );
-#endif
+
+  //PEGASUS_CMPIR_LIBTYPE appends libname with the lib extn based on os.
+  sprintf ( filename, PEGASUS_CMPIR_LIBTYPE, libname );
+  //invoke dlopen under unix and LoadLibrary under windows OS.
+  return PEGASUS_CMPIR_LOADLIBRARY(filename, RTLD_LAZY );
+
 }
-
-
 
 /**
  * Initializes the current thread by adding it to the memory management sytem.
  */
 static managed_thread * __init_mt ()
 {
-	managed_thread * mt =
-		(managed_thread *) calloc ( 1, sizeof ( managed_thread ) );
+    managed_thread * mt =
+        (managed_thread *) calloc ( 1, sizeof ( managed_thread ) );
 
-	__ALLOC_ERROR(!mt);
+    __ALLOC_ERROR(!mt);
 
-	mt->size   = MT_SIZE_STEP;
-	mt->objs   = (void **) malloc ( MT_SIZE_STEP * sizeof ( void * ) );
+    mt->size   = MT_SIZE_STEP;
+    mt->objs   = (void **) malloc ( MT_SIZE_STEP * sizeof ( void * ) );
 
-	CMPI_BrokerExt_Ftab->setThreadSpecific( __mm_key, mt );
+    CMPI_BrokerExt_Ftab->setThreadSpecific( __mm_key, mt );
 
-	return mt;
+    return mt;
 }
-
 
 static void __flush_mt ( managed_thread * mt )
 {
-	TRACE_VERBOSE(("entered function."));
-	TRACE_INFO(("freeing %d pointer(s).", mt->used ));
+    TRACE_VERBOSE(("entered function."));
+    TRACE_INFO(("freeing %d pointer(s).", mt->used ));
 
-	while ( mt->used ) {
-		free ( mt->objs[--mt->used] );
-		mt->objs[mt->used] = NULL;
-	};
+    while ( mt->used ) {
+        free ( mt->objs[--mt->used] );
+        mt->objs[mt->used] = NULL;
+    };
 
-	TRACE_VERBOSE(("leaving function."));
+    TRACE_VERBOSE(("leaving function."));
 }
-
 
 /**
  * Cleans up a previously initialized thread once it dies/exits.
  */
 static void __cleanup_mt ( void * ptr )
 {
-	managed_thread * mt = (managed_thread *) ptr;
+    managed_thread * mt = (managed_thread *) ptr;
 
-	__flush_mt ( mt );
+    __flush_mt ( mt );
 
-	free ( mt->objs );
-	free ( mt );
+    free ( mt->objs );
+    free ( mt );
 }
-
 
 /**
  * Initializes the memory mangement system.
  */
 static void __init_mm ()
 {
-	CMPI_BrokerExt_Ftab->createThreadKey( &__mm_key, __cleanup_mt );
+    CMPI_BrokerExt_Ftab->createThreadKey( &__mm_key, __cleanup_mt );
 }
-
-
 
 /**
  * Allocates zeroed memory and eventually puts it under memory mangement.
@@ -153,16 +150,15 @@ static void __init_mm ()
  */
 void * tool_mm_alloc ( int add, size_t size )
 {
-	void * result = calloc ( 1, size );
+    void * result = calloc ( 1, size );
 
-	__ALLOC_ERROR(!result);
+    __ALLOC_ERROR(!result);
 
-	if ( add != TOOL_MM_NO_ADD ) {
-		tool_mm_add ( result );
-	}
-	return result;
+    if ( add != TOOL_MM_NO_ADD ) {
+        tool_mm_add ( result );
+    }
+    return result;
 }
-
 
 /**
  * Reallocates memory.
@@ -179,18 +175,17 @@ void * tool_mm_alloc ( int add, size_t size )
  */
 void * tool_mm_realloc ( void * oldptr, size_t size )
 {
-	void * new = realloc ( oldptr, size );
+    void * new = realloc ( oldptr, size );
 
-	__ALLOC_ERROR(!new);
+    __ALLOC_ERROR(!new);
 
-	if ( oldptr != NULL &&
-	     tool_mm_remove ( oldptr ) ) {
-		tool_mm_add ( new );
-	}
+    if ( oldptr != NULL &&
+         tool_mm_remove ( oldptr ) ) {
+        tool_mm_add ( new );
+    }
 
-	return new;
+    return new;
 }
-
 
 /**
  * Adds ptr to the list of managed objects for the current thread.
@@ -204,67 +199,65 @@ void * tool_mm_realloc ( void * oldptr, size_t size )
  */
 int tool_mm_add (  void * ptr )
 {
-	managed_thread * mt;
+    managed_thread * mt;
 
-        CMPI_BrokerExt_Ftab->threadOnce( &__once, __init_mm );
+        CMPI_BrokerExt_Ftab->threadOnce( &__once, (void*)__init_mm );
 
-	mt = (managed_thread *)
-	   CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
+    mt = (managed_thread *)
+       CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
 
-	if ( mt == NULL ) {
-		mt = __init_mt ();
-	}
+    if ( mt == NULL ) {
+        mt = __init_mt ();
+    }
 
-	mt->objs[mt->used++] = ptr;
+    mt->objs[mt->used++] = ptr;
 
-	if ( mt->used == mt->size ) {
-		mt->size += MT_SIZE_STEP;
-		mt->objs  = (void **) realloc ( mt->objs,
-						mt->size * sizeof ( void * ) );
+    if ( mt->used == mt->size ) {
+        mt->size += MT_SIZE_STEP;
+        mt->objs  = (void **) realloc ( mt->objs,
+                        mt->size * sizeof ( void * ) );
 
-		__ALLOC_ERROR(!mt->objs);
-	}
+        __ALLOC_ERROR(!mt->objs);
+    }
 
-	return 1;
+    return 1;
 }
-void tool_mm_set_broker (  void * broker,  void * ctx )
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL tool_mm_set_broker (  void * broker,  void * ctx )
 {
-	managed_thread * mt;
+    managed_thread * mt;
 
-        CMPI_BrokerExt_Ftab->threadOnce( &__once, __init_mm );
+        CMPI_BrokerExt_Ftab->threadOnce( &__once, (void*)__init_mm );
 
-	mt = (managed_thread *)
-	   CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
-        if (mt == NULL)
+    mt = (managed_thread *)
+       CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
+    if (mt == NULL)
+    {
+        mt = __init_mt ();
+    }
+    mt->broker=broker;
+    mt->ctx=ctx;
+}
+
+PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_get_broker ( void **ctx )
+{
+    managed_thread * mt;
+
+        CMPI_BrokerExt_Ftab->threadOnce( &__once, (void*)__init_mm );
+
+    mt = (managed_thread *)
+       CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
+
+    if (mt)
+    {
+        if (ctx)
         {
-            mt = __init_mt ();
+            *ctx=mt->ctx;
         }
-	mt->broker=broker;
-	mt->ctx=ctx;
+        return mt->broker;
+    }
+
+    return NULL;
 }
-
-void * tool_mm_get_broker ( void **ctx )
-{
-	managed_thread * mt;
-
-        CMPI_BrokerExt_Ftab->threadOnce( &__once, __init_mm );
-
-	mt = (managed_thread *)
-	   CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key);
-
-        if (mt)
-        {
-            if (ctx)
-            {
-                *ctx=mt->ctx;
-            }
-	return mt->broker;
-}
-
-        return NULL;
-}
-
-
 
 /**
  * Removes ptr from the list of managed objects for the current thread.
@@ -276,41 +269,39 @@ void * tool_mm_get_broker ( void **ctx )
  */
 int tool_mm_remove ( void * ptr )
 {
-	managed_thread * mt;
+    managed_thread * mt;
 
-        CMPI_BrokerExt_Ftab->threadOnce( &__once, __init_mm );
+        CMPI_BrokerExt_Ftab->threadOnce( &__once, (void*)__init_mm );
 
-	mt = (managed_thread *)
-        	CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key );
+    mt = (managed_thread *)
+            CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key );
 
-	if ( mt != NULL ) {
-		int i = mt->used;
+    if ( mt != NULL ) {
+        int i = mt->used;
 
-		while ( i-- ) {
-			if ( mt->objs[i] == ptr ) {
-				mt->objs[i] = NULL;
-				return 1;
-			}
-		}
-	}
-	return 0;
+        while ( i-- ) {
+            if ( mt->objs[i] == ptr ) {
+                mt->objs[i] = NULL;
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
-
 
 void tool_mm_flush ()
 {
-	managed_thread * mt;
+    managed_thread * mt;
 
-        CMPI_BrokerExt_Ftab->threadOnce( &__once, __init_mm );
+        CMPI_BrokerExt_Ftab->threadOnce( &__once, (void*)__init_mm );
 
-	mt = (managed_thread *)
-        	CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key );
+    mt = (managed_thread *)
+            CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key );
 
-	if ( mt != NULL ) {
-		__flush_mt ( mt );
-	}
+    if ( mt != NULL ) {
+        __flush_mt ( mt );
+    }
 }
-
 
 /*** Local Variables:  ***/
 /*** mode: C           ***/

@@ -40,7 +40,6 @@
   the serialization module, such as contexts and properties for instance,
   as well as dispatching MI and MB calls respectively.
 
-  \author Frank Scheffler
 */
 
 #include <stdio.h>
@@ -52,43 +51,40 @@
 #include "serialization.h"
 #include "debug.h"
 
-
 char * RCMPI_CTX_ID = "RCMPI_CTX_ID";
-
 
 /****************************************************************************/
 
 void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst )
 {
-	unsigned int i,arg_count;
+    unsigned int i,arg_count;
 
-	TRACE_NORMAL(("Copying CMPIArgs."));
+    TRACE_NORMAL(("Copying CMPIArgs."));
 
-	arg_count = CMGetArgCount ( src, NULL );
+    arg_count = CMGetArgCount ( src, NULL );
 
-	TRACE_INFO(("arg count: %d", arg_count ));
+    TRACE_INFO(("arg count: %d", arg_count ));
 
-	for ( i = 0; i < arg_count; i++ ) {
+    for ( i = 0; i < arg_count; i++ ) {
 
-		CMPIString * argName;
-		CMPIData data = CMGetArgAt ( src, i, &argName, NULL );
+        CMPIString * argName;
+        CMPIData data = CMGetArgAt ( src, i, &argName, NULL );
 
-		TRACE_INFO(("arg:\nname: %s\ntype: 0x%x\nstate: 0x%x.",
-			    CMGetCharsPtr ( argName, NULL ),
-			    data.type, data.state ));
+        TRACE_INFO(("arg:\nname: %s\ntype: 0x%x\nstate: 0x%x.",
+                CMGetCharsPtr ( argName, NULL ),
+                data.type, data.state ));
 
-		if ( data.state & CMPI_nullValue ) {
-			CMAddArg ( dst,
-				   CMGetCharsPtr ( argName, NULL ),
-				   NULL,
-				   CMPI_null );
-		} else CMAddArg ( dst,
-				  CMGetCharsPtr ( argName, NULL ),
-				  &data.value,
-				  data.type );
-	}
+        if ( data.state & CMPI_nullValue ) {
+            CMAddArg ( dst,
+                   CMGetCharsPtr ( argName, NULL ),
+                   NULL,
+                   CMPI_null );
+        } else CMAddArg ( dst,
+                  CMGetCharsPtr ( argName, NULL ),
+                  &data.value,
+                  data.type );
+    }
 }
-
 
 //! Copies array contents into CMPIResult objects.
 /*!
@@ -101,143 +97,143 @@ void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst )
  */
 void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result )
 {
-	TRACE_VERBOSE(("entered function."));
-        CMPIStatus rc;
-	if ( array != NULL && result != NULL ) {
+    CMPIStatus rc;
+    TRACE_VERBOSE(("entered function."));
+       
 
-		CMPICount size = CMGetArrayCount ( array, NULL );
-		CMPICount i;
+    if ( array != NULL && result != NULL ) {
 
-		TRACE_NORMAL(("Transferring %d array elements to CMPIResult.",
-			      size));
+        CMPICount size = CMGetArrayCount ( array, NULL );
+        CMPICount i;
 
-		for ( i = 0; i < size; i++ ) {
+        TRACE_NORMAL(("Transferring %d array elements to CMPIResult.",
+                  size));
 
-			CMPIData data = CMGetArrayElementAt ( array, i, NULL );
+        for ( i = 0; i < size; i++ ) {
 
-			if ( data.type == CMPI_instance ) {
+            CMPIData data = CMGetArrayElementAt ( array, i, NULL );
 
-				TRACE_INFO(("transferring instance."));
-				// EmbeddedObjects or EmbeddedInstances returned
-				// from MethodProviders can not use CMReturnInstance
-				// because it is not supported, return
-				// these type of data with CMReturnData.
+            if ( data.type == CMPI_instance )
+			{
+                TRACE_INFO(("transferring instance."));
+                // EmbeddedObjects or EmbeddedInstances returned 
+                // from MethodProviders can not use CMReturnInstance 
+                // because it is not supported, return 
+                // these type of data with CMReturnData. 
 				rc = CMReturnInstance ( result, data.value.inst );
 				if( rc.rc  == CMPI_RC_ERR_NOT_SUPPORTED )
 				{
 				    CMReturnData ( result, &data.value, data.type );
 				}
-			} else if ( data.type == CMPI_ref ) {
+            
+            } else if ( data.type == CMPI_ref ) {
 
-				TRACE_INFO(("transferring object path."));
-				CMReturnObjectPath ( result, data.value.ref );
-			} else {
+                TRACE_INFO(("transferring object path."));
+                CMReturnObjectPath ( result, data.value.ref );
+            } else {
 
-				TRACE_INFO(("transferring CMPIData."));
-				CMReturnData ( result,
-					       &data.value,
-					       data.type );
-			}
-		}
-	}
+                TRACE_INFO(("transferring CMPIData."));
+                CMReturnData ( result,
+                           &data.value,
+                           data.type );
+            }
+        }
+    }
 
-	TRACE_VERBOSE(("leaving function."));
+    TRACE_VERBOSE(("leaving function."));
 }
 
 /****************************************************************************/
 
 void socketcomm_serialize_props ( int socket,
-				  const struct BinarySerializerFT * sft,
-				  char ** props )
+                  const struct BinarySerializerFT * sft,
+                  char ** props )
 {
-	unsigned long int i = 0;
+    unsigned long int i = 0;
 
-	if ( props != NULL ) {
+    if ( props != NULL ) {
 
-		while ( props[i] ) i++;
-		sft->serialize_UINT32 ( socket, i );
+        while ( props[i] ) i++;
+        sft->serialize_UINT32 ( socket, i );
 
-		while ( i ) sft->serialize_string ( socket, props[--i] );
+        while ( i ) sft->serialize_string ( socket, props[--i] );
 
-	} else sft->serialize_UINT32 ( socket, i );
+    } else sft->serialize_UINT32 ( socket, i );
 }
 
 
 char ** socketcomm_deserialize_props ( int socket,
-				       const struct BinarySerializerFT * sft,
-				       CONST CMPIBroker * broker )
+                       const struct BinarySerializerFT * sft,
+                       CONST CMPIBroker * broker )
 {
-	int i;
-	char ** r = NULL;
+    int i;
+    char ** r = NULL;
 
-	i = sft->deserialize_UINT32 ( socket );
+    i = sft->deserialize_UINT32 ( socket );
 
-	if ( i > 0 ) {
+    if ( i > 0 ) {
 
-		r =  (char **) calloc ( i + 1, sizeof ( char * ) );
-		while ( i )
-			r[--i] = sft->deserialize_string ( socket, broker );
-	}
+        r =  (char **) calloc ( i + 1, sizeof ( char * ) );
+        while ( i )
+            r[--i] = sft->deserialize_string ( socket, broker );
+    }
 
-	return r;
+    return r;
 }
-
 
 void socketcomm_serialize_context ( int socket,
-				    const struct BinarySerializerFT * sft,
-				    CONST CMPIContext * ctx )
+                    const struct BinarySerializerFT * sft,
+                    CONST CMPIContext * ctx )
 {
-	unsigned int size = CMGetContextEntryCount ( ctx, NULL ), i;
+    unsigned int size = CMGetContextEntryCount ( ctx, NULL ), i;
 
-	TRACE_NORMAL(("serializing context with %d entries", size ));
+    TRACE_NORMAL(("serializing context with %d entries", size ));
 
-	sft->serialize_UINT32 ( socket, size );
+    sft->serialize_UINT32 ( socket, size );
 
-	for ( i = 0; i < size; i++ ) {
-		CMPIString * entryName;
-		CMPIData entry = CMGetContextEntryAt ( ctx,
-						       i,
-						       &entryName,
-						       NULL );
+    for ( i = 0; i < size; i++ ) {
+        CMPIString * entryName;
+        CMPIData entry = CMGetContextEntryAt ( ctx,
+                               i,
+                               &entryName,
+                               NULL );
 
-		TRACE_INFO(("serializing entry(%d): %s",
-			    i, CMGetCharsPtr ( entryName, NULL ) ));
+        TRACE_INFO(("serializing entry(%d): %s",
+                i, CMGetCharsPtr ( entryName, NULL ) ));
 
-		sft->serialize_CMPIString ( socket, entryName );
-		sft->serialize_CMPIData ( socket, entry );
-	}
+        sft->serialize_CMPIString ( socket, entryName );
+        sft->serialize_CMPIData ( socket, entry );
+    }
 }
-
 
 void socketcomm_deserialize_context ( int socket,
-				      const struct BinarySerializerFT * sft,
-				      CONST CMPIBroker * broker,
-				      CONST CMPIContext * ctx )
+                      const struct BinarySerializerFT * sft,
+                      CONST CMPIBroker * broker,
+                      CONST CMPIContext * ctx )
 {
-	unsigned int size;
+    unsigned int size;
 
-	size = sft->deserialize_UINT32 ( socket );
+    size = sft->deserialize_UINT32 ( socket );
 
-	TRACE_NORMAL(("deserializing context with %d entries", size ));
+    TRACE_NORMAL(("deserializing context with %d entries", size ));
 
-	while ( size-- ) {
-		CMPIString * entryName =
-			sft->deserialize_CMPIString ( socket, broker );
-		CMPIData entry =
-			sft->deserialize_CMPIData ( socket, broker );
-		CMPIType type =
-			( entry.state & CMPI_nullValue )?
-			CMPI_null: entry.type;
+    while ( size-- ) {
+        CMPIString * entryName =
+            sft->deserialize_CMPIString ( socket, broker );
+        CMPIData entry =
+            sft->deserialize_CMPIData ( socket, broker );
+        CMPIType type =
+            ( entry.state & CMPI_nullValue )?
+            CMPI_null: entry.type;
 
-		TRACE_INFO(("adding entryName: %s", CMGetCharsPtr ( entryName, NULL ) ));
+        TRACE_INFO(("adding entryName: %s", CMGetCharsPtr ( entryName, NULL ) ));
 
-		CMAddContextEntry ( ctx,
-				    CMGetCharsPtr ( entryName, NULL ),
-				    &entry.value,
-				    type );
-	}
+        CMAddContextEntry ( ctx,
+                    CMGetCharsPtr ( entryName, NULL ),
+                    &entry.value,
+                    type );
+    }
 }
-
 
 /*** Local Variables:  ***/
 /*** mode: C           ***/

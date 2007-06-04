@@ -94,7 +94,7 @@
 // to avoid lots of ifdefs for z/OS
 #define pthread_getspecific(x) pthread_getspecific_d8_np(x);
 
-#ifndef _REMOTE_CMPI_REMOTE_H
+#ifndef _CMPIR_PROXY_PROVIDER_H_
 // use my own snprintf implementation using sprintf mapping
 // until the Java SDK is fixed to work with _ISOC99_SOURCE
 inline int snprintf(char *sptr, size_t len, const char* form, ...)

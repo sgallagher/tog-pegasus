@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,9 +31,6 @@
 //
 // Author: Frank Scheffler
 //
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -46,25 +43,18 @@
   the correct broker handle. Furthermore, providers that are executing
   MB calls after a ticket has been revoked, can be filtered.
 
-  \author Frank Scheffler
-
   \sa proxy_provider.c
 */
 
 #include <Pegasus/ProviderManager2/CMPI/CMPI_Version.h>
-
+#include "cmpir_common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include <error.h>
-#endif
-
 
 #include "ticket.h"
 #include "debug.h"
-
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
@@ -87,31 +77,31 @@ static CMPI_MUTEX_TYPE _tickets_lock=NULL;
   \param ticket the ticket to be verified.
   \return a valid broker handle or NULL.
  */
-CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket )
+PEGASUS_EXPORT CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket )
 {
-	comm_ticket * tmp;
+    comm_ticket * tmp;
 
-	TRACE_NORMAL(("Verifying remote provider ticket."));
-	TRACE_INFO(("id: %ld", ticket->id ));
+    TRACE_NORMAL(("Verifying remote provider ticket."));
+    TRACE_INFO(("id: %ld", ticket->id ));
 
         INIT_LOCK(_tickets_lock);
         CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
-	for ( tmp = __tickets; tmp != NULL; tmp = tmp->next ) {
+    for ( tmp = __tickets; tmp != NULL; tmp = tmp->next ) {
 
-		if ( tmp->id     == ticket->id &&
-		     tmp->broker == ticket->broker ) {
-			CONST CMPIBroker * b = tmp->broker;
-			TRACE_INFO(("ID accepted, returning broker: %p", b ));
+        if ( tmp->id     == ticket->id &&
+             tmp->broker == ticket->broker ) {
+            CONST CMPIBroker * b = tmp->broker;
+            TRACE_INFO(("ID accepted, returning broker: %p", b ));
 
                         CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
-			return b;
-		}
-	}
+            return b;
+        }
+    }
 
         CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
 
-	TRACE_CRITICAL(("Invalid ticket, no broker handle found."));
-	return NULL;
+    TRACE_CRITICAL(("Invalid ticket, no broker handle found."));
+    return NULL;
 }
 
 
@@ -125,27 +115,27 @@ CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket )
  */
 comm_ticket generate_ticket ( CONST CMPIBroker * broker )
 {
-	static unsigned long id = 0;
+    static unsigned long id = 0;
 
-	comm_ticket * result =
-		(comm_ticket *) malloc ( sizeof ( comm_ticket ) );
+    comm_ticket * result =
+        (comm_ticket *) malloc ( sizeof ( comm_ticket ) );
 
-	TRACE_NORMAL(("generating remote provider ticket."));
+    TRACE_NORMAL(("generating remote provider ticket."));
 
         INIT_LOCK(_tickets_lock);
         CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
 
-	result->id     = id++;
-	result->broker = broker;
-	result->next   = __tickets;
-	__tickets      = result;
+    result->id     = id++;
+    result->broker = broker;
+    result->next   = __tickets;
+    __tickets      = result;
 
         CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
 
-	TRACE_INFO(("generated ticket with id: %ld for broker %p.",
-		    result->id, result->broker ));
+    TRACE_INFO(("generated ticket with id: %ld for broker %p.",
+            result->id, result->broker ));
 
-	return *result;
+    return *result;
 }
 
 
@@ -158,26 +148,26 @@ comm_ticket generate_ticket ( CONST CMPIBroker * broker )
  */
 int revoke_ticket ( comm_ticket * ticket )
 {
-	comm_ticket ** tmp;
+    comm_ticket ** tmp;
 
-	TRACE_NORMAL(("invalidating remote provider ticket."));
+    TRACE_NORMAL(("invalidating remote provider ticket."));
         INIT_LOCK(_tickets_lock);
         CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
-	for ( tmp = &__tickets; *tmp != NULL; tmp = &( (*tmp)->next ) ) {
+    for ( tmp = &__tickets; *tmp != NULL; tmp = &( (*tmp)->next ) ) {
 
-		if ( (*tmp)->id == ticket->id ) {
+        if ( (*tmp)->id == ticket->id ) {
 
-			comm_ticket * r = (*tmp);
-			(*tmp)          = r->next;
-			free ( r );
+            comm_ticket * r = (*tmp);
+            (*tmp)          = r->next;
+            free ( r );
 
             CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
-			return 0;
-		}
-	}
+            return 0;
+        }
+    }
 
     CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
-	return -1;
+    return -1;
 }
 
 
@@ -193,18 +183,18 @@ int revoke_ticket ( comm_ticket * ticket )
  */
 int compare_ticket ( const comm_ticket * t1, const comm_ticket * t2 )
 {
-	TRACE_NORMAL(("Comparing remote provider tickets."));
-	return ( t1->id     == t2->id &&
-		 t1->broker == t2->broker );
+    TRACE_NORMAL(("Comparing remote provider tickets."));
+    return ( t1->id     == t2->id &&
+         t1->broker == t2->broker );
 }
 
 void cleanup_ticket ( void )
 
 {
-	TRACE_NORMAL(("cleaning up ticket facility."));
+    TRACE_NORMAL(("cleaning up ticket facility."));
 
-	CMPI_BrokerExt_Ftab->destroyMutex(_tickets_lock);
-	_tickets_lock = NULL;
+    CMPI_BrokerExt_Ftab->destroyMutex(_tickets_lock);
+    _tickets_lock = NULL;
 }
 /*** Local Variables:  ***/
 /*** mode: C           ***/

@@ -29,19 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//           (carolann_graves@hp.com)
-//
-// Modified By: Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_CMPI_TCPREM_LINKAGE
-#   ifdef PEGASUS_CMPI_TCPREM_INTERNAL
-#       define PEGASUS_CMPI_TCPREM_LINKAGE PEGASUS_EXPORT
-#   else
-#       define PEGASUS_CMPI_TCPREM_LINKAGE PEGASUS_IMPORT
-#   endif
+#  ifdef PEGASUS_CMPI_TCPREM_INTERNAL
+#      define PEGASUS_CMPI_TCPREM_LINKAGE PEGASUS_EXPORT
+#  else
+#      define PEGASUS_CMPI_TCPREM_LINKAGE PEGASUS_IMPORT
+#  endif
 #endif

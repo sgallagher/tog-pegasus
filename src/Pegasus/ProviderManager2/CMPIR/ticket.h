@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,34 +29,27 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file ticket.h
   \brief Broker ticket management header file.
-
-  \author Frank Scheffler
 */
 
 #ifndef _REMOTE_CMPI_TICKET_H
-#define _REMOTE_CMPI_TICKET_H
+ #define _REMOTE_CMPI_TICKET_H
 
 typedef struct comm_ticket comm_ticket;
 
-
 #ifndef CMPI_VER_100
-#define CMPI_VER_100
+ #define CMPI_VER_100
 #endif
 
-#ifndef CONST 
-  #ifdef CMPI_VER_100 
+#ifndef CONST
+  #ifdef CMPI_VER_100
   #define CONST const
   #else
-  #define CONST 
+  #define CONST
   #endif
 #endif
 #include <Pegasus/Provider/CMPI/cmpidt.h>
@@ -68,19 +61,19 @@ typedef struct comm_ticket comm_ticket;
   associated to the proper broker handle.
  */
 struct comm_ticket {
-	unsigned long id;	/*!< ticket id */
-	CONST CMPIBroker * broker;	/*!< originating broker */
-	struct comm_ticket * next; /*! next element pointer */
+    unsigned long id;   /*!< ticket id */
+    CONST CMPIBroker * broker;  /*!< originating broker */
+    struct comm_ticket * next; /*! next element pointer */
 };
 
 
 /****************************************************************************/
 
-CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket );
-comm_ticket generate_ticket ( CONST CMPIBroker * broker );
-int revoke_ticket ( comm_ticket * ticket );
-int compare_ticket ( const comm_ticket *, const comm_ticket * );
-void cleanup_ticket ( void );
+PEGASUS_EXPORT CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket );
+ comm_ticket generate_ticket ( CONST CMPIBroker * broker );
+ int revoke_ticket ( comm_ticket * ticket );
+ int compare_ticket ( const comm_ticket *, const comm_ticket * );
+ void cleanup_ticket ( void );
 
 #endif
 

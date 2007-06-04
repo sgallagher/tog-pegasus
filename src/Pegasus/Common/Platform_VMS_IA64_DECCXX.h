@@ -36,7 +36,9 @@
 
 #include <stdlib>
 #include <stdio.h>
+#ifdef __cplusplus
 #include <stddef>
+#endif
 #ifdef PEGASUS_OS_VMS
 #include "Platform_VMS.h"
 #endif

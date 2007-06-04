@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,50 +29,41 @@
 //
 //==============================================================================
 //
-// Author: Frank Scheffler
-//
-// Modified By:  Adrian Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file tool.h
   \brief General tooling facility header file.
-
-  \author Frank Scheffler
 */
 
 #ifndef _REMOTE_CMPI_TOOL_H
 #define _REMOTE_CMPI_TOOL_H
 
-//#include "mm.h"
-
-
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 
+CMPIInstanceMI * tool_load_InstanceMI ( const char * provider,
+                    void * library,
+                    CMPIBroker * broker,
+                    CMPIContext * ctx );
+CMPIAssociationMI * tool_load_AssociationMI ( const char * provider,
+                    void * library,
+                          CMPIBroker * broker,
+                          CMPIContext * ctx );
+CMPIMethodMI * tool_load_MethodMI ( const char * provider,
+                    void * library,
+                    CMPIBroker * broker,
+                    CMPIContext * ctx );
+CMPIPropertyMI * tool_load_PropertyMI ( const char * provider,
+                    void * library,
+                    CMPIBroker * broker,
+                    CMPIContext * ctx );
+CMPIIndicationMI * tool_load_IndicationMI ( const char * provider,
+                        void * library,
+                        CMPIBroker * broker,
+                        CMPIContext * ctx );
 
-CMPIInstanceMI * tool_load_InstanceMI ( const char * provider, 
-					void * library,
-					CMPIBroker * broker,
-					CMPIContext * ctx );
-CMPIAssociationMI * tool_load_AssociationMI ( const char * provider, 
-					      void * library,
-					      CMPIBroker * broker,
-					      CMPIContext * ctx );
-CMPIMethodMI * tool_load_MethodMI ( const char * provider, 
-				    void * library,
-				    CMPIBroker * broker,
-				    CMPIContext * ctx );
-CMPIPropertyMI * tool_load_PropertyMI ( const char * provider, 
-					void * library,
-					CMPIBroker * broker,
-					CMPIContext * ctx );
-CMPIIndicationMI * tool_load_IndicationMI ( const char * provider, 
-					    void * library,
-					    CMPIBroker * broker,
-					    CMPIContext * ctx );
-
+void * tool_load_lib ( const char * libname );
 
 #endif

@@ -34,8 +34,10 @@
 #ifndef Pegasus_Platform_TRU64_ALPHA_DECCXX_h
 #define Pegasus_Platform_TRU64_ALPHA_DECCXX_h
 
+#ifdef __cplusplus
 #include <cstdlib>
 #include <cstddef>
+#endif
 
 #define PEGASUS_OS_TYPE_UNIX
 

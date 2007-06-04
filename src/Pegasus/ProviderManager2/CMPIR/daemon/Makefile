@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,21 +34,25 @@ DIR = Pegasus/ProviderManager2/CMPIR/daemon
 
 include $(ROOT)/mak/config.mak
 
+LOCAL_DEFINES = -DPEGASUS_DEFAULT_CMPIR 
+
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc
     FLAGS += -W"c,SSCOMM"
 endif
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) -I .. -I ../native
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+SYS_LIBS = ws2_32.lib advapi32.lib netapi32.lib
+endif
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_DEFAULT_CMPIR -DDEBUG
+LIBRARIES = CMPIRNative \
+	    CMPIRTCPCommRemote
+
+EXTRA_INCLUDES = -I../ -I../native
+
+SOURCES = daemon.c
 
 PROGRAM = CMPIRDaemon
-
-LIBRARIES = CMPIRNative CMPIRTCPCommRemote
-
-SOURCES = \
-   daemon.c
 
 include $(ROOT)/mak/program.mak
 

@@ -37,7 +37,6 @@
    objects created in a particular context.
 */
 
-#include <Pegasus/ProviderManager2/CMPI/CMPI_Version.h>
 
 #include <stdio.h>
 #include <stdlib.h>

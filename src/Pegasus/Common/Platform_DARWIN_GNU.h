@@ -35,9 +35,12 @@
 #define Pegasus_Platform_DARWIN_GNU_h
 
 #include <limits.h>
+#include <sys/param.h>    // for MAXHOSTNAMELEN
+
+#ifdef __cplusplus
 #include <cstdio>
 #include <cstddef>
-#include <sys/param.h>    // for MAXHOSTNAMELEN
+#endif
 
 #define PEGASUS_OS_TYPE_UNIX
 

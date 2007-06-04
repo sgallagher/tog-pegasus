@@ -42,7 +42,7 @@ endif
 PROGRAM = ReplaceNS
 
 SOURCES = \
-   ReplaceNs.cpp
+   ReplaceNs.c
 
 include $(ROOT)/mak/program.mak
 

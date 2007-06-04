@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -39,9 +39,9 @@ ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     FLAGS += -W"c,SSCOMM"
 endif
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) -I ..
+EXTRA_INCLUDES = $(SYS_INCLUDES) -I..
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_CMPI_NATIVE_INTERNAL
+LOCAL_DEFINES =  -DPEGASUS_CMPI_NATIVE_INTERNAL
 
 LIBRARY = CMPIRNative
 
@@ -63,6 +63,7 @@ SOURCES = \
    remote_broker.c \
    mm.c \
    ../ticket.c \
-   ../tool.c \
+   ../tool.c
+
 
 include $(ROOT)/mak/library.mak

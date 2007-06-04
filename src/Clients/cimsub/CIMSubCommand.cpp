@@ -395,6 +395,9 @@ CIMSubCommand::CIMSubCommand()
     usage.append("                   (root/PG_InterOp, if not specified) \n");
     usage.append("    --help     - Display this help message\n");
     usage.append("    --version  - Display CIM Server version\n");
+    usage.append("\n");
+    usage.append("Usage note: The cimsub command requires that the CIM Server is running.\n");
+    usage.append("\n");
 
 #ifdef PEGASUS_HAS_ICU
 

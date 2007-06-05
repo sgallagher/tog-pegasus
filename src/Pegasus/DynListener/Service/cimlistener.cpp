@@ -96,11 +96,7 @@
 #include <Service/PidFile.h>
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
-# if defined(PEGASUS_OS_OS400)
-#  include <unistd.cleinc>
-# else
-#  include <unistd.h>
-# endif
+# include <unistd.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
@@ -317,55 +313,19 @@ MessageLoader::_useProcessLocale = true;
 setlocale(LC_ALL, "");
 #endif
 
-#ifdef PEGASUS_OS_OS400
-
-  VFYPTRS_INCDCL;               // VFYPTRS local variables
-
-  // verify pointers
-  #pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
-    0,_C2_MH_ESCAPE)
-    for( int arg_index = 1; arg_index < argc; arg_index++ ){
-    VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
-    }
-  #pragma disable_handler
-
-    // Convert the args to ASCII
-    for(Uint32 i = 0;i< argc;++i)
-    {
-    EtoA(argv[i]);
-    }
-
-    // Initialize Pegasus home to the shipped OS/400 directory.
-    pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
-#endif
-
-
 #ifndef PEGASUS_OS_TYPE_WINDOWS
     //
     // Get environment variables:
     //
-#ifdef PEGASUS_OS_OS400
-#pragma convert(37)
-    const char* tmp = getenv("PEGASUS_HOME");
-#pragma convert(0)
-    char home[256] = {0};
-    if (tmp && strlen(tmp) < 256)
-    {
-    strcpy(home, tmp);
-    EtoA(home);
-    pegasusHome = home;
-    }
-#else
-  #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
+#if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
     pegasusHome = AIX_RELEASE_PEGASUS_HOME;
-  #elif !defined(PEGASUS_USE_RELEASE_DIRS)
+#elif !defined(PEGASUS_USE_RELEASE_DIRS)
     const char* tmp = getenv("PEGASUS_HOME");
 
     if (tmp)
     {
         pegasusHome = tmp;
     }
-  #endif
 #endif
 
     FileSystem::translateSlashes(pegasusHome);
@@ -560,21 +520,6 @@ int CIMListenerProcess::cimserver_run(
     }
 #endif
 
-#ifdef PEGASUS_OS_OS400
-    // In a special startup case for IBM OS400, when the server is
-    // automatically started when the machine starts up the config
-    // file cannot be read because of access restrictions for the
-    // user starting the server.  In this case, we need to skip
-    // reading the config options and therefore any use of the config
-    // manager also.  To make this determinations we will check to see
-    // if the daemon flag is set to true.  If so, then there will be a
-    // series of checks to bracket all the calls to the configManager
-    // which would otherwise fail.  All this will only be done for
-    // IBM OS400.
-
-    Boolean os400StartupOption = daemonOption ? true : false;
-#endif
-
     //
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments from the command
@@ -582,9 +527,6 @@ int CIMListenerProcess::cimserver_run(
     //
     try
     {
-#ifdef PEGASUS_OS_OS400
-    if (os400StartupOption == false)
-#endif
         String configFilePath = homeDir + "/" + DEFAULT_CONFIG_FILE;
         FileSystem::translateSlashes(configFilePath);
         configManager->initOptions(configFilePath);
@@ -595,13 +537,11 @@ int CIMListenerProcess::cimserver_run(
             "src.Server.cimserver.SERVER_NOT_STARTED",
             "cimserver not started:  $0", e.getMessage());
 
-#if !defined(PEGASUS_OS_OS400)
         MessageLoaderParms parms("DynListener.cimlistener.LISTENER_NOT_STARTED",
                                  "CIM Listener not started: $0", e.getMessage());
 
         PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
             << PEGASUS_STD(endl);
-#endif
 
         return(1);
     }
@@ -675,23 +615,12 @@ int CIMListenerProcess::cimserver_run(
 
 #endif //PEGASUS_HAS_SIGNALS
 
-
-#ifdef PEGASUS_OS_OS400
-    //l10n
-    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-        //"CIM Server stopped.");
-    Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::INFORMATION,
-        "src.Server.cimserver.SERVER_STOPPED",
-        "CIM Server stopped.");
-        cimserver_exitRC(0);
-#else
         //l10n
         //cout << "CIM Server stopped." << endl;
         MessageLoaderParms parms("DynListener.cimlistener.LISTENER_STOPPED",
                                  "CIM Listener stopped.");
         cout << MessageLoader::getMessage(parms) << endl;
         return(0);
-#endif
     }
 
     //get config options.  note that the paths will be converted to homedPaths in the lookup calls.
@@ -708,25 +637,6 @@ int CIMListenerProcess::cimserver_run(
     Uint32 traceLevel;
     String traceComponents;
 
-#ifdef PEGASUS_OS_OS400
-    if (os400StartupOption)
-    {
-        //set fixed values for OS400
-        listenerPort = 5999;
-        httpsConnection = false;
-        sslKeyFilePath = "";
-        sslCertificateFilePath = "";
-        consumerDir = "";
-        consumerConfigDir = "";
-        enableConsumerUnload = false;
-        consumerIdleTimeout = 0;
-        shutdownTimeout = 10;
-        traceFile = "cimlistener.trc";
-        traceLevel = 0;
-        traceComponents = "LISTENER";
-    } else
-    {
-#endif
     try
     {
     configManager->lookupIntegerValue("listenerPort", listenerPort);
@@ -751,9 +661,6 @@ int CIMListenerProcess::cimserver_run(
         cout << MessageLoader::getMessage(parms) << endl;
         exit(0);
     }
-#ifdef PEGASUS_OS_OS400
-    }
-#endif
 
     //Check listener port validity
     //ATTN: Do we need this?
@@ -808,20 +715,9 @@ MessageLoader::_useProcessLocale = false;
     if (daemonOption)
     {
         if(-1 == _cimListenerProcess->cimserver_fork())
-#ifndef PEGASUS_OS_OS400
     {
         return(-1);
     }
-#else
-    {
-            return(-1);
-    }
-    else
-    {
-        return(0);
-    }
-#endif
-
     }
 
 // l10n
@@ -845,24 +741,6 @@ MessageLoader::_useProcessLocale = false;
           Logger::put(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                              e.getMessage());
     }
-
-
-
-#ifdef PEGASUS_OS_OS400
-    // Special server initialization code for OS/400.
-    if (_cimListenerProcess->cimserver_initialize() != 0)
-    {
-    // do some logging here!
-    //l10n
-    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            //"CIM Server failed to initialize");
-    Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
-                  "src.Server.cimserver.SERVER_FAILED_TO_INITIALIZE",
-                  "CIM Server failed to initialize");
-    return(-1);
-    }
-#endif
-
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
 || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
@@ -1061,14 +939,11 @@ MessageLoader::_useProcessLocale = false;
             "src.Server.cimserver.ERROR",
             "Error: $0", e.getMessage());
 
-#ifndef PEGASUS_OS_OS400
     //l10n
     //PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     MessageLoaderParms parms("DynListener.cimlistener.ERROR",
                              "CIM Listener error: $0");
     PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
-
-#endif
 
     //
         // notify parent process (if there is a parent process) to terminate

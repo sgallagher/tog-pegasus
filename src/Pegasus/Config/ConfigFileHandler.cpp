@@ -40,10 +40,6 @@
 #include <Pegasus/Common/Executor.h>
 #include "ConfigFileHandler.h"
 #include "ConfigManager.h"
-#if  defined(PEGASUS_OS_OS400)
-#include "OS400ConvertChar.h"
-#endif
-
 
 PEGASUS_USING_STD;
 

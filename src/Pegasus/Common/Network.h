@@ -92,11 +92,7 @@
 #       include <unistd.h>
 #       include <sys/un.h>
 #   endif
-#   ifdef PEGASUS_OS_OS400
-#       include <unistd.cleinc>
-#   else
-#       include <unistd.h>
-#   endif
+#   include <unistd.h>
 #   ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #       ifndef TCP_NODELAY
 #           define TCP_NODELAY 1
@@ -208,8 +204,7 @@ typedef int SocketHandle;
 //
 //------------------------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
     defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
     defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \

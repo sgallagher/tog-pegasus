@@ -48,9 +48,7 @@ typedef unsigned long mode_t;
 #endif
 
 #if defined (PEGASUS_OS_TYPE_UNIX) || (PEGASUS_OS_VMS)
-# ifndef PEGASUS_OS_OS400
-#  include <unistd.h>
-# endif
+# include <unistd.h>
 # include <fcntl.h>  // File locking
 # define PEGASUS_UID_T uid_t
 # define PEGASUS_GID_T gid_t
@@ -252,12 +250,10 @@ public:
         @return          True if the user and group IDs were retrieved
                          successfully, false otherwise.
     */
-#ifndef PEGASUS_OS_OS400
     static Boolean lookupUserId(
         const char* userName,
         PEGASUS_UID_T& uid,
         PEGASUS_GID_T& gid);
-#endif
 
     /**
         Changes the process user context to the specified user and group.
@@ -269,12 +265,10 @@ public:
         @return          True if the user context is successfully changed,
                          false otherwise.
     */
-#ifndef PEGASUS_OS_OS400
     static Boolean changeUserContext_SingleThreaded(
         const char* userName,
         const PEGASUS_UID_T& uid,
         const PEGASUS_GID_T& gid);
-#endif
 
     /**
         This function is used to get the process ID of the calling process.

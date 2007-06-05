@@ -40,9 +40,6 @@
 #ifdef PEGASUS_HAS_ICU
 # include <unicode/locid.h>
 #endif
-#if defined(PEGASUS_OS_OS400)
-# include "EBCDIC_OS400.h"
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -289,14 +286,7 @@ AcceptLanguageList LanguageParser::getDefaultAcceptLanguages()
 #if defined(PEGASUS_HAS_MESSAGES) && defined(PEGASUS_HAS_ICU)
     Locale default_loc = Locale::getDefault();
 
-# ifdef PEGASUS_OS_OS400
-    char* tmp = (char*)default_loc.getName();
-    char tmp_[100];
-    EtoA(strcpy(tmp_,tmp));
-    String localeId = tmp_;
-# else
     String localeId = default_loc.getName();
-# endif
 
     try
     {

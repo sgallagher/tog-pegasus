@@ -54,9 +54,6 @@ public:
     #if defined(PEGASUS_OS_TYPE_WINDOWS)
       typedef HMODULE DynamicLibraryHandle;
       typedef FARPROC DynamicSymbolHandle;
-    #elif defined(PEGASUS_OS_OS400)
-      typedef int DynamicLibraryHandle;
-      typedef void * DynamicSymbolHandle;
     #else
       typedef void * DynamicLibraryHandle;
       typedef void * DynamicSymbolHandle;

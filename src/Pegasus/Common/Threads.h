@@ -43,9 +43,6 @@
 // ATTN: can we consolidate these someplace?
 
 #if defined(PEGASUS_HAVE_PTHREADS)
-# if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-# define _MULTI_THREADED // Is this really necessary?
-# endif
 # include <pthread.h>
 # include <errno.h>
 # include <sys/time.h>
@@ -219,7 +216,6 @@ inline void Threads::yield()
 {
 #if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || \
     defined(PEGASUS_PLATFORM_HPUX_ACC) || \
-    defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) || \
     defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
     defined(PEGASUS_OS_VMS) || \
     defined(PEGASUS_OS_ZOS) || \

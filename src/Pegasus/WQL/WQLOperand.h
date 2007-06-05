@@ -311,10 +311,6 @@ private:
 
     union
     {
-#ifdef PEGASUS_OS_OS400
-        // add void* to force the proper alignment
-        void* _alignos400;
-#endif
         Sint64 _integerValue;
         Real64 _doubleValue;
         Boolean _booleanValue;

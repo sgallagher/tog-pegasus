@@ -75,14 +75,6 @@ Boolean FileSystem::getCurrentDirectory(String& path)
 
 Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
-#ifdef PEGASUS_OS_OS400
-    // The OS/400 file system is case insensitive, so just call exists( ).
-    // This is faster, but the main reason to do this is to
-    // avoid multi-threading problems with the IFS directory APIs
-    // (even though they claim to be threadsafe).
-    realPath = path;
-    return exists(path);
-#else
     realPath.clear();
     CString cpath = _clonePath(path);
     const char* p = cpath;
@@ -124,7 +116,6 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
     }
 
     return false;
-#endif
 }
 
 Boolean FileSystem::canRead(const String& path)
@@ -257,11 +248,7 @@ Boolean FileSystem::openNoCase(
 #if defined(__GNUC__) && GCC_VERSION >= 30200
     fs.open(_clonePath(realPath), PEGASUS_STD(ios_base::openmode)(mode));
 #else
-#if defined(PEGASUS_OS_OS400)
-    fs.open(_clonePath(realPath), mode, PEGASUS_STD(_CCSID_T(1208)) );
-#else
     fs.open(_clonePath(realPath), mode);
-#endif
 #endif
     return !!fs;
 }
@@ -403,13 +390,7 @@ String FileSystem::extractFilePath(const String& path)
 // Changes file permissions on the given file.
 Boolean FileSystem::changeFilePermissions(const String& path, mode_t mode)
 {
-#if defined(PEGASUS_OS_OS400)
-    // ATTN: If getCString() is modified to return UTF8, then handle the
-    //       EBCDIC coversion in SystemUnix.cpp
     CString tempPath = path.getCString();
-#else
-    CString tempPath = path.getCString();
-#endif
 
     return System::changeFilePermissions(tempPath, mode);
 }
@@ -464,8 +445,6 @@ String FileSystem::buildLibraryFileName(const String &libraryName)
     fileName = libraryName + String(".dll");
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
     fileName = String("lib") + libraryName + String(".sl");
-#elif defined(PEGASUS_OS_OS400)
-    fileName = libraryName;
 #elif defined(PEGASUS_OS_DARWIN)
     fileName = String("lib") + libraryName + String(".dylib");
 #elif defined(PEGASUS_OS_VMS)
@@ -537,11 +516,6 @@ Boolean FileSystem::changeFileOwner(
         userPasswd = (struct passwd*)NULL;
     }
 
-#elif defined(PEGASUS_OS_OS400)
-    CString tempName = userName.getCString();
-    const char* tmp = tempName;
-    AtoE((char *)tmp);
-    userPasswd = getpwnam(tmp);
 #else
 
     userPasswd = getpwnam(userName.getCString());
@@ -553,15 +527,9 @@ Boolean FileSystem::changeFileOwner(
         return false;
     }
 
-#if defined(PEGASUS_OS_OS400)
-    CString tempPath = fileName.getCString();
-    const char * tmp1 = tempPath;
-    AtoE((char *)tmp1);
-    Sint32 ret = chown(tmp1, userPasswd->pw_uid, userPasswd->pw_gid);
-#else
     Sint32 ret = chown(
         fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
-#endif
+        
     if (ret == -1)
     {
         PEG_METHOD_EXIT();

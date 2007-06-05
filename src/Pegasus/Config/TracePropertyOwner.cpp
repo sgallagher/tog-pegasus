@@ -62,7 +62,7 @@ static struct ConfigPropertyRow properties[] =
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #else
-#if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_OS_OS400)
+#if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #else
@@ -70,10 +70,7 @@ static struct ConfigPropertyRow properties[] =
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
 #endif
-#ifdef PEGASUS_OS_OS400
-    {"traceFilePath", "/qibm/userdata/os400/cim/cimserver.trc",
-         IS_DYNAMIC, 0, 0, IS_VISIBLE},
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # if defined(PEGASUS_USE_RELEASE_DIRS)
     {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # else

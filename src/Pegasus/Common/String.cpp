@@ -1262,14 +1262,6 @@ Boolean String::equal(const String& s1, const char* s2)
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
-#if defined(PEGASUS_OS_OS400)
-
-    CString cstr = str.getCString();
-    const char* utf8str = cstr;
-    os << utf8str;
-    return os;
-#else
-
 #if defined(PEGASUS_HAS_ICU)
 
     if (InitializeICU::initICUSuccessful())
@@ -1305,7 +1297,6 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     }
 
     return os;
-#endif // PEGASUS_OS_OS400
 }
 
 void StringAppendCharAux(StringRep*& _rep)

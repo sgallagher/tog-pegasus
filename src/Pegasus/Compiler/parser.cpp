@@ -89,8 +89,7 @@ parser::pop_statebuff() {
 //-------------------------------------------------------------------
 int 
 parser::setInputBufferFromName(const String &filename) {
-#if defined PEGASUS_PLATFORM_OS400_ISERIES_IBM || defined (PEGASUS_OS_VMS)
-  // 't' not supported on OS/400
+#if defined (PEGASUS_OS_VMS)
   FILE *f = fopen(filename.getCString(),"r");
 #else
   FILE *f = fopen(filename.getCString(),"rt");

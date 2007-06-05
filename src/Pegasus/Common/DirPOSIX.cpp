@@ -36,15 +36,6 @@
 
 #include <iostream>
 
-#ifdef PEGASUS_OS_OS400
-typedef struct os400_pnstruct
-{
-  Qlg_Path_Name_T qlg_struct;
-  char * pn;
-} OS400_PNSTRUCT;
-#endif
-
-
 PEGASUS_NAMESPACE_BEGIN
 
 // Clone the string to a plain old C-String and null out
@@ -63,34 +54,13 @@ static CString _clonePath(const String& path)
 Dir::Dir(const String& path)
     : _path(path)
 {
-
-#ifdef PEGASUS_OS_OS400
-    CString tmpPathclone = _clonePath(_path);
-    const char* tmpPath = tmpPathclone;
-    OS400_PNSTRUCT pathname;
-    memset((void*)&pathname, 0x00, sizeof(OS400_PNSTRUCT));
-    pathname.qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(pathname.qlg_struct.Country_ID,"US",2);
-    memcpy(pathname.qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    pathname.qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    pathname.qlg_struct.Path_Length = strlen(tmpPath);
-    pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
-    pathname.pn = (char *)tmpPath;
-    _dirRep.dir = QlgOpendir((Qlg_Path_Name_T *)&pathname);
-#else
     _dirRep.dir = opendir(_clonePath(_path));
-#endif
+
     if (_dirRep.dir)
     {
 #ifdef PEGASUS_HAS_READDIR_R
         // Need to use readdir_r since we are multithreaded
-#ifdef PEGASUS_OS_OS400
-        if (QlgReaddir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
-#else
         if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
-#endif
         {
             _more = false;
             closedir(_dirRep.dir);
@@ -118,12 +88,7 @@ Dir::~Dir()
 
 const char* Dir::getName() const
 {
-#ifdef PEGASUS_OS_OS400
-    _dirRep.entry->d_lg_name[_dirRep.entry->d_lg_qlg.Path_Length] = 0x00;
-    return _more ? _dirRep.entry->d_lg_name : "";
-#else
     return _more ? _dirRep.entry->d_name : "";
-#endif
 }
 
 void Dir::next()
@@ -132,14 +97,10 @@ void Dir::next()
     {
 #ifdef PEGASUS_HAS_READDIR_R
         // Need to use readdir_r since we are multithreaded
-#ifdef PEGASUS_OS_OS400
-        if (QlgReaddir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
-#else
 #ifdef PEGASUS_OS_ZOS
     errno=0;
 #endif
     if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
-#endif
         {
             _more = false;
             throw CannotOpenDirectory(_path);

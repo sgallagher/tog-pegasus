@@ -53,9 +53,6 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
-#ifdef PEGASUS_OS_OS400
-#include <Pegasus/Common/Logger.h>
-#endif
 #include "RepositoryUpgrade.h"
 
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
@@ -129,13 +126,6 @@ const char   RepositoryUpgrade::_OPTION_NEW_REPOSITORY_PATH     = 'n';
 const char   RepositoryUpgrade::_OPTION_HELP         = 'h';
 
 static const char   LONG_HELP []  = "help";
-
-#ifdef PEGASUS_OS_OS400
-/**
-    The option character used to suppress output.
-*/
-const char   RepositoryUpgrade::_OPTION_QUIET     = 'q';
-#endif
 
 /**
     The option character used to display version info.
@@ -324,10 +314,6 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::NONE);
 
-#ifdef PEGASUS_OS_OS400
-    logFileName = "/QIBM/USERDATA/OS400/CIM/qycmRepositoryUpgrade.log";
-#endif
-
     //
     // Create request encoder:
     //
@@ -341,27 +327,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     //
     // Get environment variable PEGASUS_HOME
     //
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#pragma convert(37)
     const char* tmp = getenv("PEGASUS_HOME");
-#pragma convert(0)
-    // Set pegasusHome to the env var,if it is set.  Otherwise,
-    // use the OS/400 default path.
-    if (tmp != NULL)
-    {
-        char home[256] = {0};
-        if (strlen(tmp) < 256)
-        {
-            strcpy(home, tmp);
-            EtoA(home);
-            _pegasusHome=home;
-        }
-    }
-    else
-        _pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
-#else
-    const char* tmp = getenv("PEGASUS_HOME");
-#endif
 
     if (tmp)
     {
@@ -475,34 +441,6 @@ RepositoryUpgrade::~RepositoryUpgrade ()
 #endif
 }
 
-#ifdef PEGASUS_OS_OS400
-Uint32 RepositoryUpgrade::invokeRepositoryUpgrade(Uint32 argc, char* argv[])
-{
-    RepositoryUpgrade 	command;
-    Uint32		retCode;
-
-    try
-    {
-        command.setCommand (argc, argv);
-    }
-    catch (CommandFormatException& cfe)
-    {
-
-        throw cfe;
-  
-    }
-
-  
-    ofstream logFile(logFileName.getCString(), ios::app, PEGASUS_STD(_CCSID_T(1208)));
-    retCode = command.execute (logFile, logFile);
-
-
-    return (retCode);
-
-}
-#endif
-
-
 /**
     Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
@@ -535,10 +473,6 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
     optString.append (getoopt::NOARG);
     optString.append (_OPTION_VERSION);
     optString.append (getoopt::NOARG);
-#ifdef PEGASUS_OS_OS400
-    optString.append (_OPTION_QUIET);
-    optString.append (getoopt::NOARG);
-#endif
 
     //
     //  Initialize and parse getOpts
@@ -717,14 +651,6 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                     _optionType = _OPTION_TYPE_VERSION;
                     break;
                 }
-#ifdef PEGASUS_OS_OS400
-		case _OPTION_QUIET:
-		{
-			// Suppress output. Redirect to /dev/null.
-			freopen(logFileName.getCString(),"a",stdout);
-			freopen(logFileName.getCString(),"a",stderr);
-		}
-#endif
                 default:
                 {
                     //
@@ -779,15 +705,6 @@ Uint32 RepositoryUpgrade::execute (
                                   REPOSITORY_DOES_NOT_EXIST_KEY,
                                   REPOSITORY_DOES_NOT_EXIST,
                                   _oldRepositoryPath ) << endl;
-#ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
-	           localizeMessage ( MSG_PATH,
-                                  REPOSITORY_DOES_NOT_EXIST_KEY,
-                                  REPOSITORY_DOES_NOT_EXIST,
-                                  _oldRepositoryPath )
-                   );
-	throw RepositoryUpgradeException("");
-#endif
         return 1;
     }
 
@@ -797,15 +714,6 @@ Uint32 RepositoryUpgrade::execute (
                                  REPOSITORY_DOES_NOT_EXIST_KEY,
                                  REPOSITORY_DOES_NOT_EXIST,
                                  _newRepositoryPath ) << endl;
-#ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,
-	           localizeMessage ( MSG_PATH,
-                                  REPOSITORY_DOES_NOT_EXIST_KEY,
-                                  REPOSITORY_DOES_NOT_EXIST,
-                                  _newRepositoryPath )
-                   );
-	throw RepositoryUpgradeException("");
-#endif
         return 1;
     }
 
@@ -842,19 +750,11 @@ Uint32 RepositoryUpgrade::execute (
     catch (RepositoryUpgradeException& rue)
     {
         errPrintWriter << rue.getMessage() << endl;
-#ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,rue.getMessage());
-	throw rue;
-#endif
         return 1;
     }
     catch (Exception &e)
     {
         errPrintWriter << e.getMessage() << endl;
-#ifdef PEGASUS_OS_OS400
-        Logger::put(Logger::STANDARD_LOG,"cimserver repupgrade",Logger::SEVERE,e.getMessage());
-	throw e;
-#endif
         return 1;
     }
 
@@ -2165,8 +2065,6 @@ DynamicLibrary RepositoryUpgrade::_loadSSPModule(const String& moduleName)
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
     fileName = _pegasusHome + "/bin/" +
                   FileSystem::buildLibraryFileName(moduleName);
-#elif defined (PEGASUS_OS_OS400)
-    fileName = moduleName;
 #else
     fileName = _pegasusHome + "/lib/" +
                   FileSystem::buildLibraryFileName(moduleName);
@@ -2342,7 +2240,6 @@ Boolean RepositoryUpgrade::_invokeModules(CIMInstance& inputInstance,
 
  */
 PEGASUS_NAMESPACE_END
-#ifndef PEGASUS_OS_OS400
 
 // exclude main from the Pegasus Namespace
 PEGASUS_USING_PEGASUS;
@@ -2390,5 +2287,3 @@ int main (int argc, char* argv [])
         return 1;
     }
 }
-
-#endif

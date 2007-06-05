@@ -453,16 +453,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
         //
         // If the user is not privileged, perform the authorization check.
         //
-#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
         if (!System::isPrivilegedUser(userName))
-#else
-        // On OS/400, always check authorization if remote user.
-        // Always allow local privileged users through.
-        // Check authorization for local non-privileged users.
-        // (User authorization to providers are checked downstream from here).
-        if (!String::equalNoCase(authType,"Local") ||
-            !System::isPrivilegedUser(userName))
-#endif
         {
             UserManager* userManager = UserManager::getInstance();
 

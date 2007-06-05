@@ -44,10 +44,6 @@
 #include "SecureBasicAuthenticator.h"
 #include <Pegasus/Common/Executor.h>
 
-#ifdef PEGASUS_OS_OS400
-#include "qycmutiltyUtility.H"
-#include "OS400ConvertChar.h"
-#endif
 #ifdef PEGASUS_OS_ZOS
 #include <pwd.h>
 #ifdef PEGASUS_ZOS_SECURITY
@@ -119,21 +115,7 @@ Boolean SecureBasicAuthenticator::authenticate(
 
     Boolean authenticated = false;
 
-#ifdef PEGASUS_OS_OS400
-
-    // Use OS400 APIs to do user name and password verification
-    // (note - need to convert to EBCDIC before calling ycm)
-    CString userCStr = userName.getCString();
-    const char * user = (const char *) userCStr;
-    AtoE((char *) user);
-    CString pwCStr = password.getCString();
-    const char *pw = (const char *) pwCStr;
-    AtoE((char *) pw);
-    int os400auth = ycmVerifyUserAuthorization(user, pw);
-    if (os400auth == TRUE)
-        authenticated = true;
-
-#elif defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_OS_ZOS)
 
     // use zOS API to do the user name and password verification
     // note: write possible errors to the tracelog
@@ -174,7 +156,7 @@ Boolean SecureBasicAuthenticator::authenticate(
             "Authentication failed.");
     }
 
-#else /* DEFAULT (!PEGASUS_OS_ZOS && !PEGASUS_OS_OS400) */
+#else /* DEFAULT (!PEGASUS_OS_ZOS) */
 
     // Check whether valid system user.
 
@@ -214,7 +196,7 @@ Boolean SecureBasicAuthenticator::authenticate(
         throw e;
     }
 
-#endif /* DEFAULT (!PEGASUS_OS_ZOS && !PEGASUS_OS_OS400) */
+#endif /* DEFAULT (!PEGASUS_OS_ZOS) */
 
     PEG_METHOD_EXIT();
 

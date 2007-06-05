@@ -47,11 +47,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_OS_OS400
-class CIMProviderOS400UserState;
-class CIMProviderOS400SystemState;
-#endif
-
 class CIMOMHandleRep;
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
@@ -254,13 +249,7 @@ private:
 
     friend class ProviderStatus;
     friend class CMPIProvider;
-#ifdef PEGASUS_OS_OS400
-    friend class CIMProviderOS400UserState;
-    CIMOMHandle(Uint32 os400UserStateKey);
-
-    friend class CIMProviderOS400SystemState;
-    void setOS400ProfileHandle(const char * profileHandle);
-#endif
+    
     Boolean unload_ok();
 };
 

@@ -66,11 +66,6 @@
 # include <sstream>
 #endif
 
-#if defined(PEGASUS_OS_OS400)
-# include "OS400ConvertChar.h"
-#endif
-
-
 #if 0
 #undef PEG_METHOD_ENTER
 #undef PEG_METHOD_EXIT

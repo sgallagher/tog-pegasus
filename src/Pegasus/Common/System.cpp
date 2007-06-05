@@ -52,10 +52,6 @@
 # error "Unsupported platform"
 #endif
 
-#if defined(PEGASUS_OS_OS400)
-# include "EBCDIC_OS400.h"
-#endif
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -216,14 +212,6 @@ String System::getHostIP(const String &hostName)
         hostEntryBuffer,
         sizeof(hostEntryBuffer),
         &hostEntryErrno);
-#elif defined(PEGASUS_OS_OS400)
-    char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
-    if (strlen(hostNamePtr) < PEGASUS_MAXHOSTNAMELEN)
-        strcpy(ebcdicHost, hostNamePtr);
-    else
-        return ipAddress;
-    AtoE(ebcdicHost);
-    hostEntry = gethostbyname(ebcdicHost);
 #else
     hostEntry = gethostbyname(hostNamePtr);
 #endif
@@ -231,18 +219,7 @@ String System::getHostIP(const String &hostName)
     if (hostEntry)
     {
         ::memcpy( &inaddr, hostEntry->h_addr,4);
-#if defined(PEGASUS_OS_OS400)
-        char * gottenIPAdress = NULL;
-        gottenIPAdress = ::inet_ntoa( inaddr );
-
-        if (gottenIPAdress != NULL)
-        {
-            EtoA(gottenIPAdress);
-            ipAddress.assign(gottenIPAdress);
-        }
-#else
         ipAddress = ::inet_ntoa( inaddr );
-#endif
     }
     return ipAddress;
 }
@@ -254,15 +231,6 @@ Uint32 System::_acquireIP(const char* hostname)
 {
     Uint32 ip = 0xFFFFFFFF;
     if (!hostname) return 0xFFFFFFFF;
-
-#ifdef PEGASUS_OS_OS400
-    char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
-    if (strlen(hostname) < PEGASUS_MAXHOSTNAMELEN)
-        strcpy(ebcdicHost, hostname);
-    else
-        return 0xFFFFFFFF;
-    AtoE(ebcdicHost);
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // This code used to check if the first character of "hostname" was alphabetic
@@ -276,11 +244,7 @@ Uint32 System::_acquireIP(const char* hostname)
 // Hence the call to inet_addr() first.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_OS_OS400
-    Uint32 tmp_addr = inet_addr(ebcdicHost);
-#else
     Uint32 tmp_addr = inet_addr((char *) hostname);
-#endif
 
     struct hostent* hostEntry;
 
@@ -313,8 +277,6 @@ Uint32 System::_acquireIP(const char* hostname)
             hostEntryBuffer,
             sizeof(hostEntryBuffer),
             &hostEntryErrno);
-#elif defined(PEGASUS_OS_OS400)
-        hostEntry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
         char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
         if (String::equalNoCase("localhost",String(hostname)))
@@ -377,9 +339,6 @@ Uint32 System::_acquireIP(const char* hostname)
             hostEntryBuffer,
             sizeof(hostEntryBuffer),
             &hostEntryErrno);
-#elif defined(PEGASUS_OS_OS400)
-        hostEntry =
-            gethostbyaddr((char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #else
         hostEntry =
             gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
@@ -526,11 +485,8 @@ Boolean System::resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP)
 {
     struct hostent *entry;
 
-#ifndef PEGASUS_OS_OS400
     entry = gethostbyaddr((const char *) &ip_addr, sizeof(ip_addr), AF_INET);
-#else
-    entry = gethostbyaddr((char *) &ip_addr, sizeof(ip_addr), AF_INET);
-#endif
+    
     if (entry == 0)
     {
         // error, couldn't resolve the ip
@@ -561,10 +517,6 @@ Boolean System::isLocalHost(const String &hostName)
     strcpy(cc_hostname, (const char*) csName);
     Uint32 tmp_addr = 0xFFFFFFFF;
     Boolean hostNameIsIPNotation;
-
-#ifdef PEGASUS_OS_OS400
-    AtoE(cc_hostname);
-#endif
 
     // Note: Platforms already supporting the inet_aton()
     //       should define their platform here,

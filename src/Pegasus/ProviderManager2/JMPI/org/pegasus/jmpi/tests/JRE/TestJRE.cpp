@@ -633,43 +633,10 @@ int testJVM ()
 
 // BEGIN: Copy from src/Server/cimserver.cpp
 //        It would have been nice if this were part of ConfigManager.
-#ifdef PEGASUS_OS_OS400
-
-      VFYPTRS_INCDCL;               // VFYPTRS local variables
-
-      // verify pointers
-#pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,0,_C2_MH_ESCAPE)
-      for( int arg_index = 1; arg_index < argc; arg_index++ ){
-         VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
-      }
-#pragma disable_handler
-
-      // Convert the args to ASCII
-      for(Uint32 i = 0;i< argc;++i)
-      {
-         EtoA(argv[i]);
-      }
-
-      // Initialize Pegasus home to the shipped OS/400 directory.
-      pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
-#endif
-
 #ifndef PEGASUS_OS_TYPE_WINDOWS
       //
       // Get environment variables:
       //
-#ifdef PEGASUS_OS_OS400
-#pragma convert(37)
-      const char* tmp = getenv("PEGASUS_HOME");
-#pragma convert(0)
-      char home[256] = {0};
-      if (tmp && strlen(tmp) < 256)
-      {
-        strcpy(home, tmp);
-        EtoA(home);
-        pegasusHome = home;
-      }
-#else
 #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
       pegasusHome = AIX_RELEASE_PEGASUS_HOME;
 #elif !defined(PEGASUS_USE_RELEASE_DIRS) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
@@ -679,7 +646,6 @@ int testJVM ()
       {
          pegasusHome = tmp;
       }
-#endif
 #endif
 
       FileSystem::translateSlashes(pegasusHome);

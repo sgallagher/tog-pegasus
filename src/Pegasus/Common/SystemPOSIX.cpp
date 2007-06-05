@@ -35,13 +35,6 @@
 # define _OPEN_SYS_EXT
 # include <sys/ps.h>
 # include <sys/__messag.h>
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-# include <fcntl.h>
-# include <qycmutilu2.H>
-# include <unistd.cleinc>
-# include "qycmmsgclsMessage.H" // ycmMessage class
-# include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
-# include "EBCDIC_OS400.h"
 #elif defined(PEGASUS_OS_VMS)
 # include <descrip.h>           //  $DESCRIPTOR
 # include <iodef.h>             // IO$_SENSEMODE
@@ -62,7 +55,6 @@
 
 #if !defined(PEGASUS_OS_VMS) && \
     !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && \
-    !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && \
     !defined(PEGASUS_OS_DARWIN)
 # include <crypt.h>
 #endif
@@ -91,45 +83,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
-// QlgPath (PEGASUS_OS_OS400 only)
-//
-//==============================================================================
-
-#ifdef PEGASUS_OS_OS400
-
-struct QlgPath
-{
-    QlgPath(const char* path);
-    operator Qlg_Path_Name_T*() { return &qlg_struct; }
-    Qlg_Path_Name_T qlg_struct;
-    const char* pn;
-};
-
-QlgPath::QlgPath(const char* path) : pn(path)
-{
-    memset((void*)&qlg_struct, 0, sizeof(Qlg_Path_Name_T));
-    qlg_struct.CCSID = 1208;
-#pragma convert(37)
-    memcpy(qlg_struct.Country_ID,"US",2);
-    memcpy(qlg_struct.Language_ID,"ENU",3);
-#pragma convert(0)
-    qlg_struct.Path_Type = QLG_PTR_SINGLE;
-    qlg_struct.Path_Length = strlen(path);
-    qlg_struct.Path_Name_Delimiter[0] = '/';
-}
-
-#endif /* PEGASUS_OS_OS400 */
-
-//==============================================================================
-//
 // System
 //
 //==============================================================================
 
 // System ID constants for Logger::put and Logger::trace
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-const String System::CIMSERVER = "qycmcimom";  // Server system ID
-#elif defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_OS_ZOS)
 const String System::CIMSERVER = "CFZCIM";  // Server system ID
 #else
 const String System::CIMSERVER = "cimserver";  // Server system ID
@@ -174,115 +133,66 @@ void System::sleep(Uint32 seconds)
 
 Boolean System::exists(const char* path)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgAccess(QlgPath(path), F_OK) == 0;
-#else
     return access(path, F_OK) == 0;
-#endif
 }
 
 Boolean System::canRead(const char* path)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgAccess(QlgPath(path), R_OK) == 0;
-#else
     return access(path, R_OK) == 0;
-#endif
 }
 
 Boolean System::canWrite(const char* path)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgAccess(QlgPath(path), W_OK) == 0;
-#else
     return access(path, W_OK) == 0;
-#endif
 }
 
 Boolean System::getCurrentDirectory(char* path, Uint32 size)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgGetcwd(QlgPath(path), size) == 0;
-#else
     return getcwd(path, size) != NULL;
-#endif
 }
 
 Boolean System::isDirectory(const char* path)
 {
     struct stat st;
-
-#if defined(PEGASUS_OS_OS400)
-    if (QlgStat(QlgPath(path), &st) != 0)
-        return false;
-#else
     if (stat(path, &st) != 0)
         return false;
-#endif
+        
     return S_ISDIR(st.st_mode);
 }
 
 Boolean System::changeDirectory(const char* path)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgChdir(QlgPath(path)) == 0;
-#else
     return chdir(path) == 0;
-#endif
 }
 
 Boolean System::makeDirectory(const char* path)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgMkdir(QlgPath(path), 0777) == 0;
-#else
     return mkdir(path, 0777) == 0;
-#endif
-
 }
 
 Boolean System::getFileSize(const char* path, Uint32& size)
 {
     struct stat st;
-
-#if defined(PEGASUS_OS_OS400)
-    if (QlgStat(QlgPath(path), &st) != 0)
-        return false;
-#else
     if (stat(path, &st) != 0)
         return false;
-#endif
-
     size = st.st_size;
+    
     return true;
 }
 
 Boolean System::removeDirectory(const char* path)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgRmdir(QlgPath(path)) == 0;
-#else
     return rmdir(path) == 0;
-#endif
 }
 
 Boolean System::removeFile(const char* path)
 {
-#if defined(PEGASUS_OS_OS400)
-    return QlgUnlink(QlgPath(path)) == 0;
-#else
     return unlink(path) == 0;
-#endif
 }
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
-#if defined(PEGASUS_OS_OS400)
-    if (QlgLink(QlgPath(oldPath), QlgPath(newPath)) != 0)
-        return false;
-
-    return QlgUnlink(QlgPath(oldPath)) == 0;
-#elif defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_VMS)
 //   Note: link() on OpenVMS has a different meaning so rename is used.
 //         unlink() is a synonym for remove() so it can be used.
     if (rename(oldPath, newPath) != 0)
@@ -314,9 +224,6 @@ String System::getHostName()
             char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
             gethostname(hostname, sizeof(hostname));
             hostname[sizeof(hostname)-1] = 0;
-#if defined(PEGASUS_OS_OS400)
-            EtoA(hostname);
-#endif
             _hostname.assign(hostname);
         }
 
@@ -427,10 +334,6 @@ String System::getFullyQualifiedHostName ()
 
     _getHostByName(hostName, hostName, sizeof(hostName));
 
-# if defined(PEGASUS_OS_OS400)
-    EtoA(hostName);
-# endif
-
     return String(hostName);
 
 #endif /* !PEGASUS_OS_ZOS */
@@ -465,22 +368,6 @@ Uint32 System::lookupPort(
 
     if ( (serv = getservbyname_r(serviceName, TCP, &serv_result,
                                  buf, SERV_BUFF_SIZE)) != NULL )
-#elif defined(PEGASUS_OS_OS400)
-    struct servent serv_result;
-    serv = &serv_result;
-    struct servent_data buf;
-    memset(&buf, 0x00, sizeof(struct servent_data));
-
-    char srvnameEbcdic[256];
-    strcpy(srvnameEbcdic, serviceName);
-    AtoE(srvnameEbcdic);
-
-    char tcpEbcdic[64];
-    strcpy(tcpEbcdic, TCP);
-    AtoE(tcpEbcdic);
-
-    if ( (getservbyname_r(srvnameEbcdic, tcpEbcdic, &serv_result,
-                          &buf)) == 0 )
 #else // PEGASUS_OS_SOLARIS
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
 #endif // PEGASUS_OS_SOLARIS
@@ -657,12 +544,6 @@ String System::getPassword(const char* prompt)
 
     return buf;
 
-#elif defined(PEGASUS_OS_OS400)
-
-    // Not supported on OS/400, and we don't need it.
-    // 'getpass' is DEPRECATED
-    return String();
-
 #else /* default */
 
     return String(getpass(prompt));
@@ -677,8 +558,7 @@ String System::getEffectiveUserName()
 
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_OS400)
+    defined(PEGASUS_OS_LINUX)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd       local_pwd;
@@ -715,9 +595,6 @@ String System::getEffectiveUserName()
     }
     else
     {
-#if defined(PEGASUS_OS_OS400)
-        EtoA(pwd->pw_name);
-#endif
         //
         //  get the user name
         //
@@ -747,13 +624,8 @@ String System::encryptPassword(const char* password, const char* salt)
 
     return String(pcSalt) + String((char *)pbBuffer);
 
-#elif !defined(PEGASUS_OS_OS400)
-
-    return String(crypt( password,salt));
-
 #else
 
-    // Not supported on OS400, and we don't need it.
     return String(password);
 
 #endif
@@ -763,8 +635,7 @@ Boolean System::isSystemUser(const char* userName)
 {
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_OS400)
+    defined(PEGASUS_OS_LINUX)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
@@ -786,19 +657,6 @@ Boolean System::isSystemUser(const char* userName)
 
     return true;
 
-#elif defined(PEGASUS_OS_OS400)
-
-    AtoE((char*)userName);
-
-    if (getpwnam(userName) == NULL)
-    {
-        EtoA((char*)userName);
-        return false;
-    }
-
-    EtoA((char*)userName);
-    return true;
-
 #else /* default */
 
     return getpwnam(userName) != NULL;
@@ -808,7 +666,7 @@ Boolean System::isSystemUser(const char* userName)
 
 Boolean System::isPrivilegedUser(const String& userName)
 {
-#if !defined(PEGASUS_OS_OS400)
+#if !defined(PEGASUS_OS_VMS)
     struct passwd   pwd;
     struct passwd   *result;
     const unsigned int PWD_BUFF_SIZE = 1024;
@@ -836,7 +694,7 @@ Boolean System::isPrivilegedUser(const String& userName)
     }
     return false;
 
-#elif defined(PEGASUS_OS_VMS)
+#else
 
     int retStat;
 
@@ -848,13 +706,6 @@ Boolean System::isPrivilegedUser(const String& userName)
 
     // ATTN-VMS: should this be a bitwise and?
     return ((PRV$M_SETPRV && prvPrv) == 1);
-
-#else /* default */
-
-    CString user = userName.getCString();
-    const char * tmp = (const char *)user;
-    AtoE((char *)tmp);
-    return ycmCheckUserCmdAuthorities(tmp);
 
 #endif /* default */
 }
@@ -868,8 +719,7 @@ static void _initPrivilegedUserName()
 
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_OS400)
+    defined(PEGASUS_OS_LINUX)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd local_pwd;
@@ -893,9 +743,6 @@ static void _initPrivilegedUserName()
 
     if ( pwd != NULL )
     {
-#if defined(PEGASUS_OS_OS400)
-        EtoA(pwd->pw_name);
-#endif
         _priviledgedUserName.assign(pwd->pw_name);
     }
     else
@@ -1014,8 +861,6 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
 
 #endif /* !PEGASUS_OS_VMS || PEGASUS_ENABLE_USERGROUP_AUTHORIZATION */
 
-#ifndef PEGASUS_OS_OS400
-
 Boolean System::lookupUserId(
     const char* userName,
     PEGASUS_UID_T& uid,
@@ -1026,15 +871,7 @@ Boolean System::lookupUserId(
     struct passwd *result;
     char pwdBuffer[PWD_BUFF_SIZE];
 
-# if defined(PEGASUS_OS_OS400)
-    AtoE((char *)userName);
-# endif
-
     int rc = getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result);
-
-# if defined(PEGASUS_OS_OS400)
-    EtoA((char *)userName);
-# endif
 
     if (rc != 0)
     {
@@ -1093,8 +930,6 @@ Boolean System::changeUserContext_SingleThreaded(
     return true;
 }
 
-#endif /* PEGASUS_OS_OS400 */
-
 Uint32 System::getPID()
 {
     return getpid();
@@ -1104,20 +939,7 @@ Boolean System::truncateFile(
     const char* path,
     size_t newSize)
 {
-#if defined(PEGASUS_OS_OS400)
-    int fd = QlgOpen(QlgPath(path), O_WRONLY);
-
-    if (fd != -1)
-    {
-       int rc = ftruncate(fd, newSize);
-       close(fd);
-       return (rc == 0);
-    }
-
-    return false;
-#else
     return (truncate(path, newSize) == 0);
-#endif
 }
 
 Boolean System::is_absolute_path(const char *path)
@@ -1136,25 +958,15 @@ Boolean System::changeFilePermissions(const char* path, mode_t mode)
     Sint32 ret = 0;
     const char * tmp = path;
 
-#if defined(PEGASUS_OS_OS400)
-    // ATTN: Update this code to handle UTF8 when path contains UTF8
-    AtoE((char *)tmp);
-#endif
-
     return chmod(tmp, mode) == 0 ? true : false;
 }
 
 Boolean System::verifyFileOwnership(const char* path)
 {
     struct stat st;
-
-#if defined(PEGASUS_OS_OS400)
-    if (QlgStat(QlgPath(path), &st) != 0)
-        return false;
-#else
+    
     if (lstat(path, &st) != 0)
         return false;
-#endif
 
     return ((st.st_uid == geteuid()) &&    // Verify the file owner
             S_ISREG(st.st_mode) &&         // Verify it is a regular file
@@ -1210,49 +1022,6 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     ::syslog(syslogLevel, "%s", message);
 
     closelog();
-
-#elif defined(PEGASUS_OS_OS400)
-
-    std::string replacementData = message;
-    // All messages will go to the joblog. In the future
-    // some messages may go to other message queues yet
-    // to be determined.
-    if ((severity & Logger::TRACE) ||
-        (severity & Logger::INFORMATION))
-    {
-
-        // turn into ycmMessage so we can put it in the job log
-# pragma convert(37)
-        ycmMessage theMessage("CPIDF80",
-                              message,
-                              strlen(message),
-                              "Logger",
-                              ycmCTLCIMID,
-                              TRUE);
-# pragma convert(0)
-
-        // put the message in the joblog
-        theMessage.joblogIt(UnitOfWorkError,
-                            ycmMessage::Informational);
-    }
-
-    if ((severity & Logger::WARNING) ||
-        (severity & Logger::SEVERE)  ||
-        (severity & Logger::FATAL))
-    {
-        // turn into ycmMessage so we can put it in the job log
-# pragma convert(37)
-        ycmMessage theMessage("CPDDF82",
-                              message,
-                              strlen(message),
-                              "Logger",
-                              ycmCTLCIMID,
-                              TRUE);
-# pragma convert(0)
-        // put the message in the joblog
-        theMessage.joblogIt(UnitOfWorkError,
-                            ycmMessage::Diagnostic);
-    }
 
 #elif defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_SYSLOGS)
 #define ZOS_MSGID_LENGTH 11

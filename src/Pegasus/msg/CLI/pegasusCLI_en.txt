@@ -68,35 +68,6 @@ en:table {
     "\n"
 	}
 
-        /**
- 	* @note Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400:
-	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
-	*    When translating this message, make sure that each line fits in 80 characters,
-	*    preserves the indenting, 
-	*    and ends with a newline character (\n).
- 	*/
-	Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400:string {
-    "Usage: cimconfig -g name [-c | -p | -d] [ -q ] \n"
-    "                 -s name=value [-c | -p] [ -q ] \n"
-    "                 -u name [-c | -p] [ -q ] \n"
-    "                 -l [-c | -p]\n"
-    "                 -h\n"
-    "                 --help\n"
-    "                 --version\n"
-    "  Options:\n"
-    "     -g          - Get the value of the specified configuration property.\n" 
-    "     -s          - Add or update configuration property value.\n"
-    "     -u          - Reset configuration property to its default value.\n"
-    "     -l          - Display all the configuration properties.\n"  
-    "     -c          - Use the current configuration.\n"
-    "     -p          - Configuration user on the next CIM Server start.\n"
-    "     -d          - Use the default configuration.\n"
-    "     -q          - Specify quiet mode, avoiding output to stdout or stderr.\n"
-    "     -h, --help  - Display this help message\n"
-    "     --version   - Display CIM server version number\n" 
-    "\n"
-	}
-
         Clients.CIMConfig.CIMConfigCommand.CIMOM_NOT_RUNNING:string {"PGC00200: The CIM server may not be running."}
 
         Clients.CIMConfig.CIMConfigCommand.FILE_NOT_EXIST:string {"PGC00201: The configuration file does not exist."}
@@ -337,36 +308,6 @@ en:table {
     "      --version  - Display CIM Server version number.\n"
     "\n"
 	}
-
-        /**
- 	* @note Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400:
-	*   Do not translate the cimprovider command or options.  Just translate the text that explains the options.
-    *    When translating this message, make sure that each line fits in 80 characters, 
-    *    preserves the indenting,
-    *    and ends with a newline character (\n).
- 	*/
-	Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400:string {
-    "Usage: cimprovider -d -m module [ -q ] \n"
-    "                   -e -m module [ -q ] \n"
-    "                   -r -m module [ -p provider ] [ -q ] \n"
-    "                   -l [ -s | -m module ] \n"
-    "                   -h\n"
-    "                   --help\n"
-    "                   --version\n"
-    "  Options:\n"
-    "     -d         - Disable the specified CIM provider module.\n" 
-    "     -e         - Enable the specified CIM provider module.\n" 
-    "     -r         - Remove the specified provider module and its contained providers.\n"
-    "     -l         - Display all the registered provider modules.\n"
-    "     -m         - Specify the provider module for the operation.\n" 
-    "     -q         - Specify quiet mode, avoiding output to stdout or stderr.\n"
-    "     -p         - Specify the provider for the operation.\n"
-    "     -s           Display the status of registered provider modules.\n"
-    "      -h, --help - Display this help message.\n"
-    "      --version  - Display CIM Server version number.\n"
-    "\n"
-	}
-
 
 	/*
  	* @note PGC00600:

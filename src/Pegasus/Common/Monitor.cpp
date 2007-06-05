@@ -142,13 +142,8 @@ void Monitor::initializeTickler()
 
         // initialize the address
         memset(&_tickle_server_addr, 0, sizeof(_tickle_server_addr));
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#pragma convert(37)
-#endif
+
         _tickle_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#pragma convert(0)
-#endif
         _tickle_server_addr.sin_family = PF_INET;
         _tickle_server_addr.sin_port = 0;
 
@@ -216,13 +211,8 @@ void Monitor::initializeTickler()
 
         // setup the address of the client
         memset(&_tickle_client_addr, 0, sizeof(_tickle_client_addr));
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-# pragma convert(37)
-#endif
+
         _tickle_client_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-# pragma convert(0)
-#endif
         _tickle_client_addr.sin_family = PF_INET;
         _tickle_client_addr.sin_port = 0;
 

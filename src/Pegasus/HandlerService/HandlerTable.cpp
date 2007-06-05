@@ -92,12 +92,6 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
         ConfigManager::getInstance()->getCurrentValue("providerDir");
     String fileName = ConfigManager::getHomedPath(provDir) + "/" + 
         FileSystem::buildLibraryFileName(handlerId) + ".exe";
-#elif defined(PEGASUS_OS_OS400)
-    Uint32 lastSlash = handlerId.reverseFind('/');
-    if (lastSlash == PEG_NOT_FOUND)
-        throw DynamicLoadFailed(handlerId);
-    String fileName = handlerId.subString(0, lastSlash);
-    String os400HandlerId = handlerId.subString(lastSlash + 1);
 #else
     String fileName = ConfigManager::getHomedPath((PEGASUS_DEST_LIB_DIR) +
         String("/") + FileSystem::buildLibraryFileName(handlerId));

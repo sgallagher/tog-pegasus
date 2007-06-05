@@ -73,8 +73,6 @@ static char *resolveFileName (const char *filename)
     strcpy(dlName,"/wbem_lib");
     strcat(dlName,filename);
     strcat(dlName,".exe");
-#elif defined(CMPI_OS_OS400)
-    strcpy(dlName,filename);
 #elif defined(CMPI_OS_DARWIN)
     strcpy(dlName,"lib");
     strcat(dlName,filename);
@@ -438,22 +436,6 @@ static void threadSleep(int msec)
         wait.tv_sec = remwait.tv_sec;
         wait.tv_nsec = remwait.tv_nsec;
     }
-
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-
-   int loop;
-   int microsecs = msec * 1000; /* convert from milliseconds to microseconds */
-
-   if (microsecs < 1000000)
-       usleep(microsecs);
-   else
-   {
-       loop = microsecs / 1000000;
-       for(int i = 0; i < loop; i++)
-           usleep(1000000);
-       if ((loop*1000000) < microsecs)
-           usleep(microsecs - (loop*1000000));
-   }
 
 #elif defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
       defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \

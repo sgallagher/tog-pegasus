@@ -43,11 +43,6 @@
 #include "Tracer.h"
 #include <Pegasus/Common/MessageLoader.h>
 
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#include "EBCDIC_OS400.h"
-#endif
-
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -289,9 +284,6 @@ void HTTPAcceptor::_bind()
             AF_UNIX;
         strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
             PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-        AtoE(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
-#endif
         ::unlink(
             reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else

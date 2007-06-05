@@ -73,15 +73,8 @@ PEGASUS_NAMESPACE_BEGIN
  struct DirRep
  {
     DIR* dir;
-# ifdef PEGASUS_OS_OS400
-    struct dirent_lg* entry;
-# else /* ifdef PEGASUS_OS_OS400 */
     struct dirent* entry;
-# endif /* ifdef PEGASUS_OS_OS400 */
 # ifdef PEGASUS_HAS_READDIR_R
-#  ifdef PEGASUS_OS_OS400
-     struct dirent_lg buffer;
-#  else /* ifdef PEGASUS_OS_OS400 */
 #   ifdef PEGASUS_OS_SOLARIS
 private:
         char buf[sizeof(dirent) + MAXNAMELEN];
@@ -93,7 +86,6 @@ public:
 #   else /* ifdef PEGASUS_OS_SOLARIS */
     struct dirent buffer;
 #   endif /* ifdef PEGASUS_OS_SOLARIS */
-#  endif /* ifdef PEGASUS_OS_OS400 */
 # endif /* ifdef PEGASUS_HAS_READDIR_R */
 };
 #endif /* elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS) */

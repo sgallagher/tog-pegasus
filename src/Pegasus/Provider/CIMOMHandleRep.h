@@ -240,10 +240,6 @@ public:
     virtual OperationContext getResponseContext() = 0;
 #endif
 
-#ifdef PEGASUS_OS_OS400
-    virtual void setOS400ProfileHandle(const char* profileHandle) = 0;
-#endif
-
     virtual Boolean unload_ok();
 
 private:      

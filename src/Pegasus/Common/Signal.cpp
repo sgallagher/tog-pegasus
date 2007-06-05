@@ -50,7 +50,7 @@ void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
     if (s_n == PEGASUS_SIGABRT)
     {
         printf("Received an abort signal\n");
-#if defined(PEGASUS_HAS_SIGNALS) && !defined(PEGASUS_OS_OS400)
+#if defined(PEGASUS_HAS_SIGNALS)
         printf(" in address %p\n", s_info->si_addr);
 #endif
 
@@ -159,8 +159,7 @@ void SignalHandler::ignore(unsigned signum)
 
     verifySignum(signum);
 
-#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && \
-    !defined(PEGASUS_OS_DARWIN)
+#if !defined(PEGASUS_OS_DARWIN)
     sigignore(signum);
 #else
     struct sigaction sig_acts;

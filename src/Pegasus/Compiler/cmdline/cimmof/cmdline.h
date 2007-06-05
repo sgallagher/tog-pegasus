@@ -64,9 +64,6 @@ enum opttypes {FILESPEC,
 	       TRACEFLAG,
 	       XMLFLAG,
 #endif
-#ifdef PEGASUS_OS_OS400
-	       QUIETFLAG,
-#endif
 	       VERSIONFLAG,
              OPTEND_CIMMOF,    //PEP167
 	       REPOSITORYNAME,
@@ -82,9 +79,6 @@ struct optspec {
 };
 
 // Wrap this around the PEGASUS_HOME define for OS/400
-#ifdef PEGASUS_OS_OS400
-#pragma convert(37)
-#endif
 
 #define PEGASUS_HOME "PEGASUS_HOME"
 
@@ -96,10 +90,6 @@ struct optspec {
 #define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
 #define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
 #define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
-
-#ifdef PEGASUS_OS_OS400
-#pragma convert(0)
-#endif
 
 #define ROOTCIMV2 "root/cimv2"
 #define REPOSITORY_NAME_DEFAULT "repository"

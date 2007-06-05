@@ -49,13 +49,10 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Config/ConfigManager.h>
-#if defined(PEGASUS_OS_OS400)
-#include "OS400ConvertChar.h"
-#endif
 
 #include "LocalAuthFile.h"
 
-#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_TYPE_WINDOWS)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 // srandom( ) and random( ) are srand( ) and rand( ) on OS/400 and windows
 #define srandom(x) srand(x)
 #define random() rand()
@@ -180,11 +177,8 @@ String LocalAuthFile::create()
     //
     // 1. Create a file name for authentication.
     //
-#if defined(PEGASUS_OS_OS400)
-    ofstream outfs(filePathCString, PEGASUS_STD(_CCSID_T(1208)));
-#else
     ofstream outfs(filePathCString);
-#endif
+
     if (!outfs)
     {
         // unable to create file
@@ -369,14 +363,8 @@ Boolean LocalAuthFile::remove()
     
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
         // change ownership back to the CIMOM
-#if defined(PEGASUS_OS_OS400)
-        CString tempPath = _filePathName.getCString();
-        const char * tmp1 = tempPath;
-        AtoE((char *)tmp1);
-        int rc = chown(tmp1, geteuid(), getegid());
-#else
         int rc = chown((const char *)_filePathName.getCString(), geteuid(), getegid());
-#endif
+        
         if(rc == -1 )
         {  
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,

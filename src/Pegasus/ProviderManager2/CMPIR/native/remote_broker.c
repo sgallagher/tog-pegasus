@@ -724,8 +724,6 @@ __new_remote_broker ( const char * comm_layer_id,
         strcpy(dlName,"lib");
         strcat(dlName,provider_module);
         strcat(dlName,".sl");
-#elif defined(PEGASUS_OS_OS400)
-        strcpy(dlName,provider_module);
 #elif defined(PEGASUS_OS_DARWIN)
         strcpy(dlName,"lib");
         strcat(dlName,provider_module);

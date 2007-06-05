@@ -40,8 +40,6 @@
 #include "FixedPropertyTableLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
 #include "FixedPropertyTableHpux.h"
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#include "FixedPropertyTableOS400.h"
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 #include "FixedPropertyTableAix.h"
 #elif defined (PEGASUS_OS_VMS)

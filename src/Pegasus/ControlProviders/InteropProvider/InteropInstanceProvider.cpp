@@ -113,14 +113,12 @@ void InteropProvider::createInstance(
     // The object path returned to the client invoking the operation
     CIMObjectPath newInstanceReference;
 
-#ifndef PEGASUS_OS_OS400
     if (classEnum == PG_NAMESPACE)
     {
 
         newInstanceReference = createNamespace(clientInstance);
     }
     else   // Invalid class for the create functions.
-#endif
     {
         PEG_METHOD_EXIT();
         MessageLoaderParms mparms(
@@ -154,7 +152,7 @@ void InteropProvider::deleteInstance(
     initProvider();
 
     const CIMName instClassName = instanceName.getClassName();
-#ifndef PEGASUS_OS_OS400
+
     AutoMutex autoMut(changeControlMutex);
 
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
@@ -172,7 +170,6 @@ void InteropProvider::deleteInstance(
         return;
     }
 
-#endif
     MessageLoaderParms mparms(
         "ControlProviders.InteropProvider.DELETE_INSTANCE_NOT_ALLOWED",
         "Delete instance operation not allowed by Interop Provider for class $0.",

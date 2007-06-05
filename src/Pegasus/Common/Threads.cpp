@@ -57,22 +57,6 @@ void Threads::sleep(int msec)
         wait.tv_nsec = remwait.tv_nsec;
     }
 
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-
-   int loop;
-   int microsecs = msec * 1000; /* convert from milliseconds to microseconds */
-
-   if (microsecs < 1000000)
-       usleep(microsecs);
-   else
-   {
-       loop = microsecs / 1000000;
-       for (int i = 0; i < loop; i++)
-           usleep(1000000);
-       if ((loop*1000000) < microsecs)
-           usleep(microsecs - (loop*1000000));
-   }
-
 #elif defined(PEGASUS_OS_TYPE_WINDOWS)
 
     if (msec == 0)

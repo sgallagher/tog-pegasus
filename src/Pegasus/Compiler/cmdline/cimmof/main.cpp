@@ -49,14 +49,6 @@
 #include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Compiler/parserExceptions.h>
 
-#ifdef PEGASUS_OS_OS400
-#include <qycmutiltyUtility.H>
-#include <qycmutilu2.H>
-#include "vfyptrs.cinc"
-#include <stdio.h>
-#include "OS400ConvertChar.h"
-#endif
-
 PEGASUS_USING_STD;
 
 #ifdef PEGASUS_HAVE_NAMESPACES
@@ -74,11 +66,6 @@ extern "C++" ostream& help(ostream& os, int progtype);
 
 extern "C++" ostream& cimmofl_warning(ostream& os);
 
-#ifdef PEGASUS_OS_OS400
-// Escape message generator for os400, reports errors that cimmofl encounters.
-void os400_return_msg(int ret, String msg_, Boolean qsh);
-#endif
-
 #define NAMESPACE_ROOT "root/cimv2"
 
 static const char MSG_PATH [] 				= "pegasus/pegasusServer";
@@ -91,59 +78,6 @@ main(int argc, char ** argv) {
 
   MessageLoader::_useProcessLocale = true; //l10n set message loading to use process locale
   MessageLoader::setPegasusMsgHomeRelative(argv[0]);
-
-#ifdef PEGASUS_OS_OS400
-
-  VFYPTRS_INCDCL;               // VFYPTRS local variables
-
-  // verify pointers
-  #pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
-    0,_C2_MH_ESCAPE)
-    for( int arg_index = 1; arg_index < argc; arg_index++ ){
-	VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
-    }
-  #pragma disable_handler
-
-    // Convert the args to ASCII
-    for(Uint32 i = 0;i< argc;++i)
-    {
-	EtoA(argv[i]);
-    }
-
-    // Set the stderr stream to buffered with 32k.
-    // Allows utf-8 to be sent to stderr (P9A66750).
-    setvbuf(stderr, new char[32768], _IOLBF, 32768);
-
-    // check what environment we are running in, native or qsh
-    Boolean qsh = false;
-    if( getenv(
-#pragma convert(37)
-	       "SHLVL"
-#pragma convert(0)
-	       ) == NULL ){  // native mode
-	// Check to ensure the user is authorized to use the command,
-	// suppress diagnostic message, send escape message
-	if(FALSE == ycmCheckCmdAuthorities(1)){
-	  ycmSend_Message_Escape(CPFDF80_RC,
-				 NULL,
-				 NULL,
-#pragma convert(37)
-				 "*CTLBDY   ",
-#pragma convert(0)
-				 1);
-	  return CPFDF80_RC;
-	}
-    }
-    else{ // qsh mode
-	// Check to ensure the user is authorized to use the command
-	// ycmCheckCmdAuthorities() will send a diagnostic message to qsh
-        qsh = true;
-	if(FALSE == ycmCheckCmdAuthorities()){
-	  return CPFDF80_RC;
-	}
-    }
-
-#endif
 
   try {
     ret = processCmdLine(argc, argv, cmdline, cerr);
@@ -200,19 +134,13 @@ main(int argc, char ** argv) {
       cerr << MessageLoader::getMessage(parms) << endl;
     }
 
-#ifdef PEGASUS_OS_OS400
-    os400_return_msg(ret, msg_, qsh);
-#endif
-
     return ret;
   }
 
-#ifndef PEGASUS_OS_OS400
   if (cmdline.is_local() && !cmdline.get_no_usage_warning())
   {
         cimmofl_warning(cerr);
   }
-#endif
 
   const Array<String>& filespecs = cmdline.get_filespec_list();
 
@@ -230,9 +158,6 @@ main(int argc, char ** argv) {
     cerr << MessageLoader::getMessage(parms) << endl;
     // ATTN: P3 BB 2001 Did not set namespace.  We may need to log an error here.
 	ret = PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH;
-#ifdef PEGASUS_OS_OS400
-    os400_return_msg(ret, msg_, qsh);
-#endif
     return ret;
   }
   if (filespecs.size())    // user specified command line args
@@ -289,65 +214,5 @@ main(int argc, char ** argv) {
   }
   cerr << msg_ << endl;
 
-#ifdef PEGASUS_OS_OS400
-  os400_return_msg(ret, msg_, qsh);
-#endif
-
   return ret;
 }
-
-// os400_return_msg:  creates an escape message for the os400, reports any 
-//                    severe errors that cimmofl encounters.
-// @ret:  the (unix) return status.
-// @msg_:  The general error message. 
-// @qsh:  shell status (QSHELL or Native mode).
-#ifdef PEGASUS_OS_OS400
-void
-os400_return_msg(int ret, String msg_, Boolean qsh)
-{
-  // Send good completion message to stdout if the compile worked.
-  // Callers of QYCMMOFL *PGM from the native command line will want to see this.
-  // Note: in PTF mode the quiet option should be used.
-  if (ret == 0 && !cmdline.quiet())  
-  {
-      //l10n
-      //cout << "Compile completed successfully." << endl;
-      MessageLoaderParms parms;
-      parms.msg_id = "Compiler.cmdline.cimmof.main.COMPILE_SUCCESSFUL";
-      parms.default_msg = "Compile completed successfully.";
-      cout << MessageLoader::getMessage(parms) << endl;
-  }
-
-  // Send a CPDDF83 and CPFDF81 OS/400 program message if an error occurred,
-  // and we are running in native mode.
-  // This will allow PTFs to monitor for this message.
-  if (ret != 0 && !qsh)
-  {
-      message_t    message_;	// Message information
-      cmd_msg_t    cmdMSG;
-      memset((char *)&cmdMSG, ' ', sizeof(cmd_msg_t) ); // init to blanks
-      memcpy(cmdMSG.commandName, "QYCMMOFL", 8);  // must be in utf-8
-      CString utf8 = msg_.getCString();
-      if (strlen((const char *)utf8) <= 200)            // max repl data is 200 chars  
-	  memcpy(cmdMSG.message, utf8, strlen((const char *)utf8));
-      else
-	  memcpy(cmdMSG.message, utf8, 200);
-#pragma convert(37)
-      memcpy(message_.MsgId, "CPDDF83", 7);
-      memcpy(message_.MsgData, (char *)&cmdMSG, sizeof(cmd_msg_t));
-      message_.MsgLen = sizeof(cmd_msg_t);
-      memcpy(message_.MsgType, "*DIAG     ", 10); 
-      ycmSend_Message(&message_,
-		      "*CTLBDY   ",
-		      1,
-		      true);                     // repl data is utf-8 
-
-      ycmSend_Message_Escape(CPFDF81_RC,
-			     "03",               // must be in ccsid 37
-			     "QYCMMOFL",         // must be in ccsid 37
-			     "*CTLBDY   ",
-			     1);
-#pragma convert(0)
-  }
-}
-#endif

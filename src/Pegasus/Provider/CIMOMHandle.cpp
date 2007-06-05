@@ -59,21 +59,6 @@ CIMOMHandle::CIMOMHandle()
     }
 }
 
-#ifdef PEGASUS_OS_OS400
-CIMOMHandle::CIMOMHandle(Uint32 os400UserStateKey)
-{
-
-  // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
-  _rep = new InternalCIMOMHandleRep(os400UserStateKey);
-   
-}
-
-void CIMOMHandle::setOS400ProfileHandle(const char * profileHandle)
-{
-    _rep->setOS400ProfileHandle(profileHandle);
-}
-#endif
-
 CIMOMHandle::CIMOMHandle(const CIMOMHandle & handle)
 {
     Inc(this->_rep = handle._rep);

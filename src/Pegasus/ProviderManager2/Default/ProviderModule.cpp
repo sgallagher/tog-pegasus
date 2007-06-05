@@ -36,11 +36,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h>
 
-#ifdef PEGASUS_OS_OS400
-# include "CreateProviderOS400SystemState.h"
-#endif
-
-
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderModule::ProviderModule(const String& fileName)
@@ -81,14 +76,7 @@ CIMProvider* ProviderModule::load(const String& providerName)
     }
 
     // invoke the provider entry point
-#ifndef PEGASUS_OS_OS400
     CIMProvider* provider = createProvider(providerName);
-#else
-    // On OS/400, need to call a layer of code that does platform-specific
-    // checks before calling the provider
-    CIMProvider* provider = OS400_CreateProvider(
-        providerName.getCString(), createProvider, _fileName);
-#endif
 
     // test for the appropriate interface
     if (dynamic_cast<CIMProvider *>(provider) == 0)

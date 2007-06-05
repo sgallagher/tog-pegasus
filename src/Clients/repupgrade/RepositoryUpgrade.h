@@ -105,9 +105,7 @@ public:
         Destructor.
     */
     ~RepositoryUpgrade ();
-#ifdef PEGASUS_OS_OS400
-    Uint32 invokeRepositoryUpgrade (Uint32 argc, char* argv[]);
-#endif
+
     /**
         Parses the command line, validates the options, and sets instance
         variables based on the option arguments.
@@ -155,9 +153,6 @@ public:
     virtual void handleEnqueue() {};
 
 private:
-#ifdef PEGASUS_OS_OS400
-    String logFileName;  // file to log upgrade messages / progress to
-#endif
     //
     // The type of operation specified on the command line.
     //
@@ -182,12 +177,7 @@ private:
     // The option character used to display help info.
     //
     static const char   _OPTION_HELP;
-#ifdef PEGASUS_OS_OS400
-    //
-    // The option character used to suppress output.
-    //
-    static const char   _OPTION_QUIET;
-#endif
+
     //
     // The option character used to display version info.
     //

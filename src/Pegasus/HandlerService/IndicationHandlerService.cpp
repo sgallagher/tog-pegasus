@@ -405,21 +405,11 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
    if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
    {
-#ifdef PEGASUS_OS_OS400
-       handlerId = LIBRARY_NAME_CIMXML_INDICATION_HNDLR;
-       handlerId.append("/CIMxmlIndicationHandler");
-#else
        handlerId = String("CIMxmlIndicationHandler");
-#endif
    }
    else if (className.equal(PEGASUS_CLASSNAME_INDHANDLER_SNMP))
    {
-#ifdef PEGASUS_OS_OS400
-       handlerId = LIBRARY_NAME_SNMP_INDICATION_HNDLR;
-       handlerId.append("/snmpIndicationHandler");
-#else
        handlerId = String("snmpIndicationHandler");
-#endif
    }
    else if (className.equal(PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
        handlerId = String("SystemLogListenerDestination");

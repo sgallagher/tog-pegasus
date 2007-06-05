@@ -39,10 +39,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 
-#ifdef PEGASUS_OS_OS400
-#   include <Pegasus/Common/EBCDIC_OS400.h>
-#endif
-
 #ifdef PEGASUS_OS_ZOS
 #   include <string.h>  // added by rk for memcpy
 #endif

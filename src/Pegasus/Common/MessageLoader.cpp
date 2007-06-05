@@ -39,9 +39,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <iostream>
-#ifdef PEGASUS_OS_OS400
-#include "EBCDIC_OS400.h"
-#endif
+
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
@@ -185,10 +183,6 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
     //cout << resbundl_path_ICU << endl;
     PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4, "Using resource bundle path:");
     PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4, resbundl_path_ICU);
-#ifdef PEGASUS_OS_OS400
-    const char *atoe = resbundl_path_ICU;
-    AtoE((char*)atoe);
-#endif
 
     if (_useProcessLocale ||
         (acceptlanguages.size() == 0 && parms.useProcessLocale))
@@ -212,14 +206,9 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
                     "Using process locale fallback or default");
             }
             const char * _locale = ures_getLocale(parms._resbundl,&status);
-#ifdef PEGASUS_OS_OS400
-            char tmplcl[size_locale_ICU];
-            strcpy(tmplcl, _locale);
-            EtoA(tmplcl);
-            String localeStr(tmplcl);
-#else
+
             String localeStr(_locale);
-#endif
+
             // The "root" locale indicates that an ICU message bundle is not
             // present for the current locale setting.
             if (localeStr != "root")
@@ -266,17 +255,11 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
     for (Uint32 index = 0; index < acceptlanguages.size(); index++)
     {
         languageTag = acceptlanguages.getLanguageTag(index);
-#ifdef PEGASUS_OS_OS400
-        CString cstr = languageTag.toString().getCString();
-        const char *atoe = cstr;
-        AtoE((char*)atoe);
 
-        uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
-#else
         uloc_getName(
             (const char*)(languageTag.toString()).getCString(),
             locale_ICU, size_locale_ICU, &status);
-#endif
+
         // TODO: check to see if we have previously cached the resource bundle
 
         parms._resbundl =
@@ -324,14 +307,7 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
                     const char* _locale =
                         ures_getLocale(parms._resbundl, &status);
 
-#ifdef PEGASUS_OS_OS400
-                    char tmplcl[size_locale_ICU];
-                    strcpy(tmplcl, _locale);
-                    EtoA(tmplcl);
-                    String localeStr(tmplcl);
-#else
                     String localeStr(_locale);
-#endif
 
                     // The "root" locale indicates that an ICU message bundle
                     // is not present for the current locale setting.
@@ -377,17 +353,10 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
             "No message was loaded, using ICU fallback behaviour.");
         languageTag = acceptlanguages.getLanguageTag(0);
 
-#ifdef PEGASUS_OS_OS400
-        CString cstr = languageTag.toString().getCString();
-        const char *atoe = cstr;
-        AtoE((char*)atoe);
-
-        uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
-#else
         uloc_getName(
             (const char*)(languageTag.toString()).getCString(),
             locale_ICU, size_locale_ICU, &status);
-#endif
+            
         status = U_ZERO_ERROR;
         parms._resbundl =
             ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
@@ -421,14 +390,7 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
 
             if (_locale != NULL)
             {
-#ifdef PEGASUS_OS_OS400
-                char tmplcl[size_locale_ICU];
-                strcpy(tmplcl, _locale);
-                EtoA(tmplcl);
-                localeStr.assign(tmplcl);
-#else
                 localeStr.assign(_locale);
-#endif
             }
 
             // The "root" locale indicates that an ICU message bundle is not
@@ -480,16 +442,8 @@ String MessageLoader::extractICUMessage(
     UErrorCode status = U_ZERO_ERROR;
     int32_t msgLen = 0;
 
-#ifdef PEGASUS_OS_OS400
-    CString cstr = parms.msg_id.getCString();
-    const char* atoe = cstr;
-    AtoE((char*)atoe);
-    const UChar* msg =
-        ures_getStringByKey(resbundl, (const char*)atoe, &msgLen, &status);
-#else
     const UChar* msg = ures_getStringByKey(
         resbundl, (const char*)parms.msg_id.getCString(), &msgLen, &status);
-#endif
 
     if (U_FAILURE(status))
     {
@@ -744,15 +698,8 @@ void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
             else
             {
                 String path;
-# ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#  pragma convert(37)
+
                 const char* env = getenv("PATH");
-                if (env != NULL)
-                    EtoA((char*)env);
-#  pragma convert(0)
-# else
-                const char* env = getenv("PATH");
-# endif
                 if (env != NULL)
                     path.assign(env);
                 String pathDelim = FileSystem::getPathDelimiter();
@@ -810,15 +757,7 @@ void MessageLoader::initPegasusMsgHome(const String& startDir)
     String startingDir = startDir;
     if (startingDir.size() == 0)
     {
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-# pragma convert(37)
         const char* env = getenv("PEGASUS_MSG_HOME");
-        if (env != NULL)
-            EtoA((char*)env);
-# pragma convert(0)
-#else
-        const char* env = getenv("PEGASUS_MSG_HOME");
-#endif
 
         if (env != NULL)
             startingDir.assign(env);
@@ -864,13 +803,7 @@ void MessageLoader::checkDefaultMsgLoading()
     // This will allow poststarttests to run with ICU installed.
     // TODO: remove this function once test cases are compatible with ICU
     // messages
-#ifdef PEGASUS_OS_OS400
-# pragma convert(37)
-#endif
     const char* env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
-#ifdef PEGASUS_OS_OS400
-# pragma convert(0)
-#endif
     if (env != NULL)
         _useDefaultMsg = true;
 }

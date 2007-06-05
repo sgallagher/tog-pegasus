@@ -41,10 +41,6 @@
 
 #include "ConfigExceptions.h"
 #include "ConfigFile.h"
-#if  defined(PEGASUS_OS_OS400)
-#include "OS400ConvertChar.h"
-#endif
-
 
 PEGASUS_USING_STD;
 
@@ -142,12 +138,7 @@ void ConfigFile::load(ConfigTable* confTable)
     //
     // Open the config file
     //
-
-#if defined(PEGASUS_OS_OS400)
-    ifstream ifs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
     ifstream ifs(_configFile.getCString());
-#endif
 
     if (!ifs)
     {

@@ -49,9 +49,6 @@
 #include "CIMParamValue.h"
 #include "System.h"
 #include "XmlConstants.h"
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-# include "EBCDIC_OS400.h"
-#endif
 
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>

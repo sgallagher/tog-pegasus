@@ -33,13 +33,7 @@
 
 #include "DynamicLibrary.h"
 
-#if defined(PEGASUS_OS_OS400)
-# include <fcntl.h>
-# include <unistd.cleinc>
-# include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
-#else
-# include <dlfcn.h>
-#endif
+#include <dlfcn.h>
 
 #if defined(PEGASUS_ZOS_SECURITY)
 # include <sys/stat.h>
@@ -61,8 +55,6 @@ Boolean DynamicLibrary::_load()
 
 #if defined(PEGASUS_OS_ZOS)
     _handle = dlopen(cstr, RTLD_LAZY);
-#elif defined(PEGASUS_OS_OS400)
-    _handle = OS400_LoadDynamicLibrary((const char *)cstr);
 #else
     _handle = dlopen(cstr, RTLD_NOW);
 #endif
@@ -70,11 +62,7 @@ Boolean DynamicLibrary::_load()
     if (_handle == 0)
     {
         // Record the load error message
-#if defined(PEGASUS_OS_OS400)
-        _loadErrorMessage = String(OS400_DynamicLoadError());
-#else
         _loadErrorMessage = dlerror();
-#endif
     }
 
     return isLoaded();
@@ -82,11 +70,7 @@ Boolean DynamicLibrary::_load()
 
 void DynamicLibrary::_unload()
 {
-#ifdef PEGASUS_OS_OS400
-    OS400_UnloadDynamicLibrary(_handle);
-#else
     dlclose(_handle);
-#endif
 }
 
 DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
@@ -96,13 +80,8 @@ DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
 
     CString cstr = symbolName.getCString();
 
-#ifdef PEGASUS_OS_OS400
-    DynamicSymbolHandle func = (DynamicSymbolHandle)
-        OS400_LoadDynamicSymbol(_handle, (const char *)cstr);
-#else
     DynamicSymbolHandle func =
         (DynamicSymbolHandle) dlsym(_handle, (const char *)cstr);
-#endif
 
     return func;
 }

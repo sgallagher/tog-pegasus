@@ -236,11 +236,7 @@ void OptionManager::mergeCommandLine(
 void OptionManager::mergeFile(const String& fileName)
 {
    // Open the input file:
-#if defined(PEGASUS_OS_OS400)
-    ifstream is(fileName.getCString(),PEGASUS_STD(_CCSID_T(1208)));
-#else
     ifstream is(fileName.getCString());
-#endif
 
     if (!is)
         throw NoSuchFile(fileName);

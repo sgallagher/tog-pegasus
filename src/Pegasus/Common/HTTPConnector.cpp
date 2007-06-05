@@ -42,10 +42,6 @@
 #include "HTTPConnector.h"
 #include "HTTPConnection.h"
 
-#ifdef PEGASUS_OS_OS400
-# include "EBCDIC_OS400.h"
-#endif
-
 #ifdef PEGASUS_OS_ZOS
 # include <resolv.h>  // MAXHOSTNAMELEN
 #endif
@@ -70,15 +66,6 @@ static Boolean _MakeAddress(
     if (!hostname)
         return false;
 
-#ifdef PEGASUS_OS_OS400
-    char ebcdicHost[256];
-    if (strlen(hostname) < 256)
-    strcpy(ebcdicHost, hostname);
-    else
-    return false;
-    AtoE(ebcdicHost);
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 // This code used to check if the first character of "hostname" was alphabetic
 // to indicate hostname instead of IP address. But RFC 1123, section 2.1,
@@ -91,11 +78,7 @@ static Boolean _MakeAddress(
 // Hence the call to inet_addr() first.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_OS_OS400
-    unsigned long tmp_addr = inet_addr(ebcdicHost);
-#else
     unsigned long tmp_addr = inet_addr((char *)hostname);
-#endif
 
     struct hostent* hostEntry;
 
@@ -128,8 +111,6 @@ static Boolean _MakeAddress(
             hostEntryBuffer,
             sizeof(hostEntryBuffer),
             &hostEntryErrno);
-#elif defined(PEGASUS_OS_OS400)
-        hostEntry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
         if (String::equalNoCase("localhost",String(hostname)))
         {
@@ -269,9 +250,6 @@ HTTPConnection* HTTPConnector::connect(
         sockaddr_un address;
         address.sun_family = AF_UNIX;
         strcpy(address.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-        AtoE(address.sun_path);
-#endif
 
         socket = Socket::createSocket(AF_UNIX, SOCK_STREAM, 0);
         if (socket == PEGASUS_INVALID_SOCKET)

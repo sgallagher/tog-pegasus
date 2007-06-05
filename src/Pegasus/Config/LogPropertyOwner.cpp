@@ -58,7 +58,7 @@ static struct ConfigPropertyRow properties[] =
     #endif
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #else
-#if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_OS_OS400)
+#if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #endif

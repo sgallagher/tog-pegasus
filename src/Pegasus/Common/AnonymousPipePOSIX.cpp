@@ -43,11 +43,7 @@
 # include <processes.h>
 #endif /* PEGASUS_OS_VMS */
 
-#if defined (PEGASUS_OS_OS400)
-# include <unistd.cleinc>
-#else
-# include <unistd.h>
-#endif
+#include <unistd.h>
 #include <errno.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -52,15 +52,6 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/PegasusAssert.h>
 
-
-#ifdef PEGASUS_OS_OS400
-#include "qycmutiltyUtility.H"
-#include "qycmutilu2.H"
-#include "vfyptrs.cinc"
-#include <stdio.h>
-#include "OS400ConvertChar.h"
-#endif
-
 #define CIMPROVIDERCOMMAND_CLIENT_DEFAULTTIMEOUT 120000
 
 PEGASUS_USING_STD;
@@ -363,14 +354,6 @@ static const char OPTION_HELP        = 'h';
 */
 static const char OPTION_VERSION     = 'v';
 
-#ifdef PEGASUS_OS_OS400
-/**
-    The option character used to specify no output to stdout or stderr.
-*/
-static const char OPTION_QUIET_VALUE = 'q';
-#endif
-
-
 /**
     The name of the Method that implements stop provider or module
 */
@@ -542,14 +525,6 @@ private:
     Boolean _statusSet;
 
     String usage;
-
-#ifdef PEGASUS_OS_OS400
-    //
-    // The flag to indicate whether standard output and standard error are
-    // suppressed
-    //
-    Boolean _defaultQuietSet;
-#endif
 };
 
 /**
@@ -564,9 +539,6 @@ CIMProviderCommand::CIMProviderCommand()
     _moduleSet          = false;
     _providerSet        = false;
     _statusSet          = false;
-#ifdef PEGASUS_OS_OS400
-    _defaultQuietSet    = false;
-#endif
 
     /**
         Build the usage string for the config command.
@@ -576,24 +548,6 @@ CIMProviderCommand::CIMProviderCommand()
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
-#ifdef PEGASUS_OS_OS400
-    usage.append(" -").append(OPTION_DISABLE);
-    usage.append(" -").append(OPTION_MODULE).append(" module ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
-
-    usage.append("                   -").append(OPTION_ENABLE);
-    usage.append(" -").append(OPTION_MODULE).append(" module ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
-
-    usage.append("                   -").append(OPTION_REMOVE);
-    usage.append(" -").append(OPTION_MODULE).append(" module");
-    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
-
-    usage.append("                   -").append(OPTION_LIST);
-    usage.append(" [ -").append(OPTION_STATUS);
-    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
-#else
     usage.append(" -").append(OPTION_DISABLE);
     usage.append(" -").append(OPTION_MODULE).append(" module \n");
 
@@ -607,7 +561,6 @@ CIMProviderCommand::CIMProviderCommand()
     usage.append("                   -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
     usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
-#endif
 
     usage.append("                   -").append(OPTION_HELP).append("\n");
     usage.append("                   --").append(LONG_HELP).append("\n");
@@ -624,10 +577,7 @@ CIMProviderCommand::CIMProviderCommand()
     usage.append("    -m         - "
         "Specify the provider module for the operation\n");
     usage.append("    -p         - Specify the provider for the operation\n");
-#ifdef PEGASUS_OS_OS400
-    usage.append("    -q         - "
-        "Specify quiet mode, avoiding output to stdout or stderr\n");
-#endif
+
     usage.append("    -r         - "
         "Remove specified provider module and its contained providers\n");
     usage.append("    -s         - "
@@ -636,23 +586,10 @@ CIMProviderCommand::CIMProviderCommand()
 
 // Localize the usage text
 #ifdef PEGASUS_HAS_ICU
-
-# ifdef PEGASUS_OS_OS400
-
-    MessageLoaderParms menuparms(
-        "Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400", usage);
-    menuparms.msg_src_path = MSG_PATH;
-    usage = MessageLoader::getMessage(menuparms);
-
-# else
-
     MessageLoaderParms menuparms(
         "Clients.cimprovider.CIMProviderCommand.MENU.STANDARD", usage);
     menuparms.msg_src_path = MSG_PATH;
     usage = MessageLoader::getMessage(menuparms);
-
-# endif
-
 #endif
 
     setUsage(usage);
@@ -688,10 +625,6 @@ void CIMProviderCommand::setCommand(
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_REMOVE);
     optString.append(OPTION_STATUS);
-
-#ifdef PEGASUS_OS_OS400
-    optString.append(OPTION_QUIET_VALUE);
-#endif
 
     //
     //  Initialize and parse options
@@ -893,14 +826,6 @@ void CIMProviderCommand::setCommand(
                     break;
                 }
 
-#ifdef PEGASUS_OS_OS400
-                case OPTION_QUIET_VALUE:
-                {
-                    _defaultQuietSet = true;
-                    break;
-                }
-#endif
-
                 case OPTION_HELP:
                 {
                     if (_operationType != OPERATION_TYPE_UNINITIALIZED)
@@ -1014,17 +939,6 @@ void CIMProviderCommand::setCommand(
             UNEXPECTED_OPTION_KEY,
             UNEXPECTED_OPTION));
     }
-
-#ifdef PEGASUS_OS_OS400
-    if (_operationType == OPERATION_TYPE_LIST && _defaultQuietSet)
-    {
-        //
-        // An invalid option was encountered
-        //
-        throw InvalidOptionException(OPTION_QUIET_VALUE);
-    }
-#endif
-
 }
 
 /**
@@ -1051,18 +965,6 @@ Uint32 CIMProviderCommand::execute(
         cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
         return RC_SUCCESS;
     }
-
-#ifdef PEGASUS_OS_OS400
-    // disable standard out and standard error
-    if (_defaultQuietSet && (_operationType != OPERATION_TYPE_LIST))
-    {
-        freopen("/dev/null","w",stdout);
-        freopen("/dev/null","w",stderr);
-        // Set the stderr stream to buffered with 32k.
-        // Allows utf-8 to be sent to stderr (P9A66750)
-        setvbuf(stderr, new char[32768], _IOLBF, 32768);
-    }
-#endif
 
     //
     // Get local host name
@@ -1870,50 +1772,6 @@ int main(int argc, char* argv[])
 
     MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
-
-#ifdef PEGASUS_OS_OS400
-
-    VFYPTRS_INCDCL;               // VFYPTRS local variables
-
-  // verify pointers
-#pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
-    0,_C2_MH_ESCAPE)
-    for (int arg_index = 1; arg_index < argc; arg_index++){
-          VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
-    }
-#pragma disable_handler
-
-    // Convert the args to ASCII
-    for(Uint32 i = 0;i< argc;++i)
-    {
-      EtoA(argv[i]);
-    }
-
-    // Set the stderr stream to buffered with 32k.
-    // Allows utf-8 to be sent to stderr. (P9A66750)
-    setvbuf(stderr, new char[32768], _IOLBF, 32768);
-
-    // check what environment we are running in, native or qsh
-    if (getenv(
-#pragma convert(37)
-               "SHLVL"
-#pragma convert(0)
-               ) == NULL) {  // native mode
-      // Check to ensure the user is authorized to use the command,
-      // suppress diagnostic message
-      if(FALSE == ycmCheckCmdAuthorities(1)){
-        exit(CPFDF80_RC);
-      }
-    }
-    else{ // qsh mode
-      // Check to ensure the user is authorized to use the command
-      // ycmCheckCmdAuthorities() will send a diagnostic message to qsh
-      if(FALSE == ycmCheckCmdAuthorities()){
-        exit(CPFDF80_RC);
-      }
-    }
-
-#endif
 
     command.reset(new CIMProviderCommand());
 

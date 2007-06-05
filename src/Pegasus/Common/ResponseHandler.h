@@ -92,9 +92,6 @@ public:
         delivered to this ResponseHandler object.  The context information
         is applied at the time the complete() method is called.
     */
-#ifdef PEGASUS_OS_OS400
-virtual
-#endif
     void setContext(const OperationContext & context);
 
 protected:

@@ -53,12 +53,10 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
 #else
     String fileName = FileSystem::buildLibraryFileName(physicalName);
 #endif
-#ifndef PEGASUS_OS_OS400
     fileName = FileSystem::getAbsoluteFileName(
         ConfigManager::getHomedPath(
             ConfigManager::getInstance()->getCurrentValue("providerDir")),
         fileName);
-#endif
 
     return fileName;
 }

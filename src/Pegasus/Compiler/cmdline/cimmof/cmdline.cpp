@@ -94,10 +94,6 @@
 #include "cmdlineExceptions.h"
 #include "cmdline.h"
 #include <Pegasus/getoopt/getoopt.h>
-#ifdef PEGASUS_OS_OS400
-#include <qycmutiltyUtility.H>
-#include <qycmutilu2.H>
-#endif
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -189,20 +185,13 @@ help(ostream &os, int progtype) {
   help.append( " [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
   help.append( "               [ -n namespace | --namespace namespace ] [ --xml ]\n");
   help.append( "               [ --trace ]");
-#ifdef PEGASUS_OS_OS400
-  help.append("  [ -q ]");
-#endif
   if(progtype == 1)
   {
       help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ]");
       help.append("\n               [ -N repositoryname ] [ -M repositorymode]");
   }
 
-#ifdef PEGASUS_OS_OS400
-  help.append( " mof_file...\n");
-#else
   help.append( " [ mof_file... ]\n");
-#endif
   help.append("Options :\n");
   help.append( "    -h, --help          - Display this help message\n");
   help.append( "    --version           - Display CIM Server version\n");
@@ -214,9 +203,6 @@ help(ostream &os, int progtype) {
   help.append( "    -aE                 - Allow Experimental Schema changes\n");
   help.append( "    -aV                 - Allow both Major and Down Revision Schema changes\n");
   help.append( "    -aEV                - Allow both Experimental and Version Schema changes\n");
-#ifdef PEGASUS_OS_OS400
-  help.append( "    -q                  - Suppress all messages except command line usage errors\n");
-#endif
   //PEP167 - Remove and disable 'f' and 'file' options. No longer required
   //help.append( "  -ffile -- specify file containing a list of MOFs to compile.\n");
   //help.append( " --file=file -- specify file containing list of MOFs.\n");
@@ -258,9 +244,6 @@ if(progtype == 1)
    #ifdef PEGASUS_OS_HPUX
       parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX",help);
    #endif
-   #ifdef PEGASUS_OS_OS400
-      parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_OS400",help);
-   #endif
 }
 else
 {
@@ -268,9 +251,6 @@ else
 
    #ifdef PEGASUS_OS_HPUX
       parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX",help);
-   #endif
-   #ifdef PEGASUS_OS_OS400
-      parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400",help);
    #endif
 }
   os << MessageLoader::getMessage(parms);
@@ -320,9 +300,6 @@ static struct optspec optspecs[] =
     {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG},
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
-#endif
-#ifdef PEGASUS_OS_OS400
-    {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
@@ -380,23 +357,8 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
 #else
     char *peghome = getenv(PEGASUS_HOME);
     if (peghome) {
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-	char home[256] = {0};
-	if (strlen(peghome) < 256)
-	{
-	    strcpy(home, peghome);
-	    EtoA(home);
-	}
-	cmdlinedata.set_repository(home);
-#else
       cmdlinedata.set_repository(peghome);
-#endif
     } else {
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-      // Default to the shipped OS/400 CIM directory so that
-      // the user doesn't need to set PEGASUS_HOME
-      cmdlinedata.set_repository(OS400_DEFAULT_PEGASUS_HOME);
-#endif
     }
 #endif // end of #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
   } else {
@@ -416,9 +378,6 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.reset_update_class();
   cmdlinedata.reset_allow_experimental();
   cmdlinedata.reset_allow_version();
-#ifdef PEGASUS_OS_OS400
-  cmdlinedata.reset_quiet();
-#endif
 }
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -433,11 +392,6 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
 // and decides if it represents cimmof or cimmofl
 Boolean isCimmoflCommandName(const char *name)
 {
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-    // Only the local compiler is shipped on OS/400, and
-    // it is called QYCMMOF.  Force the local return code.
-    return 1;
-#else
   const char *pos;
   const char *pos2;
   pos = strrchr(name, SEPCHAR);
@@ -461,7 +415,6 @@ Boolean isCimmoflCommandName(const char *name)
   pos++;
   if (*pos != 'l' && *pos != 'L') return 0;
   return 1;
-#endif
 }
 
 extern "C++" int processCmdline(int, char **, mofCompilerOptions &, ostream&);
@@ -474,9 +427,6 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   Boolean isCimmoflCommand = isCimmoflCommandName(argv[0]);
   setCmdLineOpts(cmdline, isCimmoflCommand);
   cmdline.parse(argc, argv);
-#ifdef PEGASUS_OS_OS400
-  String os400MarkerFile("/QIBM/USERDATA/OS400/CIM/QYCM53PTF");
-#endif
   if (isCimmoflCommand)
   {
       cmdlinedata.set_is_local();
@@ -505,28 +455,6 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       umask(S_IRWXG|S_IRWXO);
 #endif
 
-#ifdef PEGASUS_OS_OS400
-      // check if we are in qsh, if we are NOT running in a qsh environment then
-      // send and escape message,
-      // if we ARE then call ycmServerIsActive without the quiet option
-#pragma convert(37)
-      if( getenv("SHLVL") == NULL ){  // native mode
-	  if(!FileSystem::exists(os400MarkerFile) && ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL, 1)) {
-	      // previous call's message was suppressed,
-              // server is running, send escape message and return
-	      ycmSend_Message_Escape(CPFDF81_RC, "01", "QYCMMOFL", "*CTLBDY   ", 1);
-	      return CPFDF81_RC;
-	  }
-      }
-      else{ // qsh mode
-	  if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL)) {
-	      // server is running, the previous call sent a
-	      // diagnostic message, lets return
-	      return CPFDF81_RC;
-	  }
-      }
-#pragma convert(0)
-#endif
   }
   else
   {
@@ -577,12 +505,6 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	{
 	  cmdlinedata.set_repository_mode(arg.optarg());
 // prevent using binary repository since we do not support that in 2.5
-#ifdef PEGASUS_OS_OS400
-	  if (String::equalNoCase(arg.optarg(), "BIN"))
-	  {
-	      throw ArgumentErrorsException("ERROR: THE VALUE BIN IS NOT SUPPORTED FOR THE REPOSITORY MODE."); 
-	  }
-#endif
 	  if(String::equalNoCase(arg.optarg(), "XML") ||
 	     String::equalNoCase(arg.optarg(), "BIN")) {}
 	  else
@@ -673,11 +595,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	    // ATTN: P3 BB Mar 2001  No way to close the trace stream
 	    // or to delete the ostream object.  It's OK for now because
 	    // the program terminates when we're done with the stream.
-#if defined(PEGASUS_OS_OS400)
-	    ofstream *tracefile = new ofstream(s.getCString(),PEGASUS_STD(_CCSID_T(1208)));
-#else
 	    ofstream *tracefile = new ofstream(s.getCString());
-#endif
 	    if (tracefile && *tracefile)
 	      cmdlinedata.set_traceos(*tracefile);
 	  }
@@ -694,23 +612,6 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	}
 	break;
       }*/
-#endif
-#ifdef PEGASUS_OS_OS400
-      // If quiet mode is chosen then shut down stdout and stderr.
-      // This is used during product installation and PTF application.
-      // We must be absolutely quiet to avoid a terminal being
-      // activated in native mode.
-      case QUIETFLAG:
-        cmdlinedata.set_quiet();
-        // Redirect to /dev/null.
-        // Works for both qshell and native modes.
-        freopen("/dev/null","w",stdout);
-        freopen("/dev/null","w",stderr);
-
-        // Set the stderr stream to buffered with 32k.
-        // Allows utf-8 to be sent to stderr (P9A66750).
-        setvbuf(stderr, new char[32768], _IOLBF, 32768);
-	break;
 #endif
       case FILESPEC: cmdlinedata.add_filespecs(arg.optarg());
 	break;
@@ -744,18 +645,6 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     						 "You must specify -R or set PEGASUS_HOME environment variable");
     throw CmdlineNoRepository(parms);
   }
-
-#ifdef PEGASUS_OS_OS400
-  // Force a mof to be specified on OS/400
-  if (cmdlinedata.get_filespec_list().size() == 0) {
-  	//l10n
-    //throw ArgumentErrorsException(
-          //"You must specify some MOF files to process.");
-    MessageLoaderParms parms("Compiler.cmdline.cimmof.MUST_SPECIFY_MOF_FILES",
-    						 "You must specify some MOF files to process.");
-    throw ArgumentErrorsException(parms);
-  }
-#endif
 
   return 0;
 }

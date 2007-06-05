@@ -72,11 +72,6 @@
 # include <Pegasus/Common/Platform_LINUX_ZSERIES_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_ZSERIES64_GNU)
 # include <Pegasus/Common/Platform_LINUX_ZSERIES64_GNU.h>
-#elif defined (__OS400__)
-# if !defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#   define PEGASUS_PLATFORM_OS400_ISERIES_IBM
-# endif
-# include <Pegasus/Common/Platform_OS400_ISERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 # include <Pegasus/Common/Platform_DARWIN_PPC_GNU.h>
 #elif defined (PEGASUS_PLATFORM_DARWIN_IX86_GNU)
@@ -224,11 +219,7 @@
 
 #ifdef PEGASUS_HAVE_IOS_BINARY
 #ifdef __cplusplus
-#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#define PEGASUS_IOS_BINARY ,std::ios::binary,PEGASUS_STD(_CCSID_T(1208))
-#else
 #define PEGASUS_IOS_BINARY ,std::ios::binary
-#endif
 #define PEGASUS_OR_IOS_BINARY | std::ios::binary
 #else
 #define PEGASUS_IOS_BINARY /* empty */

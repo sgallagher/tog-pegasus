@@ -43,8 +43,6 @@
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 #include <windows.h>
-#elif defined (PEGASUS_OS_OS400)
-# include <unistd.cleinc>
 #elif defined (PEGASUS_OS_VMS)
 # include <perror.h>
 # include <climsgdef.h>

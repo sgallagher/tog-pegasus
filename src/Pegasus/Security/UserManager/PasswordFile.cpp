@@ -39,9 +39,6 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Executor.h>
-#if defined(PEGASUS_OS_OS400)
-#include "OS400ConvertChar.h"
-#endif
 
 #include <Pegasus/Security/UserManager/PasswordFile.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
@@ -165,11 +162,8 @@ void PasswordFile::load (PasswordTable& passwordTable)
     //
     // Open the password file
     //
-#if defined(PEGASUS_OS_OS400)
-    ifstream ifs(_passwordFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
     ifstream ifs(_passwordFile.getCString());
-#endif
+
     if (!ifs)
     {
     	//l10n

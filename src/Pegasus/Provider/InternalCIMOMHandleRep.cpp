@@ -39,13 +39,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
 
-#ifdef PEGASUS_OS_OS400
-#include <qycmutilu2.H>
-#include "OS400ConvertChar.h"
-#include "CIMOMHandleOS400UserState.h"
-#include "CIMOMHandleOS400SystemState.h"
-#endif
-
 #include "InternalCIMOMHandleRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -198,22 +191,6 @@ static OperationContext _filterOperationContext(const OperationContext& context)
 {
     OperationContext temp;
 
-#ifdef PEGASUS_OS_OS400
-    // on OS/400, do not allow the provider set the user name for the request
-    // get the user name from the current thread.
-    char os400UserName[11];
-
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the "
-                "CIMOM handle"));
-    }
-
-    EtoA(os400UserName);
-    temp.insert(IdentityContainer(String(os400UserName)));
-#else
     if (context.contains(IdentityContainer::NAME))
     {
         // propagate the identity container if it exists (get() with throw
@@ -224,7 +201,6 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     {
         temp.insert(IdentityContainer(String::EMPTY));
     }
-#endif
 
     if (context.contains(AcceptLanguageListContainer::NAME))
     {
@@ -270,33 +246,10 @@ InternalCIMOMHandleRep::~InternalCIMOMHandleRep()
 {
 }
 
-#ifdef PEGASUS_OS_OS400
-InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400UserStateKey)
-    : _chOS400(os400UserStateKey)
-{
-}
-
-void InternalCIMOMHandleRep::setOS400ProfileHandle(const char* profileHandle)
-{
-    memcpy(os400PH, profileHandle, 12);
-}
-#endif
-
 CIMResponseMessage* InternalCIMOMHandleRep::do_request(
     CIMRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::do_request");
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, this code runs in a system state thread.  Swap the
-    // thread profile to be able to access server resources.
-    if (CIMOMHandleOS400SystemState::setProfileHandle(os400PH) !=
-            CIM_ERR_SUCCESS)
-    {
-        PEG_METHOD_EXIT();
-        throw Exception("Could not set profile handle");
-    }
-#endif
 
     /*
     Uint32 timeout = 0;
@@ -410,26 +363,6 @@ CIMClass InternalCIMOMHandleRep::getClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getClass");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        CIMClass cimClass =
-            _chOS400.getClass(
-                context,
-                nameSpace,
-                className,
-                localOnly,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
-
-        PEG_METHOD_EXIT();
-        return cimClass;
-    }
-#endif
-
     // encode request
     CIMGetClassRequestMessage* request =
         new CIMGetClassRequestMessage(
@@ -500,26 +433,6 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateClasses");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMClass> cimClasses =
-            _chOS400.enumerateClasses(
-                context,
-                nameSpace,
-                className,
-                deepInheritance,
-                localOnly,
-                includeQualifiers,
-                includeClassOrigin);
-
-        PEG_METHOD_EXIT();
-        return cimClasses;
-    }
-#endif
-
     CIMEnumerateClassesRequestMessage* request =
         new CIMEnumerateClassesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -587,23 +500,6 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateClassNames");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMName> cimClassNames =
-            _chOS400.enumerateClassNames(
-                context,
-                nameSpace,
-                className,
-                deepInheritance);
-
-        PEG_METHOD_EXIT();
-        return cimClassNames;
-    }
-#endif
-
     CIMEnumerateClassNamesRequestMessage* request =
         new CIMEnumerateClassNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -666,21 +562,6 @@ void InternalCIMOMHandleRep::createClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::createClass");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.createClass(
-            context,
-            nameSpace,
-            newClass);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-#endif
-
     CIMCreateClassRequestMessage* request =
         new CIMCreateClassRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -740,21 +621,6 @@ void InternalCIMOMHandleRep::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::modifyClass");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.modifyClass(
-            context,
-            nameSpace,
-            modifiedClass);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-#endif
-
     CIMModifyClassRequestMessage* request =
         new CIMModifyClassRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -813,21 +679,6 @@ void InternalCIMOMHandleRep::deleteClass(
     const CIMName& className)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::deleteClass");
-
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.deleteClass(
-            context,
-            nameSpace,
-            className);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-#endif
 
     // encode request
     CIMDeleteClassRequestMessage* request =
@@ -892,26 +743,6 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getInstance");
-
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        CIMInstance cimInstance =
-            _chOS400.getInstance(
-                context,
-                nameSpace,
-                instanceName,
-                localOnly,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
-
-        PEG_METHOD_EXIT();
-        return cimInstance;
-    }
-#endif
 
     // encode request
     CIMGetInstanceRequestMessage* request =
@@ -984,27 +815,6 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateInstances");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMInstance> cimInstances =
-            _chOS400.enumerateInstances(
-                context,
-                nameSpace,
-                className,
-                deepInheritance,
-                localOnly,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
-
-        PEG_METHOD_EXIT();
-        return cimInstances;
-    }
-#endif
-
     // encode request
     CIMEnumerateInstancesRequestMessage* request =
         new CIMEnumerateInstancesRequestMessage(
@@ -1073,22 +883,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::enumerateInstanceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateInstanceNames");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMObjectPath> cimObjectPaths =
-            _chOS400.enumerateInstanceNames(
-                context,
-                nameSpace,
-                className);
-
-        PEG_METHOD_EXIT();
-        return cimObjectPaths;
-    }
-#endif
-
     // encode request
     CIMEnumerateInstanceNamesRequestMessage* request =
         new CIMEnumerateInstanceNamesRequestMessage(
@@ -1150,22 +944,6 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::createInstance");
-
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        CIMObjectPath cimReference =
-            _chOS400.createInstance(
-                context,
-                nameSpace,
-                newInstance);
-
-        PEG_METHOD_EXIT();
-        return cimReference;
-    }
-#endif
 
     CIMCreateInstanceRequestMessage* request =
         new CIMCreateInstanceRequestMessage(
@@ -1231,23 +1009,6 @@ void InternalCIMOMHandleRep::modifyInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::modifyInstance");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.modifyInstance(
-            context,
-            nameSpace,
-            modifiedInstance,
-            includeQualifiers,
-            propertyList);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-#endif
-
     CIMModifyInstanceRequestMessage* request =
         new CIMModifyInstanceRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1310,21 +1071,6 @@ void InternalCIMOMHandleRep::deleteInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::deleteInstance");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.deleteInstance(
-            context,
-            nameSpace,
-            instanceName);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-#endif
-
     CIMDeleteInstanceRequestMessage* request =
         new CIMDeleteInstanceRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1384,23 +1130,6 @@ Array<CIMObject> InternalCIMOMHandleRep::execQuery(
     const String& query)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::execQuery");
-
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMObject> cimObjects =
-            _chOS400.execQuery(
-                context,
-                nameSpace,
-                queryLanguage,
-                query);
-
-        PEG_METHOD_EXIT();
-        return cimObjects;
-    }
-#endif
 
     CIMExecQueryRequestMessage* request =
         new CIMExecQueryRequestMessage(
@@ -1470,29 +1199,6 @@ Array<CIMObject> InternalCIMOMHandleRep::associators(
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::associators");
-
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMObject> cimObjects =
-            _chOS400.associators(
-                context,
-                nameSpace,
-                objectName,
-                assocClass,
-                resultClass,
-                role,
-                resultRole,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
-
-        PEG_METHOD_EXIT();
-        return cimObjects;
-    }
-#endif
 
     CIMAssociatorsRequestMessage* request =
         new CIMAssociatorsRequestMessage(
@@ -1567,26 +1273,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::associatorNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::associatorNames");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMObjectPath> cimObjectPaths =
-            _chOS400.associatorNames(
-                context,
-                nameSpace,
-                objectName,
-                assocClass,
-                resultClass,
-                role,
-                resultRole);
-
-        PEG_METHOD_EXIT();
-        return cimObjectPaths;
-    }
-#endif
-
     CIMAssociatorNamesRequestMessage* request =
         new CIMAssociatorNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1657,27 +1343,6 @@ Array<CIMObject> InternalCIMOMHandleRep::references(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::references");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMObject> cimObjects =
-            _chOS400.references(
-                context,
-                nameSpace,
-                objectName,
-                resultClass,
-                role,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
-
-        PEG_METHOD_EXIT();
-        return cimObjects;
-    }
-#endif
-
     CIMReferencesRequestMessage* request =
         new CIMReferencesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1747,24 +1412,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::referenceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::referenceNames");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        Array<CIMObjectPath> cimObjectPaths =
-            _chOS400.referenceNames(
-                context,
-                nameSpace,
-                objectName,
-                resultClass,
-                role);
-
-        PEG_METHOD_EXIT();
-        return cimObjectPaths;
-    }
-#endif
-
     CIMReferenceNamesRequestMessage* request =
         new CIMReferenceNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1828,23 +1475,6 @@ CIMValue InternalCIMOMHandleRep::getProperty(
     const CIMName& propertyName)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getProperty");
-
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        CIMValue cimValue =
-            _chOS400.getProperty(
-                context,
-                nameSpace,
-                instanceName,
-                propertyName);
-
-        PEG_METHOD_EXIT();
-        return cimValue;
-    }
-#endif
 
     CIMGetPropertyRequestMessage* request =
         new CIMGetPropertyRequestMessage(
@@ -1910,23 +1540,6 @@ void InternalCIMOMHandleRep::setProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::setProperty");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.setProperty(
-            context,
-            nameSpace,
-            instanceName,
-            propertyName,
-            newValue);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-#endif
-
     CIMSetPropertyRequestMessage* request =
         new CIMSetPropertyRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1991,25 +1604,6 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::invokeMethod");
 
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        CIMValue cimValue =
-            _chOS400.invokeMethod(
-                context,
-                nameSpace,
-                instanceName,
-                methodName,
-                inParameters,
-                outParameters);
-
-        PEG_METHOD_EXIT();
-        return cimValue;
-    }
-#endif
-
     CIMInvokeMethodRequestMessage* request =
         new CIMInvokeMethodRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -2073,31 +1667,11 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
 
 void InternalCIMOMHandleRep::disallowProviderUnload()
 {
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.disallowProviderUnload();
-        return;
-    }
-#endif
-
     CIMOMHandleRep::disallowProviderUnload();
 }
 
 void InternalCIMOMHandleRep::allowProviderUnload()
 {
-#ifdef PEGASUS_OS_OS400
-    // If this is running in user-state, then run the request
-    // through the user-state layer
-    if (_chOS400.hasKey())
-    {
-        _chOS400.allowProviderUnload();
-        return;
-    }
-#endif
-
     CIMOMHandleRep::allowProviderUnload();
 }
 

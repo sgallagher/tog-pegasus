@@ -200,11 +200,6 @@ public:
 
     virtual OperationContext getResponseContext();
 
-#ifdef PEGASUS_OS_OS400
-    // This method has no meaning for CIMClient-based handles
-    virtual void setOS400ProfileHandle(const char* profileHandle) {}
-#endif
-
 private:
     // Unimplemented
     ClientCIMOMHandleRep(const ClientCIMOMHandleRep& rep);

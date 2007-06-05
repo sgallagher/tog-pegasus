@@ -50,11 +50,6 @@
 #include <Pegasus/HandlerService/HandlerTable.h>
 #include <Pegasus/HandlerService/Linkage.h>
 
-#ifdef PEGASUS_OS_OS400
-# define LIBRARY_NAME_CIMXML_INDICATION_HNDLR "QSYS/QYCMCIMI00" 
-# define LIBRARY_NAME_SNMP_INDICATION_HNDLR   "QSYS/QYCMSIHA00"
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService :

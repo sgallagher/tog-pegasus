@@ -349,19 +349,7 @@ void CIMClientRep::connectLocal()
         //
         // Create SSLContext
         //
-#ifdef PEGASUS_OS_OS400
-#pragma convert(37)
-        const char* env = getenv("PEGASUS_HOME");
-#pragma convert(0)
-        char pegasusHome[256] = {0};
-        if (env != NULL && strlen(env) < 256)
-        {
-            strcpy(pegasusHome, env);
-            EtoA(pegasusHome);
-        }
-#else
         const char* pegasusHome = getenv("PEGASUS_HOME");
-#endif
 
         String randFile;
 

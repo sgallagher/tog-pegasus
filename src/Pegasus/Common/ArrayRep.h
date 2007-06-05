@@ -34,10 +34,6 @@
 #ifndef Pegasus_ArrayRep_h
 #define Pegasus_ArrayRep_h
 
-#ifdef PEGASUS_OS_OS400
-#include <stdlib.h>
-#endif
-
 #include <new>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Memory.h>
@@ -50,13 +46,7 @@
 #define Array_capacity (Array_rep)->capacity
 #define Array_refs (Array_rep)->refs
 
-// The OS400 platform uses this aligment directive to ensure that
-// ArrayRepBase is aligned an a 16 byte boundary.
-#ifdef PEGASUS_OS_OS400
-# define PEGASUS_ALIGN16 __align(16)
-#else
-# define PEGASUS_ALIGN16 /* not necessary on other platforms */
-#endif
+#define PEGASUS_ALIGN16 /* not necessary on other platforms */
 
 PEGASUS_NAMESPACE_BEGIN
 

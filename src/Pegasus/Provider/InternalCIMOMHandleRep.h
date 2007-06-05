@@ -37,13 +37,6 @@
 #include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>
 
-#ifdef PEGASUS_OS_OS400
-#include <qycmutilu2.H>
-#include "OS400ConvertChar.h"
-#include "CIMOMHandleOS400UserState.h"
-#include "CIMOMHandleOS400SystemState.h"
-#endif
-
 #include "CIMOMHandleRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -76,9 +69,6 @@ class InternalCIMOMHandleRep : public CIMOMHandleRep
 {
 public:
     InternalCIMOMHandleRep();
-#ifdef PEGASUS_OS_OS400
-    InternalCIMOMHandleRep(Uint32 os400key);
-#endif
     virtual ~InternalCIMOMHandleRep();
 
     virtual CIMClass getClass(
@@ -231,10 +221,6 @@ public:
     virtual void allowProviderUnload();  // Overload for OS/400
     virtual OperationContext getResponseContext();
 
-#ifdef PEGASUS_OS_OS400
-    virtual void setOS400ProfileHandle(const char* profileHandle);
-#endif
-
 private:
     InternalCIMOMHandleRep(const InternalCIMOMHandleRep& rep);
     InternalCIMOMHandleRep& operator=(const InternalCIMOMHandleRep& rep);
@@ -242,11 +228,6 @@ private:
     CIMResponseMessage* do_request(CIMRequestMessage* request);
 
 private:
-#ifdef PEGASUS_OS_OS400
-    char os400PH[12];
-    CIMOMHandleOS400UserState _chOS400;
-#endif
-
     InternalCIMOMHandleMessageQueue _queue;
 
 };

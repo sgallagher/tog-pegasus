@@ -73,56 +73,22 @@ static struct ConfigPropertyRow properties[] =
 //   authorizedUserGroups
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_OS_OS400
-    {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
     {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
-//#if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
-//    {"httpAuthType", "Kerberos", IS_STATIC, 0, 0, IS_VISIBLE},
-//#else
     {"httpAuthType", "Basic", IS_STATIC, 0, 0, IS_VISIBLE},
-//#endif
     {"passwordFilePath", "cimserver.passwd", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_OS_HPUX
     {"sslCertificateFilePath", "cert.pem", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
-# ifdef PEGASUS_OS_OS400
-    {"sslCertificateFilePath",
-         "ssl/keystore/servercert.pem", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
     {"sslCertificateFilePath", "server.pem", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif
 #endif
-#ifdef PEGASUS_OS_OS400
-    {"sslKeyFilePath",
-         "ssl/keystore/serverkey.pem", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
     {"sslKeyFilePath", "file.pem", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
-#ifdef PEGASUS_OS_OS400
-    {"sslTrustStore", "ssl/truststore/", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
     {"sslTrustStore", "cimserver_trust", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-# ifdef PEGASUS_OS_OS400
-    {"crlStore", "ssl/crlstore/", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
     {"crlStore", "crl", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif
 #endif
-#ifdef PEGASUS_OS_OS400
-    {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
     {"sslTrustStoreUserName", "", IS_STATIC, 0, 0, IS_VISIBLE},
-#ifdef PEGASUS_OS_OS400
-    {"enableNamespaceAuthorization", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
     {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
@@ -135,13 +101,8 @@ static struct ConfigPropertyRow properties[] =
          "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
 #else
-# ifdef PEGASUS_OS_OS400
-    {"enableSubscriptionsForNonprivilegedUsers",
-         "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
     {"enableSubscriptionsForNonprivilegedUsers",
          "true", IS_STATIC, 0, 0, IS_HIDDEN},
-# endif
 #endif
 #ifdef PEGASUS_OS_ZOS
     {"enableRemotePrivilegedUserAccess", "false", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -625,11 +586,7 @@ Boolean SecurityPropertyOwner::isValid(
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
-#ifdef PEGASUS_OS_OS400
-        if (String::equal(value, "Basic")
-#else
         if (String::equal(value, "Basic") || String::equal(value, "Digest")
-#endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
             || String::equal(value, "Kerberos")
 #endif

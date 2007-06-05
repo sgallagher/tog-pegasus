@@ -48,14 +48,6 @@
 #include <Pegasus/Config/ConfigFileHandler.h>
 #include "CIMConfigCommand.h"
 
-#ifdef PEGASUS_OS_OS400
-#include "qycmutiltyUtility.H"
-#include "qycmutilu2.H"
-#include "OS400ConvertChar.h"
-#include "vfyptrs.cinc"
-#include <stdio.h>
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 //l10n
@@ -419,13 +411,6 @@ static const char   OPTION_GET                 = 'g';
 */
 static const char   OPTION_SET                 = 's';
 
-#ifdef PEGASUS_OS_OS400
-/**
-    The option character used to specify no output to stdout or stderr.
-*/
-     static const char OPTION_QUIET_VALUE      = 'q';
-#endif
-
 /**
     The option character used to specify unset config property.
 */
@@ -478,9 +463,6 @@ CIMConfigCommand::CIMConfigCommand ()
     _currentValueSet     = false;
     _plannedValueSet     = false;
     _defaultValueSet     = false;
-#ifdef PEGASUS_OS_OS400
-     _defaultQuietSet     = false;
-#endif
 
     /**
         Build the usage string for the config command.  
@@ -489,27 +471,7 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append(USAGE);
     
     usage.append(COMMAND_NAME);
-#ifdef PEGASUS_OS_OS400
-    usage.append(" -").append(OPTION_GET).append(" name");
-    usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
-    usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
-    usage.append("                 -").append(OPTION_SET).append(" name=value");
-    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
-
-    usage.append("                 -").append(OPTION_UNSET).append(" name");
-    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
-
-    usage.append("                 -").append(OPTION_LIST);
-    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
-#else  
     usage.append(" -").append(OPTION_GET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
     usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
@@ -526,8 +488,6 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("                 -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
-#endif
-
 
     usage.append("                 -").append(OPTION_HELP).append("\n");
     usage.append("                 --").append(LONG_HELP).append("\n");
@@ -540,9 +500,7 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("    -h, --help - Display this help message\n");
     usage.append("    -l         - Display all the configuration properties\n");
     usage.append("    -p         - Configuration used on next CIM Server start\n");
-#ifdef PEGASUS_OS_OS400
-    usage.append("    -q         - Specify quiet mode, avoiding output to stdout or stderr\n");
-#endif
+
     usage.append("    -s         - Add or Update configuration property value\n");
     usage.append("    -u         - Reset configuration property to its default value\n");
     usage.append("    --version  - Display CIM Server version number\n");
@@ -552,22 +510,10 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append( "of the cimconfig command require that the CIM Server is running.");
 	
 //l10n localize usage
-#ifdef PEGASUS_HAS_ICU
-	
-	#ifdef PEGASUS_OS_OS400
-		
-		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400",usage);
-		menuparms.msg_src_path = MSG_PATH;
-		usage = MessageLoader::getMessage(menuparms);
-	
-	#else
-		
+#ifdef PEGASUS_HAS_ICU	
 		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD",usage);
 		menuparms.msg_src_path = MSG_PATH;
 		usage = MessageLoader::getMessage(menuparms);
-		
-	#endif
-
 #endif
     setUsage (usage);
 }
@@ -603,9 +549,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     optString.append(OPTION_CURRENT_VALUE);
     optString.append(OPTION_PLANNED_VALUE);
     optString.append(OPTION_DEFAULT_VALUE);
-#ifdef PEGASUS_OS_OS400
-    optString.append(OPTION_QUIET_VALUE);
-#endif
+
     optString.append(OPTION_HELP);
 
     //
@@ -914,16 +858,6 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                     _operationType = OPERATION_TYPE_VERSION;
                     break;
                 }
-
-#ifdef PEGASUS_OS_OS400
-                 // check for quiet option before processing the rest of the options
-		case OPTION_QUIET_VALUE:
-		{
-			_defaultQuietSet = true;
-			break;
-	        }     
-#endif
-
                 default:
                     //
                     // Should never get here
@@ -963,15 +897,6 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             InvalidOptionException e (OPTION_CURRENT_VALUE);
             throw e;
         }
-#ifdef PEGASUS_OS_OS400
-	if( _defaultQuietSet ){
-	    //
-            // An invalid option was encountered
-            //
-            InvalidOptionException e (OPTION_QUIET_VALUE);
-            throw e;
-	}
-#endif
     }
     else
     {
@@ -1014,17 +939,6 @@ Uint32 CIMConfigCommand::execute (
     Boolean   gotCurrentValue = false;
     Boolean   gotPlannedValue = false;
 
-#ifdef PEGASUS_OS_OS400
-    // disable standard output and standard error
-    if( _defaultQuietSet && (_operationType != OPERATION_TYPE_LIST) ){
-        freopen("/dev/null","w",stdout);
-        freopen("/dev/null","w",stderr);
-        // Set the stderr stream to buffered with 32k.  
-        // Allows utf-8 to be sent to stderr (P9A66750)
-        setvbuf(stderr, new char[32768], _IOLBF, 32768);
-    }
-#endif
-
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {
         //
@@ -1048,37 +962,12 @@ Uint32 CIMConfigCommand::execute (
     //
     // Get environment variables
     //
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#pragma convert(37)
-    const char* env = getenv("PEGASUS_HOME");
-#pragma convert(0)
-    // Set pegasusHome to the env var,if it is set.  Otherwise,
-    // use the OS/400 default path.
-    if (env != NULL)
-    {
-	char home[256] = {0};
-	if (strlen(env) < 256)
-	{
-	    strcpy(home, env);
-	    EtoA(home);
-        pegasusHome = home;
-	}
-    }
-    else
-        pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
-
-    String currentFile = FileSystem::getAbsolutePath(
-        pegasusHome.getCString(), PEGASUS_CURRENT_CONFIG_FILE_PATH);
-    String plannedFile = FileSystem::getAbsolutePath(
-        pegasusHome.getCString(), PEGASUS_PLANNED_CONFIG_FILE_PATH);
-#else
     const char* env = getenv("PEGASUS_HOME");
 
     String currentFile =
         FileSystem::getAbsolutePath(env, PEGASUS_CURRENT_CONFIG_FILE_PATH);
     String plannedFile =
         FileSystem::getAbsolutePath(env, PEGASUS_PLANNED_CONFIG_FILE_PATH);
-#endif
 
     try
     {
@@ -1968,51 +1857,6 @@ int main (int argc, char* argv [])
 	MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 	
-#ifdef PEGASUS_OS_OS400
-
-    VFYPTRS_INCDCL;               // VFYPTRS local variables 
-
-  // verify pointers
-#pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
-    0,_C2_MH_ESCAPE)
-    for( int arg_index = 1; arg_index < argc; arg_index++ ){
-      VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
-    }
-#pragma disable_handler 
-
-    // Convert the args to ASCII
-    for(Uint32 i = 0;i< argc;++i)
-    {
-      EtoA(argv[i]);
-    }
-
-    // Set the stderr stream to buffered with 32k.
-    // Allows utf-8 to be sent to stderr (P9A66750)
-    setvbuf(stderr, new char[32768], _IOLBF, 32768);
-
-  // check what environment we are running in, native or qsh
-    if( getenv(
-#pragma convert(37)
-               "SHLVL"
-#pragma convert(0)
-               ) == NULL )
-    {  // native mode
-      // Check to ensure the user is authorized to use the command,
-      // suppress diagnostic message
-      if(FALSE == ycmCheckCmdAuthorities(1)){
-        exit(CPFDF80_RC);
-      }
-    }
-    else
-    { // qsh mode
-      // Check to ensure the user is authorized to use the command
-      // ycmCheckCmdAuthorities() will send a diagnostic message to qsh
-      if(FALSE == ycmCheckCmdAuthorities()){
-        exit(CPFDF80_RC);
-      }
-    }
-#endif
-
     command.reset(new CIMConfigCommand ());
 
     try 

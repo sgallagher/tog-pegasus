@@ -42,9 +42,6 @@
 #include <Pegasus/Common/Linkage.h>
 #include <fstream>
 #include <cstdio>
-#if defined(PEGASUS_OS_OS400)
-#include "EBCDIC_OS400.h"
-#endif
 #include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -445,32 +442,19 @@ inline String FileSystem::getAbsolutePath(
 
 inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
 {
-#if defined(PEGASUS_OS_OS400)
-    is.open(path.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
     is.open(path.getCString());
-#endif
     return !!is;
 }
 
 inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 {
-#if defined(PEGASUS_OS_OS400)
-    os.open(path.getCString(), PEGASUS_STD(_CCSID_T(1208)));
-#else
     os.open(path.getCString());
-#endif
     return !!os;
 }
 
 inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 {
-#if defined(PEGASUS_OS_OS400)
-    os.open(
-        path.getCString(), PEGASUS_STD(ios::app), PEGASUS_STD(_CCSID_T(1208)));
-#else
     os.open(path.getCString(), PEGASUS_STD(ios::app));
-#endif
     return !!os;
 }
 

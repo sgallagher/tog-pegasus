@@ -41,6 +41,10 @@ int main()
 {
     assert(CheckPasswordFile("passwd", "smith", "changeme") == 0);
     assert(CheckPasswordFile("passwd", "smith", "wrongpassword") != 0);
+    assert(CheckPasswordFile("passwd", "comment", "changeme") != 0);
+    assert(CheckPasswordFile("passwd", "undefined", "nobody") != 0);
+    assert(CheckPasswordFile("passwd", "jones", NULL) != 0);
+    assert(CheckPasswordFile("nopasswd", "smith", "changeme") != 0);
     printf("+++++ passed all tests\n");
 
     return 0;

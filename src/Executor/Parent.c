@@ -79,6 +79,44 @@ static void _sigHandler(int signum)
 /*
 **==============================================================================
 **
+** ReadExecutorRequest()
+**
+**     Read a request of the specified size from the specified socket into the
+**     buffer provided.
+**
+**==============================================================================
+*/
+
+static void ReadExecutorRequest(int sock, void* buffer, size_t size)
+{
+    if (RecvNonBlock(sock, buffer, size) != (ssize_t)size)
+    {
+        Fatal(FL, "Failed to read request");
+    }
+}
+
+/*
+**==============================================================================
+**
+** WriteExecutorResponse()
+**
+**     Write a response of the specified size from the given buffer onto the
+**     specified socket.
+**
+**==============================================================================
+*/
+
+static void WriteExecutorResponse(int sock, const void* buffer, size_t size)
+{
+    if (SendNonBlock(sock, buffer, size) != (ssize_t)size)
+    {
+        Fatal(FL, "Failed to write response");
+    }
+}
+
+/*
+**==============================================================================
+**
 ** HandlePingRequest()
 **
 **     Handle ping request.
@@ -95,8 +133,7 @@ static void HandlePingRequest(int sock)
 
     Log(LL_TRACE, "HandlePingRequest()");
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -119,8 +156,7 @@ static void HandleOpenFileRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     /* Log the request. */
 
@@ -182,8 +218,7 @@ static void HandleOpenFileRequest(int sock)
 
     /* Send response. */
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 
     /* Send descriptor to calling process (if any to send). */
 
@@ -219,8 +254,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
     /* Read request. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     /* Log request. */
 
@@ -374,8 +408,7 @@ static void HandleStartProviderAgentRequest(int sock)
     response.status = status;
     response.pid = pid;
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 
     /* Send descriptors to calling process. */
 
@@ -472,8 +505,7 @@ static void HandleDaemonizeExecutorRequest(int sock, int bindVerbose)
 
     response.status = 0;
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -493,8 +525,7 @@ static void HandleRenameFileRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     /* Log request. */
 
@@ -527,8 +558,7 @@ static void HandleRenameFileRequest(int sock)
 
     /* Send response message. */
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -548,8 +578,7 @@ static void HandleRemoveFileRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     /* Log request. */
 
@@ -580,8 +609,7 @@ static void HandleRemoveFileRequest(int sock)
 
     /* Send response message. */
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -602,8 +630,7 @@ static void HandleReapProviderAgentRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     /* Log request. */
 
@@ -628,8 +655,7 @@ static void HandleReapProviderAgentRequest(int sock)
 
     response.status = status;
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -652,8 +678,7 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     /* Log request. */
 
@@ -719,8 +744,7 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
     response.status = status;
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -741,8 +765,7 @@ static void HandleValidateUserRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     /* Validate the user. */
 
@@ -787,8 +810,7 @@ static void HandleValidateUserRequest(int sock)
 
     response.status = status;
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -802,7 +824,6 @@ static void HandleValidateUserRequest(int sock)
 static void HandleChallengeLocalRequest(int sock)
 {
     char challenge[EXECUTOR_BUFFER_SIZE];
-    int status;
     struct ExecutorChallengeLocalRequest request;
     struct ExecutorChallengeLocalResponse response;
 
@@ -810,30 +831,27 @@ static void HandleChallengeLocalRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     Log(LL_TRACE, "HandleChallengeLocalRequest(): user=%s", request.user);
 
     /* Perform operation. */
 
-    status = StartLocalAuthentication(request.user, challenge);
+    response.status = StartLocalAuthentication(request.user, challenge);
 
-    if (status != 0)
+    /* Send response message. */
+
+    if (response.status != 0)
     {
         Log(LL_WARNING, "Local authentication failed for user \"%s\"",
             request.user);
     }
-
-    /* Send response message. */
-
-    response.status = status;
-
-    if (status == 0)
+    else
+    {
         Strlcpy(response.challenge, challenge, sizeof(response.challenge));
+    }
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*
@@ -854,8 +872,7 @@ static void HandleAuthenticateLocalRequest(int sock)
 
     /* Read the request message. */
 
-    if (RecvNonBlock(sock, &request, sizeof(request)) != sizeof(request))
-        Fatal(FL, "Failed to read request");
+    ReadExecutorRequest(sock, &request, sizeof(request));
 
     Log(LL_TRACE, "HandleAuthenticateLocalRequest()");
 
@@ -874,8 +891,7 @@ static void HandleAuthenticateLocalRequest(int sock)
 
     response.status = status;
 
-    if (SendNonBlock(sock, &response, sizeof(response)) != sizeof(response))
-        Fatal(FL, "Failed to write response");
+    WriteExecutorResponse(sock, &response, sizeof(response));
 }
 
 /*

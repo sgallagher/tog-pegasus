@@ -59,6 +59,7 @@ int main()
     CHECK(EXECUTOR_VALIDATE_USER_MESSAGE, "ValidateUser");
     CHECK(EXECUTOR_CHALLENGE_LOCAL_MESSAGE, "ChallengeLocal");
     CHECK(EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE, "AuthenticateLocal");
+    CHECK((enum ExecutorMessageCode)100, "<unknown>");
 
     printf("+++++ passed all tests\n");
 

@@ -345,46 +345,6 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 /*
 **==============================================================================
 **
-** _LockFile()
-**
-**     Obtain an exclusive lock on the given file.
-**
-**==============================================================================
-*/
-
-static int _LockFile(FILE* fp)
-{
-    static struct flock lock;
-    lock.l_type = F_RDLCK;
-    lock.l_whence = SEEK_SET;
-    lock.l_start = 0;
-    lock.l_len = 0;
-    return fcntl(fileno(fp), F_SETLKW, &lock);
-}
-
-/*
-**==============================================================================
-**
-** _UnlockFile()
-**
-**     Release the lock on the given file.
-**
-**==============================================================================
-*/
-
-static int _UnlockFile(FILE* fp)
-{
-    static struct flock lock;
-    lock.l_type = F_UNLCK;
-    lock.l_whence = SEEK_SET;
-    lock.l_start = 0;
-    lock.l_len = 0;
-    return fcntl(fileno(fp), F_SETLKW, &lock);
-}
-
-/*
-**==============================================================================
-**
 ** _DumpPolicyHelper()
 **
 **     Dump the policy table given by *policyTable* and *policyTableSize*.

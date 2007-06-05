@@ -46,6 +46,7 @@ int main()
         assert(DefineMacro("x", "100") == 0);
         assert(DefineMacro("y", "hello") == 0);
         assert(DefineMacro("z", "true") == 0);
+        assert(DefineMacro("z", "false") != 0);
     }
 
     /* Test FindMacro() */
@@ -70,11 +71,24 @@ int main()
 
         assert(ExpandMacros("${x} ${y} ${z}", buffer) == 0);
         assert(strcmp(buffer, "100 hello true") == 0);
+
+        assert(ExpandMacros("${x}$", buffer) == 0);
+        assert(strcmp(buffer, "100$") == 0);
+
+        assert(ExpandMacros("${x", buffer) != 0);
+        assert(ExpandMacros("${a}", buffer) != 0);
     }
 
 #if 0
     DumpMacros();
 #endif
+
+    /* Test UndefineMacro() */
+    {
+        assert(UndefineMacro("a") != 0);
+        assert(UndefineMacro("x") == 0);
+        assert(UndefineMacro("z") == 0);
+    }
 
     printf("+++++ passed all tests\n");
 

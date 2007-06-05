@@ -59,7 +59,7 @@
  typedef DWORD pid_t;
  // getpid() and others.
  #include <process.h>
-#elif !defined(PEGASUS_OS_OS400)
+#else 
  #include <unistd.h>
 #endif
 

@@ -43,7 +43,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 typedef int PEGASUS_PID_T;
 #else
 typedef pid_t PEGASUS_PID_T;

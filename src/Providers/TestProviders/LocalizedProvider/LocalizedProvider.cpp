@@ -143,14 +143,8 @@ PEGASUS_USING_PEGASUS;
 #define TESTSTRING_PROP "TestString"
 
 // The name of the *root* resource bundle.
-#ifndef PEGASUS_OS_OS400
 // Note: we are using a relative path to $PEGASUS_HOME
 # define RESOURCEBUNDLE "provider/localizedProvider/localizedProvider"
-#else
-// Absolute path on OS/400 (don't want the these resources in "proddata", which
-// is the default directory on OS/400)
-# define RESOURCEBUNDLE "/cimlib/localizedProvider/localizedProvider"
-#endif
 
 // Message IDs and default message strings
 

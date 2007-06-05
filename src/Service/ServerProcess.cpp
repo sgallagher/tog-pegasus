@@ -46,13 +46,7 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "ServerProcessWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# if defined(PEGASUS_OS_OS400)
-#  include "vfyptrs.cinc"
-#  include "OS400ConvertChar.h"
-#  include "ServerProcessOS400.cpp"
-# else
-#  include "ServerProcessUnix.cpp"
-#endif
+# include "ServerProcessUnix.cpp"
 #elif defined(PEGASUS_OS_VMS)
 # include "ServerProcessVms.cpp"
 #else

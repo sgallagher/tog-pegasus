@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -100,7 +100,7 @@ void callMethod(CIMClient* client, const CIMName& methodName)
 }
 
 /* Test for method invoke and response that handles ref parameter
-   This functions sends two ref  in parameters and expects exactly the 
+   This functions sends two ref  in parameters and expects exactly the
    same references back in the two out parameters.
 */
 void callMethodRefParam(CIMClient* client, const CIMName& methodName)
@@ -168,7 +168,7 @@ void callMethodRefParam(CIMClient* client, const CIMName& methodName)
 
 
 /* Test for method invoke and response that handles ref parameter arrays.
-   This functions sends two ref array in parameters and expects exactly the 
+   This functions sends two ref array in parameters and expects exactly the
    same reference arrays back in the two out parameters.
 */
 void callMethodRefParamArray(CIMClient* client, const CIMName& methodName)
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
         PEGASUS_STD(cout) << "Wrong number of arguments" << PEGASUS_STD(endl);
         exit(1);
     }
-    
+
     String certpath = String::EMPTY;
     if (argv[1])
     {
@@ -290,7 +290,6 @@ int main(int argc, char** argv)
     {
         keypath = argv[2];
     }
-cout<<"Cert = "<<certpath<<"  Key = "<<keypath<<endl;
 
     const char* pegasusHome = getenv("PEGASUS_HOME");
     String randFile = String::EMPTY;
@@ -318,7 +317,7 @@ cout<<"Cert = "<<certpath<<"  Key = "<<keypath<<endl;
     {
         password = argv[5];
     }
-   
+
     String trustStore = FileSystem::getAbsolutePath(pegasusHome,
         "client.pem");
 
@@ -344,14 +343,14 @@ cout<<"Cert = "<<certpath<<"  Key = "<<keypath<<endl;
 
         CIMClient* client = new CIMClient();
         client->connect("127.0.0.1", 5989, *pCtx, userName, password);
- 
+
         if (verbose)
         {
             cout << "Calling test2" << endl;
         }
         callMethod(client, "Test2");
 
-        if (verbose)
+/*        if (verbose)
         {
             cout << "Calling test1" << endl;
         }
@@ -372,8 +371,8 @@ cout<<"Cert = "<<certpath<<"  Key = "<<keypath<<endl;
             cout << "Calling getIdentity" << endl;
         }
         callMethod(client, "getIdentity");
-
-    } 
+*/
+    }
     catch (Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -64,16 +64,17 @@ void MethodTestProviderSSL::invokeMethod(
     {
         SSLCertificateChainContainer container =
             context.get(SSLCertificateChainContainer::NAME);
-        if (container.getName() != NULL)
+        if (container.getName().getCString() != NULL)
         {
             Array<SSLCertificateInfo> userCert = container.getUserCert();
             Boolean validCert = 0;
 
             for (Uint32 i = 0; i < userCert.size(); i++)
             {
-                if (String::equal(userCert[i].getIssuerName(),"TestCA"))
+                if (String::equal(userCert[i].getIssuerName(),
+                       "/C=UK/ST=Berkshire/L=Reading/O=The Open Group/OU=The OpenPegasus Project/CN=TestSSLSelfSigned"))
                 {
-                    printf("This client certificate was signed by TestCA");
+                    printf("This client certificate was signed by TestSSLSelfSigned");
                     validCert = 1;
                     break;
                 }
@@ -88,7 +89,7 @@ void MethodTestProviderSSL::invokeMethod(
     {
         throw;
     }
-    
+
     if (!objectReference.getClassName().equal("Test_MethodProviderSSLClass"))
     {
         throw CIMNotSupportedException(
@@ -103,7 +104,7 @@ void MethodTestProviderSSL::invokeMethod(
         handler.deliver(CIMValue(userName));
     }
 
-    /* Test1 method recalls the provider with test2 as the name and 
+    /* Test1 method recalls the provider with test2 as the name and
        returns the result from test2
     */
     else if (methodName.equal("test1"))
@@ -145,7 +146,7 @@ void MethodTestProviderSSL::invokeMethod(
 
         Uint32 outParam1 = 0;
         Uint32 outParam2 = 0;
- 
+
         for (Uint32 i = 0; i < 2; i++)
         {
             if (outParams[i].getParameterName() == "OutParam1")
@@ -281,7 +282,7 @@ void MethodTestProviderSSL::invokeMethod(
                 CIMNamespaceName(),
                 objectReference.getClassName(),
                 objectReference.getKeyBindings());
-    
+
             // Make cimom handle invokemented request with input parameters.
             returnValue = _cimom.invokeMethod(
                 context,
@@ -290,14 +291,14 @@ void MethodTestProviderSSL::invokeMethod(
                 CIMName("test3"),
                 recursedInParams,
                 recursedOutParams);
-    
+
             Uint32 rc;
             returnValue.get(rc);
             if (rc != 10)
             {
                 throw CIMOperationFailedException("Incorrect return value");
             }
-    
+
             if (recursedOutParams.size() != 3)
             {
                 throw CIMOperationFailedException("Incorrect  out parameters");

@@ -134,14 +134,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
 /*
     if (MAX_CONNECTION_QUEUE_LENGTH == -1)
     {
-#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
-#pragma convert(37)
         const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
-        EtoA(env);
-#pragma convert(0)
-#else
-        const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
-#endif
         if (!env)
         {
             MAX_CONNECTION_QUEUE_LENGTH = 15;

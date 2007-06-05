@@ -891,8 +891,6 @@ MessageLoader::_useProcessLocale = false;
     {
         if(-1 == _cimServerProcess->cimserver_fork())
             return(-1);
-        else
-            return(0);
     }
 
 // l10n

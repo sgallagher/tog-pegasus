@@ -53,10 +53,6 @@
 
 #include <Pegasus/Common/PegasusVersion.h>
 
-#ifdef PEGASUS_OS_OS400
-#include "qycmutiltyUtility.H"
-#endif
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1512,12 +1508,6 @@ int main (int argc, char* argv [])
     MessageLoader::_useProcessLocale = true;  //l10n set messageloading to process locale
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
-#ifdef PEGASUS_OS_OS400
-    if(FALSE == ycmCheckCmdAuthorities())
-    {
-        return 1;
-    }
-#else
     //
     // Check if root is issuing the command
     //
@@ -1531,7 +1521,6 @@ int main (int argc, char* argv [])
         cerr << MessageLoader::getMessage(parms) << endl;
         return 1;
     }
-#endif
 
     command.reset(new CIMAuthCommand ());
 

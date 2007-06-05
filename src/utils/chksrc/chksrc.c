@@ -159,6 +159,8 @@ int isSourceFile(const char* path)
 {
     const char* suffixes[] =
     {
+        ".l",
+        ".y",
         ".h",
         ".c",
         ".cpp",

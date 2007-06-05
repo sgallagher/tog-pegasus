@@ -530,8 +530,8 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
                 *((CQLExpression*)obj);
             break;
         case Term:
-            predicate->_rep->_simplePredicate._rep->_leftSide._rep->_CQLTerms[0] =  
-                *((CQLTerm*)obj);
+            predicate->_rep->_simplePredicate._rep->_leftSide._rep->
+                _CQLTerms[0] = *((CQLTerm*)obj);
             break;
         case Factor:
             predicate->_rep->_simplePredicate._rep->
@@ -550,8 +550,8 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
             break;
         case ChainedIdentifier:
             predicate->_rep->_simplePredicate._rep->_leftSide._rep->
-                _CQLTerms[0]._rep->_Factors[0]._rep->_CQLVal._rep->_CQLChainId = 
-                *((CQLChainedIdentifier*)obj);
+                _CQLTerms[0]._rep->_Factors[0]._rep->_CQLVal._rep->_CQLChainId
+                = *((CQLChainedIdentifier*)obj);
             break;
         case Identifier:
             break;

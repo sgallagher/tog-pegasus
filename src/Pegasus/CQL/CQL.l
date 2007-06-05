@@ -30,12 +30,12 @@
 //============================================================================*/
 
 /* 
-   This file describes the language tokens possible for CQL. When a token is matched,
-	the token postion is updated in the CQL_globalParserState, copying from the lex buffer
-	to a shared buffer (shared with the lexer and parser) may happen, then a token identifier
-	is returned to the parser.
+   This file describes the language tokens possible for CQL. When a token is
+   matched, the token postion is updated in the CQL_globalParserState, copying
+   from the lex buffer  to a shared buffer (shared with the lexer and parser)
+   may happen, then a token identifier is returned to the parser.
 
-*/	
+*/  
 
 %option never-interactive
 %{
@@ -118,111 +118,111 @@ Z [Zz]
 
 {S}{E}{L}{E}{C}{T} {
 
-    sprintf(msg_,"LEX: %s [SELECT] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_SELECT] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;    
     CQL_globalParserState->tokenCount++;
-    return SELECT;
+    return TOK_SELECT;
 }
 
 {F}{R}{O}{M} {
 
-    sprintf(msg_,"LEX: %s [FROM] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_FROM] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return FROM;
+    return TOK_FROM;
 }
 
 {W}{H}{E}{R}{E} {
 
-    sprintf(msg_,"LEX: %s [WHERE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_WHERE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return WHERE;
+    return TOK_WHERE;
 }
 
 {A}{N}{Y} {
 
-    sprintf(msg_,"LEX: %s [ANY] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_ANY] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return ANY;
+    return TOK_ANY;
 }
 
 {A}{S} {
-    sprintf(msg_,"LEX: %s [AS] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_AS] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return AS;
+    return TOK_AS;
 }
 
 {A}{S}{C} {
-    sprintf(msg_,"LEX: %s [ASC] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_ASC] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return ASC;
+    return TOK_ASC;
 }
 
 {B}{Y} {
-    sprintf(msg_,"LEX: %s [BY] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_BY] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return BY;
+    return TOK_BY;
 }
 
 {D}{E}{S}{C} {
-    sprintf(msg_,"LEX: %s [DESC] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_DESC] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return DESC;
+    return TOK_DESC;
 }
 
 
 {D}{I}{S}{T}{I}{N}{C}{T} {
-    sprintf(msg_,"LEX: %s [DISTINCT] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_DISTINCT] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return DISTINCT;
+    return TOK_DISTINCT;
 }
 
 {E}{V}{E}{R}{Y} {
-    sprintf(msg_,"LEX: %s [EVERY] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_EVERY] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return EVERY;
+    return TOK_EVERY;
 }
 
 {F}{I}{R}{S}{T} {
-    sprintf(msg_,"LEX: %s [FIRST] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_FIRST] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return FIRST;
+    return TOK_FIRST;
 }
 
 {I}{N} {
-    sprintf(msg_,"LEX: %s [IN] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_IN] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return IN;
+    return TOK_IN;
 }
 
 {I}{S} {
-    sprintf(msg_,"LEX: %s [IS] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_IS] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return IS;
+    return TOK_IS;
 }
 
 {I}{S}{A} {
@@ -230,142 +230,144 @@ Z [Zz]
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _ISA;
+    return TOK_ISA;
 }
 
 {L}{I}{K}{E} {
-    sprintf(msg_,"LEX: %s [LIKE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOKE_LIKE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _LIKE;
+    return TOK_LIKE;
 }
 
 {O}{R}{D}{E}{R} {
-    sprintf(msg_,"LEX: %s [ORDER] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_ORDER] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return ORDER;
+    return TOK_ORDER;
 }
 
 {S}{A}{T}{I}{S}{F}{I}{E}{S} {
-    sprintf(msg_,"LEX: %s [SATISFIES] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_SATISFIES] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return SATISFIES;
+    return TOK_SATISFIES;
 }
 
 {T}{R}{U}{E} {
-    sprintf(msg_,"LEX: %s [_TRUE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_TRUE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _TRUE;
+    return TOK_TRUE;
 }
 
 {F}{A}{L}{S}{E} {
-    sprintf(msg_,"LEX: %s [_FALSE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_FALSE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _FALSE;
+    return TOK_FALSE;
 }
 
 {N}{U}{L}{L} {
-    sprintf(msg_,"LEX: %s [_NULL] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_NULL] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _NULL;
+    return TOK_NULL;
 }
 
 {N}{O}{T} {
-    sprintf(msg_,"LEX: %s [NOT] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_NOT] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return NOT;
+    return TOK_NOT;
 }
 
 {A}{N}{D} {
-    sprintf(msg_,"LEX: %s [AND] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_AND] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _AND;
+    return TOK_AND;
 }
 
 {O}{R} {
-    sprintf(msg_,"LEX: %s [OR] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_OR] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _OR;
+    return TOK_OR;
+    /* NOCHKSRC*/
 }
 
 {IDENT_CHAR_NO_NUM}{IDENT_CHAR}*\:\:{IDENT_CHAR_NO_NUM}({IDENT_CHAR}*|{IDENT_CHAR}*\[.*\]|{IDENT_CHAR}*#\'.*\') {
+    /* DOCHKSRC */
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-	 /* remove any single quotes surrounding embedded literals */
-	 size_t n;
-	 if(CQL_lval.strValue)
-	         delete [] CQL_lval.strValue;
+     /* remove any single quotes surrounding embedded literals */
+     size_t n;
+     if(CQL_lval.strValue)
+             delete [] CQL_lval.strValue;
 
     // chuck
     if (!isUTF8Str(yytext))
-    {	
+    {   
         sprintf(msg_,"LEX: [STRING]-> BAD UTF\n");
         printf__(msg_);
         throw CQLSyntaxErrorException(
-                                      MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
-                                      String("Bad UTF8 encountered parsing rule $0 in position $1."),
-                                      String("identifier"),
-                                      CQL_globalParserState->currentTokenPos));
+            MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
+            "Bad UTF8 encountered parsing rule $0 in position $1.",
+            "identifier",
+            CQL_globalParserState->currentTokenPos));
     }
-				
-	 String s(yytext);
-	 Uint32 index = s.find("'");
-	 if(index != PEG_NOT_FOUND){
-	 	s.remove(index,1);
-		s.remove(s.size()-1,1);
-		CString cstr = s.getCString();
-	 	const char* string = (const char*)cstr;
-		n = strlen(string);
-		CQL_lval.strValue = new char[n+1];
-		memcpy(CQL_lval.strValue, string, n);
-	 }else{
-	 	n = strlen(yytext);
-		CQL_lval.strValue = new char[n+1];
+                
+     String s(yytext);
+     Uint32 index = s.find("'");
+     if(index != PEG_NOT_FOUND){
+        s.remove(index,1);
+        s.remove(s.size()-1,1);
+        CString cstr = s.getCString();
+        const char* string = (const char*)cstr;
+        n = strlen(string);
+        CQL_lval.strValue = new char[n+1];
+        memcpy(CQL_lval.strValue, string, n);
+     }else{
+        n = strlen(yytext);
+        CQL_lval.strValue = new char[n+1];
       memcpy(CQL_lval.strValue, yytext, n);
-	 }
+     }
     CQL_lval.strValue[n] = '\0';
     sprintf(msg_,"LEX: %s [SCOPED_PROPERTY] ", CQL_lval.strValue);
     printf__(msg_);
 
-    return SCOPED_PROPERTY;
+    return TOK_SCOPED_PROPERTY;
 }
 
 [-]{1}[0][Xx]{HEX_DIGIT}{HEX_DIGIT}* {
-    sprintf(msg_,"LEX: %s [NEGATIVE_HEXADECIMAL] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_NEGATIVE_HEXADECIMAL] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     /* copy the hex value */
     {
         size_t n = strlen(yytext);
-	if(CQL_lval.strValue)
-		delete [] CQL_lval.strValue;
+    if(CQL_lval.strValue)
+        delete [] CQL_lval.strValue;
         CQL_lval.strValue = new char[n + 1];
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return NEGATIVE_HEXADECIMAL;
+    return TOK_NEGATIVE_HEXADECIMAL;
 }
 
 [+]?[0][Xx]{HEX_DIGIT}{HEX_DIGIT}* {
-    sprintf(msg_,"LEX: %s [HEXADECIMAL] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_HEXADECIMAL] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
@@ -378,28 +380,28 @@ Z [Zz]
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return HEXADECIMAL;
+    return TOK_HEXADECIMAL;
 }
 
 [-]{1}{BINARY_DIGIT}{BINARY_DIGIT}*{B} {
-    sprintf(msg_,"LEX: %s [NEGATIVE_BINARY] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_NEGATIVE_BINARY] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     /* copy the bin value */ 
     {
         size_t n = strlen(yytext);
-	if(CQL_lval.strValue)
+    if(CQL_lval.strValue)
                 delete [] CQL_lval.strValue;
         CQL_lval.strValue = new char[n + 1];
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return NEGATIVE_BINARY;
+    return TOK_NEGATIVE_BINARY;
 }
 
 [+]?{BINARY_DIGIT}{BINARY_DIGIT}*{B} {
-    sprintf(msg_,"LEX: %s [BINARY] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_BINARY] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
@@ -412,30 +414,30 @@ Z [Zz]
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return BINARY;
+    return TOK_BINARY;
 }
 
 
 [-]{1}{POSITIVE_DECIMAL_DIGIT}{DECIMAL_DIGIT}* {
 
-    sprintf(msg_,"LEX: %s [NEGATIVE_INTEGER] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_NEGATIVE_INTEGER] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
-	    delete [] CQL_lval.strValue;
+        delete [] CQL_lval.strValue;
     CQL_lval.strValue = new char[n + 1];
     memcpy(CQL_lval.strValue, yytext, n);
     CQL_lval.strValue[n] = '\0';
 
     /*CQL_lval.intValue = strtol(yytext, (char**)0, 10);*/
-    return NEGATIVE_INTEGER;
+    return TOK_NEGATIVE_INTEGER;
 }
 
 [+]?{DECIMAL_DIGIT}+ {
                                                                                                                                        
-    sprintf(msg_,"LEX: %s [INTEGER] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_INTEGER] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
@@ -447,12 +449,12 @@ Z [Zz]
     CQL_lval.strValue[n] = '\0';
                                                                                                                                        
     /*CQL_lval.intValue = strtol(yytext, (char**)0, 10);*/
-    return INTEGER;
+    return TOK_INTEGER;
 }
 
 [-]{1}{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
 
-    sprintf(msg_,"LEX: %s [NEGATIVE_REAL] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_NEGATIVE_REAL] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
@@ -464,12 +466,12 @@ Z [Zz]
     CQL_lval.strValue[n] = '\0';
 
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
-    return NEGATIVE_REAL;
+    return TOK_NEGATIVE_REAL;
 }
 
 ([+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)?)|([+]?{DECIMAL_DIGIT}+\.{DECIMAL_DIGIT}*([eE][+-]?{DECIMAL_DIGIT}+)?) {
                                                                                                                                        
-    sprintf(msg_,"LEX: %s [REAL] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_REAL] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
@@ -481,15 +483,15 @@ Z [Zz]
     CQL_lval.strValue[n] = '\0';
                                                                                                                                        
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
-    return REAL;
+    return TOK_REAL;
 }
 
 \'((\\')|(\\\\)|[^'(\\')])*\' {
-	/* \'[^\'\n]*\' */
+    /* \'[^\'\n]*\' */
     /* ATTN-B: handle long literals by using yyinput(). */
     /* ATTN-B: Handle expansion of special characters */
 
-    sprintf(msg_,"LEX: %s [STRING] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_STRING_LITERAL] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
@@ -500,25 +502,26 @@ Z [Zz]
 
     // chuck
     if (!isUTF8Str(yytext))
-    {	
+    {   
         sprintf(msg_,"LEX: [STRING]-> BAD UTF\n");
         printf__(msg_);
         throw CQLSyntaxErrorException(
-                                      MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
-                                      String("Bad UTF8 encountered parsing rule $0 in position $1."),
-                                      String("literal_string"),
-                                      CQL_globalParserState->currentTokenPos));
+            MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+            String("Bad UTF8 encountered parsing rule $0 in position $1."),
+            String("literal_string"),
+            CQL_globalParserState->currentTokenPos));
     }
 
     String s(yytext);
 
     Uint32 index = 1;
     while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND || 
-	       (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND)
-	 {
-				if(index == s.size() - 2) // make sure we dont remove the slash from say 'abc\'
-				break;
-				s.remove(index,1);
+           (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND)
+     {
+         // make sure we don't remove the slasy from say 'abc\'
+         if(index == s.size() - 2)
+                break;
+         s.remove(index,1);
     }
     CString cstr = s.getCString();
     const char* string = (const char*)cstr;
@@ -526,14 +529,14 @@ Z [Zz]
     /* Copy the string (but remove the surrounding quotes */
 
     {
-	size_t n = strlen(string) - 2;
-	if(CQL_lval.strValue)
-		delete [] CQL_lval.strValue;
-	CQL_lval.strValue = new char[n + 1];
-	memcpy(CQL_lval.strValue, string + 1, n);
-	CQL_lval.strValue[n] = '\0';
+    size_t n = strlen(string) - 2;
+    if(CQL_lval.strValue)
+        delete [] CQL_lval.strValue;
+    CQL_lval.strValue = new char[n + 1];
+    memcpy(CQL_lval.strValue, string + 1, n);
+    CQL_lval.strValue[n] = '\0';
     }
-    return STRING_LITERAL;
+    return TOK_STRING_LITERAL;
 }
 
 \'[^\'\n]*$ {
@@ -545,188 +548,188 @@ Z [Zz]
 }
 
 \*{1} {
-   sprintf(msg_,"LEX: [STAR] ");
+   sprintf(msg_,"LEX: [TOK_STAR] ");
    printf__(msg_);
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return STAR;
+   return TOK_STAR;
 }
 
 \/{1} {
-   sprintf(msg_,"LEX: [DIV] ");
+   sprintf(msg_,"LEX: [TOK_DIV] ");
    printf__(msg_);
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return DIV;
+   return TOK_DIV;
 }
 
 \+{1} {
-   sprintf(msg_,"LEX: [PLUS] ");
+   sprintf(msg_,"LEX: [TOK_PLUS] ");
    printf__(msg_);
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return PLUS;
+   return TOK_PLUS;
 }
 
 \-{1} {
-   sprintf(msg_,"LEX: [MINUS] ");
+   sprintf(msg_,"LEX: [TOK_MINUS] ");
    printf__(msg_);
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return MINUS;
+   return TOK_MINUS;
 }
 
 \,{1} {
-   sprintf(msg_,"LEX: [COMMA] ");
+   sprintf(msg_,"LEX: [TOK_COMMA] ");
    printf__(msg_);
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return COMMA;
+   return TOK_COMMA;
 }
 
 \.{2} {
-    sprintf(msg_,"LEX: [DOTDOT] ");
+    sprintf(msg_,"LEX: [TOK_DOTDOT] ");
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return DOTDOT;
+    return TOK_DOTDOT;
 }
 
 \#{1} {
-    sprintf(msg_,"LEX: [HASH] ");
+    sprintf(msg_,"LEX: [TOK_HASH] ");
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;                                                                   
     CQL_globalParserState->tokenCount++;
-    return HASH;
+    return TOK_HASH;
 }
 
 \.{1} {
-    sprintf(msg_,"LEX: [DOT] ");
+    sprintf(msg_,"LEX: [TOK_DOT] ");
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return DOT;
+    return TOK_DOT;
 }
 
 \[{1} {
-    sprintf(msg_,"LEX: [LBRKT] ");
+    sprintf(msg_,"LEX: [TOK_LBRKT] ");
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return LBRKT;
+    return TOK_LBRKT;
 }
 
 \]{1} {
-    sprintf(msg_,"LEX: [RBRKT] ");
+    sprintf(msg_,"LEX: [TOK_RBRKT] ");
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return RBRKT;
+    return TOK_RBRKT;
 }
 
 \({1} {
-    sprintf(msg_,"LEX: [LPAR] ");
+    sprintf(msg_,"LEX: [TOK_LPAR] ");
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return LPAR;
+    return TOK_LPAR;
 }
 
 \){1} {
-    sprintf(msg_,"LEX: [RPAR] ");
+    sprintf(msg_,"LEX: [TOK_RPAR] ");
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return RPAR;
+    return TOK_RPAR;
 }
 
 "||" {
-    sprintf(msg_,"LEX: %s [DBL_PIPE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_DBL_PIPE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return DBL_PIPE;
+    return TOK_DBL_PIPE;
 }
 
 "_" {
-    sprintf(msg_,"LEX: %s [UNDERSCORE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_UNDERSCORE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return UNDERSCORE;
+    return TOK_UNDERSCORE;
 }
 
 "=" { 
-    sprintf(msg_,"LEX: %s [_EQ] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_EQ] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _EQ; 
+    return TOK_EQ; 
 }
 
 
 "<>" { 
 
-    sprintf(msg_,"LEX: %s [_NE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_NE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _NE; 
+    return TOK_NE; 
 }
 
 
 "<=" { 
 
-    sprintf(msg_,"LEX: %s [_LE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_LE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _LE; 
+    return TOK_LE; 
 }
 
 "<" { 
 
-    sprintf(msg_,"LEX: %s [_LT] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_LT] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _LT; 
+    return TOK_LT; 
 }
 
 ">=" { 
 
-    sprintf(msg_,"LEX: %s [_GE] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_GE] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _GE; 
+    return TOK_GE; 
 }
 
 ">" { 
 
-    sprintf(msg_,"LEX: %s [_GT] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_GT] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return _GT; 
+    return TOK_GT; 
 }
 
 {IDENT_CHAR_NO_NUM}({IDENT_CHAR})*  {
 
-    sprintf(msg_,"LEX: %s [IDENTIFIER] ", yytext);
+    sprintf(msg_,"LEX: %s [TOK_IDENTIFIER] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     {
-	size_t n = strlen(yytext);
-	if(CQL_lval.strValue)
-		delete [] CQL_lval.strValue;
-	CQL_lval.strValue = new char[n + 1];
-	memcpy(CQL_lval.strValue, yytext, n);
-	CQL_lval.strValue[n] = '\0';
+    size_t n = strlen(yytext);
+    if(CQL_lval.strValue)
+        delete [] CQL_lval.strValue;
+    CQL_lval.strValue = new char[n + 1];
+    memcpy(CQL_lval.strValue, yytext, n);
+    CQL_lval.strValue[n] = '\0';
     }
 
-    return IDENTIFIER;
+    return TOK_IDENTIFIER;
 }
 
 {BLANK}+ {
@@ -736,8 +739,8 @@ Z [Zz]
 }
 
 \n {
-	CQL_globalParserState->currentTokenPos=0;
-	return 0;
+    CQL_globalParserState->currentTokenPos=0;
+    return 0;
    }
 
 <<EOF>> {
@@ -746,10 +749,10 @@ Z [Zz]
 
 . {
     CQL_lval.strValue = 0;
-    sprintf(msg_,"LEX::UNEXPECTED_CHAR\n");
+    sprintf(msg_,"LEX::TOK_UNEXPECTED_CHAR\n");
     printf__(msg_);
 
-    return UNEXPECTED_CHAR;
+    return TOK_UNEXPECTED_CHAR;
 }
 
 %%

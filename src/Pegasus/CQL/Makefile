@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../..
 
 DIR = Pegasus/CQL
@@ -102,7 +102,13 @@ include $(ROOT)/mak/library.mak
 grammar: yacc_rule lex_rule
 
 export BISON_SIMPLE = bison.simple
-#YACC = bison                                                                                                                                       
+
+##    WARNING: using bison and yacc generates slightly different
+##    output messages which means that at least the Queries
+##    Misc test resgood file must be changed if you move from
+##    one to another.See bug 6351.
+##YACC = bison
+##YACC=yacc
 ##
 ## Lex rule:
 ##

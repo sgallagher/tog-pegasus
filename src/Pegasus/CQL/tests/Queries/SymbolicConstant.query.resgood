@@ -1,5 +1,5 @@
 Using root/SampleProvider as default namespace.
-Caught Exception: CQL syntax error: syntax error around token 9 in position 53 while processing rule comp_op->_EQ
+Caught Exception: CQL syntax error: syntax error around token 9 in position 53 while processing rule comp_op->TOK_EQ
 Statement with error = select * from CIM_ComputerSystem where #'Enabled' = #'Disabled'
 
 There were 1 statements that did NOT parse.

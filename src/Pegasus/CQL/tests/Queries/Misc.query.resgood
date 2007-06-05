@@ -2,40 +2,40 @@ Using root/SampleProvider as default namespace.
 
 Using default class names to test queries. 
 
-Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule class_path
+Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes, CQL_TestElement
 
-Caught Exception: CQL syntax error: syntax error around token 6 in position 44 while processing rule from_criteria->from_specifier
+Caught Exception: CQL syntax error: syntax error around token 6 in position 44 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes alias1 , CQL_TestElement alias2
 
-Caught Exception: CQL syntax error: syntax error around token 6 in position 42 while processing rule from_criteria->from_specifier
+Caught Exception: CQL syntax error: syntax error around token 6 in position 42 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes alias, alias
 
-Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule class_path
+Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes, alias CQL_TestPropertyTypes
 
-Caught Exception: CQL syntax error: syntax error around token 6 in position 42 while processing rule from_criteria->from_specifier
+Caught Exception: CQL syntax error: syntax error around token 6 in position 42 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes alias, CQL_TestElement alias
 
-Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule class_path
+Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyTypes
 
-Caught Exception: CQL syntax error: syntax error around token 6 in position 42 while processing rule from_criteria->from_specifier
+Caught Exception: CQL syntax error: syntax error around token 6 in position 42 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes alias, CQL_TestPropertyTypes
 
-Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule class_path
+Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyTypes alias
 
-Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule class_path
+Caught Exception: CQL syntax error: syntax error around token 5 in position 36 while processing rule select_statement
 Statement with error = SELECT * FROM CQL_TestPropertyTypes, alias1, CQL_TestPropertyTypes alias2
 
-Caught Exception: CQL syntax error: syntax error around token 7 in position 59 while processing rule comp_op->_EQ
+Caught Exception: CQL syntax error: syntax error around token 7 in position 59 while processing rule comp_op->TOK_EQ
 Statement with error = select * FROM CQL_TestPropertyTypes where PropertyString = '\CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"'
 
-Caught Exception: CQL syntax error: syntax error around token 7 in position 59 while processing rule comp_op->_EQ
+Caught Exception: CQL syntax error: syntax error around token 7 in position 59 while processing rule comp_op->TOK_EQ
 Statement with error = select * FROM CQL_TestPropertyTypes where PropertyString = 'CIM_\\\ComputerSystem'
 
-Caught Exception: CQL syntax error: syntax error around token 9 in position 81 while processing rule chain->literal
+Caught Exception: CQL syntax error: syntax error around token 9 in position 81 while processing rule select_statement
 Statement with error = select * FROM CQL_TestPropertyTypes where PropertyString = '\\'CIM_ComputerSystem'
 
 Caught Exception: The CQLValue is not a string literal while processing rule concat->concat || literal_string.

@@ -137,17 +137,19 @@ int find (char *str,char *t)
 }
 char* replace (char *s,char *t, char *substitute)
 {
-    char *substr = (char *)malloc(sizeof(char) * (strlen(s)));
-    int len = strlen(t);
-    int index = find(s,t);
-    if (s == NULL || s == 0)
+    if (s == NULL)
     {
         return(NULL);
     }
+    int lendiff = 0;
+    int len = strlen(t);
+    lendiff = strlen(substitute) - len;
+    char *substr = (char *)malloc(sizeof(char) * (strlen(s) + 1 + lendiff));
+    int index = find(s,t);
     strncpy(substr,s,index);
     substr[index]='\0';
     strcat(substr,substitute);
-    char *finalstr = s + index + strlen(substitute);
+    char *finalstr = s + index + len; 
     strcat(substr,finalstr);
     return(substr);
 }

@@ -174,6 +174,17 @@ Boolean LocalAuthenticationHandler::authenticate(
         // For Privilege Separation, remember the secret on subsequent requests
         authInfo->setLocalAuthSecret(secretReceived);
     }
+    else
+    {
+        // log a failed authentication
+        Logger::put_l(Logger::STANDARD_LOG,
+                      System::CIMSERVER,
+                      Logger::INFORMATION,
+                      "Security.Authentication.LocalAuthenticationHandler."
+                          "LOCAL_AUTHENTICATION_FAILED",
+                      "Local Authentication failed for user $0.",
+                      userName);
+    }
 
     PEG_AUDIT_LOG(logLocalAuthentication(
                      userName,

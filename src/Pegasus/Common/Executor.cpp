@@ -278,11 +278,6 @@ public:
 
         return 0;
 
-#elif defined(PEGASUS_OS_OS400)
-
-        // ATTN: no implementation for OS400.
-        return -1;
-
 #else /* POSIX CASE FOLLOWS */
 
         AutoMutex autoMutex(_mutex);

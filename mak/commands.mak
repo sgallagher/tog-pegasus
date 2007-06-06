@@ -104,7 +104,7 @@ ifeq ($(OS),HPUX)
     Prwx______ = 700
     Prwxrwxrwx = 777
     Prwxrwxrwt = 1777
-    Pr_xr__r__ = 744
+    Prwxr__r__ = 744
     Pr__r__r__ = 444
     Pr________ = 400
     Pr_xr_xr_x = 555
@@ -191,7 +191,7 @@ ifeq ($(OS),linux)
     Prwxrwxrwt = 1777
     Prwxr_xr_x = 755
     Prwxr_x___ = 750
-    Pr_xr__r__ = 744
+    Prwxr__r__ = 744
     Prwx______ = 700
     Pr__r__r__ = 444
     Pr________ = 400
@@ -240,7 +240,7 @@ ifeq ($(OS),zos)
     Prwxrwxrwx = 777
     Prwxrwxrwt = 1777
     Prwxr_xr_x = 755
-    Pr_xr__r__ = 744
+    Prwxr__r__ = 744
     Pr__r__r__ = 444
     Pr________ = 400
     Pr_xr_xr_x = 555

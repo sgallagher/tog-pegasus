@@ -39,10 +39,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-Uint32 MessageMask::type_legacy =            0x00000000;
-Uint32 MessageMask::type_cimom =             0x00000001;
-Uint32 MessageMask::type_service =           0x00000002;
-
 Uint32 MessageMask::ha_request =             0x00100000;
 Uint32 MessageMask::ha_reply =               0x00200000;
 Uint32 MessageMask::ha_async =               0x00400000;

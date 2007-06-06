@@ -285,8 +285,6 @@ class test_service : public MessageQueueService
 
 test_service::test_service(const char *name)
          : Base(name, 0, 
-        MessageMask::type_cimom | 
-        MessageMask::type_service | 
         MessageMask::ha_request | 
         MessageMask::ha_reply | 
         MessageMask::ha_async ) 

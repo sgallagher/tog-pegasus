@@ -49,12 +49,6 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE MessageMask
 {
 public:
-    // Message type is indicated by the low order 20 bits.  For example:
-    // Uint32 messageType = flags & 0x000fffff;
-    static Uint32 type_legacy;
-    static Uint32 type_cimom;
-    static Uint32 type_service;
-
     // Message handling is indicated by the high order 12 bits.  For example:
     // Uint32 messageHandling = flags & 0xfff00000;
     static Uint32 ha_request;
@@ -81,7 +75,7 @@ public:
     Message(
         Uint32 type,
         Uint32 destination = 0,
-        Uint32 mask = MessageMask::type_legacy)
+        Uint32 mask = 0)
         :
         _type(type),
         _mask(mask),

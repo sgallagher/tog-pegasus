@@ -65,9 +65,7 @@ public:
         const char* name,
         Uint32 queueID = MessageQueue::getNextQueueId(),
         Uint32 capabilities = 0,
-        Uint32 mask = MessageMask::type_cimom |
-            MessageMask::type_service |
-            MessageMask::ha_request |
+        Uint32 mask = MessageMask::ha_request |
             MessageMask::ha_reply |
             MessageMask::ha_async);
 

@@ -128,8 +128,6 @@ public:
     MessageQueueServer(const char *name)
     : Base(
         name, MessageQueue::getNextQueueId(), 0,
-        MessageMask::type_cimom |
-            MessageMask::type_service |
             MessageMask::ha_request |
             MessageMask::ha_reply |
             MessageMask::ha_async),
@@ -173,8 +171,6 @@ class MessageQueueClient : public MessageQueueService
 
       MessageQueueClient(const char *name)
          : Base(name, MessageQueue::getNextQueueId(), 0,
-                MessageMask::type_cimom |
-                MessageMask::type_service |
                 MessageMask::ha_request |
                 MessageMask::ha_reply |
                 MessageMask::ha_async),

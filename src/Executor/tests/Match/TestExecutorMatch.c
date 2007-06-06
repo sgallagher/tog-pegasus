@@ -47,7 +47,12 @@ int main()
     assert(Match("abc*xyz", "abcXXXXXXXXXXXXXXXXXxxyz") == 0);
     assert(Match("", "") == 0);
     assert(Match("*", "") == 0);
+    assert(Match("*a", "a") == 0);
     assert(Match("*xxx*", "xxx") == 0);
+
+    assert(Match("*a", "") != 0);
+    assert(Match("*a", "b") != 0);
+    assert(Match("a", "b") != 0);
 
     printf("+++++ passed all tests\n");
 

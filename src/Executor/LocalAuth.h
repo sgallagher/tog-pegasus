@@ -37,6 +37,17 @@
 #include "Defines.h"
 
 EXECUTOR_LINKAGE
+int CreateLocalAuthFile(
+    const char* path,
+    int uid,
+    int gid);
+
+EXECUTOR_LINKAGE
+int CheckLocalAuthToken(
+    const char* path,
+    const char* token);
+
+EXECUTOR_LINKAGE
 int StartLocalAuthentication(
     const char* user,
     char challenge[EXECUTOR_BUFFER_SIZE]);

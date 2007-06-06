@@ -29,27 +29,21 @@
 #//
 #//=============================================================================
 
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = $(PEGASUS_ROOT)
+DIR = Executor/tests/Options
 
-DIRS = \
-    lib \
-    Config \
-    LocalAuth \
-    Macro \
-    Match \
-    Messages \
-    Options \
-    PasswordFile \
-    Path \
-    Process \
-    Random \
-    Socket \
-    Strlcat \
-    Strlcpy \
-    User
+include $(ROOT)/mak/config.mak
 
-ifdef PEGASUS_PAM_AUTHENTICATION
-    DIRS += PAMAuth
-endif
+PROGRAM = TestExecutorOptions
+SOURCES = TestExecutorOptions.c
+EXTRA_INCLUDES += -I../../..
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+LIBRARIES += pegexecutor
+
+include ../common.mak
+include $(ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

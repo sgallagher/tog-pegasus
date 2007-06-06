@@ -63,7 +63,6 @@ void Child(
     int sock)
 {
     char sockStr[EXECUTOR_BUFFER_SIZE];
-    char username[EXECUTOR_BUFFER_SIZE];
     char** execArgv;
 
     /* Build argument list, adding "--executor-socket <sock>" option if
@@ -115,11 +114,8 @@ void Child(
 
     /* Log user info. */
 
-    if (GetUserName(uid, username) != 0)
-        Fatal(FL, "cannot resolve user from uid=%d", uid);
-
     Log(LL_TRACE, "%s running as %s (uid=%d, gid=%d)", CIMSERVERMAIN,
-        username, uid, gid);
+        userName, uid, gid);
 
     /*
      * Precheck that cimxml.socket is owned by CIMSERVERMAIN process. If

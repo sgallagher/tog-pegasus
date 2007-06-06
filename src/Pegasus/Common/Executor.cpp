@@ -1002,7 +1002,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 static int _executorSock = -1;
-static ExecutorImpl* _executorImpl = 0;
+static AutoPtr<ExecutorImpl> _executorImpl;
 static Mutex _executorMutex;
 
 static ExecutorImpl* _getImpl()
@@ -1010,24 +1010,24 @@ static ExecutorImpl* _getImpl()
     // Use the double-checked locking technique to avoid the overhead of a lock
     // on every call.
 
-    if (_executorImpl == 0)
+    if (_executorImpl.get() == 0)
     {
         AutoMutex autoMutex(_executorMutex);
 
-        if (_executorImpl == 0)
+        if (_executorImpl.get() == 0)
         {
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
             if (_executorSock == -1)
-                _executorImpl = new ExecutorLoopbackImpl();
+                _executorImpl.reset(new ExecutorLoopbackImpl());
             else
-                _executorImpl = new ExecutorSocketImpl(_executorSock);
+                _executorImpl.reset(new ExecutorSocketImpl(_executorSock));
 #else
-            _executorImpl = new ExecutorLoopbackImpl();
+            _executorImpl.reset(new ExecutorLoopbackImpl());
 #endif
         }
     }
 
-    return _executorImpl;
+    return _executorImpl.get();
 }
 
 void Executor::setSock(int sock)

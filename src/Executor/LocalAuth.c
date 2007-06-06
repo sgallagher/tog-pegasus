@@ -53,35 +53,17 @@
 /*
 **==============================================================================
 **
-** CreateLocalAuthFile()
+** BuildLocalAuthFilePath()
 **
-**     This function creates a local authentication file for the given *user*.
-**     it populates the *path* argument and return 0 on success. The file has
-**     the following format.
+**     This function generates an appropriate name for a local authentication
+**     file for the given *user*.  The file path has the following format:
 **
 **         PEGASUS_LOCAL_AUTH_DIR/cimclient_<user>_<timestamp>_<seq>
-**
-**     For example:
-**
-**
-**     The algorithm:
-**
-**         1. Form the path name as shown above.
-**            (e.g., /tmp/cimclient_jsmith_1_232).
-**
-**         2. Generate a random token
-**            (e.g., 8F85CB1129B2B93F77F5CCA16850D659CCD16FE0).
-**
-**         3. Create the file (owner=root, permissions=0400).
-**
-**         4. Write random token to file.
-**
-**         5. Change owner of file to *user*.
 **
 **==============================================================================
 */
 
-static int CreateLocalAuthFile(
+static void BuildLocalAuthFilePath(
     const char* user,
     char path[EXECUTOR_BUFFER_SIZE])
 {
@@ -90,10 +72,6 @@ static int CreateLocalAuthFile(
     unsigned int seq;
     struct timeval tv;
     char buffer[EXECUTOR_BUFFER_SIZE];
-    char token[TOKEN_LENGTH+1];
-    int fd;
-    int uid;
-    int gid;
 
     /* Assign next sequence number. */
 
@@ -105,13 +83,44 @@ static int CreateLocalAuthFile(
 
     gettimeofday(&tv, NULL);
 
-    /* Build path: */
+    /* Build path */
 
     Strlcpy(path, PEGASUS_LOCAL_AUTH_DIR, EXECUTOR_BUFFER_SIZE);
     Strlcat(path, "/cimclient_", EXECUTOR_BUFFER_SIZE);
     Strlcat(path, user, EXECUTOR_BUFFER_SIZE);
     sprintf(buffer, "_%u_%u", seq, (int)(tv.tv_usec / 1000));
     Strlcat(path, buffer, EXECUTOR_BUFFER_SIZE);
+}
+
+/*
+**==============================================================================
+**
+** CreateLocalAuthFile()
+**
+**     This function creates a local authentication file with the given *path*
+**     and returns 0 on success.
+**
+**     The algorithm:
+**
+**         1. Generate a random token
+**            (e.g., 8F85CB1129B2B93F77F5CCA16850D659CCD16FE0).
+**
+**         2. Create the file (owner=root, permissions=0400).
+**
+**         3. Write random token to file.
+**
+**         4. Change file owner to *uid* and group to *gid*.
+**
+**==============================================================================
+*/
+
+int CreateLocalAuthFile(
+    const char* path,
+    int uid,
+    int gid)
+{
+    char token[TOKEN_LENGTH+1];
+    int fd;
 
     /* Generate random token. */
 
@@ -145,13 +154,6 @@ static int CreateLocalAuthFile(
 
     /* Change owner of file. */
 
-    if (GetUserInfo(user, &uid, &gid) != 0)
-    {
-        close(fd);
-        unlink(path);
-        return -1;
-    }
-
     if (fchown(fd, uid, gid) != 0)
     {
         close(fd);
@@ -174,14 +176,14 @@ static int CreateLocalAuthFile(
 **==============================================================================
 */
 
-static int CheckLocalAuthToken(
+int CheckLocalAuthToken(
     const char* path,
     const char* token)
 {
     char buffer[TOKEN_LENGTH+1];
     int fd;
 
-    /* Open the file: */
+    /* Open the file. */
 
     if ((fd = open(path, O_RDONLY)) < 0)
         return -1;
@@ -221,7 +223,7 @@ static int CheckLocalAuthToken(
 
 int StartLocalAuthentication(
     const char* user,
-    char challenge[EXECUTOR_BUFFER_SIZE])
+    char challengeFilePath[EXECUTOR_BUFFER_SIZE])
 {
     /* Get uid: */
 
@@ -231,12 +233,13 @@ int StartLocalAuthentication(
     if (GetUserInfo(user, &uid, &gid) != 0)
         return -1;
 
+    /* Build an appropriate local authentication file path. */
+
+    BuildLocalAuthFilePath(user, challengeFilePath);
+
     /* Create the local authentication file. */
 
-    if (CreateLocalAuthFile(user, challenge) != 0)
-        return -1;
-
-    return 0;
+    return CreateLocalAuthFile(challengeFilePath, uid, gid);
 }
 
 /*
@@ -244,22 +247,22 @@ int StartLocalAuthentication(
 **
 ** FinishLocalAuthentication()
 **
-**     Initiate second and last phase of local authentication. Else return
-**     negative one.
+**     Initiates second and final phase of local authentication.  Returns 0
+**     if authentication is successful, -1 otherwise.
 **
 **==============================================================================
 */
 
 int FinishLocalAuthentication(
-    const char* challenge,
+    const char* challengeFilePath,
     const char* response)
 {
     /* Check token against the one in the file. */
 
-    int rc = CheckLocalAuthToken(challenge, response);
+    int rc = CheckLocalAuthToken(challengeFilePath, response);
 
-    if (challenge)
-        unlink((char*)challenge);
+    if (challengeFilePath)
+        unlink((char*)challengeFilePath);
 
     return rc;
 }

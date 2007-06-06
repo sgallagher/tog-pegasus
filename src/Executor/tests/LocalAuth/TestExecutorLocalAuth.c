@@ -33,29 +33,126 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
+#include <Executor/User.h>
 #include <Executor/LocalAuth.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <assert.h>
 
-int main()
+void testSuccessfulAuthentication()
 {
-    char challenge[EXECUTOR_BUFFER_SIZE];
+    char challengeFilePath[EXECUTOR_BUFFER_SIZE];
     char response[EXECUTOR_BUFFER_SIZE];
     FILE* is;
 
-    /* Start authentication and get challenge. */
+    /* Start authentication and get challenge file path. */
 
-    assert(StartLocalAuthentication("pegasus", challenge) == 0);
+    assert(StartLocalAuthentication(
+        PEGASUS_CIMSERVERMAIN_USER, challengeFilePath) == 0);
 
-    /* Read response from file. */
+    /* Read secret token from file. */
 
-    is = fopen(challenge, "r");
+    is = fopen(challengeFilePath, "r");
     assert(is != NULL);
     assert(fgets(response, sizeof(response), is) != NULL);
 
     /* Finish authentication. */
 
-    assert(FinishLocalAuthentication(challenge, response) == 0);
+    assert(FinishLocalAuthentication(challengeFilePath, response) == 0);
+}
+
+void testCreateLocalAuthFile()
+{
+    int testUid;
+    int testGid;
+    assert(GetUserInfo(PEGASUS_CIMSERVERMAIN_USER, &testUid, &testGid) == 0);
+
+    /* Test with file path that already exists */
+    {
+        const char* path = "testlocalauthfile";
+        int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
+        write(fd, "test", 4);
+        close(fd);
+        assert(CreateLocalAuthFile(path, testUid, testGid) == 0);
+        unlink(path);
+    }
+
+    /* Test with non-existent directory in file path */
+    {
+        const char* path =
+            "/tmp/nonexistentdirectory/anotherone/pegasus/localauthtestfile";
+        assert(CreateLocalAuthFile(path, testUid, testGid) != 0);
+    }
+}
+
+void testCheckLocalAuthToken()
+{
+    /* Test with file path that does not exist */
+    {
+        const char* path = "nonexistenttestfile";
+        assert(CheckLocalAuthToken(path, "secret") != 0);
+    }
+
+    /* Test with secret token that is too short */
+    {
+        const char* path = "testlocalauthfile";
+        int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
+        write(fd, "secret", 6);
+        close(fd);
+        assert(CheckLocalAuthToken(path, "secret") != 0);
+        unlink(path);
+    }
+
+    /* Test with incorrect secret token */
+    {
+        const char* path = "testlocalauthfile";
+        int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
+        write(fd, "1234567890123456789012345678901234567890", 40);
+        close(fd);
+        assert(CheckLocalAuthToken(
+            path, "123456789012345678901234567890123456789X") != 0);
+        unlink(path);
+    }
+}
+
+void testStartLocalAuthentication()
+{
+    /* Test with non-existent user */
+    {
+        const char* invalidUserName = "xinvaliduserx";
+        int uid;
+        int gid;
+        char challengeFilePath[EXECUTOR_BUFFER_SIZE];
+
+        /* Only run this test if the user does not exist on the test system */
+        if (GetUserInfo(invalidUserName, &uid, &gid) != 0)
+        {
+            assert(StartLocalAuthentication(
+                invalidUserName, challengeFilePath) != 0);
+        }
+    }
+}
+
+void testFinishLocalAuthentication()
+{
+    /* Test with non-existent challenge file path */
+    {
+        const char* path = "nonexistenttestfile";
+        assert(FinishLocalAuthentication(path, "secret") != 0);
+    }
+}
+
+int main()
+{
+    testSuccessfulAuthentication();
+    testCreateLocalAuthFile();
+    testCheckLocalAuthToken();
+    testStartLocalAuthentication();
+    testFinishLocalAuthentication();
 
     printf("+++++ passed all tests\n");
 

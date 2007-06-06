@@ -58,7 +58,6 @@ Dir::Dir(const String& path)
 
     if (_dirRep.dir)
     {
-#ifdef PEGASUS_HAS_READDIR_R
         // Need to use readdir_r since we are multithreaded
         if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
         {
@@ -66,9 +65,6 @@ Dir::Dir(const String& path)
             closedir(_dirRep.dir);
             throw CannotOpenDirectory(_path);
         }
-#else
-        _dirRep.entry = readdir(_dirRep.dir);
-#endif
         _more = _dirRep.entry != NULL;
     }
     else
@@ -95,19 +91,12 @@ void Dir::next()
 {
     if (_more)
     {
-#ifdef PEGASUS_HAS_READDIR_R
         // Need to use readdir_r since we are multithreaded
-#ifdef PEGASUS_OS_ZOS
-    errno=0;
-#endif
-    if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
+        if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
         {
             _more = false;
             throw CannotOpenDirectory(_path);
         }
-#else
-        _dirRep.entry = readdir(_dirRep.dir);
-#endif
         _more = _dirRep.entry != NULL;
     }
 }

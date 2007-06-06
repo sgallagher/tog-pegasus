@@ -40,55 +40,50 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+#if defined(PEGASUS_OS_SOLARIS)
 # include <sys/param.h>
-# include <dirent.h>
 #endif
-#ifdef PEGASUS_OS_ZOS
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# include <io.h>
+#else // if defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
 # include <dirent.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include <io.h>
- typedef struct
- {
+
+typedef struct
+{
 # if _MSC_VER < 1300
     long file;
 # else
     intptr_t file;
 # endif
     struct _finddata_t findData;
- } DirRep;
-#elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
-# if defined(PEGASUS_OS_SOLARIS)
-#  include <sys/param.h>
-# endif /* if defined(PEGASUS_OS_SOLARIS) */
+} DirRep;
 
-# include <dirent.h>
+#else // if defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
 
-# define PEGASUS_HAS_READDIR_R
-
- struct DirRep
- {
+struct DirRep
+{
     DIR* dir;
     struct dirent* entry;
-# ifdef PEGASUS_HAS_READDIR_R
-#   ifdef PEGASUS_OS_SOLARIS
+
+# ifdef PEGASUS_OS_SOLARIS
 private:
-        char buf[sizeof(dirent) + MAXNAMELEN];
+    char buf[sizeof(dirent) + MAXNAMELEN];
 public:
-        struct dirent &buffer;
-        inline DirRep()
-                : buffer(*reinterpret_cast<struct dirent *>(buf))
-        { }
-#   else /* ifdef PEGASUS_OS_SOLARIS */
+    struct dirent& buffer;
+    inline DirRep()
+        : buffer(*reinterpret_cast<struct dirent *>(buf))
+    { }
+# else /* ifdef PEGASUS_OS_SOLARIS */
     struct dirent buffer;
-#   endif /* ifdef PEGASUS_OS_SOLARIS */
-# endif /* ifdef PEGASUS_HAS_READDIR_R */
+# endif /* ifdef PEGASUS_OS_SOLARIS */
 };
-#endif /* elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS) */
+#endif
 
 /** The Dir class provides a platform independent way of iterating the
     files in a directory.

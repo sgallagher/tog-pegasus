@@ -358,6 +358,7 @@ const char * _CMPIrcName ( CMPIrc rc )
       case CMPI_RC_ERR_INVALID_QUERY:                return "CMPI_RC_ERR_INVALID_QUERY";
       case CMPI_RC_ERR_METHOD_NOT_AVAILABLE:         return "CMPI_RC_ERR_METHOD_NOT_AVAILABLE";
       case CMPI_RC_ERR_METHOD_NOT_FOUND:             return "CMPI_RC_ERR_METHOD_NOT_FOUND";
+      case CMPI_RC_NO_MORE_ELEMENTS:                 return "CMPI_RC_NO_MORE_ELEMENTS";
 //      case CMPI_RC_DO_NOT_UNLOAD:                    return "CMPI_RC_DO_NOT_UNLOAD";
 //      case CMPI_RC_NEVER_UNLOAD:                     return "CMPI_RC_NEVER_UNLOAD";
       case CMPI_RC_ERR_INVALID_HANDLE:               return "CMPI_RC_ERR_INVALID_HANDLE";

@@ -135,9 +135,12 @@ extern "C" {
          if (ie->cursor<ie->max) {
             data.value.inst=reinterpret_cast<CMPIInstance*>
          (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
-            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            CMSetStatus(rc,CMPI_RC_OK);
          }
-         else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+         else
+         {
+             CMSetStatus(rc,CMPI_RC_NO_MORE_ELEMENTS);
+         }
       }
 
       else if ((void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
@@ -147,9 +150,12 @@ extern "C" {
          if (ie->cursor<ie->max) {
             data.value.inst=reinterpret_cast<CMPIInstance*>
          (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
-            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            CMSetStatus(rc,CMPI_RC_OK);
          }
-         else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+         else
+         {
+             CMSetStatus(rc, CMPI_RC_NO_MORE_ELEMENTS);
+         }
       }
 
       else {
@@ -159,9 +165,12 @@ extern "C" {
          if (oe->cursor<oe->max) {
             data.value.ref=reinterpret_cast<CMPIObjectPath*>
          (new CMPI_Object(new CIMObjectPath((*opa)[oe->cursor++])));
-            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            CMSetStatus(rc,CMPI_RC_OK);
          }
-         else if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+         else
+         { 
+             CMSetStatus(rc, CMPI_RC_NO_MORE_ELEMENTS);
+         }
       }
       return data;
    }

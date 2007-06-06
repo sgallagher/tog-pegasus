@@ -511,6 +511,8 @@ extern "C"
     CMPI_RC_ERR_METHOD_NOT_AVAILABLE = 16,
 	/** could not find the specified method */
     CMPI_RC_ERR_METHOD_NOT_FOUND = 17,
+       /** No more elements in Enumeration Object */
+    CMPI_RC_NO_MORE_ELEMENTS = 18,
 	/** Returned by a MI to indicate that it should not be unloaded, only
 		returned via a cleanup() call
 	*/

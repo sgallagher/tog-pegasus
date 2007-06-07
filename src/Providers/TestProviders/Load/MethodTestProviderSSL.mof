@@ -33,7 +33,6 @@ class Test_MethodProviderSSLClass
 {
     [key]
     string Id;
-    [Static] string getIdentity();
     uint32 Test1(
         [in]  uint32 InParam1,
         [in]  uint32 InParam2,

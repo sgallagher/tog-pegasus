@@ -716,21 +716,21 @@ void CIMMessageDeserializer::_deserializeUserCertificate(
         genericValue.get(subjectName);
         XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
         genericValue.get(issuerName);
-        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
         genericValue.get(versionNumber);
-        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
         genericValue.get(serialNumber);
-        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        XmlReader::getValueElement(parser, CIMTYPE_DATETIME, genericValue);
         genericValue.get(notBefore);
-        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        XmlReader::getValueElement(parser, CIMTYPE_DATETIME, genericValue);
         genericValue.get(notAfter);
-        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
         genericValue.get(depth);
-        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
         genericValue.get(errorCode);
         XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
         genericValue.get(errorString);
-        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
         genericValue.get(respCode);
 
         SSLCertificateInfo sslCertificate(

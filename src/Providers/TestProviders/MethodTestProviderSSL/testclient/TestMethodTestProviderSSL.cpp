@@ -260,12 +260,10 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
     //
     if (certInfo.getResponseCode() == 1)
     {
-cout<<"Here in true returning of verifyCertificate..."<<endl;
         return true;
     }
     else
     {
-cout<<"Here in false returning of verifyCertificate..."<<endl;
         return false;
     }
 }
@@ -350,7 +348,7 @@ int main(int argc, char** argv)
         }
         callMethod(client, "Test2");
 
-/*        if (verbose)
+        if (verbose)
         {
             cout << "Calling test1" << endl;
         }
@@ -361,17 +359,13 @@ int main(int argc, char** argv)
             cout << "Calling test3" << endl;
         }
         callMethodRefParam(client, "Test3");
+
         if (verbose)
         {
             cout << "Calling test4" << endl;
         }
         callMethodRefParamArray(client, "Test4");
-        if (verbose)
-        {
-            cout << "Calling getIdentity" << endl;
-        }
-        callMethod(client, "getIdentity");
-*/
+
     }
     catch (Exception& e)
     {

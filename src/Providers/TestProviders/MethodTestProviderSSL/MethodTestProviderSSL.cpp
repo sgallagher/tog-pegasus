@@ -101,7 +101,7 @@ void MethodTestProviderSSL::invokeMethod(
     /* Test1 method recalls the provider with test2 as the name and
        returns the result from test2
     */
-    else if (methodName.equal("test1"))
+    if (methodName.equal("test1"))
     {
         CIMValue returnValue;
         Array<CIMParamValue> inParams;

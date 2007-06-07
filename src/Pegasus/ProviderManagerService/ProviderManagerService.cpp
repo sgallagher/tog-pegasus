@@ -404,7 +404,7 @@ void ProviderManagerService::handleCimRequest(
                 provider explicitly registered for it.
             */
             if(request->operationContext.contains(
-                SSLCertificateChainContainer::NAME)
+                SSLCertificateChainContainer::NAME))
             {
                 request->operationContext.remove(
                     SSLCertificateChainContainer::NAME);

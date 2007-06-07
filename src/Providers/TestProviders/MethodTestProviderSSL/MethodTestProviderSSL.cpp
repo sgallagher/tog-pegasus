@@ -97,12 +97,6 @@ void MethodTestProviderSSL::invokeMethod(
     }
 
     handler.processing();
-    if (methodName.equal("getIdentity"))
-    {
-        IdentityContainer container(context.get(IdentityContainer::NAME));
-        String userName(container.getUserName());
-        handler.deliver(CIMValue(userName));
-    }
 
     /* Test1 method recalls the provider with test2 as the name and
        returns the result from test2

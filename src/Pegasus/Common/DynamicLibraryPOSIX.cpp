@@ -54,9 +54,11 @@ Boolean DynamicLibrary::_load()
 #endif
 
 #if defined(PEGASUS_OS_ZOS)
-    _handle = dlopen(cstr, RTLD_LAZY);
-#else
+    _handle = dlopen(cstr, RTLD_LAZY | RTLD_GLOBAL);
+#elif defined(PEGASUS_OS_VMS)
     _handle = dlopen(cstr, RTLD_NOW);
+#else
+    _handle = dlopen(cstr, RTLD_NOW | RTLD_GLOBAL);
 #endif
 
     if (_handle == 0)

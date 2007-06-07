@@ -46,5 +46,4 @@ LIBRARIES = \
 include $(ROOT)/mak/library.mak
 
 poststarttests:
-# NOTE: This test is disabled awaiting a fix for the problem in Bug 6455.
-#	@cimcli -n root/SampleProvider ni TestCMPI_CXX_Class
+	@cimcli -n root/SampleProvider ni TestCMPI_CXX_Class

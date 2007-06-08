@@ -273,12 +273,23 @@ void HTTPAcceptor::_bind()
     if (_localConnection)
     {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+        //
+        // Make sure the local domain socket can be owned by the cimserver
+        // user.  Otherwise, the bind may fail with a vague "bind failed"
+        // error.
+        //
+        if (System::exists(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))
+        {
+            if (!System::removeFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))
+            {
+                throw CannotRemoveFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+            }
+        }
+
         reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
             AF_UNIX;
         strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
             PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
-        ::unlink(
-            reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
         PEGASUS_ASSERT(false);
 #endif

@@ -117,31 +117,13 @@ void Child(
     Log(LL_TRACE, "%s running as %s (uid=%d, gid=%d)", CIMSERVERMAIN,
         userName, uid, gid);
 
-    /*
-     * Precheck that cimxml.socket is owned by CIMSERVERMAIN process. If
-     * not, then the bind would fail in the CIMSERVERMAIN process much
-     * later and the cause of the error would be difficult to determine.
-     */
-
-    /* Flawfinder: ignore */
-    if (access(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, F_OK) == 0)
-    {
-        struct stat st;
-
-        if (stat(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, &st) != 0 ||
-            (int)st.st_uid != uid ||
-            (int)st.st_gid != gid)
-        {
-            Fatal(FL, "%s process cannot stat or does not own %s",
-                CIMSERVERMAIN, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
-        }
-    }
-
     /* Exec child process. */
 
     /* Flawfinder: ignore */
-    if (execv(path, execArgv) != 0)
-        Fatal(FL, "failed to exec %s", path);
+    execv(path, execArgv);
+
+    /* If we are still here, the exec failed. */
+    Fatal(FL, "failed to exec %s", path);
 
     exit(0);
 }

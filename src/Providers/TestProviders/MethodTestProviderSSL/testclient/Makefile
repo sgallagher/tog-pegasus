@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -74,8 +74,6 @@ include $(ROOT)/mak/program.mak
 cleanup:
 	@$(RM) $(PEGASUS_HOME)/testSSLClient_Cert.pem
 	@$(RM) $(PEGASUS_HOME)/testSSLClient_Key.pem
-	@$(RM) $(PEGASUS_HOME)/testsslserver.cert
-	@$(RM) $(PEGASUS_HOME)/testsslserver.key
 	@$(RM) $(PEGASUS_HOME)/ssltest_setup
 
 tests:
@@ -85,13 +83,10 @@ create_Client_Certificates: $(OPENSSL_CNF_CLIENT) testsslclient.txt
 	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
 
         # Create a self signed Client Certificate
-	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testsslclient.key 1024
-	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF_CLIENT) -new -key $(PEGASUS_HOME)/testsslclient.key -out $(PEGASUS_HOME)/testsslclient.csr < testsslclient.txt
-	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testsslclient.csr -out $(PEGASUS_HOME)/testsslclient.cert -req -signkey $(PEGASUS_HOME)/testsslclient.key $(SETSERIAL_0) -days 356
+	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testSSLClient_Key.pem 1024
+	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF_CLIENT) -new -key $(PEGASUS_HOME)/testSSLClient_Key.pem -out $(PEGASUS_HOME)/testsslclient.csr < testsslclient.txt
+	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testsslclient.csr -out $(PEGASUS_HOME)/testSSLClient_Cert.pem -req -signkey $(PEGASUS_HOME)/testSSLClient_Key.pem $(SETSERIAL_0) -days 356
 	@$(RM) $(PEGASUS_HOME)/testsslclient.csr
-
-	@$(MOVE) $(PEGASUS_HOME)/testsslclient.cert $(PEGASUS_HOME)/testSSLClient_Cert.pem
-	@$(MOVE) $(PEGASUS_HOME)/testsslclient.key $(PEGASUS_HOME)/testSSLClient_Key.pem
 
 create_Server_Certificates: $(OPENSSL_CNF_SERVER) testsslserver.txt
 	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
@@ -110,11 +105,10 @@ ifndef PEGASUS_PAM_AUTHENTICATION
 endif
 
 create_trustStore:
-#This is for seperate Client certificate
+        # Server TrustStore
 	cimtrust -a -Ts -U $(CURRENT_USER) -f $(PEGASUS_HOME)/testSSLClient_Cert.pem
-#This is for same server and Client certificate
-#	cimtrust -a -Ts -U $(CURRENT_USER) -f $(PEGASUS_HOME)/testsslserver.cert
 
+        # Client TrustStore
 	@$(MOVE) $(PEGASUS_HOME)/client.pem $(PEGASUS_HOME)/client_org.pem
 	@$(COPY) $(PEGASUS_HOME)/testsslserver.cert $(PEGASUS_HOME)/client.pem
 
@@ -149,16 +143,14 @@ endif
 	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStore
 	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStoreUserName
 	$(PEGASUS_HOME)/bin/cimconfig -g sslClientVerificationMode
-#This is for seperate client certificates
+
 	$(PEGASUS_HOME)/bin/$(PROGRAM) $(PEGASUS_HOME)/testSSLClient_Cert.pem $(PEGASUS_HOME)/testSSLClient_Key.pem $(PEGASUS_HOME)/ssl.rnd
-#This is for same server and Client Certificate
-#	$(PEGASUS_HOME)/bin/$(PROGRAM) $(PEGASUS_HOME)/server.pem $(PEGASUS_HOME)/file.pem $(PEGASUS_HOME)/ssl.rnd
 
 	@$(ECHO) Stopping cimserver
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 	@$(ECHO) Stopped.
 	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf.bkup $(PEGASUS_HOME)/cimserver_planned.conf
-	
+
 	@$(MOVE) $(PEGASUS_HOME)/server_org.pem $(PEGASUS_HOME)/server.pem
 	@$(MOVE) $(PEGASUS_HOME)/file_org.pem $(PEGASUS_HOME)/file.pem
 	@$(MOVE) $(PEGASUS_HOME)/client_org.pem $(PEGASUS_HOME)/client.pem

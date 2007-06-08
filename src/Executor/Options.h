@@ -34,6 +34,8 @@
 #ifndef _Executor_Options_h
 #define _Executor_Options_h
 
+#include "Defines.h"
+
 struct Options
 {
     int dump; /* --dump */
@@ -43,6 +45,7 @@ struct Options
     int bindVerbose; /* -X */
 };
 
+EXECUTOR_LINKAGE
 void GetOptions(int* argc, char*** argv, struct Options* options);
 
 #endif /* _Executor_Options_h */

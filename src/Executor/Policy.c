@@ -71,23 +71,6 @@
 /*
 **==============================================================================
 **
-** Policy
-**
-**     This structure defines a policy rule.
-**
-**==============================================================================
-*/
-
-struct Policy
-{
-    enum ExecutorMessageCode messageCode;
-    const char* arg1;
-    const char* arg2;
-};
-
-/*
-**==============================================================================
-**
 ** _staticPolicyTable[]
 **
 **     This array defines the static policy table for the executor.
@@ -206,7 +189,7 @@ static const size_t _staticPolicyTableSize =
 **==============================================================================
 */
 
-static int CheckPolicy(
+int CheckPolicy(
     const struct Policy* policyTable,
     size_t policyTableSize,
     enum ExecutorMessageCode messageCode,

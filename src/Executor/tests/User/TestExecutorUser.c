@@ -50,6 +50,11 @@ int main()
     assert(GetUserName(uid, username) == 0);
     assert(strcmp(username, "root") == 0);
 
+    assert(GetUserInfo("xinvaliduserx", &uid, &gid) != 0);
+
+    assert(GetUserName(-1492, username) != 0);
+    assert(strlen(username) == 0);
+
     printf("+++++ passed all tests\n");
     return 0;
 }

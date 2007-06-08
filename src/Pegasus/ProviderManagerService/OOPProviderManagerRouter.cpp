@@ -416,10 +416,6 @@ void ProviderAgentContainer::_startAgentProcess()
             _moduleName));
     }
 
-    // Set the session key to be used for requests emanating from this read
-    // pipe (i.e., the provider agent). Examples include requests made by the
-    // provider with the CIMOMHandle or indications delivered by the provider.
-
 # if defined(PEGASUS_HAS_SIGNALS)
     _pid = pid;
 # endif

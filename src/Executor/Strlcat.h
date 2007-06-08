@@ -65,17 +65,26 @@ static size_t Strlcat(char* dest, const char* src, size_t size)
     /* If no-null terminator found, return size. */
 
     if (i == size)
-        return size;
+    {
+        int j = 0;
+        while (src[j])
+        {
+            j++;
+        }
+        return size + j;
+    }
 
     /* Copy src characters to dest. */
 
     for (j = 0; src[j] && i + 1 < size; i++, j++)
         dest[i] = src[j];
 
-    /* Null terminate size non-zero. */
+    /* Null terminate the destination.  We are guaranteed that size is
+     * non-zero, because the (i == size) condition above is always true
+     * when size is zero.
+     */
 
-    if (size > 0)
-        dest[i] = '\0';
+    dest[i] = '\0';
 
     while (src[j])
     {

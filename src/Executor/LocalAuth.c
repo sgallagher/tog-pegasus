@@ -261,8 +261,9 @@ int FinishLocalAuthentication(
 
     int rc = CheckLocalAuthToken(challengeFilePath, response);
 
-    if (challengeFilePath)
-        unlink((char*)challengeFilePath);
+    /* Clean up the file now that the authentication is complete. */
+
+    unlink(challengeFilePath);
 
     return rc;
 }

@@ -100,6 +100,17 @@ int main()
         assert(strcmp(buffer, "1") == 0);
     }
 
+    {
+        char buffer[1024];
+        size_t n;
+        strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+        n = Strlcpy(buffer, "1234567890", 0);
+        assert(n == 10);
+        assert(strcmp(
+            buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") == 0);
+    }
+
     printf("+++++ passed all tests\n");
 
     return 0;

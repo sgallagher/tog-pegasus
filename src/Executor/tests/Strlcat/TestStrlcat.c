@@ -73,7 +73,7 @@ int main()
         memset(buf, 'X', sizeof(buf));
 
         n = Strlcat(buf, "abc", sizeof(buf));
-        assert(n == sizeof(buf));
+        assert(n == sizeof(buf) + 3);
         assert(memcmp(buf, "XXXXXXXX", 8) == 0);
     }
 
@@ -90,6 +90,17 @@ int main()
         n = Strlcat(buf, "5678", sizeof(buf));
         assert(n == 8);
         assert(strcmp(buf, "1234567") == 0);
+    }
+
+    {
+        char buf[8];
+        size_t n;
+        memset(buf, 'X', sizeof(buf));
+
+        *buf = '\0';
+        n = Strlcat(buf, "1234", 0);
+        assert(n == 4);
+        assert(strlen(buf) == 0);
     }
 
     printf("+++++ passed all tests\n");

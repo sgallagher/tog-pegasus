@@ -34,12 +34,45 @@
 #ifndef _Executor_Policy_h
 #define _Executor_Policy_h
 
+#include <stdlib.h>
+#include "Defines.h"
+#include "Messages.h"
+
+/*
+**==============================================================================
+**
+** Policy
+**
+**     This structure defines a policy rule.
+**
+**==============================================================================
+*/
+
+struct Policy
+{
+    enum ExecutorMessageCode messageCode;
+    const char* arg1;
+    const char* arg2;
+};
+
+EXECUTOR_LINKAGE
+int CheckPolicy(
+    const struct Policy* policyTable,
+    size_t policyTableSize,
+    enum ExecutorMessageCode messageCode,
+    const char* arg1,
+    const char* arg2);
+
+EXECUTOR_LINKAGE
 int CheckOpenFilePolicy(const char* path, int mode);
 
+EXECUTOR_LINKAGE
 int CheckRemoveFilePolicy(const char* path);
 
+EXECUTOR_LINKAGE
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath);
 
+EXECUTOR_LINKAGE
 void DumpPolicy(int expandMacros);
 
 #endif /* _Executor_Policy_h */

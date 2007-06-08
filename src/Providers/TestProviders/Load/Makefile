@@ -174,13 +174,6 @@ ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-nroot/PG_InterOp" EmbeddedInstanceProviderR.mof
 endif
 
-ifdef PEGASUS_HAS_SSL
-	@ $(ECHO) +++++ Loading MethodTestProviderSSL class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" MethodTestProviderSSL.mof
-	@ $(ECHO) +++++ Registering MethodTestProviderSSL ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" MethodTestProviderSSLR.mof
-endif
-
 ##
 ## Load the test MOF with cimmof.  (Do not remove the existing repository.)
 ##
@@ -275,13 +268,6 @@ ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
 
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-nroot/PG_InterOp" EmbeddedInstanceProviderR.mof
-endif
-
-ifdef PEGASUS_HAS_SSL
-	@ $(ECHO) +++++ Loading MethodTestProviderSSL class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmof "-n$(TESTPROVIDERNS)" MethodTestProviderSSL.mof
-	@ $(ECHO) +++++ Registering MethodTestProviderSSL ...
-	@ cimmof "-n$(INTEROPNS)" MethodTestProviderSSLR.mof
 endif
 
 ##

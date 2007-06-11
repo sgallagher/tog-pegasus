@@ -87,7 +87,6 @@ class TestCMPI_ExecQuery : TestCMPI_Instance
 
 class TestCMPI_Method : TestCMPI_Parent
 {
-
 	uint32 TestCMPIBroker (
 	 [IN, Description (
 		"The requested are to test different CMPI data structure operations."),
@@ -102,16 +101,16 @@ class TestCMPI_Method : TestCMPI_Parent
 	Uint32 returnUint32();
 	[EmbeddedObject]
     string returnInstance();
-
-
 	[EmbeddedInstance("TestCMPI_Parent")]
     string processEmbeddedInstance(
          [IN, EmbeddedInstance("TestCMPI_Parent")]
        string inputInstance,
          [OUT, EmbeddedInstance("TestCMPI_Parent")]
        string outputInstance);
-
 	datetime returnDateTime();
+    Uint32 testArrayTypes();
+    Uint32 testErrorPaths();
+    Uint32 testSimpleTypes();
 };
 
 class TestCMPI_Fail_1: TestCMPI_Parent

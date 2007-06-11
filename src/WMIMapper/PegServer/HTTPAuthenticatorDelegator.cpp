@@ -86,7 +86,8 @@ void HTTPAuthenticatorDelegator::enqueue(Message* message)
 
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
-    Buffer& message)
+    Buffer& message,
+	Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendResponse");
@@ -107,7 +108,8 @@ void HTTPAuthenticatorDelegator::_sendResponse(
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 void HTTPAuthenticatorDelegator::_sendSuccess(
     Uint32 queueId,
-    const String& authResponse)
+    const String& authResponse,
+	Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendSuccess");
@@ -127,7 +129,8 @@ void HTTPAuthenticatorDelegator::_sendSuccess(
 
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
-    const String& authResponse)
+    const String& authResponse,
+	Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendChallenge");
@@ -139,7 +142,7 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     Buffer message;
     XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
-    _sendResponse(queueId, message);
+    _sendResponse(queueId, message, false);
 
     PEG_METHOD_EXIT();
 }
@@ -148,7 +151,8 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
     Uint32 queueId,
     const String& status,
     const String& cimError,
-    const String& pegasusError)
+    const String& pegasusError,
+	Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendHttpError");
@@ -163,7 +167,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
         cimError,
         pegasusError);
 
-    _sendResponse(queueId, message);
+    _sendResponse(queueId, message, false);
 
     PEG_METHOD_EXIT();
 }
@@ -338,7 +342,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                     if (!String::equal(authResp, String::EMPTY))
                     {
-                        _sendChallenge(queueId, authResp);
+                        _sendChallenge(queueId, authResp, false);
                     }
                     else
                     {
@@ -406,7 +410,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 #endif
                     if (!String::equal(authResp, String::EMPTY))
                     {
-                        _sendChallenge(queueId, authResp);
+                        _sendChallenge(queueId, authResp, false);
                     }
                     else
                     {
@@ -707,7 +711,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
             if (!String::equal(authResp, String::EMPTY))
             {
-                _sendChallenge(queueId, authResp);
+                _sendChallenge(queueId, authResp, false);
             }
             else
             {

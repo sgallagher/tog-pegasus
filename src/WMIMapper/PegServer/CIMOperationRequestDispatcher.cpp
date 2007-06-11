@@ -119,7 +119,7 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
 	// Use the same key as used in the request:
 
-	response->setKey(request->getKey());
+	//response->setKey(request->getKey());
 	response->dest = request->queueIds.top();
 
 	if( true == Base::_enqueueResponse(request, response))
@@ -278,7 +278,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 		"CIMOperationRequestDispatcher::handleGetClassRequest");
 
 	AutoPtr<CIMGetClassResponseMessage> response(
-		dynamic_cast<CIMGetClassResponseMessage>(
+		dynamic_cast<CIMGetClassResponseMessage *>(
 			request->buildResponse()));
 
 	WMIClassProvider provider;
@@ -330,7 +330,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 		"CIMOperationRequestDispatcher::handleGetInstanceRequest");
 
 	AutoPtr<CIMGetInstanceResponseMessage> response(
-		dynamic_cast<CIMGetInstanceResponseMessage>(
+		dynamic_cast<CIMGetInstanceResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -385,7 +385,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 		"CIMOperationRequestDispatcher::handleDeleteClassRequest");
 
 	AutoPtr<CIMDeleteClassResponseMessage> response(
-		dynamic_cast<CIMDeleteClassResponseMessage>(
+		dynamic_cast<CIMDeleteClassResponseMessage *>(
 			request->buildResponse()));
 
 	WMIClassProvider provider;
@@ -434,7 +434,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 		"CIMOperationRequestDispatcher::handleDeleteInstanceRequest");
 
 	AutoPtr<CIMDeleteInstanceResponseMessage> response(
-		dynamic_cast<CIMDeleteInstanceResponseMessage>(
+		dynamic_cast<CIMDeleteInstanceResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -483,7 +483,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 		"CIMOperationRequestDispatcher::handleCreateClassRequest");
 
 	AutoPtr<CIMCreateClassResponseMessage> response(
-		dynamic_cast<CIMCreateClassResponseMessage>(
+		dynamic_cast<CIMCreateClassResponseMessage *>(
 			request->buildResponse()));
 
 	WMIClassProvider provider;
@@ -532,7 +532,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 		"CIMOperationRequestDispatcher::handleCreateInstanceRequest");
 
 	AutoPtr<CIMCreateInstanceResponseMessage> response(
-		dynamic_cast<CIMCreateInstanceResponseMessage>(
+		dynamic_cast<CIMCreateInstanceResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -581,7 +581,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 		"CIMOperationRequestDispatcher::handleModifyClassRequest");
 
 	AutoPtr<CIMModifyClassResponseMessage> response(
-		dynamic_cast<CIMModifyClassResponseMessage>(
+		dynamic_cast<CIMModifyClassResponseMessage *>(
 			request->buildResponse()));
 
 	WMIClassProvider provider;
@@ -630,7 +630,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 		"CIMOperationRequestDispatcher::handleModifyInstanceRequest");
 
 	AutoPtr<CIMModifyInstanceResponseMessage> response(
-		dynamic_cast<CIMModifyInstanceResponseMessage>(
+		dynamic_cast<CIMModifyInstanceResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -681,7 +681,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 		"CIMOperationRequestDispatcher::handleEnumerateClassesRequest");
 
 	AutoPtr<CIMEnumerateClassesResponseMessage> response(
-		dynamic_cast<CIMEnumerateClassesResponseMessage>(
+		dynamic_cast<CIMEnumerateClassesResponseMessage *>(
 			request->buildResponse()));
 
 	WMIClassProvider provider;
@@ -734,7 +734,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 		"CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest");
 
 	AutoPtr<CIMEnumerateClassNamesResponseMessage> response(
-		dynamic_cast<CIMEnumerateClassNamesResponseMessage>(
+		dynamic_cast<CIMEnumerateClassNamesResponseMessage *>(
 			request->buildResponse()));
 
 	WMIClassProvider provider;
@@ -784,7 +784,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 		"CIMOperationRequestDispatcher::handleEnumerateInstanceRequest");
 
 	AutoPtr<CIMEnumerateInstancesResponseMessage> response(
-		dynamic_cast<CIMEnumerateInstancesResponseMessage>(
+		dynamic_cast<CIMEnumerateInstancesResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -835,7 +835,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		"CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
 
 	AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
-		dynamic_cast<CIMEnumerateInstanceNamesResponseMessage>(
+		dynamic_cast<CIMEnumerateInstanceNamesResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -884,7 +884,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 		"CIMOperationRequestDispatcher::handleAssociatorsRequest");
 
 	AutoPtr<CIMAssociatorsResponseMessage> response(
-		dynamic_cast<CIMAssociatorsResponseMessage>(
+		dynamic_cast<CIMAssociatorsResponseMessage *>(
 			request->buildResponse()));
 
 	WMIAssociatorProvider provider;
@@ -943,7 +943,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 		"CIMOperationRequestDispatcher::handleAssociatorNamesRequest");
 
 	AutoPtr<CIMAssociatorNamesResponseMessage> response(
-		dynamic_cast<CIMAssociatorNamesResponseMessage>(
+		dynamic_cast<CIMAssociatorNamesResponseMessage *>(
 			request->buildResponse()));
 
 	WMIAssociatorProvider provider;
@@ -996,7 +996,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 		"CIMOperationRequestDispatcher::handleReferencesRequest");
 
 	AutoPtr<CIMReferencesResponseMessage> response(
-		dynamic_cast<CIMReferencesResponseMessage>(
+		dynamic_cast<CIMReferencesResponseMessage *>(
 			request->buildResponse()));
 
 	WMIReferenceProvider provider;
@@ -1053,7 +1053,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 		"CIMOperationRequestDispatcher::handleReferenceNamesRequest");
 
 	AutoPtr<CIMReferenceNamesResponseMessage> response(
-		dynamic_cast<CIMReferenceNamesResponseMessage>(
+		dynamic_cast<CIMReferenceNamesResponseMessage *>(
 			request->buildResponse()));
 
 	WMIReferenceProvider provider;
@@ -1104,7 +1104,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 		"CIMOperationRequestDispatcher::handleGetPropertyRequest");
 
 	AutoPtr<CIMGetPropertyResponseMessage> response(
-		dynamic_cast<CIMGetPropertyResponseMessage>(
+		dynamic_cast<CIMGetPropertyResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -1153,7 +1153,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 		"CIMOperationRequestDispatcher::handleSetPropertyRequest");
 
 	AutoPtr<CIMSetPropertyResponseMessage> response(
-		dynamic_cast<CIMSetPropertyResponseMessage>(
+		dynamic_cast<CIMSetPropertyResponseMessage *>(
 			request->buildResponse()));
 
 	WMIInstanceProvider provider;
@@ -1234,7 +1234,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 		"CIMOperationRequestDispatcher::handleGetQualifierRequest");
 
 	AutoPtr<CIMGetQualifierResponseMessage> response(
-		dynamic_cast<CIMGetQualifierResponseMessage>(
+		dynamic_cast<CIMGetQualifierResponseMessage *>(
 			request->buildResponse()));
 
 	WMIQualifierProvider provider;
@@ -1282,7 +1282,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 		"CIMOperationRequestDispatcher::handleSetQualifierRequest");
 
 	AutoPtr<CIMSetQualifierResponseMessage> response(
-		dynamic_cast<CIMSetQualifierResponseMessage>(
+		dynamic_cast<CIMSetQualifierResponseMessage *>(
 			request->buildResponse()));
 
 	WMIQualifierProvider provider;
@@ -1330,7 +1330,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 		"CIMOperationRequestDispatcher::handleDeleteQualifierRequest");
 
 	AutoPtr<CIMDeleteQualifierResponseMessage> response(
-		dynamic_cast<CIMDeleteQualifierResponseMessage>(
+		dynamic_cast<CIMDeleteQualifierResponseMessage *>(
 			request->buildResponse()));
 
 	WMIQualifierProvider provider;
@@ -1378,7 +1378,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 		"CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest");
 
 	AutoPtr<CIMEnumerateQualifiersResponseMessage> response(
-		dynamic_cast<CIMEnumerateQualifiersResponseMessage>(
+		dynamic_cast<CIMEnumerateQualifiersResponseMessage *>(
 			request->buildResponse()));
 
 	WMIQualifierProvider provider;
@@ -1425,7 +1425,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 		"CIMOperationRequestDispatcher::handleExecQueryRequest");
 
 	AutoPtr<CIMExecQueryResponseMessage> response(
-		dynamic_cast<CIMExecQueryResponseMessage>(
+		dynamic_cast<CIMExecQueryResponseMessage *>(
 			request->buildResponse()));
 
 	WMIQueryProvider provider;
@@ -1474,7 +1474,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 		"CIMOperationRequestDispatcher::handleInvokeMethodRequest");
 
 	AutoPtr<CIMInvokeMethodResponseMessage> response(
-		dynamic_cast<CIMInvokeMethodResponseMessage>(
+		dynamic_cast<CIMInvokeMethodResponseMessage *>(
 			request->buildResponse()));
 
 	/*

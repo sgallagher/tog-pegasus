@@ -111,8 +111,7 @@ public:
     void addAcceptor(
         Boolean localConnection,
         Uint32 portNumber,
-        Boolean useSSL,
-        Boolean exportConnection);
+        Boolean useSSL);
 
     /** Bind the acceptors to the specified listen sockets.
 	@exception - This function may receive exceptions from
@@ -184,7 +183,7 @@ private:
     SSLContextManager* _sslContextMgr;
     
     void _init(void);
-    SSLContext* _getSSLContext(Uint32 contextType);
+    SSLContext* _getSSLContext();
 };
 
 PEGASUS_NAMESPACE_END

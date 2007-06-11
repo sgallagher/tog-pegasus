@@ -75,7 +75,7 @@ class WMIClientRep : public CIMClientInterface
 {
 public:
 
-    WMIClientRep(Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    WMIClientRep(Uint32 timeoutMilliseconds = PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
     ~WMIClientRep();
 

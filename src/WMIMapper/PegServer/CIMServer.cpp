@@ -480,27 +480,41 @@ void CIMServer::bind()
 
 void CIMServer::runForever()
 { 
+    struct timeval now;
+ 
     // Note: Trace code in this method will be invoked frequently.
-
     if(!_dieNow)
-	{
-    
-		
-	if(false == _monitor->run(500000))
-    {
-      try
-      {
-        MessageQueueService::_check_idle_flag = 1;
-        MessageQueueService::_polling_sem.signal();
+	  {    
+  	    _monitor->run(500000);
+
+        static struct timeval lastIdleCleanupTime = {0, 0};
+        Time::gettimeofday(&now);
+      
+        if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
+        {
+            lastIdleCleanupTime.tv_sec = now.tv_sec;
+       
+            try
+            {
+                //_providerManager->unloadIdleProviders();
+                MessageQueueService::get_thread_pool()->cleanupIdleThreads();
+            }
+            catch (...)
+            {
+            }
+        }
         
-		//NOT USED ON WMI MAPPER
-        //_providerManager->unloadIdleProviders();
-      }
-      catch(...)
-      {
-      }
-    }
-      }  
+        if (handleShutdownSignal)
+        {
+        	shutdown(); 
+            Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+                "CIMServer::runForever - signal received.  Shutting down.");
+            //ShutdownService::getInstance(this)->shutdown(true, 10, false);
+            // Set to false must be after call to shutdown.  See
+            // stopClientConnection.
+            handleShutdownSignal = false;
+        }
+    }  
 }
 
 

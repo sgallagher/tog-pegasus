@@ -141,10 +141,11 @@ Boolean LocalAuthenticationHandler::authenticate(
 #ifdef PEGASUS_ZOS_SECURITY
     if ( !CheckProfileCIMSERVclassWBEM(userName, __READ_RESOURCE) )
     {
-        Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+        Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
             "Security.Authentication.LocalAuthenticationHandler"
             ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
-            "Request UserID $0 doesn't have READ permission to profile CIMSERV CL(WBEM).",
+            "Request UserID $0 doesn't have READ permission"
+            " to profile CIMSERV CL(WBEM).",
             userName);
         return false;
     }

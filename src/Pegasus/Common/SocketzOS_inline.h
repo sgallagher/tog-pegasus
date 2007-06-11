@@ -35,6 +35,11 @@
 #define SocketzOS_inline_h
 
 #include <Pegasus/Common/Logger.h>
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/Common/safCheckzOS_inline.h>
+#endif
 #include <sys/ioctl.h>
 #include <net/rtrouteh.h>
 #include <net/if.h>
@@ -205,7 +210,7 @@ int MP_Socket::ATTLS_zOS_query()
        case(TTLS_SEC_SRV_CA_REQD):
        {
            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-               "---> ATTLS Securtiy Type is valid but no SAFCHK.");
+               "---> ATTLS Security Type is valid but no SAFCHK.");
            PEG_METHOD_EXIT();
            return 1;
        }
@@ -217,8 +222,22 @@ int MP_Socket::ATTLS_zOS_query()
            _username[ioc.TTLSi_UserID_Len]=0;   // null terminated string
            __etoa(_username);                   // the user name is in EBCDIC !
            PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
-               "---> ATTLS Securtiy Type is SAFCHK. Resolved user ID \'%s\'",
+               "---> ATTLS Security Type is SAFCHK. Resolved user ID \'%s\'",
                _username));
+
+               // Check if the user is authorized to CIMSERV
+#ifdef PEGASUS_ZOS_SECURITY
+           if ( !CheckProfileCIMSERVclassWBEM(_username, __READ_RESOURCE) )
+           {
+               Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, 
+                   Logger::WARNING,
+                   "Pegasus.Common.SocketzOS_inline.NOREAD_CIMSERV_ACCESS",
+                   "Request UserID $0 doesn't have READ permission"
+                   " to profile CIMSERV CL(WBEM).",
+                   _username);
+               return -1;
+           }
+#endif
            PEG_METHOD_EXIT();
            return 1;
 

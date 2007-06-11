@@ -35,6 +35,20 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
+##
+## Add -DPEGASUS_STRESS_BUFFER_MEMORY if PEGASUS_STRESS_BUFFER_MEMORY 
+## environment variable defined.
+##
+ifdef PEGASUS_STRESS_BUFFER_MEMORY
+    ifeq ($(PEGASUS_STRESS_BUFFER_MEMORY),true)
+        LOCAL_DEFINES += -DPEGASUS_STRESS_BUFFER_MEMORY
+    else
+        ifneq ($(PEGASUS_STRESS_BUFFER_MEMORY),false)
+            $(error "PEGASUS_STRESS_BUFFER_MEMORY must be true or false")
+        endif
+    endif
+endif
+
 PROGRAM = TestBuffer
 SOURCES = Buffer.cpp
 

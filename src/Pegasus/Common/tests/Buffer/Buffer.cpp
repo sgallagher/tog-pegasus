@@ -212,6 +212,8 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(b.size() == 0);
     }
 
+#if defined(PEGASUS_STRESS_BUFFER_MEMORY)
+
     cout << "Testing the limits of Buffer Class by stressing the memory..."
          << endl;
 
@@ -316,6 +318,8 @@ int main(int argc, char** argv)
         }
         PEGASUS_TEST_ASSERT( exceptionCaught);
     }
+
+#endif /* defined(PEGASUS_STRESS_BUFFER_MEMORY) */
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

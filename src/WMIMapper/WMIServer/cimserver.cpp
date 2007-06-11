@@ -158,7 +158,11 @@ public:
         return PEGASUS_CIMSERVER_START_FILE;
     }
 
-    int cimserver_run(int argc, char** argv, bool shutdownOption);
+    int cimserver_run(
+        int argc,
+        char** argv,
+        Boolean shutdownOption,
+        Boolean debugOutputOption);
 
     void cimserver_stop(void);
 };
@@ -301,6 +305,7 @@ int main(int argc, char** argv)
 {
     String pegasusHome;
     Boolean shutdownOption = false;
+    Boolean debugOutputOption = false;
 
 //l10n
 // Set Message loading to process locale
@@ -459,7 +464,8 @@ setlocale(LC_ALL, "");
     // Do the plaform specific run
     //
 
-    return _cimServerProcess->platform_run( argc, argv, shutdownOption );
+    return _cimServerProcess->platform_run(
+        argc, argv, shutdownOption, debugOutputOption);
 }
 
 void CIMServerProcess::cimserver_stop()
@@ -480,7 +486,11 @@ void CIMServerProcess::cimserver_stop()
 // specific runs may need to deal with bettter (instead of exit(), etc).
 //
 
-int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOption )
+int CIMServerProcess::cimserver_run(
+    int argc,
+    char** argv,
+    Boolean shutdownOption,
+    Boolean debugOutputOption)
 {
     String logsDirectory;
     Boolean daemonOption = false;
@@ -760,7 +770,7 @@ MessageLoader::_useProcessLocale = false;
 
         if (enableHttpConnection)
         {
-            _cimServer->addAcceptor(false, portNumberHttp, false, false);
+            _cimServer->addAcceptor(false, portNumberHttp, false);
 
             Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
@@ -770,7 +780,7 @@ MessageLoader::_useProcessLocale = false;
 
         if (enableHttpsConnection)
         {
-            _cimServer->addAcceptor(false, portNumberHttps, true, false);
+            _cimServer->addAcceptor(false, portNumberHttps, true);
 
             Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,

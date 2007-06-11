@@ -59,6 +59,10 @@ ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
     DIRS += Shutdown
 endif
 
+ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
+    DIRS += WMIMapper
+endif
+
 DIRS += Pegasus/DynListener/Service
 
 include $(ROOT)/mak/recurse.mak

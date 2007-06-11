@@ -2365,6 +2365,15 @@ not be valid."}
         */
         Server.CIMServer.NO_CONSOLE_THREAD.PEGASUS_OS_ZOS:string { "PGS06203: CIM Server Console command thread cannot be created: {0} ( errno {1}, reason code 0x{2} )."}
 
+        /**
+        * @note PGS06204:
+        *    Substitution {0} is the error text of the opperating system.
+        *    Substitution {1} and {2} are numbers
+        *    Do not translate 'Console Communication Service'
+        *
+        */
+        Server.CIMServer.CONSOLE_ERROR.PEGASUS_OS_ZOS:string { "PGS06204: Console Communication Service failed: {0} ( errno {1}, reason code 0x{2} )."}
+
 
 
         // ==========================================================

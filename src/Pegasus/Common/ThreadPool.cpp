@@ -328,7 +328,9 @@ ThreadStatus ThreadPool::allocate_and_awaken(
 
         // initialize the thread data with the work function and parameters
         PEG_TRACE((TRC_THREAD, Tracer::LEVEL4,
-            "Initializing thread with work function and parameters: parm = %p",
+            "Initializing thread(%s)"
+                " with work function and parameters: parm = %p",
+            Threads::id(th->getThreadHandle().thid).buffer,
             parm));
 
         th->delete_tsd("work func");

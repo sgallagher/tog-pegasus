@@ -2186,10 +2186,17 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     if (response->isComplete())
     {
         // these are per provider instantiations
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            "Provider response is complete.");
         op->removeRequest();
         delete asyncRequest;
         op->release();
         service->return_op(op);
+    }
+    else
+    {
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            "Provider response is incomplete.");
     }
 
     // After resequencing, this flag represents the completion status of
@@ -2200,8 +2207,15 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     if (isComplete)
     {
         // also deletes the copied request attached to it
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            "Entire response to a request is complete.");
         delete poA;
         poA = 0;
+    }
+    else
+    {
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            "The response to a request is not complete.");
     }
 
     PEG_METHOD_EXIT();

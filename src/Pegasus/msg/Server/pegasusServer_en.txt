@@ -6109,6 +6109,12 @@ CIM server listening on HTTPS port {0}."}
         */
         Security.Authentication.LocalAuthenticationHandler.NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS:string {"PGS17400: Request UserID {0} does not have READ permission to profile CIMSERV CL(WBEM)."}
 
+        /**
+        * @note  PGS17401:
+        *    Substitution {0} is a user name (a string)
+        */
+        Security.Authentication.LocalAuthenticationHandler.LOCAL_AUTHENTICATION_FAILED:string {"PGS17401: Local Authentication failed for user {0}."}
+
         // ==========================================================
         // Messages for Security LocalAuthFile
         //  Please use message prefix "PGS17600"

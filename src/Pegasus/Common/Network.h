@@ -57,9 +57,13 @@
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #   ifdef FD_SETSIZE
-#       error "<Pegasus/Common/Network.h>: FD_SETSIZE is already defined. \
- This file must be included prior to any header file that defines \
- FD_SETSIZE, such as <windows.h>, <winsock.h>, or <winsock2.h>."
+#       ifndef PEGASUS_WMIMAPPER
+#           error "<Pegasus/Common/Network.h>: FD_SETSIZE is already defined. \
+             This file must be included prior to any header file that defines \
+             FD_SETSIZE, such as <windows.h>, <winsock.h>, or <winsock2.h>."
+#       else
+#           undef FD_SETSIZE
+#       endif						// PEGASUS_WMIMAPPER
 #   endif
 #   define FD_SETSIZE 1024
 #   include <windows.h>

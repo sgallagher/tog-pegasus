@@ -383,6 +383,12 @@
  ++++ calling CMGetKeyAt
  ++++  CMGetKeyCount : (CMPI_RC_ERR_NO_SUCH_PROPERTY)
  ++++ CMGetKeyAtErrorPath Successful : 0 
+ ++++  Status of CMAddKey of type CMPI_uint16: (CMPI_RC_OK)
+ ++++  Status of CMGetKey of type CMPI_uint16: (CMPI_RC_OK)
+ ++++  Status of CMAddKey of type CMPI_sint16: (CMPI_RC_OK)
+ ++++  Status of CMGetKey of type CMPI_sint16: (CMPI_RC_OK)
+ ++++  Status of CMAddKey of type CMPI_boolean: (CMPI_RC_OK)
+ ++++  Status of CMGetKey of type CMPI_boolean: (CMPI_RC_OK)
  ObjectPath SetHostname Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
  ObjectPath setNameSpace Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
  ObjectPath SetClassName Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
@@ -588,6 +594,268 @@
  ++++ (CMPI_RC_OK)
  Unknown type of data [B0] for the Operation parameter.
  ++++ Calling CMReturnData+Done
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [testArrayTypes]: 
+ ++++  make_ObjectPath: CMNewObjectPath
+ ++++  CMNewObjectPath : (CMPI_RC_OK)
+ ++++  Entering testArrayTypes
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_uint32A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_uint32A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_uint32_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_uint32_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_uint32_array is of type CMPI_uint32A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_uint16A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_uint16A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_uint16_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_uint16_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_uint16_array is of type CMPI_uint16A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_uint8A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_uint8A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_uint8_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_uint8_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_uint8_array is of type CMPI_uint8A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_uint64A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_uint64A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_uint64_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_uint64_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_uint64_array is of type CMPI_uint64A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_sint32A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_sint32A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_sint32_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_sint32_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_sint32_array is of type CMPI_sint32A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_sint16A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_sint16A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_sint16_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_sint16_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_sint16_array is of type CMPI_sint16A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_sint8A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_sint8A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_sint8_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_sint8_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_sint8_array is of type CMPI_sint8A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_sint64A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_sint64A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_sint64_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_sint64_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_sint64_array is of type CMPI_sint64A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_real32A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_real32A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_real32_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_real32_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_real32_array is of type CMPI_real32A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_real64A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_real64A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_real64_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_real64_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_real64_array is of type CMPI_real64A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_char16A type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_char16A)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_char16_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_char16_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_char16_array is of type CMPI_char16A 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_booleanA type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_booleanA)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_boolean_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_boolean_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_boolean_array is of type CMPI_booleanA 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_stringA type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_stringA)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_string_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_string_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_string_array is of type CMPI_stringA 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_dateTimeA type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_dateTimeA)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_dateTime_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_dateTime_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.dateTime) : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_dateTime_array is of type CMPI_dateTimeA 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_refA type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_refA)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_ref_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_ref_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.ref) : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_ref_array is of type CMPI_refA 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++ make_Instance: CMNewInstance
+ ++++  CMNewInstance : (CMPI_RC_OK)
+ ++++  Testing for CMPI_instanceA type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_instanceA)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_instance_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_instance_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.inst) : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_instance_array is of type CMPI_instanceA 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for InvalidArray type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (InvalidArray)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name Invalid_array : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [testErrorPaths]: 
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_instance type
+ ++++ Status of CMAddArg with name EmptyInstance : (CMPI_RC_OK)
+ ++++  Testing for CMPI_ref type
+ ++++ Status of CMAddArg with name EmptyRef : (CMPI_RC_OK)
+ ++++  Testing for CMPI_datetime type
+ ++++ Status of CMAddArg with name EmptyDatetime : (CMPI_RC_OK)
+ ++++  Testing for CMPI_chars type
+ ++++ Status of CMAddArg with name EmptyChars : (CMPI_RC_OK)
+ ++++  Testing for CMPI_charsptrA type
+ ++++ Status of CMAddArg with name EmptyCharsPtrA : (CMPI_RC_OK)
+ ++++  Testing for CMPI_charsptr type
+ ++++ Status of CMAddArg with name EmptyCharsPtr : (CMPI_RC_OK)
+ ++++  Testing for CMPI_args type
+ ++++ Status of CMAddArg with name EmptyArgs : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [testSimpleTypes]: 
+ ++++  make_ObjectPath: CMNewObjectPath
+ ++++  CMNewObjectPath : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++ make_Instance: CMNewInstance
+ ++++  CMNewInstance : (CMPI_RC_OK)
+ ++++  Testing for CMPI_instance type
+ ++++ Status of CMAddArg with name CMPI_instance : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_instance : (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.inst) : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_instance is of type CMPI_instance 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_ref type
+ ++++ Status of CMAddArg with name CMPI_ref : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_ref : (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.ref) : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_ref is of type CMPI_ref 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
  --- TestCMPI_Method CMPI InvokeMethod() exited
  --- TestCMPI_Method CMPI InvokeMethod() called
  InvokeMethod: checking for correct classname [TestCMPI_Method]

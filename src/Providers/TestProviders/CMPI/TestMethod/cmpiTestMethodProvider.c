@@ -435,6 +435,687 @@ _createInstance()
   return inst;  
 }
 
+//Testing CMPIArrays with elements of different CMPITypes
+//In this test case CMPIArrays of different CMPITypes are created.
+//Then these arrays are added to CMPIArgs object as a new argument.
+//Then array are retrieved from the CMPIArgs object using their unique name
+// and verified for the expected values.
+static int _testArrayTypes()
+{
+    struct array_types
+    {
+        //Type of the element in the array
+        CMPIType element_type;
+        // Array type
+        CMPIType typeA;
+        // Name of the element type in string format
+        char* typeName; 
+        // Name of the Array type in string format
+        char* typeAName; 
+        // Unique argument name to be used while adding the array 
+        // as an argument to CMPIArgs object
+        char* args_name;
+    }types_arr[] = {
+        {CMPI_uint32, 
+        CMPI_uint32A, 
+        "CMPI_uint32", 
+        "CMPI_uint32A", 
+        "CMPI_uint32_array"},
+
+        {CMPI_uint16, 
+        CMPI_uint16A, 
+        "CMPI_uint16", 
+        "CMPI_uint16A", 
+        "CMPI_uint16_array"},
+
+        {CMPI_uint8, 
+        CMPI_uint8A, 
+        "CMPI_uint8", 
+        "CMPI_uint8A", 
+        "CMPI_uint8_array"},
+
+        {CMPI_uint64, 
+        CMPI_uint64A, 
+        "CMPI_uint64", 
+        "CMPI_uint64A", 
+        "CMPI_uint64_array"},
+
+        {CMPI_sint32, 
+        CMPI_sint32A, 
+        "CMPI_sint32", 
+        "CMPI_sint32A", 
+        "CMPI_sint32_array"},
+
+        {CMPI_sint16, 
+        CMPI_sint16A, 
+        "CMPI_sint16", 
+        "CMPI_sint16A", 
+        "CMPI_sint16_array"},
+
+        {CMPI_sint8,
+        CMPI_sint8A,
+        "CMPI_sint8",
+        "CMPI_sint8A",
+        "CMPI_sint8_array"},
+
+        {CMPI_sint64, 
+        CMPI_sint64A, 
+        "CMPI_sint64", 
+        "CMPI_sint64A", 
+        "CMPI_sint64_array"},
+
+        {CMPI_real32, 
+        CMPI_real32A, 
+        "CMPI_real32", 
+        "CMPI_real32A", 
+        "CMPI_real32_array"},
+
+        {CMPI_real64, 
+        CMPI_real64A, 
+        "CMPI_real64", 
+        "CMPI_real64A", 
+        "CMPI_real64_array"},
+
+        {CMPI_char16, 
+        CMPI_char16A, 
+        "CMPI_char16", 
+        "CMPI_char16A", 
+        "CMPI_char16_array"},
+
+        {CMPI_boolean,
+        CMPI_booleanA,
+        "CMPI_boolean",
+        "CMPI_booleanA",
+        "CMPI_boolean_array"},
+            
+        {CMPI_string, 
+        CMPI_stringA, 
+        "CMPI_string", 
+        "CMPI_stringA", 
+        "CMPI_string_array"},
+
+        {CMPI_dateTime, 
+        CMPI_dateTimeA, 
+        "CMPI_dateTime", 
+        "CMPI_dateTimeA", 
+        "CMPI_dateTime_array"},
+
+        {CMPI_ref, 
+        CMPI_refA, 
+        "CMPI_ref", 
+        "CMPI_refA", 
+        "CMPI_ref_array"},
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT            
+        {CMPI_instance,
+        CMPI_instanceA,
+        "CMPI_instance",
+        "CMPI_instanceA",
+        "CMPI_instance_array"},
+#endif
+//Test case for covering default case in CMPI_Value.cpp 
+// value2CIMValue() function
+        {CMPI_null,
+        CMPI_ARRAY,
+        "Invalid",
+        "InvalidArray",
+        "Invalid_array"}};
+
+    int i ,flag, size;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIStatus rc1 = { CMPI_RC_OK, NULL };
+    CMPIArray *arr = NULL;
+    CMPIString* retNamespace = NULL;
+    CMPIString* retClassname = NULL;
+    CMPIValue value, value1;
+    CMPIData data;
+    CMPIData arr_data;
+    CMPIData dataInst;
+    CMPIData retDataInst;
+    CMPIArgs* args_ptr = NULL;
+    CMPIObjectPath* objPath = make_ObjectPath(_broker, 
+        _Namespace, 
+        _ClassName);
+    CMPIUint64 datetime1, datetime2;
+    const char* str1;
+    const char* str2;
+
+//Size of the array_types array set at the time of preprocessing
+    size = 17;
+#ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT            
+    size = 16;
+#endif    
+      
+    PROV_LOG("++++  Entering testArrayTypes");
+        
+    for ( i = 0 ; i < size; i++)
+    {
+        args_ptr = CMNewArgs(_broker, &rc);
+        PROV_LOG("++++ Status of CMNewArgs : (%s)", 
+            strCMPIStatus (rc));
+
+//Initializing the elements that will constitute the array
+        switch(types_arr[i].element_type)
+        {
+            case CMPI_uint32:
+                value.uint32 = 56;
+                break;
+
+            case CMPI_uint16:
+                value.uint16 = 32;
+                break;
+
+            case CMPI_uint8:
+                value.uint8 = 56;
+                break;
+
+            case CMPI_uint64:
+                value.uint64 = 32;
+                break;
+
+            case CMPI_sint32:
+                value.sint32 = -56;
+                break;
+
+            case CMPI_sint16:
+                value.sint16 = -32;
+                break;
+
+            case CMPI_sint8:
+                value.sint8 = -56;
+                break;
+
+            case CMPI_sint64:
+                value.sint64 = -32;
+                break;
+
+            case CMPI_real32:
+                value.real32 = -32.78;
+                break;
+
+            case CMPI_real64:
+                value.real64 = -899.32;
+                break;
+
+            case CMPI_char16:
+                value.char16 = 'k';
+                break;
+             
+            case CMPI_string:
+                value.string = CMNewString(_broker, "string", &rc);
+                break;
+             
+            case CMPI_boolean:
+                value.boolean = 1;
+                break;
+      
+            case CMPI_dateTime:
+                value.dateTime = CMNewDateTime(_broker, &rc);
+                break;
+ 
+            case CMPI_ref:
+                value.ref = CMNewObjectPath (_broker, 
+                    "root/cimv2", 
+                    "TestCMPI_Instance", 
+                    &rc);
+                break;
+
+            case CMPI_null:
+                value.args = NULL;
+                break;
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CMPI_instance:
+                value.inst = make_Instance(objPath);
+                value1.uint32 = 20;
+                rc = CMSetProperty(value.inst, 
+                    "Property1", 
+                    &value1, 
+                    CMPI_uint32);
+                break;
+#endif
+        }
+
+        PROV_LOG("++++  Testing for %s type", types_arr[i].typeAName);
+        arr = NULL;
+//Testing for NULL array ;
+        rc = CMAddArg (args_ptr, 
+            "EmptyArray", 
+            (CMPIValue *) &arr, 
+            types_arr[i].typeA);
+        PROV_LOG("++++ Status of CMAddArg with name EmptyArray : (%s)", 
+            strCMPIStatus (rc));
+
+//Allocating the space for the array and adding the initialized element to it
+        arr = CMNewArray (_broker, 1, types_arr[i].element_type, &rc);
+        PROV_LOG("++++ Status of creation of CMPIArray : (%s) of type (%s)", 
+            strCMPIStatus (rc), 
+            types_arr[i].typeAName);
+
+        rc = CMSetArrayElementAt(arr, 0, &value, types_arr[i].element_type);
+        PROV_LOG("++++ Status of CMSetArrayElementAt : (%s)",
+            strCMPIStatus (rc));
+
+//Adding the array as an argument to CMPIArgs
+        rc = CMAddArg (args_ptr, 
+            types_arr[i].args_name, 
+            (CMPIValue *) &arr, 
+            types_arr[i].typeA);
+        PROV_LOG("++++ Status of CMAddArg with name %s : (%s)", 
+            types_arr[i].args_name, 
+            strCMPIStatus (rc));
+
+//Testing the retrieved arrays from CMPIArgs object
+        flag = 1;        
+        if((types_arr[i].element_type) != CMPI_null)
+        {  
+            data = CMGetArg(args_ptr, types_arr[i].args_name , &rc);
+            PROV_LOG("++++ Status of CMGetArg with name %s : (%s)", 
+                types_arr[i].args_name, 
+                strCMPIStatus (rc));
+
+            arr_data = CMGetArrayElementAt(data.value.array, 0, &rc);
+            PROV_LOG("++++ Status of CMGetArrayElementAt : (%s)", 
+                strCMPIStatus (rc));
+
+            switch(types_arr[i].element_type)
+            {
+                case CMPI_uint32:
+                    if (arr_data.value.uint32 != value.uint32)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_uint16:
+                    if (arr_data.value.uint16 != value.uint16)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_uint8:
+                    if (arr_data.value.uint8 != value.uint8)
+                    {
+                        flag = 0;
+                    } 
+                    break;
+
+                case CMPI_uint64:
+                    if (arr_data.value.uint64 != value.uint64)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_sint32:
+                    if (arr_data.value.sint32 != value.sint32)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_sint16:
+                    if (arr_data.value.sint16 != value.sint16)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_sint8:
+                    if (arr_data.value.sint8 != value.sint8)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_sint64:
+                    if (arr_data.value.sint64 != value.sint64)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_real32:
+                    if (arr_data.value.real32 != value.real32)
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+                case CMPI_real64:
+                    if (arr_data.value.real64 != value.real64)
+                    {
+                        flag = 0;
+                    }
+                    break;
+ 
+                case CMPI_char16:
+                    if (arr_data.value.char16 != value.char16)
+                    {
+                        flag = 0;
+                    }
+                    break;
+              
+                case CMPI_string:
+                    str1 = CMGetCharsPtr(arr_data.value.string, &rc);
+                    str2 = CMGetCharsPtr(value.string, &rc1);
+                    if ((rc.rc != CMPI_RC_OK) || 
+                        (rc1.rc != CMPI_RC_OK) ||
+                        strcmp(str1, str2))
+                    {
+                        flag = 0;
+                    }
+                    break;
+
+     		case CMPI_boolean:
+                    if (arr_data.value.boolean != value.boolean)
+                    {
+                        flag = 0;
+                    }
+                    break;
+        
+                case CMPI_dateTime:
+                    datetime1 = CMGetBinaryFormat(arr_data.value.dateTime, 
+                        &rc);
+                    datetime2 = CMGetBinaryFormat(value.dateTime, &rc1);
+                    if ((rc.rc != CMPI_RC_OK) ||
+                        (rc1.rc != CMPI_RC_OK) ||
+                        (datetime1 != datetime2))
+                    {
+                        flag = 0;
+                    }
+                    rc = CMRelease(value.dateTime);
+                    PROV_LOG("++++ Status of CMRelease(value.dateTime) : (%s)", 
+                        strCMPIStatus(rc));
+                    break;
+                
+                case CMPI_ref:
+                    retNamespace = CMGetNameSpace(arr_data.value.ref, &rc);
+                    retClassname = CMGetClassName(arr_data.value.ref, &rc1);
+                    if((rc.rc == CMPI_RC_OK) &&
+                        (rc1.rc == CMPI_RC_OK))
+                    {
+                        str1 = CMGetCharsPtr(retNamespace, &rc);
+                        str2 = CMGetCharsPtr(retClassname, &rc1);
+                        if ((rc.rc == CMPI_RC_OK) &&
+                            (rc1.rc == CMPI_RC_OK))
+                        {
+                            if ((strcmp(str1, "root/cimv2")) ||
+                                (strcmp(str2, "TestCMPI_Instance")))
+                            {
+                                flag = 0;
+                            }
+                        }
+                        else
+                        {
+                            flag = 0;
+                        }
+                    }
+                    else
+                    {
+                        flag = 0;
+                    }
+                    rc = CMRelease(value.ref);
+                    PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)", 
+                        strCMPIStatus(rc));
+                    break;
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+                case CMPI_instance:
+                    retDataInst = CMGetProperty(arr_data.value.inst,
+                        "Property1", &rc);
+                    dataInst = CMGetProperty(value.inst, "Property1", &rc);
+                    if (retDataInst.value.uint32 != dataInst.value.uint32)
+                    {
+                        flag = 0;
+                    }
+                    rc = CMRelease(value.inst);
+                    PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)", 
+                        strCMPIStatus(rc));
+                    break;
+#endif
+            }
+            if (data.type == types_arr[i].typeA && flag)
+            {
+                PROV_LOG("++++  CMGetArg : Name - %s is of type" 
+                    " %s ", types_arr[i].args_name, types_arr[i].typeAName);
+            }
+            PROV_LOG("++++ Status of CMGetArg : (%s)", strCMPIStatus (rc));
+        }
+        rc = CMRelease(arr);
+        PROV_LOG("++++ Status of CMRelease(arr) : (%s)", strCMPIStatus(rc));
+        rc = CMRelease(args_ptr);
+        PROV_LOG("++++ Status of CMRelease(args_ptr) : (%s)", strCMPIStatus(rc));
+    }
+    return flag;
+}// End of _testArrayTypes
+
+//Testing CMPITypes other than CMPIArray
+static int _testSimpleTypes()
+{
+    CMPIArgs* args_ptr = NULL;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIStatus rc1 = { CMPI_RC_OK, NULL };
+    int i, flag, size;
+    CMPIValue value;
+    CMPIValue value1;
+    CMPIData data;
+    CMPIData dataInst;
+    CMPIData retDataInst;
+    CMPIString* retNamespace = NULL;
+    CMPIString* retClassname = NULL;
+    CMPIObjectPath* objPath = make_ObjectPath(_broker,
+        _Namespace,
+        _ClassName);
+    const char* str1;
+    const char* str2;
+       
+    struct array_types
+    {
+        CMPIType element_type;
+        char* typeName;
+        char* args_name;
+    }types_arr[] = {
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        {CMPI_instance,
+        "CMPI_instance",
+        "CMPI_instance"},
+#endif
+        {CMPI_ref,
+        "CMPI_ref",
+        "CMPI_ref"}};
+
+    size = 2;
+#ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    size = 1;
+#endif
+
+    flag = 1;
+    for ( i = 0 ; i < size; i++)
+    {
+        args_ptr = CMNewArgs(_broker, &rc);
+        PROV_LOG("++++ Status of CMNewArgs : (%s)",
+            strCMPIStatus (rc));
+       
+        switch(types_arr[i].element_type)
+        {
+            case CMPI_ref:
+                value.ref = CMNewObjectPath (_broker, 
+                    "root/cimv2", 
+                    "TestCMPI_Instance", 
+                    &rc); 
+                break;
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CMPI_instance:
+                value.inst = make_Instance(objPath);
+                value1.uint32 = 20;
+                rc = CMSetProperty(value.inst, 
+                    "Property1", 
+                    &value1, 
+                    CMPI_uint32);
+                break;
+#endif
+        }
+        PROV_LOG("++++  Testing for %s type", types_arr[i].typeName);
+        rc = CMAddArg (args_ptr,
+            types_arr[i].args_name,
+            (CMPIValue *) &value,
+            types_arr[i].element_type);
+        PROV_LOG("++++ Status of CMAddArg with name %s : (%s)",
+            types_arr[i].args_name,
+            strCMPIStatus (rc));
+ 
+        data = CMGetArg(args_ptr, types_arr[i].args_name , &rc);
+        PROV_LOG("++++ Status of CMGetArg with name %s : (%s)",
+            types_arr[i].args_name,
+            strCMPIStatus (rc));
+
+        switch(types_arr[i].element_type)
+        {
+            case CMPI_ref:
+                retNamespace = CMGetNameSpace(data.value.ref, &rc);
+                retClassname = CMGetClassName(data.value.ref, &rc1);
+ 
+                if((rc.rc == CMPI_RC_OK) &&
+                    (rc1.rc == CMPI_RC_OK))
+                {
+                    str1 = CMGetCharsPtr(retNamespace, &rc);
+                    str2 = CMGetCharsPtr(retClassname, &rc1);
+                    if ((rc.rc == CMPI_RC_OK) &&
+                        (rc1.rc == CMPI_RC_OK))
+                    {
+                        if ((strcmp(str1, "root/cimv2")) ||
+                            (strcmp(str2, "TestCMPI_Instance")))
+                        {
+                            flag = 0;
+                        }
+                    }
+                    else
+                    {
+                        flag = 0;
+                    }
+                }
+                else
+                {
+                    flag = 0;
+                }
+                rc = CMRelease(value.ref);
+                PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)", 
+                    strCMPIStatus(rc));
+                break;
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CMPI_instance:
+                retDataInst = CMGetProperty(data.value.inst,
+                    "Property1", &rc);
+                dataInst = CMGetProperty(value.inst, "Property1", &rc);
+                if (retDataInst.value.uint32 != dataInst.value.uint32)
+                {
+                    flag = 0;
+                }
+                rc = CMRelease(value.inst);
+                PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)", 
+                strCMPIStatus(rc));
+                break;
+#endif
+        }
+        if (data.type == types_arr[i].element_type && flag)
+        {
+            PROV_LOG("++++  CMGetArg : Name - %s is of type"
+                " %s ", types_arr[i].args_name, types_arr[i].typeName);
+        }
+        PROV_LOG("++++ Status of CMGetArg : (%s)", strCMPIStatus (rc));
+
+        rc = CMRelease(args_ptr);
+        PROV_LOG("++++ Status of CMRelease(args_ptr) : (%s)", 
+            strCMPIStatus(rc));
+    }
+    return flag;
+}//end _testSimpleTypes
+
+//Testing for error cases to cover else portions
+static int _testErrorPaths()
+{
+    CMPIArgs* args_ptr = NULL;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIValue value;
+    char* str = NULL;
+    int flag;
+
+    value.inst = NULL;
+    args_ptr = CMNewArgs(_broker, &rc);
+    PROV_LOG("++++ Status of CMNewArgs : (%s)",
+        strCMPIStatus (rc));
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    PROV_LOG("++++  Testing for CMPI_instance type");
+    rc = CMAddArg (args_ptr,
+        "EmptyInstance",
+        (CMPIValue *) &value,
+        CMPI_instance);
+    PROV_LOG("++++ Status of CMAddArg with name EmptyInstance : (%s)",
+        strCMPIStatus (rc));
+#endif
+
+    value.ref = NULL;
+    PROV_LOG("++++  Testing for CMPI_ref type");
+    rc = CMAddArg (args_ptr,
+        "EmptyRef",
+        (CMPIValue *) &value,
+        CMPI_ref);
+    PROV_LOG("++++ Status of CMAddArg with name EmptyRef : (%s)",
+        strCMPIStatus (rc));
+    value.dateTime = NULL;
+    PROV_LOG("++++  Testing for CMPI_datetime type");
+    rc = CMAddArg (args_ptr,
+        "EmptyDatetime",
+        (CMPIValue *) &value,
+        CMPI_dateTime);
+    PROV_LOG("++++ Status of CMAddArg with name EmptyDatetime : (%s)",
+        strCMPIStatus (rc));
+    PROV_LOG("++++  Testing for CMPI_chars type");
+    rc = CMAddArg (args_ptr,
+        "EmptyChars",
+        (CMPIValue *) str,
+        CMPI_chars);
+    PROV_LOG("++++ Status of CMAddArg with name EmptyChars : (%s)",
+        strCMPIStatus (rc));
+
+    PROV_LOG("++++  Testing for CMPI_charsptrA type");
+    rc = CMAddArg (args_ptr,
+        "EmptyCharsPtrA",
+        NULL,
+        CMPI_charsptrA);
+    PROV_LOG("++++ Status of CMAddArg with name EmptyCharsPtrA : (%s)",
+        strCMPIStatus (rc));
+
+    value.chars = NULL;
+    PROV_LOG("++++  Testing for CMPI_charsptr type");
+    rc = CMAddArg (args_ptr,
+        "EmptyCharsPtr",
+        &value,
+        CMPI_charsptr);
+    PROV_LOG("++++ Status of CMAddArg with name EmptyCharsPtr : (%s)",
+        strCMPIStatus (rc));
+
+    value.args = NULL;
+    PROV_LOG("++++  Testing for CMPI_args type");
+    rc = CMAddArg (args_ptr,
+        "EmptyArgs",
+        (CMPIValue *) &value,
+        CMPI_args);
+    PROV_LOG("++++ Status of CMAddArg with name EmptyArgs : (%s)",
+        strCMPIStatus (rc));
+
+    rc = CMRelease(args_ptr);
+    PROV_LOG("++++ Status of CMRelease(args_ptr) : (%s)", strCMPIStatus(rc));
+    return 1;
+}//End of _testErrorPaths
+
+
 // Test for CMPIEnumeration and its error paths.
 static int _testCMPIEnumeration (const CMPIContext* ctx)
 {
@@ -1087,6 +1768,7 @@ static int _testCMPIObjectPath ()
     const char* objectPath1 = NULL;
     const char* objectPath2 = NULL;
     CMPIData data;
+    CMPIValue value;
     unsigned int keyCount = 0;
     void *opptr;
 
@@ -1232,6 +1914,42 @@ static int _testCMPIObjectPath ()
     }
     PROV_LOG("++++ CMGetKeyAtErrorPath Successful : %d ",
         getKeyAtErrorPathSuccessful);
+
+    value.uint16 = 67;
+    rc = CMAddKey (fakeObjPath, "Numeric_key_unsigned",
+        (CMPIValue *) &value, CMPI_uint16);
+    PROV_LOG ("++++  Status of CMAddKey of type CMPI_uint16: (%s)", 
+        strCMPIStatus (rc));
+    data = CMGetKey(fakeObjPath, "Numeric_key_unsigned", &rc);
+    if(data.value.uint16 == value.uint16)
+    {
+        PROV_LOG ("++++  Status of CMGetKey of type CMPI_uint16: (%s)",
+        strCMPIStatus (rc));     
+    }
+
+    value.sint16 = -67;
+    rc = CMAddKey (fakeObjPath, "Numeric_key_signed",
+        (CMPIValue *) &value, CMPI_sint16);
+    PROV_LOG ("++++  Status of CMAddKey of type CMPI_sint16: (%s)",
+        strCMPIStatus (rc));
+    data = CMGetKey(fakeObjPath, "Numeric_key_signed", &rc);
+    if(data.value.sint16 == value.sint16)
+    {
+        PROV_LOG ("++++  Status of CMGetKey of type CMPI_sint16: (%s)",
+        strCMPIStatus (rc));
+    }
+
+    value.boolean = 1;
+    rc = CMAddKey (fakeObjPath, "Boolean_key",
+        (CMPIValue *) &value, CMPI_boolean);
+    PROV_LOG ("++++  Status of CMAddKey of type CMPI_boolean: (%s)",
+        strCMPIStatus (rc));
+    data = CMGetKey(fakeObjPath, "Boolean_key", &rc);
+    if(data.value.boolean == value.boolean)
+    {
+        PROV_LOG ("++++  Status of CMGetKey of type CMPI_boolean: (%s)",
+        strCMPIStatus (rc));
+    }
 
     //Error Paths
 
@@ -2037,8 +2755,10 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                == 0)
         {
           oper_rc = 42;
+
           PROV_LOG
             ("++++ Calling CMReturnData+Done on returnUint32 operation");
+
           CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
           CMReturnDone (rslt);
         }
@@ -2098,6 +2818,25 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         CMReturnDone (rslt);
         paramInst->ft->release(paramInst);
     }
+    else if (strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
+    {
+        oper_rc = _testArrayTypes();
+        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        CMReturnDone (rslt);
+    }
+    else if (strncmp("testErrorPaths", methodName, strlen ("testErrorPaths"))== 0)
+    {
+        oper_rc = _testErrorPaths();
+        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        CMReturnDone (rslt);
+    }
+    else if (strncmp("testSimpleTypes", methodName, strlen ("testSimpleTypes"))== 0)
+    {
+        oper_rc = _testSimpleTypes();
+        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        CMReturnDone (rslt);
+    }
+
 
       else
         {

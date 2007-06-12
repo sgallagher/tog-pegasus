@@ -200,9 +200,9 @@ public:
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe)
     {
-        // Add logging here.
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# if defined(PEGASUS_OS_TYPE_WINDOWS)
 
         AutoMutex autoMutex(_mutex);
 
@@ -278,7 +278,7 @@ public:
 
         return 0;
 
-#else /* POSIX CASE FOLLOWS */
+# else /* POSIX CASE FOLLOWS */
 
         AutoMutex autoMutex(_mutex);
 
@@ -300,7 +300,7 @@ public:
             String path = FileSystem::getAbsolutePath(
                 pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
-# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
             PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
             PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
@@ -317,7 +317,7 @@ public:
                 }
             }
 
-# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+#  endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
 
             // Create "to-agent" pipe:
 
@@ -331,11 +331,11 @@ public:
 
             // Fork process:
 
-# if defined(PEGASUS_OS_VMS)
+#  if defined(PEGASUS_OS_VMS)
             pid = (int)vfork();
-# else
+#  else
             pid = (int)fork();
-# endif
+#  endif
 
             if (pid < 0)
                 return -1;
@@ -344,7 +344,7 @@ public:
 
             if (pid == 0)
             {
-# if !defined(PEGASUS_OS_VMS)
+#  if !defined(PEGASUS_OS_VMS)
                 // Close unused pipe descriptors:
 
                 close(to[1]);
@@ -365,9 +365,9 @@ public:
                     }
                 }
 
-# endif /* !defined(PEGASUS_OS_VMS) */
+#  endif /* !defined(PEGASUS_OS_VMS) */
 
-# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
                 // Set uid and gid for the new provider agent process.
 
@@ -380,7 +380,7 @@ public:
                     }
                 }
 
-# endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
+#  endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
 
                 // Exec the cimprovagt program.
 
@@ -425,7 +425,15 @@ public:
 
         return 0;
 
-#endif /* !defined(START_PROVIDER_AGENT) */
+# endif /* POSIX CASE */
+
+#else /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION is defined */
+
+        // Out-of-Process providers are never started by the cimserver process
+        // when Privilege Separation is enabled.
+        return -1;
+
+#endif
     }
 
     virtual int daemonizeExecutor()
@@ -436,14 +444,24 @@ public:
     virtual int reapProviderAgent(
         int pid)
     {
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
         int status = 0;
 
-#if defined(PEGASUS_HAS_SIGNALS)
+# if defined(PEGASUS_HAS_SIGNALS)
         while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
             ;
-#endif
+# endif
 
         return status;
+
+#else /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION is defined */
+
+        // Out-of-Process providers are never started by the cimserver process
+        // when Privilege Separation is enabled.
+        return -1;
+
+#endif
     }
 
     virtual int authenticatePassword(

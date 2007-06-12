@@ -109,7 +109,7 @@ static void TestTimeout()
     PEGASUS_TEST_ASSERT(client.getTimeout() == 
                         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
     client.setTimeout(TIMEOUT_MILLISECONDS);
-    PEGASUS_TEST_ASSERT(client.getTimeout() == TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == Uint32(TIMEOUT_MILLISECONDS));
     client.setTimeout(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
     PEGASUS_TEST_ASSERT(client.getTimeout() == 
                         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
@@ -123,7 +123,7 @@ static void TestTimeout()
     PEGASUS_TEST_ASSERT(client.getTimeout() == 
                         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
     client.setTimeout(TIMEOUT_MILLISECONDS);
-    PEGASUS_TEST_ASSERT(client.getTimeout() == TIMEOUT_MILLISECONDS);
+    PEGASUS_TEST_ASSERT(client.getTimeout() == Uint32(TIMEOUT_MILLISECONDS));
     client.setTimeout(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
     PEGASUS_TEST_ASSERT(client.getTimeout() == 
                         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);

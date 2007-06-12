@@ -55,6 +55,12 @@ static const CMPIBroker *_broker;
 static CMPIBroker *_broker;
 #endif
 
+#ifdef __GNUC__
+# define UINT64_LITERAL(X) ((CMPIUint64)X##ULL)
+#else
+# define UINT64_LITERAL(X) ((CMPIUint64)X)
+#endif
+
 /* ---------------------------------------------------------------------------*/
 /*                       CMPI Helper function                        */
 /* ---------------------------------------------------------------------------*/
@@ -1444,7 +1450,7 @@ static int _testCMPIDateTime ()
     CMPIDateTime *clonedDateTime = NULL;
     CMPIDateTime *dateTimeFromBinary = NULL;
 
-    CMPIUint64 dateTimeInBinary = (CMPIUint64) 1170892800000000; //07/02/2007
+    CMPIUint64 dateTimeInBinary = UINT64_LITERAL(1170892800000000); //07/02/2007
     CMPIUint64 returnedDateTimeInBinary = 0;
 
     CMPIString* stringDate = NULL;
@@ -2094,7 +2100,7 @@ static int _testCMPIResult (const CMPIResult *rslt)
     PROV_LOG("++++  CMReturnData : (%s)", strCMPIStatus (rc));
     if (rc.rc == CMPI_RC_OK)
     {
-        returnDataSuccessful == 1;
+        returnDataSuccessful = 1;
     }
     PROV_LOG("++++ CMReturnData Successful : %d ", returnDataSuccessful);
 

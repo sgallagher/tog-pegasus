@@ -195,4 +195,5 @@ protected:
 };
 
 PEGASUS_NAMESPACE_END
+
 #endif

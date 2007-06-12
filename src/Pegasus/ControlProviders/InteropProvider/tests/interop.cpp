@@ -59,8 +59,11 @@ PEGASUS_USING_STD;
 #define TERMINATE(X) {PEGASUS_STD(cout) << "TestInterop " \
     << X << PEGASUS_STD(endl); PEGASUS_TEST_ASSERT(false);}
 #define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest(" << __LINE__ << ")"\
-    << X << PEGASUS_STD(endl)
+
+#if 0
+#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest(" << __LINE__ << ")" << \
+    X << PEGASUS_STD(endl)
+#endif
 
 #include <cstring>
 #include <stdcxx/stream/strstream>

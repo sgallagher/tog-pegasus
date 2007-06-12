@@ -75,7 +75,7 @@ void InteropProvider::associators(
             "InteropProvider::associators()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s associators. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        "%s associators. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),
@@ -131,7 +131,7 @@ void InteropProvider::associatorNames(
         "InteropProvider::associatorNames()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole",
+        "%s associatorNames.objectName= %s , assocClass= %s resultClass= %s role= %s resultRole = %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),

@@ -55,7 +55,7 @@ ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 ReadWriteSem::~ReadWriteSem()
 {
     int r = 0;
-    while (r=pthread_rwlock_destroy(&_rwlock.rwlock) == EBUSY ||
+    while ((r = pthread_rwlock_destroy(&_rwlock.rwlock)) == EBUSY ||
            (r == -1 && errno == EBUSY))
     {
         Threads::yield();

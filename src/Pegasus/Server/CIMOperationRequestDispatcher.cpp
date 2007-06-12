@@ -254,14 +254,14 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
                 _totalReceived,
                 _totalReceivedErrors));
             PEG_TRACE((
-                __FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "All completed responses (%u) for current request "
                     "have been accounted for but expected count (%u) does "
                     "not match the received count (%u). error count (%u).",
-                _totalReceivedComplete,
-                _totalReceivedExpected,
-                _totalReceived,
-                _totalReceivedErrors));
+                (unsigned int)_totalReceivedComplete,
+                (unsigned int)_totalReceivedExpected,
+                (unsigned int)_totalReceived,
+                (unsigned int)_totalReceivedErrors));
         }
 
         // If all of the errors received were NOT_SUPPORTED and
@@ -3786,9 +3786,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 "Routing EnumerateInstances request for class %s to the "
                     "repository.  Class # %u of %u, aggregation SN %u.",
                 (const char*)providerInfo.className.getString().getCString(),
-                i + 1,
-                numClasses,
-                poA->_aggregationSN));
+                (unsigned int)(i + 1),
+                (unsigned int)numClasses,
+                (unsigned int)(poA->_aggregationSN)));
 
             AutoPtr<CIMEnumerateInstancesResponseMessage> response(
                 dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
@@ -3874,9 +3874,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             (const char*)providerInfo.className.getString().getCString(),
             (const char*)providerInfo.serviceName.getCString(),
             (const char*)providerInfo.controlProviderName.getCString(),
-            i + 1,
-            numClasses,
-            poA->_aggregationSN));
+            (unsigned int)(i + 1),
+            (unsigned int)(numClasses),
+            (unsigned int)(poA->_aggregationSN)));
 
         CIMEnumerateInstancesRequestMessage* requestCopy =
             new CIMEnumerateInstancesRequestMessage(*request);
@@ -4096,9 +4096,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                 "Routing EnumerateInstanceNames request for class %s to the "
                     "repository.  Class # %u of %u, aggregation SN %u.",
                 (const char*)providerInfo.className.getString().getCString(),
-                i + 1,
-                numClasses,
-                poA->_aggregationSN));
+                (unsigned int)(i + 1),
+                (unsigned int)numClasses,
+                (unsigned int)(poA->_aggregationSN)));
 
             AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
                 dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
@@ -4172,9 +4172,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             (const char*)providerInfo.className.getString().getCString(),
             (const char*)providerInfo.serviceName.getCString(),
             (const char*)providerInfo.controlProviderName.getCString(),
-            i + 1,
-            numClasses,
-            poA->_aggregationSN));
+            (unsigned int)(i + 1),
+            (unsigned int)(numClasses),
+            (unsigned int)(poA->_aggregationSN)));
 
         CIMEnumerateInstanceNamesRequestMessage* requestCopy =
             new CIMEnumerateInstanceNamesRequestMessage(*request);

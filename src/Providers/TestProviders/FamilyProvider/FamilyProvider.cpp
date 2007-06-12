@@ -94,8 +94,11 @@ PEGASUS_USING_PEGASUS;
 //***************************************************
 
 #define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "=== FamilyProvider " << X << \
-//    PEGASUS_STD(endl)
+
+#if 0
+#define CDEBUG(X) PEGASUS_STD(cout) << "=== FamilyProvider " << \
+    X << PEGASUS_STD(endl)
+#endif
 
 //*********************************************
 //   Constants
@@ -797,10 +800,7 @@ void FamilyProvider::getInstance(
 {
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "getInstance. Class= %s",
-        (const char *)instanceReference.toString().getCString(),
-        (const char *)_showBool(includeQualifiers).getCString(),
-        (const char*) _showBool(includeClassOrigin).getCString(),
-        (const char *)_showPropertyList(propertyList).getCString()));
+        (const char *)instanceReference.toString().getCString()));
 
     // begin processing the request
     handler.processing();

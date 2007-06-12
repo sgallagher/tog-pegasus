@@ -84,7 +84,7 @@ _forceShutdown(true)
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer library directory: " + consumerDir);
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer configuration directory: " + consumerConfigDir);
 
-    PEG_TRACE((__FILE__,__LINE__,TRC_LISTENER,Tracer::LEVEL4,
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
                   "Consumer unload enabled %d: idle timeout %d",
                   enableConsumerUnload,
                   idleTimeout));
@@ -746,7 +746,7 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
 
     } else
     {
-        PEG_TRACE((__FILE__,__LINE__,TRC_LISTENER,Tracer::LEVEL3,
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL3,
                       "Serializing %d outstanding requests for %s",
                       indications.size(),
                       (const char*)consumerName.getCString()));
@@ -825,7 +825,7 @@ Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndicatio
 
             XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
-            PEG_TRACE((__FILE__,__LINE__,TRC_LISTENER,Tracer::LEVEL3,
+            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL3,
                           "Consumer %s has %d outstanding indications",
                           (const char*)consumerName.getCString(),
                           indications.size()));

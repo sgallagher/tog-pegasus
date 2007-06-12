@@ -361,9 +361,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 "Routing ExecQuery request for class %s to the "
                     "repository.  Class # %u of %u, aggregation SN %u.",
                 (const char*)providerInfo.className.getString().getCString(),
-                i + 1,
-                numClasses,
-                poA->_aggregationSN));
+                (unsigned int)(i + 1),
+                (unsigned int)(numClasses),
+                (unsigned int)(poA->_aggregationSN)));
 
             AutoPtr<CIMEnumerateInstancesResponseMessage> response(
                 new CIMEnumerateInstancesResponseMessage(
@@ -437,9 +437,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             (const char*)providerInfo.className.getString().getCString(),
             (const char*)providerInfo.serviceName.getCString(),
             (const char*)providerInfo.controlProviderName.getCString(),
-            i + 1,
-            numClasses,
-            poA->_aggregationSN));
+            (unsigned int)(i + 1),
+            (unsigned int)numClasses,
+            (unsigned int)(poA->_aggregationSN)));
 
         ProviderIdContainer* providerIdContainer =
             providerInfo.providerIdContainer.get();

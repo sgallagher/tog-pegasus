@@ -754,11 +754,11 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         L;d = si64Data1; (CMPISint64)d;
         L;d = r32Data1;  (CMPIReal32)d;
         L;d = r64Data1;  (CMPIReal64)d;
-        L;d = strData1;  (CmpiString&)d;
+        L;d = strData1;  /* (CmpiString&)d; */
         L;d = achData1;  (const char *)d;
-        L;d = dtData1;   (CmpiDateTime&)d;
-        L;d = copData1;  (CmpiObjectPath&)d;
-        L;d = ciData1;   (CmpiInstance&)d;
+        L;d = dtData1;   /* (CmpiDateTime&)d; */
+        L;d = copData1;  /* (CmpiObjectPath&)d; */
+        L;d = ciData1;   /* (CmpiInstance&)d; */
 #endif
 
         // Test CmpiData getXXX

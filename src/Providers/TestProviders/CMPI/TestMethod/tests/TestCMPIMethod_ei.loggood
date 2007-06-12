@@ -421,7 +421,7 @@
  ++++ (CMPI_RC_OK)
  ++++ _testCMPIResult
  ++++  CMReturnData : (CMPI_RC_OK)
- ++++ CMReturnData Successful : 0 
+ ++++ CMReturnData Successful : 1 
  ++++  make_ObjectPath: CMNewObjectPath
  ++++  CMNewObjectPath : (CMPI_RC_OK)
  ++++  CMReturnObjectPath : (CMPI_RC_ERR_NOT_SUPPORTED)

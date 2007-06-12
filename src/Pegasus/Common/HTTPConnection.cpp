@@ -163,10 +163,10 @@ static void _throwEventFailure(const String &status, const String &detail,
 #define _socketWriteError()                                                   \
     do                                                                        \
     {                                                                         \
-        PEG_TRACE((__FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2,     \
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,                        \
             "Socket write failed with error %d; could not write response "    \
                 "to client.  (Client may have timed out.)",                   \
-            getSocketError()));                                                \
+            getSocketError()));                                               \
         throw Exception("socket write error");                                \
     }                                                                         \
     while (0)

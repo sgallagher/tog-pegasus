@@ -245,7 +245,7 @@ void DynamicConsumer::reset()
     _module = 0;    // do not delete it, that is taken care of in ConsumerModule itself 
     _consumer = 0;  // ATTN: attempting to delete this causes an exception -- why??
 
-    PEG_TRACE((__FILE__,__LINE__,TRC_LISTENER,Tracer::LEVEL4,
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
                   "Deleting %d outstanding requests for %s",
                   _eventqueue.size(),
                   (const char*)_name.getCString()));

@@ -39,4 +39,12 @@
 EXECUTOR_LINKAGE
 int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE]);
 
+EXECUTOR_LINKAGE
+int ReadPidFile(const char* pidFilePath, int* pid);
+
+EXECUTOR_LINKAGE
+int TestProcessRunning(
+    const char* pidFilePath,
+    const char* processName);
+
 #endif /* _Executor_Process_h */

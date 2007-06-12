@@ -33,7 +33,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#include <Executor/Config.h>
+#include <Executor/Log.h>
 #include <Executor/Globals.h>
 #include <stdio.h>
 #include <assert.h>
@@ -41,34 +41,87 @@
 
 int main()
 {
-    /* Test GetConfigParamFromCommandLine() */
-    {
-        static const char* argv[] = { "program", "option1=one", (char*)0 };
-        static const int argc = sizeof(argv) / sizeof(argv[0]);
-        char buffer[EXECUTOR_BUFFER_SIZE];
+    /* Test InitLogLevel() */
 
+    /* Test default logLevel value */
+    assert(GetLogLevel() == LL_INFORMATION);
+
+    /* Test with no logLevel specified.  Value is unchanged. */
+    {
+        static const char* argv[] = { "program" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
         globals.argv = (char**)argv;
         globals.argc = argc;
 
-        assert(GetConfigParamFromCommandLine("option1", buffer) == 0);
-        assert(strcmp(buffer, "one") == 0);
+        InitLogLevel();
+        assert(GetLogLevel() == LL_INFORMATION);
     }
 
-    /* Test GetConfigParamFromFile() */
+    /* Test with invalid logLevel specified.  Value is unchanged. */
     {
-        char buffer[EXECUTOR_BUFFER_SIZE];
+        static const char* argv[] = { "program", "logLevel=123" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+        globals.argv = (char**)argv;
+        globals.argc = argc;
 
-        assert(GetConfigParamFromFile("my.conf", "option1", buffer) == 0);
-        assert(strcmp(buffer, "1") == 0);
+        InitLogLevel();
+        assert(GetLogLevel() == LL_INFORMATION);
+    }
 
-        assert(GetConfigParamFromFile("my.conf", "option2", buffer) == 0);
-        assert(strcmp(buffer, "2") == 0);
+    /* Test with logLevel TRACE specified */
+    {
+        static const char* argv[] = { "program", "logLevel=TRACE" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+        globals.argv = (char**)argv;
+        globals.argc = argc;
 
-        assert(GetConfigParamFromFile("my.conf", "option3", buffer) == 0);
-        assert(strcmp(buffer, "3") == 0);
+        InitLogLevel();
+        assert(GetLogLevel() == LL_TRACE);
+    }
 
-        assert(GetConfigParamFromFile("nonexistent.conf", "opt", buffer) != 0);
-        assert(strcmp(buffer, "3") == 0);
+    /* Test with logLevel INFORMATION specified */
+    {
+        static const char* argv[] =
+            { "program", "logLevel=INFORMATION" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+        globals.argv = (char**)argv;
+        globals.argc = argc;
+
+        InitLogLevel();
+        assert(GetLogLevel() == LL_INFORMATION);
+    }
+
+    /* Test with logLevel WARNING specified */
+    {
+        static const char* argv[] = { "program", "logLevel=WARNING" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+        globals.argv = (char**)argv;
+        globals.argc = argc;
+
+        InitLogLevel();
+        assert(GetLogLevel() == LL_WARNING);
+    }
+
+    /* Test with logLevel SEVERE specified */
+    {
+        static const char* argv[] = { "program", "logLevel=SEVERE" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+        globals.argv = (char**)argv;
+        globals.argc = argc;
+
+        InitLogLevel();
+        assert(GetLogLevel() == LL_SEVERE);
+    }
+
+    /* Test with logLevel FATAL specified */
+    {
+        static const char* argv[] = { "program", "logLevel=FATAL" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+        globals.argv = (char**)argv;
+        globals.argc = argc;
+
+        InitLogLevel();
+        assert(GetLogLevel() == LL_FATAL);
     }
 
     printf("+++++ passed all tests\n");

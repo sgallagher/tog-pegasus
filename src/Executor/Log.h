@@ -34,7 +34,7 @@
 #ifndef _Executor_Log_h
 #define _Executor_Log_h
 
-#define LOG_TRACE Log(LL_TRACE, "TRACE: %s(%d)\n", __FILE__, __LINE__)
+#include "Defines.h"
 
 enum LogLevel
 {
@@ -45,11 +45,13 @@ enum LogLevel
     LL_TRACE
 };
 
-void GetLogLevel();
+EXECUTOR_LINKAGE
+void InitLogLevel();
+
+EXECUTOR_LINKAGE
+enum LogLevel GetLogLevel();
 
 void OpenLog(const char* ident);
-
-void SetLogLevel(enum LogLevel level);
 
 void Log(enum LogLevel type, const char *format, ...);
 

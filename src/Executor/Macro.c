@@ -334,14 +334,14 @@ int DefineConfigPathMacro(const char* configParam, const char* defaultPath)
 **==============================================================================
 */
 
-void DumpMacros()
+void DumpMacros(FILE* outputStream)
 {
     const struct Macro* p;
 
-    printf("===== Macros:\n");
+    fprintf(outputStream, "===== Macros:\n");
 
     for (p = _macros; p; p = p->next)
-        printf("%s=%s\n", p->name, p->value);
+        fprintf(outputStream, "%s=%s\n", p->name, p->value);
 
-    putchar('\n');
+    putc('\n', outputStream);
 }

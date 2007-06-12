@@ -34,9 +34,14 @@
 */
 
 #include <Executor/Macro.h>
+#include <Executor/Globals.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <unistd.h>
+
+#define TEST_DUMP_FILE "dumpfile"
+#define MAX_DUMP_SIZE 1024
 
 int main()
 {
@@ -79,15 +84,56 @@ int main()
         assert(ExpandMacros("${a}", buffer) != 0);
     }
 
-#if 0
-    DumpMacros();
-#endif
+    /* Test DumpMacros() */
+    {
+        FILE* dumpFile;
+        char dumpFileBuffer[MAX_DUMP_SIZE];
+
+        unlink(TEST_DUMP_FILE);
+
+        dumpFile = fopen(TEST_DUMP_FILE, "a");
+        assert(dumpFile != 0);
+        DumpMacros(dumpFile);
+        fclose(dumpFile);
+
+        dumpFile = fopen(TEST_DUMP_FILE, "rb");
+        memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
+        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        fclose(dumpFile);
+
+        const char* expectedDumpResult =
+            "===== Macros:\n"
+            "x=100\n"
+            "y=hello\n"
+            "z=true\n"
+            "\n";
+        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+
+        unlink(TEST_DUMP_FILE);
+    }
 
     /* Test UndefineMacro() */
     {
         assert(UndefineMacro("a") != 0);
         assert(UndefineMacro("x") == 0);
         assert(UndefineMacro("z") == 0);
+    }
+
+    /* Test DefineConfigPathMacro() */
+    {
+        static const char* argv[] = { "program", "option1=one" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+        const char* macroDef;
+        char buffer[EXECUTOR_BUFFER_SIZE];
+
+        globals.argv = (char**)argv;
+        globals.argc = argc;
+
+        assert(DefineConfigPathMacro("ImportantPath", "/var/important") == 0);
+        macroDef = FindMacro("ImportantPath");
+        assert(macroDef != NULL);
+        assert(strcmp(macroDef, "/var/important") == 0);
+        assert(UndefineMacro("ImportantPath") == 0);
     }
 
     printf("+++++ passed all tests\n");

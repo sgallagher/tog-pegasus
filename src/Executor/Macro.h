@@ -34,6 +34,7 @@
 #ifndef _Executor_Macro_h
 #define _Executor_Macro_h
 
+#include <stdio.h>
 #include "Defines.h"
 
 EXECUTOR_LINKAGE
@@ -52,6 +53,6 @@ EXECUTOR_LINKAGE
 int DefineConfigPathMacro(const char* configParam, const char* defaultPath);
 
 EXECUTOR_LINKAGE
-void DumpMacros();
+void DumpMacros(FILE* outputStream);
 
 #endif /* _Executor_Macro_h */

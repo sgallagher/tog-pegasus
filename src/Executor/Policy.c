@@ -328,15 +328,16 @@ int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 /*
 **==============================================================================
 **
-** _DumpPolicyHelper()
+** DumpPolicyHelper()
 **
 **     Dump the policy table given by *policyTable* and *policyTableSize*.
-**     Expand any macros in the entries.
+**     Expand any macros in the entries, if requested.
 **
 **==============================================================================
 */
 
-static void _DumpPolicyHelper(
+void DumpPolicyHelper(
+    FILE* outputStream,
     const struct Policy* policyTable,
     size_t policyTableSize,
     int expandMacros)
@@ -352,23 +353,27 @@ static void _DumpPolicyHelper(
 
         if (expandMacros)
         {
-            ExpandMacros(p->arg1, arg1);
+            if (p->arg1)
+                ExpandMacros(p->arg1, arg1);
 
             if (p->arg2)
                 ExpandMacros(p->arg2, arg2);
         }
         else
         {
-            Strlcpy(arg1, p->arg1, sizeof(arg1));
+            if (p->arg1)
+                Strlcpy(arg1, p->arg1, sizeof(arg1));
 
             if (p->arg2)
                 Strlcpy(arg2, p->arg2, sizeof(arg2));
         }
 
+        fprintf(outputStream, "%s(", codeStr);
+        if (p->arg1)
+            fprintf(outputStream, "\"%s\"", arg1);
         if (p->arg2)
-            printf("%s(\"%s\", \"%s\")\n", codeStr, arg1, arg2);
-        else
-            printf("%s(\"%s\")\n", codeStr, arg1);
+            fprintf(outputStream, ", \"%s\"", arg2);
+        fprintf(outputStream, ")\n");
     }
 }
 
@@ -377,17 +382,17 @@ static void _DumpPolicyHelper(
 **
 ** DumpPolicy()
 **
-**     Dump both the static and dynamic policy tables.
+**     Dump the static policy table.
 **
 **==============================================================================
 */
 
-void DumpPolicy(int expandMacros)
+void DumpPolicy(FILE* outputStream, int expandMacros)
 {
-    printf("===== Policy:\n");
+    fprintf(outputStream, "===== Policy:\n");
 
-    _DumpPolicyHelper(
-        _staticPolicyTable, _staticPolicyTableSize, expandMacros);
+    DumpPolicyHelper(
+        outputStream, _staticPolicyTable, _staticPolicyTableSize, expandMacros);
 
-    putchar('\n');
+    putc('\n', outputStream);
 }

@@ -36,21 +36,54 @@
 #include <syslog.h>
 #include <string.h>
 #include <stdarg.h>
-#include "Strlcpy.h"
-#include "Strlcat.h"
 
 static enum LogLevel _level = LL_INFORMATION;
+
+/*
+**==============================================================================
+**
+** InitLogLevel()
+**
+**==============================================================================
+*/
+
+void InitLogLevel()
+{
+    char buffer[EXECUTOR_BUFFER_SIZE];
+
+    if (GetConfigParam("logLevel", buffer) == 0)
+    {
+        if (strcasecmp(buffer, "TRACE") == 0)
+            _level = LL_TRACE;
+        else if (strcasecmp(buffer, "INFORMATION") == 0)
+            _level = LL_INFORMATION;
+        else if (strcasecmp(buffer, "WARNING") == 0)
+            _level = LL_WARNING;
+        else if (strcasecmp(buffer, "SEVERE") == 0)
+            _level = LL_SEVERE;
+        else if (strcasecmp(buffer, "FATAL") == 0)
+            _level = LL_FATAL;
+    }
+}
+
+/*
+**==============================================================================
+**
+** GetLogLevel()
+**
+**==============================================================================
+*/
+
+enum LogLevel GetLogLevel()
+{
+    return _level;
+}
 
 void OpenLog(const char* ident)
 {
     int options = LOG_PID;
 
     openlog(ident, options, LOG_DAEMON);
-}
-
-void SetLogLevel(enum LogLevel level)
-{
-    _level = level;
 }
 
 void Log(enum LogLevel type, const char *format, ...)
@@ -66,23 +99,6 @@ void Log(enum LogLevel type, const char *format, ...)
         LOG_DEBUG, /* LL_TRACE */
     };
 
-    static const char* _prefix[] =
-    {
-        "FATAL",
-        "SEVERE",
-        "WARNING",
-        "INFORMATION",
-        "TRACE"
-    };
-
-    char prefixedFormat[EXECUTOR_BUFFER_SIZE];
-
-    /* Prefix the format with the log level. */
-
-    Strlcpy(prefixedFormat, _prefix[(int)type], sizeof(prefixedFormat));
-    Strlcat(prefixedFormat, ": ", sizeof(prefixedFormat));
-    Strlcat(prefixedFormat, format, sizeof(prefixedFormat));
-
     /* This array maps Pegasus "log levels" to syslog priorities. */
 
     if ((int)type <= (int)_level)
@@ -92,36 +108,9 @@ void Log(enum LogLevel type, const char *format, ...)
 
         va_start(ap, format);
         /* Flawfinder: ignore */
-        vsprintf(buffer, prefixedFormat, ap);
+        vsprintf(buffer, format, ap);
         va_end(ap);
 
         syslog(_priorities[(int)type], "%s", buffer);
-    }
-}
-
-/*
-**==============================================================================
-**
-** GetLogLevel()
-**
-**==============================================================================
-*/
-
-void GetLogLevel()
-{
-    char buffer[EXECUTOR_BUFFER_SIZE];
-
-    if (GetConfigParam("logLevel", buffer) == 0)
-    {
-        if (strcasecmp(buffer, "TRACE") == 0)
-            SetLogLevel(LL_TRACE);
-        else if (strcasecmp(buffer, "INFORMATION") == 0)
-            SetLogLevel(LL_INFORMATION);
-        else if (strcasecmp(buffer, "WARNING") == 0)
-            SetLogLevel(LL_WARNING);
-        else if (strcasecmp(buffer, "SEVERE") == 0)
-            SetLogLevel(LL_SEVERE);
-        else if (strcasecmp(buffer, "FATAL") == 0)
-            SetLogLevel(LL_FATAL);
     }
 }

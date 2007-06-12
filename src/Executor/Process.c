@@ -114,3 +114,56 @@ int GetProcessName(int pid, char name[EXECUTOR_BUFFER_SIZE])
 #else
 # error "not implemented on this platform."
 #endif /* PEGASUS_PLATFORM_LINUX_GENERIC_GNU */
+
+/*
+**==============================================================================
+**
+** ReadPidFile()
+**
+**==============================================================================
+*/
+
+int ReadPidFile(const char* pidFilePath, int* pid)
+{
+    FILE* is = fopen(pidFilePath, "r");
+
+    if (!is)
+        return -1;
+
+    *pid = 0;
+
+    fscanf(is, "%d\n", pid);
+    fclose(is);
+
+    if (*pid == 0)
+        return -1;
+
+    return 0;
+}
+
+/*
+**==============================================================================
+**
+** TestProcessRunning()
+**
+**     Returns 0 if a process is running with the ID in the specified PID file
+**     and with the specified process name.
+**
+**==============================================================================
+*/
+
+int TestProcessRunning(
+    const char* pidFilePath,
+    const char* processName)
+{
+    int pid;
+    char name[EXECUTOR_BUFFER_SIZE];
+
+    if (ReadPidFile(pidFilePath, &pid) != 0)
+        return -1;
+
+    if (GetProcessName(pid, name) != 0 || strcmp(name, processName) != 0)
+        return -1;
+
+    return 0;
+}

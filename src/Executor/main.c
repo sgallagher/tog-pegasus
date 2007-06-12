@@ -79,56 +79,6 @@ int GetServerUser(const char** userName, int* uid, int* gid)
 /*
 **==============================================================================
 **
-** ReadPidFile()
-**
-**==============================================================================
-*/
-
-static int ReadPidFile(const char* path, int* pid)
-{
-    FILE* is = fopen(path, "r");
-
-    if (!is)
-        return -1;
-
-    *pid = 0;
-
-    fscanf(is, "%d\n", pid);
-    fclose(is);
-
-    if (*pid == 0)
-        return -1;
-
-    return 0;
-}
-
-/*
-**==============================================================================
-**
-** TestCimServerProcess()
-**
-**     Returns 0 if cimserver process is running.
-**
-**==============================================================================
-*/
-
-int TestCimServerProcess()
-{
-    int pid;
-    char name[EXECUTOR_BUFFER_SIZE];
-
-    if (ReadPidFile(PEGASUS_CIMSERVER_START_FILE, &pid) != 0)
-        return -1;
-
-    if (GetProcessName(pid, name) != 0 || strcmp(name, CIMSERVERMAIN) != 0)
-        return -1;
-
-    return 0;
-}
-
-/*
-**==============================================================================
-**
 ** ExecShutdown()
 **
 **==============================================================================
@@ -345,8 +295,8 @@ int main(int argc, char** argv)
 
     if (options.dump)
     {
-        DumpPolicy(1);
-        DumpMacros();
+        DumpPolicy(stdout, 1);
+        DumpMacros(stdout);
         exit(0);
     }
 
@@ -360,7 +310,9 @@ int main(int argc, char** argv)
      * passed through to CIMSERVERMAIN).
      */
 
-    if (!options.version && !options.help && TestCimServerProcess() == 0)
+    if (!options.version &&
+        !options.help &&
+        TestProcessRunning(PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN) == 0)
     {
         fprintf(stderr,
             "%s: cimserver is already running (the PID found in the file "
@@ -389,9 +341,9 @@ int main(int argc, char** argv)
 
     CloseOnExec(pair[1]);
 
-    /* Get the log-level from the configuration parameter. */
+    /* Initialize the log-level from the configuration parameter. */
 
-    GetLogLevel(argc, argv);
+    InitLogLevel();
 
     /* Open the log. */
 

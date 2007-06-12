@@ -57,6 +57,8 @@ int main()
         assert(test("/aaa/bbb/ccc", "/aaa/bbb") == 0);
         assert(test("aaa/bbb", "aaa") == 0);
         assert(test("aaa", ".") == 0);
+        assert(test("aaa/", ".") == 0);
+        assert(test("", ".") == 0);
         assert(test("/", "/") == 0);
         assert(test("////", "/") == 0);
         assert(test("/etc/passwd", "/etc") == 0);
@@ -69,15 +71,23 @@ int main()
         const char* home;
 
         assert((home = getenv("PEGASUS_HOME")) != NULL);
+
+        /* Test relative path */
         Strlcpy(expect, home, sizeof(expect));
         Strlcat(expect, "/somefile", sizeof(expect));
 
         assert(GetHomedPath("somefile", actual) == 0);
         assert(strcmp(expect, actual) == 0);
 
+        /* Test absolute path */
         memset(actual, 0, sizeof(actual));
         assert(GetHomedPath(expect, actual) == 0);
         assert(strcmp(expect, actual) == 0);
+
+        /* Test null path */
+        memset(actual, 0, sizeof(actual));
+        assert(GetHomedPath(NULL, actual) == 0);
+        assert(strcmp(home, actual) == 0);
     }
 
     /* GetPegasusInternalBinDir() */

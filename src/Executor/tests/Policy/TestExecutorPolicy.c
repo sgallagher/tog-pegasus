@@ -37,6 +37,11 @@
 #include <Executor/Macro.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
+#include <unistd.h>
+
+#define TEST_DUMP_FILE "dumpfile"
+#define MAX_DUMP_SIZE 4096
 
 static struct Policy _testPolicyTable[] =
 {
@@ -131,10 +136,109 @@ void testFilePolicies()
     assert(CheckRenameFilePolicy(currentConfigFile, noAccessFile) != 0);
 }
 
+void testDumpPolicy()
+{
+    FILE* dumpFile;
+    char dumpFileBuffer[MAX_DUMP_SIZE];
+
+    unlink(TEST_DUMP_FILE);
+
+    /* Test DumpPolicy() with expandMacros=false */
+    {
+        dumpFile = fopen(TEST_DUMP_FILE, "a");
+        assert(dumpFile != 0);
+        DumpPolicy(dumpFile, 0);
+        fclose(dumpFile);
+
+        dumpFile = fopen(TEST_DUMP_FILE, "rb");
+        memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
+        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        fclose(dumpFile);
+
+        const char* expectedDumpResult =
+            "===== Policy:\n"
+            "OpenFile(\"${currentConfigFilePath}\", \"w\")\n"
+            "RenameFile(\"${currentConfigFilePath}\", "
+                "\"${currentConfigFilePath}.bak\")\n"
+            "RemoveFile(\"${currentConfigFilePath}\")\n"
+            "RemoveFile(\"${currentConfigFilePath}.bak\")\n"
+            "OpenFile(\"${plannedConfigFilePath}\", \"w\")\n"
+            "RenameFile(\"${plannedConfigFilePath}\", "
+                "\"${plannedConfigFilePath}.bak\")\n"
+            "RemoveFile(\"${plannedConfigFilePath}\")\n"
+            "RemoveFile(\"${plannedConfigFilePath}.bak\")\n"
+            "OpenFile(\"${passwordFilePath}\", \"w\")\n"
+            "RenameFile(\"${passwordFilePath}.bak\", \"${passwordFilePath}\")\n"
+            "RenameFile(\"${passwordFilePath}\", \"${passwordFilePath}.bak\")\n"
+            "RemoveFile(\"${passwordFilePath}.bak\")\n"
+            "RemoveFile(\"${passwordFilePath}\")\n"
+            "OpenFile(\"${sslKeyFilePath}\", \"r\")\n"
+            "OpenFile(\"${sslTrustStore}/*\", \"w\")\n"
+            "RemoveFile(\"${sslTrustStore}/*\")\n"
+            "OpenFile(\"${crlStore}/*\", \"w\")\n"
+            "RemoveFile(\"${crlStore}/*\")\n"
+            "\n";
+        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+
+        unlink(TEST_DUMP_FILE);
+    }
+
+    /* Test DumpPolicyHelper() with expandMacros=false */
+    {
+        dumpFile = fopen(TEST_DUMP_FILE, "a");
+        assert(dumpFile != 0);
+        DumpPolicyHelper(dumpFile, _testPolicyTable, _testPolicyTableSize, 0);
+        fclose(dumpFile);
+
+        dumpFile = fopen(TEST_DUMP_FILE, "rb");
+        memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
+        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        fclose(dumpFile);
+
+        const char* expectedDumpResult =
+            "Ping()\n"
+            "RenameFile(\"${file1}\", \"${file2}\")\n"
+            "RenameFile(\"file1\", \"${file2}\")\n"
+            "RenameFile(\"file1\", \"file2\")\n";
+        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+
+        unlink(TEST_DUMP_FILE);
+    }
+
+    /* Test DumpPolicyHelper() with expandMacros=true */
+    {
+        DefineMacro("file1", "MyFile1");
+        DefineMacro("file2", "MyFile2");
+
+        dumpFile = fopen(TEST_DUMP_FILE, "a");
+        assert(dumpFile != 0);
+        DumpPolicyHelper(dumpFile, _testPolicyTable, _testPolicyTableSize, 1);
+        fclose(dumpFile);
+
+        UndefineMacro("file1");
+        UndefineMacro("file2");
+
+        dumpFile = fopen(TEST_DUMP_FILE, "rb");
+        memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
+        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        fclose(dumpFile);
+
+        const char* expectedDumpResult =
+            "Ping()\n"
+            "RenameFile(\"MyFile1\", \"MyFile2\")\n"
+            "RenameFile(\"file1\", \"MyFile2\")\n"
+            "RenameFile(\"file1\", \"file2\")\n";
+        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+
+        unlink(TEST_DUMP_FILE);
+    }
+}
+
 int main()
 {
     testCheckPolicy();
     testFilePolicies();
+    testDumpPolicy();
 
     printf("+++++ passed all tests\n");
 

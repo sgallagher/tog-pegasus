@@ -73,6 +73,13 @@ EXECUTOR_LINKAGE
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath);
 
 EXECUTOR_LINKAGE
-void DumpPolicy(int expandMacros);
+void DumpPolicyHelper(
+    FILE* outputStream,
+    const struct Policy* policyTable,
+    size_t policyTableSize,
+    int expandMacros);
+
+EXECUTOR_LINKAGE
+void DumpPolicy(FILE* outputStream, int expandMacros);
 
 #endif /* _Executor_Policy_h */

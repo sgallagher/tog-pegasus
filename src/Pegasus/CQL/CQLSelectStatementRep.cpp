@@ -810,8 +810,8 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
                 PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"missing:" + 
                     requiredProps[i].getString());
                 PEG_METHOD_EXIT();
-                MessageLoaderParms parms
-                    ("CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
+                MessageLoaderParms parms(
+                    "CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
                     "The property $0 is missing on the instance of class $1.",
                     requiredProps[i].getString(),
                     inst.getClassName().getString());
@@ -932,9 +932,9 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
               ce.getCode() == CIM_ERR_INVALID_CLASS)
             {
                 MessageLoaderParms parms(
-                        "CQL.CQLSelectStatementRep.VAL_CLASS_NOT_EXIST",
-                        "The class $0 does not exist.",
-                        curContext.getString());
+                    "CQL.CQLSelectStatementRep.VAL_CLASS_NOT_EXIST",
+                    "The class $0 does not exist.",
+                    curContext.getString());
                 throw QueryValidationException(parms);
             }
             else

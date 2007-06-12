@@ -77,17 +77,17 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     
     if (String::equal(stringNum, String::EMPTY))
     {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
-            String("Error converting string to $0.  String cannot be $1."),
-            String("Uint64"), String("empty"));
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Uint64", "empty");
         throw CQLRuntimeException(mload);    
     }
   
     if (!p)
     {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
-            String("Error converting string to $0.  String cannot be $1."),
-            String("Uint64"), String("NULL"));
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Uint64", "NULL");
         throw CQLRuntimeException(mload);    
     }
 
@@ -105,10 +105,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     // There cannot be a negative '-' sign
     if (*p == '-')
     {
-         MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NEG"),
-             String("Error converting string to $0.  String '$1' cannot begin"
-                 " with '-'."),
-             String("Uint64"),
+         MessageLoaderParms mload("CQL.CQLUtilities.INVALID_NEG",
+             "Error converting string to $0.  String '$1' cannot begin"
+                 " with '-'.",
+             "Uint64",
              stringNum);
          throw CQLRuntimeException(mload);    
     }
@@ -117,10 +117,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
 
     if (!((*p >= '0') && (*p <= '9')))
     {
-         MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
-            String("Error converting string to $0.  String '$1' is badly"
-                " formed."),
-            String("Uint64"),
+         MessageLoaderParms mload("CQL.CQLUtilities.INVALID_NUM_FORMAT",
+            "Error converting string to $0.  String '$1' is badly"
+                " formed.",
+            "Uint64",
             stringNum);
          throw CQLRuntimeException(mload);    
     }
@@ -136,11 +136,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
         // At least one hexadecimal digit is required
         if (!*p)
         {
-            MessageLoaderParms mload(
-                String("CQL.CQLUtilities.INVALID_HEX_FORMAT"),
-                String("Error converting string to $0.  String '$1' needs a"
-                    " hexadecimal digit character following '0x'"),
-                String("Uint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_FORMAT",
+                "Error converting string to $0.  String '$1' needs a"
+                    " hexadecimal digit character following '0x'",
+                "Uint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -151,10 +150,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
             // Make sure we won't overflow when we multiply by 16
             if (x > PEGASUS_UINT64_MAX/16)
             {
-                MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                    String("Error converting string to $0.  String '$1' caused"
-                        " an overflow."),
-                    String("Uint64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
                     stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -165,10 +164,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
             Uint64 newDigit = Uint64(_CQLUtilities_hexCharToNumeric(*p++));
             if (PEGASUS_UINT64_MAX - x < newDigit)
             {
-                MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                    String("Error converting string to $0.  String '$1' caused"
-                        " an overflow."),
-                    String("Uint64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
                     stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -179,11 +178,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
         // If we found a non-hexadecimal digit, report an error
         if (*p)
         {
-            MessageLoaderParms mload(
-                String("CQL.CQLUtilities.INVALID_HEX_CHAR"),
-                String("Error converting string to $0.  Character '$1' in"
-                    " string '$2' is not a hexidecimal digit."),
-                String("Uint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_CHAR",
+                "Error converting string to $0.  Character '$1' in"
+                    " string '$2' is not a hexidecimal digit.",
+                "Uint64",
                 String(p, 1), stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -203,10 +201,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
             // Make sure we won't overflow when we multiply by 2
             if (x > PEGASUS_UINT64_MAX/2)
             {
-                MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                    String("Error converting string to $0.  String '$1' caused"
-                        " an overflow."),
-                    String("Uint64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
                     stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -220,10 +218,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
         
             if (PEGASUS_UINT64_MAX - x < newDigit)
             {
-                MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                    String("Error converting string to $0.  String '$1' caused"
-                        " an overflow."),
-                    String("Uint64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
                     stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -235,11 +233,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
         // report an error
         if (*p && (p-pStart < (Sint32)endString || (*p != 'b' && *p != 'B')))
         {
-            MessageLoaderParms mload(
-                String("CQL.CQLUtilities.INVALID_BIN_CHAR"),
-                String("Error converting string to $0.  Character '$1' in"
-                  " string '$2' is not a binary digit."),
-                String("Uint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_BIN_CHAR",
+                "Error converting string to $0.  Character '$1' in"
+                  " string '$2' is not a binary digit.",
+                "Uint64",
                 String(p, 1), stringNum);
             throw CQLRuntimeException(mload);    
     }
@@ -258,11 +255,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
         // Make sure we won't overflow when we multiply by 10
         if (x > PEGASUS_UINT64_MAX/10)
         {
-            MessageLoaderParms mload(
-                String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused an"
-                    " overflow."),
-                String("Uint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                    " overflow.",
+                "Uint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -272,10 +268,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
         Uint64 newDigit = (*p++ - '0');
         if (PEGASUS_UINT64_MAX - x < newDigit)
         {
-            MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused an"
-                    " overflow."),
-                String("Uint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                    " overflow.",
+                "Uint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -286,11 +282,10 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     // If we found a non-decimal digit, report an error
     if (*p)
     {
-        MessageLoaderParms mload(
-            String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-            String("Error converting string to $0.  Character '$1' in"
-                " string '$2' is not a decimal digit."),
-            String("Uint64"),
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_DECIMAL_CHAR",
+            "Error converting string to $0.  Character '$1' in"
+                " string '$2' is not a decimal digit.",
+            "Uint64",
             String(p, 1), stringNum);
         throw CQLRuntimeException(mload);    
     }
@@ -311,17 +306,17 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     
     if (String::equal(stringNum, String::EMPTY))
     {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
-            String("Error converting string to $0.  String cannot be $1."),
-            String("Sint64"), String("empty"));
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Sint64", "empty");
         throw CQLRuntimeException(mload);    
     }
   
     if (!p)
     {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
-            String("Error converting string to $0.  String cannot be $1."),
-            String("Sint64"), String("NULL"));
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Sint64", "NULL");
         throw CQLRuntimeException(mload);    
     }
 
@@ -347,10 +342,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     
     if (!((*p >= '0') && (*p <= '9')))
     {
-         MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
-            String("Error converting string to $0.  String '$1' is badly"
-                " formed."),
-            String("Uint64"),
+         MessageLoaderParms mload("CQL.CQLUtilities.INVALID_NUM_FORMAT",
+            "Error converting string to $0.  String '$1' is badly"
+                " formed.",
+            "Uint64",
             stringNum);
         throw CQLRuntimeException(mload);    
     }
@@ -371,10 +366,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
         // At least one hexidecimal digit is required
         if (!*p)
         {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_FORMAT"),
-            String("Error converting string to $0.  String '$1' needs a"
-                " hexadecimal digit character following '0x'."),
-            String("Sint64"),
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_FORMAT",
+            "Error converting string to $0.  String '$1' needs a"
+                " hexadecimal digit character following '0x'.",
+            "Sint64",
             stringNum);
         throw CQLRuntimeException(mload);    
         }
@@ -385,10 +380,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
             // Make sure we won't overflow when we multiply by 16
             if (x < PEGASUS_SINT64_MIN/16)
             {
-                MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                    String("Error converting string to $0.  String '$1' caused"
-                        " an overflow."),
-                    String("Sint64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Sint64",
                     stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -399,10 +394,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
             Sint64 newDigit = Sint64(_CQLUtilities_hexCharToNumeric(*p++));
             if (PEGASUS_SINT64_MIN - x > -newDigit)
             {
-                MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                   String("Error converting string to $0.  String '$1' caused"
-                       " an overflow."),
-                   String("Sint64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                   "Error converting string to $0.  String '$1' caused"
+                       " an overflow.",
+                   "Sint64",
                    stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -413,11 +408,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
         // If we found a non-hexidecimal digit, report an error
         if (*p)
         {
-            MessageLoaderParms mload(
-                String("CQL.CQLUtilities.INVALID_HEX_CHAR"),
-                String("Error converting string to $0.  Character '$1' in "
-                     "string '$2' is not a hexidecimal digit."),
-                String("Sint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_CHAR",
+                "Error converting string to $0.  Character '$1' in "
+                     "string '$2' is not a hexidecimal digit.",
+                "Sint64",
                 String(p, 1), stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -428,10 +422,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
         {
             if (x == PEGASUS_SINT64_MIN)
             {
-                MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                    String("Error converting string to $0.  String '$1' caused"
-                           " an overflow."),
-                    String("Sint64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                           " an overflow.",
+                    "Sint64",
                     stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -453,10 +447,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
         // Make sure we won't overflow when we multiply by 2
         if (x < PEGASUS_SINT64_MIN/2)
         {
-            MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused"
-                       " an overflow."),
-                String("Sint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused"
+                       " an overflow.",
+                "Sint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -469,10 +463,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
             newDigit = 1;
         if (PEGASUS_SINT64_MIN - x > -newDigit)
         {
-            MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused an"
-                       " overflow."),
-                String("Sint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -484,10 +478,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     // report an error
     if (*p && (p-pStart < (Sint32)endString || (*p != 'b' && *p != 'B')))
     {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_BIN_CHAR"),
-            String("Error converting string to $0.  Character '$1' in"
-                 " string '$2' is not a binary digit."),
-            String("Sint64"),
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_BIN_CHAR",
+            "Error converting string to $0.  Character '$1' in"
+                 " string '$2' is not a binary digit.",
+            "Sint64",
             String(p, 1), stringNum);
         throw CQLRuntimeException(mload);    
     }
@@ -498,10 +492,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     {
         if (x == PEGASUS_SINT64_MIN)
         {
-            MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused"
-                     " an overflow."),
-                String("Sint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused"
+                     " an overflow.",
+                "Sint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -521,10 +515,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
         // Make sure we won't overflow when we multiply by 10
         if (x < PEGASUS_SINT64_MIN/10)
         {
-            MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused an"
-                       " overflow."),
-                String("Sint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -534,10 +528,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
         Sint64 newDigit = (*p++ - '0');
         if (PEGASUS_SINT64_MIN - x > -newDigit)
         {
-            MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused an"
-                       " overflow."),
-                String("Sint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -548,11 +542,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     // If we found a non-decimal digit, report an error
     if (*p)
     {
-        MessageLoaderParms mload(
-            String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-            String("Error converting string to $0.  Character '$1' in string"
-                   " '$2' is not a decimal digit."),
-            String("Sint64"),
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_DECIMAL_CHAR",
+            "Error converting string to $0.  Character '$1' in string"
+                   " '$2' is not a decimal digit.",
+            "Sint64",
             String(p, 1), stringNum);
         throw CQLRuntimeException(mload);    
     }
@@ -563,10 +556,10 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     {
         if (x == PEGASUS_SINT64_MIN)
         {
-            MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
-                String("Error converting string to $0.  String '$1' caused an"
-                       " overflow."),
-                String("Sint64"),
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -589,17 +582,17 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     
     if (String::equal(stringNum, String::EMPTY))
     {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
-            String("Error converting string to $0.  String cannot be $1."),
-            String("Real64"), String("empty"));
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Real64", "empty");
         throw CQLRuntimeException(mload);    
     }
   
     if (!p)
     {
-        MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
-            String("Error converting string to $0.  String cannot be $1."),
-            String("Real64"), String("NULL"));
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Real64", "NULL");
         throw CQLRuntimeException(mload);    
     }
   
@@ -652,10 +645,9 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
         // One or more digits required:
         if (!((*p >= '0') && (*p <= '9')))
         {
-            MessageLoaderParms mload(
-                String("CQL.CQLUtilities.INVALID_CHAR_POST_DOT"),
-                String("Error converting string to Real64.  String '$0' must "
-                    "have a digit character following the decimal point."),
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_CHAR_POST_DOT",
+                "Error converting string to Real64.  String '$0' must "
+                    "have a digit character following the decimal point.",
                 stringNum);
             throw CQLRuntimeException(mload);    
         }
@@ -671,11 +663,10 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
             
             if (*p != 'e' && *p != 'E')
             {
-                MessageLoaderParms mload(
-                    String("CQL.CQLUtilities.INVALID_REAL_CHAR"),
-                    String("Error converting string to $0.  Character '$1' in "
-                        "string '$2` is invalid."),
-                    String("Real64"),
+                MessageLoaderParms mload("CQL.CQLUtilities.INVALID_REAL_CHAR",
+                    "Error converting string to $0.  Character '$1' in "
+                        "string '$2` is invalid.",
+                    "Real64",
                     String(p, 1), stringNum);
                 throw CQLRuntimeException(mload);    
             }
@@ -689,11 +680,10 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
             // One or more digits required:
             if (!((*p >= '0') && (*p <= '9')))
             {
-                MessageLoaderParms mload(
-                    String("CQL.CQLUtilities.INVALID_REAL_EXP"),
-                    String("Error converting string to Real64.  String '$0'"
+                MessageLoaderParms mload("CQL.CQLUtilities.INVALID_REAL_EXP",
+                    "Error converting string to Real64.  String '$0'"
                         " has a badly formed exponent.  Character '$1' is"
-                        " invalid."),
+                        " invalid.",
                     stringNum, String(p, 1));
                 throw CQLRuntimeException(mload);    
             }
@@ -706,11 +696,10 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     if (*p && p - pStart <= (Sint32) stringNum.size())
     {
         //  printf("This is char # %d\n", p - pStart);
-        MessageLoaderParms mload(
-            String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-            String("Error converting string to $0.  Character '$1' in string"
-                   " '$2' is not a decimal digit."),
-            String("Real64"),
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_DECIMAL_CHAR",
+            "Error converting string to $0.  Character '$1' in string"
+                   " '$2' is not a decimal digit.",
+            "Real64",
             String(p-1, 1), stringNum);
         throw CQLRuntimeException(mload);    
     }
@@ -723,10 +712,9 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     x = strtod((const char *) temp, &end);
     if (*end || (errno == ERANGE))
     {
-        MessageLoaderParms mload(
-            String("CQL.CQLUtilities.CONVERSION_REAL_ERROR"),
-            String("String '$0' was unable to be converted to a Real64."
-                   "  It could be out of range."),
+        MessageLoaderParms mload("CQL.CQLUtilities.CONVERSION_REAL_ERROR",
+            "String '$0' was unable to be converted to a Real64."
+                   "  It could be out of range.",
             stringNum);
         throw CQLRuntimeException(mload);    
     }

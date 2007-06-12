@@ -338,10 +338,6 @@ void CQL_Bison_Cleanup(){
 
 
 
-
-
-
-
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -362,20 +358,20 @@ void CQL_Bison_Cleanup(){
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 171 "CQL.y"
+#line 167 "CQL.y"
 {
-   char * strValue;
-   String * _string;
-   CQLValue * _value;
-   CQLIdentifier * _identifier;
-   CQLChainedIdentifier * _chainedIdentifier;
-   CQLPredicate * _predicate;
-   ExpressionOpType _opType;
-   void * _node;
+    char * strValue;
+    String * _string;
+    CQLValue * _value;
+    CQLIdentifier * _identifier;
+    CQLChainedIdentifier * _chainedIdentifier;
+    CQLPredicate * _predicate;
+    ExpressionOpType _opType;
+    void * _node;
 }
 /* Line 187 of yacc.c.  */
-#line 378 "CQLtemp"
-    YYSTYPE;
+#line 374 "CQLtemp"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -387,7 +383,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 391 "CQLtemp"
+#line 387 "CQLtemp"
 
 #ifdef short
 # undef short
@@ -519,7 +515,7 @@ YYID (i)
 #  endif
 #  if (defined __cplusplus && ! defined _STDLIB_H \
        && ! ((defined YYMALLOC || defined malloc) \
-         && (defined YYFREE || defined free)))
+	     && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   ifndef _STDLIB_H
 #    define _STDLIB_H 1
@@ -545,7 +541,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-     || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+	 || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -570,13 +566,13 @@ union yyalloc
 #   define YYCOPY(To, From, Count) \
       __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
 #  else
-#   define YYCOPY(To, From, Count)      \
-      do                    \
-    {                   \
-      YYSIZE_T yyi;             \
-      for (yyi = 0; yyi < (Count); yyi++)   \
-        (To)[yyi] = (From)[yyi];        \
-    }                   \
+#   define YYCOPY(To, From, Count)		\
+      do					\
+	{					\
+	  YYSIZE_T yyi;				\
+	  for (yyi = 0; yyi < (Count); yyi++)	\
+	    (To)[yyi] = (From)[yyi];		\
+	}					\
       while (YYID (0))
 #  endif
 # endif
@@ -586,15 +582,15 @@ union yyalloc
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack)                    \
-    do                                  \
-      {                                 \
-    YYSIZE_T yynewbytes;                        \
-    YYCOPY (&yyptr->Stack, Stack, yysize);              \
-    Stack = &yyptr->Stack;                      \
-    yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
-    yyptr += yynewbytes / sizeof (*yyptr);              \
-      }                                 \
+# define YYSTACK_RELOCATE(Stack)					\
+    do									\
+      {									\
+	YYSIZE_T yynewbytes;						\
+	YYCOPY (&yyptr->Stack, Stack, yysize);				\
+	Stack = &yyptr->Stack;						\
+	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
+	yyptr += yynewbytes / sizeof (*yyptr);				\
+      }									\
     while (YYID (0))
 
 #endif
@@ -617,7 +613,7 @@ union yyalloc
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   316
 
-#define YYTRANSLATE(YYX)                        \
+#define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
@@ -701,14 +697,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   295,   295,   323,   331,   348,   382,   412,   421,   435,
-     444,   456,   465,   477,   486,   498,   505,   509,   513,   517,
-     521,   530,   542,   555,   564,   571,   577,   584,   594,   601,
-     610,   648,   684,   727,   781,   787,   871,   901,   933,   967,
-     981,   987,   997,  1003,  1008,  1014,  1019,  1024,  1031,  1037,
-    1047,  1056,  1085,  1114,  1130,  1144,  1150,  1159,  1165,  1178,
-    1184,  1197,  1215,  1275,  1281,  1291,  1302,  1308,  1315,  1331,
-    1353,  1361,  1367,  1368,  1374,  1382,  1383,  1391
+       0,   291,   291,   318,   326,   342,   375,   405,   414,   428,
+     437,   449,   458,   470,   479,   491,   498,   502,   506,   510,
+     514,   523,   535,   548,   557,   565,   573,   581,   592,   600,
+     610,   649,   685,   727,   782,   789,   876,   906,   934,   964,
+     978,   984,   994,  1000,  1005,  1011,  1016,  1021,  1028,  1034,
+    1044,  1054,  1082,  1110,  1126,  1140,  1146,  1155,  1161,  1174,
+    1180,  1193,  1211,  1272,  1278,  1287,  1298,  1304,  1312,  1328,
+    1349,  1357,  1363,  1365,  1372,  1380,  1382,  1390
 };
 #endif
 
@@ -896,44 +892,44 @@ static const yytype_uint8 yystos[] =
       60,    63,    55,    95,    67,    63,    86,    94
 };
 
-#define yyerrok     (yyerrstatus = 0)
-#define yyclearin   (yychar = YYEMPTY)
-#define YYEMPTY     (-2)
-#define YYEOF       0
+#define yyerrok		(yyerrstatus = 0)
+#define yyclearin	(yychar = YYEMPTY)
+#define YYEMPTY		(-2)
+#define YYEOF		0
 
-#define YYACCEPT    goto yyacceptlab
-#define YYABORT     goto yyabortlab
-#define YYERROR     goto yyerrorlab
+#define YYACCEPT	goto yyacceptlab
+#define YYABORT		goto yyabortlab
+#define YYERROR		goto yyerrorlab
 
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
    Once GCC version 2 has supplanted version 1, this can go.  */
 
-#define YYFAIL      goto yyerrlab
+#define YYFAIL		goto yyerrlab
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)                  \
-do                              \
-  if (yychar == YYEMPTY && yylen == 1)              \
-    {                               \
-      yychar = (Token);                     \
-      yylval = (Value);                     \
-      yytoken = YYTRANSLATE (yychar);               \
-      YYPOPSTACK (1);                       \
-      goto yybackup;                        \
-    }                               \
-  else                              \
-    {                               \
+#define YYBACKUP(Token, Value)					\
+do								\
+  if (yychar == YYEMPTY && yylen == 1)				\
+    {								\
+      yychar = (Token);						\
+      yylval = (Value);						\
+      yytoken = YYTRANSLATE (yychar);				\
+      YYPOPSTACK (1);						\
+      goto yybackup;						\
+    }								\
+  else								\
+    {								\
       yyerror (YY_("syntax error: cannot back up")); \
-      YYERROR;                          \
-    }                               \
+      YYERROR;							\
+    }								\
 while (YYID (0))
 
 
-#define YYTERROR    1
-#define YYERRCODE   256
+#define YYTERROR	1
+#define YYERRCODE	256
 
 
 /* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
@@ -942,22 +938,22 @@ while (YYID (0))
 
 #define YYRHSLOC(Rhs, K) ((Rhs)[K])
 #ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)                \
-    do                                  \
+# define YYLLOC_DEFAULT(Current, Rhs, N)				\
+    do									\
       if (YYID (N))                                                    \
-    {                               \
-      (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;    \
-      (Current).first_column = YYRHSLOC (Rhs, 1).first_column;  \
-      (Current).last_line    = YYRHSLOC (Rhs, N).last_line;     \
-      (Current).last_column  = YYRHSLOC (Rhs, N).last_column;   \
-    }                               \
-      else                              \
-    {                               \
-      (Current).first_line   = (Current).last_line   =      \
-        YYRHSLOC (Rhs, 0).last_line;                \
-      (Current).first_column = (Current).last_column =      \
-        YYRHSLOC (Rhs, 0).last_column;              \
-    }                               \
+	{								\
+	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
+	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
+	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
+	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
+	}								\
+      else								\
+	{								\
+	  (Current).first_line   = (Current).last_line   =		\
+	    YYRHSLOC (Rhs, 0).last_line;				\
+	  (Current).first_column = (Current).last_column =		\
+	    YYRHSLOC (Rhs, 0).last_column;				\
+	}								\
     while (YYID (0))
 #endif
 
@@ -968,10 +964,10 @@ while (YYID (0))
 
 #ifndef YY_LOCATION_PRINT
 # if YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)          \
-     fprintf (File, "%d.%d-%d.%d",          \
-          (Loc).first_line, (Loc).first_column, \
-          (Loc).last_line,  (Loc).last_column)
+#  define YY_LOCATION_PRINT(File, Loc)			\
+     fprintf (File, "%d.%d-%d.%d",			\
+	      (Loc).first_line, (Loc).first_column,	\
+	      (Loc).last_line,  (Loc).last_column)
 # else
 #  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 # endif
@@ -994,21 +990,21 @@ while (YYID (0))
 #  define YYFPRINTF fprintf
 # endif
 
-# define YYDPRINTF(Args)            \
-do {                        \
-  if (yydebug)                  \
-    YYFPRINTF Args;             \
+# define YYDPRINTF(Args)			\
+do {						\
+  if (yydebug)					\
+    YYFPRINTF Args;				\
 } while (YYID (0))
 
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)            \
-do {                                      \
-  if (yydebug)                                \
-    {                                     \
-      YYFPRINTF (stderr, "%s ", Title);                   \
-      yy_symbol_print (stderr,                        \
-          Type, Value); \
-      YYFPRINTF (stderr, "\n");                       \
-    }                                     \
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)			  \
+do {									  \
+  if (yydebug)								  \
+    {									  \
+      YYFPRINTF (stderr, "%s ", Title);					  \
+      yy_symbol_print (stderr,						  \
+		  Type, Value); \
+      YYFPRINTF (stderr, "\n");						  \
+    }									  \
 } while (YYID (0))
 
 
@@ -1040,7 +1036,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
   switch (yytype)
     {
       default:
-    break;
+	break;
     }
 }
 
@@ -1092,10 +1088,10 @@ yy_stack_print (bottom, top)
   YYFPRINTF (stderr, "\n");
 }
 
-# define YY_STACK_PRINT(Bottom, Top)                \
-do {                                \
-  if (yydebug)                          \
-    yy_stack_print ((Bottom), (Top));               \
+# define YY_STACK_PRINT(Bottom, Top)				\
+do {								\
+  if (yydebug)							\
+    yy_stack_print ((Bottom), (Top));				\
 } while (YYID (0))
 
 
@@ -1118,21 +1114,21 @@ yy_reduce_print (yyvsp, yyrule)
   int yyi;
   unsigned long int yylno = yyrline[yyrule];
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
-         yyrule - 1, yylno);
+	     yyrule - 1, yylno);
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
       fprintf (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
-               &(yyvsp[(yyi + 1) - (yynrhs)])
-                           );
+		       &(yyvsp[(yyi + 1) - (yynrhs)])
+		       		       );
       fprintf (stderr, "\n");
     }
 }
 
-# define YY_REDUCE_PRINT(Rule)      \
-do {                    \
-  if (yydebug)              \
+# define YY_REDUCE_PRINT(Rule)		\
+do {					\
+  if (yydebug)				\
     yy_reduce_print (yyvsp, Rule); \
 } while (YYID (0))
 
@@ -1148,7 +1144,7 @@ int yydebug;
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */
-#ifndef YYINITDEPTH
+#ifndef	YYINITDEPTH
 # define YYINITDEPTH 200
 #endif
 
@@ -1235,27 +1231,27 @@ yytnamerr (char *yyres, const char *yystr)
       char const *yyp = yystr;
 
       for (;;)
-    switch (*++yyp)
-      {
-      case '\'':
-      case ',':
-        goto do_not_strip_quotes;
+	switch (*++yyp)
+	  {
+	  case '\'':
+	  case ',':
+	    goto do_not_strip_quotes;
 
-      case '\\':
-        if (*++yyp != '\\')
-          goto do_not_strip_quotes;
-        /* Fall through.  */
-      default:
-        if (yyres)
-          yyres[yyn] = *yyp;
-        yyn++;
-        break;
+	  case '\\':
+	    if (*++yyp != '\\')
+	      goto do_not_strip_quotes;
+	    /* Fall through.  */
+	  default:
+	    if (yyres)
+	      yyres[yyn] = *yyp;
+	    yyn++;
+	    break;
 
-      case '"':
-        if (yyres)
-          yyres[yyn] = '\0';
-        return yyn;
-      }
+	  case '"':
+	    if (yyres)
+	      yyres[yyn] = '\0';
+	    return yyn;
+	  }
     do_not_strip_quotes: ;
     }
 
@@ -1293,7 +1289,7 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 
 # if 0
       /* This is so xgettext sees the translatable formats that are
-     constructed on the fly.  */
+	 constructed on the fly.  */
       YY_("syntax error, unexpected %s");
       YY_("syntax error, unexpected %s, expecting %s");
       YY_("syntax error, unexpected %s, expecting %s or %s");
@@ -1306,13 +1302,13 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
       static char const yyexpecting[] = ", expecting %s";
       static char const yyor[] = " or %s";
       char yyformat[sizeof yyunexpected
-            + sizeof yyexpecting - 1
-            + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
-               * (sizeof yyor - 1))];
+		    + sizeof yyexpecting - 1
+		    + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
+		       * (sizeof yyor - 1))];
       char const *yyprefix = yyexpecting;
 
       /* Start YYX at -YYN if negative to avoid negative indexes in
-     YYCHECK.  */
+	 YYCHECK.  */
       int yyxbegin = yyn < 0 ? -yyn : 0;
 
       /* Stay within bounds of both yycheck and yytname.  */
@@ -1324,22 +1320,22 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
       yyfmt = yystpcpy (yyformat, yyunexpected);
 
       for (yyx = yyxbegin; yyx < yyxend; ++yyx)
-    if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-      {
-        if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
-          {
-        yycount = 1;
-        yysize = yysize0;
-        yyformat[sizeof yyunexpected - 1] = '\0';
-        break;
-          }
-        yyarg[yycount++] = yytname[yyx];
-        yysize1 = yysize + yytnamerr (0, yytname[yyx]);
-        yysize_overflow |= (yysize1 < yysize);
-        yysize = yysize1;
-        yyfmt = yystpcpy (yyfmt, yyprefix);
-        yyprefix = yyor;
-      }
+	if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
+	  {
+	    if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+	      {
+		yycount = 1;
+		yysize = yysize0;
+		yyformat[sizeof yyunexpected - 1] = '\0';
+		break;
+	      }
+	    yyarg[yycount++] = yytname[yyx];
+	    yysize1 = yysize + yytnamerr (0, yytname[yyx]);
+	    yysize_overflow |= (yysize1 < yysize);
+	    yysize = yysize1;
+	    yyfmt = yystpcpy (yyfmt, yyprefix);
+	    yyprefix = yyor;
+	  }
 
       yyf = YY_(yyformat);
       yysize1 = yysize + yystrlen (yyf);
@@ -1347,29 +1343,29 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
       yysize = yysize1;
 
       if (yysize_overflow)
-    return YYSIZE_MAXIMUM;
+	return YYSIZE_MAXIMUM;
 
       if (yyresult)
-    {
-      /* Avoid sprintf, as that infringes on the user's name space.
-         Don't have undefined behavior even if the translation
-         produced a string with the wrong number of "%s"s.  */
-      char *yyp = yyresult;
-      int yyi = 0;
-      while ((*yyp = *yyf) != '\0')
-        {
-          if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
-        {
-          yyp += yytnamerr (yyp, yyarg[yyi++]);
-          yyf += 2;
-        }
-          else
-        {
-          yyp++;
-          yyf++;
-        }
-        }
-    }
+	{
+	  /* Avoid sprintf, as that infringes on the user's name space.
+	     Don't have undefined behavior even if the translation
+	     produced a string with the wrong number of "%s"s.  */
+	  char *yyp = yyresult;
+	  int yyi = 0;
+	  while ((*yyp = *yyf) != '\0')
+	    {
+	      if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
+		{
+		  yyp += yytnamerr (yyp, yyarg[yyi++]);
+		  yyf += 2;
+		}
+	      else
+		{
+		  yyp++;
+		  yyf++;
+		}
+	    }
+	}
       return yysize;
     }
 }
@@ -1403,7 +1399,7 @@ yydestruct (yymsg, yytype, yyvaluep)
     {
 
       default:
-    break;
+	break;
     }
 }
 
@@ -1516,7 +1512,7 @@ yyparse ()
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;     /* Cause a token to be read.  */
+  yychar = YYEMPTY;		/* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
@@ -1546,25 +1542,25 @@ yyparse ()
 
 #ifdef yyoverflow
       {
-    /* Give user a chance to reallocate the stack.  Use copies of
-       these so that the &'s don't force the real ones into
-       memory.  */
-    YYSTYPE *yyvs1 = yyvs;
-    yytype_int16 *yyss1 = yyss;
+	/* Give user a chance to reallocate the stack.  Use copies of
+	   these so that the &'s don't force the real ones into
+	   memory.  */
+	YYSTYPE *yyvs1 = yyvs;
+	yytype_int16 *yyss1 = yyss;
 
 
-    /* Each stack pointer address is followed by the size of the
-       data in use in that stack, in bytes.  This used to be a
-       conditional around just the two extra args, but that might
-       be undefined if yyoverflow is a macro.  */
-    yyoverflow (YY_("memory exhausted"),
-            &yyss1, yysize * sizeof (*yyssp),
-            &yyvs1, yysize * sizeof (*yyvsp),
+	/* Each stack pointer address is followed by the size of the
+	   data in use in that stack, in bytes.  This used to be a
+	   conditional around just the two extra args, but that might
+	   be undefined if yyoverflow is a macro.  */
+	yyoverflow (YY_("memory exhausted"),
+		    &yyss1, yysize * sizeof (*yyssp),
+		    &yyvs1, yysize * sizeof (*yyvsp),
 
-            &yystacksize);
+		    &yystacksize);
 
-    yyss = yyss1;
-    yyvs = yyvs1;
+	yyss = yyss1;
+	yyvs = yyvs1;
       }
 #else /* no yyoverflow */
 # ifndef YYSTACK_RELOCATE
@@ -1572,23 +1568,23 @@ yyparse ()
 # else
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
-    goto yyexhaustedlab;
+	goto yyexhaustedlab;
       yystacksize *= 2;
       if (YYMAXDEPTH < yystacksize)
-    yystacksize = YYMAXDEPTH;
+	yystacksize = YYMAXDEPTH;
 
       {
-    yytype_int16 *yyss1 = yyss;
-    union yyalloc *yyptr =
-      (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
-    if (! yyptr)
-      goto yyexhaustedlab;
-    YYSTACK_RELOCATE (yyss);
-    YYSTACK_RELOCATE (yyvs);
+	yytype_int16 *yyss1 = yyss;
+	union yyalloc *yyptr =
+	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
+	if (! yyptr)
+	  goto yyexhaustedlab;
+	YYSTACK_RELOCATE (yyss);
+	YYSTACK_RELOCATE (yyvs);
 
 #  undef YYSTACK_RELOCATE
-    if (yyss1 != yyssa)
-      YYSTACK_FREE (yyss1);
+	if (yyss1 != yyssa)
+	  YYSTACK_FREE (yyss1);
       }
 # endif
 #endif /* no yyoverflow */
@@ -1598,10 +1594,10 @@ yyparse ()
 
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-          (unsigned long int) yystacksize));
+		  (unsigned long int) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
-    YYABORT;
+	YYABORT;
     }
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
@@ -1650,7 +1646,7 @@ yybackup:
   if (yyn <= 0)
     {
       if (yyn == 0 || yyn == YYTABLE_NINF)
-    goto yyerrlab;
+	goto yyerrlab;
       yyn = -yyn;
       goto yyreduce;
     }
@@ -1708,75 +1704,72 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 296 "CQL.y"
+#line 292 "CQL.y"
     { 
-         CQLTRACE("identifier");
+        CQLTRACE("identifier");
 
-
-         if(isUTF8Str(CQL_lval.strValue))
-         {  
-           (yyval._identifier) = new CQLIdentifier(String(CQL_lval.strValue));
+        if(isUTF8Str(CQL_lval.strValue))
+        {  
+            (yyval._identifier) = new CQLIdentifier(String(CQL_lval.strValue));
                 _ObjPtr._ptr = (yyval._identifier);
                 _ObjPtr.type = Id;
                 _ptrs.append(_ObjPtr);
-             }
-         else
-         {
-             sprintf(msg,"BISON::identifier-> BAD UTF\n");
-             printf_(msg);
-             CQLTRACEMSG("identifier", "BAD UTF");
+        }
+        else
+        {
+            sprintf(msg,"BISON::identifier-> BAD UTF\n");
+            printf_(msg);
+            CQLTRACEMSG("identifier", "BAD UTF");
 
-             throw CQLSyntaxErrorException(
-                    MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
-                      "Bad UTF8 encountered parsing rule $0"
-                           " in position $1.",
-                      "identifier",
-                      CQL_globalParserState->currentTokenPos) );
-         }
-      ;}
+            throw CQLSyntaxErrorException(
+                MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
+                "Bad UTF8 encountered parsing rule $0"
+                   " in position $1.",
+                "identifier",
+                CQL_globalParserState->currentTokenPos) );
+        }
+    ;}
     break;
 
   case 3:
-#line 324 "CQL.y"
+#line 319 "CQL.y"
     {
-
-         CQLTRACE2("class_name",(const char *)((yyvsp[(1) - (1)]._identifier)->getName().getString().getCString()) );
-         (yyval._identifier) = (yyvsp[(1) - (1)]._identifier);
-      ;}
+        CQLTRACE2("class_name",(const char *)((yyvsp[(1) - (1)]._identifier)->getName().getString()
+                                              .getCString()) );
+        (yyval._identifier) = (yyvsp[(1) - (1)]._identifier);
+    ;}
     break;
 
   case 4:
-#line 332 "CQL.y"
+#line 327 "CQL.y"
     { 
-         CQLTRACE("class_path");
-
-         (yyval._identifier) = (yyvsp[(1) - (1)]._identifier);
-      ;}
+        CQLTRACE("class_path");
+        (yyval._identifier) = (yyvsp[(1) - (1)]._identifier);
+    ;}
     break;
 
   case 5:
-#line 349 "CQL.y"
+#line 343 "CQL.y"
     {
-         /*
-         TOK_SCOPED_PROPERTY can be:
-         - "A::prop"
-         - "A::class.prop"
-         - "A::class.prop#'OK'
-         - "A::class.prop[4]"
-         */
-         CQLTRACE2("scoped_property",CQL_lval.strValue );
-
-         if(isUTF8Str(CQL_lval.strValue))
-         {
+        /*
+        TOK_SCOPED_PROPERTY can be:
+        - "A::prop"
+        - "A::class.prop"
+        - "A::class.prop#'OK'
+        - "A::class.prop[4]"
+        */
+        CQLTRACE2("scoped_property",CQL_lval.strValue );
+        
+        if(isUTF8Str(CQL_lval.strValue))
+        {
             String tmp(CQL_lval.strValue);
             (yyval._identifier) = new CQLIdentifier(tmp);
             _ObjPtr._ptr = (yyval._identifier);
             _ObjPtr.type = Id;
             _ptrs.append(_ObjPtr);
-         
-         }
-         else
-         {
+        }
+        else
+        {
             sprintf(msg,"BISON::scoped_property-> BAD UTF\n");
             printf_(msg);
             throw CQLSyntaxErrorException(
@@ -1784,42 +1777,42 @@ yyreduce:
                   "Bad UTF8 encountered parsing rule $0 in position $1.",
                   "scoped_property",
                   CQL_globalParserState->currentTokenPos) );
-         }
-      ;}
+        }
+    ;}
     break;
 
   case 6:
-#line 383 "CQL.y"
+#line 376 "CQL.y"
     { 
-         /*
-           We make sure the literal is valid UTF8, then make a String
-         */
-         CQLTRACE2("literal_string",CQL_lval.strValue );
-
-         if(isUTF8Str(CQL_lval.strValue))
-         {
+        /*
+        Make sure the literal is valid UTF8, then make a String
+        */
+        CQLTRACE2("literal_string",CQL_lval.strValue );
+        
+        if(isUTF8Str(CQL_lval.strValue))
+        {
             (yyval._string) = new String(CQL_lval.strValue);
             _ObjPtr._ptr = (yyval._string);
             _ObjPtr.type = Str;
             _ptrs.append(_ObjPtr);
-         }
-         else
-         {
+        }
+        else
+        {
             sprintf(msg,"BISON::literal_string-> BAD UTF\n");
             printf_(msg);
             CQLTRACEMSG("literal_string", "BAD UTF");
-
+            
             throw CQLSyntaxErrorException(
                MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
                   "Bad UTF8 encountered parsing rule $0 in position $1.",
                   "literal_string",
                   CQL_globalParserState->currentTokenPos));
         }
-      ;}
+    ;}
     break;
 
   case 7:
-#line 413 "CQL.y"
+#line 406 "CQL.y"
     { 
          CQLTRACE2("binary_value->TOK_BINARY", CQL_lval.strValue);
          
@@ -1827,330 +1820,330 @@ yyreduce:
          _ObjPtr._ptr = (yyval._value);
          _ObjPtr.type = Val;
          _ptrs.append(_ObjPtr);
-      ;}
+    ;}
     break;
 
   case 8:
-#line 422 "CQL.y"
+#line 415 "CQL.y"
     { 
          printf_(msg);
-
+        
          CQLTRACE2("binary_value->TOK_NEGATIVE_BINARY", CQL_lval.strValue);
-
+        
          (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false); 
          _ObjPtr._ptr = (yyval._value);
          _ObjPtr.type = Val;
          _ptrs.append(_ObjPtr);
-      ;}
+    ;}
     break;
 
   case 9:
-#line 436 "CQL.y"
+#line 429 "CQL.y"
     { 
-         CQLTRACE2("hex_value->TOK_HEXADECIMAL", CQL_lval.strValue);
-
-         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Hex);
-            _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE2("hex_value->TOK_HEXADECIMAL", CQL_lval.strValue);
+        
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Hex);
+        _ObjPtr._ptr = (yyval._value);
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 10:
-#line 445 "CQL.y"
+#line 438 "CQL.y"
     { 
-         CQLTRACE2("hex_value->TOK_NEGATIVE_HEXADECIMAL", CQL_lval.strValue);
-
-         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Hex, false);
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE2("hex_value->TOK_NEGATIVE_HEXADECIMAL", CQL_lval.strValue);
+        
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Hex, false);
+        _ObjPtr._ptr = (yyval._value);
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 11:
-#line 457 "CQL.y"
+#line 450 "CQL.y"
     { 
-         CQLTRACE2("decimal_value->TOK_INTEGER", CQL_lval.strValue);
-
-         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Decimal); 
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE2("decimal_value->TOK_INTEGER", CQL_lval.strValue);
+        
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Decimal); 
+        _ObjPtr._ptr = (yyval._value);
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 12:
-#line 466 "CQL.y"
+#line 459 "CQL.y"
     { 
-         CQLTRACE2("decimal_value->TOK_NEGATIVE_INTEGER", CQL_lval.strValue);
-
-         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Decimal, false);
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE2("decimal_value->TOK_NEGATIVE_INTEGER", CQL_lval.strValue);
+        
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Decimal, false);
+        _ObjPtr._ptr = (yyval._value);
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 13:
-#line 478 "CQL.y"
+#line 471 "CQL.y"
     { 
-         CQLTRACE2("real_value->TOK_REAL", CQL_lval.strValue);
-
-         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Real);
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE2("real_value->TOK_REAL", CQL_lval.strValue);
+        
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Real);
+        _ObjPtr._ptr = (yyval._value);
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 14:
-#line 487 "CQL.y"
+#line 480 "CQL.y"
     { 
-         CQLTRACE2("real_value->TOK_NEGATIVE_REAL", CQL_lval.strValue);
-
-         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE2("real_value->TOK_NEGATIVE_REAL", CQL_lval.strValue);
+        
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
+        _ObjPtr._ptr = (yyval._value);
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 15:
-#line 499 "CQL.y"
+#line 492 "CQL.y"
     {
-         (yyval._value) = new CQLValue(*(yyvsp[(1) - (1)]._string));
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+            (yyval._value) = new CQLValue(*(yyvsp[(1) - (1)]._string));
+            _ObjPtr._ptr = (yyval._value);
+            _ObjPtr.type = Val;
+            _ptrs.append(_ObjPtr);
+        ;}
     break;
 
   case 16:
-#line 506 "CQL.y"
+#line 499 "CQL.y"
     {
-         CQLTRACE("literal->decimal_value");
-      ;}
+            CQLTRACE("literal->decimal_value");
+        ;}
     break;
 
   case 17:
-#line 510 "CQL.y"
+#line 503 "CQL.y"
     {
-         CQLTRACE("literal->binary_value");
-      ;}
+            CQLTRACE("literal->binary_value");
+        ;}
     break;
 
   case 18:
-#line 514 "CQL.y"
+#line 507 "CQL.y"
     {
-         CQLTRACE("literal->hex_value");
-      ;}
+            CQLTRACE("literal->hex_value");
+        ;}
     break;
 
   case 19:
-#line 518 "CQL.y"
+#line 511 "CQL.y"
     {
-         CQLTRACE("literal->real_value");
-      ;}
+            CQLTRACE("literal->real_value");
+        ;}
     break;
 
   case 20:
-#line 522 "CQL.y"
+#line 515 "CQL.y"
     {
-         CQLTRACE("literal->TOK_TRUE");
-
-         (yyval._value) = new CQLValue(Boolean(true));
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+            CQLTRACE("literal->TOK_TRUE");
+        
+            (yyval._value) = new CQLValue(Boolean(true));
+            _ObjPtr._ptr = (yyval._value);
+            _ObjPtr.type = Val;
+            _ptrs.append(_ObjPtr);
+        ;}
     break;
 
   case 21:
-#line 531 "CQL.y"
+#line 524 "CQL.y"
     {
-         CQLTRACE("literal->TOK_FALSE");
-
-         (yyval._value) = new CQLValue(Boolean(false));
-            _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+             CQLTRACE("literal->TOK_FALSE");
+            
+             (yyval._value) = new CQLValue(Boolean(false));
+             _ObjPtr._ptr = (yyval._value);
+             _ObjPtr.type = Val;
+             _ptrs.append(_ObjPtr);
+        ;}
     break;
 
   case 22:
-#line 543 "CQL.y"
+#line 536 "CQL.y"
     {
-         CQLTRACE("array_index->expr");
-
-         CQLValue* _val = (CQLValue*)_factory.getObject((yyvsp[(1) - (1)]._predicate),Predicate,Value);
-         (yyval._string) = new String(_val->toString());
-         _ObjPtr._ptr = (yyval._string);
-         _ObjPtr.type = Str;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE("array_index->expr");
+        
+        CQLValue* _val = (CQLValue*)_factory.getObject((yyvsp[(1) - (1)]._predicate),Predicate,Value);
+        (yyval._string) = new String(_val->toString());
+        _ObjPtr._ptr = (yyval._string);
+        _ObjPtr.type = Str;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 23:
-#line 556 "CQL.y"
+#line 549 "CQL.y"
     {
-         CQLTRACE("array_index_list->array_index");
-
-         (yyval._string) = (yyvsp[(1) - (1)]._string);
-      ;}
+        CQLTRACE("array_index_list->array_index");
+        
+        (yyval._string) = (yyvsp[(1) - (1)]._string);
+    ;}
     break;
 
   case 24:
-#line 565 "CQL.y"
+#line 558 "CQL.y"
     {
-         CQLTRACE("chain->literal");
-
-         chain_state = CQLVALUE;
-         (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._value),Predicate);  
-      ;}
+        CQLTRACE("chain->literal");
+        
+        chain_state = CQLVALUE;
+        (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._value),Predicate);  
+    ;}
     break;
 
   case 25:
-#line 572 "CQL.y"
+#line 566 "CQL.y"
     {
-         CQLTRACE("chain-> ( expr )");
-         chain_state = CQLPREDICATE;
-         (yyval._node) = (yyvsp[(2) - (3)]._predicate);
-      ;}
+        CQLTRACE("chain-> ( expr )");
+
+        chain_state = CQLPREDICATE;
+        (yyval._node) = (yyvsp[(2) - (3)]._predicate);
+    ;}
     break;
 
   case 26:
-#line 578 "CQL.y"
+#line 574 "CQL.y"
     {
-         CQLTRACE("chain->identifier");
-
-         chain_state = CQLIDENTIFIER;
-         (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._identifier),Predicate);
-      ;}
+        CQLTRACE("chain->identifier");
+        
+        chain_state = CQLIDENTIFIER;
+        (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._identifier),Predicate);
+    ;}
     break;
 
   case 27:
-#line 585 "CQL.y"
+#line 582 "CQL.y"
     {
-         CQLTRACE("chain->identifier#literal_string");
-         
-         String tmp = (yyvsp[(1) - (3)]._identifier)->getName().getString();
-         tmp.append("#").append(*(yyvsp[(3) - (3)]._string));
-         CQLIdentifier _id(tmp);
-         (yyval._node) = _factory.makeObject(&_id,Predicate);
-         chain_state = CQLIDENTIFIER;
-      ;}
+        CQLTRACE("chain->identifier#literal_string");
+        
+        String tmp = (yyvsp[(1) - (3)]._identifier)->getName().getString();
+        tmp.append("#").append(*(yyvsp[(3) - (3)]._string));
+        CQLIdentifier _id(tmp);
+        (yyval._node) = _factory.makeObject(&_id,Predicate);
+        chain_state = CQLIDENTIFIER;
+    ;}
     break;
 
   case 28:
-#line 595 "CQL.y"
+#line 593 "CQL.y"
     {
          CQLTRACE("chain->scoped_property");
-
+        
          chain_state = CQLIDENTIFIER;
          (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._identifier),Predicate);
-      ;}
+    ;}
     break;
 
   case 29:
-#line 602 "CQL.y"
+#line 601 "CQL.y"
     {
          CQLTRACE("chain->identifier( arg_list )");
-
+        
          chain_state = CQLFUNCTION;
          CQLFunction _func(*(yyvsp[(1) - (4)]._identifier),_arglist);
          (yyval._node) = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
          _arglist.clear();
-      ;}
+    ;}
     break;
 
   case 30:
 #line 611 "CQL.y"
     {
-         CQLTRACEDECIMAL("chain TOK_DOT scoped_property", chain_state);
-
-         CQLIdentifier *_id;
-         if(chain_state == CQLIDENTIFIER)
-         {
+        CQLTRACEDECIMAL("chain TOK_DOT scoped_property", chain_state);
+        
+        CQLIdentifier *_id;
+        if(chain_state == CQLIDENTIFIER)
+        {
             _id = ((CQLIdentifier*)(_factory.getObject(
                 (yyvsp[(1) - (3)]._node),Predicate,Identifier)));
             CQLChainedIdentifier _cid(*_id);
             _cid.append(*(yyvsp[(3) - (3)]._identifier));
             (yyval._node) = _factory.makeObject(&_cid,Predicate);
-         }
-         else if(chain_state == CQLCHAINEDIDENTIFIER)
-         {
+        }
+        else if(chain_state == CQLCHAINEDIDENTIFIER)
+        {
             CQLChainedIdentifier *_cid;
             _cid = ((CQLChainedIdentifier*)(_factory.getObject(
                 (yyvsp[(1) - (3)]._node),Predicate,ChainedIdentifier)));
             _cid->append(*(yyvsp[(3) - (3)]._identifier));
             _factory.setObject(((CQLPredicate*)(yyvsp[(1) - (3)]._node)),_cid,ChainedIdentifier);
             (yyval._node) = (yyvsp[(1) - (3)]._node);
-         }
-         else
-         {
-            /* error */
+        }
+        else  /* error */
+        {
             String _msg("chain-> chain TOK_DOT scoped_property :"
                 " chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-            throw CQLSyntaxErrorException(
-               MessageLoaderParms("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER",
-                  "Chain state not a CQLIdentifier or a"
-                    " CQLChainedIdentifier while parsing rule $0 in"
-                    " position $1.",
-                  "chain.scoped_property",
-                  CQL_globalParserState->currentTokenPos));
-         }
 
-         chain_state = CQLCHAINEDIDENTIFIER;
-      ;}
+            throw CQLSyntaxErrorException(
+                MessageLoaderParms("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER",
+                    "Chain state not a CQLIdentifier or a"
+                        " CQLChainedIdentifier while parsing rule $0 in"
+                        " position $1.",
+                    "chain.scoped_property",
+                    CQL_globalParserState->currentTokenPos));
+        }
+    
+    chain_state = CQLCHAINEDIDENTIFIER;
+    ;}
     break;
 
   case 31:
-#line 649 "CQL.y"
+#line 650 "CQL.y"
     {
-         CQLTRACEDECIMAL("chain->chain.identifier", chain_state);
-
-         if(chain_state == CQLIDENTIFIER)
-         {
+        CQLTRACEDECIMAL("chain->chain.identifier", chain_state);
+        
+        if(chain_state == CQLIDENTIFIER)
+        {
             CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject(
-                (yyvsp[(1) - (3)]._node),Predicate,Identifier)));
+            (yyvsp[(1) - (3)]._node),Predicate,Identifier)));
             CQLChainedIdentifier _cid(*_id);
             _cid.append(*(yyvsp[(3) - (3)]._identifier));
             (yyval._node) = _factory.makeObject(&_cid,Predicate);
-         }
-         else if(chain_state == CQLCHAINEDIDENTIFIER)
-         {
+        }
+        else if(chain_state == CQLCHAINEDIDENTIFIER)
+        {
             CQLChainedIdentifier *_cid = 
-                ((CQLChainedIdentifier*)(_factory.getObject(
-                (yyvsp[(1) - (3)]._node),Predicate,ChainedIdentifier)));
+            ((CQLChainedIdentifier*)(_factory.getObject(
+            (yyvsp[(1) - (3)]._node),Predicate,ChainedIdentifier)));
             _cid->append(*(yyvsp[(3) - (3)]._identifier));
             _factory.setObject(((CQLPredicate*)(yyvsp[(1) - (3)]._node)),_cid,ChainedIdentifier);
             (yyval._node) = (yyvsp[(1) - (3)]._node);
-         }
-         else
-         {
-            /* error */
+        }
+        else  /* error */
+        {
             String _msg("chain-> chain TOK_DOT identifier : chain state not"
                 " CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
-            throw CQLSyntaxErrorException(
-               MessageLoaderParms("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER",
-                  "Chain state not a CQLIdentifier or a CQLChainedId"
-                      "Identifier while parsing rule $0 in position $1.",
-                  "chain.identifier",
-                  CQL_globalParserState->currentTokenPos));
-         }
-        chain_state = CQLCHAINEDIDENTIFIER;
 
-      ;}
+            throw CQLSyntaxErrorException(
+            MessageLoaderParms("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER",
+                "Chain state not a CQLIdentifier or a CQLChainedId"
+                    "Identifier while parsing rule $0 in position $1.",
+                "chain.identifier",
+                CQL_globalParserState->currentTokenPos));
+        }
+        chain_state = CQLCHAINEDIDENTIFIER;
+    ;}
     break;
 
   case 32:
-#line 685 "CQL.y"
+#line 686 "CQL.y"
     {
-         CQLTRACEDECIMAL("chain->chain.identifier#literal_string", chain_state);
-
-         if(chain_state == CQLIDENTIFIER)
-         {
+        CQLTRACEDECIMAL("chain->chain.identifier#literal_string", chain_state);
+        
+        if(chain_state == CQLIDENTIFIER)
+        {
             CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject(
                 (yyvsp[(1) - (5)]._node),Predicate,Identifier))); 
             CQLChainedIdentifier _cid(*_id);
@@ -2160,9 +2153,9 @@ yyreduce:
             _cid.append(_id1);
             _factory.setObject(((CQLPredicate*)(yyvsp[(1) - (5)]._node)),&_cid,ChainedIdentifier);
             (yyval._node) = (yyvsp[(1) - (5)]._node);
-         }
-         else if(chain_state == CQLCHAINEDIDENTIFIER)
-         {
+        }
+        else if(chain_state == CQLCHAINEDIDENTIFIER)
+        {
             CQLChainedIdentifier *_cid =  ((CQLChainedIdentifier*)(
                 _factory.getObject((yyvsp[(1) - (5)]._node),Predicate,ChainedIdentifier)));
             String tmp((yyvsp[(3) - (5)]._identifier)->getName().getString());
@@ -2171,32 +2164,30 @@ yyreduce:
             _cid->append(_id1);
             _factory.setObject(((CQLPredicate*)(yyvsp[(1) - (5)]._node)),_cid,ChainedIdentifier);
             (yyval._node) = (yyvsp[(1) - (5)]._node);
-         }
-         else
-         {
-            /* error */
+        }
+        else  /* error */
+        {
             String _msg("chain->chain.identifier#literal_string : chain"
                 " state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
+
             throw CQLSyntaxErrorException(
             MessageLoaderParms("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER",
                 "Chain state not a CQLIdentifier or a CQLChained"
                     "Identifier while parsing rule $0 in position $1.",
                 "chain.identifier#literal_string",
                 CQL_globalParserState->currentTokenPos) );
-         }
-                                                                                                        
-         chain_state = CQLCHAINEDIDENTIFIER;
-
-      ;}
+            }
+        chain_state = CQLCHAINEDIDENTIFIER;
+    ;}
     break;
 
   case 33:
 #line 728 "CQL.y"
     {
-         CQLTRACEDECIMAL("chain->chain[ array_index_list ]", chain_state);
-
-         if(chain_state == CQLIDENTIFIER)
-         {
+        CQLTRACEDECIMAL("chain->chain[ array_index_list ]", chain_state);
+        
+        if(chain_state == CQLIDENTIFIER)
+        {
             CQLIdentifier *_id = ((CQLIdentifier*)
                 (_factory.getObject((yyvsp[(1) - (4)]._node),Predicate,Identifier)));
             String tmp = _id->getName().getString();
@@ -2205,9 +2196,9 @@ yyreduce:
             CQLChainedIdentifier _cid(_id1);
             _factory.setObject(((CQLPredicate*)(yyvsp[(1) - (4)]._node)),&_cid,ChainedIdentifier);
             (yyval._node) = (yyvsp[(1) - (4)]._node);    
-         }
-         else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE)
-         {
+        }
+        else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE)
+        {
             CQLPredicate* _pred = (CQLPredicate*)(yyvsp[(1) - (4)]._node);
             CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)
                 (_factory.getObject
@@ -2217,22 +2208,23 @@ yyreduce:
             tmp.append("[").append(*(yyvsp[(3) - (4)]._string)).append("]");
             CQLIdentifier _id1(tmp);
             CQLChainedIdentifier _tmpcid(_id1);
+
             if(_cid->size() == 1)
             {
-               _cid = &_tmpcid;
+                _cid = &_tmpcid;
             }
             else
             {
-               _cid->append(_id1);
+                _cid->append(_id1);
             }
             _factory.setObject(((CQLPredicate*)(yyvsp[(1) - (4)]._node)),_cid,ChainedIdentifier);
             (yyval._node) = (yyvsp[(1) - (4)]._node);
-         }
-         else
-         {
-            /* error */
+        }
+        else  /* error */
+        {
             String _msg("chain->chain[ array_index_list ] : chain state not"
                 " CQLIDENTIFIER or CQLCHAINEDIDENTIFIER or CQLVALUE");
+
             throw CQLSyntaxErrorException(
                MessageLoaderParms(
                   "CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER_OR_VALUE",
@@ -2242,298 +2234,293 @@ yyreduce:
                   "chain->chain[ array_index_list ]",
                   CQL_globalParserState->currentTokenPos) );
         }
-        ;}
+    ;}
     break;
 
   case 34:
-#line 782 "CQL.y"
+#line 783 "CQL.y"
     {
-            CQLTRACE("concat->chain");
-
-            (yyval._predicate) = ((CQLPredicate*)(yyvsp[(1) - (1)]._node));
-         ;}
+        CQLTRACE("concat->chain");
+        
+        (yyval._predicate) = ((CQLPredicate*)(yyvsp[(1) - (1)]._node));
+    ;}
     break;
 
   case 35:
-#line 788 "CQL.y"
+#line 790 "CQL.y"
     {
-            CQLTRACE("concat->concat || literal_string");
-
-            CQLValue* tmpval = new CQLValue(*(yyvsp[(3) - (3)]._string));
-            _ObjPtr._ptr = tmpval;
-            _ObjPtr.type = Val;
-            _ptrs.append(_ObjPtr);  
-
-            if((CQLPredicate*)(yyvsp[(1) - (3)]._predicate)->isSimple())
+        CQLTRACE("concat->concat || literal_string");
+        
+        CQLValue* tmpval = new CQLValue(*(yyvsp[(3) - (3)]._string));
+        _ObjPtr._ptr = tmpval;
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);  
+        
+        if((CQLPredicate*)(yyvsp[(1) - (3)]._predicate)->isSimple())
+        {
+            CQLSimplePredicate sp = ((CQLPredicate*)(yyvsp[(1) - (3)]._predicate))->getSimplePredicate();
+            if(sp.isSimple())
             {
-               CQLSimplePredicate sp = ((CQLPredicate*)(yyvsp[(1) - (3)]._predicate))->getSimplePredicate();
-                  if(sp.isSimple())
-                  {
-                     CQLExpression exp = sp.getLeftExpression();
-                     if(exp.isSimple())
-                     {
-                        CQLTerm* _term = ((CQLTerm*)
-                            (_factory.getObject((yyvsp[(1) - (3)]._predicate), Predicate, Term)));
-                        // check for simple literal values
-                        Array<CQLFactor> factors = _term->getFactors();
-                        for(Uint32 i = 0; i < factors.size(); i++)
+                CQLExpression exp = sp.getLeftExpression();
+                if(exp.isSimple())
+                {
+                    CQLTerm* _term = ((CQLTerm*)
+                        (_factory.getObject((yyvsp[(1) - (3)]._predicate), Predicate, Term)));
+                    // check for simple literal values
+                    Array<CQLFactor> factors = _term->getFactors();
+                    for(Uint32 i = 0; i < factors.size(); i++)
+                    {
+                        if(!factors[i].isSimpleValue())
                         {
-                           if(!factors[i].isSimpleValue())
-                           {
-                              MessageLoaderParms mparms(
-                                 "CQL.CQL_y.CONCAT_PRODUCTION_FACTORS_NOT"
-                                     "_SIMPLE",
-                                 "The CQLFactors are not simple while"
-                                    " processing rule $0.",
-                                 CQL_globalParserState->currentRule);
-                              throw CQLSyntaxErrorException(mparms);
-                           }
-                           else /* !factors[i].isSimpleValue() */
-                           {
-                              CQLValue val = factors[i].getValue();
-                              if(val.getValueType() != CQLValue::String_type)
-                              {
-                                 MessageLoaderParms mparms(
-                                    "CQL.CQL_y.CONCAT_PRODUCTION_VALUE_NOT_LITERAL",
-                                    "The CQLValue is not a string literal while processing rule $0.",
-                                    CQL_globalParserState->currentRule);
-                                 throw CQLSyntaxErrorException(mparms);
-                              }
-                           }
+                            MessageLoaderParms mparms(
+                                "CQL.CQL_y.CONCAT_PRODUCTION_FACTORS_NOT"
+                                "_SIMPLE",
+                                "The CQLFactors are not simple while"
+                                " processing rule $0.",
+                                CQL_globalParserState->currentRule);
+                            throw CQLSyntaxErrorException(mparms);
                         }
-                        CQLFactor* _fctr2 = ((CQLFactor*)
-                            (_factory.makeObject(tmpval, Factor)));
-                        _term->appendOperation(concat,*_fctr2);
-                        (yyval._predicate) = (CQLPredicate*)(_factory.makeObject
-                            (_term,Predicate)); 
-                     }
-                     else /* exp.isSimple() */
-                     {
-                        MessageLoaderParms mparms(
-                           "CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
-                           "The $0 is not simple while processing rule $1.",
-                           "CQLExpression",
-                           CQL_globalParserState->currentRule);
-                        throw CQLSyntaxErrorException(mparms);
-                     }
-                  }
-                  else /*sp.isSimple() */
-                  {
-                     MessageLoaderParms mparms(
+                        else /* !factors[i].isSimpleValue() */
+                        {
+                            CQLValue val = factors[i].getValue();
+                            if(val.getValueType() != CQLValue::String_type)
+                            {
+                                MessageLoaderParms mparms(
+                                 "CQL.CQL_y."
+                                     "CONCAT_PRODUCTION_VALUE_NOT_LITERAL",
+                                 "The CQLValue is not a string literal while"
+                                     " processing rule $0.",
+                                 CQL_globalParserState->currentRule);
+                                throw CQLSyntaxErrorException(mparms);
+                            }
+                        }
+                    }  // End For factors.size() Loop
+
+                    CQLFactor* _fctr2 = ((CQLFactor*)
+                        (_factory.makeObject(tmpval, Factor)));
+                    _term->appendOperation(concat,*_fctr2);
+                    (yyval._predicate) = (CQLPredicate*)(_factory.makeObject
+                        (_term,Predicate)); 
+                }
+                else /* exp.isSimple() */
+                {
+                    MessageLoaderParms mparms(
                         "CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
                         "The $0 is not simple while processing rule $1.",
-                        "CQLSimplePredicate",
+                        "CQLExpression",
                         CQL_globalParserState->currentRule);
-                     throw CQLSyntaxErrorException(mparms);
-                  }
-               }
-               else /* end if((CQLPredicate*)$1->isSimple()) */
-               {
-                  MessageLoaderParms mparms(
-                     "CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
-                     "The $0 is not simple while processing rule $1.",
-                     "CQLPredicate",
-                     CQL_globalParserState->currentRule);
-                  throw CQLSyntaxErrorException(mparms);
-               }
-      ;}
+                    throw CQLSyntaxErrorException(mparms);
+                }
+            }
+            else /*sp.isSimple() */
+            {
+                 MessageLoaderParms mparms(
+                    "CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
+                    "The $0 is not simple while processing rule $1.",
+                    "CQLSimplePredicate",
+                    CQL_globalParserState->currentRule);
+                 throw CQLSyntaxErrorException(mparms);
+            }
+        }
+        else /* end if((CQLPredicate*)$1->isSimple()) */
+        {
+            MessageLoaderParms mparms(
+                "CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE",
+                "The $0 is not simple while processing rule $1.",
+                "CQLPredicate",
+                CQL_globalParserState->currentRule);
+            throw CQLSyntaxErrorException(mparms);
+        }
+    ;}
     break;
 
   case 36:
-#line 872 "CQL.y"
+#line 877 "CQL.y"
     {
-         CQLTRACE("factor->concat");
-         
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
-      ;}
+        CQLTRACE("factor->concat");
+        
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
+    ;}
     break;
 
   case 37:
-#line 902 "CQL.y"
+#line 907 "CQL.y"
     {
-         CQL_globalParserState->currentRule = "term->factor";
-         sprintf(msg,"BISON::term->factor\n");
-         printf_(msg);
-
-         CQLTRACE("term->factor");
-         
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
-      ;}
+        CQLTRACE("term->factor");
+        
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
+    ;}
     break;
 
   case 38:
-#line 934 "CQL.y"
+#line 935 "CQL.y"
     {
-         CQL_globalParserState->currentRule = "arith->term";
-         sprintf(msg,"BISON::arith->term\n");
-         printf_(msg);
-
-         CQLTRACE("arith->term");
-
-         //CQLPredicate* _pred = new CQLPredicate(*$1);
-         //      _factory._predicates.append(_pred);
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
-      ;}
+      CQLTRACE("arith->term");
+      
+      //CQLPredicate* _pred = new CQLPredicate(*$1);
+      //      _factory._predicates.append(_pred);
+      (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
+   ;}
     break;
 
   case 39:
-#line 968 "CQL.y"
+#line 965 "CQL.y"
     {
-         CQLTRACE("value_symbol->#literal_string");
-
-         String tmp("#");
-         tmp.append(*(yyvsp[(2) - (2)]._string));
-         CQLIdentifier tmpid(tmp);
-         (yyval._value) = new CQLValue(tmpid);
-         _ObjPtr._ptr = (yyval._value);
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE("value_symbol->#literal_string");
+        
+        String tmp("#");
+        tmp.append(*(yyvsp[(2) - (2)]._string));
+        CQLIdentifier tmpid(tmp);
+        (yyval._value) = new CQLValue(tmpid);
+        _ObjPtr._ptr = (yyval._value);
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 40:
-#line 982 "CQL.y"
+#line 979 "CQL.y"
     {
-         CQLTRACE("arith_or_value_symbol->arith");
-
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
-      ;}
+        CQLTRACE("arith_or_value_symbol->arith");
+        
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
+    ;}
     break;
 
   case 41:
-#line 988 "CQL.y"
+#line 985 "CQL.y"
     {
-         /* make into predicate */
-         CQLTRACE("arith_or_value_symbol->value_symbol");
-         
-         CQLFactor _fctr(*(yyvsp[(1) - (1)]._value));
-         (yyval._predicate) = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
-      ;}
+        /* make into predicate */
+        CQLTRACE("arith_or_value_symbol->value_symbol");
+        
+        CQLFactor _fctr(*(yyvsp[(1) - (1)]._value));
+        (yyval._predicate) = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
+    ;}
     break;
 
   case 42:
-#line 998 "CQL.y"
+#line 995 "CQL.y"
     {
          CQLTRACE("comp_op->TOK_EQ");
-
+        
          (yyval._opType) = EQ;
-      ;}
+    ;}
     break;
 
   case 43:
-#line 1004 "CQL.y"
+#line 1001 "CQL.y"
     {
          CQLTRACE("comp_op->TOK_NE");
          (yyval._opType) = NE;
-      ;}
+    ;}
     break;
 
   case 44:
-#line 1009 "CQL.y"
+#line 1006 "CQL.y"
     {
          CQLTRACE("comp_op->TOK_GT");
-
+        
          (yyval._opType) = GT;
-      ;}
+    ;}
     break;
 
   case 45:
-#line 1015 "CQL.y"
+#line 1012 "CQL.y"
     {
          CQLTRACE("comp_op->TOK_LT");
          (yyval._opType) = LT;
-      ;}
+    ;}
     break;
 
   case 46:
-#line 1020 "CQL.y"
+#line 1017 "CQL.y"
     {
          CQLTRACE("comp_op->TOK_GE");
          (yyval._opType) = GE;
-      ;}
+    ;}
     break;
 
   case 47:
-#line 1025 "CQL.y"
+#line 1022 "CQL.y"
     {
          CQLTRACE("comp_op->TOK_LE");
          (yyval._opType) = LE;
-      ;}
+    ;}
     break;
 
   case 48:
-#line 1032 "CQL.y"
+#line 1029 "CQL.y"
     {
-         CQLTRACE("comp->arith");
-         
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
-      ;}
+        CQLTRACE("comp->arith");
+        
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
+    ;}
     break;
 
   case 49:
-#line 1038 "CQL.y"
+#line 1035 "CQL.y"
     {
-         CQLTRACE("comp->arith TOK_IS TOK_NOT TOK_NULL");
-
-         CQLExpression *_expr =
-             (CQLExpression*)(_factory.getObject((yyvsp[(1) - (4)]._predicate),Expression));
-         CQLSimplePredicate _sp(*_expr, IS_NOT_NULL);
-         _factory.setObject((yyvsp[(1) - (4)]._predicate),&_sp,SimplePredicate);
-         (yyval._predicate) = (yyvsp[(1) - (4)]._predicate);
-      ;}
+        CQLTRACE("comp->arith TOK_IS TOK_NOT TOK_NULL");
+        
+        CQLExpression *_expr =
+         (CQLExpression*)(_factory.getObject((yyvsp[(1) - (4)]._predicate),Expression));
+        CQLSimplePredicate _sp(*_expr, IS_NOT_NULL);
+        _factory.setObject((yyvsp[(1) - (4)]._predicate),&_sp,SimplePredicate);
+        (yyval._predicate) = (yyvsp[(1) - (4)]._predicate);
+    ;}
     break;
 
   case 50:
-#line 1048 "CQL.y"
+#line 1045 "CQL.y"
     {
-         CQLTRACE("comp->arith TOK_IS TOK_NULL");
-         
-         CQLExpression *_expr = (CQLExpression*)(_factory.getObject((yyvsp[(1) - (3)]._predicate),Expression));
-         CQLSimplePredicate _sp(*_expr, IS_NULL);
-         _factory.setObject((yyvsp[(1) - (3)]._predicate),&_sp,SimplePredicate);
-         (yyval._predicate) = (yyvsp[(1) - (3)]._predicate);
-      ;}
+        CQLTRACE("comp->arith TOK_IS TOK_NULL");
+        
+        CQLExpression *_expr =
+             (CQLExpression*)(_factory.getObject((yyvsp[(1) - (3)]._predicate),Expression));
+        CQLSimplePredicate _sp(*_expr, IS_NULL);
+        _factory.setObject((yyvsp[(1) - (3)]._predicate),&_sp,SimplePredicate);
+        (yyval._predicate) = (yyvsp[(1) - (3)]._predicate);
+    ;}
     break;
 
   case 51:
-#line 1057 "CQL.y"
+#line 1055 "CQL.y"
     {
-         CQLTRACE("comp->arith comp_op arith_or_value_symbol");
-
-         if((yyvsp[(1) - (3)]._predicate)->isSimple() && (yyvsp[(3) - (3)]._predicate)->isSimple())
-         {
+        CQLTRACE("comp->arith comp_op arith_or_value_symbol");
+        
+        if((yyvsp[(1) - (3)]._predicate)->isSimple() && (yyvsp[(3) - (3)]._predicate)->isSimple())
+        {
             CQLExpression* _exp1 = (CQLExpression*)
-                (_factory.getObject((yyvsp[(1) - (3)]._predicate),Predicate,Expression));
+            (_factory.getObject((yyvsp[(1) - (3)]._predicate),Predicate,Expression));
             CQLExpression* _exp2 = (CQLExpression*)
-                (_factory.getObject((yyvsp[(3) - (3)]._predicate),Predicate,Expression));
+            (_factory.getObject((yyvsp[(3) - (3)]._predicate),Predicate,Expression));
             CQLSimplePredicate _sp(*_exp1, *_exp2, (yyvsp[(2) - (3)]._opType));
             (yyval._predicate) = new CQLPredicate(_sp);
             _ObjPtr._ptr = (yyval._predicate);
             _ObjPtr.type = Pred;
             _ptrs.append(_ObjPtr);
-       }
-       else
-       {
-         /* error */
-         String _msg("comp->arith comp_op arith_or_value_symbol : $1 is "
-            "not simple OR $3 is not simple");
-         throw CQLSyntaxErrorException(
-            MessageLoaderParms("CQL.CQL_y.NOT_SIMPLE",
-               "The CQLSimplePredicate is not simple while parsing "
-                "rule $0 in position $1.",
-               "comp->arith comp_op arith_or_value_symbol",
-               CQL_globalParserState->currentTokenPos) );
-       }
-      ;}
+        }
+        else  /* error */
+        {
+           String _msg("comp->arith comp_op arith_or_value_symbol : $1 is "
+               "not simple OR $3 is not simple");
+           throw CQLSyntaxErrorException(
+               MessageLoaderParms("CQL.CQL_y.NOT_SIMPLE",
+                   "The CQLSimplePredicate is not simple while parsing "
+                   "rule $0 in position $1.",
+                       "comp->arith comp_op arith_or_value_symbol",
+                   CQL_globalParserState->currentTokenPos) );
+        }
+    ;}
     break;
 
   case 52:
-#line 1086 "CQL.y"
+#line 1083 "CQL.y"
     {
-         CQLTRACE("comp->value_symbol comp_op arith");
-
-         if((yyvsp[(3) - (3)]._predicate)->isSimple())
-         {
+        CQLTRACE("comp->value_symbol comp_op arith");
+        
+        if((yyvsp[(3) - (3)]._predicate)->isSimple())
+        {
             CQLExpression* _exp1 = (CQLExpression*)
                 (_factory.makeObject((yyvsp[(1) - (3)]._value), Expression));
             CQLExpression* _exp2 = (CQLExpression*)
@@ -2543,46 +2530,45 @@ yyreduce:
             _ObjPtr._ptr = (yyval._predicate);
             _ObjPtr.type = Pred;
             _ptrs.append(_ObjPtr);
-         }
-         else
-         {
-            /* error */
+        }
+        else  /* error */
+        {
             String _msg("comp->value_symbol comp_op arith : $3 is not simple");
             throw CQLSyntaxErrorException(
-               MessageLoaderParms("CQL.CQL_y.NOT_SIMPLE",
-                  "The CQLSimplePredicate is not simple while parsing"
-                    " rule $0 in position $1.",
-                  "comp->value_symbol comp_op arith",
-                  CQL_globalParserState->currentTokenPos) );
-
-         }
-      ;}
+                MessageLoaderParms("CQL.CQL_y.NOT_SIMPLE",
+                    "The CQLSimplePredicate is not simple while parsing"
+                        " rule $0 in position $1.",
+                    "comp->value_symbol comp_op arith",
+                CQL_globalParserState->currentTokenPos) );
+    
+        }
+    ;}
     break;
 
   case 53:
-#line 1115 "CQL.y"
+#line 1111 "CQL.y"
     {
-         /* make sure $1 isSimple(), get its expression, make 
-         simplepred->predicate 
-         */
-         CQLTRACE("comp->arith _TOK_ISA identifier");
-
-         CQLExpression *_expr1 = (CQLExpression*)
-            (_factory.getObject((yyvsp[(1) - (3)]._predicate),Predicate,Expression));
-         CQLChainedIdentifier _cid(*(yyvsp[(3) - (3)]._identifier));
-         CQLExpression *_expr2 = (CQLExpression*)
-            (_factory.makeObject(&_cid,Expression));
-         CQLSimplePredicate _sp(*_expr1, *_expr2, ISA);
-         _factory.setObject((yyvsp[(1) - (3)]._predicate),&_sp,SimplePredicate);
-         (yyval._predicate) = (yyvsp[(1) - (3)]._predicate);
-      ;}
+        /* make sure $1 isSimple(), get its expression, make 
+           simplepred->predicate 
+        */
+        CQLTRACE("comp->arith _TOK_ISA identifier");
+        
+        CQLExpression *_expr1 = (CQLExpression*)
+        (_factory.getObject((yyvsp[(1) - (3)]._predicate),Predicate,Expression));
+        CQLChainedIdentifier _cid(*(yyvsp[(3) - (3)]._identifier));
+        CQLExpression *_expr2 = (CQLExpression*)
+        (_factory.makeObject(&_cid,Expression));
+        CQLSimplePredicate _sp(*_expr1, *_expr2, ISA);
+        _factory.setObject((yyvsp[(1) - (3)]._predicate),&_sp,SimplePredicate);
+        (yyval._predicate) = (yyvsp[(1) - (3)]._predicate);
+    ;}
     break;
 
   case 54:
-#line 1131 "CQL.y"
+#line 1127 "CQL.y"
     {
          CQLTRACE("comp->arith TOK_LIKE literal_string");
-
+        
          CQLExpression *_expr1 = (CQLExpression*)
             (_factory.getObject((yyvsp[(1) - (3)]._predicate),Predicate,Expression));
          CQLValue _val(*(yyvsp[(3) - (3)]._string));
@@ -2591,177 +2577,176 @@ yyreduce:
          CQLSimplePredicate _sp(*_expr1, *_expr2, LIKE);
          _factory.setObject((yyvsp[(1) - (3)]._predicate),&_sp,SimplePredicate);
          (yyval._predicate) = (yyvsp[(1) - (3)]._predicate);
-       ;}
+    ;}
     break;
 
   case 55:
-#line 1145 "CQL.y"
+#line 1141 "CQL.y"
     {
-         CQLTRACE("expr_factor->comp");
-         
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
-      ;}
+        CQLTRACE("expr_factor->comp");
+        
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
+    ;}
     break;
 
   case 56:
-#line 1151 "CQL.y"
+#line 1147 "CQL.y"
     {
-         CQLTRACE("expr_factor->TOK_NOT comp");
-         
-         (yyvsp[(2) - (2)]._predicate)->setInverted(!((yyvsp[(2) - (2)]._predicate)->getInverted()));
-         (yyval._predicate) = (yyvsp[(2) - (2)]._predicate);
-      ;}
+        CQLTRACE("expr_factor->TOK_NOT comp");
+        
+        (yyvsp[(2) - (2)]._predicate)->setInverted(!((yyvsp[(2) - (2)]._predicate)->getInverted()));
+        (yyval._predicate) = (yyvsp[(2) - (2)]._predicate);
+    ;}
     break;
 
   case 57:
-#line 1160 "CQL.y"
+#line 1156 "CQL.y"
     {
-         CQLTRACE("expr_term->expr_factor");
-         
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
-      ;}
+        CQLTRACE("expr_term->expr_factor");
+        
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
+    ;}
     break;
 
   case 58:
-#line 1166 "CQL.y"
+#line 1162 "CQL.y"
     {
-         CQLTRACE("expr_term->expr_term AND expr_factor");
-         
-         (yyval._predicate) = new CQLPredicate();
-         (yyval._predicate)->appendPredicate(*(yyvsp[(1) - (3)]._predicate));
-         (yyval._predicate)->appendPredicate(*(yyvsp[(3) - (3)]._predicate), AND);  
-             _ObjPtr._ptr = (yyval._predicate);
-         _ObjPtr.type = Pred;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE("expr_term->expr_term AND expr_factor");
+        
+        (yyval._predicate) = new CQLPredicate();
+        (yyval._predicate)->appendPredicate(*(yyvsp[(1) - (3)]._predicate));
+        (yyval._predicate)->appendPredicate(*(yyvsp[(3) - (3)]._predicate), AND);  
+         _ObjPtr._ptr = (yyval._predicate);
+        _ObjPtr.type = Pred;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 59:
-#line 1179 "CQL.y"
+#line 1175 "CQL.y"
     {
-         CQLTRACE("expr->expr_term");
-         
-         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);     
-      ;}
+        CQLTRACE("expr->expr_term");
+        
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);     
+        ;}
     break;
 
   case 60:
-#line 1185 "CQL.y"
+#line 1181 "CQL.y"
     {
-         CQLTRACE("expr->expr OR expr_term");
-
-         (yyval._predicate) = new CQLPredicate();
-         (yyval._predicate)->appendPredicate(*(yyvsp[(1) - (3)]._predicate));
-         (yyval._predicate)->appendPredicate(*(yyvsp[(3) - (3)]._predicate), OR);
-         _ObjPtr._ptr = (yyval._predicate);
-         _ObjPtr.type = Pred;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE("expr->expr OR expr_term");
+        
+        (yyval._predicate) = new CQLPredicate();
+        (yyval._predicate)->appendPredicate(*(yyvsp[(1) - (3)]._predicate));
+        (yyval._predicate)->appendPredicate(*(yyvsp[(3) - (3)]._predicate), OR);
+        _ObjPtr._ptr = (yyval._predicate);
+        _ObjPtr.type = Pred;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 61:
-#line 1197 "CQL.y"
+#line 1193 "CQL.y"
     {;;}
     break;
 
   case 62:
-#line 1216 "CQL.y"
+#line 1212 "CQL.y"
     {
-         CQLTRACE("arg_list->arg_list_sub->expr");
-
-         _arglist.append(*(yyvsp[(1) - (1)]._predicate));
-         /*
-             since arg_list can loop back on itself,
-             we need to store away previous solutions
-             production.  We keep track of previous productions
-             in the _arglist array and later pass that to CQLFunction
-             as part of chain: identifier TOK_LPAR arg_list TOK_RPAR
-         */
-      ;}
+        CQLTRACE("arg_list->arg_list_sub->expr");
+        
+        _arglist.append(*(yyvsp[(1) - (1)]._predicate));
+        /*
+        since arg_list can loop back on itself,
+        we need to store away previous solutions
+        production.  We keep track of previous productions
+        in the _arglist array and later pass that to CQLFunction
+        as part of chain: identifier TOK_LPAR arg_list TOK_RPAR
+        */
+    ;}
     break;
 
   case 63:
-#line 1276 "CQL.y"
+#line 1273 "CQL.y"
     {
-         CQLTRACE("from_specifier->class_path");
-         
-         CQL_globalParserState->statement->appendClassPath(*(yyvsp[(1) - (1)]._identifier));
-      ;}
+        CQLTRACE("from_specifier->class_path");
+        
+        CQL_globalParserState->statement->appendClassPath(*(yyvsp[(1) - (1)]._identifier));
+    ;}
     break;
 
   case 64:
-#line 1282 "CQL.y"
+#line 1279 "CQL.y"
     {
-         CQL_globalParserState->currentRule = "from_specifier->class_path TOK_AS identifier";
-         CQLTRACE("from_specifier->class_path TOK_AS identifier");
-         
-         CQLIdentifier _class(*(yyvsp[(1) - (3)]._identifier));
-         String _alias((yyvsp[(3) - (3)]._identifier)->getName().getString());
-         CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
-         CQL_globalParserState->statement->appendClassPath(_class);
-      ;}
+        CQLTRACE("from_specifier->class_path TOK_AS identifier");
+        
+        CQLIdentifier _class(*(yyvsp[(1) - (3)]._identifier));
+        String _alias((yyvsp[(3) - (3)]._identifier)->getName().getString());
+        CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
+        CQL_globalParserState->statement->appendClassPath(_class);
+    ;}
     break;
 
   case 65:
-#line 1292 "CQL.y"
+#line 1288 "CQL.y"
     {
-         CQLTRACE("from_specifier->class_path identifier");
-         
-         CQLIdentifier _class(*(yyvsp[(1) - (2)]._identifier));
-         String _alias((yyvsp[(2) - (2)]._identifier)->getName().getString());
-         CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
-         CQL_globalParserState->statement->appendClassPath(_class);
-      ;}
+        CQLTRACE("from_specifier->class_path identifier");
+        
+        CQLIdentifier _class(*(yyvsp[(1) - (2)]._identifier));
+        String _alias((yyvsp[(2) - (2)]._identifier)->getName().getString());
+        CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
+        CQL_globalParserState->statement->appendClassPath(_class);
+    ;}
     break;
 
   case 66:
-#line 1303 "CQL.y"
+#line 1299 "CQL.y"
     {
-         CQLTRACE("from_criteria->from_specifier");
-      ;}
+        CQLTRACE("from_criteria->from_specifier");
+    ;}
     break;
 
   case 67:
-#line 1309 "CQL.y"
+#line 1305 "CQL.y"
     {
         CQLTRACE("star_expr->TOK_STAR");
-
+        
         CQLIdentifier _id("*");
-        (yyval._chainedIdentifier) = (CQLChainedIdentifier*)(_factory.makeObject(&_id,ChainedIdentifier));
-      ;}
+        (yyval._chainedIdentifier) = (CQLChainedIdentifier*)
+             (_factory.makeObject(&_id,ChainedIdentifier));
+    ;}
     break;
 
   case 68:
-#line 1316 "CQL.y"
+#line 1313 "CQL.y"
     {
-         CQLTRACE("star_expr->chain.*");
-
-         CQLChainedIdentifier* _tmp = (CQLChainedIdentifier*)
-            (_factory.getObject((yyvsp[(1) - (3)]._node),Predicate,ChainedIdentifier));
-         CQLChainedIdentifier* _cid = new CQLChainedIdentifier(*_tmp);
-         CQLIdentifier _id("*");
-         _cid->append(_id);
-         (yyval._chainedIdentifier) = _cid;
-         _ObjPtr._ptr = (yyval._chainedIdentifier);
-         _ObjPtr.type = CId;
-         _ptrs.append(_ObjPtr);
-      ;}
+        CQLTRACE("star_expr->chain.*");
+        
+        CQLChainedIdentifier* _tmp = (CQLChainedIdentifier*)
+        (_factory.getObject((yyvsp[(1) - (3)]._node),Predicate,ChainedIdentifier));
+        CQLChainedIdentifier* _cid = new CQLChainedIdentifier(*_tmp);
+        CQLIdentifier _id("*");
+        _cid->append(_id);
+        (yyval._chainedIdentifier) = _cid;
+        _ObjPtr._ptr = (yyval._chainedIdentifier);
+        _ObjPtr.type = CId;
+        _ptrs.append(_ObjPtr);
+    ;}
     break;
 
   case 69:
-#line 1332 "CQL.y"
+#line 1329 "CQL.y"
     {
-         CQLTRACE("selected_entry->expr");
-
-         if((yyvsp[(1) - (1)]._predicate)->isSimpleValue())
-         {
+        CQLTRACE("selected_entry->expr");
+        
+        if((yyvsp[(1) - (1)]._predicate)->isSimpleValue())
+        {
             CQLChainedIdentifier *_cid = (CQLChainedIdentifier*)
                 (_factory.getObject((yyvsp[(1) - (1)]._predicate),Predicate,ChainedIdentifier));
             CQL_globalParserState->statement->appendSelectIdentifier(*_cid);
-         }
-         else
-         {
-            /* error */
+        }
+        else  /* errot*/
+        {
             String _msg("selected_entry->expr : $1 is not a simple value");
             throw CQLSyntaxErrorException(
                MessageLoaderParms("CQL.CQL_y.NOT_SIMPLE_VALUE",
@@ -2769,73 +2754,74 @@ yyreduce:
                       "parsing rule $0 in position $1.",
                   "selected_entry->expr",
                   CQL_globalParserState->currentTokenPos) ); 
-         }
-      ;}
+        }
+    ;}
     break;
 
   case 70:
-#line 1354 "CQL.y"
+#line 1350 "CQL.y"
     {
-         CQLTRACE("selected_entry->star_expr");
-
-         CQL_globalParserState->statement->appendSelectIdentifier(*(yyvsp[(1) - (1)]._chainedIdentifier));
-      ;}
+        CQLTRACE("selected_entry->star_expr");
+        
+        CQL_globalParserState->statement->appendSelectIdentifier(*(yyvsp[(1) - (1)]._chainedIdentifier));
+    ;}
     break;
 
   case 71:
-#line 1362 "CQL.y"
+#line 1358 "CQL.y"
     {
          CQLTRACE("select_list->selected_entry select_list_tail");
-      ;}
+    ;}
     break;
 
   case 72:
-#line 1367 "CQL.y"
+#line 1363 "CQL.y"
     {;;}
     break;
 
   case 73:
-#line 1369 "CQL.y"
+#line 1366 "CQL.y"
     {
-         CQLTRACE("select_list_tail->TOK_COMMA selected_entry select_list_tail");
-      ;}
+        CQLTRACE("select_list_tail->TOK_COMMA selected_entry"
+                 " select_list_tail");
+    ;}
     break;
 
   case 74:
-#line 1375 "CQL.y"
+#line 1373 "CQL.y"
     {
-      CQLTRACE("search_condition->expr");
-
-      CQL_globalParserState->statement->setPredicate(*(yyvsp[(1) - (1)]._predicate));
-      ;}
+        CQLTRACE("search_condition->expr");
+        
+        CQL_globalParserState->statement->setPredicate(*(yyvsp[(1) - (1)]._predicate));
+    ;}
     break;
 
   case 75:
-#line 1382 "CQL.y"
+#line 1380 "CQL.y"
     {;}
     break;
 
   case 76:
-#line 1384 "CQL.y"
+#line 1383 "CQL.y"
     {
-         CQLTRACE( "optional_where->TOK_WHERE search_condition");
-
-         CQL_globalParserState->statement->setHasWhereClause();
-      ;}
+        CQLTRACE( "optional_where->TOK_WHERE search_condition");
+        
+        CQL_globalParserState->statement->setHasWhereClause();
+    ;}
     break;
 
   case 77:
-#line 1392 "CQL.y"
+#line 1391 "CQL.y"
     {
-         CQLTRACE("select_statement");
-
-         CQL_Bison_Cleanup();
-      ;}
+        CQLTRACE("select_statement");
+        
+        CQL_Bison_Cleanup();
+    ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2839 "CQLtemp"
+#line 2825 "CQLtemp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2874,35 +2860,35 @@ yyerrlab:
       yyerror (YY_("syntax error"));
 #else
       {
-    YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
-    if (yymsg_alloc < yysize && yymsg_alloc < YYSTACK_ALLOC_MAXIMUM)
-      {
-        YYSIZE_T yyalloc = 2 * yysize;
-        if (! (yysize <= yyalloc && yyalloc <= YYSTACK_ALLOC_MAXIMUM))
-          yyalloc = YYSTACK_ALLOC_MAXIMUM;
-        if (yymsg != yymsgbuf)
-          YYSTACK_FREE (yymsg);
-        yymsg = (char *) YYSTACK_ALLOC (yyalloc);
-        if (yymsg)
-          yymsg_alloc = yyalloc;
-        else
-          {
-        yymsg = yymsgbuf;
-        yymsg_alloc = sizeof yymsgbuf;
-          }
-      }
+	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
+	if (yymsg_alloc < yysize && yymsg_alloc < YYSTACK_ALLOC_MAXIMUM)
+	  {
+	    YYSIZE_T yyalloc = 2 * yysize;
+	    if (! (yysize <= yyalloc && yyalloc <= YYSTACK_ALLOC_MAXIMUM))
+	      yyalloc = YYSTACK_ALLOC_MAXIMUM;
+	    if (yymsg != yymsgbuf)
+	      YYSTACK_FREE (yymsg);
+	    yymsg = (char *) YYSTACK_ALLOC (yyalloc);
+	    if (yymsg)
+	      yymsg_alloc = yyalloc;
+	    else
+	      {
+		yymsg = yymsgbuf;
+		yymsg_alloc = sizeof yymsgbuf;
+	      }
+	  }
 
-    if (0 < yysize && yysize <= yymsg_alloc)
-      {
-        (void) yysyntax_error (yymsg, yystate, yychar);
-        yyerror (yymsg);
-      }
-    else
-      {
-        yyerror (YY_("syntax error"));
-        if (yysize != 0)
-          goto yyexhaustedlab;
-      }
+	if (0 < yysize && yysize <= yymsg_alloc)
+	  {
+	    (void) yysyntax_error (yymsg, yystate, yychar);
+	    yyerror (yymsg);
+	  }
+	else
+	  {
+	    yyerror (YY_("syntax error"));
+	    if (yysize != 0)
+	      goto yyexhaustedlab;
+	  }
       }
 #endif
     }
@@ -2912,20 +2898,20 @@ yyerrlab:
   if (yyerrstatus == 3)
     {
       /* If just tried and failed to reuse look-ahead token after an
-     error, discard it.  */
+	 error, discard it.  */
 
       if (yychar <= YYEOF)
-    {
-      /* Return failure if at end of input.  */
-      if (yychar == YYEOF)
-        YYABORT;
-    }
+	{
+	  /* Return failure if at end of input.  */
+	  if (yychar == YYEOF)
+	    YYABORT;
+	}
       else
-    {
-      yydestruct ("Error: discarding",
-              yytoken, &yylval);
-      yychar = YYEMPTY;
-    }
+	{
+	  yydestruct ("Error: discarding",
+		      yytoken, &yylval);
+	  yychar = YYEMPTY;
+	}
     }
 
   /* Else will try to reuse look-ahead token after shifting the error
@@ -2957,29 +2943,29 @@ yyerrorlab:
 | yyerrlab1 -- common code for both syntax error and YYERROR.  |
 `-------------------------------------------------------------*/
 yyerrlab1:
-  yyerrstatus = 3;  /* Each real token shifted decrements this.  */
+  yyerrstatus = 3;	/* Each real token shifted decrements this.  */
 
   for (;;)
     {
       yyn = yypact[yystate];
       if (yyn != YYPACT_NINF)
-    {
-      yyn += YYTERROR;
-      if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
-        {
-          yyn = yytable[yyn];
-          if (0 < yyn)
-        break;
-        }
-    }
+	{
+	  yyn += YYTERROR;
+	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
+	    {
+	      yyn = yytable[yyn];
+	      if (0 < yyn)
+		break;
+	    }
+	}
 
       /* Pop the current state because it cannot handle the error token.  */
       if (yyssp == yyss)
-    YYABORT;
+	YYABORT;
 
 
       yydestruct ("Error: popping",
-          yystos[yystate], yyvsp);
+		  yystos[yystate], yyvsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -3025,7 +3011,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEOF && yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-         yytoken, &yylval);
+		 yytoken, &yylval);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -3033,7 +3019,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-          yystos[*yyssp], yyvsp);
+		  yystos[*yyssp], yyvsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -3049,8 +3035,8 @@ yyreturn:
 }
 
 
-#line 1400 "CQL.y"
+#line 1399 "CQL.y"
 
-
-/*int yyerror(char * err){yyclearin; yyerrok;throw Exception(String(err));return 1;}*/
+/*int yyerror(char * err){yyclearin; yyerrok;throw Exception(String(err));
+return 1;}*/
 

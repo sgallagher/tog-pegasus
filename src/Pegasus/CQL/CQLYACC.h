@@ -166,16 +166,16 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 171 "CQL.y"
+#line 167 "CQL.y"
 {
-   char * strValue;
-   String * _string;
-   CQLValue * _value;
-   CQLIdentifier * _identifier;
-   CQLChainedIdentifier * _chainedIdentifier;
-   CQLPredicate * _predicate;
-   ExpressionOpType _opType;
-   void * _node;
+    char * strValue;
+    String * _string;
+    CQLValue * _value;
+    CQLIdentifier * _identifier;
+    CQLChainedIdentifier * _chainedIdentifier;
+    CQLPredicate * _predicate;
+    ExpressionOpType _opType;
+    void * _node;
 }
 /* Line 1489 of yacc.c.  */
 #line 182 "CQLtemp.h"

@@ -608,64 +608,63 @@ void drive_resolve_specialChars()
 
 int main( int argc, char *argv[] ){
 
-  Boolean verbose = false;
-  verbose = getenv("PEGASUS_TEST_VERBOSE");
+    Boolean verbose = false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-  Boolean unittests = false;
+    Boolean unittests = false;
   
-  if (argc == 2 && !strcmp (argv[1],"unittests")) 
+    if (argc == 2 && !strcmp (argv[1],"unittests")) 
     {
-      unittests = true;
-
+        unittests = true;
     }
-  else if (argc == 2 && !strcmp (argv[1],"poststarttests")) 
+    else if (argc == 2 && !strcmp (argv[1],"poststarttests")) 
     {
-      unittests = false;
+        unittests = false;
     }
-  else
+    else
     {
-      cout << argv[0] 
-           << ": ERROR - paramater invalid must be either unittests or"
+        cout << argv[0] 
+             << ": ERROR - paramater invalid must be either unittests or"
                " poststarttests" 
-           << endl;
-      exit(0);
+             << endl;
+        exit(0);
     }
     
-try
-  {
-   //BEGIN TESTS....
-    if (unittests)
-      {
-    if (verbose)
-      cout << argv[0] << " " << argv[1] << " +++++ operation " << endl;
-    drive_operation();
+    try
+    {
+        //BEGIN TESTS....
+        if (unittests)
+        {
+            if (verbose)
+               cout << argv[0] << " " << argv[1] << " +++++ operation " << endl;
+            drive_operation();
 
-    if (verbose)       
-      cout << argv[0] << " " << argv[1] << " +++++ misc " << endl;  
-    drive_get_misc_functions();
+            if (verbose)       
+                cout << argv[0] << " " << argv[1] << " +++++ misc " << endl;  
+            drive_get_misc_functions();
 
-      }
-    else
-      {  
-    if (verbose)
-      cout << argv[0] << " " << argv[1] << " +++++ primitive " << endl;
-    drive_resolve_primitive();
+        }
+        else
+        {  
+            if (verbose)
+               cout << argv[0] << " " << argv[1] << " +++++ primitive " << endl;
+            drive_resolve_primitive();
    
-    if (verbose)
-      cout << argv[0] << " " << argv[1] << " +++++ special " << endl;
-    drive_resolve_specialChars();
+            if (verbose)
+                cout << argv[0] << " " << argv[1] << " +++++ special " << endl;
+            drive_resolve_specialChars();
 
-      }
+        }
     //END TESTS....
          
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 
-  }
-catch(Exception e)
-  {
-    cout << e.getMessage() << endl;
-    PEGASUS_TEST_ASSERT(0);
-  } 
- return 0;
+    }
+    catch(Exception e)
+    {
+        cout << e.getMessage() << endl;
+        PEGASUS_TEST_ASSERT(0);
+    } 
+    return 0;
 }
 

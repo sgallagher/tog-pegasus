@@ -1,4 +1,4 @@
-/*//%2006////////////////////////////////////////////////////////////////////////
+/*//%2006///////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -436,7 +436,7 @@ Z [Zz]
 }
 
 [+]?{DECIMAL_DIGIT}+ {
-                                                                                                                                       
+
     sprintf(msg_,"LEX: %s [TOK_INTEGER] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
@@ -447,7 +447,7 @@ Z [Zz]
     CQL_lval.strValue = new char[n + 1];
     memcpy(CQL_lval.strValue, yytext, n);
     CQL_lval.strValue[n] = '\0';
-                                                                                                                                       
+
     /*CQL_lval.intValue = strtol(yytext, (char**)0, 10);*/
     return TOK_INTEGER;
 }
@@ -467,10 +467,11 @@ Z [Zz]
 
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
     return TOK_NEGATIVE_REAL;
+    /*NOCHKSRC*/
 }
 
 ([+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)?)|([+]?{DECIMAL_DIGIT}+\.{DECIMAL_DIGIT}*([eE][+-]?{DECIMAL_DIGIT}+)?) {
-                                                                                                                                       
+    /*DOCHKSRC*/
     sprintf(msg_,"LEX: %s [TOK_REAL] ", yytext);
     printf__(msg_);
     CQL_globalParserState->currentTokenPos+=yyleng;
@@ -481,7 +482,7 @@ Z [Zz]
     CQL_lval.strValue = new char[n + 1];
     memcpy(CQL_lval.strValue, yytext, n);
     CQL_lval.strValue[n] = '\0';
-                                                                                                                                       
+
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
     return TOK_REAL;
 }
@@ -507,9 +508,9 @@ Z [Zz]
         printf__(msg_);
         throw CQLSyntaxErrorException(
             MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
-            String("Bad UTF8 encountered parsing rule $0 in position $1."),
-            String("literal_string"),
-            CQL_globalParserState->currentTokenPos));
+                String("Bad UTF8 encountered parsing rule $0 in position $1."),
+                String("literal_string"),
+                CQL_globalParserState->currentTokenPos));
     }
 
     String s(yytext);
@@ -598,7 +599,7 @@ Z [Zz]
 \#{1} {
     sprintf(msg_,"LEX: [TOK_HASH] ");
     printf__(msg_);
-    CQL_globalParserState->currentTokenPos+=yyleng;                                                                   
+    CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     return TOK_HASH;
 }
@@ -721,12 +722,12 @@ Z [Zz]
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     {
-    size_t n = strlen(yytext);
-    if(CQL_lval.strValue)
-        delete [] CQL_lval.strValue;
-    CQL_lval.strValue = new char[n + 1];
-    memcpy(CQL_lval.strValue, yytext, n);
-    CQL_lval.strValue[n] = '\0';
+        size_t n = strlen(yytext);
+        if(CQL_lval.strValue)
+            delete [] CQL_lval.strValue;
+        CQL_lval.strValue = new char[n + 1];
+        memcpy(CQL_lval.strValue, yytext, n);
+        CQL_lval.strValue[n] = '\0';
     }
 
     return TOK_IDENTIFIER;

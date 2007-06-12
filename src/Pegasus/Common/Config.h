@@ -276,10 +276,4 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_UNREACHABLE(CODE) CODE
 #endif
 
-#ifdef PEGASUS_HAVE_EBCDIC
-# define PEGASUS_MAX_PRINTABLE_CHAR 255
-#else
-# define PEGASUS_MAX_PRINTABLE_CHAR 127
-#endif
-
 #endif  /* Pegasus_Config_h */

@@ -1447,48 +1447,4 @@ String optimizations:
         This avoids slower UTF8 processing when not needed.
 
 ================================================================================
-
-TO-DO:
-
-    (+) [DONE] Use PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
-    (+) [DONE] Submit BUG-2754 (Windows buffer limit).
-
-    (+) [DONE] Eliminate char versions of find() and append().
-
-    (+) [DONE] Remove PEGASUS_MAX_PRINTABLE_CHARACTER from Config.h
-
-    (+) [DONE] Change _next_pow_2() to _roundUpToPow2().
-
-    (+) [DONE] Change '99' to '2' in StringRep constructor (comment as well).
-
-    (+) [DONE] Comment StringRep allocation layout.
-
-    (+) [DONE] Conceal private inline functions.
-
-    (+) [DONE] Shorten inclusion of StringInline.h in String.h.
-
-    (+) [DONE] Change USE_INTERNAL_INLINE TO DISABLE_INTERNAL_INLINE or get
-        rid of altogether.
-
-    (+) [DONE] useCamelNotationOnAllFunctionNames.
-
-    (+) [DONE] Check for overlow condition in StringRep::alloc().
-
-    (+) [DONE] Remove tabs (used vim ":set expandtab" and ":retab").
-
-    (+) [DONE] Fix throw-related memory leak.
-
-    (+) [DONE] Look at PEP223 for coding security guidelines.
-
-    (+) [DONE] Use old AtomicInt for now (new AtomicInt part of bug #4250).
-
-    (+) [DONE] Removed appendASCII() and the ASCII form of the constructor.
-
-    (+) DOC++ String.h - will open new bug?
-
-    (+) Added PEGASUS_DISABLE_INTERNAL_INLINES macro (to permit suppression
-        on certain platforms).
-
-================================================================================
 */

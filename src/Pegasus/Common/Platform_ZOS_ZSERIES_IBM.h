@@ -68,11 +68,6 @@
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
-#define PEGASUS_HAVE_INTERNAL_INLINES
-
-// removed as Pegasus will work with Native ASCII support on zOS
-// #define PEGASUS_HAVE_EBCDIC
-
 #define PEGASUS_HAS_SIGNALS
 
 #define PEGASUS_MAXHOSTNAMELEN  256

@@ -38,13 +38,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 //
-// Note: EBCDIC not supported but not needed by any known platform (z/OS Linux
-// uses ASCII). This will flag any future use to employ EBCDIC.
+// Note: These definitions are specifically for ASCII.
 //
-
-#ifdef PEGASUS_HAVE_EBCDIC
-# error "EBCDIC unsupported"
-#endif
 
 const Uint8 CharSet::_isAlphaUnder[256] =
 {

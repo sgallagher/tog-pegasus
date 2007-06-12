@@ -46,11 +46,8 @@
 #define Array_capacity (Array_rep)->capacity
 #define Array_refs (Array_rep)->refs
 
-#define PEGASUS_ALIGN16 /* not necessary on other platforms */
-
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_ALIGN16
 struct PEGASUS_COMMON_LINKAGE ArrayRepBase
 {
     // We put this first to avoid gaps in this structure. Some compilers may

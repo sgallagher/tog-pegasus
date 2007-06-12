@@ -115,7 +115,7 @@ String getStatementString(const String& stmt)
     {
         Uint16 code = stmt[i];
         
-        if (code <= PEGASUS_MAX_PRINTABLE_CHAR)
+        if (isascii(code))
         {
             res.append((char)code);
         }

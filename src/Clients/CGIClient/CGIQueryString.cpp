@@ -76,9 +76,6 @@ static void _ExpandCGIQueryValue(char* value)
 		throw BadlyFormedCGIQueryString();
 
             *p = char(tmp);
-#ifdef PEGASUS_HAVE_EBCDIC
-            __atoe_l(p,1);
-#endif
             p++;
 	    memcpy(p, p + 2, strlen(p) - 2 + 1);
 	    // CORRECTION, KS. Add decrement. corrects problem with succesive

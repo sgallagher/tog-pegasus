@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 #include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/Executor.h>
 
 #define MAX_WAIT_TIME 240
 
@@ -97,20 +98,18 @@ String ServerProcess::getHome(void) { return String::EMPTY; }
 
 int ServerProcess::cimserver_fork(void) 
 { 
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-
     getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
     getSigHandle()->activate(SIGTERM);
     umask(S_IRWXG | S_IRWXO);
 
-    return 0;
-
-#else /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+    if (Executor::detectExecutor() == 0)
+    {
+        // We don't need to fork if we're running with Privilege Separation
+        return 0;
+    }
 
     getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
     getSigHandle()->activate(PEGASUS_SIGUSR1);
-    getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
-    getSigHandle()->activate(SIGTERM);
  
   pid_t pid;
   if( (pid = fork() ) < 0) 
@@ -149,9 +148,7 @@ int ServerProcess::cimserver_fork(void)
   getSigHandle()->deactivate(PEGASUS_SIGUSR1);
   getSigHandle()->deactivate(SIGTERM);
 
-  return(0);
-
-#endif /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
+  return 0;
 }
 
 

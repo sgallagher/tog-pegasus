@@ -230,10 +230,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                 if (accepted == false)
                 {
                    // set completion code to NAK and flag completed
-                   _complete_op_node(
-                       op, ASYNC_OPSTATE_COMPLETE,
-                       ASYNC_OPFLAGS_SIMPLE_STATUS,
-                       async_results::CIM_NAK);
+                    _make_response(op->_request.get(), async_results::CIM_NAK);
                 }
             }
         }

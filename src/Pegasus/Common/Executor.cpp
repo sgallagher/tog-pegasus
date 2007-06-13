@@ -52,6 +52,7 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/Once.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Tracer.h>
@@ -1021,67 +1022,58 @@ private:
 
 static int _executorSock = -1;
 static AutoPtr<ExecutorImpl> _executorImpl;
-static Mutex _executorMutex;
+static Once _executorImplOnce = PEGASUS_ONCE_INITIALIZER;
 
-static ExecutorImpl* _getImpl()
+static void _initExecutorImpl()
 {
-    // Use the double-checked locking technique to avoid the overhead of a lock
-    // on every call.
-
-    if (_executorImpl.get() == 0)
-    {
-        AutoMutex autoMutex(_executorMutex);
-
-        if (_executorImpl.get() == 0)
-        {
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-            if (_executorSock == -1)
-                _executorImpl.reset(new ExecutorLoopbackImpl());
-            else
-                _executorImpl.reset(new ExecutorSocketImpl(_executorSock));
+    if (_executorSock == -1)
+        _executorImpl.reset(new ExecutorLoopbackImpl());
+    else
+        _executorImpl.reset(new ExecutorSocketImpl(_executorSock));
 #else
-            _executorImpl.reset(new ExecutorLoopbackImpl());
+    _executorImpl.reset(new ExecutorLoopbackImpl());
 #endif
-        }
-    }
-
-    return _executorImpl.get();
 }
 
 void Executor::setSock(int sock)
 {
-    AutoMutex autoMutex(_executorMutex);
     _executorSock = sock;
 }
 
 int Executor::detectExecutor()
 {
-    return _getImpl()->detectExecutor();
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->detectExecutor();
 }
 
 int Executor::ping()
 {
-    return _getImpl()->ping();
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->ping();
 }
 
 FILE* Executor::openFile(
     const char* path,
     int mode)
 {
-    return _getImpl()->openFile(path, mode);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->openFile(path, mode);
 }
 
 int Executor::renameFile(
     const char* oldPath,
     const char* newPath)
 {
-    return _getImpl()->renameFile(oldPath, newPath);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->renameFile(oldPath, newPath);
 }
 
 int Executor::removeFile(
     const char* path)
 {
-    return _getImpl()->removeFile(path);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->removeFile(path);
 }
 
 int Executor::startProviderAgent(
@@ -1092,46 +1084,53 @@ int Executor::startProviderAgent(
     AnonymousPipe*& readPipe,
     AnonymousPipe*& writePipe)
 {
-    return _getImpl()->startProviderAgent(
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->startProviderAgent(
         module, pegasusHome, userName, pid, readPipe, writePipe);
 }
 
 int Executor::daemonizeExecutor()
 {
-    return _getImpl()->daemonizeExecutor();
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->daemonizeExecutor();
 }
 
 int Executor::reapProviderAgent(
     int pid)
 {
-    return _getImpl()->reapProviderAgent(pid);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->reapProviderAgent(pid);
 }
 
 int Executor::authenticatePassword(
     const char* username,
     const char* password)
 {
-    return _getImpl()->authenticatePassword(username, password);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->authenticatePassword(username, password);
 }
 
 int Executor::validateUser(
     const char* username)
 {
-    return _getImpl()->validateUser(username);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->validateUser(username);
 }
 
 int Executor::challengeLocal(
     const char* user,
     char challengeFilePath[EXECUTOR_BUFFER_SIZE])
 {
-    return _getImpl()->challengeLocal(user, challengeFilePath);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->challengeLocal(user, challengeFilePath);
 }
 
 int Executor::authenticateLocal(
     const char* challengeFilePath,
     const char* response)
 {
-    return _getImpl()->authenticateLocal(challengeFilePath, response);
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->authenticateLocal(challengeFilePath, response);
 }
 
 PEGASUS_NAMESPACE_END

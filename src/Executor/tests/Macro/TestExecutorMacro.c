@@ -121,7 +121,8 @@ int main()
 
     /* Test DefineConfigPathMacro() */
     {
-        static const char* argv[] = { "program", "option1=one" };
+        static const char* argv[] =
+            { "program", "option1=one", "option2=/two" };
         static const int argc = sizeof(argv) / sizeof(argv[0]);
         const char* macroDef;
         char buffer[EXECUTOR_BUFFER_SIZE];
@@ -134,6 +135,12 @@ int main()
         assert(macroDef != NULL);
         assert(strcmp(macroDef, "/var/important") == 0);
         assert(UndefineMacro("ImportantPath") == 0);
+
+        assert(DefineConfigPathMacro("option2", "/var/two") == 0);
+        macroDef = FindMacro("option2");
+        assert(macroDef != NULL);
+        assert(strcmp(macroDef, "/two") == 0);
+        assert(UndefineMacro("option2") == 0);
     }
 
     printf("+++++ passed all tests\n");

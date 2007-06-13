@@ -245,6 +245,7 @@ void CIMOperationResponseEncoder::sendResponse(
             // try again with new error and no body
             body.clear();
             sendResponse(response, name, isImplicit);
+            PEG_METHOD_EXIT();
             return;
         }
 

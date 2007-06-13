@@ -1325,6 +1325,7 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     }
     // Prepend the array with the classname that formed the array.
     subClassNames.prepend(className);
+    PEG_METHOD_EXIT();
     return subClassNames;
 }
 
@@ -1609,24 +1610,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
                     ".");
         }
 #endif
-
-        /*
-        // get the provder name
-        if ((pos = pInstance.findProperty("Name")) != PEG_NOT_FOUND)
-        {
-            pInstance.getProperty(pos).getValue().get(providerName);
-
-            PEG_TRACE_STRING(
-                TRC_DISPATCHER,
-                Tracer::LEVEL4,
-                "Provider for class " + className.getString() + " provider " +
-                    providerName + " found.");
-
-            PEG_METHOD_EXIT();
-
-            return providerInfo;
-        }
-        */
+        PEG_METHOD_EXIT();
 
         return providerInfo;
     }

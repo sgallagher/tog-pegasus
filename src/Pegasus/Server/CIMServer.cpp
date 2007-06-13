@@ -1154,7 +1154,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm);
 
 void CIMServer::startSLPProvider()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CIMServer::startSLPProvider");
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::startSLPProvider");
 
 #ifndef PEGASUS_SLP_REG_TIMEOUT
     // This is a onetime function.  If already issued, or config is not to

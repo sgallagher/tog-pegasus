@@ -43,7 +43,7 @@
 #include <fcntl.h>
 #include <assert.h>
 
-void testSuccessfulAuthentication()
+void testSuccessfulAuthentication(void)
 {
     char challengeFilePath[EXECUTOR_BUFFER_SIZE];
     char response[EXECUTOR_BUFFER_SIZE];
@@ -65,7 +65,7 @@ void testSuccessfulAuthentication()
     assert(FinishLocalAuthentication(challengeFilePath, response) == 0);
 }
 
-void testCreateLocalAuthFile()
+void testCreateLocalAuthFile(void)
 {
     int testUid;
     int testGid;
@@ -89,7 +89,7 @@ void testCreateLocalAuthFile()
     }
 }
 
-void testCheckLocalAuthToken()
+void testCheckLocalAuthToken(void)
 {
     /* Test with file path that does not exist */
     {
@@ -119,7 +119,7 @@ void testCheckLocalAuthToken()
     }
 }
 
-void testStartLocalAuthentication()
+void testStartLocalAuthentication(void)
 {
     /* Test with non-existent user */
     {
@@ -137,7 +137,7 @@ void testStartLocalAuthentication()
     }
 }
 
-void testFinishLocalAuthentication()
+void testFinishLocalAuthentication(void)
 {
     /* Test with non-existent challenge file path */
     {

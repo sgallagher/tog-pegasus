@@ -42,7 +42,7 @@
 
 #define TEST_PID_FILE "testpidfile"
 
-void testGetProcessName()
+void testGetProcessName(void)
 {
     char name[EXECUTOR_BUFFER_SIZE];
 
@@ -50,7 +50,7 @@ void testGetProcessName()
     assert(strcmp(name, "TestExProcess") == 0);
 }
 
-void testReadPidFile()
+void testReadPidFile(void)
 {
     FILE* pidFile;
     int pid;
@@ -88,7 +88,7 @@ void testReadPidFile()
     unlink(TEST_PID_FILE);
 }
 
-void testTestProcessRunning()
+void testTestProcessRunning(void)
 {
     FILE* pidFile;
 

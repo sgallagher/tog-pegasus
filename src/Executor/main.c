@@ -84,7 +84,7 @@ int GetServerUser(const char** userName, int* uid, int* gid)
 **==============================================================================
 */
 
-void ExecShutdown()
+void ExecShutdown(void)
 {
     char* tmpArgv[3];
     const char* cimshutdownPath;
@@ -123,7 +123,7 @@ void ExecShutdown()
 **==============================================================================
 */
 
-void DefineExecutorMacros()
+void DefineExecutorMacros(void)
 {
     /* Define ${internalBinDir} */
     {

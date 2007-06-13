@@ -70,7 +70,7 @@ static struct Policy _testPolicyTable[] =
 static const size_t _testPolicyTableSize =
     sizeof(_testPolicyTable) / sizeof(_testPolicyTable[0]);
 
-void testCheckPolicy()
+void testCheckPolicy(void)
 {
     /* Test non-existent policy */
     assert(CheckPolicy(
@@ -117,7 +117,7 @@ void testCheckPolicy()
         "file2") == 0);
 }
 
-void testFilePolicies()
+void testFilePolicies(void)
 {
     const char* currentConfigFile = "MyConfigFile";
     const char* currentConfigFileBak = "MyConfigFile.bak";
@@ -136,7 +136,7 @@ void testFilePolicies()
     assert(CheckRenameFilePolicy(currentConfigFile, noAccessFile) != 0);
 }
 
-void testDumpPolicy()
+void testDumpPolicy(void)
 {
     FILE* dumpFile;
     char dumpFileBuffer[MAX_DUMP_SIZE];

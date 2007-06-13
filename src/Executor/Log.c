@@ -47,7 +47,7 @@ static enum LogLevel _level = LL_INFORMATION;
 **==============================================================================
 */
 
-void InitLogLevel()
+void InitLogLevel(void)
 {
     char buffer[EXECUTOR_BUFFER_SIZE];
 
@@ -74,7 +74,7 @@ void InitLogLevel()
 **==============================================================================
 */
 
-enum LogLevel GetLogLevel()
+enum LogLevel GetLogLevel(void)
 {
     return _level;
 }

@@ -46,10 +46,10 @@ enum LogLevel
 };
 
 EXECUTOR_LINKAGE
-void InitLogLevel();
+void InitLogLevel(void);
 
 EXECUTOR_LINKAGE
-enum LogLevel GetLogLevel();
+enum LogLevel GetLogLevel(void);
 
 void OpenLog(const char* ident);
 

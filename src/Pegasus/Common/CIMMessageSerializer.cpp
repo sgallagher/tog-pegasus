@@ -715,7 +715,7 @@ void CIMMessageSerializer::_serializeUserCertificate(
     XmlWriter::appendValueElement(out,versionNumber);
 
     long serialNumber = userCert.getSerialNumber();
-    XmlWriter::appendValueElement(out,serialNumber);
+    XmlWriter::appendValueElement(out,(Uint64)serialNumber);
 
     CIMDateTime notBefore = userCert.getNotBefore();
     XmlWriter::appendValueElement(out,notBefore);

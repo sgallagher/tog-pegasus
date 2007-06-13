@@ -73,6 +73,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIError *cmpiErrorClone;
   CMPICount i, arrSize;
 
+  CMPIUint32 brokerCapabilities;
   /* CMPIError data */
   const char* inOwningEntity = "ACME";
   CMPIString* outOwningEntity;
@@ -108,6 +109,20 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIString* outOtherErrSourceFormat;
 
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
+
+  PROV_LOG ("Calling CBGetBrokerCapabilities");
+  brokerCapabilities = CBGetBrokerCapabilities(_broker);
+  if (brokerCapabilities & CMPI_MB_Supports_Extended_Error)
+  {
+      PROV_LOG("CMPI_MB_Supports_Extended_Error Support : True");
+  }
+  else
+  {
+      PROV_LOG("CMPI_MB_Supports_Extended_Error Support : False");
+      CMReturnWithString(CMPI_RC_ERR_NOT_SUPPORTED, 
+          CMNewString(_broker,
+          "Extended error support not avilable", NULL));
+  } 
 
   PROV_LOG ("--- %s CMPI InvokeMethod() called", _ClassName);
 

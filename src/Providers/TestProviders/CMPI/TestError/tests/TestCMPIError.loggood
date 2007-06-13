@@ -1,3 +1,5 @@
+ Calling CBGetBrokerCapabilities
+ CMPI_MB_Supports_Extended_Error Support : True
  --- TestCMPI_Error CMPI InvokeMethod() called
  InvokeMethod: checking for correct classname [TestCMPI_Error]
  Calling CMNewCMPIError

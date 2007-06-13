@@ -2222,12 +2222,12 @@ inline static int CMEvaluatePredicateUsingAccessor
          See CMPI_MB_Class_x and CMPI_MB_Supports_xxx flags.
      */
 inline static unsigned long
-CBGetClassification (const CMPIBroker * mb)
+CBGetBrokerCapabilities (const CMPIBroker * mb)
 {
-  return ((mb)->bft->brokerClassification);
+  return ((mb)->bft-> brokerCapabilities);  
 }
 #   else
-#      define CBGetClassification(b)         ((b)->bft->brokerClassification)
+#      define CBGetBrokerCapabilities(b) ((b)->bft->brokerCapabilities) 
 #   endif
 
 #   ifdef CMPI_INLINE

@@ -1927,7 +1927,9 @@ static int _testCMPIObjectPath ()
     PROV_LOG ("++++  Status of CMAddKey of type CMPI_uint16: (%s)", 
         strCMPIStatus (rc));
     data = CMGetKey(fakeObjPath, "Numeric_key_unsigned", &rc);
-    if(data.value.uint16 == value.uint16)
+    // Check for uint64, CMGetKey promotes all unsigned numeric types to
+    // Uint64 
+    if(data.value.uint64 == value.uint64)
     {
         PROV_LOG ("++++  Status of CMGetKey of type CMPI_uint16: (%s)",
         strCMPIStatus (rc));     
@@ -1939,7 +1941,9 @@ static int _testCMPIObjectPath ()
     PROV_LOG ("++++  Status of CMAddKey of type CMPI_sint16: (%s)",
         strCMPIStatus (rc));
     data = CMGetKey(fakeObjPath, "Numeric_key_signed", &rc);
-    if(data.value.sint16 == value.sint16)
+    // Check for sint64, CMGetKey promotes all signed numeric types to
+    // Sint64 
+    if(data.value.sint64 == value.sint64)
     {
         PROV_LOG ("++++  Status of CMGetKey of type CMPI_sint16: (%s)",
         strCMPIStatus (rc));

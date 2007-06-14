@@ -47,6 +47,8 @@ endif
 
 VMS_HAS_CC = yes
 
+LIBRARIES = cmpiUtilLib
+
 LIBRARY = TestCMPIAssociationProvider
 
 SOURCES = \

@@ -2369,9 +2369,17 @@ static int _testCMPIBroker (const CMPIContext* ctx)
     //==============================CBAssociators==============================
 
     PROV_LOG("++++ Associators-Broker : CBAssociators");
+
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     testEnumerationForAssociators = CBAssociators( _broker, ctx,
         opForAssociatorFunctions,"CMPI_TEST_Racing", NULL, NULL, NULL,
         properties_for_assoc, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     PROV_LOG("++++  CBAssociators : (rc:%s)", strCMPIStatus (rc));
 
@@ -2393,10 +2401,17 @@ static int _testCMPIBroker (const CMPIContext* ctx)
     PROV_LOG("++++ Associators success status : %d",
         associatorsObjectPathSuccessful);
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     // testing with an Invalid Class Name
     testErrorEnumerationForAssociators = CBAssociators( _broker, ctx,
         opForAssociatorFunctions,"CMPI_TEST_acing", NULL, NULL, NULL,
         properties_for_assoc, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     if (rc.rc != CMPI_RC_ERR_INVALID_PARAMETER)
     {
@@ -2404,10 +2419,17 @@ static int _testCMPIBroker (const CMPIContext* ctx)
     }
     PROV_LOG("++++  CBAssociators Error Path 1: (rc:%s)", strCMPIStatus (rc));
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     // testing with a class that is not an ASSOCIATION class
     testEnumerationForAssociators = CBAssociators( _broker, ctx,
         opForAssociatorFunctions,_PersonClass, NULL, NULL, NULL,
         properties_for_assoc, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     if (rc.rc != CMPI_RC_OK)
     {
@@ -2420,9 +2442,16 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     PROV_LOG("++++ Associators-Broker : CBAssociatorNames");
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     testEnumerationForAssociatorNames = CBAssociatorNames
         (_broker, ctx, opForAssociatorFunctions, "CMPI_TEST_Racing", NULL,
         NULL, NULL, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     PROV_LOG("++++  CBAssociatorNames : (rc:%s)", strCMPIStatus (rc));
 
@@ -2447,9 +2476,16 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     //Checking for Error Paths
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     testErrorEnumerationForAssociatorNames = CBAssociatorNames
         (_broker, ctx, opForAssociatorFunctions, "CMPI_TEST_acing", NULL,
         NULL, NULL, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     if (testErrorEnumerationForAssociatorNames == NULL)
     {
@@ -2464,9 +2500,16 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     PROV_LOG("++++ Associators-Broker : CBReferences");
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     testEnumerationForReferences = CBReferences
         (_broker, ctx, opReferences, "CMPI_TEST_Racing", NULL,
         properties_for_assoc, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     PROV_LOG("++++  CBReferences : (rc:%s)", strCMPIStatus (rc));
 
@@ -2491,10 +2534,16 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     //Checking for Error Paths
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     testErrorEnumerationForReferences = CBReferences
         (_broker, ctx, opReferences, "CMPI_TEST_acing", NULL,
         properties_for_assoc, &rc);
 
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     if (testErrorEnumerationForReferences != NULL)
     {
@@ -2505,8 +2554,15 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     PROV_LOG("++++ Associators-Broker : CBReferenceNames");
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     testEnumerationForReferenceNames = CBReferenceNames
         (_broker, ctx, opForAssociatorFunctions, NULL, NULL, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     PROV_LOG("++++  CBReferenceNames : (rc:%s)", strCMPIStatus (rc));
 
@@ -2536,8 +2592,15 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     //Checking for Error Paths
 
+    // Close log file before making upcall to provider that uses same PROV_LOG
+    // functions.
+    PROV_LOG_CLOSE();
+
     testEnumerationForReferenceNames = CBReferenceNames
         (_broker, ctx, opForErrorAssociatorFunctions, errorCheck, NULL, &rc);
+
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
     if (testErrorEnumerationForReferences != NULL)
     {

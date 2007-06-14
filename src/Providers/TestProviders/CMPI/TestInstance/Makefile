@@ -43,6 +43,8 @@ endif
 
 VMS_HAS_CC = yes
 
+LIBRARIES = cmpiUtilLib
+
 LIBRARY = cmpiTestInstanceProvider
 
 SOURCES = \

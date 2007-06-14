@@ -46,12 +46,12 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpi_cql.h>
+#include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
 
 #define _ClassName "TestCMPI_Instance"
 #define _ClassName_size strlen(_ClassName)
 #define _Namespace    "test/TestProvider"
 #define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestInstance/tests/"
-#define _LogExtension ".log"
 
 #ifdef CMPI_VER_100
 static const CMPIBroker *_broker;
@@ -59,135 +59,9 @@ static const CMPIBroker *_broker;
 static CMPIBroker *_broker;
 #endif
 
-unsigned char CMPI_true = 1;
-unsigned char CMPI_false = 0;
-static FILE *fd = NULL;
-
 /* ---------------------------------------------------------------------------*/
-/* private declarations                                                       */
+/*                       Helper functions                                     */
 /* ---------------------------------------------------------------------------*/
-
-
-void
-PROV_LOG (const char *fmt, ...)
-{
-
-  va_list ap;
-  if (!fd)
-    fd = stderr;
-
-  fprintf (fd, " ");
-  va_start (ap, fmt);
-  vfprintf (fd, fmt, ap);
-  va_end (ap);
-
-  fprintf (fd, "\n");
-  fflush (fd);
-}
-
-void
-PROV_LOG_CLOSE ()
-{
-  if (fd != stderr)
-    fclose (fd);
-  fd = stderr;
-}
-
-void
-PROV_LOG_OPEN (const char *file, const char *location)
-{
-  char *path = NULL;
-  const char *env;
-  size_t i = 0;
-  size_t j = 0;
-  size_t len = strlen (file);
-  size_t env_len = 0;
-  size_t loc_len = strlen (location);
-  size_t ext_len = strlen (_LogExtension);
-
-  env = PEGASUS_ROOT;
-  if (env)
-    env_len = strlen (env);
-
-  path = (char *) malloc (env_len + len + loc_len + ext_len);
-
-  strncpy (path, env, env_len);
-
-  path[env_len] = 0;
-  strncat (path, location, loc_len);
-  for (i = 0; i < len; i++)
-    /* Only use good names. */
-    if (isalpha (file[i]))
-      {
-        path[j + env_len + loc_len] = file[i];
-        j++;
-      }
-  path[j + env_len + loc_len] = 0;
-  strncat (path, _LogExtension, ext_len);
-  path[j + env_len + loc_len + ext_len] = 0;
-
-  fd = fopen (path, "a+");
-  if (fd == NULL)
-    fd = stderr;
-  free (path);
-}
-
-/* ---------------------------------------------------------------------------*/
-/*                       Helper functions                        */
-/* ---------------------------------------------------------------------------*/
-const char *
-strCMPIStatus (CMPIStatus rc)
-{
-
-  switch (rc.rc)
-    {
-
-    case CMPI_RC_OK:
-      return "CMPI_RC_OK";
-    case CMPI_RC_ERR_FAILED:
-      return "CMPI_RC_ERR_FAILED";
-    case CMPI_RC_ERR_ACCESS_DENIED:
-      return "CMPI_RC_ERR_ACCESS_DENIED";
-    case CMPI_RC_ERR_INVALID_NAMESPACE:
-      return "CMPI_RC_ERR_INVALID_NAMESPACE";
-    case CMPI_RC_ERR_INVALID_PARAMETER:
-      return "CMPI_RC_ERR_INVALID_PARAMETER";
-    case CMPI_RC_ERR_INVALID_CLASS:
-      return "CMPI_RC_ERR_INVALID_CLASS";
-    case CMPI_RC_ERR_NOT_FOUND:
-      return "CMPI_RC_ERR_NOT_FOUND";
-    case CMPI_RC_ERR_NOT_SUPPORTED:
-      return "CMPI_RC_ERR_NOT_SUPPORTED";
-    case CMPI_RC_ERR_CLASS_HAS_CHILDREN:
-      return "CMPI_RC_ERR_CLASS_HAS_CHILDREN";
-    case CMPI_RC_ERR_CLASS_HAS_INSTANCES:
-      return "CMPI_RC_ERR_CLASS_HAS_INSTANCES";
-    case CMPI_RC_ERR_INVALID_SUPERCLASS:
-      return "CMPI_RC_ERR_INVALID_SUPERCLASS";
-    case CMPI_RC_ERR_ALREADY_EXISTS:
-      return "CMPI_RC_ERR_ALREADY_EXISTS";
-    case CMPI_RC_ERR_NO_SUCH_PROPERTY:
-      return "CMPI_RC_ERR_NO_SUCH_PROPERTY";
-    case CMPI_RC_ERR_TYPE_MISMATCH:
-      return "CMPI_RC_ERR_TYPE_MISMATCH";
-    case CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED:
-      return "CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED";
-    case CMPI_RC_ERR_INVALID_QUERY:
-      return "CMPI_RC_ERR_INVALID_QUERY";
-    case CMPI_RC_ERR_METHOD_NOT_AVAILABLE:
-      return "CMPI_RC_ERR_METHOD_NOT_AVAILABLE";
-    case CMPI_RC_ERR_METHOD_NOT_FOUND:
-      return "CMPI_RC_ERR_METHOD_NOT_FOUND";
-    case CMPI_RC_ERROR_SYSTEM:
-      return "CMPI_RC_ERROR_SYSTEM";
-    case CMPI_RC_ERROR:
-      return "CMPI_RC_ERROR";
-    default:
-      return "Unknown error.";
-    }
-
-  return "";
-}
 
 const char *
 strCMPIType (CMPIType type)
@@ -294,58 +168,6 @@ strCMPIType (CMPIType type)
   return "";
 }
 
-const char *
-strCMPIValueState (CMPIValueState state)
-{
-  switch (state)
-    {
-    case CMPI_goodValue:
-      return "CMPI_goodValue";
-    case CMPI_nullValue:
-      return "CMPI_nullValue";
-    case CMPI_keyValue:
-      return "CMPI_keyValue";
-    case CMPI_notFound:
-      return "CMPI_notFound";
-    case CMPI_badValue:
-      return "CMPI_badValue";
-    default:
-      return "Unknown state";
-
-    }
-  return "";
-
-}
-
-const char *
-strCMPIPredOp (CMPIPredOp op)
-{
-  switch (op)
-    {
-    case CMPI_PredOp_Equals:
-      return " CMPI_PredOp_Equals ";
-    case CMPI_PredOp_NotEquals:
-      return " CMPI_PredOp_NotEquals ";
-    case CMPI_PredOp_LessThan:
-      return " CMPI_PredOp_LessThan ";
-    case CMPI_PredOp_GreaterThanOrEquals:
-      return " CMPI_PredOp_GreaterThanOrEquals ";
-    case CMPI_PredOp_GreaterThan:
-      return " CMPI_PredOp_GreaterThan ";
-    case CMPI_PredOp_LessThanOrEquals:
-      return " CMPI_PredOp_LessThanOrEquals ";
-    case CMPI_PredOp_Isa:
-      return " CMPI_PredOp_Isa ";
-    case CMPI_PredOp_NotIsa:
-      return " CMPI_PredOp_NotIsa ";
-    case CMPI_PredOp_Like:
-      return " CMPI_PredOp_Like ";
-    case CMPI_PredOp_NotLike:
-      return " CMPI_PredOp_NotLike ";
-    default:
-      return "Unknown operation";
-    }
-}
 const char *
 strCMPIValue (CMPIValue value)
 {

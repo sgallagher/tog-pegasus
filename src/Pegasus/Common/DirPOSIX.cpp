@@ -58,6 +58,12 @@ Dir::Dir(const String& path)
 
     if (_dirRep.dir)
     {
+        // ATTN: DOI NOT REMOVE THE ERRNO=0 assignment
+
+        // Reason: On some platforms readdir_r is a wrapper around
+        // readdir. Without errno set to 0, readdir reports a bad return
+        // code even in the case that just the end of directory was reached.
+        errno=0;
         // Need to use readdir_r since we are multithreaded
         if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
         {
@@ -91,6 +97,12 @@ void Dir::next()
 {
     if (_more)
     {
+        // ATTN: DOI NOT REMOVE THE ERRNO=0 assignment
+
+        // Reason: On some platforms readdir_r is a wrapper around
+        // readdir. Without errno set to 0, readdir reports a bad return
+        // code even in the case that just the end of directory was reached.
+        errno=0;
         // Need to use readdir_r since we are multithreaded
         if (readdir_r(_dirRep.dir, &_dirRep.buffer, &_dirRep.entry) != 0)
         {

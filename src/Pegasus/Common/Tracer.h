@@ -34,7 +34,7 @@
 #ifndef Pegasus_Tracer_h
 #define Pegasus_Tracer_h
 
-#include <stdarg.h>
+#include <cstdarg>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
@@ -73,64 +73,18 @@ public:
     static const Uint32 LEVEL3;
     static const Uint32 LEVEL4;
 
-    /** Traces the given message
-        @param traceComponent  component being traced
-        @param level           trace level of the trace message
-        @param *fmt            printf style format string
-        @param ...             variable argument list
-     */
-    static void trace(
-        const Uint32 traceComponent,
-        const Uint32 level,
-        const char *fmt,
-        ...);
-
-    /** Traces the given message. Overloaded to include the filename and
-        the line number of trace origin.
-        @param fileName        filename of the trace originator
-        @param lineNum         line number of the trace originator
-        @param traceComponent  component being traced
-        @param level           trace level of the trace message
-        @param *fmt            printf style format string
-        @param ...             variable argument list
-     */
-    static void trace(
-        const char* fileName,
-        const Uint32 lineNum,
-        const Uint32 traceComponent,
-        const Uint32 level,
-        const char* fmt,
-        ...);
-
-    /** Traces the given string.  Overloaded to include the filename
-        and line number of trace origin.
-        @param fileName        filename of the trace originator
-        @param lineNum         line number of the trace originator
-        @param traceComponent  component being traced
-        @param level           trace level of the trace message
-        @param string          the string to be traced
-     */
-    static void traceString(
-        const char* fileName,
-        const Uint32 lineNum,
-        const Uint32 traceComponent,
-        const Uint32 level,
-        const String& string);
-
     /** Traces the given character string.
         Overloaded to include the filename
         and line number of trace origin.
         @param fileName        filename of the trace originator
         @param lineNum         line number of the trace originator
         @param traceComponent  component being traced
-        @param level           trace level of the trace message
         @param cstring         the character string to be traced
      */
     static void traceCString(
         const char* fileName,
         const Uint32 lineNum,
         const Uint32 traceComponent,
-        const Uint32 level,
         const char* cstring);
 
     /** Traces the message in the given CIMException object.  The message
@@ -242,6 +196,15 @@ public:
     */
     static Boolean isTraceOn() { return _traceOn; }
 
+    // Checks if trace is enabled for the given component and trace level
+    // @param    traceComponent  component being traced
+    // @param    level      level of the trace message
+    // @return   0               if the component and level are not enabled
+    //           1               if the component and level are enabled
+    static Boolean isTraceEnabled(
+        const Uint32 traceComponent,
+        const Uint32 level);
+
 private:
 
     /** A static single indicator if tracing is turned on allowing to
@@ -270,24 +233,6 @@ private:
     // Message Strings for Logger
     static const char _LOG_MSG[];
 
-    // Checks if trace is enabled for the given component and trace level
-    // @param    traceComponent  component being traced
-    // @param    level      level of the trace message
-    // @return   0               if the component and level are not enabled
-    //           1               if the component and level are enabled
-    static Boolean _isTraceEnabled(
-        const Uint32 traceComponent,
-        const Uint32 level);
-
-    // Traces the given message
-    //  @param    traceComponent  component being traced
-    //  @param    *fmt            printf style format string
-    //  @param    argList         variable argument list
-    static void _trace(
-        const Uint32 traceComponent,
-        const char* fmt,
-        va_list argList);
-
     // Traces the given message. Overloaded to include the file name and the
     // line number as one of the parameters.
     // @param    traceComponent  component being traced
@@ -300,19 +245,6 @@ private:
         const Uint32 traceComponent,
         const char* fmt,
         va_list argList);
-
-    //  Traces a given character string.  Overloaded to include the filename
-    //  and line number of trace origin.
-    //  @param    fileName        filename of the trace originator
-    //  @param    lineNum         line number of the trace originator
-    //  @param    traceComponent  component being traced
-    //  @param    cstring         the character string to be traced
-    //
-    static void _traceCString(
-        const char* fileName,
-        const Uint32 lineNum,
-        const Uint32 traceComponent,
-        const char* cstring);
 
     //  Traces the message in the given CIMException object.  The message
     //  to be written to the trace file will include the source filename and
@@ -367,6 +299,8 @@ private:
     // Returns the Singleton instance of the Tracer
     // @return   Tracer*  Instance of Tracer
     static Tracer* _getInstance();
+
+    friend class TraceCallFrame;
 };
 
 //==============================================================================
@@ -378,41 +312,10 @@ private:
 
 #ifdef PEGASUS_REMOVE_TRACE
 
-inline void Tracer::trace(
-    const Uint32 traceComponent,
-    const Uint32 level,
-    const char *fmt,
-    ...)
-{
-    // empty function
-}
-
-inline void Tracer::trace(
-    const char* fileName,
-    const Uint32 lineNum,
-    const Uint32 traceComponent,
-    const Uint32 level,
-    const char* fmt,
-    ...)
-{
-    // empty function
-}
-
-inline void Tracer::traceString(
-    const char* fileName,
-    const Uint32 lineNum,
-    const Uint32 traceComponent,
-    const Uint32 level,
-    const String& string)
-{
-    // empty function
-}
-
 inline void Tracer::traceCString(
     const char* fileName,
     const Uint32 lineNum,
     const Uint32 traceComponent,
-    const Uint32 level,
     const char* cstring)
 {
     // empty function
@@ -502,7 +405,15 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
     do \
     { \
         if (Tracer::isTraceOn()) \
-            Tracer::traceString(PEGASUS_FILE_LINE_COMMA comp, level, string); \
+        { \
+            PEGASUS_ASSERT(level != Tracer::LEVEL1); \
+            if (Tracer::isTraceEnabled(comp, level)) \
+            { \
+                Tracer::traceCString(PEGASUS_FILE_LINE_COMMA \
+                                     comp, \
+                                     (const char*) (string).getCString()); \
+            } \
+        } \
     } \
     while (0)
 
@@ -512,19 +423,80 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
     do \
     { \
         if (Tracer::isTraceOn()) \
-            Tracer::traceCString(PEGASUS_FILE_LINE_COMMA comp, level, chars); \
+        { \
+            PEGASUS_ASSERT(level != Tracer::LEVEL1); \
+            if (Tracer::isTraceEnabled(comp, level)) \
+            { \
+                Tracer::traceCString(PEGASUS_FILE_LINE_COMMA comp, chars); \
+            } \
+        } \
     } \
     while (0)
 
-// Macro for Trace variable number of arguments with format string. The trace
-// test is included becase of the possible cost of preparing the variable
-// number of arguments on each call.  The d construct allows this to be
-// treated as a single statement.
+//
+// This class is constructed with the same arguments passed to PEG_TRACE().
+// The constructor saves all the fixed arguments and calls va_start() on
+// the varying arguments (wherein the va_list argument is the ap member of
+// this class). The PEG_TRACE() macro eventually calls invoke() with the
+// file and line macros in order to write the trace entry. For more details,
+// see the comments below on the PEG_TRACE() macro.
+//
+class TraceCallFrame
+{
+public:
+
+    const char* file;
+    Uint32 line;
+    
+    TraceCallFrame(const char* file_, Uint32 line_) : file(file_), line(line_)
+    {
+    }
+    
+    PEGASUS_FORMAT(4, 5)
+    inline void invoke(
+        const Uint32 component,
+        const Uint32 level,
+        const char* format,
+        ...) 
+    {
+        if (Tracer::isTraceEnabled(component, level))
+        {
+            va_list ap;
+            va_start(ap, format);
+            Tracer::_trace(file, line, component, format, ap);
+            va_end(ap);
+        }
+    }
+
+    ~TraceCallFrame()
+    {
+    }
+};
+//
+// This macro is a wrapper for calling the printf-style form of the 
+// Tracer::trace() function. Since macros cannot have a varying number of 
+// arguments, PEG_TRACE() must be invoked with double parentheses. For
+// example:
+//
+//     PEG_TRACE((TRC_HTTP, Tracer::LEVEL1, "Oops: %d", 999));
+//
+// This macro offers two advantages over the calling trace() directly.
+//
+//     1. It eliminates the call to trace() if isTraceOn() returns false.
+//        This has proven to reduce the expense of servicing a request
+//        (when tracing is off) by as much as 3%.
+//
+//     2. It implicitly injects the __FILE__ and __LINE__ macros, relieving
+//        the caller of this burden.
+//
 # define PEG_TRACE(VAR_ARGS) \
     do \
     { \
         if (Tracer::isTraceOn()) \
-            Tracer::trace VAR_ARGS; \
+        { \
+                TraceCallFrame frame(__FILE__, __LINE__); \
+                frame.invoke VAR_ARGS; \
+        } \
     } \
     while (0)
 

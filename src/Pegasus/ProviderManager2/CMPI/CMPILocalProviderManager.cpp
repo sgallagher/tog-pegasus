@@ -351,9 +351,10 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                   struct timeval timeout = { 0, 0 };
                   provider->get_idle_timer (&timeout);
 
-                  PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                    " provider->unload_ok() returns: " +
-                                    provider->unload_ok ()? "true" : "false");
+                  PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                                    provider->unload_ok ()? 
+                                    " provider->unload_ok() returns: true" : 
+                                    " provider->unload_ok() returns: false");
 
                   if (provider->unload_ok () == true &&
                       (now.tv_sec - timeout.tv_sec) >

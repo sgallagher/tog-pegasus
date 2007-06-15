@@ -127,8 +127,8 @@ Uint32 test1()
 {
     const char* METHOD_NAME = "test1";
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s %d",
-    "This message should not appear value=",123);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %d",
+        "This message should not appear value=",123));
     PEG_METHOD_EXIT();
     return(compare(FILE1,""));
 }
@@ -149,8 +149,8 @@ Uint32 test2()
     const char* METHOD_NAME = "test2";
     Tracer::setTraceFile(FILE1);
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s %d",
-    "This message should not appear value=",123);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %d",
+        "This message should not appear value=",123));
     return(compare(FILE1,"This message should not appear value=123"));
 }
 
@@ -170,8 +170,8 @@ Uint32 test3()
     const char* METHOD_NAME = "test3";
     Tracer::setTraceLevel(Tracer::LEVEL1);
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s",
-    "This message should not appear");
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s",
+        "This message should not appear"));
     return(compare(FILE1,"This message should not appear"));
 }
 
@@ -232,12 +232,12 @@ Uint32 test6()
     const char* METHOD_NAME = "test6";
     Tracer::setTraceComponents("Config");
     Tracer::setTraceLevel(Tracer::LEVEL2);
-    Tracer::trace(TRC_CONFIG,Tracer::LEVEL2,"%s %s",
-    "Test Message for Level2 in",METHOD_NAME);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s %s",
-    "Test Message for Level2 in",METHOD_NAME);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,"%s",
-    "This Message should not appear");
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %s",
+        "Test Message for Level2 in",METHOD_NAME));
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %s",
+        "Test Message for Level2 in",METHOD_NAME));
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s",
+        "This Message should not appear"));
     return(compare(FILE1,"Test Message for Level2 in test6"));
 }
 
@@ -278,8 +278,8 @@ Uint32 test9()
     Tracer::setTraceFile(FILE2);
 
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
-    Tracer::trace(TRC_CONFIG,Tracer::LEVEL3,"%s %s",
-    "Test Message for Level3 in",METHOD_NAME);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL3,"%s %s",
+        "Test Message for Level3 in",METHOD_NAME));
     return(compare(FILE2,"Test Message for Level3 in test9"));
 }
 
@@ -366,8 +366,8 @@ Uint32 test13()
     const char* METHOD_NAME = "test13";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL2,"%s %s",
-    "Test Message for Level2 in",METHOD_NAME);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %s",
+        "Test Message for Level2 in",METHOD_NAME));
     return(compare(FILE2,"Test Message for Level2 in test13"));
 }
 
@@ -389,8 +389,8 @@ Uint32 test14()
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(Tracer::LEVEL4);
     Tracer::setTraceFile(FILE3);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL3,"%s %s",
-    "Test Message for Level3 in",METHOD_NAME);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL3,"%s %s",
+        "Test Message for Level3 in",METHOD_NAME));
     return(compare(FILE3,"Test Message for Level3 in test14"));
 }
 
@@ -411,8 +411,8 @@ Uint32 test15()
     const char* METHOD_NAME = "test15";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,"%s %s",
-    "Test Message for Level4 in",METHOD_NAME);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
+        "Test Message for Level4 in",METHOD_NAME));
     return(compare(FILE3,"Test Message for Level4 in test15"));
 }
 
@@ -433,8 +433,8 @@ Uint32 test16()
     const char* METHOD_NAME = "test16";
     Tracer::setTraceComponents("");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,"%s %s",
-    "This Message should not appear in",METHOD_NAME);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
+    "This Message should not appear in",METHOD_NAME));
     return(compare(FILE3,"Test Message for Level4 in test15"));
 }
 
@@ -455,8 +455,8 @@ Uint32 test17()
     const char* METHOD_NAME = "test17";
     Tracer::setTraceComponents("InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,"%s %s",
-    "This Message should not appear in",METHOD_NAME);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
+    "This Message should not appear in",METHOD_NAME));
     return(compare(FILE3,"Test Message for Level4 in test15"));
 }
 //
@@ -476,7 +476,7 @@ Uint32 test18()
     const char* METHOD_NAME = "test18";
     Tracer::setTraceComponents("Config,InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    Tracer::traceCString(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,
         "This Message should appear in");
     return(compare(FILE3,"This Message should appear in"));
 }
@@ -484,7 +484,7 @@ Uint32 test18()
 //
 // Description:
 // Trace a string.
-// Calls the _traceString() method
+// Calls the PEG_TRACE macro
 // should log a trace message
 //
 // Type:
@@ -502,8 +502,8 @@ Uint32 test20()
     Tracer::setTraceLevel(Tracer::LEVEL4);
 
     PEG_METHOD_ENTER(TRC_CONFIG, METHOD_NAME);
-    Tracer::trace(__FILE__,__LINE__,TRC_CONFIG,Tracer::LEVEL4,
-    "Test Message for Level4 in test20");
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,
+    "Test Message for Level4 in test20"));
     return(compare(FILE4,"Test Message for Level4 in test20"));
 }
 
@@ -565,7 +565,7 @@ Uint32 test22()
     PEG_METHOD_ENTER(TRC_CONFIG, METHOD_NAME);
 
     PEG_TRACE_STRING(TRC_CONFIG,Tracer::LEVEL4,
-                     "Test message for Level4 in test22.");
+                     String("Test message for Level4 in test22."));
 
     return(compare(FILE4,"Test message for Level4 in test22."));
 }

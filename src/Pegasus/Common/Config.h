@@ -276,4 +276,30 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_UNREACHABLE(CODE) CODE
 #endif
 
+/*
+**==============================================================================
+**
+** PEGASUS_FORMAT
+**
+**     This macro allows the compiler to check the arguments to format
+**     specifiers in the printf family of functions. For example, the following
+**     enables format checking for the foo function.
+**
+**         PEGASUS_FORMAT(1, 2)
+**         void foo(const char* format, ...);
+**
+**     On GCC, the following error is detected  below (when using this macro).
+**
+**         foo("%s %d", 99, "hello"); // mismatch specifiers!
+**
+**==============================================================================
+*/
+
+#if defined(__GNUC__) &&  (__GNUC__ >= 4)
+# define PEGASUS_FORMAT(A1, A2) __attribute__((format (printf, A1, A2)))
+#else
+# define PEGASUS_FORMAT(A1, A2) /* not implemented */
+#endif
+
+
 #endif  /* Pegasus_Config_h */

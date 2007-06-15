@@ -485,8 +485,10 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         break;
 
     default:
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                         "*** Unsupported Request "+request->getType());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                   "*** Unsupported Request %d",
+                   request->getType()
+                  ));
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::processMessage: Unsupported request "<<request->getType ()<<PEGASUS_STD(endl));
 
         response = handleUnsupportedRequest(request);

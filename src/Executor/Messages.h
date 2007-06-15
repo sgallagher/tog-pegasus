@@ -63,11 +63,12 @@ enum ExecutorMessageCode
     EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE,
     EXECUTOR_REMOVE_FILE_MESSAGE,
     EXECUTOR_RENAME_FILE_MESSAGE,
-    EXECUTOR_REAP_PROVIDER_AGENT,
+    EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE,
     EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE,
     EXECUTOR_VALIDATE_USER_MESSAGE,
     EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
-    EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE
+    EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE,
+    EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE
 };
 
 /*
@@ -191,7 +192,7 @@ struct ExecutorDaemonizeExecutorResponse
 /*
 **==============================================================================
 **
-** EXECUTOR_REAP_PROVIDER_AGENT
+** EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE
 **
 **==============================================================================
 */
@@ -277,6 +278,24 @@ struct ExecutorAuthenticateLocalRequest
 };
 
 struct ExecutorAuthenticateLocalResponse
+{
+    int status;
+};
+
+/*
+**==============================================================================
+**
+** EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE
+**
+**==============================================================================
+*/
+
+struct ExecutorUpdateLogLevelRequest
+{
+    char logLevel[EXECUTOR_BUFFER_SIZE];
+};
+
+struct ExecutorUpdateLogLevelResponse
 {
     int status;
 };

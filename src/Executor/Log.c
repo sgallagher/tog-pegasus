@@ -53,16 +53,48 @@ void InitLogLevel(void)
 
     if (GetConfigParam("logLevel", buffer) == 0)
     {
-        if (strcasecmp(buffer, "TRACE") == 0)
-            _level = LL_TRACE;
-        else if (strcasecmp(buffer, "INFORMATION") == 0)
-            _level = LL_INFORMATION;
-        else if (strcasecmp(buffer, "WARNING") == 0)
-            _level = LL_WARNING;
-        else if (strcasecmp(buffer, "SEVERE") == 0)
-            _level = LL_SEVERE;
-        else if (strcasecmp(buffer, "FATAL") == 0)
-            _level = LL_FATAL;
+        SetLogLevel(buffer);
+    }
+}
+
+/*
+**==============================================================================
+**
+** SetLogLevel()
+**
+**==============================================================================
+*/
+
+int SetLogLevel(const char* logLevel)
+{
+    if (strcasecmp(logLevel, "TRACE") == 0)
+    {
+        _level = LL_TRACE;
+        return 0;
+    }
+    else if (strcasecmp(logLevel, "INFORMATION") == 0)
+    {
+        _level = LL_INFORMATION;
+        return 0;
+    }
+    else if (strcasecmp(logLevel, "WARNING") == 0)
+    {
+        _level = LL_WARNING;
+        return 0;
+    }
+    else if (strcasecmp(logLevel, "SEVERE") == 0)
+    {
+        _level = LL_SEVERE;
+        return 0;
+    }
+    else if (strcasecmp(logLevel, "FATAL") == 0)
+    {
+        _level = LL_FATAL;
+        return 0;
+    }
+    else
+    {
+        return -1;
     }
 }
 
@@ -79,12 +111,28 @@ enum LogLevel GetLogLevel(void)
     return _level;
 }
 
+/*
+**==============================================================================
+**
+** OpenLog()
+**
+**==============================================================================
+*/
+
 void OpenLog(const char* ident)
 {
     int options = LOG_PID;
 
     openlog(ident, options, LOG_DAEMON);
 }
+
+/*
+**==============================================================================
+**
+** Log()
+**
+**==============================================================================
+*/
 
 void Log(enum LogLevel type, const char *format, ...)
 {

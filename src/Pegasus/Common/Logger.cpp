@@ -37,6 +37,7 @@
 #include "Logger.h"
 #include "System.h"
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Executor.h>
 
 #if defined(PEGASUS_USE_SYSLOGS)
 # include <syslog.h>
@@ -696,13 +697,15 @@ void Logger::setlogLevelMask( const String logLevelList )
             case Logger::FATAL:
                   _severityMask |= Logger::FATAL;
         }
+
+        Executor::updateLogLevel(logLevelName.getCString());
     }
     else
     {
         // Property logLevel not specified, set default value.
         _severityMask = ~Logger::TRACE;
+        Executor::updateLogLevel("INFORMATION");
     }
-    return ;
 }
 
 Boolean Logger::isValidlogLevel(const String logLevel)

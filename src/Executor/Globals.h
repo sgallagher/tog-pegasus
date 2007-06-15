@@ -57,14 +57,10 @@ struct Globals
     /* PID of child process (CIMSERVERMAIN). */
     int childPid;
 
-    /* User name of child process (CIMSERVERMAIN). */
-    const char* childUserName;
-
-    /* UID of child process (CIMSERVERMAIN). */
-    int childUid;
-
-    /* GID of child process (CIMSERVERMAIN). */
-    int childGid;
+    /* Indicates whether we are in the Child process.  If true, we need to
+     * call _exit() instead of exit().
+     */
+    int isChildProcess;
 
     /* Mask of signals encountered by executor process. */
     unsigned long signalMask;

@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <grp.h>
 #include "Defines.h"
+#include "Globals.h"
 #include "Fatal.h"
 #include "Path.h"
 #include "Log.h"
@@ -64,6 +65,8 @@ void Child(
 {
     char sockStr[EXECUTOR_BUFFER_SIZE];
     char** execArgv;
+
+    globals.isChildProcess = 1;
 
     /* Build argument list, adding "--executor-socket <sock>" option if
      * sock non-negative.
@@ -124,6 +127,4 @@ void Child(
 
     /* If we are still here, the exec failed. */
     Fatal(FL, "failed to exec %s", path);
-
-    exit(0);
 }

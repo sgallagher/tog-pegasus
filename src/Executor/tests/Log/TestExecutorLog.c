@@ -41,10 +41,10 @@
 
 int main()
 {
-    /* Test InitLogLevel() */
-
     /* Test default logLevel value */
     assert(GetLogLevel() == LL_INFORMATION);
+
+    /* Test InitLogLevel() */
 
     /* Test with no logLevel specified.  Value is unchanged. */
     {
@@ -68,29 +68,6 @@ int main()
         assert(GetLogLevel() == LL_INFORMATION);
     }
 
-    /* Test with logLevel TRACE specified */
-    {
-        static const char* argv[] = { "program", "logLevel=TRACE" };
-        static const int argc = sizeof(argv) / sizeof(argv[0]);
-        globals.argv = (char**)argv;
-        globals.argc = argc;
-
-        InitLogLevel();
-        assert(GetLogLevel() == LL_TRACE);
-    }
-
-    /* Test with logLevel INFORMATION specified */
-    {
-        static const char* argv[] =
-            { "program", "logLevel=INFORMATION" };
-        static const int argc = sizeof(argv) / sizeof(argv[0]);
-        globals.argv = (char**)argv;
-        globals.argc = argc;
-
-        InitLogLevel();
-        assert(GetLogLevel() == LL_INFORMATION);
-    }
-
     /* Test with logLevel WARNING specified */
     {
         static const char* argv[] = { "program", "logLevel=WARNING" };
@@ -102,27 +79,20 @@ int main()
         assert(GetLogLevel() == LL_WARNING);
     }
 
-    /* Test with logLevel SEVERE specified */
-    {
-        static const char* argv[] = { "program", "logLevel=SEVERE" };
-        static const int argc = sizeof(argv) / sizeof(argv[0]);
-        globals.argv = (char**)argv;
-        globals.argc = argc;
+    /* Test SetLogLevel() */
 
-        InitLogLevel();
-        assert(GetLogLevel() == LL_SEVERE);
-    }
-
-    /* Test with logLevel FATAL specified */
-    {
-        static const char* argv[] = { "program", "logLevel=FATAL" };
-        static const int argc = sizeof(argv) / sizeof(argv[0]);
-        globals.argv = (char**)argv;
-        globals.argc = argc;
-
-        InitLogLevel();
-        assert(GetLogLevel() == LL_FATAL);
-    }
+    assert(SetLogLevel("TRACE") == 0);
+    assert(GetLogLevel() == LL_TRACE);
+    assert(SetLogLevel("INFORMATION") == 0);
+    assert(GetLogLevel() == LL_INFORMATION);
+    assert(SetLogLevel("WARNING") == 0);
+    assert(GetLogLevel() == LL_WARNING);
+    assert(SetLogLevel("SEVERE") == 0);
+    assert(GetLogLevel() == LL_SEVERE);
+    assert(SetLogLevel("FATAL") == 0);
+    assert(GetLogLevel() == LL_FATAL);
+    assert(SetLogLevel("TRACEERROR") == -1);
+    assert(GetLogLevel() == LL_FATAL);
 
     printf("+++++ passed all tests\n");
 

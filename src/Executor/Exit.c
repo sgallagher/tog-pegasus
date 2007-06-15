@@ -32,6 +32,7 @@
 */
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 #include "Exit.h"
 #include "Log.h"
 #include "Globals.h"
@@ -58,5 +59,12 @@ void Exit(int status)
     if (globals.childPid > 0)
         kill(globals.childPid, SIGTERM);
 
-    exit(status);
+    if (globals.isChildProcess)
+    {
+        _exit(status);
+    }
+    else
+    {
+        exit(status);
+    }
 }

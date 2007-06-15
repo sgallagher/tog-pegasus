@@ -88,6 +88,8 @@ void testExecutorLoopbackImpl()
         "me", challengeFilePath) == -1);
     PEGASUS_TEST_ASSERT(Executor::authenticateLocal(
         challengeFilePath, "secret") == -1);
+
+    PEGASUS_TEST_ASSERT(Executor::updateLogLevel("WARNING") == 0);
 }
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -125,6 +127,8 @@ void testExecutorSocketImpl()
         "me", challengeFilePath) == -1);
     PEGASUS_TEST_ASSERT(Executor::authenticateLocal(
         challengeFilePath, "secret") == -1);
+
+    PEGASUS_TEST_ASSERT(Executor::updateLogLevel("WARNING") == -1);
 }
 #endif
 

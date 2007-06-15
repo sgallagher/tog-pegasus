@@ -223,6 +223,13 @@ public:
         const char* challengeFilePath,
         const char* response);
 
+    /** Update the log level used by the Executor process.
+        @param logLevel the new log level to use in the Executor.
+        @return 0=success, -1=failure
+    */
+    static int updateLogLevel(
+        const char* logLevel);
+
 private:
     // Private to prevent instantiation.
     Executor();

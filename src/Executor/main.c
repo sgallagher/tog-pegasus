@@ -247,14 +247,6 @@ void DefineExecutorMacros(void)
 
     if (DefineConfigPathMacro("crlStore", "crl") != 0)
         Fatal(FL, "missing \"crlStore\" configuration parameter.");
-
-    /* Define ${privilegedUser} */
-
-    DefineMacro("privilegedUser", "root");
-
-    /* Define ${cimserverUser} */
-
-    DefineMacro("cimserverUser", PEGASUS_CIMSERVERMAIN_USER);
 }
 
 /*
@@ -270,6 +262,9 @@ int main(int argc, char** argv)
     const char* cimservermainPath;
     int pair[2];
     char username[EXECUTOR_BUFFER_SIZE];
+    const char* childUserName;
+    int childUid;
+    int childGid;
     int childPid;
     struct Options options;
 
@@ -282,11 +277,15 @@ int main(int argc, char** argv)
     globals.argc = argc;
     globals.argv = argv;
 
+    /* Open the log. */
+
+    OpenLog("cimserver");
+
     /* Define macros needed by the executor. */
 
     DefineExecutorMacros();
 
-    /* If shuting down, then run CIMSHUTDOWN client. */
+    /* If shutting down, then run CIMSHUTDOWN client. */
 
     if (options.shutdown)
         ExecShutdown();
@@ -345,10 +344,6 @@ int main(int argc, char** argv)
 
     InitLogLevel();
 
-    /* Open the log. */
-
-    OpenLog("cimserver");
-
     Log(LL_INFORMATION, "starting");
 
     /* Be sure this process is running as root (otherwise fail). */
@@ -373,7 +368,7 @@ int main(int argc, char** argv)
 
     /* Determine user for running CIMSERVERMAIN. */
 
-    GetServerUser(&globals.childUserName, &globals.childUid, &globals.childGid);
+    GetServerUser(&childUserName, &childUid, &childGid);
 
     /* Fork child process. */
 
@@ -387,9 +382,9 @@ int main(int argc, char** argv)
             argc,
             argv,
             cimservermainPath,
-            globals.childUserName,
-            globals.childUid,
-            globals.childGid,
+            childUserName,
+            childUid,
+            childGid,
             pair[0]);
     }
     else if (childPid > 0)

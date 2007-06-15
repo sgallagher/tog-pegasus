@@ -46,6 +46,7 @@ static const char* _messageStrings[] =
     "ValidateUser",
     "ChallengeLocal",
     "AuthenticateLocal",
+    "UpdateLogLevel",
 };
 
 /*

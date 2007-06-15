@@ -38,9 +38,7 @@ struct Globals globals =
     0, /* argc */
     0, /* argv */
     0, /* childPid */
-    0, /* childUserName */
-    0, /* childUid */
-    0, /* childGid */
+    0, /* isChildProcess */
     0, /* signalMask */
     0, /* enableAuthentication */
 };

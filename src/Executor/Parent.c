@@ -392,8 +392,7 @@ static void HandleStartProviderAgentRequest(int sock)
 
             Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s): failed\n",
                 path, path, arg1, arg2, request.module);
-
-            return;
+            _exit(1);
         }
     }
     while (0);
@@ -897,6 +896,45 @@ static void HandleAuthenticateLocalRequest(int sock)
 /*
 **==============================================================================
 **
+** HandleUpdateLogLevelRequest()
+**
+**==============================================================================
+*/
+
+static void HandleUpdateLogLevelRequest(int sock)
+{
+    int status;
+    struct ExecutorUpdateLogLevelRequest request;
+    struct ExecutorUpdateLogLevelResponse response;
+
+    memset(&response, 0, sizeof(response));
+
+    /* Read the request message. */
+
+    ReadExecutorRequest(sock, &request, sizeof(request));
+
+    /* Log request. */
+
+    Log(LL_TRACE, "HandleUpdateLogLevelRequest(): logLevel=%s",
+        request.logLevel);
+
+    /* Perform operation. */
+
+    status = SetLogLevel(request.logLevel);
+
+    if (status == -1)
+        Log(LL_WARNING, "SetLogLevel(%d) failed", request.logLevel);
+
+    /* Send response message. */
+
+    response.status = status;
+
+    WriteExecutorResponse(sock, &response, sizeof(response));
+}
+
+/*
+**==============================================================================
+**
 ** Parent()
 **
 **     The parent process (cimserver).
@@ -982,7 +1020,7 @@ void Parent(int sock, int childPid, int bindVerbose)
                 HandleRemoveFileRequest(sock);
                 break;
 
-            case EXECUTOR_REAP_PROVIDER_AGENT:
+            case EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE:
                 HandleReapProviderAgentRequest(sock);
                 break;
 
@@ -1000,6 +1038,10 @@ void Parent(int sock, int childPid, int bindVerbose)
 
             case EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE:
                 HandleAuthenticateLocalRequest(sock);
+                break;
+
+            case EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE:
+                HandleUpdateLogLevelRequest(sock);
                 break;
 
             default:

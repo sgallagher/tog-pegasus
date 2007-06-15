@@ -76,7 +76,7 @@ void testCheckPolicy(void)
     assert(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
-        EXECUTOR_REAP_PROVIDER_AGENT,
+        EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE,
         NULL,
         NULL) != 0);
 
@@ -145,16 +145,6 @@ void testDumpPolicy(void)
 
     /* Test DumpPolicy() with expandMacros=false */
     {
-        dumpFile = fopen(TEST_DUMP_FILE, "a");
-        assert(dumpFile != 0);
-        DumpPolicy(dumpFile, 0);
-        fclose(dumpFile);
-
-        dumpFile = fopen(TEST_DUMP_FILE, "rb");
-        memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
-        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
-        fclose(dumpFile);
-
         const char* expectedDumpResult =
             "===== Policy:\n"
             "OpenFile(\"${currentConfigFilePath}\", \"w\")\n"
@@ -178,6 +168,17 @@ void testDumpPolicy(void)
             "OpenFile(\"${crlStore}/*\", \"w\")\n"
             "RemoveFile(\"${crlStore}/*\")\n"
             "\n";
+
+        dumpFile = fopen(TEST_DUMP_FILE, "a");
+        assert(dumpFile != 0);
+        DumpPolicy(dumpFile, 0);
+        fclose(dumpFile);
+
+        dumpFile = fopen(TEST_DUMP_FILE, "rb");
+        memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
+        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        fclose(dumpFile);
+
         assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);
@@ -185,6 +186,12 @@ void testDumpPolicy(void)
 
     /* Test DumpPolicyHelper() with expandMacros=false */
     {
+        const char* expectedDumpResult =
+            "Ping()\n"
+            "RenameFile(\"${file1}\", \"${file2}\")\n"
+            "RenameFile(\"file1\", \"${file2}\")\n"
+            "RenameFile(\"file1\", \"file2\")\n";
+
         dumpFile = fopen(TEST_DUMP_FILE, "a");
         assert(dumpFile != 0);
         DumpPolicyHelper(dumpFile, _testPolicyTable, _testPolicyTableSize, 0);
@@ -195,11 +202,6 @@ void testDumpPolicy(void)
         fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
         fclose(dumpFile);
 
-        const char* expectedDumpResult =
-            "Ping()\n"
-            "RenameFile(\"${file1}\", \"${file2}\")\n"
-            "RenameFile(\"file1\", \"${file2}\")\n"
-            "RenameFile(\"file1\", \"file2\")\n";
         assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);
@@ -207,6 +209,12 @@ void testDumpPolicy(void)
 
     /* Test DumpPolicyHelper() with expandMacros=true */
     {
+        const char* expectedDumpResult =
+            "Ping()\n"
+            "RenameFile(\"MyFile1\", \"MyFile2\")\n"
+            "RenameFile(\"file1\", \"MyFile2\")\n"
+            "RenameFile(\"file1\", \"file2\")\n";
+
         DefineMacro("file1", "MyFile1");
         DefineMacro("file2", "MyFile2");
 
@@ -223,11 +231,6 @@ void testDumpPolicy(void)
         fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
         fclose(dumpFile);
 
-        const char* expectedDumpResult =
-            "Ping()\n"
-            "RenameFile(\"MyFile1\", \"MyFile2\")\n"
-            "RenameFile(\"file1\", \"MyFile2\")\n"
-            "RenameFile(\"file1\", \"file2\")\n";
         assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);

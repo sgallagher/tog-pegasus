@@ -88,6 +88,12 @@ int main()
     {
         FILE* dumpFile;
         char dumpFileBuffer[MAX_DUMP_SIZE];
+        const char* expectedDumpResult =
+            "===== Macros:\n"
+            "x=100\n"
+            "y=hello\n"
+            "z=true\n"
+            "\n";
 
         unlink(TEST_DUMP_FILE);
 
@@ -101,12 +107,6 @@ int main()
         fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
         fclose(dumpFile);
 
-        const char* expectedDumpResult =
-            "===== Macros:\n"
-            "x=100\n"
-            "y=hello\n"
-            "z=true\n"
-            "\n";
         assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);
@@ -125,7 +125,6 @@ int main()
             { "program", "option1=one", "option2=/two" };
         static const int argc = sizeof(argv) / sizeof(argv[0]);
         const char* macroDef;
-        char buffer[EXECUTOR_BUFFER_SIZE];
 
         globals.argv = (char**)argv;
         globals.argc = argc;

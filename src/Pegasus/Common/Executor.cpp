@@ -130,6 +130,9 @@ public:
     virtual int authenticateLocal(
         const char* challengeFilePath,
         const char* response) = 0;
+
+    virtual int updateLogLevel(
+        const char* logLevel) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -504,6 +507,14 @@ public:
         return -1;
     }
 
+    virtual int updateLogLevel(
+        const char* logLevel)
+    {
+        // If Privilege Separation is not enabled, we don't need to update
+        // the log level in the Executor.
+        return 0;
+    }
+
 private:
 
     Mutex _mutex;
@@ -797,7 +808,7 @@ public:
         // _send request header:
 
         ExecutorRequestHeader header;
-        header.code = EXECUTOR_REAP_PROVIDER_AGENT;
+        header.code = EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE;
 
         if (_send(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
@@ -954,6 +965,38 @@ public:
             return -1;
 
         return response_.status;
+    }
+
+    virtual int updateLogLevel(
+        const char* logLevel)
+    {
+        AutoMutex autoMutex(_mutex);
+
+        // _send request header:
+
+        ExecutorRequestHeader header;
+        header.code = EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE;
+
+        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+            return -1;
+
+        // _send request body:
+
+        ExecutorUpdateLogLevelRequest request;
+        memset(&request, 0, sizeof(request));
+        Strlcpy(request.logLevel, logLevel, EXECUTOR_BUFFER_SIZE);
+
+        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+            return -1;
+
+        // Receive the response
+
+        ExecutorUpdateLogLevelResponse response;
+
+        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+            return -1;
+
+        return response.status;
     }
 
 private:
@@ -1131,6 +1174,13 @@ int Executor::authenticateLocal(
 {
     once(&_executorImplOnce, _initExecutorImpl);
     return _executorImpl->authenticateLocal(challengeFilePath, response);
+}
+
+int Executor::updateLogLevel(
+    const char* logLevel)
+{
+    once(&_executorImplOnce, _initExecutorImpl);
+    return _executorImpl->updateLogLevel(logLevel);
 }
 
 PEGASUS_NAMESPACE_END

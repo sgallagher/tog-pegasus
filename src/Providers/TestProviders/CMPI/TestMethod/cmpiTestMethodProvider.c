@@ -814,7 +814,7 @@ static int _testArrayTypes()
                     }
                     break;
 
-     		case CMPI_boolean:
+                case CMPI_boolean:
                     if (arr_data.value.boolean != value.boolean)
                     {
                         flag = 0;
@@ -1929,7 +1929,7 @@ static int _testCMPIObjectPath ()
     data = CMGetKey(fakeObjPath, "Numeric_key_unsigned", &rc);
     // Check for uint64, CMGetKey promotes all unsigned numeric types to
     // Uint64 
-    if(data.value.uint64 == value.uint64)
+    if (data.value.uint64 == (CMPIUint64)value.uint16)
     {
         PROV_LOG ("++++  Status of CMGetKey of type CMPI_uint16: (%s)",
         strCMPIStatus (rc));     
@@ -1943,7 +1943,7 @@ static int _testCMPIObjectPath ()
     data = CMGetKey(fakeObjPath, "Numeric_key_signed", &rc);
     // Check for sint64, CMGetKey promotes all signed numeric types to
     // Sint64 
-    if(data.value.sint64 == value.sint64)
+    if (data.value.sint64 == (CMPISint64)value.sint16)
     {
         PROV_LOG ("++++  Status of CMGetKey of type CMPI_sint16: (%s)",
         strCMPIStatus (rc));
@@ -1991,7 +1991,7 @@ static int _testCMPIObjectPath ()
     PROV_LOG ("ObjectPath GetClassName Error Path: (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
 
     rc = CMSetNameSpaceFromObjectPath(otherObjPath, objPath);
@@ -2006,7 +2006,7 @@ static int _testCMPIObjectPath ()
     PROV_LOG ("ObjectPath GetNameSpace Error Path: (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
 
     rc = CMSetHostAndNameSpaceFromObjectPath(otherObjPath, objPath);
@@ -2014,7 +2014,7 @@ static int _testCMPIObjectPath ()
         strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
 
     CMGetHostname(objPath, &rc);
@@ -2043,28 +2043,28 @@ static int _testCMPIObjectPath ()
     PROV_LOG ("ObjectPath GetKeycount Error Path : (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
 
     CMGetKeyAt(objPath, 0, NULL, &rc);
     PROV_LOG ("++++  ObjectPath getKeyAt Error Path : (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
 
     objPath->ft->clone(objPath, &rc);
     PROV_LOG ("++++  ObjectPathClone Error Path: (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
 
     rc = objPath->ft->release(objPath);
     PROV_LOG ("++++   ObjectPath Release Error Path : (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
     objPath->hdl = (CMPIObjectPath *)opptr;
 
@@ -2100,7 +2100,7 @@ static int _testCMPIResult (const CMPIResult *rslt)
     value.uint32 = 10;
     type = CMPI_uint32;
 
-	rc = CMReturnData(rslt, &value, type);
+    rc = CMReturnData(rslt, &value, type);
     PROV_LOG("++++  CMReturnData : (%s)", strCMPIStatus (rc));
     if (rc.rc == CMPI_RC_OK)
     {
@@ -2177,7 +2177,7 @@ static int _testCMPIString()
     PROV_LOG ("++++  Error String Release : (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-     	return 1;
+        return 1;
     }
 
     CMGetCharsPtr(string, &rc);
@@ -2270,7 +2270,7 @@ static int _testCMPIArgs()
     PROV_LOG("++++ Error Cloning Args : (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
-    	return 1;
+        return 1;
     }
 
     args->ft->release(args);
@@ -2348,7 +2348,7 @@ static int _testCMPIBroker (const CMPIContext* ctx)
     const char* getInstanceStringReferenceNames = NULL;
     const char* errorCheck = "CMPI_TEST_erson";
 
-	PROV_LOG("++++ _testCMPIBroker" );
+    PROV_LOG("++++ _testCMPIBroker" );
 
     //Getting ObjectPaths for different Classes
     opForAssociatorFunctions = make_ObjectPath(_broker, _Namespace,
@@ -2415,7 +2415,7 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     if (rc.rc != CMPI_RC_ERR_INVALID_PARAMETER)
     {
-    	return 1;
+        return 1;
     }
     PROV_LOG("++++  CBAssociators Error Path 1: (rc:%s)", strCMPIStatus (rc));
 
@@ -2822,7 +2822,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
             ("++++ Calling CMReturnData+Done on returnString operation");
           CMReturnData (rslt, (CMPIValue *) result, CMPI_chars);
           CMReturnDone (rslt);
-	  free(result);
+          free(result);
         }
       else if (strncmp ("returnUint32", methodName, strlen ("returnUint32"))
                == 0)
@@ -2837,32 +2837,32 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         }
       else if (strncmp ("returnInstance", methodName, strlen ("returnInstance"))
                == 0)
-		{
-		  instance = _createInstance();
+        {
+          instance = _createInstance();
           PROV_LOG
             ("++++ Calling CMReturnData+Done on returnInstance operation");
           CMReturnData (rslt, (CMPIValue *) & instance, CMPI_instance);
           CMReturnDone (rslt);
-		}
-	else if (strncmp("returnDateTime", methodName, strlen("returnDateTime")) == 0)
-	{
-		CMPIUint64 ret_val = 0;
-		CMPIStatus rc={CMPI_RC_OK, NULL};
+        }
+      else if (strncmp("returnDateTime", methodName, strlen("returnDateTime")) == 0)
+        {
+          CMPIUint64 ret_val = 0;
+          CMPIStatus rc={CMPI_RC_OK, NULL};
 
-		CMPIDateTime *dateTime = CMNewDateTime(_broker, &rc); 
-  		PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
-		// Checking the date.
-		ret_val = CMGetBinaryFormat (dateTime, &rc);
-  		PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
-		if (ret_val == 0)
-			PROV_LOG("Invalid conversion of date to CMPIDateTime");
+          CMPIDateTime *dateTime = CMNewDateTime(_broker, &rc); 
+          PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+          // Checking the date.
+          ret_val = CMGetBinaryFormat (dateTime, &rc);
+          PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+          if (ret_val == 0)
+              PROV_LOG("Invalid conversion of date to CMPIDateTime");
 
-         PROV_LOG
-            ("++++ Calling CMReturnData+Done on returnDateTime operation");
+          PROV_LOG
+              ("++++ Calling CMReturnData+Done on returnDateTime operation");
 
-        CMReturnData (rslt, (CMPIValue *) & dateTime, CMPI_dateTime);
-        CMReturnDone (rslt);
-	}
+          CMReturnData (rslt, (CMPIValue *) & dateTime, CMPI_dateTime);
+          CMReturnDone (rslt);
+        }
     else if(strncmp("processEmbeddedInstance", methodName,
       strlen ("processEmbeddedInstance"))== 0)
     {

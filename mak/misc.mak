@@ -31,26 +31,16 @@
 misc:
 	@ - bash $(ROOT)/mak/misc.sh
 
-ifeq ($(OS),HPUX)
-
 ifeq ($(OPTION),1)
 general:
-	muplus sourcelist -Dpegasus/src/$(DIR) *.cpp
-endif
-
-ifeq ($(OPTION),2)
-general:
-	@$(foreach i, $(SOURCES),  printf "%s " "pegasus/src/$(DIR)/$(i)" >> $(PEGASUS_HOME)/Sources;)
+	@$(foreach i, $(SOURCES),  mu srclist -I$(PEGASUS_ROOT)/src -D$(PEGASUS_ROOT)/src/$(DIR) $(i) >> $(PEGASUS_HOME)/SourceList;)
 endif
 
 ifeq ($(OPTION),3)
 general:
 	@$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep -n -eATTN -eREVIEW -e" FIX" -eFIXME $(i);)
 endif
-
 ifeq ($(OPTION),4)
 general:
 	@$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep $(EXP) $(i); cd .;)
-endif
-
 endif

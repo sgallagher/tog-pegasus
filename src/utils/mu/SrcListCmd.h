@@ -29,13 +29,14 @@
 //
 //%=============================================================================
 
-#ifndef _DependCmd_h
-#define _DependCmd_h
+#ifndef _SrcListCmd_h
+#define _SrcListCmd_h
 
 #include "Config.h"
 #include <string>
 #include <vector>
+#include <set>
 
-int DependCmd(const vector<string>& args);
+int SrcListCmd(const vector<string>& args);
 
-#endif /* _DependCmd_h */
+#endif /* _SrcListCmd_h */

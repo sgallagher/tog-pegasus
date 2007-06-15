@@ -79,7 +79,9 @@ SOURCES = \
     StripCmd.cpp            \
     PrependCmd.cpp          \
     SleepCmd.cpp            \
-    SortCmd.cpp
+    SortCmd.cpp             \
+    SrcListCmd.cpp          \
+    Dependency.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

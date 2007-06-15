@@ -29,35 +29,27 @@
 //
 //%=============================================================================
 
-#include "Dependency.h"
-#include "DependCmd.h"
+#include <utils/mu/Dependency.h>
+#include <utils/mu/SrcListCmd.h>
 #include <cstdio>
 #include <cstddef>
 
-#if defined (OS_WINDOWS) || defined (OS_VMS)
-# define OBJ_EXT ".obj"
-#else
-# define OBJ_EXT ".o"
-#endif
-
-void PrintDependency(
-    const string& objectFileName,
-    const string& fileName)
+void PrintSrcDependency(const string& objectFileName, const string& fileName)
 {
-    printf("%s: %s\n\n", objectFileName.c_str(), fileName.c_str());
+    printf("%s\n", fileName.c_str());
 }
 
-int DependCmdMain(int argc, char** argv)
+int SrcListCmdMain(int argc, char** argv)
 {
     // Check arguments:
 
     if (argc == 1)
     {
         fprintf(stderr,
-            "Usage: %s [-W]? [-Oobject_dir]? [-Iinclude_dir]* source_files...\n"
+            "Usage: %s [-W]? [-Iinclude_dir]* [-Dsource_dir]? source_files...\n"
             "Where: \n"
             "    -W - warn about include files which cannot be found\n"
-            "    -O - prepend this directory to object files\n"
+            "    -D - prepend this directory to source files\n"
             "    -I - search this directory for header files\n",
             argv[0]);
         exit(1);
@@ -65,17 +57,17 @@ int DependCmdMain(int argc, char** argv)
 
     // Extract the program name:
 
-    const char *programName = argv[0];
+    static char *programName = argv[0];
     argc--;
     argv++;
 
     // Process all options:
 
     vector<string> includePath;
-    string objectDir;
+    string objectDir; // ignored
     string prependDir;
     bool warn = false;
-
+    
     ProcessOptions(argc, argv, programName, includePath, objectDir, prependDir, 
         warn);
 
@@ -90,8 +82,18 @@ int DependCmdMain(int argc, char** argv)
 
     for (int i = 0; i < argc; i++)
     {
-        string fileName = argv[i];
-        
+        string fileName;
+
+        if (prependDir.size()){
+            fileName = prependDir;
+            fileName += '/';
+            fileName += argv[i];
+        }
+        else
+        {
+            fileName = argv[i];
+        }
+
         // Open the file:
 
         FILE* fp = fopen(argv[i], "rb");
@@ -119,27 +121,16 @@ int DependCmdMain(int argc, char** argv)
                 "or \".s\": " + fileName);
         }
 
-        string objectFileName;
-
-        if (objectDir.size())
-        {
-            objectFileName = objectDir;
-            objectFileName += '/';
-        }
-
-        objectFileName.append(start, dot - start);
-        objectFileName += OBJ_EXT;
-
         set<string, less<string> > cache;
 
-        ProcessFile(objectFileName, fileName, programName, fp, includePath, 
-            prependDir, 0, cache, PrintDependency, warn);
+        ProcessFile("", fileName, programName, fp, includePath, prependDir, 
+            0, cache, PrintSrcDependency, warn);
     }
 
     return 0;
 }
 
-int DependCmd(const vector<string>& args)
+int SrcListCmd (const vector<string>& args)
 {
     // Dummy up argc/argv structures and call DependCmdMain():
 
@@ -151,7 +142,7 @@ int DependCmd(const vector<string>& args)
         argv[i] = (char*)args[i].c_str();
     }
 
-    int result = DependCmdMain(argc, argv);
+    int result = SrcListCmdMain(argc, argv);
 
     delete [] argv;
 

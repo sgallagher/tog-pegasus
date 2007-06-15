@@ -1,4 +1,4 @@
-//%2006////////////////////////////////////////////////////////////////////////
+//%2007////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,13 +29,53 @@
 //
 //%=============================================================================
 
-#ifndef _DependCmd_h
-#define _DependCmd_h
+#ifndef _Dependency_h
+#define _Dependency_h
 
 #include "Config.h"
 #include <string>
 #include <vector>
+#include <set>
 
-int DependCmd(const vector<string>& args);
+//Print error message and exit
+void ErrorExit(const char* programName, const string& message);
 
-#endif /* _DependCmd_h */
+//Print vector 
+void PrintVector(const vector<string>& v);
+
+//Process Command "depend" and "srclist" Options
+void ProcessOptions(
+    int& argc, 
+    char**& argv,
+    const char* programName,
+    vector<string>& includePath,
+    string& objectDir,
+    string& prependDir,
+    bool& warn);
+
+/*Define function Pointer PrintFunc, which take one string 
+ *objectFileName and one string fileName
+ */
+
+typedef void (*PrintFunc)(
+    const string& objectFileName,
+    const string& fileName);
+
+/*Find the dependent files recursively and print the dependent
+ *files
+ */
+
+void ProcessFile(
+    const string& objectFileName,
+    const string& fileName,
+    const char* programName,
+    FILE* fp,
+    const vector<string>& includePath,
+    string& prependDir,
+    size_t nesting,
+    set<string, less<string> >& cache,
+    PrintFunc printFunc,
+    bool& warn);
+
+#endif /* _Dependency_h */
+

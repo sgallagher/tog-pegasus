@@ -27,12 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Michael E. Brasher
-//
-// Modified By: David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
-//
 //%=============================================================================
 
 #include <iostream>
@@ -51,6 +45,7 @@
 #include "PrependCmd.h"
 #include "SleepCmd.h"
 #include "SortCmd.h"
+#include "SrcListCmd.h"
 #include "Files.h"
 
 const char HELP[] =
@@ -60,8 +55,8 @@ const char HELP[] =
 "Usage: mu command arguments ...\n"
 "\n"
 "Where command is one of the following:\n"
-"    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare depend\n"
-"    strip prepend sleep sort\n";
+"    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare, depend\n"
+"    strip, prepend, sleep, sort, srclist\n";
 
 int main(int argc, char** argv)
 {
@@ -83,10 +78,14 @@ int main(int argc, char** argv)
     {
         vector<string> argsOut;
 
-    if (Glob(argv[i], argsOut))
-        args.insert(args.end(), argsOut.begin(), argsOut.end());
-    else
-        args.push_back(argv[i]);
+        if (Glob(argv[i], argsOut))
+        {
+            args.insert(args.end(), argsOut.begin(), argsOut.end());
+        }
+        else
+        {
+            args.push_back(argv[i]);
+        }
     }
 
     // Execute the command:
@@ -123,7 +122,8 @@ int main(int argc, char** argv)
         result = SleepCmd(args);
     else if (args[0] == "sort")
         result = SortCmd(args);
-
+    else if (args[0] == "srclist")
+        result = SrcListCmd(args);
     else
     {
         result = 1;

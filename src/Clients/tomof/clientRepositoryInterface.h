@@ -29,19 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1720
-//
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// This class is the interface to allow a common call to serve both the repository
-// and the client interface.  Since these two interfaces were not designed with a
-// common hiearchy, it substitutes the individual calls with any special characteristics
-// for each call. Note that Bob Blair in the Compiler created much the same structure but
-// with different operations.   
+// This class is the interface to allow a common call to serve both the
+// repository and the client interface.  Since these two interfaces were not
+// designed with a common hiearchy, it substitutes the individual calls
+// with any special characteristics for each call. Note that Bob Blair in
+// the Compiler created much the same structure but with different operations. 
 //
 // This class supports only the operations that tomof needs, which
 // are
@@ -50,9 +44,10 @@
 //     enumerateClasses()
 //     enumerateInstances()
 //
-//  ACTION: In the future we should regularalize this so we have one class that can serve
-//  multiple programs. However, since the compiler extended the repository definitions
-//  and uses different functions, it was easier just to create a new class
+//  ACTION: In the future we should regularalize this so we have one class
+//  that can serve multiple programs. However, since the compiler extended
+//  the repository definitions and uses different functions, it was easier
+//  just to create a new class
 //
 
 #ifndef CLIENT_REPOSITORY_INTERFACE_H_
@@ -117,17 +112,17 @@ class clientRepositoryInterface
       const Boolean deepInheritance);
 
   virtual Array<CIMObjectPath> enumerateInstanceNames(
-	  const CIMNamespaceName& nameSpace,
-	  const CIMName& className);
+      const CIMNamespaceName& nameSpace,
+      const CIMName& className);
 
   virtual Array<CIMInstance> enumerateInstances(
-	const CIMNamespaceName& nameSpace,
-	const CIMName& className,
-	Boolean deepInheritance = true,
-	Boolean localOnly = true,
-	Boolean includeQualifiers = false,
-	Boolean includeClassOrigin = false,
-	const CIMPropertyList& propertyList = CIMPropertyList());
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance = true,
+    Boolean localOnly = true,
+    Boolean includeQualifiers = false,
+    Boolean includeClassOrigin = false,
+    const CIMPropertyList& propertyList = CIMPropertyList());
 
 };
 

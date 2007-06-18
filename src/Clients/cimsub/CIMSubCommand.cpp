@@ -387,21 +387,26 @@ CIMSubCommand::CIMSubCommand()
     usage.append("                   (set SubscriptionState to Enabled) \n");
     usage.append("    -d         - Disable specified subscription \n");
     usage.append("                   (set SubscriptionState to Disabled) \n");
-    usage.append("    -r         - Remove specified subscription, handler, filter \n");
+    usage.append("    -r         - Remove specified subscription, handler,"
+                                " filter \n");
     usage.append("    -v         - Include verbose information \n");
-    usage.append("    -F         - Specify Filter Name of subscription for the operation\n");
-    usage.append("    -H         - Specify Handler Name of subscription for the operation\n");
+    usage.append("    -F         - Specify Filter Name of subscription for"
+                                " the operation\n");
+    usage.append("    -H         - Specify Handler Name of subscription for"
+                                " the operation\n");
     usage.append("    -n         - Specify namespace of subscription\n");
     usage.append("                   (root/PG_InterOp, if not specified) \n");
     usage.append("    --help     - Display this help message\n");
     usage.append("    --version  - Display CIM Server version\n");
     usage.append("\n");
-    usage.append("Usage note: The cimsub command requires that the CIM Server is running.\n");
+    usage.append("Usage note: The cimsub command requires that the CIM Server"
+                                " is running.\n");
     usage.append("\n");
 
 #ifdef PEGASUS_HAS_ICU
 
-    MessageLoaderParms menuparms("Clients.cimsub.CIMSubCommand.MENU.STANDARD",usage);
+    MessageLoaderParms menuparms(
+            "Clients.cimsub.CIMSubCommand.MENU.STANDARD",usage);
     menuparms.msg_src_path = MSG_PATH;
     usage = MessageLoader::getMessage(menuparms);
 
@@ -1792,7 +1797,8 @@ void CIMSubCommand::_getHandlerList(
                 {
                     handlerNameValue = keys[j].getValue();
                 }
-                if(keys[j].getName().equal(PEGASUS_PROPERTYNAME_CREATIONCLASSNAME))
+                if(keys[j].getName().equal(
+                            PEGASUS_PROPERTYNAME_CREATIONCLASSNAME))
                 {
                     creationClassValue = keys[j].getValue();
                 }
@@ -1828,8 +1834,10 @@ void CIMSubCommand::_getHandlerList(
                 handlerString.append(creationClassValue);
                 handlerString.append(DELIMITER_HANDLER_CLASS);
                 handlerString.append(handlerNameValue);
-                listOutputTable[_HANDLER_LIST_NAME_COLUMN].append(handlerString);
-                listOutputTable[_HANDLER_LIST_DESTINATION_COLUMN].append(destination);
+                listOutputTable[_HANDLER_LIST_NAME_COLUMN].append(
+                        handlerString);
+                listOutputTable[_HANDLER_LIST_DESTINATION_COLUMN].append(
+                        destination);
                 handlerTypesFound.append(handlerType);
                 if (verbose)
                 {
@@ -1926,7 +1934,8 @@ void CIMSubCommand::_printHandlersVerbose(
             case _HANDLER_CIMXML:
             {
                 outPrintWriter << "Destination:       " <<
-                    (listOutputTable[_HANDLER_LIST_DESTINATION_COLUMN])[indexes[i]]
+                    (listOutputTable[_HANDLER_LIST_DESTINATION_COLUMN])
+                        [indexes[i]]
                     << endl;
             }
         }
@@ -1975,7 +1984,8 @@ void CIMSubCommand::_listFilters(
     {
         if (listOutputTable[_FILTER_LIST_NAME_COLUMN].size() > 0)
         {
-           _printFiltersVerbose(listOutputTable, queryLangsFound, outPrintWriter);
+           _printFiltersVerbose(listOutputTable, queryLangsFound, 
+               outPrintWriter);
         }
     }
     else
@@ -2478,17 +2488,21 @@ void CIMSubCommand::_printSubscriptionsVerbose(
     {
        indexes.append (i);
     }
-    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN], 0, indexes);
-    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN], 0, indexes);
+    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN], 0, 
+            indexes);
+    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN], 0, 
+            indexes);
     _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_NS_COLUMN], 0, indexes);
     for (Uint32 i = 0; i < maxEntries; i++)
     {
         outPrintWriter << "Namespace:         " <<
             (listOutputTable[_SUBSCRIPTION_LIST_NS_COLUMN])[indexes[i]] << endl;
         outPrintWriter << "Filter:            " <<
-            (listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN])[indexes[i]] << endl;
+            (listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN])[indexes[i]] 
+            << endl;
         outPrintWriter << "Handler:           " <<
-            (listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN])[indexes[i]] << endl;
+            (listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN])[indexes[i]] 
+            << endl;
         outPrintWriter << "Query:             " << querysFound[indexes[i]]
                 << endl;
         CIMInstance handlerInstance = handlerInstancesFound[indexes[i]];
@@ -2778,7 +2792,8 @@ void CIMSubCommand::_getEmailInfo(
     Array <String> mailCc, mailTo;
     subjectString = String::EMPTY;
     mailTo.append(String::EMPTY);
-    Uint32 pos = handlerInstance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO);
+    Uint32 pos = 
+        handlerInstance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO);
     if( pos != PEG_NOT_FOUND)
     {
         handlerInstance.getProperty(pos).getValue().get(mailTo);
@@ -2803,7 +2818,8 @@ void CIMSubCommand::_getEmailInfo(
             ccString.append (" ");
         }
     }
-    pos = handlerInstance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT);
+    pos = handlerInstance.findProperty(
+            PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT);
     if (pos != PEG_NOT_FOUND)
     {
         handlerInstance.getProperty(pos).getValue().get(subjectString);
@@ -2816,8 +2832,8 @@ void CIMSubCommand::_getEmailInfo(
 String CIMSubCommand::_getPersistenceType(const CIMInstance& handlerInstance)
 {
     Uint16 persistenceType = 1;
-    Uint32 pos = handlerInstance.findProperty
-        (PEGASUS_PROPERTYNAME_PERSISTENCETYPE);
+    Uint32 pos = 
+        handlerInstance.findProperty(PEGASUS_PROPERTYNAME_PERSISTENCETYPE);
     if (pos != PEG_NOT_FOUND)
     {
         handlerInstance.getProperty(pos).getValue().get(persistenceType);
@@ -2855,7 +2871,8 @@ String CIMSubCommand::_getSubscriptionState(
 {
     CIMInstance subInstance = _client->getInstance(subscriptionNamespace,
         subPath);
-    Uint32 pos = subInstance.findProperty(PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
+    Uint32 pos = subInstance.findProperty(
+            PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
     Uint16 subscriptionState = STATE_UNKNOWN;
     if (pos != PEG_NOT_FOUND)
     {
@@ -2951,7 +2968,8 @@ void CIMSubCommand::_printColumns(
     {
         for (Uint32 column = 0; column < maxColumns-1; column++)
         {
-            Uint32 outputItemSize = (listOutputTable[column])[indexes[i]].size();
+            Uint32 outputItemSize = 
+                (listOutputTable[column])[indexes[i]].size();
             Uint32 fillerLen = maxColumnWidth[column] + TITLE_SEPERATOR_LEN -
                 outputItemSize;
             outPrintWriter << (listOutputTable[column])[indexes[i]];

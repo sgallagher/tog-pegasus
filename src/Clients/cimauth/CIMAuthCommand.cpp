@@ -82,7 +82,8 @@ static const CIMName PROPERTY_NAME_USERNAME        = CIMName ("Username");
 static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
 
 /**
-    This constant represents the name of the authorizations property in the schema
+    This constant represents the name of the authorizations property in 
+    the schema
 */
 static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 
@@ -499,18 +500,24 @@ CIMAuthCommand::CIMAuthCommand ()
     usage.append("               --").append(LONG_VERSION).append(" \n");
 
     usage.append("Options : \n");
-    usage.append("    -a         - Add authorizations for a user on a namespace\n");
+    usage.append("    -a         - Add authorizations for a user on a"
+                    " namespace\n");
     usage.append("    -h, --help - Display this help message\n");
-    usage.append("    -l         - Display the authorizations of all the authorized users\n");
-    usage.append("    -m         - Modify authorizations for a user on a namespace\n");
+    usage.append("    -l         - Display the authorizations of all the"
+                    " authorized users\n");
+    usage.append("    -m         - Modify authorizations for a user on a"
+                 "   namespace\n");
     usage.append("    -n         - Use the specified namespace\n");
-    usage.append("    -r         - Remove authorizations for a user on a namespace\n");
+    usage.append("    -r         - Remove authorizations for a user on a"
+                    " namespace\n");
     usage.append("    -R         - Specify a READ authorization (Default)\n");
-    usage.append("    -u         - Perform operations for the specified user name\n");
+    usage.append("    -u         - Perform operations for the specified user"
+                    " name\n");
     usage.append("    --version  - Display CIM Server version number\n");
     usage.append("    -W         - Specify a WRITE authorization\n");
 
-    usage.append("\nUsage note: The cimauth command requires that the CIM Server is running.\n");
+    usage.append("\nUsage note: The cimauth command requires that the"
+                    " CIM Server is running.\n");
 
     setUsage (usage);
 }
@@ -938,8 +945,6 @@ Uint32 CIMAuthCommand::execute (
     }
     catch(Exception&)
     {
-        //l10n
-        //outPrintWriter << CIMOM_NOT_RUNNING << endl;
         outPrintWriter << localizeMessage(MSG_PATH,
             CIMOM_NOT_RUNNING_KEY,
             CIMOM_NOT_RUNNING)
@@ -963,8 +968,6 @@ Uint32 CIMAuthCommand::execute (
 
                 if (code == CIM_ERR_FAILED)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -973,8 +976,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -983,9 +984,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
-                    //outPrintWriter << AUTH_ALREADY_EXISTS << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -999,9 +997,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_AUTH_FAILURE << endl;
-                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         ADD_AUTH_FAILURE_KEY,
                         ADD_AUTH_FAILURE)
@@ -1116,8 +1111,6 @@ Uint32 CIMAuthCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1126,8 +1119,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1136,9 +1127,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_FOUND)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
-                    //outPrintWriter << AUTH_NOT_FOUND          << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1151,9 +1139,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_AUTH_FAILURE << endl;
-                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_AUTH_FAILURE_KEY,
                         REMOVE_AUTH_FAILURE)
@@ -1171,9 +1156,6 @@ Uint32 CIMAuthCommand::execute (
             }
             catch (Exception& e)
             {
-                //l10n
-                //outPrintWriter << REMOVE_AUTH_FAILURE << endl <<
-                    //e.getMessage() << endl;
                 outPrintWriter << localizeMessage(MSG_PATH,
                     REMOVE_AUTH_FAILURE_KEY,
                     REMOVE_AUTH_FAILURE)
@@ -1192,8 +1174,6 @@ Uint32 CIMAuthCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1202,8 +1182,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1212,8 +1190,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1222,9 +1198,6 @@ Uint32 CIMAuthCommand::execute (
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_AUTH_FAILURE << endl;
-                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         LIST_AUTH_FAILURE_KEY,
                         LIST_AUTH_FAILURE)
@@ -1242,9 +1215,6 @@ Uint32 CIMAuthCommand::execute (
             }
             catch (Exception& e)
             {
-                //l10n
-                //outPrintWriter << LIST_AUTH_FAILURE << endl <<
-                //e.getMessage() << endl;
                 outPrintWriter << localizeMessage(MSG_PATH,
                     LIST_AUTH_FAILURE_KEY,
                     LIST_AUTH_FAILURE)
@@ -1285,8 +1255,7 @@ void CIMAuthCommand::_AddAuthorization
     _client->createInstance(
         PEGASUS_NAMESPACENAME_AUTHORIZATION,
         newInstance);
-    //l10n
-    //outPrintWriter << ADD_AUTH_SUCCESS << endl;
+
     outPrintWriter << localizeMessage(MSG_PATH,
         ADD_AUTH_SUCCESS_KEY,
         ADD_AUTH_SUCCESS)
@@ -1337,8 +1306,7 @@ void CIMAuthCommand::_ModifyAuthorization
     _client->modifyInstance(
         PEGASUS_NAMESPACENAME_AUTHORIZATION,
         namedInstance);
-    //l10n
-    //outPrintWriter << MODIFY_AUTH_SUCCESS << endl;
+
     outPrintWriter << localizeMessage(MSG_PATH,
         MODIFY_AUTH_SUCCESS_KEY,
         MODIFY_AUTH_SUCCESS)
@@ -1421,8 +1389,6 @@ void CIMAuthCommand::_RemoveAuthorization
         }
     }
 
-    //l10n
-    //outPrintWriter << REMOVE_AUTH_SUCCESS << endl;
     outPrintWriter << localizeMessage(MSG_PATH,
         REMOVE_AUTH_SUCCESS_KEY,
         REMOVE_AUTH_SUCCESS)
@@ -1504,8 +1470,8 @@ int main (int argc, char* argv [])
 {
     AutoPtr<CIMAuthCommand> command;
     Uint32               retCode;
-
-    MessageLoader::_useProcessLocale = true;  //l10n set messageloading to process locale
+    // l10n set messageloading to process locale
+    MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
     //
@@ -1535,7 +1501,8 @@ int main (int argc, char* argv [])
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
         {
-            MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+            MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
+                                     ERR_OPTION_NOT_SUPPORTED);
             parms.msg_src_path = MSG_PATH;
             cerr << COMMAND_NAME <<
                 ": " << MessageLoader::getMessage(parms) << endl;

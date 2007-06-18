@@ -76,10 +76,10 @@ void DNSInfo::errorExit(const String& message)
 */
 void DNSInfo::_usage()
 {
-  cerr << "Usage: osinfo [-c]" << endl;
-  cerr << "Example:" << endl;
-  cerr << "  dnsinfo " << endl;
-  cerr << "  dnsinfo -c " << endl;
+    cerr << "Usage: osinfo [-c]" << endl;
+    cerr << "Example:" << endl;
+    cerr << "  dnsinfo " << endl;
+    cerr << "  dnsinfo -c " << endl;
 }
 
 /**
@@ -216,7 +216,7 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
         // in milliseconds, thus setting to one minute
         CIMClient client;
         client.setTimeout(60 * 1000);
-	client.connectLocal();
+        client.connectLocal();
         
         Boolean deepInheritance = true;
         Boolean localOnly = true;
@@ -230,15 +230,15 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
 #endif
 
         Array<CIMInstance> cimNInstances = 
-	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
+           client.enumerateInstances(NAMESPACE, CLASSNAME, 
                                          deepInheritance,
-				         localOnly,  includeQualifiers,
-				         includeClassOrigin );
+                         localOnly,  includeQualifiers,
+                         includeClassOrigin );
 
 #ifdef DEBUG
         cout << "DNSInfo::getDNSInfo() - enumerateInstances done" << endl;
 #endif
-	  
+      
         numberInstances = cimNInstances.size();
 
         // while we only have one instance (the running OS), we can take the

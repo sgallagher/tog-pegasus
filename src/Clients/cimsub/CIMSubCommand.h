@@ -85,11 +85,13 @@ public:
 
         @param  outPrintWriter    The stream to which command output is written.
 
-        @param  errPrintWriter    The stream to which command errors are written.
+        @param  errPrintWriter    The stream to which command errors are 
+                                  written.
 
         @param  argc       The int containing the arguments count
 
-        @param  argv       The string array containing the command line arguments
+        @param  argv       The string array containing the command line 
+                            arguments
 
         @throws  CommandFormatException  if an error is encountered in parsing
                                      the command line
@@ -105,7 +107,8 @@ public:
 
         @param  outPrintWriter    The stream to which command output is written.
 
-        @param  errPrintWriter    The stream to which command errors are written.
+        @param  errPrintWriter    The stream to which command errors are 
+                                  written.
 
         @return  0        if the command is successful
                  1        if an error occurs in executing the command
@@ -166,7 +169,8 @@ private:
 
         @param  handlerCreationClass    The handler creation class to find
 
-        @param  removeAll               If true remove subscription,filter,handler
+        @param  removeAll               If true remove subscription,filter,
+                                        handler
                                         If false remove only subscription
 
         @param  outPrintWriter          The stream to which command output is

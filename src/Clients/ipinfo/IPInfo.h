@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//
-// Modified By:
-//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +50,7 @@ PEGASUS_USING_STD;
    by the OperatingSystem Provider.  osinfo requires CIM Server to be 
    installed and running on the target host.
   
-    @author  Hewlett-Packard Company
+   @author  Hewlett-Packard Company
   
  */
 class IPInfoCommand : public Command 
@@ -176,7 +170,7 @@ private:
 
     /**
         A Boolean indicating whether a port number was specified on the
-	command line.
+    command line.
      */
     Boolean _portNumberSet;
 
@@ -286,12 +280,12 @@ private:
 
 class IPRouteInfo
 {
-  public:
+public:
     IPRouteInfo(CIMClient &client, Boolean enableDebug, 
                 ostream& outPrintWriter, ostream& errPrintWriter);
     ~IPRouteInfo(void);
 
-  private:
+private:
     void _gatherProperties(CIMInstance &inst);
     void _outputHeader(ostream &outPrintWriter);
     void _outputInstance(ostream &outPrintWriter);
@@ -318,12 +312,12 @@ class IPRouteInfo
 
 class IPPEpInfo
 {
-  public:
+public:
     IPPEpInfo(CIMClient &client, Boolean enableDebug,
               ostream &outPrintWriter, ostream &errPrintWriter);
     ~IPPEpInfo(void);
 
-  private:
+private:
     void _gatherProperties(CIMInstance &inst);
     void _outputHeader(ostream &outPrintWriter);
     void _outputInstance(ostream &outPrintWriter);
@@ -348,12 +342,12 @@ class IPPEpInfo
 
 class BIPTLEpInfo
 {
-  public:
+public:
     BIPTLEpInfo(CIMClient &client, Boolean enableDebug,
                 ostream& outPrintWriter, ostream& errPrintWriter);
     ~BIPTLEpInfo(void);
 
-  private:
+private:
     void _gatherProperties(CIMInstance &inst, ostream &outPrintWriter);
     void _extractFromKey(CIMObjectPath &ref, String &ccn, 
                          String &name, ostream &outPrintWriter);

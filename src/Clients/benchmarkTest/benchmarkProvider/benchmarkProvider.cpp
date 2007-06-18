@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Denise Eckstein, Hewlett-Packard Company
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "benchmarkProvider.h"
@@ -110,12 +106,12 @@ void benchmarkProvider::terminate(void)
 }
 
 void benchmarkProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
     CIMInstance _instance;
     Uint32 numberOfProperties;
@@ -151,12 +147,12 @@ void benchmarkProvider::getInstance(
 }
 
 void benchmarkProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
     CIMInstance _instance;
     Uint32 numberOfProperties;
@@ -182,9 +178,9 @@ void benchmarkProvider::enumerateInstances(
 }
 
 void benchmarkProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
     CIMObjectPath _instanceName;
     Uint32 numberOfProperties;
@@ -210,29 +206,29 @@ void benchmarkProvider::enumerateInstanceNames(
 }
 
 void benchmarkProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void benchmarkProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void benchmarkProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }

@@ -149,20 +149,22 @@ static const char   LONG_HELP []  = "help";
 static const char   LONG_VERSION []  = "version";
 
 static const char MSG_PATH []               = "pegasus/pegasusCLI";
-static const char REQUIRED_ARGS_MISSING []        =
-                        "Required arguments missing.";
+static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
 
-static const char REQUIRED_ARGS_MISSING_KEY []        = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+static const char REQUIRED_ARGS_MISSING_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
 static const char ERR_OPTION_NOT_SUPPORTED [] =
-                        "Invalid option. Use '--help' to obtain command syntax.";
+    "Invalid option. Use '--help' to obtain command syntax.";
 
-static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED";
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = 
+    "Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED";
 
 static const char ERR_USAGE [] =
-                        "Incorrect usage. Use '--help' to obtain command syntax.";
+    "Incorrect usage. Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] = "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
+static const char ERR_USAGE_KEY [] = 
+    "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
 
 /**
     This constant signifies that an operation option has not been recorded
@@ -258,20 +260,29 @@ WbemExecCommand::WbemExecCommand ()
     usage.append (" ]\n                [ inputfilepath ]\n");
 
     usage.append("Options : \n");
-    usage.append("    -h         - Connect to CIM Server on specified hostname\n");
+    usage.append(
+        "    -h         - Connect to CIM Server on specified hostname\n");
     usage.append("    --help     - Display this help message\n");
-    usage.append("    -m         - Use the specified HTTP method for the request\n");
-    usage.append("    -p         - Connect to CIM Server on specified portnumber\n");
+    usage.append(
+        "    -m         - Use the specified HTTP method for the request\n");
+    usage.append(
+        "    -p         - Connect to CIM Server on specified portnumber\n");
 #ifdef PEGASUS_HAS_SSL
-    usage.append("    -s         - Use SSL protocol between 'wbemexec' client and the CIM Server\n");
+    usage.append("    -s         - Use SSL protocol between 'wbemexec' client"
+                    " and the CIM Server\n");
 #endif
-    usage.append("    -t         - Specify response timeout value in milliseconds\n");
-    usage.append("    -u         - Authorize the operation using the specified username\n");
-    usage.append("    -v         - Use the specified HTTP version for the request\n");
+    usage.append(
+        "    -t         - Specify response timeout value in milliseconds\n");
+    usage.append("    -u         - Authorize the operation using the"
+                    " specified username\n");
+    usage.append("    -v         - Use the specified HTTP version for the"
+                    " request\n");
     usage.append("    --version  - Display CIM Server version number\n");
-    usage.append("    -w         - Authorize the operation using the specified password\n");
+    usage.append("    -w         - Authorize the operation using the"
+                    " specified password\n");
 
-    usage.append("\nUsage note: The wbemexec command requires that the CIM Server is running.\n");
+    usage.append("\nUsage note: The wbemexec command requires that the"
+                    " CIM Server is running.\n");
 
     setUsage (usage);
 }
@@ -314,42 +325,42 @@ WbemExecCommand::WbemExecCommand ()
 #endif
 
     if( _useSSL )
-      {
-    if( connectToLocal )
     {
-        client.connectLocal();
-    }
-    else
-    {
-        //
-        // Get environment variables:
-        //
-        const char* pegasusHome = getenv("PEGASUS_HOME");
-
-        String certpath = FileSystem::getAbsolutePath(
-                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-
-        String randFile;
+        if( connectToLocal )
+        {
+            client.connectLocal();
+        }
+        else
+        {
+            //
+            // Get environment variables:
+            //
+            const char* pegasusHome = getenv("PEGASUS_HOME");
+    
+            String certpath = FileSystem::getAbsolutePath(
+                    pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+    
+            String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
-        randFile = FileSystem::getAbsolutePath(
-                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+            randFile = FileSystem::getAbsolutePath(
+                    pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
-        SSLContext sslcontext(certpath, verifyCertificate, randFile);
-        client.connect(host, portNumber, &sslcontext, _userName, _password);
+            SSLContext sslcontext(certpath, verifyCertificate, randFile);
+            client.connect(host, portNumber, &sslcontext, _userName, _password);
+        }
     }
-      }
     else
-      {
-    if( connectToLocal )
-      {
-        client.connectLocal();
-      }
-    else
-      {
-        client.connect(host, portNumber, _userName, _password );
-      }
-      }
+    {
+        if( connectToLocal )
+        {
+            client.connectLocal();
+        }
+        else
+        {
+            client.connect(host, portNumber, _userName, _password );
+        }
+    }
 }
 
 /**
@@ -401,13 +412,13 @@ void WbemExecCommand::_handleResponse( Buffer           responseMessage,
 
     httpMessage.parse(startLine, headers, contentLength);
     if( contentLength > 0 )
-      {
-    contentOffset = responseMessage.size() - contentLength;
-      }
+    {
+        contentOffset = responseMessage.size() - contentLength;
+    }
     else
-      {
+    {
         contentOffset = responseMessage.size();
-      }
+    }
 
     String httpVersion;
     Uint32 statusCode;
@@ -416,33 +427,32 @@ void WbemExecCommand::_handleResponse( Buffer           responseMessage,
     Boolean parsableMessage = HTTPMessage::parseStatusLine(
         startLine, httpVersion, statusCode, reasonPhrase);
     if (!parsableMessage || (statusCode != HTTP_STATUSCODE_OK))
-      {
-
-    // Received an HTTP error response
-    // Output the HTTP error message and exit
-    for (Uint32 i = 0; i < contentOffset; i++)
-      {
-        oStream << responseMessage[i];
-      }
-    oStream.flush();
-    if( contentLength > 0 )
-      {
-        _printContent( oStream, responseMessage, contentOffset );
-      }
-    exit( 1 );
-      }
+    {
+        // Received an HTTP error response
+        // Output the HTTP error message and exit
+        for (Uint32 i = 0; i < contentOffset; i++)
+        {
+            oStream << responseMessage[i];
+        }
+        oStream.flush();
+        if( contentLength > 0 )
+        {
+            _printContent( oStream, responseMessage, contentOffset );
+        }
+        exit( 1 );
+    }
 
     //
     // Received a valid HTTP response from the server.
     //
     if (_debugOutput2)
-      {
+    {
         for (Uint32 i = 0; i < contentOffset; i++)
-          {
-                oStream << responseMessage[i];
-          }
+        {
+            oStream << responseMessage[i];
+        }
         oStream.flush();
-      }
+    }
     _printContent( oStream, responseMessage, contentOffset );
 }
 
@@ -519,7 +529,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //  Check that input file exists
         //
         if (!FileSystem::exists (_inputFilePath))
-
         {
             throw WbemExecException(WbemExecException::INPUT_FILE_NONEXISTENT);
         }
@@ -802,7 +811,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         throw InvalidOptionArgumentException(_portNumberStr,
                             _OPTION_PORTNUMBER);
                     }
-            _portNumberSet = true;
+                    _portNumberSet = true;
                     break;
                 }
 
@@ -822,7 +831,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
 #ifdef PEGASUS_HAS_SSL
                 case _OPTION_SSL:
                 {
-            _useSSL = true;
+                    _useSSL = true;
                     break;
                 }
 #endif
@@ -894,8 +903,6 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
 
                 case _OPTION_DEBUG:
                 {
-                    //
-                    //
                     String debugOptionStr;
 
                     debugOptionStr = getOpts [i].Value ();
@@ -1154,19 +1161,20 @@ int main (int argc, char* argv [])
         cerr << WbemExecCommand::COMMAND_NAME << ": " << msg <<  endl;
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-         {
-           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+        {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
+                                    ERR_OPTION_NOT_SUPPORTED);
               parms.msg_src_path = MSG_PATH;
            cerr << WbemExecCommand::COMMAND_NAME <<
              ": " << MessageLoader::getMessage(parms) << endl;
-         }
+        }
         else
-         {
+        {
            MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
               parms.msg_src_path = MSG_PATH;
            cerr << WbemExecCommand::COMMAND_NAME <<
              ": " << MessageLoader::getMessage(parms) << endl;
-         }
+        }
 
         exit (Command::RC_ERROR);
     }

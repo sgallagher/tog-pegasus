@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,40 +53,42 @@ IPRouteInfo::IPRouteInfo(CIMClient &client, Boolean enableDebug,
     try
     {
         Boolean deepInheritance = true;
-	Boolean localOnly = true;
-	Boolean includeQualifiers = false;
-	Boolean includeClassOrigin = false;
-      
-      	Array<CIMInstance> cimInstances = 
-	    		client.enumerateInstances(NAMESPACE, CLASS_NAME,
-			deepInheritance, localOnly, includeQualifiers,
-			includeClassOrigin);
-
+        Boolean localOnly = true;
+        Boolean includeQualifiers = false;
+        Boolean includeClassOrigin = false;
+          
+        Array<CIMInstance> cimInstances = 
+            client.enumerateInstances(NAMESPACE, CLASS_NAME,
+                                      deepInheritance,
+                                      localOnly,
+                                      includeQualifiers,
+                                      includeClassOrigin);
  
-      	Uint32 numberInstances = cimInstances.size();
+        Uint32 numberInstances = cimInstances.size();
 
-      	if (_enableDebug)
-	{
-		outPrintWriter << numberInstances << " instances of " <<
-	             CLASS_NAME.getString() << endl;
-	}
+        if (_enableDebug)
+    {
+        outPrintWriter << numberInstances << " instances of " <<
+                 CLASS_NAME.getString() << endl;
+    }
 
-	if (numberInstances > 0)
-	{
-            _gatherProperties(cimInstances[0]);
-	    _outputHeader(outPrintWriter);
+    if (numberInstances > 0)
+    {
+        _gatherProperties(cimInstances[0]);
+        _outputHeader(outPrintWriter);
 
-	    for (Uint32 i = 0; i < numberInstances; i++)
-	    {
-	        _gatherProperties(cimInstances[i]);
-	        _outputInstance(outPrintWriter);
+        for (Uint32 i = 0; i < numberInstances; i++)
+        {
+            _gatherProperties(cimInstances[i]);
+            _outputInstance(outPrintWriter);
 
-	     }   // end for looping through instances
-	}
+         }   // end for looping through instances
+    }
         else
-	{
-	     outPrintWriter << "No instances of class " << CLASS_NAME.getString() << endl;
-	}
+    {
+         outPrintWriter << "No instances of class " 
+                        << CLASS_NAME.getString() << endl;
+    }
 
     }  // end try 
    
@@ -129,57 +128,57 @@ void IPRouteInfo::_gatherProperties(CIMInstance &inst)
 
     for (Uint32 j=0; j < inst.getPropertyCount(); j++)
     {
-	CIMName propertyName = inst.getProperty(j).getName();
+        CIMName propertyName = inst.getProperty(j).getName();
 
         // Properties that are also keys
-      	if (propertyName.equal("SystemCreationClassName"))
+        if (propertyName.equal("SystemCreationClassName"))
         {
-	    inst.getProperty(j).getValue().get(_ipSCCN);
+            inst.getProperty(j).getValue().get(_ipSCCN);
         }
-      	else if (propertyName.equal("SystemName"))
+        else if (propertyName.equal("SystemName"))
         {
-	    inst.getProperty(j).getValue().get(_ipSN);
+            inst.getProperty(j).getValue().get(_ipSN);
         }
-      	else if (propertyName.equal("ServiceCreationClassName"))
+        else if (propertyName.equal("ServiceCreationClassName"))
         {
-	    inst.getProperty(j).getValue().get(_ipServiceCCN);
+            inst.getProperty(j).getValue().get(_ipServiceCCN);
         }
-      	else if (propertyName.equal("ServiceName"))
+        else if (propertyName.equal("ServiceName"))
         {
-	    inst.getProperty(j).getValue().get(_ipServiceN);
+            inst.getProperty(j).getValue().get(_ipServiceN);
         }
-      	else if (propertyName.equal("CreationClassName"))
+        else if (propertyName.equal("CreationClassName"))
         {
-	    inst.getProperty(j).getValue().get(_ipCCN);
+            inst.getProperty(j).getValue().get(_ipCCN);
         }
-      	else if (propertyName.equal("IPDestinationAddress"))
+        else if (propertyName.equal("IPDestinationAddress"))
         {
-	    inst.getProperty(j).getValue().get(_ipIPDestAddr); 
+            inst.getProperty(j).getValue().get(_ipIPDestAddr); 
         }
-      	else if (propertyName.equal("IPDestinationMask"))
+        else if (propertyName.equal("IPDestinationMask"))
         {
-	    inst.getProperty(j).getValue().get(_ipIPDestMask); 
+        inst.getProperty(j).getValue().get(_ipIPDestMask); 
         }
-      	else if (propertyName.equal("AddressType"))
+        else if (propertyName.equal("AddressType"))
         {
-	    inst.getProperty(j).getValue().get(_ipAddrType); 
+            inst.getProperty(j).getValue().get(_ipAddrType); 
         }
         // Other properties
-      	else if (propertyName.equal("Caption"))
+        else if (propertyName.equal("Caption"))
         {
-	    inst.getProperty(j).getValue().get(_ipCaption); 
+            inst.getProperty(j).getValue().get(_ipCaption); 
         }
-      	else if (propertyName.equal("Description"))
+        else if (propertyName.equal("Description"))
         {
-	    inst.getProperty(j).getValue().get(_ipDescription); 
+            inst.getProperty(j).getValue().get(_ipDescription); 
         }
-      	else if (propertyName.equal("Name"))
+        else if (propertyName.equal("Name"))
         {
-	    inst.getProperty(j).getValue().get(_ipName); 
+            inst.getProperty(j).getValue().get(_ipName); 
         }
-      	else if (propertyName.equal("NextHop"))
+        else if (propertyName.equal("NextHop"))
         {
-	    inst.getProperty(j).getValue().get(_ipNextHop); 
+            inst.getProperty(j).getValue().get(_ipNextHop); 
         }
    } // end for loop through properties
 
@@ -201,10 +200,12 @@ void IPRouteInfo::_outputHeader(ostream &outPrintWriter)
         outPrintWriter << "System Name                 : " << _ipSN << endl;
 
     if (_ipServiceCCN.size() > 0)
-        outPrintWriter << "Service Creation Class Name : " << _ipServiceCCN << endl;
+        outPrintWriter << "Service Creation Class Name : " 
+                       << _ipServiceCCN << endl;
 
     if (_ipServiceN.size() > 0)
-        outPrintWriter << "Service Name                : " << _ipServiceN << endl;
+        outPrintWriter << "Service Name                : " 
+                       << _ipServiceN << endl;
 
     if (_ipCCN.size() > 0)
         outPrintWriter << "Creation Class Name         : " << _ipCCN << endl;
@@ -225,20 +226,20 @@ void IPRouteInfo::_outputInstance(ostream &outPrintWriter)
     String _ipAT;
 
     if (_ipAddrType == 1)
-	_ipAT = "IPv4";
+        _ipAT = "IPv4";
     else if (_ipAddrType == 2)
-	_ipAT = "IPv6";
+        _ipAT = "IPv6";
     else
-	_ipAT = "Unk";
+        _ipAT = "Unk";
 
     char row[81];
 
     sprintf(row, HeaderFormat, (const char *)_ipName.getCString(),
-			       (const char *)_ipAT.getCString(),
-			       (const char *)_ipIPDestAddr.getCString(),
-			       (const char *)_ipIPDestMask.getCString(),
-			       (const char *)_ipNextHop.getCString()
-			       );
+       (const char *)_ipAT.getCString(),
+       (const char *)_ipIPDestAddr.getCString(),
+       (const char *)_ipIPDestMask.getCString(),
+       (const char *)_ipNextHop.getCString()
+       );
     outPrintWriter << row << endl;
     
 }

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -129,8 +123,7 @@ OSInfoException::OSInfoException (Uint32 ID) : CommandException
   
  */
 OSInfoException::OSInfoException (Uint32 ID, const String& appendString) : 
-    CommandException (_messageStrings 
-        [(ID > MAX_ID) ? DEFAULT_ID : ID])
+    CommandException (_messageStrings[(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
     _rep->message.append (appendString);
 }

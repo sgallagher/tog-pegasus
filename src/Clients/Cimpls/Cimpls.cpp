@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Glantz, Hewlett-Packard Company (michael_glantz@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Cimpls.h"
@@ -71,7 +69,8 @@ int main(const int argc, const char **argv)
 
     // Start by enumerating PG_ProviderCapabilities
     Array<CIMObjectPath> capRef =
-      _c.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP, "PG_ProviderCapabilities");
+      _c.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP,
+              "PG_ProviderCapabilities");
     for (int i=0; i<capRef.size(); i++)
     {
       // get the instance
@@ -79,7 +78,8 @@ int main(const int argc, const char **argv)
 
       // get referenced instance of PG_ProviderModule for later use
       String pMod;
-      cap.getProperty(cap.findProperty("ProviderModuleName")).getValue().get(pMod);
+      cap.getProperty(
+              cap.findProperty("ProviderModuleName")).getValue().get(pMod);
       CIMObjectPath modRef(String("PG_ProviderModule.Name=\"") + pMod + "\"");
       CIMInstance mod = _c.getInstance(PEGASUS_NAMESPACENAME_INTEROP,modRef);
 
@@ -90,7 +90,8 @@ int main(const int argc, const char **argv)
 
       // display namespaces
       Array<String> nameSpaces;
-      cap.getProperty(cap.findProperty("Namespaces")).getValue().get(nameSpaces);
+      cap.getProperty(
+              cap.findProperty("Namespaces")).getValue().get(nameSpaces);
       cout << "  Namespaces:";
       for (int j=0; j<nameSpaces.size(); j++) cout << " " << nameSpaces[j];
       cout << endl;
@@ -110,7 +111,8 @@ int main(const int argc, const char **argv)
       
       // display state
       Array<Uint16> state;
-      mod.getProperty(mod.findProperty("OperationalStatus")).getValue().get(state);
+      mod.getProperty(
+              mod.findProperty("OperationalStatus")).getValue().get(state);
       cout << "  State:     ";
       for (int j=0; j<state.size(); j++)
         cout << " " << _providerState[ state[j] ];
@@ -335,7 +337,8 @@ int _enumerateInstanceNames(const int argc, const char **argv)
   Array<CIMObjectPath> iNames; 
   try
   {
-    iNames = _c.enumerateInstanceNames( PEGASUS_NAMESPACENAME_INTEROP, argv[0] );
+    iNames = _c.enumerateInstanceNames( PEGASUS_NAMESPACENAME_INTEROP,
+                                        argv[0] );
   }
   catch(Exception& e)
   {
@@ -373,10 +376,11 @@ int _getProperty(const int argc, const char **argv)
   CIMInstance inst;
 
   // If next arg is "ask", prompt user for keys
-  if (String::equalNoCase("ask",argv[1])) ref = CIMObjectPath(String::EMPTY,
-                                                   PEGASUS_NAMESPACENAME_INTEROP,
-                                                   argv[0],
-                                                   _inputInstanceKeys(cldef) );
+  if (String::equalNoCase("ask",argv[1])) ref = 
+            CIMObjectPath(String::EMPTY,
+                          PEGASUS_NAMESPACENAME_INTEROP,
+                          argv[0],
+                          _inputInstanceKeys(cldef) );
 
   // else if the next arg and is "list", enumInstNames and print
   // a list from which user will select  
@@ -530,7 +534,8 @@ Array<CIMKeyBinding> _inputInstanceKeys(const CIMClass &cldef)
     if (_isKey(prop))
     {
       char s[256];
-      cout << prop.getName().getString() << " (" << cimTypeToString(prop.getType()) << "): ";
+      cout << prop.getName().getString() << " (" 
+          << cimTypeToString(prop.getType()) << "): ";
       cin.getline(s,sizeof(s));
       enum CIMKeyBinding::Type t;
       switch (prop.getType())

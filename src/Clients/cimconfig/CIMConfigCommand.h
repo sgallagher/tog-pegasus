@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -109,12 +99,12 @@ private:
     @exception CIMException  if failed to get the properties from CIMOM.
     */
     void _getPropertiesFromCIMServer
-        (
+    (
         PEGASUS_STD(ostream)&    outPrintWriter,
         PEGASUS_STD(ostream)&    errPrintWriter,
         const CIMName&           propertyName,
         Array <String>&          propertyValues
-        );
+    );
 
     /**
     Send an updated property value to the CIM Server.
@@ -129,13 +119,13 @@ private:
     @exception CIMException  if failed to get the properties from CIMOM.
     */
     void _updatePropertyInCIMServer
-        (
+    (
         PEGASUS_STD(ostream)&    outPrintWriter,
         PEGASUS_STD(ostream)&    errPrintWriter,
         const CIMName&           propertyName,
         const String&            propertyValue,
         Boolean                  isUnsetOperation
-        );
+    );
 
     /**
     Get a list of all property names and value from the CIM Server.
@@ -145,8 +135,8 @@ private:
     */
     void _listAllPropertiesInCIMServer
     (
-	ostream&    outPrintWriter,
-	ostream&    errPrintWriter,
+        ostream&    outPrintWriter,
+        ostream&    errPrintWriter,
         Array <CIMName>&  propertyNames,
         Array <String>&   propertyValues
     );

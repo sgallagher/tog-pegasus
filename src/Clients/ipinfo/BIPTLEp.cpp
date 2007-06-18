@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "IPInfo.h"
@@ -57,46 +53,49 @@ BIPTLEpInfo::BIPTLEpInfo(CIMClient &client, Boolean enableDebug,
     try
     {
         Boolean deepInheritance = true;
-	Boolean localOnly = true;
-	Boolean includeQualifiers = false;
-	Boolean includeClassOrigin = false;
+        Boolean localOnly = true;
+        Boolean includeQualifiers = false;
+        Boolean includeClassOrigin = false;
       
-      	Array<CIMInstance> cimInstances = 
-	    		client.enumerateInstances(NAMESPACE, CLASS_NAME,
-			deepInheritance, localOnly, includeQualifiers,
-			includeClassOrigin);
+        Array<CIMInstance> cimInstances = 
+            client.enumerateInstances(NAMESPACE, CLASS_NAME,
+                                      deepInheritance,
+                                      localOnly,
+                                      includeQualifiers,
+                                      includeClassOrigin);
  
-      	Uint32 numberInstances = cimInstances.size();
+        Uint32 numberInstances = cimInstances.size();
 
-      	if (_enableDebug)
-	{
-		outPrintWriter << numberInstances << " instances of " <<
-	             CLASS_NAME.getString() << endl;
-	}
+        if (_enableDebug)
+        {
+            outPrintWriter << numberInstances << " instances of " 
+                << CLASS_NAME.getString() << endl;
+        }
 
-	if (numberInstances > 0)
-	{
+        if (numberInstances > 0)
+        {
             _gatherProperties(cimInstances[0], outPrintWriter);
-	    _outputHeader(outPrintWriter);
-
-	    for (Uint32 i = 0; i < numberInstances; i++)
-	    {
-	        _gatherProperties(cimInstances[i], outPrintWriter);
-	        _outputInstance(outPrintWriter);
-
-	     }   // end for looping through instances
-	}
+            _outputHeader(outPrintWriter);
+    
+            for (Uint32 i = 0; i < numberInstances; i++)
+            {
+                _gatherProperties(cimInstances[i], outPrintWriter);
+                _outputInstance(outPrintWriter);
+    
+             }   // end for looping through instances
+        }
         else
-	{
-	     outPrintWriter << "No instances of class " << CLASS_NAME.getString() << endl;
-	}
+        {
+             outPrintWriter << "No instances of class " 
+                             << CLASS_NAME.getString() << endl;
+        }
 
     }  // end try 
    
     catch(Exception&)
     {
-        errPrintWriter << "Error getting instances of class " <<
-             CLASS_NAME.getString() << endl;
+        errPrintWriter << "Error getting instances of class " 
+            << CLASS_NAME.getString() << endl;
     }   
 
 }
@@ -124,10 +123,10 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
     // Extract the properties
     for (Uint32 j=0; j < inst.getPropertyCount(); j++)
     {
-	CIMName propertyName = inst.getProperty(j).getName();
+        CIMName propertyName = inst.getProperty(j).getName();
 
-      	if (propertyName.equal("FrameType"))
-	    inst.getProperty(j).getValue().get(_ipFrameType); 
+        if (propertyName.equal("FrameType"))
+        inst.getProperty(j).getValue().get(_ipFrameType); 
 
     } // end for loop through properties
 
@@ -142,23 +141,24 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
     Uint32 numKeys = kb.size();
 
     if (_enableDebug)
-	outPrintWriter << "Retrieved " << numKeys << " keys in association." << endl;
+        outPrintWriter << "Retrieved " << numKeys 
+                       << " keys in association." << endl;
 
     for (Uint32 j=0; j < numKeys; j++)
     {
         keyName = kb[j].getName();
          
-      	if (keyName.equal("Antecedent"))
-	{
-	    CIMObjectPath _Ant = kb[j].getValue();
-	    _extractFromKey(_Ant, _ipLEPCCN, _ipLEPName, outPrintWriter);
-	}
-
-      	else if (keyName.equal("Dependent"))
-	{
-	    CIMObjectPath _Dep = kb[j].getValue();
-	    _extractFromKey(_Dep, _ipIPPEpCCN, _ipIPPEpName, outPrintWriter);
-	}
+        if (keyName.equal("Antecedent"))
+        {
+            CIMObjectPath _Ant = kb[j].getValue();
+            _extractFromKey(_Ant, _ipLEPCCN, _ipLEPName, outPrintWriter);
+        }
+    
+        else if (keyName.equal("Dependent"))
+        {
+            CIMObjectPath _Dep = kb[j].getValue();
+            _extractFromKey(_Dep, _ipIPPEpCCN, _ipIPPEpName, outPrintWriter);
+        }
 
     } // end for loop through keys
 
@@ -177,18 +177,18 @@ void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
     Uint32 numKeys = kb.size();
 
     if (_enableDebug)
-	outPrintWriter << "Retrieved " << numKeys << " keys in reference `" << 
-	     ref.getClassName().getString() << "'." << endl;
+        outPrintWriter << "Retrieved " << numKeys << " keys in reference `" 
+        << ref.getClassName().getString() << "'." << endl;
 
     for (Uint32 j=0; j < numKeys; j++)
     {
         keyName = kb[j].getName();
          
-      	if (keyName.equal("Name"))
-	    name = kb[j].getValue();
+        if (keyName.equal("Name"))
+            name = kb[j].getValue();
 
-      	else if (keyName.equal("CreationClassName"))
-	    ccn = kb[j].getValue();
+        else if (keyName.equal("CreationClassName"))
+            ccn = kb[j].getValue();
 
     } // end for loop through keys
 
@@ -200,8 +200,8 @@ void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
 void BIPTLEpInfo::_outputHeader(ostream &outPrintWriter)
 {
 
-    outPrintWriter << endl << ">>>> IP Associations to LAN Endpoint <<<<" <<
-         endl << endl;
+    outPrintWriter << endl << ">>>> IP Associations to LAN Endpoint <<<<" 
+        << endl << endl;
 
     if (_ipLEPCCN.size() > 0)
         outPrintWriter << "LAN Endpoint CCN : " << _ipLEPCCN << endl;
@@ -212,7 +212,7 @@ void BIPTLEpInfo::_outputHeader(ostream &outPrintWriter)
     char header[81];
 
     sprintf(header, HeaderFormat, "LAN Endpoint", "IP Protocol Endpoint",
-                                  "Frame Type");
+            "Frame Type");
     outPrintWriter << endl << header << endl;
     
 }
@@ -225,18 +225,18 @@ void BIPTLEpInfo::_outputInstance(ostream &outPrintWriter)
     String _ipFT;
 
     if (_ipFrameType == 1)
-	_ipFT = "Ethernet";
+        _ipFT = "Ethernet";
     else if (_ipFrameType == 0)
-	_ipFT = "Unknown";
+        _ipFT = "Unknown";
     else
-	_ipFT = "Other";
+        _ipFT = "Other";
 
     char row[81];
 
     sprintf(row, HeaderFormat, (const char *)_ipLEPName.getCString(),
-			       (const char *)_ipIPPEpName.getCString(),
-			       (const char *)_ipFT.getCString()
-			       );
+        (const char *)_ipIPPEpName.getCString(),
+        (const char *)_ipFT.getCString()
+        );
     outPrintWriter << row << endl;
     
 }

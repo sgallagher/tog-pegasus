@@ -44,7 +44,6 @@
 PEGASUS_NAMESPACE_BEGIN
 #define CDEBUG(X) PEGASUS_STD(cout) << "cimcli " << X << PEGASUS_STD(endl)
 //#define CDEBUG(X)
-//#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "CIMOpReqDsptchr", Logger::INFORMATION, "$0", X)
 
 // Defined here because apparently not all platforms support max and min.
 #define LOCAL_MAX(a, b) ((a > b) ? a : b)
@@ -192,8 +191,8 @@ struct  OPTION_STRUCT
     String nameSpace;
     CIMName className;
     String objectName;
-    String inputObjectName;                 // Name to report as input object on error
-    String cimCmd;                          // Command name
+    String inputObjectName;       // Name to report as input object on error
+    String cimCmd;                // Command name
     String outputFormat;
     Boolean isXmlOutput;
     int outputFormatType;
@@ -213,7 +212,8 @@ struct  OPTION_STRUCT
     CIMPropertyList propertyList;
     String propertyListText;
 
-    // The references and associatior parameters.  We setup both internal and external forms
+    // The references and associatior parameters.
+    // We setup both internal and external forms
     String assocClassName;
     CIMName assocClass;
     String resultClassName;
@@ -228,7 +228,7 @@ struct  OPTION_STRUCT
     Boolean summary;
     Uint32 delay;
     Uint32 trace;
-	Boolean debug;
+    Boolean debug;
 
     Uint32 count;
     Uint32 repeat;
@@ -239,15 +239,17 @@ struct  OPTION_STRUCT
     String queryLanguage;
     String query;
     Uint32 connectionTimeout;    // Connection timeout in seconds
-    Array<String> extraParams;   // additional parameter list. depends on command.
+    Array<String> extraParams;   // additional param list. depends on command.
     Boolean interactive;
 };
 
 typedef struct OPTION_STRUCT Options;
 
-Array<String> PEGASUS_CLI_LINKAGE _tokenize(const String& input, const Char16 separator);
+Array<String> PEGASUS_CLI_LINKAGE _tokenize(const String& input,
+                                            const Char16 separator);
 
-CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(const String& input, const Options& opts);
+CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(const String& input, 
+                                                          const Options& opts);
 
 void PEGASUS_CLI_LINKAGE showCommands(const char* pgmName);
 
@@ -281,9 +283,11 @@ int PEGASUS_CLI_LINKAGE getClass(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE deleteInstance(CIMClient& client, Options& opts);
 
-int PEGASUS_CLI_LINKAGE enumerateInstanceNames(CIMClient& client, Options& opts);
+int PEGASUS_CLI_LINKAGE enumerateInstanceNames(CIMClient& client,
+                                               Options& opts);
 
-int PEGASUS_CLI_LINKAGE enumerateAllInstanceNames(CIMClient& client, Options& opts);
+int PEGASUS_CLI_LINKAGE enumerateAllInstanceNames(CIMClient& client,
+                                                  Options& opts);
 
 int PEGASUS_CLI_LINKAGE enumerateInstances(CIMClient& client, Options& opts);
 
@@ -315,7 +319,8 @@ int PEGASUS_CLI_LINKAGE invokeMethod(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE executeQuery(CIMClient& client, Options& opts);
 
-int PEGASUS_CLI_LINKAGE enumerateNamespaces_Namespace(CIMClient& client, Options& opts);
+int PEGASUS_CLI_LINKAGE enumerateNamespaces_Namespace(CIMClient& client,
+                                                      Options& opts);
 
 PEGASUS_NAMESPACE_END
 

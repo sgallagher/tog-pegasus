@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author : Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4114
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -55,7 +48,8 @@
 #include <Clients/cliutils/CommandException.h>
 #include "RepositoryUpgrade.h"
 
-#if defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
+#if defined(PEGASUS_USE_RELEASE_DIRS) \ 
+    && defined (PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
 # include <Pegasus/Config/ProductDirectoryStructure.h>
 #endif
 
@@ -192,10 +186,10 @@ static const char OLD_CLASS_RETRIEVAL_ERROR_KEY [] =
             "Clients.repupgrade.RepositoryUpgrade.OLDCLASS_RETRIEVAL_ERROR";
 
 static const char OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR [] =
-                "Error reading old repository dependent class $0 in namespace $1.";
+  "Error reading old repository dependent class $0 in namespace $1.";
 
 static const char OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR_KEY [] =
-      "Clients.repupgrade.RepositoryUpgrade.OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR";
+  "Clients.repupgrade.RepositoryUpgrade.OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR";
 
 static const char NEW_CLASS_RETRIEVAL_ERROR [] =
                 "Error reading new repository class $0 in namespace $1.";
@@ -213,7 +207,7 @@ static const char LIBRARY_ENTRY_POINT_ERROR [] =
                 "Error trying to get entry point symbol in library $0.";
 
 static const char LIBRARY_ENTRY_POINT_ERROR_KEY [] =
-                "Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR";
+    "Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR";
 
 static const char CLASS_XML_OUTPUT_FILE [] =
               "CIM/XML request for this class has been logged to file $0 ";
@@ -234,7 +228,9 @@ static const char QUALIFIER_XML_OUTPUT_FILE_KEY [] =
           "Clients.repupgrade.RepositoryUpgrade.QUALIFIER_XML_OUTPUT_FILE";
 
 static const char HIGHER_VERSION_OLD_CLASS [] =
-         "Warning: The old repository contains a class $0 in namespace $1 that has a higher version number than the new repository class. This class may have to be manually imported.";
+"Warning: The old repository contains a class $0 in namespace $1 that has"
+    " a higher version number than the new repository class."
+    " This class may have to be manually imported.";
 
 
 static const char HIGHER_VERSION_OLD_CLASS_KEY [] =
@@ -295,7 +291,8 @@ const char* RepositoryUpgrade::_ALL = "a";
 # elif defined(PEGASUS_OS_LINUX)
     const String OLD_REPOSITORY_PATH = "/var/opt/tog-pegasus/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/tog-pegasus/repository";
-    const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/tog-pegasus/log/upgrade";
+    const String RepositoryUpgrade::_LOG_PATH  = 
+        "/var/opt/tog-pegasus/log/upgrade";
 # else
 #   undef REPUPGRADE_USE_RELEASE_DIRS
     const String RepositoryUpgrade::_LOG_PATH = "./";
@@ -763,10 +760,10 @@ Uint32 RepositoryUpgrade::execute (
 
 void RepositoryUpgrade::upgradeRepository()
 {
-    Array<CIMNamespaceName> 		oldNamespaces;
-    Array<CIMNamespaceName> 		newNamespaces;
-    Array<CIMNamespaceName> 		missingNamespaces;
-    CIMName				className;
+    Array<CIMNamespaceName>         oldNamespaces;
+    Array<CIMNamespaceName>         newNamespaces;
+    Array<CIMNamespaceName>         missingNamespaces;
+    CIMName             className;
 
     //
     // Create the old and new Repository instances.
@@ -827,8 +824,8 @@ void RepositoryUpgrade::upgradeRepository()
 
     Uint32 n = oldNamespaces.size();
 
-    Array<CIMName> 			oldClassNames;
-    Array<CIMName> 			newClassNames;
+    Array<CIMName>          oldClassNames;
+    Array<CIMName>          newClassNames;
 
     for ( Uint32 i=0; i < n;  i++)
     {
@@ -981,9 +978,9 @@ void RepositoryUpgrade::_addNamespaces(
                          const Array<CIMNamespaceName>& namespaces)
 {
 
-    Array<CIMName> 			oldClassNames;
-    Array<CIMName> 			newClassNames;
-    CIMName				className;
+    Array<CIMName>          oldClassNames;
+    Array<CIMName>          newClassNames;
+    CIMName             className;
 
     Uint32 count = namespaces.size();
     for ( Uint32 i=0; i < count;  i++)
@@ -1049,7 +1046,7 @@ void RepositoryUpgrade::_addNamespaces(
         }
 
         oldClassNames.clear();
-	newClassNames.clear();
+    newClassNames.clear();
 
     }
 }
@@ -1059,8 +1056,8 @@ void RepositoryUpgrade::_processClasses(
                       const Array<CIMName>&   oldClasses ,
                       Array<CIMName>&   newClasses)
 {
-    Array<CIMName>		missingClasses;
-    Array<CIMName>		existingClasses;
+    Array<CIMName>      missingClasses;
+    Array<CIMName>      existingClasses;
 
     //
     // Separate the existing and missing classes.
@@ -1090,8 +1087,10 @@ void RepositoryUpgrade::_processClasses(
                 continue;
             }
 
-            /** Ignore any "CIM_" classes in pegasus namespaces, except root/cimv2. 
-                Since they don't exist in 2.7 they must have been renamed or deleted.
+            /** Ignore any "CIM_" classes in pegasus namespaces,
+             *  except root/cimv2. 
+                Since they don't exist in 2.7 they must have been renamed
+                or deleted.
             */
             if ( ( (namespaceName == PEGASUS_NAMESPACENAME_INTEROP) ||
                    (namespaceName == "root/PG_Internal")) &&
@@ -1138,17 +1137,17 @@ void RepositoryUpgrade::_processExistingClasses(
                       const CIMNamespaceName& namespaceName,
                       const Array<CIMName>&   existingClasses)
 {
-    Uint32 			idx;
-    Uint32 			existingClassCount = existingClasses.size();
+    Uint32          idx;
+    Uint32          existingClassCount = existingClasses.size();
 
     for ( Uint32 i=0; i < existingClassCount; i++)
     {
-        CIMClass		oldClass;
-	CIMClass 		newClass;
-	String 			oldVersion;
-	String 			newVersion;
-	Boolean 		oldVersionFound=false;
-	Boolean 		newVersionFound=false;
+        CIMClass        oldClass;
+    CIMClass        newClass;
+    String          oldVersion;
+    String          newVersion;
+    Boolean         oldVersionFound=false;
+    Boolean         newVersionFound=false;
 
 #ifdef REPUPGRADE_DEBUG
         cout << "In Namespace: " << namespaceName
@@ -1159,9 +1158,9 @@ void RepositoryUpgrade::_processExistingClasses(
         {
             oldClass = _oldRepository->getClass(namespaceName,
                                             existingClasses[i],
-					    true,
-					    true,
-					    true);
+                                            true,
+                                            true,
+                                            true);
         }
         catch (Exception& e)
         {
@@ -1195,9 +1194,9 @@ void RepositoryUpgrade::_processExistingClasses(
         {
             newClass = _newRepository->getClass(namespaceName,
                                             existingClasses[i],
-					    true,
-					    true,
-					    true);
+                                            true,
+                                            true,
+                                            true);
         }
         catch (Exception& e)
         {
@@ -1290,13 +1289,13 @@ void RepositoryUpgrade::_processExistingClasses(
 Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
                                            const String& newVersion)
 {
-    Sint32 			iMinorOld = -1;
-    Sint32 			iMajorOld = -1;
-    Sint32			iUpdateOld = -1;
-    Sint32 			iMinorNew = -1;
-    Sint32 			iMajorNew = -1;
-    Sint32			iUpdateNew = -1;
-    Boolean			retVal = false;
+    Sint32          iMinorOld = -1;
+    Sint32          iMajorOld = -1;
+    Sint32          iUpdateOld = -1;
+    Sint32          iMinorNew = -1;
+    Sint32          iMajorNew = -1;
+    Sint32          iUpdateNew = -1;
+    Boolean         retVal = false;
 
     retVal = _parseVersion (oldVersion, iMajorOld, iMinorOld, iUpdateOld);
 
@@ -1442,17 +1441,17 @@ void RepositoryUpgrade::_processNewClasses(
                           Array<CIMName>&   missingClasses,
                           Array<CIMName>&   currClasses)
 {
-    Boolean		allSuperClassesExist = true;
-    Uint32 		missingCount         = missingClasses.size();
-    Uint32 		superClassCount      = 0;
-    Uint32 		saveCount            = 0;
+    Boolean     allSuperClassesExist = true;
+    Uint32      missingCount         = missingClasses.size();
+    Uint32      superClassCount      = 0;
+    Uint32      saveCount            = 0;
     Array<CIMName>      superClassList;
 
     while (missingCount > 0)
     {
         for ( Uint32 i=0; i < missingCount; i++)
         {
-            allSuperClassesExist 	= true;
+            allSuperClassesExist    = true;
 
             //
             // Check if the class already exists in the new repository.
@@ -1463,9 +1462,9 @@ void RepositoryUpgrade::_processNewClasses(
                 // Check if this class has Super Classes.
                 //
                 _oldRepository->getSuperClassNames(
-	    			namespaceName,
-	    			missingClasses[i],
-	    			superClassList);
+                    namespaceName,
+                    missingClasses[i],
+                    superClassList);
 
                 superClassCount = superClassList.size();
                 saveCount       = superClassCount;
@@ -1654,29 +1653,28 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 else
                 {
                     _logCreateClassError (namespaceName,
-                                      oldClass,
-                                      (ce.getMessage()+". "));
+                                          oldClass,
+                                          (ce.getMessage()+". "));
                 }
             }
             else
             {
                 _logCreateClassError (namespaceName,
-                                          oldClass,
-                                          (ce.getMessage()+". "));
+                                      oldClass,
+                                      (ce.getMessage()+". "));
             }
         }
         catch (Exception& e)
         {
            _logCreateClassError (namespaceName,
-                                      oldClass,
-                                      (e.getMessage()+". "));
+                                 oldClass,
+                                 (e.getMessage()+". "));
         }
         catch (...)
         {
            _logCreateClassError (namespaceName,
-
-                                      oldClass,
-                                      String::EMPTY);
+                                 oldClass,
+                                 String::EMPTY);
         }
 #ifdef ENABLE_MODULE_PROCESSING
     }
@@ -1693,7 +1691,7 @@ void RepositoryUpgrade::_addInstances(void)
 
     if (oldNamespaces.size() > 0)
     {
-        CIMName			className;
+        CIMName         className;
 
         for ( Uint32 i = 0; i < oldNamespaces.size(); i++)
         {
@@ -1769,13 +1767,13 @@ void RepositoryUpgrade::_addInstances(void)
                                     // Create the instance.
                                     //
 #ifdef REPUPGRADE_DEBUG
-				    cout << "Creating instance" << endl;
+                                cout << "Creating instance" << endl;
 #endif
                                     _newRepository->createInstance(
                                                          oldNamespaces[i],
                                                          processedInstance);
 #ifdef REPUPGRADE_DEBUG
-		                    cout << "Instance created" << endl;
+                                cout << "Instance created" << endl;
 #endif
                                 }
                                 catch (CIMException &ce)
@@ -1841,16 +1839,16 @@ static String _namespaceNameToDirName(const CIMNamespaceName& namespaceName)
 void RepositoryUpgrade::_logRequestToFile(
                               const String&   fileName)
 {
-    Uint64 				timeoutMilliseconds = 20;
-    Uint64 				startMilliseconds = 0;
-    Uint64 				nowMilliseconds = 0;
-    Uint64 				stopMilliseconds = 0;
-    String                       	startLine;
-    Array<HTTPHeader>            	headers;
-    Uint32  	                        contentLength = 0;
-    Uint32    	                        contentOffset = 0;
-    HTTPMessage* 			httpMessage;
-    Buffer 			data;
+    Uint64              timeoutMilliseconds = 20;
+    Uint64              startMilliseconds = 0;
+    Uint64              nowMilliseconds = 0;
+    Uint64              stopMilliseconds = 0;
+    String                          startLine;
+    Array<HTTPHeader>               headers;
+    Uint32                              contentLength = 0;
+    Uint32                              contentOffset = 0;
+    HTTPMessage*            httpMessage;
+    Buffer          data;
 
     startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     nowMilliseconds = startMilliseconds;
@@ -2249,8 +2247,8 @@ int main (int argc, char* argv [])
 {
     try
     {
-        RepositoryUpgrade 	command;
-        Uint32			retCode;
+        RepositoryUpgrade   command;
+        Uint32          retCode;
         
         //l10n set message loading to process locale
         MessageLoader::_useProcessLocale = true;

@@ -597,8 +597,9 @@ void _createCimsubTests(CIMClient & client, String& qlang)
     //
     CIMInstance filter04a(PEGASUS_CLASSNAME_INDFILTER);
     query = "SELECT IndicationTime, IndicationIdentifier "
-          "FROM CIM_ProcessIndication "
-          "WHERE IndicationTime IS NOT NULL AND CorrelatedIndications IS NOT NULL";
+                "FROM CIM_ProcessIndication "
+                "WHERE IndicationTime IS NOT NULL AND"
+                " CorrelatedIndications IS NOT NULL";
     _addStringProperty(filter04a, PEGASUS_PROPERTYNAME_NAME.getString(),
         "Filter04a");
     _addStringProperty(filter04a, PEGASUS_PROPERTYNAME_QUERY.getString(),
@@ -1510,7 +1511,7 @@ void _cleanup(CIMClient & client)
     //  Delete subscription instances
     //
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter00",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter01",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
@@ -1519,31 +1520,31 @@ void _cleanup(CIMClient & client)
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter03",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter04",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter05",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter06",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter07",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter01",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter01",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02p");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02p");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter01",
-	PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02t");)
+    PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02t");)
 
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "Filter01",
-	PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");)
+    PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");)
 
 #ifdef PEGASUS_ENABLE_EMAIL_HANDLER
   IGNORE_EXCEPTION(_deleteSubscriptionInstance (client, "EmailFilter01",

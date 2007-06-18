@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//
-// Modified By:
-//          Warren Otsuka (warren_otsuka@hp.com)
-//          Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//          David Dillard, VERITAS Software Corp.
-//              (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OSInfoCommand_h
@@ -178,7 +168,7 @@ private:
 
     /**
         A Boolean indicating whether a port number was specified on the
-	command line.
+    command line.
      */
     Boolean _portNumberSet;
 

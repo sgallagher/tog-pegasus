@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Repository/CIMRepository.h>
@@ -89,14 +84,14 @@ clientRepositoryInterface::init(_repositoryType type,
     
     catch(Exception &e) 
     {
-	  cerr << "Internal Error:" << e.getMessage() << endl;
+      cerr << "Internal Error:" << e.getMessage() << endl;
       delete _client;
       _client = 0;
     }
   }
   else 
   {
-	  throw IndexOutOfBoundsException();
+      throw IndexOutOfBoundsException();
   }
 }
 
@@ -108,7 +103,7 @@ Array<CIMQualifierDecl> clientRepositoryInterface::enumerateQualifiers(
     return _repository->enumerateQualifiers(nameSpace);
   if (_client)
       return _client->enumerateQualifiers(nameSpace);
-	throw IndexOutOfBoundsException();
+    throw IndexOutOfBoundsException();
 }
 
 CIMClass clientRepositoryInterface::getClass(
@@ -124,7 +119,7 @@ CIMClass clientRepositoryInterface::getClass(
     if (_client)
         return _client->getClass(nameSpace, className,
                         localOnly, includeQualifiers, includeClassOrigin);
-	throw IndexOutOfBoundsException();
+    throw IndexOutOfBoundsException();
 };
 
 
@@ -154,7 +149,7 @@ Array<CIMClass> clientRepositoryInterface::enumerateClasses(
                                     localOnly,
                                     includeQualifiers,
                                     includeClassOrigin);
-	 throw IndexOutOfBoundsException();
+     throw IndexOutOfBoundsException();
 };
 Array<CIMName> clientRepositoryInterface::enumerateClassNames(
     const CIMNamespaceName& nameSpace,
@@ -176,13 +171,14 @@ Array<CIMName> clientRepositoryInterface::enumerateClassNames(
     }
 
     if (_client)
-       return _client->enumerateClassNames(nameSpace, className, deepInheritance);
-	throw IndexOutOfBoundsException();
+       return _client->enumerateClassNames(nameSpace, className,
+                                           deepInheritance);
+    throw IndexOutOfBoundsException();
 };
 
 Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
-	const CIMNamespaceName& nameSpace,
-	const CIMName& className)
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className)
 {
     if (_repository)
        return _repository->enumerateInstanceNamesForSubtree(
@@ -190,27 +186,27 @@ Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
 
     if (_client)
        return _client->enumerateInstanceNames(nameSpace, className);
-	throw IndexOutOfBoundsException();
+    throw IndexOutOfBoundsException();
 };
 
 Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
-	const CIMNamespaceName& nameSpace,
-	const CIMName& className,
-	Boolean deepInheritance,
-	Boolean localOnly,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin,
-	const CIMPropertyList& propertyList)
-	
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
+    
 {
     if (_repository)
        return _repository->enumerateInstancesForSubtree(nameSpace, className,
-			deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
+            deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
 
     if (_client)
        return _client->enumerateInstances(nameSpace, className,
-		   deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
-	throw IndexOutOfBoundsException();
+           deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
+    throw IndexOutOfBoundsException();
 };
 
 

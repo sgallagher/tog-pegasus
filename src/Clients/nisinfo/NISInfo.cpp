@@ -103,7 +103,8 @@ void NISInfo::displayProperties()
    cTit.append("None");
    cTit.append("NIS Master");
    cTit.append("NIS Slave");
-   cout << " ServerType             : " << CIMValue(nisServerType).toString().getCString() 
+   cout << " ServerType             : " 
+        << CIMValue(nisServerType).toString().getCString() 
         << " (" << cTit[nisServerType].getCString() << ")" << endl;   
 
    cTit.clear();
@@ -111,7 +112,8 @@ void NISInfo::displayProperties()
    cTit.append("Other");
    cTit.append("Wait");
    cTit.append("No Wait");
-   cout << " ServerWaitFlag         : " << CIMValue(nisServerWaitFlag).toString().getCString() 
+   cout << " ServerWaitFlag         : " 
+        << CIMValue(nisServerWaitFlag).toString().getCString() 
         << " (" << cTit[nisServerWaitFlag].getCString()  << ")" << endl;   
 }
 
@@ -201,7 +203,7 @@ void NISInfo::getNISInfo(const int argc, const char** argv)
         CIMClient client;
         client.setTimeout(120 * 1000);
         
-	client.connectLocal();
+    client.connectLocal();
         
         Boolean deepInheritance = true;
         Boolean localOnly = true;
@@ -215,16 +217,16 @@ void NISInfo::getNISInfo(const int argc, const char** argv)
 #endif
 
         Array<CIMInstance> cimNInstances = 
-	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
-                                         deepInheritance,
-				         localOnly,  
-            				 includeQualifiers,
-				         includeClassOrigin );
+           client.enumerateInstances(NAMESPACE, CLASSNAME, 
+                                     deepInheritance,
+                                     localOnly,  
+                                     includeQualifiers,
+                                     includeClassOrigin );
 
 #ifdef DEBUG
         cout << "NISInfo::getNISInfo() - enumerateInstances done" << endl;
 #endif
-	  
+      
         numberInstances = cimNInstances.size();
 
         for (Uint32 i = 0; i < cimNInstances.size(); i++)

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -173,7 +167,7 @@ void GetOptions(
                                         "specifies system and port" },
 
     {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
-                                        "specifies namespace to use for operation" },
+                                  "specifies namespace to use for operation" },
 
         // error here just went to temp nothing
         //{"outputformats", "mof", false, Option::STRING, outputFormats,
@@ -305,9 +299,9 @@ int main(int argc, char** argv)
     if(argc < 2)
     {
         String header = " ";
-    String trailer = " ";
-    cerr << "Instance Name required" << endl;
-    om.printOptionsHelpTxt(header, trailer);
+        String trailer = " ";
+        cerr << "Instance Name required" << endl;
+        om.printOptionsHelpTxt(header, trailer);
         exit(0);
 
     }
@@ -315,9 +309,9 @@ int main(int argc, char** argv)
     if(argc > 2)
     {
         String header = " ";
-    String trailer = " ";
-    cerr << "Only one Instance Name allowed" << endl;
-    om.printOptionsHelpTxt(header, trailer);
+        String trailer = " ";
+        cerr << "Only one Instance Name allowed" << endl;
+        om.printOptionsHelpTxt(header, trailer);
         exit(0);
 
     }
@@ -328,12 +322,13 @@ int main(int argc, char** argv)
     String myReference = argv[1];
     try
     {
-    reference = myReference;
+        reference = myReference;
     }
     catch(Exception& e)
     {
-    PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
-    exit(1);
+        PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() 
+            << PEGASUS_STD(endl);
+        exit(1);
     }
     CIMClient client;
 
@@ -352,19 +347,21 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-    PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
-    exit(1);
+        PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() 
+            << PEGASUS_STD(endl);
+        exit(1);
     }
 
     // Try the delete
     try
     {
-    client.deleteInstance(nameSpace, myReference);
+        client.deleteInstance(nameSpace, myReference);
     }
     catch(Exception& e)
     {
-    PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
-    exit(1);
+        PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() 
+            << PEGASUS_STD(endl);
+        exit(1);
     }
 
     return 0;

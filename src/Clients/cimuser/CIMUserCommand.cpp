@@ -295,40 +295,50 @@ static const char   NEW_PASS_PARAM[]             = "NewPassword";
 static const char   PASSWORD_PROMPT []  =
                         "Please enter your password: ";
 
-static const char   PASSWORD_PROMPT_KEY [] = "Clients.cimuser.CIMUserCommand.PASSWORD_PROMPT";
+static const char   PASSWORD_PROMPT_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.PASSWORD_PROMPT";
 
 static const char   OLD_PASSWORD_PROMPT []  =
-                        "Please enter your old password: ";
+    "Please enter your old password: ";
 
-static const char   OLD_PASSWORD_PROMPT_KEY []  ="Clients.cimuser.CIMUserCommand.OLD_PASSWORD_PROMPT";
+static const char   OLD_PASSWORD_PROMPT_KEY []  =
+    "Clients.cimuser.CIMUserCommand.OLD_PASSWORD_PROMPT";
 
 static const char   RE_ENTER_PROMPT []  =
-                        "Please re-enter your password: ";
+    "Please re-enter your password: ";
 
-static const char   RE_ENTER_PROMPT_KEY []  ="Clients.cimuser.CIMUserCommand.RE_ENTER_PROMPT";
+static const char   RE_ENTER_PROMPT_KEY []  =
+    "Clients.cimuser.CIMUserCommand.RE_ENTER_PROMPT";
 
 static const char   NEW_PASSWORD_PROMPT []  =
-                        "Please enter your new password: ";
+    "Please enter your new password: ";
 
-static const char   NEW_PASSWORD_PROMPT_KEY []  ="Clients.cimuser.CIMUserCommand.NEW_PASSWORD_PROMPT";
+static const char   NEW_PASSWORD_PROMPT_KEY []  =
+    "Clients.cimuser.CIMUserCommand.NEW_PASSWORD_PROMPT";
 
 static const char   PASSWORD_DOES_NOT_MATCH []  =
-                        "Passwords do not match. Please Re-enter.";
+    "Passwords do not match. Please Re-enter.";
 
-static const char   PASSWORD_DOES_NOT_MATCH_KEY []  = "Clients.cimuser.CIMUserCommand.PASSWORD_DOES_NOT_MATCH";
+static const char   PASSWORD_DOES_NOT_MATCH_KEY []  = 
+    "Clients.cimuser.CIMUserCommand.PASSWORD_DOES_NOT_MATCH";
 
 static const char   PASSWORD_SAME_ERROR []  =
-                        "Error, new and old passwords cannot be same.";
+    "Error, new and old passwords cannot be same.";
 
-static const char   PASSWORD_SAME_ERROR_KEY []  = "Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR";
+static const char   PASSWORD_SAME_ERROR_KEY []  = 
+    "Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR";
 
-static const char ERR_OPTION_NOT_SUPPORTED [] = "Invalid option. Use '--help' to obtain command syntax.";
+static const char ERR_OPTION_NOT_SUPPORTED [] = 
+    "Invalid option. Use '--help' to obtain command syntax.";
 
-static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = "Clients.cimuser.CIMUserCommand.ERR_OPTION_NOT_SUPPORTED";
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.ERR_OPTION_NOT_SUPPORTED";
 
-static const char ERR_USAGE [] = "Incorrect usage. Use '--help' to obtain command syntax.";
+static const char ERR_USAGE [] = 
+    "Incorrect usage. Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] = "Clients.cimuser.CIMUserCommand.ERR_USAGE";
+static const char ERR_USAGE_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.ERR_USAGE";
 
 static const char   LONG_HELP []  = "help";
 
@@ -420,8 +430,8 @@ private:
     //
     void _ModifyUser
         (
-        ostream&                 outPrintWriter,
-        ostream&                 errPrintWriter
+            ostream&                 outPrintWriter,
+            ostream&                 errPrintWriter
         );
 
     //
@@ -434,8 +444,8 @@ private:
     //
     void _RemoveUser
         (
-        ostream& outPrintWriter,
-        ostream& errPrintWriter
+            ostream& outPrintWriter,
+            ostream& errPrintWriter
         );
 
     //
@@ -538,13 +548,16 @@ CIMUserCommand::CIMUserCommand ()
     usage.append("    -h, --help - Display this help message\n");
     usage.append("    -l         - List the names of CIM users\n");
     usage.append("    -m         - Modify a CIM user's password\n");
-    usage.append("    -n         - Supply a new password for the specified user name\n");
+    usage.append("    -n         - Supply a new password for the specified"
+                    " user name\n");
     usage.append("    -r         - Remove the specified CIM user\n");
     usage.append("    -u         - Specify a CIM user name\n");
     usage.append("    --version  - Display CIM Server version number\n");
-    usage.append("    -w         - Supply a password for the specified user name\n");
+    usage.append("    -w         - Supply a password for the specified user"
+                    " name\n");
 
-    usage.append("\nUsage note: The cimuser command requires that the CIM Server is running.\n");
+    usage.append("\nUsage note: The cimuser command requires that the"
+                    " CIM Server is running.\n");
     setUsage (usage);
 }
 
@@ -858,8 +871,8 @@ void CIMUserCommand::setCommand (
     if (_operationType == OPERATION_TYPE_LIST &&
         (_userNameSet || _passwordSet || _newpasswordSet))
     {
-        //l10n
-        MessageLoaderParms parms("Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION",
+        MessageLoaderParms parms(
+            "Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION",
             "Unexpected Option.");
         //CommandFormatException e("Unexpected Option.");
         throw CommandFormatException(parms);
@@ -893,18 +906,18 @@ void CIMUserCommand::setCommand (
 
                 if (pw == String::EMPTY)
                 {
-                    errPrintWriter << localizeMessage(
-                        MSG_PATH, PASSWORD_BLANK_KEY, PASSWORD_BLANK) << endl;
+                    errPrintWriter << localizeMessage(MSG_PATH, 
+                                                      PASSWORD_BLANK_KEY, 
+                                                      PASSWORD_BLANK) 
+                                   << endl;
                     continue;
                 }
                 if (pw != System::getPassword(RE_ENTER_PROMPT))
                 {
-                    errPrintWriter <<
-                        localizeMessage(
-                            MSG_PATH,
-                            PASSWORD_DOES_NOT_MATCH_KEY,
-                            PASSWORD_DOES_NOT_MATCH_KEY) <<
-                        endl;
+                    errPrintWriter << localizeMessage(MSG_PATH,
+                                                 PASSWORD_DOES_NOT_MATCH_KEY,
+                                                 PASSWORD_DOES_NOT_MATCH_KEY) 
+                                   << endl;
                     pw = String::EMPTY;
                 }
             }
@@ -927,9 +940,10 @@ void CIMUserCommand::setCommand (
         {
             if (_newpassword == _password)
             {
-                //l10n
-                //cerr << PASSWORD_SAME_ERROR << endl;
-                cerr << localizeMessage(MSG_PATH,PASSWORD_SAME_ERROR_KEY,PASSWORD_SAME_ERROR) << endl;
+                cerr << localizeMessage(MSG_PATH,
+                                        PASSWORD_SAME_ERROR_KEY,
+                                        PASSWORD_SAME_ERROR) 
+                    << endl;
                 exit (1);
             }
         }
@@ -944,8 +958,10 @@ void CIMUserCommand::setCommand (
                 pw = System::getPassword(OLD_PASSWORD_PROMPT);
                 if (pw == String::EMPTY)
                 {
-                    errPrintWriter << localizeMessage(
-                        MSG_PATH, PASSWORD_BLANK_KEY, PASSWORD_BLANK) << endl;
+                    errPrintWriter << localizeMessage(MSG_PATH, 
+                                                      PASSWORD_BLANK_KEY, 
+                                                      PASSWORD_BLANK) 
+                                   << endl;
                     continue;
                 }
             }
@@ -970,12 +986,10 @@ void CIMUserCommand::setCommand (
 
                 if (newPw != System::getPassword(RE_ENTER_PROMPT))
                 {
-                    errPrintWriter <<
-                        localizeMessage(
-                            MSG_PATH,
-                            PASSWORD_DOES_NOT_MATCH_KEY,
-                            PASSWORD_DOES_NOT_MATCH) <<
-                        endl;
+                    errPrintWriter << localizeMessage(MSG_PATH,
+                                                    PASSWORD_DOES_NOT_MATCH_KEY,
+                                                    PASSWORD_DOES_NOT_MATCH) 
+                                   << endl;
                     newPw = String::EMPTY;
                 }
             }
@@ -983,9 +997,10 @@ void CIMUserCommand::setCommand (
             _newpassword = newPw ;
             if (_newpassword == _password)
             {
-                cerr << localizeMessage(
-                    MSG_PATH, PASSWORD_SAME_ERROR_KEY, PASSWORD_SAME_ERROR) <<
-                    endl;
+                cerr << localizeMessage(MSG_PATH, 
+                                        PASSWORD_SAME_ERROR_KEY, 
+                                        PASSWORD_SAME_ERROR) 
+                    << endl;
                 exit (-1);
             }
         }
@@ -1071,9 +1086,9 @@ Uint32 CIMUserCommand::execute (
     }
     catch(const Exception&)
     {
-        //l10n
-        //outPrintWriter << CIMOM_NOT_RUNNING << endl;
-        outPrintWriter << localizeMessage(MSG_PATH,CIMOM_NOT_RUNNING_KEY,CIMOM_NOT_RUNNING) << endl;
+        outPrintWriter << localizeMessage(MSG_PATH,CIMOM_NOT_RUNNING_KEY,
+                                          CIMOM_NOT_RUNNING) 
+                      << endl;
         return 1;
     }
 
@@ -1093,34 +1108,42 @@ Uint32 CIMUserCommand::execute (
 
                 if (code == CIM_ERR_FAILED)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,ADD_USER_FAILURE_KEY,ADD_USER_FAILURE) << endl;
+                    outPrintWriter 
+                        << localizeMessage(MSG_PATH, ADD_USER_FAILURE_KEY,
+                                           ADD_USER_FAILURE) 
+                        << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,ADD_USER_FAILURE_KEY,ADD_USER_FAILURE) << endl;
+                    outPrintWriter 
+                        << localizeMessage(MSG_PATH, ADD_USER_FAILURE_KEY,
+                                           ADD_USER_FAILURE) 
+                        << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,ADD_USER_FAILURE_KEY,ADD_USER_FAILURE) << endl;
-                    //outPrintWriter << USER_ALREADY_EXISTS << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,USER_ALREADY_EXISTS_KEY,USER_ALREADY_EXISTS) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH, 
+                                                    ADD_USER_FAILURE_KEY,
+                                                    ADD_USER_FAILURE)
+                        << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH, 
+                                                    USER_ALREADY_EXISTS_KEY,
+                                                    USER_ALREADY_EXISTS)
+                        << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    //l10n
-                    //outPrintWriter << ADD_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,ADD_USER_FAILURE_KEY,ADD_USER_FAILURE) << endl;
-                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,AUTH_SCHEMA_NOT_LOADED_KEY,AUTH_SCHEMA_NOT_LOADED) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                                                      ADD_USER_FAILURE_KEY,
+                                                      ADD_USER_FAILURE) 
+                                   << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                                                    AUTH_SCHEMA_NOT_LOADED_KEY,
+                                                     AUTH_SCHEMA_NOT_LOADED) 
+                                   << endl;
                 }
                 else
                 {
@@ -1130,11 +1153,10 @@ Uint32 CIMUserCommand::execute (
             }
             catch (Exception& e)
             {
-                //l10n
-                //outPrintWriter << ADD_USER_FAILURE << endl <<
-                    //e.getMessage() << endl;
-                outPrintWriter << localizeMessage(MSG_PATH,ADD_USER_FAILURE_KEY,ADD_USER_FAILURE) <<
-                    endl << e.getMessage() << endl;
+                outPrintWriter << localizeMessage(MSG_PATH,
+                                                  ADD_USER_FAILURE_KEY,
+                                                  ADD_USER_FAILURE) 
+                    << endl << e.getMessage() << endl;
                 return (RC_ERROR);
             }
             break;
@@ -1149,34 +1171,37 @@ Uint32 CIMUserCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    //l10n
-                    //outPrintWriter << CHANGE_PASSWORD_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,CHANGE_PASSWORD_FAILURE_KEY,CHANGE_PASSWORD_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                                                CHANGE_PASSWORD_FAILURE_KEY,
+                                                CHANGE_PASSWORD_FAILURE) 
+                                   << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    //l10n
-                    //outPrintWriter << CHANGE_PASSWORD_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,CHANGE_PASSWORD_FAILURE_KEY,CHANGE_PASSWORD_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                                                    CHANGE_PASSWORD_FAILURE_KEY,
+                                                    CHANGE_PASSWORD_FAILURE) 
+                                  << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_NOT_FOUND)
                 {
-                    //l10n
-                    //outPrintWriter << CHANGE_PASSWORD_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,CHANGE_PASSWORD_FAILURE_KEY,CHANGE_PASSWORD_FAILURE) << endl;
-                    //outPrintWriter << USER_NOT_FOUND          << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,USER_NOT_FOUND_KEY,USER_NOT_FOUND) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            CHANGE_PASSWORD_FAILURE_KEY,
+                            CHANGE_PASSWORD_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            USER_NOT_FOUND_KEY,USER_NOT_FOUND) << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    //l10n
-                    //outPrintWriter << CHANGE_PASSWORD_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,CHANGE_PASSWORD_FAILURE_KEY,CHANGE_PASSWORD_FAILURE) << endl;
-                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,AUTH_SCHEMA_NOT_LOADED_KEY,AUTH_SCHEMA_NOT_LOADED) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            CHANGE_PASSWORD_FAILURE_KEY,
+                            CHANGE_PASSWORD_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            AUTH_SCHEMA_NOT_LOADED_KEY,
+                            AUTH_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -1186,10 +1211,9 @@ Uint32 CIMUserCommand::execute (
             }
             catch (Exception& e)
             {
-                //l10n
-                //outPrintWriter << CHANGE_PASSWORD_FAILURE << endl <<
-                    //e.getMessage() << endl;
-                outPrintWriter << localizeMessage(MSG_PATH,CHANGE_PASSWORD_FAILURE_KEY,CHANGE_PASSWORD_FAILURE) <<
+                outPrintWriter << localizeMessage(MSG_PATH,
+                        CHANGE_PASSWORD_FAILURE_KEY,
+                        CHANGE_PASSWORD_FAILURE) <<
                     endl << e.getMessage() << endl;
                 return (RC_ERROR);
             }
@@ -1205,34 +1229,35 @@ Uint32 CIMUserCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,REMOVE_USER_FAILURE_KEY,REMOVE_USER_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            REMOVE_USER_FAILURE_KEY,
+                            REMOVE_USER_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,REMOVE_USER_FAILURE_KEY,REMOVE_USER_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            REMOVE_USER_FAILURE_KEY,
+                            REMOVE_USER_FAILURE) << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_NOT_FOUND)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,REMOVE_USER_FAILURE_KEY,REMOVE_USER_FAILURE) << endl;
-                    //outPrintWriter << USER_NOT_FOUND          << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,USER_NOT_FOUND_KEY,USER_NOT_FOUND) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            REMOVE_USER_FAILURE_KEY,
+                            REMOVE_USER_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            USER_NOT_FOUND_KEY,USER_NOT_FOUND) << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    //l10n
-                    //outPrintWriter << REMOVE_USER_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,REMOVE_USER_FAILURE_KEY,REMOVE_USER_FAILURE) << endl;
-                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,AUTH_SCHEMA_NOT_LOADED_KEY,AUTH_SCHEMA_NOT_LOADED) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            REMOVE_USER_FAILURE_KEY,
+                            REMOVE_USER_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            AUTH_SCHEMA_NOT_LOADED_KEY,
+                            AUTH_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -1242,10 +1267,8 @@ Uint32 CIMUserCommand::execute (
             }
             catch (Exception& e)
             {
-                //l10n
-                //outPrintWriter << REMOVE_USER_FAILURE << endl <<
-                    //e.getMessage() << endl;
-                outPrintWriter << localizeMessage(MSG_PATH,REMOVE_USER_FAILURE_KEY,REMOVE_USER_FAILURE) <<
+                outPrintWriter << localizeMessage(MSG_PATH,
+                        REMOVE_USER_FAILURE_KEY,REMOVE_USER_FAILURE) <<
                 endl << e.getMessage() << endl;
                 return (RC_ERROR);
             }
@@ -1261,32 +1284,29 @@ Uint32 CIMUserCommand::execute (
                 CIMStatusCode code = e.getCode();
                 if (code == CIM_ERR_FAILED)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_USERS_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_USERS_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_USERS_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    //l10n
-                    //outPrintWriter << LIST_USERS_FAILURE << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
-                    //outPrintWriter << AUTH_SCHEMA_NOT_LOADED << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,AUTH_SCHEMA_NOT_LOADED_KEY,AUTH_SCHEMA_NOT_LOADED) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                            AUTH_SCHEMA_NOT_LOADED_KEY,
+                            AUTH_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -1296,10 +1316,8 @@ Uint32 CIMUserCommand::execute (
             }
             catch (Exception& e)
             {
-                //l10n
-                //outPrintWriter << LIST_USERS_FAILURE << endl <<
-                    //e.getMessage() << endl;
-                outPrintWriter << localizeMessage(MSG_PATH,LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) <<
+                outPrintWriter << localizeMessage(MSG_PATH,
+                        LIST_USERS_FAILURE_KEY,LIST_USERS_FAILURE) <<
                     endl << e.getMessage() << endl;
                 return (RC_ERROR);
             }
@@ -1333,10 +1351,8 @@ void CIMUserCommand::_AddUser
         CIMProperty(PROPERTY_NAME_PASSWORD , _password));
 
     _client->createInstance(PEGASUS_NAMESPACENAME_USER, newInstance);
-    //l10n
-    //outPrintWriter << ADD_USER_SUCCESS << endl;
-    outPrintWriter <<
-        localizeMessage(MSG_PATH,ADD_USER_SUCCESS_KEY,ADD_USER_SUCCESS) << endl;
+    outPrintWriter <<localizeMessage(MSG_PATH,
+            ADD_USER_SUCCESS_KEY,ADD_USER_SUCCESS) << endl;
 }
 
 //
@@ -1386,9 +1402,8 @@ void CIMUserCommand::_ModifyUser
         MODIFY_METHOD,
         inParams,
         outParams);
-    //l10n
-    //outPrintWriter << CHANGE_PASSWORD_SUCCESS << endl;
-    outPrintWriter << localizeMessage(MSG_PATH,CHANGE_PASSWORD_SUCCESS_KEY,CHANGE_PASSWORD_SUCCESS) << endl;
+    outPrintWriter << localizeMessage(MSG_PATH,
+            CHANGE_PASSWORD_SUCCESS_KEY,CHANGE_PASSWORD_SUCCESS) << endl;
 }
 
 //
@@ -1414,9 +1429,8 @@ void CIMUserCommand::_RemoveUser
         PEGASUS_CLASSNAME_USER, kbArray);
 
     _client->deleteInstance(PEGASUS_NAMESPACENAME_USER, reference);
-    //l10n
-    //outPrintWriter << REMOVE_USER_SUCCESS << endl;
-    outPrintWriter << localizeMessage(MSG_PATH,REMOVE_USER_SUCCESS_KEY,REMOVE_USER_SUCCESS) << endl;
+    outPrintWriter << localizeMessage(MSG_PATH,
+            REMOVE_USER_SUCCESS_KEY,REMOVE_USER_SUCCESS) << endl;
 }
 
 
@@ -1439,8 +1453,6 @@ void CIMUserCommand::_ListUsers
 
     if (instanceNames.size() == 0)
     {
-         //l10n
-         //outPrintWriter << NO_USERS_FOUND << endl;
          outPrintWriter <<
              localizeMessage(MSG_PATH,NO_USERS_FOUND_KEY,NO_USERS_FOUND) <<
              endl;
@@ -1484,7 +1496,7 @@ int main (int argc, char* argv[])
     AutoPtr<CIMUserCommand>  command;
     Uint32               retCode;
 
-    MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
+    MessageLoader::_useProcessLocale = true; 
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
     //
@@ -1492,7 +1504,8 @@ int main (int argc, char* argv[])
     //
     if (!System::isPrivilegedUser(System::getEffectiveUserName()))
     {
-        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY, NOT_PRIVILEGED_USER);
+        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY, 
+                NOT_PRIVILEGED_USER);
         parms.msg_src_path = MSG_PATH;
         cerr << MessageLoader::getMessage(parms) << endl;
         return 1;
@@ -1512,7 +1525,8 @@ int main (int argc, char* argv[])
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
          {
-           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
+                   ERR_OPTION_NOT_SUPPORTED);
            parms.msg_src_path = MSG_PATH;
            cerr << COMMAND_NAME <<
              ": " << MessageLoader::getMessage(parms) << endl;

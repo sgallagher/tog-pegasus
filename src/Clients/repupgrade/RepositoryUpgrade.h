@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_RepositoryUpgrade_h
@@ -272,17 +267,17 @@ private:
     //
     // Constant representing the name of the VERSION qualifier.
     //
-    static const String 	_VERSION_QUALIFIER_NAME;
+    static const String     _VERSION_QUALIFIER_NAME;
 
     //
     // Defines the file extension for a CIM/XML request file.
     //
-    static const String 	_FILE_EXTENSION;
+    static const String     _FILE_EXTENSION;
 
     //
     // Defines the path to store CIM/XML log file for a failed request.
     //
-    static const String 	_LOG_PATH;
+    static const String     _LOG_PATH;
 
     //
     // Count to keep track of failed instance creations. This count
@@ -348,8 +343,8 @@ private:
     // Compares the namespaces passed and returns namespaces that are present
     // in the old but not in the new repository.
     //
-    // @param oldNamespaces	a list of namespaces in old repository
-    // @param newNamespaces	a list of namespaces in new repository
+    // @param oldNamespaces a list of namespaces in old repository
+    // @param newNamespaces a list of namespaces in new repository
     //
     // @return                  a list of missing namespaces
     //
@@ -363,7 +358,7 @@ private:
     // that exist in the given namespaces will be created by the _addInstances
     // method.
     //
-    // @param namespaces 	a list of namespaces to be added.
+    // @param namespaces    a list of namespaces to be added.
     //
     void _addNamespaces(const Array<CIMNamespaceName>& namespaces);
 
@@ -372,27 +367,27 @@ private:
     // passes them to the _processNewClasses and _processExistingClasses
     // methods.
     //
-    // @param namespaceName	namespace that is getting compared.
+    // @param namespaceName namespace that is getting compared.
     //
-    // @param oldClasses	classes in the old repository.
+    // @param oldClasses    classes in the old repository.
     //
-    // @param newClasses	classes in the new repository.
+    // @param newClasses    classes in the new repository.
     //
-    void _processClasses( const CIMNamespaceName& 	namespaceName,
-                          const Array<CIMName>&	        oldClasses,
-                          Array<CIMName>&		newClasses);
+    void _processClasses( const CIMNamespaceName&   namespaceName,
+                          const Array<CIMName>&         oldClasses,
+                          Array<CIMName>&       newClasses);
 
     //
     // Processes the new classes in the hierarchical order and passes them to
     // _addClassToRepository.
     //
-    // @param namespaceName	namespace that is getting compared.
-    // @param oldClasses	classes in the old repository.
-    // @param newClasses	classes in the new repository.
+    // @param namespaceName namespace that is getting compared.
+    // @param oldClasses    classes in the old repository.
+    // @param newClasses    classes in the new repository.
     //
-    void _processNewClasses( const CIMNamespaceName& 	namespaceName,
-                             Array<CIMName>&	        oldClasses,
-                             Array<CIMName>&		newClasses);
+    void _processNewClasses( const CIMNamespaceName&    namespaceName,
+                             Array<CIMName>&            oldClasses,
+                             Array<CIMName>&        newClasses);
 
 
     //
@@ -409,8 +404,8 @@ private:
     //    If the new Repository contains a class with a higher version number
     //    then no messages are displayed.
     //
-    //   @param namespaceName	   namespacename
-    //   @param existingClasses	   list of classes already existing in the new
+    //   @param namespaceName      namespacename
+    //   @param existingClasses    list of classes already existing in the new
     //                             repository
     //
     void _processExistingClasses (const CIMNamespaceName& namespaceName,
@@ -448,21 +443,21 @@ private:
     // If a qualifier already exists in the new repository then it
     // is not imported.
     //
-    // @param CIMNamespaceName		contains the Namespace name.
+    // @param CIMNamespaceName      contains the Namespace name.
     //
     void _addQualifiers (const CIMNamespaceName namespaceName);
 
     //
     // Logs a failed CIM/XML request in to an output file.
     //
-    // @param outputFile   	output filename.
+    // @param outputFile    output filename.
     //
     void _logRequestToFile ( const String& outputFile );
 
     //
     // Logs an error message to indicate an error while adding a class.
     //
-    // @param CIMNamespaceName	contains the Namespace name.
+    // @param CIMNamespaceName  contains the Namespace name.
     //
     // @param CIMClass          contains the class.
     //
@@ -480,7 +475,7 @@ private:
     //
     // Logs an error message to indicate an error while adding an instance.
     //
-    // @param CIMNamespaceName	contains the Namespace name.
+    // @param CIMNamespaceName  contains the Namespace name.
     //
     // @param CIMInstance       contains the instance.
     //
@@ -498,7 +493,7 @@ private:
     //
     // Logs an error message to indicate an error while adding an qualifier.
     //
-    // @param CIMNamespaceName	contains the Namespace name.
+    // @param CIMNamespaceName  contains the Namespace name.
     //
     // @param CIMQualifierDecl  contains the qualifier.
     //

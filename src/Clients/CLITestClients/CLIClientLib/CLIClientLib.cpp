@@ -63,12 +63,12 @@ String _toString(Boolean x)
 Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 {
     Uint32 rtn = 0;
-	char str[255];
+    char str[255];
 
     for (Uint32 i = 0 ; i < selectList.size() ; i++)
-	{
+    {
         cout << i + 1 << ": " << selectList[i] << endl;
-	}
+    }
     
     while (rtn < 1 || rtn > selectList.size())
     {
@@ -97,10 +97,11 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
     @param
     @param className CIMName for the class to enumerate.
     @param instancePath CIMObjectPath of instance found
-    @return True if instance provided and the path is in instancePath.  Else False
-    and there is nothing in the instancePath
+    @return True if instance provided and the path is in instancePath.
+    Else False and there is nothing in the instancePath
 */
-Boolean _selectInstance(CIMClient& client, Options& opts, const CIMName& className,
+Boolean _selectInstance(CIMClient& client, Options& opts, 
+                        const CIMName& className,
     CIMObjectPath & instancePath)
 {
     Array<CIMObjectPath> instanceNames =
@@ -146,7 +147,8 @@ Boolean _conditionalSelectInstance(CIMClient& client, Options& opts,
     {
         // Ask the user to select an instance
 
-        return(_selectInstance(client, opts, CIMName(opts.objectName), instancePath));
+        return(_selectInstance(client, opts, CIMName(opts.objectName),
+                    instancePath));
     }
 
     return(true);
@@ -185,7 +187,8 @@ static const char* commonOptions = "    -count, -d, -delay, -p, -l, -u, -o, -x,\
  -v, --sum, --timeout, -r, --t ";
 
 const char *examples[] = {
-"cimcli ni -n test/TestProvider TEST_Person -- enumerateinstancenames of class \n",
+"cimcli ni -n test/TestProvider TEST_Person -- enumerateinstancenames of"
+        " class \n",
 "    -n, classname \n",
 "cimcli niall -n root/cimv2     \n        -- enumerateinstancenames of \
 all classes under the namespace root/cimv2 \n",
@@ -225,20 +228,20 @@ user = guest and password = guest. \n",
 "cimcli eq -n test/TestProvider  ---  enumerateQualifiers of namespace"
 "\n     test/TestProvider \n",
 "    -n \n",
-"cimcli dq -n test/TestProvider ASSOCIATION  --- deleteQualifier Association in"
-" namespace test/TestProvider \n",
+"cimcli dq -n test/TestProvider ASSOCIATION  --- deleteQualifier Association"
+" in namespace test/TestProvider \n",
 "    -n, qualifierName \n",
-"cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n  or"
-"\ncimcli a TST_Person -n test/TestProvider -ac TST_Lineage \n",
+"cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineager"
+"\n or\ncimcli a TST_Person -n test/TestProvider -ac TST_Lineage \n",
 "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i \n",
-"cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage \n or"
-"\ncimcli an TST_Person -n test/TestProvider -ac TST_Lineage \n",
+"cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage"
+"\n or\ncimcli an TST_Person -n test/TestProvider -ac TST_Lineage \n",
 "    -n, -ac, -rc, -r, -rr, -i \n",
-"cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n  or"
-"\ncimcli r TST_Person -n test/TestProvider -rc TST_Lineage \n",
+"cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage"
+"\n or\ncimcli r TST_Person -n test/TestProvider -rc TST_Lineage \n",
 "    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i \n",
-"cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage \n or"
-"\ncimcli rn TST_Person -n test/TestProvider -rc TST_Lineage \n",
+"cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage"
+"\n or\ncimcli rn TST_Person -n test/TestProvider -rc TST_Lineage \n",
 "    -n, -rc, -r, -i \n",
 "cimcli im Sample_MethodProviderClass.Name=\\\"mooo\\\" SayHello"
 "\n   -n root/SampleProvider -ip p1=fred \n",
@@ -267,7 +270,8 @@ void showExamples()
     }
 }
 
-void _displaySummary(Uint32 count, String& description, String item, Options& opts)
+void _displaySummary(Uint32 count, String& description, String item,
+                     Options& opts)
 {
         cout << count << " " << description
             << " " << item << " returned. ";
@@ -278,7 +282,8 @@ void _displaySummary(Uint32 count, String& description, String item, Options& op
         cout << endl;
         if ((opts.count) != 29346 && (opts.count != count))
         {
-            cout << "Failed count test. Expected= " << opts.count << " Actual rcvd= " << count << endl;
+            cout << "Failed count test. Expected= " << opts.count 
+                 << " Actual rcvd= " << count << endl;
             opts.termCondition = 1;
         }
 }
@@ -324,7 +329,8 @@ Array<String> _tokenize(const String& input, const Char16 separator)
             start += (length + 1);
         }
         //Replaced < with <= to consider input param like A="" as valid param.
-        //key in this param is 'A'and value is NULL. It also takes care of A= param.
+        //key in this param is 'A'and value is NULL.
+        //It also takes care of A= param.
         if(start <= input.size())
         {
             tokens.append(input.subString(start));
@@ -339,7 +345,8 @@ Boolean _tokenPair(const String& input, String& key, String& value)
     Array<String> pair = _tokenize(input, '=');
     if (pair.size() < 2)
     {
-        cout << "Input Parameter error. Expected name=value. Received  " << input << endl;
+        cout << "Input Parameter error. Expected name=value. Received  " 
+             << input << endl;
         return(false);
     }
     // If there is more than 1 "=" it is part of the reference and we
@@ -431,7 +438,8 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
     {
         cout << "Name = " << key << ", Value= " << value << endl;
     }
-    // ATTN: KS 20030423 P2 This is incomplete since it only allows us to do string input.
+    // ATTN: KS 20030423 P2 This is incomplete since it only allows us
+    // to do string input.
     // We don't include the typing information.
     //Array<String> valuePair = _tokenize(pair[1], ':');
     //if (validType(valuePair[0] >= 0)
@@ -504,7 +512,8 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
                 }
                 else
                 {
-                    cout << " Error in the reference param this could be a string param" << endl;
+                    cout << " Error in the reference param this could be"
+                                " a string param" << endl;
                     exit(1);
                 }
                 // Now remove token separators (comma, bracket or whitespace)
@@ -519,7 +528,8 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
             // Reference param specified is valid. 
             // Make CIM Object Path from the token.
             CIMName cimclassName(className);
-            CIMObjectPath cop(String::EMPTY,CIMNamespaceName(opts.nameSpace),cimclassName,keys);
+            CIMObjectPath cop(String::EMPTY,CIMNamespaceName(opts.nameSpace),
+                              cimclassName,keys);
             CIMValue v(cop);
             CIMParamValue pv(key, v, false);
             return pv;
@@ -625,7 +635,8 @@ void outputFormatObject(const OutputType format, const CIMObject& myObject)
         cout << "Error, Object is neither class or instance" << endl;
 }
 
-void outputFormatQualifierDecl(const OutputType format, const CIMQualifierDecl& myQualifierDecl)
+void outputFormatQualifierDecl(const OutputType format, 
+                               const CIMQualifierDecl& myQualifierDecl)
 {
     if (format == OUTPUT_XML)
         XmlWriter::printQualifierDeclElement(myQualifierDecl, cout);
@@ -667,8 +678,9 @@ void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
 //     exception handling is in the main path                    //
 ///////////////////////////////////////////////////////////////////
 
-/* This command searches the entire namespace and displays names of all instances.
-    It is in effect enumerate classes followed by enumerate instances.
+/* This command searches the entire namespace and displays names of
+   all instances.
+   It is in effect enumerate classes followed by enumerate instances.
    The user may either provide a starting class or not, in which case
    it searches the complete namespace, not simply the defined class.
 */
@@ -1013,7 +1025,8 @@ int createInstance(CIMClient& client, Options& opts)
     }
     // get the class. Exceptions including class_not_found are automatic
     CIMClass thisClass =
-        client.getClass(opts.nameSpace, opts.className,false,true,true,CIMPropertyList());
+        client.getClass(opts.nameSpace, opts.className,
+                        false,true,true,CIMPropertyList());
 
     // Tokenize the parameter pairs
     //Array<keyValuePair> inputs;
@@ -1024,8 +1037,8 @@ int createInstance(CIMClient& client, Options& opts)
     // ATTN: Need to account for returning key without value here.
     if (opts.extraParams != 0)
     {
-        /* Here loop starts from 1, since the Class Name is coming as first parameter and
-           we want only the property name and value here
+        /* Here loop starts from 1, since the Class Name is coming as 
+         * first parameter and we want only the property name and value here
         */
         for (Uint32 i = 1 ; i < opts.extraParams.size() ; i++)
         {
@@ -1035,12 +1048,14 @@ int createInstance(CIMClient& client, Options& opts)
             propertyNameList.append(CIMName(key));
             propertyValueList.append(value);
             if (thisClass.findProperty(CIMName(key)) == PEG_NOT_FOUND)
-                cout << "Warning property Name not in class: " << opts.extraParams[i] << endl;
+                cout << "Warning property Name not in class: " 
+                     << opts.extraParams[i] << endl;
         }
 
         if (opts.verboseTest)
         {
-            // This loop gives all the property names and property values of the instance
+            // This loop gives all the property names and property values 
+            // of the instance
             for (Uint32 i=0; i < propertyNameList.size(); i++)
             {
                 cout << "Property: " << propertyNameList[i]
@@ -1052,7 +1067,8 @@ int createInstance(CIMClient& client, Options& opts)
 
     CIMPropertyList myPropertyList(propertyNameList);
     // create the instance with the defined properties
-    CIMInstance newInstance = thisClass.buildInstance(true, true, myPropertyList);
+    CIMInstance newInstance = thisClass.buildInstance(true, true,
+                                                      myPropertyList);
 
     // Set all the property Values to the instance
     for (Uint32 i=0; i < propertyValueList.size(); i++)
@@ -1570,7 +1586,8 @@ int references(CIMClient& client, Options& opts)
             << ", role= " << opts.role
             << ", includeQualifiers= " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
-            << ", CIMPropertyList= "  << buildPropertyListString(opts.propertyList)
+            << ", CIMPropertyList= "  
+            << buildPropertyListString(opts.propertyList)
             << endl;
     }
 
@@ -1827,9 +1844,9 @@ int associators(CIMClient& client, Options& opts)
      return(0);
  }
 
- /* Enumerate the Namespaces.  This function is based on using the __Namespace class
-    and either returns all namespaces or simply the ones starting at the namespace input
-    as the namespace variable.
+ /* Enumerate the Namespaces.  This function is based on using the 
+    __Namespace class and either returns all namespaces or simply the ones
+    starting at the namespace input as the namespace variable.
     It assumes that the input classname is __Namespace.
  */
 int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
@@ -1847,7 +1864,8 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
 
     try
     {
-        instances = client.enumerateInstances((CIMNamespaceName)(opts.nameSpace),opts.className);
+        instances = client.enumerateInstances(
+            (CIMNamespaceName)(opts.nameSpace),opts.className);
     }
     catch(CIMException &)
     {
@@ -1886,10 +1904,14 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
         Array<CIMNamespaceName> namespaceNames;
 
         // Build the namespaces incrementally starting at the root
-        // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
-        // starting with null (no directoyr) but today we get an xml error return in Pegasus
-        // returned for this call. Note that the specification requires that the root namespace be used
-        // when __namespace is defined but does not require that it be the root for allnamespaces. That
+        // ATTN: 20030319 KS today we start with the "root" directory but
+        // this is wrong. We should be
+        // starting with null (no directoyr) but today we get an xml error
+        // return in Pegasus
+        // returned for this call. Note that the specification requires
+        // that the root namespace be used
+        // when __namespace is defined but does not require that it be
+        // the root for allnamespaces. That
         // is a hole is the spec, not in our code.
         namespaceNames.append(opts.nameSpace);
         Uint32 start = 0;
@@ -1907,13 +1929,16 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
             // for all new elements in the output array
             for (Uint32 range = start; range < end; range ++)
             {
-                // Get the next increment in naming for all a name element in the array
-                Array<CIMInstance> instances = client.enumerateInstances(namespaceNames[range],opts.className);
+                // Get the next increment in naming for all a name element
+                // in the array
+                Array<CIMInstance> instances = client.enumerateInstances(
+                    namespaceNames[range],opts.className);
                 for (Uint32 i = 0 ; i < instances.size(); i++)
                 {
                     Uint32 pos;
                     // if we find the property and it is a string, use it.
-                    if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
+                    if ((pos = instances[i].findProperty("name")) 
+                            != PEG_NOT_FOUND)
                     {
                         CIMValue value;
                         String namespaceComponent;
@@ -1936,10 +1961,11 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
         while (start != end);
 
 
-        // Validate that all of the returned entities are really namespaces. It is legal for us to
-        // have an name component that is really not a namespace (ex. root/fred/john is a namespace
-        // but root/fred is not.
-        // There is no clearly defined test for this so we will simply try to get something, in this
+        // Validate that all of the returned entities are really namespaces.
+        // It is legal for us to have an name component that is really not a
+        // namespace (ex. root/fred/john is a namespace  but root/fred is not.
+        // There is no clearly defined test for this so we will simply try to
+        // get something, in this
         // case a wellknown assoication
           Array<CIMNamespaceName> returnNamespaces;
 
@@ -1969,7 +1995,8 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
 
         if (opts.summary)
         {
-            cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
+            cout << returnNamespaces.size() << " namespaces " << " returned." 
+                << endl;
         }
         else
         {
@@ -2022,7 +2049,8 @@ void GetOptions(
             "specifies to connect over HTTPS" },
 
         {"clientCert", "", false, Option::STRING, 0, 0, "-cert",
-            "specifies a client certificate to present to the server. \n This is"
+            "specifies a client certificate to present to the server. \n"
+            " This is"
             " optional and only has an effect on connections made over HTTPS"
             " using -s" },
 
@@ -2078,7 +2106,8 @@ void GetOptions(
             "Defines a resultClass string for References and Associatiors "},
 
         {"resultRole", "", false, Option::STRING, 0, 0, "rr",
-            "Defines a role string for associators operation resultRole parameter. "},
+            "Defines a role string for associators operation resultRole"
+                " parameter. "},
 
         {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
             "Defines an invokeMethod input parameter list. Format is"
@@ -2089,11 +2118,12 @@ void GetOptions(
 
         // This was never used.  Delete. KS
         //{"substitute", "", false, Option::STRING, 0, 0, "-s",
-        //                    "Defines a conditional substition of input parameters. ) "},
+        //  "Defines a conditional substition of input parameters. ) "},
 
         // KS change the output formats to use the enum options function
         // Deprecate this function.
-        {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS, "o",
+        {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS,
+            "o",
             "Output in xml, mof, txt"},
 
         {"xmlOutput", "false", false, Option::BOOLEAN, 0,0, "x",
@@ -2124,8 +2154,8 @@ void GetOptions(
             "Set the connection timeout in seconds. "},
 
         {"interactive", "false", false, Option::BOOLEAN, 0, 0, "i",
-            "Interactively ask user to select instances.\n  Used with associator"
-            " and reference operations "},
+            "Interactively ask user to select instances.\n"
+                "  Used with associator and reference operations "},
 
         {"trace", "0", false, Option::WHOLE_NUMBER, 0, 0, "trace",
             "Set Pegasus Common Components Trace. Sets the Trace level."
@@ -2200,15 +2230,18 @@ void showUsage(const char* pgmName)
 }
 /* showCommands - Display the list of operation commands.
 */
-const char * helpSummary = " -h for all help, -hc for commands, -ho for options";
+const char * helpSummary = 
+    " -h for all help, -hc for commands, -ho for options";
 void showCommands(const char* pgmName)
 {
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ )
     {
 
-        String txtFormat = formatLongString(CommandTable[i].UsageText,28 ,75 - 28 );
+        String txtFormat = formatLongString(CommandTable[i].UsageText,28 ,
+                75 - 28 );
 
-        printf("%-5s %-21s",CommandTable[i].ShortCut, CommandTable[i].CommandName);
+        printf("%-5s %-21s",CommandTable[i].ShortCut, 
+                CommandTable[i].CommandName);
         cout << txtFormat << endl;
     }
     cout << helpSummary << endl;
@@ -2222,7 +2255,8 @@ void showVersion(const char* pgmName, OptionManager& om)
 void showOptions(const char* pgmName, OptionManager& om)
 {
 
-    String optionsTrailer = "Options vary by command consistent with CIM Operations";
+    String optionsTrailer = 
+        "Options vary by command consistent with CIM Operations";
     cout << "The options for this command are:" << endl;
     om.printOptionsHelpTxt(usage, optionsTrailer);
     //om.printHelp(const char* pgmName, OptionManager om);
@@ -2410,7 +2444,8 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
            }
            catch(Exception& e)
            {
-               cout << "Error in Result Class. Exception " << e.getMessage() << endl;
+               cout << "Error in Result Class. Exception " << e.getMessage() 
+                   << endl;
                exit(1);
            }
        }
@@ -2430,7 +2465,8 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
            }
            catch(Exception& e)
            {
-               cout << "Error in assoc Class. Exception " << e.getMessage() << endl;
+               cout << "Error in assoc Class. Exception " << e.getMessage() 
+                   << endl;
                exit(1);
            }
        }
@@ -2445,7 +2481,8 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     if (verboseTest && debug && opts.connectionTimeout != 0)
     {
-        cout << "Connection Timeout= " << opts.connectionTimeout << " Seconds" << endl;
+        cout << "Connection Timeout= " << opts.connectionTimeout << " Seconds" 
+            << endl;
     }
 
     if (!om.lookupIntegerValue("delay", opts.delay))
@@ -2478,7 +2515,8 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     // Use two options for the not command because the ! confuses bash
     // Either is legal and they do the same thing.
     // Used the not version because the DMTF and pegasus default is true
-    if (verboseTest && debug && (om.isTrue("!localOnly") || om.isTrue("notLocalOnly")))
+    if (verboseTest && debug && (om.isTrue("!localOnly") 
+            || om.isTrue("notLocalOnly")))
     {
         cout << "localOnly= " << _toString(opts.localOnly) << endl;;
     }
@@ -2491,9 +2529,11 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         opts.includeQualifiers = false;
     }
 
-    if (verboseTest && debug && (om.isTrue("!includeQualifiers") || om.isTrue("notIncludeQualifiers" )))
+    if (verboseTest && debug && (om.isTrue("!includeQualifiers") 
+            || om.isTrue("notIncludeQualifiers" )))
     {
-        cout << "includeQualifiers = " << _toString(opts.includeQualifiers) << endl;
+        cout << "includeQualifiers = " << _toString(opts.includeQualifiers) 
+            << endl;
     }
 
     opts.includeClassOrigin = om.isTrue("includeClassOrigin");
@@ -2703,8 +2743,8 @@ void mofFormat(
     {
         count++;
         // This is too simplistic and must move to a token based mini parser
-        // but will do for now. One problem is tokens longer than 12 characters that
-        // overrun the max line length.
+        // but will do for now. One problem is tokens longer than 12
+        // characters that overrun the max line length.
         switch (c)
         {
             case '\n':

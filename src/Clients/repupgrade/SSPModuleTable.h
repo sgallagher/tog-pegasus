@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company 
-//         (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SSPModuleTable_h

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -65,31 +61,33 @@ static void _ExpandCGIQueryValue(char* value)
 
     for (char* p = value; *p; p++)
     {
-	if (*p == '%')
-	{
-	    char hexString[3];
-	    sprintf(hexString, "%*.*s", 2, 2, p + 1);
-	    char* end = 0;
-	    long tmp = strtol(hexString, &end, 16);
-
-	    if (*end)
-		throw BadlyFormedCGIQueryString();
-
+        if (*p == '%')
+        {
+            char hexString[3];
+            sprintf(hexString, "%*.*s", 2, 2, p + 1);
+            char* end = 0;
+            long tmp = strtol(hexString, &end, 16);
+    
+            if (*end)
+            throw BadlyFormedCGIQueryString();
+    
             *p = char(tmp);
+#ifdef PEGASUS_HAVE_EBCDIC
+                __atoe_l(p,1);
+#endif
             p++;
-	    memcpy(p, p + 2, strlen(p) - 2 + 1);
-	    // CORRECTION, KS. Add decrement. corrects problem with succesive
-	    //             % sequences
-	    p--;
-
-	}
-	else if (*p == '+')
-	    *p = ' ';
+            memcpy(p, p + 2, strlen(p) - 2 + 1);
+            // CORRECTION, KS. Add decrement. corrects problem with succesive
+            //             % sequences
+            p--;
+    
+        }
+        else if (*p == '+')
+            *p = ' ';
     }
 }
 
-void CGIQueryString::_parseCGIQueryString(
-    char* queryString, 
+void CGIQueryString::_parseCGIQueryString(char* queryString, 
     Array<CGIQueryStringEntry>& entries)
 {
     // First split about the '&' characters:
@@ -102,25 +100,25 @@ void CGIQueryString::_parseCGIQueryString(
     for (char* p = strtok(queryString, "&"); p; p = strtok(NULL, "&"))
 #endif
     {
-	char* name = p;
-
-	// Find equal sign:
-	char* equalChar = strchr(p, '=');
-
-	if (!equalChar)
-	    throw BadlyFormedCGIQueryString();
-
-	*equalChar++ = '\0';
-
-	char* value = equalChar;
-
-	_ExpandCGIQueryValue(value);
-
-	// cout << "name=[" << name << "]" << endl;
-	// cout << "value=[" << value << "]" << endl;
-
-	CGIQueryStringEntry entry = { name, value };
-	entries.append(entry);
+        char* name = p;
+    
+        // Find equal sign:
+        char* equalChar = strchr(p, '=');
+    
+        if (!equalChar)
+            throw BadlyFormedCGIQueryString();
+    
+        *equalChar++ = '\0';
+    
+        char* value = equalChar;
+    
+        _ExpandCGIQueryValue(value);
+    
+        // cout << "name=[" << name << "]" << endl;
+        // cout << "value=[" << value << "]" << endl;
+    
+        CGIQueryStringEntry entry = { name, value };
+        entries.append(entry);
     }
 }
 
@@ -133,8 +131,8 @@ const char* CGIQueryString::findValue(const char* name) const
 {
     for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
-	if (strcmp(_entries[i].name, name) == 0)
-	    return _entries[i].value;
+        if (strcmp(_entries[i].name, name) == 0)
+            return _entries[i].value;
     }
 
     return 0;

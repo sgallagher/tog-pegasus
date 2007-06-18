@@ -136,12 +136,14 @@ Boolean setObjectManagerStatistics(CIMClient & client, Boolean newState)
     CIMPropertyList statPropertyList(plA);
     // Create property list that represents correct request
     // get instance.  Get only the gatherstatitistics property
-    instancesObjectManager  = client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
+    instancesObjectManager  = 
+        client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
             "CIM_ObjectManager",
             true, false, false, false, statPropertyList);
     PEGASUS_TEST_ASSERT(instancesObjectManager.size() == 1);
     instObjectManager = instancesObjectManager[0];
-    instObjectManager.setPath(instancesObjectManager[0].getPath());         // set correct path into instance
+    // set correct path into instance
+    instObjectManager.setPath(instancesObjectManager[0].getPath());
     
     prop_num = instObjectManager.findProperty(gathStatName);
     PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
@@ -150,8 +152,10 @@ Boolean setObjectManagerStatistics(CIMClient & client, Boolean newState)
     
     client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instObjectManager,
          false, statPropertyList);
-    CIMInstance updatedInstance = client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
-        instObjectManager.getPath(), false, false, false, statPropertyList);
+    CIMInstance updatedInstance = 
+        client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
+        instObjectManager.getPath(),
+        false, false, false, statPropertyList);
     prop_num = updatedInstance.findProperty(gathStatName);
     PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
     CIMProperty p = updatedInstance.getProperty(prop_num);
@@ -167,30 +171,35 @@ class ClientStatistics : public ClientOpPerformanceDataHandler
 {
 public:
 
-    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item)
+    virtual void handleClientOpPerformanceData (
+            const ClientOpPerformanceData & item)
     {
         if (!(0 <= item.operationType) || !(39 >= item.operationType))
         {
-           cerr << "Operation type out of expected range in ClientOpPerformanceData "
+           cerr << "Operation type out of expected range in"
+                        " ClientOpPerformanceData "
                << endl;
            exit(1);
         }
         returnedPerformanceData.operationType =  item.operationType;
         if (item.roundTripTime == 0)
         {
-           cerr << "roundTripTime is incorrect in ClientOpPerformanceData " << endl;
+           cerr << "roundTripTime is incorrect in ClientOpPerformanceData " 
+               << endl;
         }
         returnedPerformanceData.roundTripTime =  item.roundTripTime;
 
         if (item.requestSize == 0)
         {
-            cerr << "requestSize is incorrect in ClientOpPerformanceData " << endl;
+            cerr << "requestSize is incorrect in ClientOpPerformanceData " 
+                << endl;
         }
         returnedPerformanceData.requestSize =  item.requestSize;
 
         if (item.responseSize == 0)
         {
-            cerr << "responseSize is incorrect in ClientOpPerformanceData " << endl;
+            cerr << "responseSize is incorrect in ClientOpPerformanceData " 
+                << endl;
         }
         returnedPerformanceData.responseSize =  item.responseSize;
 
@@ -199,7 +208,8 @@ public:
             /* Bypass this because we are getting server times zero
             if (item.serverTime == 0)
             {
-                cerr << "serverTime is incorrect in ClientOpPerformanceData " << endl;
+                cerr << "serverTime is incorrect in ClientOpPerformanceData " 
+                    << endl;
             }
             */
             returnedPerformanceData.serverTime =  item.serverTime;
@@ -356,8 +366,10 @@ int main(int argc, char** argv)
     // Find the command or the short cut name
     for( ; cmdIndex < NUM_COMMANDS; cmdIndex++ )
     {
-        if ((String::equalNoCase(opts.cimCmd, CommandTable[cmdIndex].CommandName)) ||
-            (opts.cimCmd == CommandTable[cmdIndex].ShortCut))
+        if ((String::equalNoCase(opts.cimCmd, 
+                CommandTable[cmdIndex].CommandName)) 
+                ||
+                (opts.cimCmd == CommandTable[cmdIndex].ShortCut))
             // Break if found
                     break;
     }
@@ -434,7 +446,9 @@ int main(int argc, char** argv)
                         }
                         client.connect(host,
                                        portNumber,
-                                       SSLContext("", opts.clientCert, opts.clientKey,
+                                       SSLContext("", 
+                                           opts.clientCert, 
+                                           opts.clientKey,
                                            NULL, "ssl.rnd"),
                                        opts.user,
                                        opts.password);
@@ -570,7 +584,8 @@ int main(int argc, char** argv)
                 case ID_GetProperty :
                     // ATTN: This one is wrong
                     if (argc != 4)
-                        cout << "Usage: cli getproperty <instancename> <propertyname>"
+                        cout << "Usage: cli getproperty <instancename>"
+                                    " <propertyname>"
                             << endl;
 
                     if (argc > 2)
@@ -587,7 +602,8 @@ int main(int argc, char** argv)
                 case ID_SetProperty :
                     if (argc != 5)
                         cout <<
-                           "Usage: cli setproperty instancename propertyname value "
+                           "Usage: cli setproperty instancename propertyname"
+                                " value "
                            << endl;
                     setProperty(client, opts);
                     break;
@@ -647,8 +663,8 @@ int main(int argc, char** argv)
 
                 case ID_EnumerateNamespaces :
                     // Note that the following constants are fixed here.  We
-                    // should be getting them from the environment to assure that
-                    // others know that we are using them.
+                    // should be getting them from the environment to assure
+                    // that others know that we are using them.
                     opts.className = CIMName("CIM_Namespace");
                     if (argc > 2)
                     {
@@ -657,7 +673,8 @@ int main(int argc, char** argv)
                     }
                     else
                         // set nameSpace to interop namespace name
-                        opts.nameSpace = PEGASUS_NAMESPACENAME_INTEROP.getString();
+                        opts.nameSpace = 
+                            PEGASUS_NAMESPACENAME_INTEROP.getString();
 
                     enumerateNamespaces_Namespace(client,opts);
                     break;
@@ -678,8 +695,10 @@ int main(int argc, char** argv)
                                 " and method names\n."
                              << "       input parameters are optional through"
                                 " -ip option"
-                             << "       or as additional parameters to this call. For"
-                             << "       additional parameters, enter each parameter as"
+                             << "       or as additional parameters to this"
+                                    " call. For"
+                             << "       additional parameters, enter each"
+                                    " parameter as"
                              << "       name=value without spaces."
                              << endl;
                         exit(1);
@@ -833,7 +852,8 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage()
-                <<  ". Cmd = " << opts.cimCmd << " Object = " << opts.inputObjectName
+                <<  ". Cmd = " << opts.cimCmd 
+                << " Object = " << opts.inputObjectName
                 << PEGASUS_STD(endl);
             opts.termCondition = 1;
     }

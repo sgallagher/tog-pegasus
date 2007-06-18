@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Vijay Eli, (vijayeli@in.ibm.com) fix for #2572
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4144
-//              Sushma Fernandes, Hewlett-Packard Company
-//                  (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // define asprintf used to implement ultostr on Linux
@@ -290,7 +281,8 @@ static const char CANNOT_CONNECT_CIMSERVER_NOT_RUNNING [] =
                 "Cannot connect to CIM Server, CIM Server may not be running.";
 
 static const char CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY [] =
-                "Clients.cimtrust.CIMTrustCommand._CANNOT_CONNECT_CIMSERVER_NOT_RUNNING";
+                "Clients.cimtrust."
+                    "CIMTrustCommand._CANNOT_CONNECT_CIMSERVER_NOT_RUNNING";
 
 static const char CONNECTION_TIMEOUT [] =
                 "Connection timed out.";
@@ -410,7 +402,8 @@ CIMTrustCommand::CIMTrustCommand ()
     _usage.append (" [ -").append (_OPTION_CERTUSER).append (" certuser")
          .append (" ]");
     _usage.append (" -").append (_OPTION_CERTFILE).append (" certfile");
-    _usage.append (" -").append (_OPTION_TYPE).append (" ( ").append(_ARG_TYPE_AUTHORITY);
+    _usage.append (" -").append (_OPTION_TYPE).append (" ( ")
+        .append(_ARG_TYPE_AUTHORITY);
     _usage.append (" | ").append (_ARG_TYPE_AUTHORITY_END_ENTITY);
     _usage.append (" | ").append (_ARG_TYPE_SELF_SIGNED_IDENTITY).append(" ) ");
     _usage.append ("\n");
@@ -423,7 +416,8 @@ CIMTrustCommand::CIMTrustCommand ()
     _usage.append("       ").append (COMMAND_NAME);
     _usage.append (" -").append (_OPTION_REMOVE);
     _usage.append (" -").append (_OPTION_ISSUER).append (" issuer");
-    _usage.append (" ( -").append (_OPTION_SERIALNUMBER).append (" serialnumber");
+    _usage.append (" ( -").append (_OPTION_SERIALNUMBER).
+        append (" serialnumber");
     _usage.append (" | -").append (_OPTION_SUBJECT).append (" subject )");
     _usage.append ("\n");
 
@@ -1185,7 +1179,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                     if (_subjectSet)
                     {
                         //
-                        // Both the subject and serial number may not be specified.
+                        // Both the subject and serial number may not be
+                        // specified.
                         // 
                         UnexpectedOptionException e (_OPTION_SERIALNUMBER);
                         throw e;
@@ -1208,7 +1203,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     if (_serialNumberSet)
                     {
-                        // Both the subject and serial number may not be specified.
+                        // Both the subject and serial number may not be
+                        // specified.
                         UnexpectedOptionException e (_OPTION_SUBJECT);
                         throw e;
                     }
@@ -1409,8 +1405,9 @@ Uint32 CIMTrustCommand::execute (
     catch(CannotConnectException& cce)
     {
         outPrintWriter << localizeMessage( MSG_PATH,
-                                           CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
-                                           CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) << endl;
+                              CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
+                              CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) 
+                       << endl;
         return ( RC_CONNECTION_FAILED );
     }
     catch(Exception& e)

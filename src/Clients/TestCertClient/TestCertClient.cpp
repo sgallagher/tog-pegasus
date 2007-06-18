@@ -48,9 +48,11 @@ enum expectedResultType { NONE, PASS, FAIL };
 enum expectedErrorType { ERROR_TYPE_NONE, ERROR_TYPE_HTTP_401,
          ERROR_TYPE_CANNOT_CONNECT };
 
-/** This client is primarily used to test the SSL client verification function.  The client is used by the poststarttests
- *  of the ssltrustmgr CLI.  This client was introduced because existing test clients are heavy on function and thus take a long
- *  time to return.  We don't care about the response, only whether the request was authenticated.
+/** This client is primarily used to test the SSL client verification function.
+ * The client is used by the poststarttests of the ssltrustmgr CLI.
+ * This client was introduced because existing test clients are heavy on
+ * function and thus take a long time to return.  We don't care about the
+ * response, only whether the request was authenticated.
  */ 
 
 int main(int argc, char** argv)

@@ -114,10 +114,10 @@ const Uint32 IPInfoCommand::_MIN_PORTNUMBER      = 0;
 const Uint32 IPInfoCommand::_MAX_PORTNUMBER      = 65535;
 
 static const char PASSWORD_PROMPT []  =
-                     "Please enter your password: ";
+    "Please enter your password: ";
 
 static const char PASSWORD_BLANK []  = 
-                     "Password cannot be blank. Please re-enter your password.";
+    "Password cannot be blank. Please re-enter your password.";
 
 static const Uint32 MAX_PW_RETRIES = 3;
 
@@ -215,7 +215,7 @@ String IPInfoCommand::_promptForPassword( ostream& outPrintWriter )
   
  */
 void IPInfoCommand::_connectToServer( CIMClient& client,
-				         ostream& outPrintWriter )
+                         ostream& outPrintWriter )
 {
     String                 host                  = String ();
     Uint32                 portNumber            = 0;
@@ -225,10 +225,11 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet) && (!_userNameSet) && (!_passwordSet))
-      {
-        connectToLocal = true;
-      }
+    if ((!_hostNameSet) && (!_portNumberSet) 
+            && (!_userNameSet) && (!_passwordSet))
+        {
+            connectToLocal = true;
+        }
     else
     {
         if (!_hostNameSet)
@@ -265,14 +266,14 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
         // Get environment variables:
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
-	
-	String certpath = FileSystem::getAbsolutePath(
-           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-	
-	String randFile;
-
-	randFile = FileSystem::getAbsolutePath(
-            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+    
+        String certpath = FileSystem::getAbsolutePath(
+               pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+        
+        String randFile;
+    
+        randFile = FileSystem::getAbsolutePath(
+                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
         SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
         if (!_userNameSet)
@@ -284,7 +285,7 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
         {
             _password = _promptForPassword( outPrintWriter );
         }
-	client.connect(host, portNumber, sslcontext,  _userName, _password );
+        client.connect(host, portNumber, sslcontext,  _userName, _password );
     }
     else
     { 
@@ -419,7 +420,7 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                     //
                     // Use port 5989 as the default port for SSL
                     //
-		    _useSSL = true;
+                    _useSSL = true;
                     if (!_portNumberSet)
                        _portNumber = 5989;
                     break;
@@ -427,7 +428,7 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
       
                 case _OPTION_DEBUG:
                 {
-		    _enableDebug = true;
+                    _enableDebug = true;
                     break;
                 }
       
@@ -564,13 +565,14 @@ void IPInfoCommand::getIPInfo(ostream& outPrintWriter,
         _connectToServer( client, outPrintWriter);
         IPRouteInfo ipr (client, _enableDebug, outPrintWriter, errPrintWriter);
         IPPEpInfo ippep(client, _enableDebug, outPrintWriter, errPrintWriter);
-        BIPTLEpInfo ipbiptle(client, _enableDebug, outPrintWriter, errPrintWriter);
+        BIPTLEpInfo ipbiptle(client, _enableDebug, outPrintWriter,
+                             errPrintWriter);
 
     }  // end try
 
     catch(const Exception& e)
     {
-      errorExit(errPrintWriter, e.getMessage());
+        errorExit(errPrintWriter, e.getMessage());
     }
 
 }
@@ -598,8 +600,8 @@ Uint32 IPInfoCommand::execute (ostream& outPrintWriter,
     }
     catch (const IPInfoException& e)
     {
-      errPrintWriter << IPInfoCommand::COMMAND_NAME << ": " << 
-        e.getMessage () << endl;
+        errPrintWriter << IPInfoCommand::COMMAND_NAME << ": " 
+            << e.getMessage () << endl;
         return (RC_ERROR);
     }
     return (RC_SUCCESS);

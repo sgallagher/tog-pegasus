@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Denise Eckstein, Hewlett-Packard Company
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,14 +38,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+                                            const String & name)
 {
-	if(String::equalNoCase(name, "benchmarkProvider"))
-	{
-		return(new benchmarkProvider());
-	}
+    if(String::equalNoCase(name, "benchmarkProvider"))
+    {
+        return(new benchmarkProvider());
+    }
 
-	return(0);
+    return(0);
 }
 
 PEGASUS_NAMESPACE_END

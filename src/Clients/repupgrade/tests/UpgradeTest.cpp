@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes (sushma_fernandes@hp.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
@@ -67,12 +63,12 @@ static char const* UPGRADE_TEST_FILE_LIST[] =
 
 int main(int argc, char** argv)
 {
-    String 	oldRepositoryPath = argv[1];
-    String 	newRepositoryPath = argv[2];
-    Boolean 	fileFound 	  = false;
-    Boolean 	fileNotFound 	  = false;
-    Uint32  	i		  = 0;
-    Uint32 	count             = 0;
+    String  oldRepositoryPath = argv[1];
+    String  newRepositoryPath = argv[2];
+    Boolean     fileFound     = false;
+    Boolean     fileNotFound      = false;
+    Uint32      i         = 0;
+    Uint32  count             = 0;
     Boolean bVerbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     count = sizeof(UPGRADE_TEST_FILE_LIST)/sizeof(UPGRADE_TEST_FILE_LIST[0]);

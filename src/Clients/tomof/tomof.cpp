@@ -69,7 +69,8 @@ public:
     _index = 0;
     }
     // constructor - with nameSpace and Interface
-    classNameList(const CIMNamespaceName& nameSpace, const clientRepositoryInterface& cli)
+    classNameList(const CIMNamespaceName& nameSpace,
+                  const clientRepositoryInterface& cli)
 
     {
     _nameSpace = nameSpace,
@@ -95,7 +96,8 @@ public:
         }
         catch(Exception &e)
         {
-            cout << "Exception " << e.getMessage() << " on enumerateClassNames open. Terminating." << endl;
+            cout << "Exception " << e.getMessage() 
+                 << " on enumerateClassNames open. Terminating." << endl;
             return false;
         }
     return true;
@@ -214,8 +216,8 @@ void mofFormat(
     {
     count++;
     // This is too simplistic and must move to a token based mini parser
-    // but will do for now. One problem is tokens longer than 12 characters that
-    // overrun the max line length.
+    // but will do for now. One problem is tokens longer than 12 characters
+    // that overrun the max line length.
     switch (c)
     {
         case '\n':
@@ -340,7 +342,8 @@ void GetOptions(
                       "Print only a summary count at end"},
 
          {"location", tmpDir, false, Option::STRING, 0, 0, "l",
-        "Repository directory (/run if repository directory is /run/repository"},
+                      "Repository directory (/run if repository directory"
+                          " is /run/repository"},
 
          {"client", "false", false, Option::BOOLEAN, 0, 0, "c",
                       "Runs as Pegasus client using client interface"},
@@ -376,7 +379,8 @@ void printHelp(char* name, OptionManager om)
     header.append(" -parameters [class]");
     header.append("  - Generate MOF output from the repository or client\n");
 
-    String trailer = "\nAssumes  using repository interface and repository at\n";
+    String trailer = 
+        "\nAssumes  using repository interface and repository at\n";
     trailer.append("PEGASUS_HOME for repository unless -r specified");
     trailer.append("\nIf [class] exists only that class mof is output.");
 
@@ -384,14 +388,19 @@ void printHelp(char* name, OptionManager om)
     trailer.append("\nExamples:");
     trailer.append("\n  tomof - Returns only help/usage information");
     trailer.append("\n  tomof * - Returns information on all classes, etc.");
-    trailer.append("\n  tomof CIM_DOOR - Shows mof for CIM_Door from default namespace");
-    //trailer.append("\n  tomof *door* - Shows mof for classes with 'door' in name.");
-    //trailer.append("\n  tomof -o *software* - Lists Class names with 'door' in name.");
+    trailer.append("\n  tomof CIM_DOOR - Shows mof for CIM_Door from default"
+            " namespace");
+    //trailer.append("\n  tomof *door* - Shows mof for classes with 'door'"
+    //" in name.");
+    //trailer.append("\n  tomof -o *software* - Lists Class names with"
+    //" 'door' in name.");
     trailer.append("\n  tomof -a - outputs mof for all classes");
-    trailer.append("\n  tomof -c - outputs mof for all classes using client interface.");
+    trailer.append("\n  tomof -c - outputs mof for all classes using client"
+            " interface.");
     trailer.append("\n  tomof -q - Outputs mof for qualifiers and classes");
 
-    trailer.append("\n  tomof -s - Outputs summary count of classes and optionally instances. Does not deliver lists");
+    trailer.append("\n  tomof -s - Outputs summary count of classes and"
+            " optionally instances. Does not deliver lists");
     om.printOptionsHelpTxt(header, trailer);
 }
 
@@ -558,13 +567,16 @@ int main(int argc, char** argv)
         const char* tmp = getenv("PEGASUS_HOME");
 
         if (strlen(tmp) == 0 && location == "." )
-            ErrorExit("Error, PEGASUS_HOME not set and repository option not used");
+            ErrorExit("Error, PEGASUS_HOME not set and repository option not"
+                    " used");
 
         location.append("/repository");
 
-        if (!FileSystem::exists(location) || FileSystem::isDirectoryEmpty(location))
+        if (!FileSystem::exists(location) 
+                || FileSystem::isDirectoryEmpty(location))
         {
-            cout << "Error. " << location << " does not exist or is empty." << endl;
+            cout << "Error. " << location << " does not exist or is empty." 
+                 << endl;
             exit(1);
         }
     }
@@ -589,7 +601,9 @@ int main(int argc, char** argv)
     }
     catch(Exception &e)
     {
-        cout << "Exception " << e.getMessage() << " on repository open. Terminating." << endl;
+        cout << "Exception " << e.getMessage() 
+             << " on repository open. Terminating." 
+             << endl;
         return false;
     }
     // Get the complete class name list before we start anything else
@@ -669,15 +683,20 @@ int main(int argc, char** argv)
                 CIMClass cimClass;
                 try
                 {
-                    cimClass = clRepository.getClass(nameSpace, nextClass,
-                                                          localOnly, includeQualifiers, includeClassOrigin);
+                    cimClass = clRepository.getClass(nameSpace,
+                                                     nextClass,
+                                                     localOnly,
+                                                     includeQualifiers,
+                                                     includeClassOrigin);
                 }
                 catch(Exception& e)
                 {
                     // ErrorExit(e.getMessage());
-                    cout << "Class get error " << e.getMessage() << " Class " << nextClass << endl;
+                    cout << "Class get error " << e.getMessage() 
+                         << " Class " << nextClass << endl;
                 }
-                // Note we get and print ourselves rather than use the generic printMof
+                // Note we get and print ourselves rather than use the generic
+                // printMof
                 if(isXMLOutput)
                     XmlWriter::printClassElement(cimClass, cout);
                 else
@@ -708,8 +727,9 @@ int main(int argc, char** argv)
                 if(showOnlyNames)
                 {
                     Array<CIMObjectPath> instanceNames;
-                    instanceNames = clRepository.enumerateInstanceNames(nameSpace,
-                                                                        className);
+                    instanceNames = 
+                        clRepository.enumerateInstanceNames(nameSpace,
+                                                            className);
                     for(Uint32 j = 0; j < instanceNames.size(); j++)
                         cout << "Instance " << instanceNames[j].toString();
                 }
@@ -717,12 +737,13 @@ int main(int argc, char** argv)
                 {
                 // Process inputClasslist to enumerate and print instances
                     Array<CIMInstance> namedInstances;
-                    namedInstances = clRepository.enumerateInstances(nameSpace,
-                                                                     className,
-                                                                     deepInheritance,
-                                                                     localOnly,
-                                                                     includeQualifiers,
-                                                                     includeClassOrigin);
+                    namedInstances = 
+                        clRepository.enumerateInstances(nameSpace,
+                                                        className,
+                                                        deepInheritance,
+                                                        localOnly,
+                                                        includeQualifiers,
+                                                        includeClassOrigin);
 
                     // Process and output each instance
                     for(Uint32 k = 0; k < namedInstances.size(); k++)
@@ -741,7 +762,8 @@ int main(int argc, char** argv)
             }
             catch(Exception& e)
             {
-                cout << "Error Instance Enumeration:" << e.getMessage() << endl;
+                cout << "Error Instance Enumeration:" << e.getMessage() 
+                     << endl;
             }
         }
     }
@@ -751,8 +773,9 @@ int main(int argc, char** argv)
         if(qualifierCount != 0)
             cout << "Qualifiers - " << qualifierCount << endl;
         if(classCount != 0)
-            cout << "Classes - " << classCount << " found and " << classCountDisplayed
-                    << " output" << endl;
+            cout << "Classes - " << classCount << " found and " 
+                 << classCountDisplayed
+                 << " output" << endl;
         if(instanceCount != 0)
             cout << "Instances - " << instanceCount << endl;
     }

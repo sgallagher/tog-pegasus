@@ -120,29 +120,31 @@ const Uint32 OSInfoCommand::_MAX_PORTNUMBER      = 65535;
 
 static const char MSG_PATH [] = "pegasus/pegasusCLI";
 static const char PASSWORD_PROMPT [] =
-                     "Please enter your password: ";
+    "Please enter your password: ";
 
 static const char PASSWORD_BLANK [] =
-                     "Password cannot be blank. Please re-enter your password.";
+    "Password cannot be blank. Please re-enter your password.";
 
 static const char LONG_HELP [] = "help";
 
 static const char LONG_VERSION [] = "version";
 
-static const char REQUIRED_ARGS_MISSING [] =
-                        "Required arguments missing.";
+static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
 
-static const char REQUIRED_ARGS_MISSING_KEY [] = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+static const char REQUIRED_ARGS_MISSING_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
 static const char ERR_OPTION_NOT_SUPPORTED [] =
     "Invalid option. Use '--help' to obtain command syntax.";
 
-static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = "Clients.cimuser.CIMUserCommand..ERR_OPTION_NOT_SUPPORTED";
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = 
+    "Clients.cimuser.CIMUserCommand..ERR_OPTION_NOT_SUPPORTED";
 
 static const char ERR_USAGE [] =
     "Incorrect usage. Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] = "Clients.cimuser.CIMUserCommand..ERR_USAGE";
+static const char ERR_USAGE_KEY [] = 
+    "Clients.cimuser.CIMUserCommand..ERR_USAGE";
 
 /**
     This constant signifies that an operation option has not been recorded
@@ -232,16 +234,23 @@ OSInfoCommand::OSInfoCommand ()
 
     usage.append("Options : \n");
     usage.append("    -c         - Use CIM format for date and time\n");
-    usage.append("    -h         - Connect to CIM Server on specified hostname\n");
+    usage.append("    -h         - Connect to CIM Server on specified"
+                                    " hostname\n");
     usage.append("    --help     - Display this help message\n");
-    usage.append("    -p         - Connect to CIM Server on specified portnumber\n");
-    usage.append("    -s         - Use SSL protocol between 'osinfo' client and the CIM Server\n");
-    usage.append("    -t         - Specify response timeout value in milliseconds\n");
-    usage.append("    -u         - Connect to CIM Server using the specified username\n");
+    usage.append("    -p         - Connect to CIM Server on specified"
+                                    " portnumber\n");
+    usage.append("    -s         - Use SSL protocol between 'osinfo' client"
+                                    " and the CIM Server\n");
+    usage.append("    -t         - Specify response timeout value in"
+                                    " milliseconds\n");
+    usage.append("    -u         - Connect to CIM Server using the specified"
+                                    " username\n");
     usage.append("    --version  - Display CIM Server version number\n");
-    usage.append("    -w         - Connect to CIM Server using the specified password\n");
+    usage.append("    -w         - Connect to CIM Server using the specified"
+                                    " password\n");
 
-    usage.append("\nUsage note: The osinfo command requires that the CIM Server is running.\n");
+    usage.append("\nUsage note: The osinfo command requires that the"
+                    " CIM Server is running.\n");
 
     setUsage (usage);
 }
@@ -297,10 +306,11 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet) && (!_userNameSet) && (!_passwordSet))
-      {
+    if ((!_hostNameSet) && (!_portNumberSet) 
+            && (!_userNameSet) && (!_passwordSet))
+    {
         connectToLocal = true;
-      }
+    }
     else
     {
         if (!_hostNameSet)
@@ -359,11 +369,11 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
            SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
            client.connect(host, portNumber, sslcontext,  _userName, _password );
-         }
-         else
-         {
+        }
+        else
+        {
            client.connect(host, portNumber, _userName, _password );
-         }
+        }
      }
 }
 
@@ -612,7 +622,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
         //
         //l10n
         //CommandFormatException e (REQUIRED_ARGS_MISSING);
-        CommandFormatException e (localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
+        CommandFormatException e (localizeMessage(MSG_PATH,
+                                                  REQUIRED_ARGS_MISSING_KEY,
+                                                  REQUIRED_ARGS_MISSING));
         throw e;
     }*/
     if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)
@@ -936,7 +948,8 @@ void OSInfoCommand::displayProperties(ostream& outPrintWriter)
       outPrintWriter << "  Number of Users: Unknown" << endl;
 
    if (osNumberOfProcesses != String::EMPTY)
-      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses << endl;
+      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses 
+                     << endl;
    else
       outPrintWriter << "  Number of Processes: Unknown" << endl;
 
@@ -1091,7 +1104,8 @@ int main (int argc, char* argv [])
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
          {
-           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,ERR_OPTION_NOT_SUPPORTED);
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
+                                    ERR_OPTION_NOT_SUPPORTED);
               parms.msg_src_path = MSG_PATH;
            cerr << OSInfoCommand::COMMAND_NAME <<
              ": " << MessageLoader::getMessage(parms) << endl;

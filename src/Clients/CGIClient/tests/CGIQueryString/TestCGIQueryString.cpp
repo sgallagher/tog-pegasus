@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -52,56 +48,59 @@ int main(int argc, char** argv)
 {
     Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
-	char* input = 0;
+    char* input = 0;
     char defaultInput[] = "NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true";
 
     if (argc != 2)
-	input = defaultInput;
+    input = defaultInput;
     else
-	input = argv[1];
+    input = argv[1];
 
     CGIQueryString qs(input);
 
-	if(verbose) {
-		for (Uint32 i = 0; i < qs.getCount(); i++)
-		{
-		cout << "name: " << qs.getName(i) << endl;
-		cout << "value: " << qs.getValue(i) << endl;
-		}
-	}
+    if(verbose) 
+    {
+        for (Uint32 i = 0; i < qs.getCount(); i++)
+        {
+            cout << "name: " << qs.getName(i) << endl;
+            cout << "value: " << qs.getValue(i) << endl;
+        }
+    }
 
     if (input == defaultInput)
     {
-	PEGASUS_TEST_ASSERT(strcmp(qs.getName(0), "NameSpace") == 0);
-	PEGASUS_TEST_ASSERT(strcmp(qs.getValue(0), "root/cimv2") == 0);
-	PEGASUS_TEST_ASSERT(strcmp(qs.getName(1), "ClassName") == 0);
-	PEGASUS_TEST_ASSERT(strcmp(qs.getValue(1), "") == 0);
-	PEGASUS_TEST_ASSERT(strcmp(qs.getName(2), "LocalOnly") == 0);
-	PEGASUS_TEST_ASSERT(strcmp(qs.getValue(2), "true") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(qs.getName(0), "NameSpace") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(qs.getValue(0), "root/cimv2") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(qs.getName(1), "ClassName") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(qs.getValue(1), "") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(qs.getName(2), "LocalOnly") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(qs.getValue(2), "true") == 0);
     }
 
 
     // added instance name test ks July 2001
     // added when correcting error in quoted fields.
     {
-	char* input = 0;
-	char defaultInput[] =
-"InstanceName=person.name%3D%22mike%22&LocalOnly=true&PropertyList=NULL";
-	input = defaultInput;
-
-	CGIQueryString qs(input);
-	if(verbose) {
-		for (Uint32 i = 0; i < qs.getCount(); i++)
-		{
-			cout << "name: " << qs.getName(i) << endl;
-			cout << "value: " << qs.getValue(i) << endl;
-		}
-
-	}
-
-    PEGASUS_TEST_ASSERT(strcmp(qs.getName(0), "InstanceName") == 0);
-    //KS Forgot how to excape the quote character
-    //PEGASUS_TEST_ASSERT(strcmp(qs.getValue(0), "person.name.""mike""") == 0);
+        char* input = 0;
+        char defaultInput[] = "InstanceName=person.name%3D%22mike"
+                              "%22&LocalOnly=true&PropertyList=NULL";
+        input = defaultInput;
+    
+        CGIQueryString qs(input);
+        if(verbose)
+        {
+            for (Uint32 i = 0; i < qs.getCount(); i++)
+            {
+                cout << "name: " << qs.getName(i) << endl;
+                cout << "value: " << qs.getValue(i) << endl;
+            }
+    
+        }
+    
+        PEGASUS_TEST_ASSERT(strcmp(qs.getName(0), "InstanceName") == 0);
+        //KS Forgot how to excape the quote character
+        //PEGASUS_TEST_ASSERT(strcmp(qs.getValue(0), "person.name.""mike""") 
+        //== 0);
 
     }
 

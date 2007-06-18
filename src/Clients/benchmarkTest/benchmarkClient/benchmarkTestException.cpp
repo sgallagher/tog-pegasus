@@ -92,7 +92,8 @@ const Uint32 benchmarkTestException::INVALID_INPUT = 3;
     a new exception identifier and message are added.
   
  */
-const Uint32 benchmarkTestException::MAX_ID = benchmarkTestException::INVALID_INPUT;
+const Uint32 benchmarkTestException::MAX_ID = 
+    benchmarkTestException::INVALID_INPUT;
 
 /**
 
@@ -132,7 +133,8 @@ benchmarkTestException::benchmarkTestException (Uint32 ID) : CommandException
     @param  appendString      the string to append to the exception message
   
  */
-benchmarkTestException::benchmarkTestException (Uint32 ID, const String& appendString) : 
+benchmarkTestException::benchmarkTestException (Uint32 ID, 
+                                                const String& appendString) : 
     CommandException (_messageStrings 
         [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
@@ -146,7 +148,8 @@ benchmarkTestException::benchmarkTestException (Uint32 ID, const String& appendS
     @param  exceptionMessage  a string containing the exception message
   
  */
-benchmarkTestException::benchmarkTestException (const String& exceptionMessage) : 
+benchmarkTestException::benchmarkTestException (const String& exceptionMessage)
+    : 
     CommandException (exceptionMessage)
 {
 }

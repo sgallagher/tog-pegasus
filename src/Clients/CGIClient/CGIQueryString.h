@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CGIQueryString_h
@@ -84,8 +80,8 @@ private:
     Array<CGIQueryStringEntry> _entries;
 
     static void _parseCGIQueryString(
-	char* queryString, 
-	Array<CGIQueryStringEntry>& entries);
+    char* queryString, 
+    Array<CGIQueryStringEntry>& entries);
 
 public:
 

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
-//               David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -176,7 +168,7 @@ void GetOptions(
                                         "specifies system and port" },
 
     {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
-                                        "specifies namespace to use for operation" },
+                                   "specifies namespace to use for operation" },
 
         // error here just went to temp nothing
         //{"outputformats", "mof", false, Option::STRING, outputFormats,

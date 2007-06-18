@@ -601,7 +601,8 @@ void _createCimsubTests(CIMClient & client, String& qlang)
     CIMInstance filter04a(PEGASUS_CLASSNAME_INDFILTER);
     query = "SELECT IndicationTime, IndicationIdentifier "
           "FROM CIM_ProcessIndication "
-          "WHERE IndicationTime IS NOT NULL AND CorrelatedIndications IS NOT NULL";
+          "WHERE IndicationTime IS NOT NULL AND CorrelatedIndications IS"
+          " NOT NULL";
     _addStringProperty(filter04a, PEGASUS_PROPERTYNAME_NAME.getString(),
         "Filter04a");
     _addStringProperty(filter04a, PEGASUS_PROPERTYNAME_QUERY.getString(),
@@ -1664,22 +1665,28 @@ void _cleanup(CIMClient & client)
              PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05", NAMESPACE1);)
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05", 
+                NAMESPACE1);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05", NAMESPACE2);)
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05", 
+                NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06", NAMESPACE2);)
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06", 
+                NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06", NAMESPACE3);)
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06", 
+                NAMESPACE3);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination07", NAMESPACE2);)
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination07", 
+                NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination08", NAMESPACE2);)
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination08", 
+                NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
              PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "Handler15", NAMESPACE);)
@@ -1693,7 +1700,8 @@ void _cleanup(CIMClient & client)
 #ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG, "SyslogHandler01", NAMESPACE);)
+            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG, "SyslogHandler01", 
+                NAMESPACE);)
 
 #endif
 

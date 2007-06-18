@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company 
-//         (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "SampleSSPModule.h"
@@ -53,7 +50,7 @@ SampleSSPModule::~SampleSSPModule()
 /**
     Performs special processing on a qualifier.
 
-    @param	CIMQualifier qualifier. 
+    @param  CIMQualifier qualifier. 
 
     @return     CIMQualifier updated qualifier.
 */
@@ -99,7 +96,7 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
     // Check if any property defines "Required" qualifier. 
     //
 
-    Array<CIMProperty> 		cimProperty;
+    Array<CIMProperty>      cimProperty;
 
     for ( Uint32 i = 0; i < inputClass.getPropertyCount(); i++ )
     {

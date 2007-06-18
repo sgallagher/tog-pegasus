@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//         Warren Otsuka (warren_otsuka@hp.com)
-//         David Eger (dteger@us.ibm.com)
-//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//         David Dillard, VERITAS Software Corp.
-//             (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WbemExecCommand_h
@@ -142,7 +132,7 @@ private:
 
  */
     String _promptForPassword( ostream&  eStream );
-
+//NOCHKSRC
 /**
        
     Check the HTTP response message for authentication challenge or data.
@@ -189,6 +179,7 @@ private:
     </MESSAGE>
     </CIM>
     
+// DOCHKSRC    
     Final response:
     --------------------
     HTTP/1.1 200 OK
@@ -204,8 +195,8 @@ private:
   
     */
     void _handleResponse( Buffer          httpResponse,
-   		          ostream&               oStream,
-			  ostream&               eStream
+              ostream&               oStream,
+              ostream&               eStream
                         );
 
     /**
@@ -252,14 +243,14 @@ private:
         The port to be used when the command is executed.  The port number must
         be the port number on which the CIM Server is running on the specified
         host.  The default port is the wbem local port number specified in
-	/etc/services. If the wbem local port number is not defined in
-	/etc/services, use the default port number 5988.
+    /etc/services. If the wbem local port number is not defined in
+    /etc/services, use the default port number 5988.
      */
     Uint32 _portNumber;
 
     /**
         A Boolean indicating whether a port number was specified on the
-	command line.
+    command line.
      */
     Boolean _portNumberSet;
 

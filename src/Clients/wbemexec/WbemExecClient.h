@@ -77,14 +77,14 @@ public:
     */
     Uint32 getTimeout() const
     {
-	  return _timeoutMilliseconds;
+      return _timeoutMilliseconds;
     }
 
     /** Sets the timeout in milliseconds for the WbemExecClient.
     */
     void setTimeout(Uint32 timeoutMilliseconds)
     {
-	  _timeoutMilliseconds = timeoutMilliseconds;
+      _timeoutMilliseconds = timeoutMilliseconds;
       if ((_connected) && (_httpConnection != 0)) 
         _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
     }

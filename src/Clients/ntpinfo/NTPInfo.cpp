@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
@@ -57,13 +53,13 @@ PEGASUS_USING_STD;
 
 NTPInfo::NTPInfo(void)
 {
-   ntpSystemName = String::EMPTY;
-   ntpSystemCreationClassName = String::EMPTY;
-   ntpName = String::EMPTY;
-   ntpCreationClassName = String::EMPTY;
-   ntpCaption = String::EMPTY;
-   ntpDescription = String::EMPTY;
-   ntpServerAddress = NULL;
+    ntpSystemName = String::EMPTY;
+    ntpSystemCreationClassName = String::EMPTY;
+    ntpName = String::EMPTY;
+    ntpCreationClassName = String::EMPTY;
+    ntpCaption = String::EMPTY;
+    ntpDescription = String::EMPTY;
+    ntpServerAddress = NULL;
 }
 
 NTPInfo::~NTPInfo(void)
@@ -87,10 +83,10 @@ void NTPInfo::errorExit(const String& message)
 */
 void NTPInfo::_usage()
 {
-  cerr << "Usage: osinfo [-c]" << endl;
-  cerr << "Example:" << endl;
-  cerr << "  ntpinfo " << endl;
-  cerr << "  ntpinfo -c " << endl;
+    cerr << "Usage: osinfo [-c]" << endl;
+    cerr << "Example:" << endl;
+    cerr << "  ntpinfo " << endl;
+    cerr << "  ntpinfo -c " << endl;
 }
 
 /**
@@ -105,7 +101,8 @@ void NTPInfo::displayProperties()
 
    // expect to have values for the keys (even if Unknown)
    cout << "  System Name                : " << ntpSystemName << endl;
-   cout << "  System Creation Class Name : " << ntpSystemCreationClassName << endl;
+   cout << "  System Creation Class Name : " 
+        << ntpSystemCreationClassName << endl;
    cout << "  Name                       : " << ntpName << endl;
    cout << "  Creation Class Name        : " << ntpCreationClassName << endl;
    cout << "  Caption                    : " << ntpCaption << endl;
@@ -219,7 +216,7 @@ void NTPInfo::getNTPInfo(const int argc, const char** argv)
         // in milliseconds, thus setting to one minute
         CIMClient client;
         client.setTimeout(60 * 1000);
-	client.connectLocal();
+        client.connectLocal();
         
         Boolean deepInheritance = true;
         Boolean localOnly = true;
@@ -228,11 +225,11 @@ void NTPInfo::getNTPInfo(const int argc, const char** argv)
         Uint32 numberInstances;
 
         Array<CIMInstance> cimNInstances = 
-	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
-                                         deepInheritance,
-				         localOnly,  includeQualifiers,
-				         includeClassOrigin );
-	  
+           client.enumerateInstances(NAMESPACE, CLASSNAME, 
+                                     deepInheritance,
+                                     localOnly,  includeQualifiers,
+                                     includeClassOrigin );
+      
         numberInstances = cimNInstances.size();
 
         // while we only have one instance (the running OS), we can take the

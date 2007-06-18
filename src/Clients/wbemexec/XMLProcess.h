@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//             (carolann_graves@hp.com)
-//
-// Modified By:
-//         Warren Otsuka (warren_otsuka@hp.com)
-//         Sushma Fernandes, Hewlett-Packard Company
-//             (sushma_fernandes@hp.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Aruran, IBM (ashanmug@in.ibm.com) for BUG# 2574
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -110,14 +101,14 @@ public:
         @exception  XmlException        if the XML input is invalid
         @exception  Exception           internal error 
       
-     */
+    */
     static Buffer encapsulate (XmlParser& parser, 
                                       const String& hostName,
                                       Boolean useMPost,
                                       Boolean useHTTP11,
                                       Buffer& content,
                                       Buffer& httpHeaders) 
-        throw (XmlValidationError, XmlSemanticError, WbemExecException,
+    throw (XmlValidationError, XmlSemanticError, WbemExecException,
                XmlException, Exception);
 };
 

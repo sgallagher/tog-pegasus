@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//         Warren Otsuka (warren_otsuka@hp.com)
-//         Sushma Fernandes, Hewlett-Packard Company
-//             (sushma_fernandes@hp.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         David Dillard, VERITAS Software Corp.
-//             (david.dillard@veritas.com)
-//         Aruran, IBM (ashanmug@in.ibm.com) for BUG# 2574
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -141,12 +129,12 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         {
             if ((strcmp (p, HTTP_METHOD_MPOST) == 0) || 
                 (strcmp (p, HTTP_METHOD_POST) == 0) ||
-	        //  This is a special request used for testing.
-	        //  It includes the HTTP header.
-	        //  Return the message as is.
+            //  This is a special request used for testing.
+            //  It includes the HTTP header.
+            //  Return the message as is.
                 (strcmp (p, HTTP_METHOD_BOGUS) == 0))
             {
-	      return (content);
+          return (content);
             }
             else
             {
@@ -174,8 +162,9 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         throw XmlValidationError(parser.getLine(), "expected MESSAGE element");
 
         // l10n TODO
-        //MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_MESSAGE_ELEMENT",
-        //                           "expected MESSAGE element");
+        //MessageLoaderParms mlParms(
+        //  "Server.CIMOperationRequestDecoder.EXPECTED_MESSAGE_ELEMENT",
+        //  "expected MESSAGE element");
         //throw XmlValidationError(parser.getLine(), mlParms);
     }
 
@@ -220,8 +209,10 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                     "expected LOCALNAMESPACEPATH element");
 
                 // l10n TODO
-                //MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
-                //                           "expected LOCALNAMESPACEPATH element");
+                //MessageLoaderParms mlParms(
+                //    "Server.CIMOperationRequestDecoder."
+                //        "EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
+                //    "expected LOCALNAMESPACEPATH element");
                 //throw XmlValidationError(parser.getLine(),mlParms);
             }
             objPath << namespaceName;
@@ -266,8 +257,9 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 "expected IMETHODCALL or METHODCALL element");
 
             // l10n TODO
-            //MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT",
-            //                           "expected IMETHODCALL or METHODCALL element");
+            //MessageLoaderParms mlParms(
+            // "Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT",
+            // "expected IMETHODCALL or METHODCALL element");
             //throw XmlValidationError(parser.getLine(),mlParms);
         }
     }

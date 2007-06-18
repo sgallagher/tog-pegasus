@@ -217,7 +217,7 @@ void* get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
 
 void cleanup_indicationObjects (CMPIUint32 ctx_id)
 {
-    indication_objects *tmp;
+    indication_objects *tmp, *prev;
     ind_object *obj;
 
     TRACE_NORMAL(("Cleaning all Indication Objects."));
@@ -231,7 +231,13 @@ void cleanup_indicationObjects (CMPIUint32 ctx_id)
         {
             break;
         }
+        prev = tmp;
         tmp = tmp->next;
+    }
+    if (!tmp)
+    {
+        TRACE_CRITICAL(("Indication context id (%u) not found.", ctx_id));
+        return;
     }
     while (tmp->objects)
     {
@@ -239,6 +245,15 @@ void cleanup_indicationObjects (CMPIUint32 ctx_id)
         tmp->objects = tmp->objects->next;
         __free_ind_object (obj);
     }
+    if (tmp == __indication_objects)
+    {
+        __indication_objects = __indication_objects->next;
+    }
+    else
+    {
+        prev->next = tmp->next;
+    }
+    free (tmp);
     CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);
 }
 

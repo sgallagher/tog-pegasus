@@ -35,7 +35,7 @@
   \file debug.h
   \brief Bug tracing facility.
 
-  This header file defines macros and functions for tracing output
+  This header file defines macros for tracing output
   using different debug levels, which can be defined during runtime as
   environment variable.
 
@@ -72,11 +72,11 @@
 #define DEBUG_CRITICAL 0
 
 #define TRACE(level,args) \
-        if ( __trace_level ( (level) ) ) { \
-                char * __msg = __trace_format args; \
-                __trace_this ( (level), \
-                               __FILE__, __LINE__, \
-                               __msg ); \
+        if ( trace_level ( (level) ) ) { \
+                char * __msg = trace_format args; \
+                trace_this ( (level), \
+                             __FILE__, __LINE__, \
+                             __msg ); \
         }
 
 
@@ -105,135 +105,28 @@
 #endif
 
 #if defined PEGASUS_DEBUG
-#define START_DEBUGGER __start_debugger ()
+#define START_DEBUGGER start_debugger ()
 #else
 #define START_DEBUGGER
 #endif
-/****************************************************************************/
 
-#if defined PEGASUS_DEBUG
+#ifdef PEGASUS_DEBUG
 
-#ifdef __GNUC__
-static int __trace_level ( int ) __attribute__ ((unused));
-
-static char * __trace_format ( const char *, ... )
-     __attribute__ ((unused, format (printf, 1, 2)));
-
-static void __trace_this ( int, const char *, int, char * )
-     __attribute__ ((unused));
-
-static void __start_debugger () __attribute__ ((unused));
+#if defined (PEGASUS_CMPI_PROXY_INTERNAL) || \
+    defined (PEGASUS_CMPI_NATIVE_INTERNAL)
+#define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_EXPORT
+#else
+#define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_IMPORT
 #endif
 
-/****************************************************************************/
-
-static char * __debug_levels[] = {
-    "critical", "normal", "info", "verbose"
-};
-
-/****************************************************************************/
-
-static int __trace_level ( int level )
-{
-    char * l = getenv ( "RCMPI_DEBUG" );
-    int i = sizeof ( __debug_levels ) / sizeof ( char * );
-
-    if ( l == NULL ) return 0;
-
-    while ( i-- )
-        if ( PEGASUS_CMPIR_STRCASECMP ( l, __debug_levels[i] ) == 0 )
-            return ( level <= i );
-
-    return 0;
-}
-
-static char * __trace_format ( const char * fmt, ... )
-{
-    va_list ap;
-    char * msg = (char *) malloc ( 512 );
-
-    va_start ( ap, fmt );
-
-    PEGASUS_CMPIR_VSPRINTF(msg, 512, fmt, ap );
-
-    return msg;
-}
-
-
-static void __trace_this ( int level,
-               const char * file,
-               int line,
-               char * msg )
-{
-    fprintf ( stderr,
-          "--rcmpi(%s)--[%d(%d,%d)]:%s:(%d): %s\n",
-           __debug_levels[level],
-          PEGASUS_CMPIR_GETPID(), PEGASUS_CMPIR_GETUID(), PEGASUS_CMPIR_GETGID(),
-          file, line,
-          msg );
-    free ( msg ); \
-}
-
-static void __start_debugger ()
-{
-
-#ifdef PEGASUS_OS_TYPE_UNIX
-    int ch;
-    char * debugger = getenv ( "RCMPI_DEBUGGER" );
-
-    if ( debugger != NULL ) {
-
-        if ( ( ch = fork () ) ) {
-
-            sleep ( 20 ); // wait until debugger traces us
-
-        } else {
-
-            char pid[10];
-            char * argv[] = { debugger,
-                      "OOP-Provider",
-                      pid,
-                      NULL };
-
-            sprintf ( pid, "%d", getppid () );
-
-            execv ( debugger, argv );
-
-            TRACE_CRITICAL(("could not start debugger \"%s\", "
-                    "check RCMPI_DEBUGGER environment "
-                    "variable.",
-                    debugger));
-            exit ( -1 );
-        }
-    }
-#endif
-}
-#endif
-
+PEGASUS_RCMPI_DEBUG_VISIBILITY int trace_level(int);
+PEGASUS_RCMPI_DEBUG_VISIBILITY char* trace_format(const char *fmt, ...);
+PEGASUS_RCMPI_DEBUG_VISIBILITY void trace_this(int, const char *, int, char *);
+PEGASUS_RCMPI_DEBUG_VISIBILITY void start_debugger();
 #ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-static void error_at_line( int a_num, int error, char* filename, int line, char* message, ... )
-{
-   va_list ap;
-   char * msg = (char *) malloc ( 512 );
-
-   va_start ( ap, message );
-   vsprintf ( msg, message, ap );
-
-   fprintf(stderr, "Error in line %d of file %s: %s - %s\n", line, filename, strerror(error), msg);
-
-   free (msg);
-
-   if (a_num < 0)
-   {
-      exit(a_num);
-   }
-}
+PEGASUS_RCMPI_DEBUG_VISIBILITY void error_at_line(int a_num, int error,
+    char* filename, int line, char* message, ...);
 #endif
 
-#endif
-
-
-/*** Local Variables:  ***/
-/*** mode: C           ***/
-/*** c-basic-offset: 8 ***/
-/*** End:              ***/
+#endif // PEGASUS_DEBUG
+#endif // _REMOTE_CMPI_DEBUG_H

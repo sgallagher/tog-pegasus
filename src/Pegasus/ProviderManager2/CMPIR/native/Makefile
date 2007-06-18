@@ -52,6 +52,7 @@ SOURCES = \
    broker_os.c \
    context.c \
    datetime.c \
+   ../debug.c \
    enumeration.c \
    instance.c \
    objectpath.c \

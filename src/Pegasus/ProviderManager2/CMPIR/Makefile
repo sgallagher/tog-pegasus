@@ -46,6 +46,7 @@ LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_CMPI_
 LIBRARY = CMPIRProxyProvider
 
 SOURCES = \
+   debug.c \
    proxy_comm.c \
    proxy_provider.c \
    namespace_resolver.c \

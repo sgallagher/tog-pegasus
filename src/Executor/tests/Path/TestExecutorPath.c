@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 static int test(const char* path, const char* expect)
 {
@@ -64,7 +65,7 @@ int main()
         assert(test("/etc/passwd", "/etc") == 0);
     }
 
-    /* GetHomedPath */
+    /* GetHomedPath() */
     {
         char expect[EXECUTOR_BUFFER_SIZE];
         char actual[EXECUTOR_BUFFER_SIZE];
@@ -102,6 +103,22 @@ int main()
 
         assert(GetPegasusInternalBinDir(actual) == 0);
         assert(strcmp(expect, actual) == 0);
+    }
+
+    /* Clear the environment so PEGASUS_HOME cannot be determined */
+
+    assert(clearenv() == 0);
+
+    /* GetHomedPath() with no PEGASUS_HOME defined */
+    {
+        char buffer[EXECUTOR_BUFFER_SIZE];
+        assert(GetHomedPath("somefile", buffer) != 0);
+    }
+
+    /* GetPegasusInternalBinDir() with no PEGASUS_HOME defined */
+    {
+        char buffer[EXECUTOR_BUFFER_SIZE];
+        assert(GetPegasusInternalBinDir(buffer) != 0);
     }
 
     printf("+++++ passed all tests\n");

@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define TEST_DUMP_FILE "dumpfile"
@@ -140,6 +141,26 @@ int main()
         assert(macroDef != NULL);
         assert(strcmp(macroDef, "/two") == 0);
         assert(UndefineMacro("option2") == 0);
+    }
+
+    /* Clear the environment so PEGASUS_HOME cannot be determined */
+
+    assert(clearenv() == 0);
+
+    /* Test DefineConfigPathMacro() with no PEGASUS_HOME defined */
+    {
+        static const char* argv[] =
+            { "program", "option1=one", "option2=/two" };
+        static const int argc = sizeof(argv) / sizeof(argv[0]);
+
+        globals.argv = (char**)argv;
+        globals.argc = argc;
+
+        assert(DefineConfigPathMacro("option1", "one") != 0);
+        assert(FindMacro("option1") == NULL);
+
+        assert(DefineConfigPathMacro("option3", "three") != 0);
+        assert(FindMacro("option3") == NULL);
     }
 
     printf("+++++ passed all tests\n");

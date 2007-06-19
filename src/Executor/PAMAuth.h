@@ -156,7 +156,11 @@ static int CimserveraStart(int* sock)
     pid = fork();
 
     if (pid < 0)
+    {
+        close(pair[0]);
+        close(pair[1]);
         return -1;
+    }
 
     /* Child process: */
 

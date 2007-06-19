@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By:  
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3603
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -181,7 +174,7 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
         //  Acquire and hold the write lock during the entire
         //  lookup/remove/insert process, allowing competing threads to apply
         //  their logic over a consistent view of the data.
-        //  Do not call any other methods that need 
+        //  Do not call any other methods that need
         //  _activeSubscriptionsTableLock.
         //
         WriteLock lock (_activeSubscriptionsTableLock);
@@ -246,7 +239,7 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
             }
             else
             {
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                     Tracer::LEVEL2,
                     "Subscription (" + activeSubscriptionsKey.toString () +
                     ") not found in ActiveSubscriptionsTable");
@@ -288,7 +281,7 @@ SubscriptionTable::reflectProviderModuleFailure
         //  Acquire and hold the write lock during the entire
         //  lookup/remove/insert process, allowing competing threads to apply
         //  their logic over a consistent view of the data.
-        //  Do not call any other methods that need 
+        //  Do not call any other methods that need
         //  _activeSubscriptionsTableLock.
         //
         WriteLock lock (_activeSubscriptionsTableLock);
@@ -324,7 +317,7 @@ SubscriptionTable::reflectProviderModuleFailure
                 //  Get module user context setting
                 //
                 Uint16 moduleContext = PEGASUS_DEFAULT_PROV_USERCTXT;
-                CIMValue contextValue = 
+                CIMValue contextValue =
                     tableValue.providers [j].providerModule.getProperty
                     (tableValue.providers [j].providerModule.findProperty
                     (PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT)).getValue ();
@@ -334,7 +327,7 @@ SubscriptionTable::reflectProviderModuleFailure
                 }
 
                 //
-                //  If provider module name matches, 
+                //  If provider module name matches,
                 //  add provider to the list of failed providers
                 //
                 if (providerModuleName == moduleName)
@@ -385,7 +378,7 @@ SubscriptionTable::reflectProviderModuleFailure
             if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
                 tableValue))
             {
-                Array <ProviderClassList> updatedProviderList;    
+                Array <ProviderClassList> updatedProviderList;
                 for (Uint32 l = 0; l < tableValue.providers.size (); l++)
                 {
                     String providerModuleName;
@@ -442,13 +435,15 @@ CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
     //
     //  Construct subscription object name for key
     //
-    filterPath.setHost (String::EMPTY);
-    handlerPath.setHost (String::EMPTY);
-    Array <CIMKeyBinding> kb;
-    kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_FILTER, CIMValue (filterPath)));
-    kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_HANDLER, CIMValue (handlerPath)));
-    CIMObjectPath activeSubscriptionsKey ("", subscription.getNameSpace (),
-        subscription.getClassName (), kb);
+    filterPath.setHost(String::EMPTY);
+    handlerPath.setHost(String::EMPTY);
+    Array<CIMKeyBinding> kb;
+    kb.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_FILTER, CIMValue(filterPath)));
+    kb.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_HANDLER, CIMValue(handlerPath)));
+    CIMObjectPath activeSubscriptionsKey(
+        "", subscription.getNameSpace(), subscription.getClassName(), kb);
 
     return activeSubscriptionsKey;
 }
@@ -687,7 +682,7 @@ void SubscriptionTable::insertSubscription (
         //  Acquire and hold the write lock during the entire
         //  lookup/remove/insert process, allowing competing threads to apply
         //  their logic over a consistent view of the data.
-        //  Do not call any other methods that need 
+        //  Do not call any other methods that need
         //  _subscriptionClassesTableLock.
         //
         WriteLock lock (_subscriptionClassesTableLock);
@@ -742,14 +737,14 @@ void SubscriptionTable::updateProviders (
         //  Acquire and hold the write lock during the entire
         //  lookup/remove/insert process, allowing competing threads to apply
         //  their logic over a consistent view of the data.
-        //  Do not call any other methods that need 
+        //  Do not call any other methods that need
         //  _activeSubscriptionsTableLock.
         //
         WriteLock lock (_activeSubscriptionsTableLock);
         if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
             tableValue))
         {
-            Uint32 providerIndex = providerInList (provider.provider, 
+            Uint32 providerIndex = providerInList (provider.provider,
                 tableValue);
             if (addProvider)
             {
@@ -765,7 +760,7 @@ void SubscriptionTable::updateProviders (
                     CIMInstance p = provider.provider;
                     PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                         Tracer::LEVEL2,
-                        "Provider " + 
+                        "Provider " +
                         IndicationService::getProviderLogString (p) +
                         " already in list for Subscription (" +
                         activeSubscriptionsKey.toString () +
@@ -786,7 +781,7 @@ void SubscriptionTable::updateProviders (
                     CIMInstance p = provider.provider;
                     PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                         Tracer::LEVEL2,
-                        "Provider " + 
+                        "Provider " +
                         IndicationService::getProviderLogString (p) +
                         " not found in list for Subscription (" +
                         activeSubscriptionsKey.toString () +
@@ -799,7 +794,7 @@ void SubscriptionTable::updateProviders (
             PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
                 "Subscription (" + activeSubscriptionsKey.toString () +
                 ") not found in ActiveSubscriptionsTable");
-    
+
             //
             //  The subscription may have been deleted in the mean time
             //  If so, no further update is required
@@ -827,11 +822,11 @@ void SubscriptionTable::updateClasses (
         //  Acquire and hold the write lock during the entire
         //  lookup/remove/insert process, allowing competing threads to apply
         //  their logic over a consistent view of the data.
-        //  Do not call any other methods that need 
+        //  Do not call any other methods that need
         //  _activeSubscriptionsTableLock.
         //
         WriteLock lock (_activeSubscriptionsTableLock);
-        if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey, 
+        if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
             tableValue))
         {
             Uint32 providerIndex = providerInList (provider, tableValue);
@@ -856,7 +851,7 @@ void SubscriptionTable::updateClasses (
             }
             else
             {
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                     Tracer::LEVEL2,
                     "Provider (" + provider.getPath ().toString () +
                     ") not found in list for Subscription (" +
@@ -902,7 +897,7 @@ void SubscriptionTable::removeSubscription (
         //  Acquire and hold the write lock during the entire
         //  lookup/remove/insert process, allowing competing threads to apply
         //  their logic over a consistent view of the data.
-        //  Do not call any other methods that need 
+        //  Do not call any other methods that need
         //  _subscriptionClassesTableLock.
         //
         WriteLock lock (_subscriptionClassesTableLock);
@@ -927,12 +922,12 @@ void SubscriptionTable::removeSubscription (
                         subscriptions.remove (j);
                     }
                 }
-    
+
                 //
                 //  Remove the old entry
                 //
                 _removeSubscriptionClassesEntry (subscriptionClassesKey);
-    
+
                 //
                 //  If there are still subscriptions in the list, insert the
                 //  new entry
@@ -949,9 +944,9 @@ void SubscriptionTable::removeSubscription (
                 //
                 //  Entry not found in Subscription Classes table
                 //
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                     Tracer::LEVEL2,
-                    "Indication subclass and namespace (" + 
+                    "Indication subclass and namespace (" +
                     subscriptionClassesKey +
                     ") not found in SubscriptionClassesTable");
             }

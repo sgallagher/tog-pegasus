@@ -370,7 +370,8 @@ Boolean SubscriptionRepository::getState (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getState");
 
-    Uint32 stateIndex = instance.findProperty (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
+    Uint32 stateIndex =
+        instance.findProperty(PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE);
     if (stateIndex != PEG_NOT_FOUND)
     {
         CIMValue stateValue = instance.getProperty
@@ -577,7 +578,7 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
                         subscriptions [i].getPath ().toString () + "): " +
                         exception.getMessage ());
                 }
- 
+
                 deletedSubscriptions.append (subscriptions [i]);
             }
         }

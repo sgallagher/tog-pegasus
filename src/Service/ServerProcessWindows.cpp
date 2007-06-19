@@ -53,7 +53,8 @@ static ServerProcess* _server_proc = 0;
 static bool _shutdown = false;
 static Service pegasus_service;
 static HANDLE pegasus_service_event = NULL;
-static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
+static LPCSTR g_cimservice_key =
+    TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
 static LPCSTR g_cimservice_home = TEXT("home");
 static int g_argc = 0;
 static char **g_argv = 0;
@@ -74,11 +75,11 @@ static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue);
 //-------------------------------------------------------------------------
 // NO-OPs for windows platform
 //-------------------------------------------------------------------------
-int ServerProcess::cimserver_fork(void) { return(0); }
+int ServerProcess::cimserver_fork() { return(0); }
 void ServerProcess::notify_parent(int id) { return; }
 void cimserver_exitRC(int rc) {}
-int ServerProcess::cimserver_initialize(void) { return 0; }
-int ServerProcess::cimserver_wait(void) { return 0; }
+int ServerProcess::cimserver_initialize() { return 0; }
+int ServerProcess::cimserver_wait() { return 0; }
 
 
 //-------------------------------------------------------------------------
@@ -87,7 +88,8 @@ int ServerProcess::cimserver_wait(void) { return 0; }
 
 ServerProcess::ServerProcess()
 {
-    //be sure to call cimserver_set_process right after instantiating this in order for everything to work
+    // Be sure to call cimserver_set_process right after instantiating this in
+    // order for everything to work
 }
 
 ServerProcess::~ServerProcess()
@@ -96,9 +98,9 @@ ServerProcess::~ServerProcess()
 
 void ServerProcess::cimserver_set_process(void* p)
 {
-    AutoMutex am( _cimserverLock );
+    AutoMutex am(_cimserverLock);
     _server_proc = static_cast<ServerProcess *>(p);
-    if(_server_proc && _shutdown)
+    if (_server_proc && _shutdown)
         _server_proc->cimserver_stop();
 
     pegasus_service = Service(getProcessName());
@@ -106,21 +108,21 @@ void ServerProcess::cimserver_set_process(void* p)
 
 void signal_shutdown()
 {
-    AutoMutex am( _cimserverLock );
+    AutoMutex am(_cimserverLock);
     _shutdown = true;
-    if( _server_proc )
+    if (_server_proc)
         _server_proc->cimserver_stop(); 
 }
 
 //-------------------------------------------------------------------------
 // Run main server asynchronously
 //-------------------------------------------------------------------------
-static unsigned __stdcall cimserver_windows_thread( void* parm )
+static unsigned __stdcall cimserver_windows_thread(void* parm)
 {
     int argc = 0;
-    int rc = _server_proc->cimserver_run( g_argc, g_argv, false, false );
+    int rc = _server_proc->cimserver_run(g_argc, g_argv, false, false);
     SetEvent(pegasus_service_event);
-    _endthreadex( rc );
+    _endthreadex(rc);
     return rc;
 }
 
@@ -133,7 +135,7 @@ static unsigned __stdcall cimserver_windows_thread( void* parm )
 //-------------------------------------------------------------------------
 int cimserver_windows_main(int flag, int argc, char *argv[])
 {
-    switch( flag )
+    switch(flag)
     {
     case Service::STARTUP_FLAG:
     {
@@ -144,11 +146,12 @@ int cimserver_windows_main(int flag, int argc, char *argv[])
         unsigned threadid = 0;
         g_argc = argc;
         g_argv = argv;
-        HANDLE hThread = (HANDLE)_beginthreadex( NULL, 0, cimserver_windows_thread, NULL, 0, &threadid );
-        if( hThread == NULL )
+        HANDLE hThread = (HANDLE)_beginthreadex(
+            NULL, 0, cimserver_windows_thread, NULL, 0, &threadid);
+        if (hThread == NULL)
             return 1;
 
-        WaitForSingleObject( pegasus_service_event, INFINITE );
+        WaitForSingleObject(pegasus_service_event, INFINITE);
 
         //
         // Shutdown the cimserver.
@@ -163,14 +166,13 @@ int cimserver_windows_main(int flag, int argc, char *argv[])
 
         DWORD dwCheckPoint = 1; // service code should have already started at 0
 
-        while( WaitForSingleObject( hThread, 3000 ) == WAIT_TIMEOUT )
+        while (WaitForSingleObject(hThread, 3000) == WAIT_TIMEOUT)
         {
             pegasus_service.report_status( 
-                SERVICE_STOP_PENDING, NO_ERROR, dwCheckPoint++, 5000 );
+                SERVICE_STOP_PENDING, NO_ERROR, dwCheckPoint++, 5000);
         }
 
-        CloseHandle( hThread );
-
+        CloseHandle(hThread);
         break;
     }
     case Service::SHUTDOWN_FLAG:
@@ -190,236 +192,250 @@ int cimserver_windows_main(int flag, int argc, char *argv[])
 //-------------------------------------------------------------------------
 bool cimserver_install_nt_service(char *service_name)
 {
-  Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
-  char filename[_MAX_PATH] = {0};
-  char displayname[_MAX_PATH] = {0};
-  char descriptionname[_MAX_PATH] = {0};
+    Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
+    char filename[_MAX_PATH] = {0};
+    char displayname[_MAX_PATH] = {0};
+    char descriptionname[_MAX_PATH] = {0};
 
-  // If service name is specified, override default
-  if (service_name == NULL)
+    // If service name is specified, override default
+    if (service_name == NULL)
     {
-      strcpy(displayname, _server_proc->getExtendedName());
+        strcpy(displayname, _server_proc->getExtendedName());
     }
-  else
+    else
     {
-      pegasus_service.SetServiceName(service_name);
-      sprintf(displayname, "%s - %s", _server_proc->getExtendedName(), service_name);
+        pegasus_service.SetServiceName(service_name);
+        sprintf(displayname, "%s - %s",
+            _server_proc->getExtendedName(),
+            service_name);
     }
 
-  strcpy(descriptionname, _server_proc->getDescription());
+    strcpy(descriptionname, _server_proc->getDescription());
 
-  if(0 != GetModuleFileName(NULL, filename, sizeof(filename)))
-  {
-     status = pegasus_service.Install(displayname, descriptionname, filename);
+    if (0 != GetModuleFileName(NULL, filename, sizeof(filename)))
+    {
+        status =
+            pegasus_service.Install(displayname, descriptionname, filename);
 
-     // Upon success, set home in registry
-     if (status == Service::SERVICE_RETURN_SUCCESS)
-     {
-      char pegasus_homepath[_MAX_PATH];
-      System::extract_file_path(filename, pegasus_homepath);
-      pegasus_homepath[strlen(pegasus_homepath)-1] = '\0';
-      strcpy(filename, pegasus_homepath);
-      System::extract_file_path(filename, pegasus_homepath);
-      pegasus_homepath[strlen(pegasus_homepath)-1] = '\0';
-      _setRegInfo(g_cimservice_home, pegasus_homepath);
-     }
-  }
-  else
-  {
-    status = (Service::ReturnCode) GetLastError();
-  }
-  return (status == Service::SERVICE_RETURN_SUCCESS) ? true : false;
+        // Upon success, set home in registry
+        if (status == Service::SERVICE_RETURN_SUCCESS)
+        {
+            char pegasus_homepath[_MAX_PATH];
+            System::extract_file_path(filename, pegasus_homepath);
+            pegasus_homepath[strlen(pegasus_homepath)-1] = '\0';
+            strcpy(filename, pegasus_homepath);
+            System::extract_file_path(filename, pegasus_homepath);
+            pegasus_homepath[strlen(pegasus_homepath)-1] = '\0';
+            _setRegInfo(g_cimservice_home, pegasus_homepath);
+        }
+    }
+    else
+    {
+        status = (Service::ReturnCode) GetLastError();
+    }
+
+    return (status == Service::SERVICE_RETURN_SUCCESS);
 }
 
 //-------------------------------------------------------------------------
 // REMOVE
 //-------------------------------------------------------------------------
-bool cimserver_remove_nt_service(char *service_name) 
+bool cimserver_remove_nt_service(char* service_name)
 {
-  Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
+    Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
 
-  // If service name is specified, override default
-  if (service_name != NULL)
+    // If service name is specified, override default
+    if (service_name != NULL)
     {
-      pegasus_service.SetServiceName(service_name);
+        pegasus_service.SetServiceName(service_name);
     }
 
-  status = pegasus_service.Remove();
+    status = pegasus_service.Remove();
 
-  return (status == Service::SERVICE_RETURN_SUCCESS) ? true : false;
+    return (status == Service::SERVICE_RETURN_SUCCESS);
 }
 
 //-------------------------------------------------------------------------
 // START
 //-------------------------------------------------------------------------
-bool cimserver_start_nt_service(char *service_name, int num_args, char **service_args) 
+bool cimserver_start_nt_service(
+    char* service_name,
+    int num_args,
+    char** service_args)
 {
-  Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
+    Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
 
-  // If service name is specified, override default
-  if (service_name != NULL)
+    // If service name is specified, override default
+    if (service_name != NULL)
     {
-      pegasus_service.SetServiceName(service_name);
+        pegasus_service.SetServiceName(service_name);
     }
 
-  if(num_args > 0 && service_args != NULL)
-  {
-      pegasus_service.SetServiceArgs(num_args, service_args);
-  }
+    if (num_args > 0 && service_args != NULL)
+    {
+        pegasus_service.SetServiceArgs(num_args, service_args);
+    }
 
-  status = pegasus_service.Start(5);
+    status = pegasus_service.Start(5);
 
-  return (status == Service::SERVICE_RETURN_SUCCESS) ? true : false;
+    return (status == Service::SERVICE_RETURN_SUCCESS);
 }
 
 //-------------------------------------------------------------------------
 // STOP
 //-------------------------------------------------------------------------
-bool cimserver_stop_nt_service(char *service_name) 
+bool cimserver_stop_nt_service(char* service_name)
 {
-  Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
+    Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
 
-  // If service name is specified, override default
-  if (service_name != NULL)
+    // If service name is specified, override default
+    if (service_name != NULL)
     {
-      pegasus_service.SetServiceName(service_name);
+        pegasus_service.SetServiceName(service_name);
     }
 
-  status = pegasus_service.Stop(5);
+    status = pegasus_service.Stop(5);
 
-  return (status == Service::SERVICE_RETURN_SUCCESS) ? true : false;
+    return (status == Service::SERVICE_RETURN_SUCCESS);
 }
 
 //-------------------------------------------------------------------------
 // HELPER Utilities
 //-------------------------------------------------------------------------
-static bool _getRegInfo(const char *lpchKeyword, char *lpchRetValue)
+static bool _getRegInfo(
+    const char* lpchKeyword,
+    char* lpchRetValue)
 {
-  HKEY   hKey;
-  DWORD  dw                   = _MAX_PATH;
-  char   subKey[_MAX_PATH]    = {0};
-  
-  sprintf(subKey, g_cimservice_key, pegasus_service.GetServiceName());
+    HKEY hKey;
+    DWORD dw = _MAX_PATH;
+    char subKey[_MAX_PATH] = {0};
 
-  if ((RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                    subKey, 
-                    0,
-                    KEY_READ, 
-                    &hKey)) != ERROR_SUCCESS)
+    sprintf(subKey, g_cimservice_key, pegasus_service.GetServiceName());
+
+    if ((RegOpenKeyEx(
+             HKEY_LOCAL_MACHINE,
+             subKey,
+             0,
+             KEY_READ,
+             &hKey)) != ERROR_SUCCESS)
     {
-      return false;
+        return false;
     }
 
-  if ((RegQueryValueEx(hKey, 
-                       lpchKeyword, 
-                       NULL, 
-                       NULL, 
-                       (LPBYTE)lpchRetValue,
-                       &dw)) != ERROR_SUCCESS)
+    if ((RegQueryValueEx(
+             hKey,
+             lpchKeyword,
+             NULL,
+             NULL,
+             (LPBYTE)lpchRetValue,
+             &dw)) != ERROR_SUCCESS)
     {
-      RegCloseKey(hKey);
-      return false;
+        RegCloseKey(hKey);
+        return false;
     }
 
-  RegCloseKey(hKey);
+    RegCloseKey(hKey);
 
-  return true;
+    return true;
 }
 
-static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue)
+static bool _setRegInfo(
+    const char* lpchKeyword,
+    const char* lpchValue)
 {
-  HKEY   hKey;
-  DWORD  dw                   = _MAX_PATH;
-  char   home_key[_MAX_PATH]  = {0};
-  char   subKey[_MAX_PATH]    = {0};
+    HKEY hKey;
+    DWORD dw = _MAX_PATH;
+    char home_key[_MAX_PATH] = {0};
+    char subKey[_MAX_PATH] = {0};
 
-  if (lpchKeyword == NULL || lpchValue == NULL)
-    return false;
+    if (lpchKeyword == NULL || lpchValue == NULL)
+        return false;
 
-  sprintf(subKey, g_cimservice_key, pegasus_service.GetServiceName());
+    sprintf(subKey, g_cimservice_key, pegasus_service.GetServiceName());
 
-  if ((RegCreateKeyEx (HKEY_LOCAL_MACHINE,
-                      subKey,
-                      0,
-                      NULL,
-                      0,
-                      KEY_ALL_ACCESS,
-                      NULL,
-                      &hKey,
-                      NULL) != ERROR_SUCCESS))
+    if ((RegCreateKeyEx(
+             HKEY_LOCAL_MACHINE,
+             subKey,
+             0,
+             NULL,
+             0,
+             KEY_ALL_ACCESS,
+             NULL,
+             &hKey,
+             NULL) != ERROR_SUCCESS))
     {
-      return false;
+        return false;
     }
 
-  if ((RegSetValueEx(hKey, 
-                     lpchKeyword, 
-                     0, 
-                     REG_SZ, 
-                     (CONST BYTE *)lpchValue,
-                     (DWORD)(strlen(lpchValue)+1))) != ERROR_SUCCESS)
+    if ((RegSetValueEx(
+             hKey,
+             lpchKeyword,
+             0,
+             REG_SZ,
+             (CONST BYTE *)lpchValue,
+             (DWORD)(strlen(lpchValue)+1))) != ERROR_SUCCESS)
     {
-      RegCloseKey(hKey);
-      return false;
+        RegCloseKey(hKey);
+        return false;
     }
 
-  RegCloseKey(hKey);
+    RegCloseKey(hKey);
 
-  return true;
+    return true;
 }
 
 //void ServerProcess::setHome(const String& home)
-String ServerProcess::getHome(void)
+String ServerProcess::getHome()
 {
     String home;
 
-  // Determine the absolute path to the running program
-  char exe_pathname[_MAX_PATH] = {0};
-  char home_pathname[_MAX_PATH] = {0};
-  if(0 != GetModuleFileName(NULL, exe_pathname, sizeof(exe_pathname)))
-  {
+    // Determine the absolute path to the running program
+    char exe_pathname[_MAX_PATH] = {0};
+    char home_pathname[_MAX_PATH] = {0};
+    if (0 != GetModuleFileName(NULL, exe_pathname, sizeof(exe_pathname)))
+    {
+        // Pegasus home search rules:
+        // - look in registry (if set)
+        // - if not found, look in PEGASUS_HOME (if set)
+        // - if not found, use exe directory minus one level
 
-    // Pegasus home search rules:
-    // - look in registry (if set)
-    // - if not found, look in PEGASUS_HOME (if set)
-    // - if not found, use exe directory minus one level
+        bool found_reg = _getRegInfo("home", home_pathname);
+        if (found_reg)
+        {
+            // Make sure home matches
+            String current_home(home_pathname);
+            String current_exe(exe_pathname);
+            current_home.toLower();
+            current_exe.toLower();
 
-    bool found_reg = _getRegInfo("home", home_pathname);
-    if (found_reg == true)
-      {
-        // Make sure home matches
-        String current_home(home_pathname);
-        String current_exe(exe_pathname);
-        current_home.toLower();
-        current_exe.toLower();
-
-        Uint32 pos = current_exe.find(current_home);
-        if (pos != PEG_NOT_FOUND)
-          {
-            home = home_pathname;
-          }
-        else
-          {
-            found_reg = false;
-          }
-      }
-    if (found_reg == false)
-      {
-        const char* tmp = getenv("PEGASUS_HOME");
-        if (tmp)
-          {
-            home = tmp;
-          }
-        else
-          {
-            // ASSUMPTION: At a minimum, the cimserver program is running
-            // from a "bin" directory
-            home = FileSystem::extractFilePath(exe_pathname);
-            home.remove(home.size()-1, 1);
-            home = FileSystem::extractFilePath(home);
-            home.remove(home.size()-1, 1);
-          }
-      }
-  }
+            Uint32 pos = current_exe.find(current_home);
+            if (pos != PEG_NOT_FOUND)
+            {
+                home = home_pathname;
+            }
+            else
+            {
+                found_reg = false;
+            }
+        }
+        if (found_reg == false)
+        {
+            const char* tmp = getenv("PEGASUS_HOME");
+            if (tmp)
+            {
+                home = tmp;
+            }
+            else
+            {
+                // ASSUMPTION: At a minimum, the cimserver program is running
+                // from a "bin" directory
+                home = FileSystem::extractFilePath(exe_pathname);
+                home.remove(home.size()-1, 1);
+                home = FileSystem::extractFilePath(home);
+                home.remove(home.size()-1, 1);
+            }
+        }
+    }
     return home;
 }
 
@@ -427,9 +443,9 @@ String ServerProcess::getHome(void)
 // Our console control handler
 //
 
-static BOOL WINAPI ControlHandler( DWORD dwCtrlType )
+static BOOL WINAPI ControlHandler(DWORD dwCtrlType)
 {
-    switch( dwCtrlType )
+    switch (dwCtrlType)
     {
     case CTRL_BREAK_EVENT:  // use Ctrl+C or Ctrl+Break to simulate
     case CTRL_C_EVENT:      // SERVICE_CONTROL_STOP in debug mode
@@ -455,7 +471,7 @@ int ServerProcess::platform_run(
     // Check for my command line options
     //
 
-    for( int i = 1; i < argc; )
+    for (int i = 1; i < argc; )
     {
         const char* arg = argv[i];
 
@@ -476,7 +492,7 @@ int ServerProcess::platform_run(
                     opt_arg = argv[i+1];
 
                 }
-                if(cimserver_install_nt_service(opt_arg))
+                if (cimserver_install_nt_service(opt_arg))
                 {
                     //l10n
                     //cout << "\nPegasus installed as NT Service";
@@ -499,9 +515,9 @@ int ServerProcess::platform_run(
                 char *opt_arg = NULL;
                 if (i+1 < argc)
                 {
-                    opt_arg = argv[i+1];                    
+                    opt_arg = argv[i+1];
                 }
-                if(cimserver_remove_nt_service(opt_arg))
+                if (cimserver_remove_nt_service(opt_arg))
                 {
                     //l10n
                     //cout << "\nPegasus removed as NT Service";
@@ -526,7 +542,7 @@ int ServerProcess::platform_run(
                 int num_args = 0;
                 if (i+1 < argc)
                 {
-                    opt_arg = argv[i+1];                    
+                    opt_arg = argv[i+1];
                     num_args = argc - 3;
                 }
                 else
@@ -535,10 +551,8 @@ int ServerProcess::platform_run(
                 }
 
                 char **service_args = &argv[1];
-                if(cimserver_start_nt_service(opt_arg, num_args, service_args))
+                if (cimserver_start_nt_service(opt_arg, num_args, service_args))
                 {
-                    //l10n
-                    //cout << "\nPegasus started as NT Service";
                     MessageLoaderParms parms(
                         "src.Server.cimserver.STARTED_NT_SERVICE",
                         "\nPegasus started as a Windows service");
@@ -558,12 +572,10 @@ int ServerProcess::platform_run(
                 char *opt_arg = NULL;
                 if (i+1 < argc)
                 {
-                    opt_arg = argv[i+1];                    
+                    opt_arg = argv[i+1];
                 }
-                if(cimserver_stop_nt_service(opt_arg))
+                if (cimserver_stop_nt_service(opt_arg))
                 {
-                    //l10n
-                    //cout << "\nPegasus stopped as NT Service";
                     MessageLoaderParms parms(
                         "src.Server.cimserver.STOPPED_NT_SERVICE",
                         "\nPegasus stopped as a Windows service");
@@ -599,7 +611,7 @@ int ServerProcess::platform_run(
     //
     // Hmm, when starting as a service, should we do this here (before
     // starting the control dispatcher)?  If we do then the SCM reports
-    // a dumb message to the user.  If we don't, and it in the serviceProc 
+    // a dumb message to the user.  If we don't, and it in the serviceProc
     // then the service will start up then die silently.
     //
 
@@ -607,11 +619,12 @@ int ServerProcess::platform_run(
     {
         MessageLoaderParms parms(
             "src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
-            "Unable to start CIMServer.\nCIMServer is already running." );
+            "Unable to start CIMServer.\nCIMServer is already running.");
         Logger::put(
             Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
-            MessageLoader::getMessage(parms) );
-        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+            MessageLoader::getMessage(parms));
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
+            PEGASUS_STD(endl);
         return 1;
     }
 
@@ -621,9 +634,9 @@ int ServerProcess::platform_run(
     //
 
     char console_title[ _MAX_PATH ] = {0};
-    if( GetConsoleTitle( console_title, _MAX_PATH ) > 0 )
+    if (GetConsoleTitle(console_title, _MAX_PATH) > 0)
     {
-        SetConsoleCtrlHandler( ControlHandler, TRUE );
+        SetConsoleCtrlHandler(ControlHandler, TRUE);
 
         return cimserver_run(argc, argv, shutdownOption, debugOutputOption);
     }
@@ -632,18 +645,19 @@ int ServerProcess::platform_run(
     // Run as a service
     //
 
-    pegasus_service_event = CreateEvent( NULL, FALSE, FALSE, NULL );
+    pegasus_service_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
     Service::ReturnCode status;
-    status = pegasus_service.Run( cimserver_windows_main );
+    status = pegasus_service.Run(cimserver_windows_main);
 
-    if( status != Service::SERVICE_RETURN_SUCCESS )
+    if (status != Service::SERVICE_RETURN_SUCCESS)
     {
         // todo: put into localized messages when messages unfreezes.
         Logger::put_l(
             Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
             "src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT",
-            "Error during service run: code = $0.", status );
+            "Error during service run: code = $0.",
+            status);
         return 1;
     }
 

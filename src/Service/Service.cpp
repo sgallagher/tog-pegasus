@@ -54,22 +54,26 @@ SERVICE_MAIN_T         Service::g_service_main          = NULL;
 //-------------------------------------------------------------------------
 // P U B L I C
 //-------------------------------------------------------------------------
-Service::Service(void)
+Service::Service()
 {
 }
 
-Service::Service(const char *service_name)
+Service::Service(const char* service_name)
 {
-    //ATTN: I have to allocate memory here, unless I want to change the char* g_service_name to a char[].
-    //Changing to an array of char affects a lot more code.  Previously, this method had a char* for its 
-    //input parameter, and since we were using #define's the values were always in memory.  
-    //Now we are using an interface method that returns const char* -hns PEP222
+    // ATTN: I have to allocate memory here, unless I want to change the
+    // char* g_service_name to a char[].  Changing to an array of char
+    // affects a lot more code.  Previously, this method had a char* for its
+    // input parameter, and since we were using #define's the values were
+    // always in memory.
+    // Now we are using an interface method that returns const char* -hns PEP222
     g_service_name = (char*) malloc(strlen(service_name)+1);
     memset(g_service_name, '\0', strlen(service_name)+1);
     strncpy(g_service_name, service_name, strlen(service_name));
 }
 
-Service::Service(const char *service_name, char *event_source)
+Service::Service(
+    const char* service_name,
+    char* event_source)
 {
     g_event_source = event_source;
 
@@ -78,10 +82,11 @@ Service::Service(const char *service_name, char *event_source)
     strncpy(g_service_name, service_name, strlen(service_name));
 }
 
-Service::~Service(void)
+Service::~Service()
 {
-    //ATTN: Will open Bugzilla on this.  I need to change this to either use char arrays OR deallocate the memory
-    //elsewhere.  I cannot use any fancy AutoPtr stuff since Pegasus code is kept out of this OS-specific file
+    // ATTN: Will open Bugzilla on this.  I need to change this to either use
+    // char arrays OR deallocate the memory elsewhere.  I cannot use any fancy
+    // AutoPtr stuff since Pegasus code is kept out of this OS-specific file
     // -hns PEP#222
     /*if (g_service_name != NULL)
     {
@@ -89,7 +94,7 @@ Service::~Service(void)
     }*/
 }
 
-void Service::SetServiceName(char *service_name)
+void Service::SetServiceName(char* service_name)
 {
     if (g_service_name != NULL)
     {
@@ -121,51 +126,51 @@ void Service::SetServiceName(char *service_name)
  * NOTE: If the process is successfully launched as a Win32 service, this  *
  *       function never returns, but calls exit() instead.                 *
  *-------------------------------------------------------------------------*/
-Service::ReturnCode
-Service::Install(
+Service::ReturnCode Service::Install(
   char  *display_name,
   char  *description,
   char  *exe_name)
 {
-  ReturnCode status = SERVICE_RETURN_SUCCESS;
-  SC_HANDLE sch;
+    ReturnCode status = SERVICE_RETURN_SUCCESS;
+    SC_HANDLE sch;
 
-  if (g_service_name == NULL || display_name == NULL || exe_name == NULL)
-    return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
-  else if ((sch = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE)) == NULL)
-    status = get_error(GetLastError(), "open");
-  else
+    if (g_service_name == NULL || display_name == NULL || exe_name == NULL)
+        return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
+    else if ((sch = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE)) ==
+             NULL)
+        status = get_error(GetLastError(), "open");
+    else
     {
-      SC_HANDLE service = CreateService( 
-        sch,                       // SCManager database 
-        g_service_name,            // name of service 
-        display_name,              // service name to display 
-        SERVICE_ALL_ACCESS,        // desired access 
-        SERVICE_WIN32_OWN_PROCESS, // service type 
-        SERVICE_DEMAND_START,      // start type 
-        SERVICE_ERROR_NORMAL,      // error control type 
-        exe_name,                  // service's binary 
-        NULL,                      // no load ordering group 
-        NULL,                      // no tag identifier 
-        NULL,                      // no dependencies 
-        NULL,                      // LocalSystem account 
-        NULL);                     // no password 
- 
-      if (service == NULL) 
+        SC_HANDLE service = CreateService(
+            sch,                       // SCManager database
+            g_service_name,            // name of service
+            display_name,              // service name to display
+            SERVICE_ALL_ACCESS,        // desired access
+            SERVICE_WIN32_OWN_PROCESS, // service type
+            SERVICE_DEMAND_START,      // start type
+            SERVICE_ERROR_NORMAL,      // error control type
+            exe_name,                  // service's binary
+            NULL,                      // no load ordering group
+            NULL,                      // no tag identifier
+            NULL,                      // no dependencies
+            NULL,                      // LocalSystem account
+            NULL);                     // no password
+
+        if (service == NULL)
         {
-          status = get_error(GetLastError(), "create");
-          return status;
+            status = get_error(GetLastError(), "create");
+            return status;
         }
-      else 
+        else
         {
-          change_service_description(service, description);
-          CloseServiceHandle(service);
+            change_service_description(service, description);
+            CloseServiceHandle(service);
         }
-  
-      CloseServiceHandle(sch);
+
+        CloseServiceHandle(sch);
     }
 
-  return status;
+    return status;
 }
 
 /*-------------------------------------------------------------------------*
@@ -174,38 +179,38 @@ Service::Install(
  * Description:                                                            *
  *     Removes the service.                                                *
  *-------------------------------------------------------------------------*/
-Service::ReturnCode
-Service::Remove(void)
+Service::ReturnCode Service::Remove()
 {
-  ReturnCode status = SERVICE_RETURN_SUCCESS;
-  SC_HANDLE sch;
+    ReturnCode status = SERVICE_RETURN_SUCCESS;
+    SC_HANDLE sch;
 
-  if (g_service_name == NULL)
-    return SERVICE_ERROR_NOT_FOUND; /* SERVICE_ERROR_NOT_FOUND */
-  else if ((sch = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE)) == NULL)
-    status = get_error(GetLastError(), "open");
-  else
+    if (g_service_name == NULL)
+        return SERVICE_ERROR_NOT_FOUND; /* SERVICE_ERROR_NOT_FOUND */
+    else if ((sch = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE)) ==
+             NULL)
+        status = get_error(GetLastError(), "open");
+    else
     {
-      SC_HANDLE service = OpenService(sch, g_service_name, DELETE);
- 
-      if (service == NULL) 
+        SC_HANDLE service = OpenService(sch, g_service_name, DELETE);
+
+        if (service == NULL)
         {
-          status = get_error(GetLastError(), "open");
+            status = get_error(GetLastError(), "open");
         }
-      else 
+        else
         {
-          if (!DeleteService(service))
+            if (!DeleteService(service))
             {
-              status = get_error(GetLastError(), "remove");
+                status = get_error(GetLastError(), "remove");
             }
 
-          CloseServiceHandle(service);
+            CloseServiceHandle(service);
         }
-  
-      CloseServiceHandle(sch);
+
+        CloseServiceHandle(sch);
     }
 
-  return status;
+    return status;
 }
 
 /*-------------------------------------------------------------------------*
@@ -218,56 +223,57 @@ Service::Remove(void)
  * Description:                                                            *
  *     Attempt to start the service.                                       *
  *-------------------------------------------------------------------------*/
-Service::ReturnCode
-Service::Start(int wait_time)
+Service::ReturnCode Service::Start(int wait_time)
 {
-  ReturnCode      status = SERVICE_RETURN_SUCCESS;
-  SERVICE_STATUS  service_status;
-  SC_HANDLE       sch;
+    ReturnCode      status = SERVICE_RETURN_SUCCESS;
+    SERVICE_STATUS  service_status;
+    SC_HANDLE       sch;
 
-  if (g_service_name == NULL)
-    return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
-  else if ((sch = OpenSCManager(NULL, NULL, GENERIC_READ)) == NULL)
-    status = get_error(GetLastError(), "open");
-  else
-    {
-      SC_HANDLE service = OpenService(sch, g_service_name, SERVICE_START | SERVICE_QUERY_STATUS);
- 
-      if (service == NULL) 
+    if (g_service_name == NULL)
+        return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
+    else if ((sch = OpenSCManager(NULL, NULL, GENERIC_READ)) == NULL)
         status = get_error(GetLastError(), "open");
-      else if (!StartService(service, g_argc, (const char **)g_argv))
-        status = get_error(GetLastError(), "start");
-      else 
+    else
+    {
+        SC_HANDLE service = OpenService(
+            sch, g_service_name, SERVICE_START | SERVICE_QUERY_STATUS);
+
+        if (service == NULL)
+            status = get_error(GetLastError(), "open");
+        else if (!StartService(service, g_argc, (const char **)g_argv))
+            status = get_error(GetLastError(), "start");
+        else
         {
-          int i, max = (wait_time > 0) ? wait_time : 5;
+            int i, max = (wait_time > 0) ? wait_time : 5;
 
-          // Loop up to max times waiting for the service 
-          // state to change to RUNNING
+            // Loop up to max times waiting for the service
+            // state to change to RUNNING
 
-          for (i = 0; i < max; i++)
+            for (i = 0; i < max; i++)
             {
-              if (!QueryServiceStatus(service, &service_status))
+                if (!QueryServiceStatus(service, &service_status))
                 {
-                  status = get_error(GetLastError(), "query");
-                  return status; // QUERY_FAIL
+                    status = get_error(GetLastError(), "query");
+                    return status; // QUERY_FAIL
                 }
 
-              if (service_status.dwCurrentState == SERVICE_RUNNING)
-                break;
+                if (service_status.dwCurrentState == SERVICE_RUNNING)
+                    break;
 
-              Sleep(1 * CLOCKS_PER_SEC);
+                Sleep(1 * CLOCKS_PER_SEC);
             }
-          
-          status = (i < max) ? SERVICE_RETURN_SUCCESS : SERVICE_ERROR_REQUEST_TIMEOUT;
 
-          CloseServiceHandle(service);
+            status = (i < max) ?
+                SERVICE_RETURN_SUCCESS : SERVICE_ERROR_REQUEST_TIMEOUT;
+
+            CloseServiceHandle(service);
         }
- 
-      CloseServiceHandle(sch); 
+
+        CloseServiceHandle(sch);
     }
 
-  return status;
-} 
+    return status;
+}
 
 /*-------------------------------------------------------------------------*
  * Method: Stop                                                            *
@@ -279,56 +285,58 @@ Service::Start(int wait_time)
  * Description:                                                            *
  *     Attempt to stop the service.                                        *
  *-------------------------------------------------------------------------*/
-Service::ReturnCode 
-Service::Stop(int wait_time)
+Service::ReturnCode Service::Stop(int wait_time)
 {
-  ReturnCode      status = SERVICE_RETURN_SUCCESS;
-  SERVICE_STATUS  service_status;
-  SC_HANDLE       sch;
+    ReturnCode      status = SERVICE_RETURN_SUCCESS;
+    SERVICE_STATUS  service_status;
+    SC_HANDLE       sch;
 
-  if (g_service_name == NULL)
-    return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
-  else if ((sch = OpenSCManager(NULL, NULL, GENERIC_READ)) == NULL)
-    status = get_error(GetLastError(), "open");
- //   show_error("OpenSCMManager", "service", GetLastError());
-  else
-    {
-      SC_HANDLE service = OpenService(sch, g_service_name, SERVICE_STOP | SERVICE_QUERY_STATUS);
- 
-      if (service == NULL) 
+    if (g_service_name == NULL)
+        return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
+    else if ((sch = OpenSCManager(NULL, NULL, GENERIC_READ)) == NULL)
         status = get_error(GetLastError(), "open");
-      else if (!ControlService(service, SERVICE_CONTROL_STOP, &service_status))
-        status = get_error(GetLastError(), "stop");
-      else 
+     //   show_error("OpenSCMManager", "service", GetLastError());
+    else
+    {
+        SC_HANDLE service = OpenService(
+            sch, g_service_name, SERVICE_STOP | SERVICE_QUERY_STATUS);
+
+        if (service == NULL)
+            status = get_error(GetLastError(), "open");
+        else if (!ControlService(
+                      service, SERVICE_CONTROL_STOP, &service_status))
+            status = get_error(GetLastError(), "stop");
+        else
         {
-          int i, max = (wait_time > 0) ? wait_time : 5;
+            int i, max = (wait_time > 0) ? wait_time : 5;
 
-          // Loop up to max times waiting for the service 
-          // state to change to STOPPED
+            // Loop up to max times waiting for the service
+            // state to change to STOPPED
 
-          for (i = 0; i < max; i++)
+            for (i = 0; i < max; i++)
             {
-              if (!QueryServiceStatus(service, &service_status))
+                if (!QueryServiceStatus(service, &service_status))
                 {
-                  status = get_error(GetLastError(), "query");
-                  return status; // QUERY_FAIL
+                    status = get_error(GetLastError(), "query");
+                    return status; // QUERY_FAIL
                 }
 
-              if (service_status.dwCurrentState == SERVICE_STOPPED)
-                break;
+                if (service_status.dwCurrentState == SERVICE_STOPPED)
+                    break;
 
-              Sleep(1 * CLOCKS_PER_SEC);
+                Sleep(1 * CLOCKS_PER_SEC);
             }
-          
-          status = (i < max) ? SERVICE_RETURN_SUCCESS : SERVICE_ERROR_REQUEST_TIMEOUT;
 
-          CloseServiceHandle(service);
+            status = (i < max) ?
+                SERVICE_RETURN_SUCCESS : SERVICE_ERROR_REQUEST_TIMEOUT;
+
+            CloseServiceHandle(service);
         }
- 
-      CloseServiceHandle(sch); 
+
+        CloseServiceHandle(sch);
     }
 
-  return status;
+    return status;
 }
 
 /*-------------------------------------------------------------------------*
@@ -350,37 +358,36 @@ Service::Stop(int wait_time)
  *       function never returns, but calls exit() instead.                 *
  *-------------------------------------------------------------------------*/
 
-Service::ReturnCode 
-Service::Run(SERVICE_MAIN_T service_main, DWORD flags)
+Service::ReturnCode Service::Run(SERVICE_MAIN_T service_main, DWORD flags)
 {
-  ReturnCode status = SERVICE_RETURN_SUCCESS;
+    ReturnCode status = SERVICE_RETURN_SUCCESS;
 
-  SERVICE_TABLE_ENTRY dispatchTable[] = 
-  { 
-    { g_service_name, real_service_main },
-    { NULL,         NULL              } 
-  };
-
-  // Validate the arguments as best we can 
-
-  if (g_service_name == NULL || service_main == NULL)
-    return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
-
-  // Save parameters in global variables 
-
-  g_flags        = flags;
-  g_service_main = service_main;
-
-  // Kick off the service 
-
-  if (!StartServiceCtrlDispatcher(dispatchTable))
+    SERVICE_TABLE_ENTRY dispatchTable[] =
     {
-      status = get_error(GetLastError(), "start");
-      return status; // FAIL
+        { g_service_name, real_service_main },
+        { NULL,           NULL              }
+    };
+
+    // Validate the arguments as best we can
+
+    if (g_service_name == NULL || service_main == NULL)
+        return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
+
+    // Save parameters in global variables
+
+    g_flags        = flags;
+    g_service_main = service_main;
+
+    // Kick off the service
+
+    if (!StartServiceCtrlDispatcher(dispatchTable))
+    {
+        status = get_error(GetLastError(), "start");
+        return status; // FAIL
     }
 
-  // Don't call exit()
-  return status;
+    // Don't call exit()
+    return status;
 }
 
 /*-------------------------------------------------------------------------*
@@ -389,35 +396,35 @@ Service::Run(SERVICE_MAIN_T service_main, DWORD flags)
  * Description:                                                            *
  *     Returns the state of the service into "state".                      *
  *-------------------------------------------------------------------------*/
-Service::ReturnCode 
-Service::GetState(State *state)
+Service::ReturnCode Service::GetState(State* state)
 {
-  ReturnCode      status = SERVICE_RETURN_SUCCESS;
-  SERVICE_STATUS  service_status;
-  SC_HANDLE       sch;
+    ReturnCode      status = SERVICE_RETURN_SUCCESS;
+    SERVICE_STATUS  service_status;
+    SC_HANDLE       sch;
 
-  if (g_service_name == NULL)
-    return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
-  else if ((sch = OpenSCManager(NULL, NULL, GENERIC_READ)) == NULL)
-    status = get_error(GetLastError(), "open");
-  else
-    {
-      SC_HANDLE service = OpenService(sch, g_service_name, SERVICE_QUERY_STATUS);
- 
-      if (service == NULL) 
+    if (g_service_name == NULL)
+        return SERVICE_ERROR_NOT_FOUND; // SERVICE_ERROR_NOT_FOUND
+    else if ((sch = OpenSCManager(NULL, NULL, GENERIC_READ)) == NULL)
         status = get_error(GetLastError(), "open");
-      else if (!QueryServiceStatus(service, &service_status))
-        status = get_error(GetLastError(), "query");
-      else
+    else
+    {
+        SC_HANDLE service =
+            OpenService(sch, g_service_name, SERVICE_QUERY_STATUS);
+
+        if (service == NULL)
+            status = get_error(GetLastError(), "open");
+        else if (!QueryServiceStatus(service, &service_status))
+            status = get_error(GetLastError(), "query");
+        else
         {
-          *state = get_state(service_status.dwCurrentState);
-          CloseServiceHandle(service);
+            *state = get_state(service_status.dwCurrentState);
+            CloseServiceHandle(service);
         }
-  
-      CloseServiceHandle(sch);
+
+        CloseServiceHandle(sch);
     }
 
-  return status;
+    return status;
 }
 
 /*-------------------------------------------------------------------------*
@@ -448,28 +455,28 @@ Service::GetState(State *state)
  *     true  if event was successfully logged                              *
  *     false if the event could not be logged                              *
  *-------------------------------------------------------------------------*/
-bool
-Service::LogEvent(WORD event_type, DWORD event_id, const char *string)
+bool Service::LogEvent(WORD event_type, DWORD event_id, const char *string)
 {
-  BOOL   status;
-  HANDLE h_event_source = RegisterEventSource(NULL, g_event_source);
+    BOOL   status;
+    HANDLE h_event_source = RegisterEventSource(NULL, g_event_source);
 
-  if (h_event_source == NULL)
-    FALSE;
+    if (h_event_source == NULL)
+        FALSE;
 
-  status = ReportEvent (h_event_source, 
-                        event_type, 
-                        0, 
-                        event_id, 
-                        NULL, 
-                        1, 
-                        0, 
-                        &string, 
-                        NULL);
+    status = ReportEvent(
+        h_event_source,
+        event_type,
+        0,
+        event_id,
+        NULL,
+        1,
+        0,
+        &string,
+        NULL);
 
-  DeregisterEventSource(h_event_source);
+    DeregisterEventSource(h_event_source);
 
-  return (status == TRUE) ? true : false;
+    return (status == TRUE);
 }
 
 //-------------------------------------------------------------------------
@@ -494,42 +501,42 @@ Service::LogEvent(WORD event_type, DWORD event_id, const char *string)
 void __stdcall
 Service::real_service_main(DWORD argc, LPTSTR *argv)
 {
-  // Let the SCM know we're alive and kicking
+    // Let the SCM know we're alive and kicking
 
-  report_status(SERVICE_START_PENDING, NO_ERROR, 0, 5000);
+    report_status(SERVICE_START_PENDING, NO_ERROR, 0, 5000);
 
-  // If the command line arguments include the string "-debug" then
-  // invoke the debugger
+    // If the command line arguments include the string "-debug" then
+    // invoke the debugger
 
-  if (check_args_for_string("-debug"))
-    DebugBreak();
+    if (check_args_for_string("-debug"))
+        DebugBreak();
 
-  // Save copy of argc and argc in global variables
+    // Save copy of argc and argc in global variables
 
-  g_argc = argc;
-  g_argv = argv;
+    g_argc = argc;
+    g_argv = argv;
 
-  // Start service actions
+    // Start service actions
 
-  g_service_status_handle = RegisterServiceCtrlHandler (g_service_name, 
-                                                        service_control_handler);
+    g_service_status_handle =
+        RegisterServiceCtrlHandler(g_service_name, service_control_handler);
 
-  if (g_service_status_handle == 0)
+    if (g_service_status_handle == 0)
     {
-      show_error("register", "Service Control Handler", GetLastError());
-      report_status(SERVICE_STOPPED, NO_ERROR, 0, 5000);
-      return;
+        show_error("register", "Service Control Handler", GetLastError());
+        report_status(SERVICE_STOPPED, NO_ERROR, 0, 5000);
+        return;
     }
 
-  // Change our state to RUNNING, then invoke the user supplied
-  // service_main function. After the user's service_main exits,
-  // change the service state to STOPPED.
+    // Change our state to RUNNING, then invoke the user supplied
+    // service_main function. After the user's service_main exits,
+    // change the service state to STOPPED.
 
-  report_status(SERVICE_RUNNING, NO_ERROR, 0, 5000);
-  g_service_main(STARTUP_FLAG, argc, argv);
-  report_status(SERVICE_STOPPED, NO_ERROR, 0, 5000);
+    report_status(SERVICE_RUNNING, NO_ERROR, 0, 5000);
+    g_service_main(STARTUP_FLAG, argc, argv);
+    report_status(SERVICE_STOPPED, NO_ERROR, 0, 5000);
 
-  return;
+    return;
 }
 
 /*-------------------------------------------------------------------------*
@@ -547,18 +554,17 @@ Service::real_service_main(DWORD argc, LPTSTR *argv)
  *     true  if the string was found                                       *
  *     false if the string was not found                                   *
  *-------------------------------------------------------------------------*/
-bool
-Service::check_args_for_string(char *string)
+bool Service::check_args_for_string(char* string)
 {
-  int i;
+    int i;
 
-  for (i = 1; i < g_argc; i++)
+    for (i = 1; i < g_argc; i++)
     {
-      if (strcmp(g_argv[i], string) == 0)
-        return true;
+        if (strcmp(g_argv[i], string) == 0)
+            return true;
     }
 
-  return false;
+    return false;
 }
 
 /*-------------------------------------------------------------------------*
@@ -583,18 +589,18 @@ Service::check_args_for_string(char *string)
 void WINAPI
 Service::service_control_handler(DWORD control)
 {
-  /* Currently, only the stop contol requires special handling */
+    /* Currently, only the stop contol requires special handling */
 
-  if (control == SERVICE_CONTROL_STOP)
+    if (control == SERVICE_CONTROL_STOP)
     {
-      report_status(SERVICE_STOP_PENDING, NO_ERROR, 0, 5000);
-      g_service_main(SHUTDOWN_FLAG, g_argc, g_argv);
-      return;
+        report_status(SERVICE_STOP_PENDING, NO_ERROR, 0, 5000);
+        g_service_main(SHUTDOWN_FLAG, g_argc, g_argv);
+        return;
     }
 
-  /* For every other control, just send back our current state */
+    /* For every other control, just send back our current state */
 
-  report_status(g_current_state, NO_ERROR, 0, 5000);
+    report_status(g_current_state, NO_ERROR, 0, 5000);
 }
 
 /*-------------------------------------------------------------------------*
@@ -628,34 +634,33 @@ Service::service_control_handler(DWORD control)
  *     true  if the status was successfully reported                       *
  *     false if the status could not be reported                           *
  *-------------------------------------------------------------------------*/
-bool
-Service::report_status(
-  DWORD current_state, 
-  DWORD exit_code, 
-  DWORD check_point, 
-  DWORD wait_hint)
+bool Service::report_status(
+    DWORD current_state,
+    DWORD exit_code,
+    DWORD check_point,
+    DWORD wait_hint)
 {
-  SERVICE_STATUS current_status = 
-  {
-    SERVICE_WIN32,
-    current_state,
-    SERVICE_CONTROL_INTERROGATE,
-    exit_code,
-    0,
-    check_point,
-    wait_hint
-  };
+    SERVICE_STATUS current_status =
+    {
+        SERVICE_WIN32,
+        current_state,
+        SERVICE_CONTROL_INTERROGATE,
+        exit_code,
+        0,
+        check_point,
+        wait_hint
+    };
 
-  /* Wait until we're started before we accept a stop control */
+    /* Wait until we're started before we accept a stop control */
 
-  if (current_state == SERVICE_RUNNING)
-    current_status.dwControlsAccepted += SERVICE_ACCEPT_STOP;
+    if (current_state == SERVICE_RUNNING)
+        current_status.dwControlsAccepted += SERVICE_ACCEPT_STOP;
 
-  /* Save new state */
+    /* Save new state */
 
-  g_current_state = current_state;
-  
-  return (SetServiceStatus(g_service_status_handle, &current_status) == TRUE) ? true : false;
+    g_current_state = current_state;
+
+    return (SetServiceStatus(g_service_status_handle, &current_status) == TRUE);
 }
 
 /*-------------------------------------------------------------------------*
@@ -683,39 +688,40 @@ Service::report_status(
  *     first appeared in Windows2000. Therefore, this code checks the      *
  *     OS version, before calling ChangeServiceConfig2().                  *
  *-------------------------------------------------------------------------*/
-void 
-Service::change_service_description(SC_HANDLE service, char *description)
+void Service::change_service_description(SC_HANDLE service, char *description)
 {
-  OSVERSIONINFO osvi;
+    OSVERSIONINFO osvi;
 
-  /* 
-   *  Test for Windows 2000 or greater
-   */ 
-  
-  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    /*
+     *  Test for Windows 2000 or greater
+     */
 
-  if (GetVersionEx(&osvi) != 0                      && 
-      osvi.dwPlatformId    == VER_PLATFORM_WIN32_NT && 
-      osvi.dwMajorVersion  >= 5)
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+    if (GetVersionEx(&osvi) != 0                      &&
+        osvi.dwPlatformId    == VER_PLATFORM_WIN32_NT &&
+        osvi.dwMajorVersion  >= 5)
     {
-      typedef BOOL (WINAPI *CHANGE_SERVICE_CONFIG2_T)(SC_HANDLE, DWORD, LPVOID);
+        typedef BOOL
+            (WINAPI *CHANGE_SERVICE_CONFIG2_T)(SC_HANDLE, DWORD, LPVOID);
 
-      HINSTANCE hdll = LoadLibrary("advapi32.dll");
+        HINSTANCE hdll = LoadLibrary("advapi32.dll");
 
-      if (hdll != NULL)
+        if (hdll != NULL)
         {
-          SERVICE_DESCRIPTION      sd;
-          CHANGE_SERVICE_CONFIG2_T csc;
+            SERVICE_DESCRIPTION      sd;
+            CHANGE_SERVICE_CONFIG2_T csc;
 
-          csc = (CHANGE_SERVICE_CONFIG2_T) GetProcAddress(hdll, "ChangeServiceConfig2A");
+            csc = (CHANGE_SERVICE_CONFIG2_T)
+                GetProcAddress(hdll, "ChangeServiceConfig2A");
 
-          if (csc)
+            if (csc)
             {
-              sd.lpDescription = description;
-              csc(service, SERVICE_CONFIG_DESCRIPTION, &sd);
+                sd.lpDescription = description;
+                csc(service, SERVICE_CONFIG_DESCRIPTION, &sd);
             }
 
-          FreeLibrary(hdll);
+            FreeLibrary(hdll);
         }
     }
 }
@@ -743,67 +749,69 @@ Service::change_service_description(SC_HANDLE service, char *description)
  *     true  if event was successfully logged                              *
  *     false if the event could not be logged                              *
  *-------------------------------------------------------------------------*/
-bool
-Service::show_error(const char *action, const char *object, DWORD hr)
+bool Service::show_error(const char *action, const char *object, DWORD hr)
 {
-  char console_title[_MAX_PATH] = {0};
-  char  txt[_MAX_PATH]          = "";
-  char  msg[_MAX_PATH]          = "";
-  DWORD nchars;
+    char console_title[_MAX_PATH] = {0};
+    char  txt[_MAX_PATH]          = "";
+    char  msg[_MAX_PATH]          = "";
+    DWORD nchars;
 
-  nchars = FormatMessage(
-    FORMAT_MESSAGE_FROM_SYSTEM,
-    NULL,
-    hr,
-    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-    msg,
-    sizeof(msg),
-    NULL);
+    nchars = FormatMessage(
+        FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL,
+        hr,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        msg,
+        sizeof(msg),
+        NULL);
 
-  if (nchars == 0) 
-    sprintf(msg, "Unknown error code - %%X%x", hr);
-  else if (nchars > 1)
+    if (nchars == 0)
+        sprintf(msg, "Unknown error code - %%X%x", hr);
+    else if (nchars > 1)
     {
-      if (msg[nchars - 1] == '\n') msg[nchars - 1] = '\0';
-      if (msg[nchars - 2] == '\r') msg[nchars - 2] = '\0';
+        if (msg[nchars - 1] == '\n') msg[nchars - 1] = '\0';
+        if (msg[nchars - 2] == '\r') msg[nchars - 2] = '\0';
     }
 
-  sprintf(txt, "Failed to %s %s %s. Reason: %s", action, object, g_service_name, msg);
+    sprintf(txt,
+        "Failed to %s %s %s. Reason: %s",
+        action,
+        object,
+        g_service_name,
+        msg);
 
-  // Running from a console window
-  // send courtesy message txt to stderr
-  if (GetConsoleTitle(console_title, _MAX_PATH) > 0)
+    // Running from a console window
+    // send courtesy message txt to stderr
+    if (GetConsoleTitle(console_title, _MAX_PATH) > 0)
     {
       PEGASUS_STD(cerr) << txt << PEGASUS_STD(endl);
     }
 
-  return LogEvent(EVENTLOG_ERROR_TYPE, 1, txt);
+    return LogEvent(EVENTLOG_ERROR_TYPE, 1, txt);
 }
 
-Service::State
-Service::get_state(DWORD scm_state)
+Service::State Service::get_state(DWORD scm_state)
 {
-  return (State)scm_state;
+    return (State)scm_state;
 }
 
-Service::ReturnCode 
-Service::get_error(DWORD error_status, const char *action)
+Service::ReturnCode Service::get_error(DWORD error_status, const char *action)
 {
-  switch (error_status)
+    switch (error_status)
     {
     /*
-      // INFO: Could add cases to suppress error message.
-      case ERROR_SERVICE_DOES_NOT_EXIST:
-      case ERROR_SERVICE_CANNOT_ACCEPT_CTRL:
-        break;
+        // INFO: Could add cases to suppress error message.
+        case ERROR_SERVICE_DOES_NOT_EXIST:
+        case ERROR_SERVICE_CANNOT_ACCEPT_CTRL:
+            break;
     */
-      case SERVICE_RETURN_SUCCESS:
-        break;
+        case SERVICE_RETURN_SUCCESS:
+            break;
 
-      default:
-        show_error(action, "service", error_status); 
-        break;
+        default:
+            show_error(action, "service", error_status);
+            break;
     }
-  return (ReturnCode)error_status;
+    return (ReturnCode)error_status;
 }
 

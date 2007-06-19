@@ -53,7 +53,7 @@ void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 void sigTermHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
     graveError= handleSigUsr1=true;
-} 
+}
 
 
 //constructor
@@ -65,12 +65,12 @@ ServerProcess::~ServerProcess() {}
 // no-ops
 void ServerProcess::cimserver_set_process(void* p) {}
 void ServerProcess::cimserver_exitRC(int rc) {}
-int ServerProcess::cimserver_initialize(void) { return 1; }
+int ServerProcess::cimserver_initialize() { return 1; }
 
 // for all OSes supporting signals provide a cimserver_wait function
 // that waits to be awakened by signal PEGASUS_SIGTERM or PEGASUS_SIGHUP
 #ifdef PEGASUS_HAS_SIGNALS
-int ServerProcess::cimserver_wait(void)
+int ServerProcess::cimserver_wait()
 {
     int sig = -1;
     sigset_t set;
@@ -89,15 +89,15 @@ int ServerProcess::cimserver_wait(void)
     return sig;
 }
 #else
-int ServerProcess::cimserver_wait(void) { return 1; }
+int ServerProcess::cimserver_wait() { return 1; }
 #endif
 
-String ServerProcess::getHome(void) { return String::EMPTY; }
+String ServerProcess::getHome() { return String::EMPTY; }
 
 // daemon_init , RW Stevens, "Advance UNIX Programming"
 
-int ServerProcess::cimserver_fork(void) 
-{ 
+int ServerProcess::cimserver_fork()
+{
     getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
     getSigHandle()->activate(SIGTERM);
     umask(S_IRWXG | S_IRWXO);
@@ -110,45 +110,49 @@ int ServerProcess::cimserver_fork(void)
 
     getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
     getSigHandle()->activate(PEGASUS_SIGUSR1);
- 
-  pid_t pid;
-  if( (pid = fork() ) < 0) 
-  {
-      getSigHandle()->deactivate(PEGASUS_SIGUSR1);
-      getSigHandle()->deactivate(SIGTERM);
-      return(-1);
-  }
-  else if (pid != 0)
-  {
-      //
-      // parent wait for child
-      // if there is a problem with signal, parent process terminates
-      // when waitTime expires
-      //
-      Uint32 waitTime = MAX_WAIT_TIME;
 
-      while(!handleSigUsr1 && waitTime > 0)
-      {
-        sleep(1);
-        waitTime--;
-      }
-      if( !handleSigUsr1 )
+    pid_t pid;
+    if( (pid = fork() ) < 0)
+    {
+        getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+        getSigHandle()->deactivate(SIGTERM);
+        return -1;
+    }
+    else if (pid != 0)
+    {
+        //
+        // parent wait for child
+        // if there is a problem with signal, parent process terminates
+        // when waitTime expires
+        //
+        Uint32 waitTime = MAX_WAIT_TIME;
+
+        while (!handleSigUsr1 && waitTime > 0)
         {
-        MessageLoaderParms parms("src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
-          "The cimserver command timed out waiting for the CIM server to start.");
-        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
-      }
-      exit(graveError);
-  }
-  
-  setsid();
-  umask(S_IRWXG | S_IRWXO );
+            sleep(1);
+            waitTime--;
+        }
 
-  // spawned daemon process doesn't need the old signal handlers of its parent
-  getSigHandle()->deactivate(PEGASUS_SIGUSR1);
-  getSigHandle()->deactivate(SIGTERM);
+        if (!handleSigUsr1)
+        {
+            MessageLoaderParms parms(
+                "src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
+                "The cimserver command timed out waiting for the CIM server "
+                    "to start.");
+            PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
+                PEGASUS_STD(endl);
+        }
+        exit(graveError);
+    }
 
-  return 0;
+    setsid();
+    umask(S_IRWXG | S_IRWXO);
+
+    // spawned daemon process doesn't need the old signal handlers of its parent
+    getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+    getSigHandle()->deactivate(SIGTERM);
+
+    return 0;
 }
 
 
@@ -156,11 +160,11 @@ int ServerProcess::cimserver_fork(void)
 // is ready to serve CIM requests.
 void ServerProcess::notify_parent(int id)
 {
-  pid_t ppid = getppid();
-  if (id)
-   kill(ppid, SIGTERM);
-  else
-   kill(ppid, PEGASUS_SIGUSR1); 
+    pid_t ppid = getppid();
+    if (id)
+        kill(ppid, SIGTERM);
+    else
+        kill(ppid, PEGASUS_SIGUSR1);
 }
 
 

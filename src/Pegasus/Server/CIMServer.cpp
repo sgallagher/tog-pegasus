@@ -90,11 +90,11 @@
 #include "ShutdownService.h"
 #include "BinaryMessageHandler.h"
 #include <Pegasus/Common/ModuleController.h>
-#include \
-    <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-#include \
-<Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
+// NOCHKSRC
+#include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
+#include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
+// DOCHKSRC
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -106,8 +106,9 @@
 #endif
 
 #ifndef PEGASUS_DISABLE_CQL
-# include \
-<Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
+// NOCHKSRC
+# include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
+// DOCHKSRC
 #endif
 
 #if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
@@ -173,7 +174,8 @@ void* waitForStopCommand(void*)
             sprintf(str_errno2,"%08X",__errno2());
 
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                "Failed to issue __console() command: %s",strerror(errornumber)));
+                "Failed to issue __console() command: %s",
+                strerror(errornumber)));
             Logger::put_l(
                 Logger::ERROR_LOG, "CIM Server", Logger::SEVERE,
                 "Server.CIMServer.CONSOLE_ERROR.PEGASUS_OS_ZOS",

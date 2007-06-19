@@ -63,7 +63,7 @@
              FD_SETSIZE, such as <windows.h>, <winsock.h>, or <winsock2.h>."
 #       else
 #           undef FD_SETSIZE
-#       endif						// PEGASUS_WMIMAPPER
+#       endif
 #   endif
 #   define FD_SETSIZE 1024
 #   include <windows.h>

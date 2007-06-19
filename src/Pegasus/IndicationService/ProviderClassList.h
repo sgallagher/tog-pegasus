@@ -55,10 +55,10 @@ struct providerClassList
     String remoteInfo;
 #endif
 
-    providerClassList () 
+    providerClassList()
     {
     }
-      
+
     providerClassList (const providerClassList & rh)
     :   provider (rh.provider),
         providerModule (rh.providerModule),

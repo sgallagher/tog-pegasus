@@ -128,7 +128,8 @@ int main(const int argc, const char **argv)
     else
     // hostname was specified; do remote connect
     {
-      if (sslContext) _c.connect(_hostName, _portNumber, *sslContext, _userName, _passWord);
+      if (sslContext)
+        _c.connect(_hostName, _portNumber, *sslContext, _userName, _passWord);
       else _c.connect(_hostName, _portNumber, _userName, _passWord);
     }
   }
@@ -717,7 +718,11 @@ cout << "value:     " << _makeValue(v,pDef).toString() << endl;
   // Now we can call setProperty()
   try
   {
-    _c.setProperty( _nameSpace, ref, pDef.getName().getString(), _makeValue(v,pDef) );
+    _c.setProperty(
+      _nameSpace,
+      ref,
+      pDef.getName().getString(),
+      _makeValue(v,pDef));
   }
   catch (Exception &e)
   {
@@ -823,7 +828,8 @@ int _createInstance(const int argc, const char **argv)
     // display the property
     CIMProperty pDef(cldef.getProperty(i));
     if (_isKey(pDef)) cout << "[ key ] ";
-    cout << cimTypeToString(pDef.getType()) << " " << pDef.getName().getString();
+    cout << cimTypeToString(pDef.getType()) << " " <<
+      pDef.getName().getString();
     if (pDef.isArray()) cout << "[]";
     if (pDef.isArray())
     {
@@ -947,7 +953,8 @@ int _modifyInstance(const int argc, const char **argv)
   Array<CIMName> pNames;
   while (true) // break when user enters escape value
   {
-    cout << "Property (1.." << cldef.getPropertyCount() << ", 0=quit, 999=all)? " << flush;
+    cout << "Property (1.." << cldef.getPropertyCount() <<
+        ", 0=quit, 999=all)? " << flush;
     cin >> n;
 
     if (n==0 || n==999) break;
@@ -961,7 +968,8 @@ int _modifyInstance(const int argc, const char **argv)
     }
 
     // Ask for value
-    cout << cimTypeToString(pDef.getType()) << " " << pDef.getName().getString() << "? " << flush;
+    cout << cimTypeToString(pDef.getType()) << " " <<
+        pDef.getName().getString() << "? " << flush;
     char v[1024];
     gets(v);
 
@@ -986,7 +994,8 @@ int _modifyInstance(const int argc, const char **argv)
     for (Uint32 i=0; i<cldef.getPropertyCount(); i++)
     {
       CIMProperty pDef(cldef.getProperty(i));
-      cout << cimTypeToString(pDef.getType()) << " " << pDef.getName().getString();
+      cout << cimTypeToString(pDef.getType()) << " " <<
+        pDef.getName().getString();
       if (pDef.isArray()) cout << "[]";
       if (pDef.isArray())
       {
@@ -1197,7 +1206,8 @@ Array<CIMKeyBinding> _inputInstanceKeys(CIMClass &cldef)
     CIMProperty prop = cldef.getProperty(i);
     if (_isKey(prop))
     {
-      cout << prop.getName().getString() << " (" << cimTypeToString(prop.getType()) << "): " << flush;
+      cout << prop.getName().getString() << " (" <<
+        cimTypeToString(prop.getType()) << "): " << flush;
       char s[1024];
       gets(s);
       enum CIMKeyBinding::Type t;
@@ -1358,24 +1368,24 @@ void _usage()
   cerr << "  enumerateInstances|ei <class>" << endl;
   cerr << "  enumerateInstanceNames|ein <class>" << endl;
   cerr << "  getProperty|gp <class> { ask | list } [ <propnam> ]" << endl;
-  // cerr << "  setProperty|sp <class>|{instanceID [prop[=value]]}" << endl;
-  // cerr << "  invokeMethod|im <class>|{instanceID [method [args...]]}" << endl;
-  // cerr << "  createClass|cc classdef" << endl;
-  // cerr << "  modifyClass|mc classdef" << endl;
+  //cerr << "  setProperty|sp <class>|{instanceID [prop[=value]]}" << endl;
+  //cerr << "  invokeMethod|im <class>|{instanceID [method [args...]]}" << endl;
+  //cerr << "  createClass|cc classdef" << endl;
+  //cerr << "  modifyClass|mc classdef" << endl;
   cerr << "  deleteClass|dc <class>" << endl;
-  // cerr << "  createInstance|ci <class>|<instancedef>" << endl;
+  //cerr << "  createInstance|ci <class>|<instancedef>" << endl;
   cerr << "  createInstance|ci <class>" << endl;
   cerr << "  modifyInstance|mi <class> [ list ]" << endl;
   cerr << "  deleteInstance|di <class> [ list ]" << endl;
-  // cerr << "  associators|a class|instanceID" << endl;
-  // cerr << "  associatorNames|an class|instanceID" << endl;
-  // cerr << "  references|r class|instanceID" << endl;
-  // cerr << "  referenceNames|rn class|instanceID" << endl;
-  // cerr << "  execQuery|exq [query]" << endl;
-  // cerr << "  getQualifier|gq qualifiername" << endl;
-  // cerr << "  setQualifier|sq qualifierdef" << endl;
-  // cerr << "  deleteQualifier|dq qualifiername" << endl;
-  // cerr << "  enumerateQualifiers|eq" << endl;
+  //cerr << "  associators|a class|instanceID" << endl;
+  //cerr << "  associatorNames|an class|instanceID" << endl;
+  //cerr << "  references|r class|instanceID" << endl;
+  //cerr << "  referenceNames|rn class|instanceID" << endl;
+  //cerr << "  execQuery|exq [query]" << endl;
+  //cerr << "  getQualifier|gq qualifiername" << endl;
+  //cerr << "  setQualifier|sq qualifierdef" << endl;
+  //cerr << "  deleteQualifier|dq qualifiername" << endl;
+  //cerr << "  enumerateQualifiers|eq" << endl;
   cerr << "Examples:" << endl;
   cerr << "  cimop ecn" << endl;
   cerr << "  cimop enumerateinstancenames pg_operatingsystem" << endl;
@@ -1383,7 +1393,8 @@ void _usage()
   cerr << "Environment variables:" << endl;
   cerr << "  CIM_HOST -- local connect if not defined" << endl;
   cerr << "  CIM_PORT -- port number (default determined by CIM_NOSSL)" << endl;
-  cerr << "  CIM_NOSSL -- if defined, connect unencrypted to 5988, else 5989" << endl;
+  cerr << "  CIM_NOSSL -- if defined, connect unencrypted to 5988, else 5989"
+       << endl;
   cerr << "  CIM_NAMESPACE -- if not defined use root/cimv2" << endl;
   cerr << "  CIM_USER -- user" << endl;
   cerr << "  CIM_PASSWORD -- password" << endl;
@@ -1395,7 +1406,8 @@ void _usage()
 
 void _giUsage()
 {
-  // cerr << "Usage: cimop getInstance|gi { <class> [list] | <instanceRef> }" << endl;
+  //cerr << "Usage: cimop getInstance|gi { <class> [list] | <instanceRef> }"
+  //     << endl;
   cerr << "Usage: cimop getInstance|gi <class> [list]" << endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  otherwise asks for keys (empty ok for many)" << endl;
@@ -1408,7 +1420,8 @@ void _giUsage()
 
 void _diUsage()
 {
-  // cerr << "Usage: cimop deleteInstance|di { <class> [list] | <instanceRef> }" << endl;
+  //cerr << "Usage: cimop deleteInstance|di { <class> [list] | <instanceRef> }"
+  //     << endl;
   cerr << "Usage: cimop deleteInstance|di <class> [ list ]" << endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  otherwise asks for keys (empty ok for many)" << endl;
@@ -1421,7 +1434,8 @@ void _diUsage()
 
 void _gpUsage()
 {
-  cerr << "Usage: cimop getProperty|gp <class> { ask | list } [<propnam>]" << endl;
+  cerr << "Usage: cimop getProperty|gp <class> { ask | list } [<propnam>]" <<
+    endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  \"ask\" asks for keys (empty ok for many)" << endl;
 }
@@ -1455,7 +1469,9 @@ void _ciUsage()
 
 void _spUsage()
 {
-  cerr << "Usage: cimop getProperty|gp <class> { ask | list } [ <propnam> [ <value> ] ]" << endl;
+  cerr <<
+    "Usage: cimop getProperty|gp <class> { ask | list } "
+      "[ <propnam> [ <value> ] ]" << endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  \"ask\" asks for keys (empty ok for many)" << endl;
 }

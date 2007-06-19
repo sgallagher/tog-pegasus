@@ -41,28 +41,28 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    Values for the Repeat Notification Policy property of the Subscription 
+    Values for the Repeat Notification Policy property of the Subscription
     class, as defined in the CIM Events MOF
  */
 enum RepeatNotificationPolicy {_POLICY_UNKNOWN = 0, _POLICY_OTHER = 1,
      _POLICY_NONE = 2, _POLICY_SUPPRESS = 3, _POLICY_DELAY = 4};
 
 /**
-    Values for the On Fatal Error Policy property of the Subscription 
+    Values for the On Fatal Error Policy property of the Subscription
     class, as defined in the CIM Events MOF
  */
-enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2, 
+enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2,
     _ERRORPOLICY_DISABLE = 3, _ERRORPOLICY_REMOVE = 4};
 
 /**
-    Values for the Probable Cause property of the Alert Indication 
+    Values for the Probable Cause property of the Alert Indication
     class, as defined in the CIM Events MOF
     Note: not all possible values have been included
  */
 enum ProbableCause {_CAUSE_UNKNOWN = 0, _CAUSE_OTHER = 1};
 
 /**
-    Values for the Alert Type property of the Alert Indication class, 
+    Values for the Alert Type property of the Alert Indication class,
     as defined in the CIM Events MOF
  */
 enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
@@ -80,7 +80,7 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
 //
 //  ATTN: Update once CimomShutdownAlertIndication has been defined
 //
- extern const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT;
+extern const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT;
 
 /**
     The name of the No Provider alert indication class
@@ -88,7 +88,7 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
 //
 //  ATTN: Update once NoProviderAlertIndication has been defined
 //
- extern const CIMName _CLASS_NO_PROVIDER_ALERT;
+extern const CIMName _CLASS_NO_PROVIDER_ALERT;
 
 /**
     The name of the CIMOM shutdown alert indication class
@@ -96,7 +96,7 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
 //
 //  ATTN: Update once ProviderTerminatedAlertIndication has been defined
 //
- extern const CIMName _CLASS_PROVIDER_TERMINATED_ALERT;
+extern const CIMName _CLASS_PROVIDER_TERMINATED_ALERT;
 
 
 //
@@ -104,187 +104,187 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
 //
 
 /**
-    The name of the Other Subscription State property for Indication 
+    The name of the Other Subscription State property for Indication
     Subscription class
  */
- extern const CIMName _PROPERTY_OTHERSTATE;
+extern const CIMName _PROPERTY_OTHERSTATE;
 
 /**
     The name of the Repeat Notification Policy property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY;
+extern const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY;
 
 /**
     The name of the Other Repeat Notification Policy property for
     indication subscription class
  */
- extern const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
+extern const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
 
 /**
-    The name of the On Fatal Error Policy property for Indication Subscription 
+    The name of the On Fatal Error Policy property for Indication Subscription
     class
  */
- extern const CIMName _PROPERTY_ONFATALERRORPOLICY;
+extern const CIMName _PROPERTY_ONFATALERRORPOLICY;
 
 /**
-    The name of the Other On Fatal Error Policy property for Indication 
+    The name of the Other On Fatal Error Policy property for Indication
     Subscription class
  */
- extern const CIMName _PROPERTY_OTHERONFATALERRORPOLICY;
+extern const CIMName _PROPERTY_OTHERONFATALERRORPOLICY;
 
 /**
-    The name of the Failure Trigger Time Interval property for Indication 
+    The name of the Failure Trigger Time Interval property for Indication
     Subscription class
  */
- extern const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL;
+extern const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL;
 
 /**
-    The name of the Time Of Last State Change property for Indication 
+    The name of the Time Of Last State Change property for Indication
     Subscription class
  */
- extern const CIMName _PROPERTY_LASTCHANGE;
+extern const CIMName _PROPERTY_LASTCHANGE;
 
 /**
-    The name of the Subscription Start Time property for Indication 
+    The name of the Subscription Start Time property for Indication
     Subscription class
  */
- extern const CIMName _PROPERTY_STARTTIME;
+extern const CIMName _PROPERTY_STARTTIME;
 
 /**
-    The name of the Subscription Duration property for Indication 
+    The name of the Subscription Duration property for Indication
     Subscription class
  */
- extern const CIMName _PROPERTY_DURATION;
+extern const CIMName _PROPERTY_DURATION;
 
 /**
-    The name of the Subscription Time Remaining property for Indication 
+    The name of the Subscription Time Remaining property for Indication
     Subscription class
  */
- extern const CIMName _PROPERTY_TIMEREMAINING;
+extern const CIMName _PROPERTY_TIMEREMAINING;
 
 /**
     The name of the Repeat Notification Interval property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL;
+extern const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL;
 
 /**
     The name of the Repeat Notification Gap property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONGAP;
+extern const CIMName _PROPERTY_REPEATNOTIFICATIONGAP;
 
 /**
     The name of the Repeat Notification Count property for indication
     subscription class
  */
- extern const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT;
+extern const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT;
 
 /**
     The name of the TextFormatOwningEntity property for Formatted Indication
     Subscription class
 */
- extern const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY;
+extern const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY;
 
 /**
     The name of the TextFormatID property for Formatted Indication
     Subscription class
 */
- extern const CIMName _PROPERTY_TEXTFORMATID;
+extern const CIMName _PROPERTY_TEXTFORMATID;
 
 /**
     The name of the Caption property for Managed Element class
  */
- extern const CIMName _PROPERTY_CAPTION;
+extern const CIMName _PROPERTY_CAPTION;
 
 /**
     The name of the Description property for Managed Element class
  */
- extern const CIMName _PROPERTY_DESCRIPTION;
+extern const CIMName _PROPERTY_DESCRIPTION;
 
 /**
     The name of the ElementName property for Managed Element class
  */
- extern const CIMName _PROPERTY_ELEMENTNAME;
+extern const CIMName _PROPERTY_ELEMENTNAME;
 
 /**
     The name of the Source Namespace property for indication filter class
  */
- extern const CIMName _PROPERTY_SOURCENAMESPACE;
+extern const CIMName _PROPERTY_SOURCENAMESPACE;
 
 /**
-    The name of the System Name property for indication filter and indications 
+    The name of the System Name property for indication filter and indications
     handler classes
  */
- extern const CIMName _PROPERTY_SYSTEMNAME;
+extern const CIMName _PROPERTY_SYSTEMNAME;
 
 /**
-    The name of the System Creation Class Name property for indication filter 
+    The name of the System Creation Class Name property for indication filter
     and indications handler classes
  */
- extern const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME;
+extern const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME;
 
 /**
-    The name of the Other Persistence Type property for Indication Handler 
+    The name of the Other Persistence Type property for Indication Handler
     class
  */
- extern const CIMName _PROPERTY_OTHERPERSISTENCETYPE;
+extern const CIMName _PROPERTY_OTHERPERSISTENCETYPE;
 
 /**
     The name of the Owner property for Indication Handler class
  */
- extern const CIMName _PROPERTY_OWNER;
+extern const CIMName _PROPERTY_OWNER;
 
 /**
-    The name of the TargetHostFormat property for SNMP Mapper Indication 
+    The name of the TargetHostFormat property for SNMP Mapper Indication
     Handler subclass
  */
- extern const CIMName _PROPERTY_TARGETHOSTFORMAT;
+extern const CIMName _PROPERTY_TARGETHOSTFORMAT;
 
 /**
-    The name of the OtherTargetHostFormat property for SNMP Mapper Indication 
+    The name of the OtherTargetHostFormat property for SNMP Mapper Indication
     Handler subclass
  */
- extern const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT;
+extern const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT;
 
 /**
-    The name of the Port Number property for SNMP Mapper Indication Handler 
+    The name of the Port Number property for SNMP Mapper Indication Handler
     subclass
  */
- extern const CIMName _PROPERTY_PORTNUMBER;
+extern const CIMName _PROPERTY_PORTNUMBER;
 
 /**
-    The name of the SNMP Security Name property for SNMP Mapper Indication 
+    The name of the SNMP Security Name property for SNMP Mapper Indication
     Handler subclass
  */
- extern const CIMName _PROPERTY_SNMPSECURITYNAME;
+extern const CIMName _PROPERTY_SNMPSECURITYNAME;
 
 /**
-    The name of the SNMP Engine ID property for SNMP Mapper Indication Handler 
+    The name of the SNMP Engine ID property for SNMP Mapper Indication Handler
     subclass
  */
- extern const CIMName _PROPERTY_SNMPENGINEID;
+extern const CIMName _PROPERTY_SNMPENGINEID;
 
 /**
     The name of the Alert Type property for Alert Indication class
  */
- extern const CIMName _PROPERTY_ALERTTYPE;
+extern const CIMName _PROPERTY_ALERTTYPE;
 
 /**
     The name of the Other Alert Type property for Alert Indication class
  */
- extern const CIMName _PROPERTY_OTHERALERTTYPE;
+extern const CIMName _PROPERTY_OTHERALERTTYPE;
 
 /**
     The name of the Perceived Severity property for Alert Indication class
  */
- extern const CIMName _PROPERTY_PERCEIVEDSEVERITY;
+extern const CIMName _PROPERTY_PERCEIVEDSEVERITY;
 
 /**
     The name of the Probable Cause property for Alert Indication class
  */
- extern const CIMName _PROPERTY_PROBABLECAUSE;
+extern const CIMName _PROPERTY_PROBABLECAUSE;
 
 //
 //  Qualifier names
@@ -293,7 +293,7 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
 /**
     The name of the Indication qualifier for classes
  */
- extern const CIMName _QUALIFIER_INDICATION;
+extern const CIMName _QUALIFIER_INDICATION;
 
 
 //
@@ -303,12 +303,12 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
 /**
     The WHERE keyword in WQL
  */
- extern const char   _QUERY_WHERE [];
+extern const char _QUERY_WHERE[];
 
 /**
     A zero value CIMDateTime interval
  */
- extern const char _ZERO_INTERVAL_STRING [];
+extern const char _ZERO_INTERVAL_STRING[];
 
 PEGASUS_NAMESPACE_END
 

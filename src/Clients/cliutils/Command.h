@@ -63,17 +63,14 @@ public:
     virtual ~Command();
 
     /**
-
         Gets command usage string.  Usage string may be retrieved and displayed
         when a CommandFormatException is caught.
 
         @return  String containing the command usage message
-
      */
-    String& getUsage ();
+    String& getUsage();
 
     /**
-
         Parses the command line, validates the options, and sets instance
         variables based on the options and arguments.
 
@@ -82,12 +79,10 @@ public:
 
         @exception     CommandFormatException    Indicates the command line was
                                                  improperly formed
-
      */
-    virtual void setCommand (Uint32 argc, char *argv []) = 0;
+    virtual void setCommand(Uint32 argc, char *argv []) = 0;
 
     /**
-
         Executes the command and writes the results to the output streams.
 
         @param  outPrintWriter  the ostream to which output should be
@@ -98,64 +93,56 @@ public:
 
         @return  0              if the command is successful
                  1              if an error occurs in executing the command
-
      */
-    virtual Uint32 execute (PEGASUS_STD(ostream)& outPrintWriter,
-                            PEGASUS_STD(ostream)& errPrintWriter) = 0;
+    virtual Uint32 execute(
+        PEGASUS_STD(ostream)& outPrintWriter,
+        PEGASUS_STD(ostream)& errPrintWriter) = 0;
 
     //
     // Return codes
     //
     /**
-
         Return value from the execute method indicating the command executed
         successfully.
-
     */
-    static const Uint32    RC_SUCCESS;
+    static const Uint32 RC_SUCCESS;
 
     /**
-
         Return value from the execute method indicating an error occurred in
         executing the command.
-
     */
-    static const Uint32    RC_ERROR;
+    static const Uint32 RC_ERROR;
 
-    //l10n
-	String localizeMessage(	const char *resource_path,
-						   	const char * key,
-						   	const char * default_msg,
-							Formatter::Arg arg0 = Formatter::Arg(),
-							Formatter::Arg arg1 = Formatter::Arg(),
-							Formatter::Arg arg2 = Formatter::Arg(),
-							Formatter::Arg arg3 = Formatter::Arg(),
-							Formatter::Arg arg4 = Formatter::Arg(),
-							Formatter::Arg arg5 = Formatter::Arg(),
-							Formatter::Arg arg6 = Formatter::Arg(),
-							Formatter::Arg arg7 = Formatter::Arg(),
-							Formatter::Arg arg8 = Formatter::Arg(),
-							Formatter::Arg arg9 = Formatter::Arg());
+    String localizeMessage(
+        const char *resource_path,
+        const char * key,
+        const char * default_msg,
+        Formatter::Arg arg0 = Formatter::Arg(),
+        Formatter::Arg arg1 = Formatter::Arg(),
+        Formatter::Arg arg2 = Formatter::Arg(),
+        Formatter::Arg arg3 = Formatter::Arg(),
+        Formatter::Arg arg4 = Formatter::Arg(),
+        Formatter::Arg arg5 = Formatter::Arg(),
+        Formatter::Arg arg6 = Formatter::Arg(),
+        Formatter::Arg arg7 = Formatter::Arg(),
+        Formatter::Arg arg8 = Formatter::Arg(),
+        Formatter::Arg arg9 = Formatter::Arg());
 
 protected:
     /**
-
         Sets command usage string.  Usage string should be set by Command
         subclass constructor.
 
         @param    usageMessage    the command usage message
-
      */
-    void setUsage (String& usageMessage);
+    void setUsage(String& usageMessage);
 
 private:
 
     /**
-
         The usage string for this command.  The value of the string should be
         set in the command subclass constructor.  The string may be retrieved
         and displayed when a CommandFormatException is caught.
-
      */
     String _usage;
 };

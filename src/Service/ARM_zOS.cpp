@@ -48,19 +48,20 @@
 #include "ARM_zOS.h"
 
 
-// __arm_status_tags ARM_zOS_Status = NOT_REGISTERED; // ARM stautus for CIM Server Status
+// ARM status for CIM Server Status
+// __arm_status_tags ARM_zOS_Status = NOT_REGISTERED;
 
 #define ARM_ELEMNAME_SIZE 17          // 16 Bytes for ARM element name + '\0'
 
 PEGASUS_NAMESPACE_BEGIN
    
            
-//*******************************************************************************
+//******************************************************************************
 // 
 // Methode: void ARM_zOS::Register(void) 
 // 
 // Description:
-// Registration and make element READY for z/OS ARM (Automatic Restart Mangager). 
+// Registration and make element READY for z/OS ARM (Automatic Restart Manager).
 // 
 // Function: 
 //            a) do the registration with ARM   
@@ -80,13 +81,15 @@ void ARM_zOS::Register(void)
 
     int i;
     
-    char arm_elemname[ARM_ELEMNAME_SIZE] = "CFZ_SRV_"; // ARM element name init with base.
+    // ARM element name init with base.
+    char arm_elemname[ARM_ELEMNAME_SIZE] = "CFZ_SRV_";
     int full_elemname_size;
 
     char arm_buffer[256];               // ARM buffer
     int arm_ret=0;                      // ARM return code 
     int arm_res=0;                      // ARM reason code 
-    struct utsname uts;                 // structure to get the SYSNAME for the element name 
+    struct utsname uts;                 // structure to get the SYSNAME for
+                                        // the element name 
     int rc;
 
     rc = __osname(&uts);
@@ -102,12 +105,14 @@ void ARM_zOS::Register(void)
         return;
     }
 
-    // concatinate the element name base and the nodename to the full element name 
+    // concatenate the element name base and the nodename to the full element
+    // name 
     strcat(arm_elemname,uts.nodename);
     full_elemname_size = strlen(arm_elemname);
 
-    // padd the elementname with spaces 
-    memset(arm_elemname+full_elemname_size,' ',ARM_ELEMNAME_SIZE-full_elemname_size);
+    // pad the elementname with spaces 
+    memset(arm_elemname + full_elemname_size, ' ',
+        ARM_ELEMNAME_SIZE - full_elemname_size);
 
 
     // put a Null-termination at Pos 17 to make string printable 
@@ -115,10 +120,11 @@ void ARM_zOS::Register(void)
 
 
     PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-               "About to register the CIM server with element name \'%s\' with ARM.",
-               arm_elemname));
+        "About to register the CIM server with element name \'%s\' with ARM.",
+        arm_elemname));
 
-    // CIM server is running in ASCII and the assembler module needs the module in EBCDIC
+    // CIM server is running in ASCII and the assembler module needs the
+    // module in EBCDIC
     __atoe(arm_elemname); 
 
     __register_arm(arm_elemname, arm_buffer, &arm_ret, &arm_res); 
@@ -126,27 +132,34 @@ void ARM_zOS::Register(void)
     // convert back to ascii for further processing.
     __etoa(arm_elemname);
 
-    if(arm_ret <= 0x04)
+    if (arm_ret <= 0x04)
     {
        Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-                     "Common.ARM_zOS.ARM_READY",
-                     "The CIM server successfully registered to ARM using element name $0.",arm_elemname);
+           "Common.ARM_zOS.ARM_READY",
+           "The CIM server successfully registered to ARM using element "
+               "name $0.",
+           arm_elemname);
 
-        if(arm_ret == 0x00)
+        if (arm_ret == 0x00)
         {
             // ARM registration at normal startup
             ARM_zOS_Status = REGISTERED;
-        } else {
-
+        }
+        else
+        {
             // ret = 0x04 and reason code 0x104 & 0x108 indicates server restart
             if(arm_res <= 0x108)
             {
                 // ARM registration at restart
                 ARM_zOS_Status = RESTARTED;
-            } else {
-                // ret = 0x04 and reason code 0x204 & 0x304 indicates dependen component not started.
-                // This can only be happen if somebody define dependencies in the restart policy.
-                // CIM Server does not depend on other elements; This is a normal start up.
+            }
+            else
+            {
+                // ret = 0x04 and reason code 0x204 & 0x304 indicates dependent
+                // component not started.  This can only be happen if somebody
+                // define dependencies in the restart policy.
+                // CIM Server does not depend on other elements; This is a
+                // normal start up.
                 ARM_zOS_Status = REGISTERED;
             }
 
@@ -157,33 +170,36 @@ void ARM_zOS::Register(void)
         if(arm_ret != 0)
         {
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                       "Failed to set the CIM server ready with ARM: ret=%02X reason=%04X.",
-                       arm_ret,arm_res));
+                "Failed to set the CIM server ready with ARM: "
+                    "ret=%02X reason=%04X.",
+                arm_ret,
+                arm_res));
             ARM_zOS_Status = NOT_REGISTERED;
         }
-
-    } else
+    }
+    else
     {
-
         // ARM registration fails
         char str_arm_ret[4];
         sprintf(str_arm_ret,"%02X",arm_ret);
         char str_arm_res[8];
         sprintf(str_arm_res,"%04X",arm_res);
         Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-                      "Common.ARM_zOS.ARM_FAIL",
-                      "The CIM server failed to register with ARM using element name $0: return code 0x$1, reason code 0x$2."
-                      ,arm_elemname,str_arm_ret,str_arm_res);
+            "Common.ARM_zOS.ARM_FAIL",
+            "The CIM server failed to register with ARM using element "
+                "name $0: return code 0x$1, reason code 0x$2.",
+                arm_elemname,
+                str_arm_ret,
+                str_arm_res);
 
         ARM_zOS_Status = NOT_REGISTERED;
-
     }                
 
     return;
 }
 
 
-//*******************************************************************************
+//******************************************************************************
 // 
 // Method: void ARM_zOS::DeRegister(void) 
 // 
@@ -212,17 +228,18 @@ void ARM_zOS::DeRegister(void)
         {
             // write out errormessage from de-register with ARM
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                       "Failed to de-register CIM Server with ARM: ret=%02X reason=%04X.",
-                       arm_ret,arm_res));
-        } else {
-
+                "Failed to de-register CIM Server with ARM: "
+                    "ret=%02X reason=%04X.",
+                arm_ret,
+                arm_res));
+        }
+        else
+        {
             PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
-                             "CIM Server sucessfully de-reginster with ARM.");
-
+                "CIM Server sucessfully de-reginster with ARM.");
         }
         ARM_zOS_Status = NOT_REGISTERED;
     }// End if
 }
-
 
 PEGASUS_NAMESPACE_END

@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com) PEP#222
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Server_Process_h
@@ -42,24 +40,31 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This abstract class has virtual methods for information that varies across applications. The rest of the methods 
-  * are called from the application (i.e. cimserver.cpp), and need to be defined by every operating system implementation. 
-  * This version will not touch the method names, as it is fairly risky to do so now. However, the goal is to 
-  * eventually standardize the interface so we pull out as much OS-specific function as possible from the main cimserver file.
-  *
-  * Not all operating systems need to fully implement all these methods.  Stick methods which do not apply to
-  * your OS in a "No-ops" section at the top.
-  * 
-  * See PEP#222 for more information.
-  */ 
+/**
+    This abstract class has virtual methods for information that varies across
+    applications. The rest of the methods are called from the application
+    (i.e. cimserver.cpp), and need to be defined by every operating system
+    implementation.
+
+    This version will not touch the method names, as it is fairly risky to do
+    so now.  However, the goal is to eventually standardize the interface so
+    we pull out as much OS-specific function as possible from the main
+    cimserver file.
+
+    Not all operating systems need to fully implement all these methods.
+    Stick methods which do not apply to your OS in a "No-ops" section at the
+    top.
+
+    See PEP#222 for more information.
+*/
 
 class PEGASUS_SERVICE_LINKAGE ServerProcess
 {
 public:
 
-    ServerProcess(void);
+    ServerProcess();
 
-    virtual ~ServerProcess(void);
+    virtual ~ServerProcess();
 
     virtual const char* getProductName() const = 0;
 
@@ -68,7 +73,7 @@ public:
     virtual const char* getDescription() const = 0;
 
     virtual const char* getVersion() const = 0;
-    
+
     virtual const char* getProcessName() const = 0;
 
     virtual const char* getPIDFileName() const = 0;
@@ -79,7 +84,7 @@ public:
         Boolean shutdownOption,
         Boolean debugOutputOption) = 0;
 
-    virtual void cimserver_stop(void) = 0;
+    virtual void cimserver_stop() = 0;
 
     int platform_run(
         int argc,
@@ -87,7 +92,7 @@ public:
         Boolean shutdownOption,
         Boolean debugOutputOption);
 
-    int cimserver_fork(void);
+    int cimserver_fork();
 
     void notify_parent(int id);
 
@@ -95,7 +100,7 @@ public:
 
     void cimserver_exitRC(int rc);
 
-    int cimserver_initialize(void);
+    int cimserver_initialize();
 
     // Currently (07/27/06) this function is only used by
     // pegasus/src/Pegasus/DynListener/Service/cimlistener.cpp
@@ -104,12 +109,12 @@ public:
 
     // if PEGASUS_HAS_SIGNALS is defined this function waits in a sigwait
     // for either a SIGHUP or a SIGTERM and does not return before
-    
+
     // if PEGASUS_HAS_SIGNALS is NOT defined this function is a noop function
     // returning immediately with -1
-    int cimserver_wait(void);
+    int cimserver_wait();
 
-    String getHome(void);
+    String getHome();
 };
 
 PEGASUS_NAMESPACE_END

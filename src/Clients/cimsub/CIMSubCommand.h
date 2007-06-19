@@ -779,14 +779,11 @@ private:
     /**
         get the query string for a filter
     
-        @param  filterNamespace     The filter namespace
-    
-        @param  filterPath          The filter's object path
-
-        @param  queryString         The text string equivalent of the query string
-
-        @param queryLanString       The text string equivalent of the querylanguage
-                                    string
+        @param filterNamespace The filter namespace
+        @param filterPath The filter's object path
+        @param queryString The text string equivalent of the query string
+        @param queryLangString The text string equivalent of the querylanguage
+                   string
     */
     void _getQueryString (
         const CIMNamespaceName& filterNamespace,

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By:  
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_IndicationMessageConstants_h
@@ -41,11 +36,13 @@
 
 #include <Pegasus/Common/Config.h>
 
-/* Normallyit is not good practice to put static constants into headers because
-   the footprint grows with each use of the header.  In this case, there is only
-   one use of this header so it is actually a smaller footprint to use the header
-   file than define extern definitions.  If this header is EVER used in more than
-   one cpp file, it should be modified to create a .cpp file for the definitions.
+/*
+    Normally it is not good practice to put static constants into headers
+    because the footprint grows with each use of the header.  In this case,
+    there is only one use of this header so it is actually a smaller footprint
+    to use the header file than define extern definitions.  If this header is
+    EVER used in more than one cpp file, it should be modified to create a .cpp
+    file for the definitions.
 */
 
 PEGASUS_NAMESPACE_BEGIN
@@ -64,50 +61,51 @@ static const char _MSG_MISSING_REQUIRED [] = "Missing required ";
 
 static const char _MSG_KEY_PROPERTY [] = " key property";
 
-static const char _MSG_KEY_PROPERTY_KEY [] = 
+static const char _MSG_KEY_PROPERTY_KEY [] =
    "IndicationService.IndicationService._MSG_KEY_PROPERTY";
 
 static const char _MSG_PROPERTY [] = " property";
 
-static const char _MSG_PROPERTY_KEY [] = 
+static const char _MSG_PROPERTY_KEY [] =
    "IndicationService.IndicationService._MSG_PROPERTY";
 
 static const char _MSG_PROPERTY_PRESENT [] = " property present, but ";
 
 static const char _MSG_VALUE_NOT [] = " value not ";
 
-static const char _MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY [] = 
+static const char _MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY [] =
    "IndicationService.IndicationService._MSG_PROPERTY_PRESENT_BUT_VALUE_NOT";
 
-static const char _MSG_NO_PROVIDERS [] = 
+static const char _MSG_NO_PROVIDERS [] =
     "There are no providers capable of serving the subscription";
 
-static const char _MSG_NO_PROVIDERS_KEY [] = 
+static const char _MSG_NO_PROVIDERS_KEY [] =
     "IndicationService.IndicationService._MSG_NO_PROVIDERS";
 
-static const char _MSG_NOT_ACCEPTED [] = 
+static const char _MSG_NOT_ACCEPTED [] =
     "No providers accepted the subscription";
 
-static const char _MSG_NOT_ACCEPTED_KEY [] = 
+static const char _MSG_NOT_ACCEPTED_KEY [] =
     "IndicationService.IndicationService._MSG_NOT_ACCEPTED";
 
 static const char _MSG_INVALID_CLASSNAME [] = "Invalid indication class name ";
 
 static const char _MSG_IN_FROM [] = " in FROM clause of ";
 
-static const char _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY [] = 
-    "IndicationService.IndicationService._MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY";
+static const char _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY [] =
+    "IndicationService.IndicationService."
+        "_MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY";
 
-static const char _MSG_EXPIRED [] = 
+static const char _MSG_EXPIRED [] =
     "Expired subscription may not be modified; has been deleted";
 
-static const char _MSG_EXPIRED_KEY [] = 
+static const char _MSG_EXPIRED_KEY [] =
     "IndicationService.IndicationService._MSG_EXPIRED";
 
-static const char _MSG_REFERENCED [] = 
+static const char _MSG_REFERENCED [] =
     "A Filter or Handler referenced by a subscription may not be deleted";
 
-static const char _MSG_REFERENCED_KEY [] = 
+static const char _MSG_REFERENCED_KEY [] =
     "IndicationService.IndicationService._MSG_REFERENCED";
 
 static const char _MSG_INVALID_VALUE [] = "Invalid value ";
@@ -124,7 +122,8 @@ static const char _MSG_INVALID_TYPE_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY";
 
 static const char _MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY_KEY [] =
-    "IndicationService.IndicationService._MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY";
+    "IndicationService.IndicationService."
+        "_MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY";
 
 static const char _MSG_INVALID_VALUE_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService._MSG_INVALID_VALUE_FOR_PROPERTY";
@@ -142,7 +141,8 @@ static const char _MSG_INVALID_INSTANCES [] =
     "One or more invalid Subscription instances were ignored";
 
 static const char _MSG_INVALID_INSTANCES_KEY [] =
-    "IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCES_IGNORED";
+    "IndicationService.IndicationService."
+        "INVALID_SUBSCRIPTION_INSTANCES_IGNORED";
 
 static const char _MSG_INVALID_INSTANCE [] =
     "An invalid Subscription instance was ignored: $0";
@@ -162,7 +162,8 @@ static const char _MSG_PROVIDER_NOW_SERVING [] =
 static const char _MSG_PROVIDER_NOW_SERVING_KEY [] =
     "IndicationService.IndicationService._MSG_PROVIDER_NOW_SERVING";
 
-static const char _MSG_NO_PROVIDER [] = "Subscription ($0) in namespace $1 has no provider";
+static const char _MSG_NO_PROVIDER [] =
+    "Subscription ($0) in namespace $1 has no provider";
 
 static const char _MSG_NO_PROVIDER_KEY [] =
     "IndicationService.IndicationService._MSG_NO_PROVIDER";
@@ -180,13 +181,15 @@ static const char _MSG_ARRAY_NOT_SUPPORTED_IN_WHERE_KEY [] =
     "IndicationService.IndicationService._MSG_ARRAY_NOT_SUPPORTED_IN_WHERE";
 
 static const char _MSG_WHERE_PROPERTY_NOT_FOUND [] =
-    "Property $0 referenced in the WQL WHERE clause was not found in the indication class $1";
+    "Property $0 referenced in the WQL WHERE clause was not found in the "
+        "indication class $1";
 
 static const char _MSG_WHERE_PROPERTY_NOT_FOUND_KEY [] =
     "IndicationService.IndicationService._MSG_WHERE_PROPERTY_NOT_FOUND";
 
 static const char _MSG_SELECT_PROPERTY_NOT_FOUND [] =
-    "Property $0 referenced in the WQL SELECT clause was not found in the indication class $1";
+    "Property $0 referenced in the WQL SELECT clause was not found in the "
+        "indication class $1";
 
 static const char _MSG_SELECT_PROPERTY_NOT_FOUND_KEY [] =
     "IndicationService.IndicationService._MSG_SELECT_PROPERTY_NOT_FOUND";

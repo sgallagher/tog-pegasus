@@ -34,12 +34,6 @@
 #include <cstddef>
 #include <Pegasus/Common/PegasusAssert.h>
 
-typedef struct 
-{
-    const string& objFileName;
-    const string& fileName;
-} ObjectDependency;
-
 void ErrorExit(const char* programName, const string& message)
 {
     fprintf(stderr, "%s: Error: %s\n", programName, message.c_str());

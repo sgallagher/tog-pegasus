@@ -56,7 +56,8 @@ int SleepCmd(const vector<string>& args)
 
     unsigned seconds;
     char magnitude, dummy;
-    unsigned count = sscanf(args[1].c_str(), "%u%c%c", &seconds, &magnitude, &dummy);
+    unsigned count =
+        sscanf(args[1].c_str(), "%u%c%c", &seconds, &magnitude, &dummy);
 
     if (count == 1)
     {
@@ -83,7 +84,8 @@ int SleepCmd(const vector<string>& args)
             break;
 
         default:
-            cerr << args[0] << ": invalid time magnitude \'" << magnitude << "\'" << endl;
+            cerr << args[0] << ": invalid time magnitude \'" << magnitude <<
+                "\'" << endl;
             return(2);
     }
 

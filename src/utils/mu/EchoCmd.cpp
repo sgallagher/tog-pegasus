@@ -40,10 +40,10 @@ int EchoCmd(const vector<string>& args)
 {
     for (size_t i = 1; i < args.size(); i++)
     {
-	cout << args[i];
+        cout << args[i];
 
-	if (i + 1 != args.size())
-	    cout << ' ';
+        if (i + 1 != args.size())
+            cout << ' ';
     }
 
     cout << endl;
@@ -107,7 +107,7 @@ int EchoWithEscapeCmd(const vector<string>& args)
            cout << text[j];
 
         if (i + 1 != args.size())
-	   cout << ' ';
+           cout << ' ';
      }
      cout << endl;
      return 0;

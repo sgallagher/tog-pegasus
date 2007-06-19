@@ -76,7 +76,7 @@ int DependCmdMain(int argc, char** argv)
     string prependDir;
     bool warn = false;
 
-    ProcessOptions(argc, argv, programName, includePath, objectDir, prependDir, 
+    ProcessOptions(argc, argv, programName, includePath, objectDir, prependDir,
         warn);
 
     // There must be at least one source file; print error if not:
@@ -91,7 +91,7 @@ int DependCmdMain(int argc, char** argv)
     for (int i = 0; i < argc; i++)
     {
         string fileName = argv[i];
-        
+
         // Open the file:
 
         FILE* fp = fopen(argv[i], "rb");
@@ -107,7 +107,7 @@ int DependCmdMain(int argc, char** argv)
 
         if( dot == NULL )
         {
-            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\"," 
+            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\","
                 "or \".s\": " + fileName);
         }
 
@@ -115,7 +115,7 @@ int DependCmdMain(int argc, char** argv)
             (strcmp(dot, ".c") != 0) &&
             (strcmp(dot, ".s") != 0))
         {
-            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\"," 
+            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\","
                 "or \".s\": " + fileName);
         }
 
@@ -132,7 +132,7 @@ int DependCmdMain(int argc, char** argv)
 
         set<string, less<string> > cache;
 
-        ProcessFile(objectFileName, fileName, programName, fp, includePath, 
+        ProcessFile(objectFileName, fileName, programName, fp, includePath,
             prependDir, 0, cache, PrintDependency, warn);
     }
 

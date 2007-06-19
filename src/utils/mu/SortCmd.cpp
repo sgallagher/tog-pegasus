@@ -55,7 +55,7 @@ static int _compare(const void* px, const void* qx)
 // * Usage:
 // *
 // * mu sort unsorted_file > sorted_file
-// *  
+// *
 // *  where:
 // *      unsorted_file      is the input file to be sorted
 // *      sorted_file        is the sorted output file
@@ -79,7 +79,7 @@ int SortCmd(const vector<string>& args)
 
     //
     // Read file into memory.
-    // 
+    //
 
     string path = args[1];
 

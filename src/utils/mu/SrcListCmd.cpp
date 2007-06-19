@@ -67,8 +67,8 @@ int SrcListCmdMain(int argc, char** argv)
     string objectDir; // ignored
     string prependDir;
     bool warn = false;
-    
-    ProcessOptions(argc, argv, programName, includePath, objectDir, prependDir, 
+
+    ProcessOptions(argc, argv, programName, includePath, objectDir, prependDir,
         warn);
 
     // There must be at least one source file; print error if not:
@@ -109,7 +109,7 @@ int SrcListCmdMain(int argc, char** argv)
 
         if( dot == NULL )
         {
-            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\"," 
+            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\","
                 "or \".s\": " + fileName);
         }
 
@@ -117,13 +117,13 @@ int SrcListCmdMain(int argc, char** argv)
             (strcmp(dot, ".c") != 0) &&
             (strcmp(dot, ".s") != 0))
         {
-            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\"," 
+            ErrorExit(programName, "bad extension: must be \".c\", \".cpp\","
                 "or \".s\": " + fileName);
         }
 
         set<string, less<string> > cache;
 
-        ProcessFile("", fileName, programName, fp, includePath, prependDir, 
+        ProcessFile("", fileName, programName, fp, includePath, prependDir,
             0, cache, PrintSrcDependency, warn);
     }
 

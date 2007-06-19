@@ -46,11 +46,11 @@ void Warning(const char* programName, string& message)
 }
 
 void ProcessOptions(
-    int& argc, 
+    int& argc,
     char**& argv,
     const char* programName,
     vector<string>& includePath,
-    string& objectDir, 
+    string& objectDir,
     string& prependDir,
     bool& warn)
 {
@@ -64,7 +64,7 @@ void ProcessOptions(
         {
             break;
         }
-        
+
         p++;
 
         if (*p == 'I')
@@ -163,7 +163,7 @@ bool GetIncludePath(
             {
                 p++;
             }
-            
+
             // Expect opening '"' or '<':
 
             if (*p != '"' && *p != '<')
@@ -201,7 +201,7 @@ bool GetIncludePath(
             {
                 p++;
             }
-            
+
             if (*p != '"' && *p != '>')
             {
                 return false;
@@ -237,7 +237,7 @@ bool GetIncludePath(
             {
                 p--;
             }
-            
+
             if (p == start)
             {
                 return false;
@@ -358,26 +358,26 @@ void ProcessFile(
             {
                 continue;
             }
-            
+
             cache.insert(path);
 
             string fullPath;
-            FILE* fp = FindFile(includePath, prependDir, path, openDelim, 
+            FILE* fp = FindFile(includePath, prependDir, path, openDelim,
                 fullPath);
 
             if (!fp)
             {
                 if (warn)
                 {
-                    string message = "header file not found: " + path + 
+                    string message = "header file not found: " + path +
                         " included from " + fileName;
-                    Warning(programName, message); 
+                    Warning(programName, message);
                 }
             }
             else
             {
-                ProcessFile(objectFileName, fullPath,programName, fp, 
-                    includePath, prependDir, nesting + 1, cache, printFunc, 
+                ProcessFile(objectFileName, fullPath,programName, fp,
+                    includePath, prependDir, nesting + 1, cache, printFunc,
                     warn);
             }
         }

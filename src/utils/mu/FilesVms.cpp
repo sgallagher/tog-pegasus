@@ -27,30 +27,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//%=============================================================================
-//
-// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-//
-// Author: Michael E. Brasher
-//
 //%=============================================================================
 
 #include <string.h>
@@ -89,15 +65,16 @@
 //
 //-
 
-#define check_rms_status(vms$status, rms$status, text, routine)    \
-  if (!$VMS_STATUS_SUCCESS (vms$status))                           \
-  {   char msgbuf[256];                                            \
-   fprintf (stderr,"RMS %s failed in routine %s %8.8X %8.8X\n",    \
-              text,routine, vms$status,rms$status);                \
-   fprintf (stderr,"%s\n", msgtxt ((vms$status), msgbuf, 256));    \
-   fprintf (stderr,"%s\n", msgtxt ((rms$status), msgbuf, 256));    \
-   return 1;                                                       \
-  }                                                                \
+#define check_rms_status(vms$status, rms$status, text, routine)         \
+    if (!$VMS_STATUS_SUCCESS (vms$status))                              \
+    {                                                                   \
+        char msgbuf[256];                                               \
+        fprintf(stderr, "RMS %s failed in routine %s %8.8X %8.8X\n",    \
+                text, routine, vms$status, rms$status);                 \
+        fprintf(stderr, "%s\n", msgtxt((vms$status), msgbuf, 256));     \
+        fprintf(stderr, "%s\n", msgtxt((rms$status), msgbuf, 256));     \
+        return 1;                                                       \
+    }
 
 //+
 //
@@ -109,14 +86,15 @@
 
 char *msgtxt (int msgid, char *buffer, int buflen);
 
-#define check_status(vms$status, text, routine)                    \
-  if (!$VMS_STATUS_SUCCESS (vms$status))                           \
-  {   char msgbuf[256];                                            \
-   fprintf (stderr,"%s system service failed in routine %s %8.8X\n", \
-                text,routine, vms$status);                         \
-   fprintf (stderr,"%s\n", msgtxt ((vms$status), msgbuf, 256));    \
-   return 1;                                                       \
-  }                                                                \
+#define check_status(vms$status, text, routine)                           \
+    if (!$VMS_STATUS_SUCCESS (vms$status))                                \
+    {                                                                     \
+        char msgbuf[256];                                                 \
+        fprintf(stderr, "%s system service failed in routine %s %8.8X\n", \
+                text, routine, vms$status);                               \
+        fprintf(stderr, "%s\n", msgtxt((vms$status), msgbuf, 256));       \
+        return 1;                                                         \
+    }
 
 static struct FAB Fab;
 static struct NAM Nam;
@@ -135,24 +113,24 @@ static unsigned short DevChan;
 //char cstr[256];
 
 static struct _generic_64 Cdate,
-  Rdate,
-  Edate,
-  Bdate;
+    Rdate,
+    Edate,
+    Bdate;
 static struct _generic_64 CurTime;
 
 struct IPFatr {
-  unsigned short int atr$w_size;
-  unsigned short int atr$w_type;
-  void *atr$l_addr;
-  int fill;
-} ;
+    unsigned short int atr$w_size;
+    unsigned short int atr$w_type;
+    void *atr$l_addr;
+    int fill;
+};
 
 static struct IPFatr MyAtr;
 
 static int status;
 static long int date[2];
 
-char *msgtxt (int, char *, int);
+char *msgtxt(int, char *, int);
 
 //+
 //
@@ -160,17 +138,17 @@ char *msgtxt (int, char *, int);
 //
 //-
 
-bool GetCwd (string & path)
+bool GetCwd(string& path)
 {
-  char tmp[4096];
+    char tmp[4096];
 
-  if (getcwd (tmp, (size_t) sizeof (tmp), 0) == NULL)
-  {
-    return false;
-  }
-  path = tmp;
-  strcpy (cstr, (char *) path.c_str ());
-  return true;
+    if (getcwd (tmp, (size_t) sizeof (tmp), 0) == NULL)
+    {
+        return false;
+    }
+    path = tmp;
+    strcpy(cstr, (char *) path.c_str());
+    return true;
 }
 
 //+
@@ -179,10 +157,10 @@ bool GetCwd (string & path)
 //
 //-
 
-bool ChangeDir (const string & path)
+bool ChangeDir(const string& path)
 {
-  strcpy (cstr, (char *) path.c_str ());
-  return chdir (path.c_str ()) == 0;
+    strcpy(cstr, (char *) path.c_str());
+    return chdir(path.c_str()) == 0;
 }
 
 //+
@@ -191,10 +169,10 @@ bool ChangeDir (const string & path)
 //
 //-
 
-bool RemoveDir (const string & path)
+bool RemoveDir(const string& path)
 {
-  strcpy (cstr, (char *) path.c_str ());
-  return rmdir (path.c_str ()) == 0;
+    strcpy(cstr, (char *) path.c_str());
+    return rmdir(path.c_str()) == 0;
 }
 
 //+
@@ -203,10 +181,10 @@ bool RemoveDir (const string & path)
 //
 //-
 
-bool RemoveFile (const string & path)
+bool RemoveFile(const string& path)
 {
-  strcpy (cstr, (char *) path.c_str ());
-  return remove (path.c_str ()) == 0;
+    strcpy(cstr, (char *) path.c_str());
+    return remove(path.c_str()) == 0;
 }
 
 //+
@@ -215,10 +193,10 @@ bool RemoveFile (const string & path)
 //
 //-
 
-bool MakeDir (const string & path)
+bool MakeDir(const string& path)
 {
-  strcpy (cstr, (char *) path.c_str ());
-  return mkdir (path.c_str (), 0777) == 0;
+    strcpy(cstr, (char *) path.c_str());
+    return mkdir(path.c_str(), 0777) == 0;
 }
 
 //+
@@ -227,33 +205,33 @@ bool MakeDir (const string & path)
 //
 //-
 
-bool GetDirEntries (const string & path, vector < string > &filenames)
+bool GetDirEntries(const string& path, vector<string>& filenames)
 {
-  // 
-  // Make a list of all the files at this directory level.
-  // 
+    //
+    // Make a list of all the files at this directory level.
+    //
 
-  strcpy (cstr, (char *) path.c_str ());
+    strcpy(cstr, (char *) path.c_str());
 
-  filenames.erase (filenames.begin (), filenames.end ());
+    filenames.erase(filenames.begin(), filenames.end());
 
-  DIR *dir = opendir (path.c_str ());
+    DIR* dir = opendir(path.c_str());
 
-  if (!dir)
-  {
-    return false;
-  }
+    if (!dir)
+    {
+        return false;
+    }
 
-  for (dirent * entry = readdir (dir); entry; entry = readdir (dir))
-  {
-    string name = entry->d_name;
+    for (dirent* entry = readdir(dir); entry; entry = readdir(dir))
+    {
+        string name = entry->d_name;
 
-    filenames.push_back (name);
-  }
+        filenames.push_back(name);
+    }
 
-  closedir (dir);
+    closedir(dir);
 
-  return true;
+    return true;
 }
 
 //+
@@ -262,141 +240,141 @@ bool GetDirEntries (const string & path, vector < string > &filenames)
 //
 //-
 
-bool TouchFile (const string & path)
+bool TouchFile(const string& path)
 {
-  int i;
+    int i;
 
-  FibDesc.dsc$w_length = sizeof (Fib);
-  FibDesc.dsc$b_dtype = DSC$K_DTYPE_Z;
-  FibDesc.dsc$b_class = DSC$K_CLASS_S;
-  FibDesc.dsc$a_pointer = (char *) &Fib;
+    FibDesc.dsc$w_length = sizeof (Fib);
+    FibDesc.dsc$b_dtype = DSC$K_DTYPE_Z;
+    FibDesc.dsc$b_class = DSC$K_CLASS_S;
+    FibDesc.dsc$a_pointer = (char *) &Fib;
 
-  DevDesc.dsc$b_dtype = DSC$K_DTYPE_T;
-  DevDesc.dsc$b_class = DSC$K_CLASS_S;
-  DevDesc.dsc$a_pointer = &Nam.nam$t_dvi[1];
+    DevDesc.dsc$b_dtype = DSC$K_DTYPE_T;
+    DevDesc.dsc$b_class = DSC$K_CLASS_S;
+    DevDesc.dsc$a_pointer = &Nam.nam$t_dvi[1];
 
-  FileName.dsc$b_dtype = DSC$K_DTYPE_T;
-  FileName.dsc$b_class = DSC$K_CLASS_S;
+    FileName.dsc$b_dtype = DSC$K_DTYPE_T;
+    FileName.dsc$b_class = DSC$K_CLASS_S;
 
-  MyAtr.atr$w_size = sizeof (Rdate);
-  MyAtr.atr$w_type = ATR$C_REVDATE;
-  MyAtr.atr$l_addr = &Rdate;
-  MyAtr.fill = 0;
+    MyAtr.atr$w_size = sizeof (Rdate);
+    MyAtr.atr$w_type = ATR$C_REVDATE;
+    MyAtr.atr$l_addr = &Rdate;
+    MyAtr.fill = 0;
 
-  struct stat sbuf;
+    struct stat sbuf;
 
-  status = sys$gettim (&CurTime);
-  check_status (status, "sys$gettim", "TouchFile");
+    status = sys$gettim(&CurTime);
+    check_status(status, "sys$gettim", "TouchFile");
 
-  if (stat (path.c_str (), &sbuf) != 0)
-  {
-    // File does not exist, create it:
-
-    int fd = open (path.c_str (), O_WRONLY | O_CREAT, 0666);
-
-    if (fd < 0)
+    if (stat(path.c_str(), &sbuf) != 0)
     {
-      return false;
+        // File does not exist, create it:
+
+        int fd = open(path.c_str(), O_WRONLY | O_CREAT, 0666);
+
+        if (fd < 0)
+        {
+            return false;
+        }
+
+        close(fd);
+        return true;
     }
 
-    close (fd);
+    // File does exist:
+
+    /* initialize RMS structures, we need a NAM to retrieve the FID */
+
+    Fab = cc$rms_fab;
+
+    Fab.fab$l_fna = (char *) path.c_str();    /* name of file */
+    Fab.fab$b_fns = strlen(path.c_str());
+    Fab.fab$l_nam = &Nam;    /* FAB has an associated NAM */
+
+    Nam = cc$rms_nam;
+
+    Nam.nam$l_esa = EName;    /* expanded filename */
+    Nam.nam$b_ess = sizeof (EName);
+    Nam.nam$l_rsa = RName;    /* resultant filename */
+    Nam.nam$b_rss = sizeof (RName);
+
+    /* do $PARSE and $SEARCH here */
+
+    status = sys$parse(&Fab);
+
+    check_rms_status(status, Fab.fab$l_stv, "sys$parse", "parse_name");
+
+    // Open the file.
+
+    DevDesc.dsc$w_length = Nam.nam$t_dvi[0];
+
+    status = sys$assign(&DevDesc, &DevChan, 0, 0);
+
+    check_status(status, "sys$assign", "assign_name");
+
+    // Get current file revision date.
+
+    FileName.dsc$a_pointer = Nam.nam$l_name;
+    FileName.dsc$w_length = Nam.nam$b_name + Nam.nam$b_type + Nam.nam$b_ver;
+
+    /* Initialize the FIB */
+    for (i = 0; i < 3; i++)
+    {
+        Fib.fib$w_fid[i] = Nam.nam$w_fid[i];
+        Fib.fib$w_did[i] = Nam.nam$w_did[i];
+    }
+
+    status = sys$qiow(
+        0,
+        DevChan,
+        IO$_ACCESS,
+        &Iosb,
+        0,
+        0,
+        &FibDesc,
+        (__int64) & FileName,
+        0,
+        0,
+        (__int64) & MyAtr,
+        0);
+
+    if ((status & 1) == 1)
+    {
+        status = Iosb.iosb$w_status;
+    }
+    check_status (status, "sys$qio", "get_attr");
+
+    // Get current time.
+    Rdate = CurTime;
+
+    // Set new file revision time.
+
+    status = sys$qiow(
+        0,
+        DevChan,
+        IO$_MODIFY,
+        &Iosb,
+        0, 0,
+        &FibDesc,
+        (__int64) & FileName,
+        0,
+        0,
+        (__int64) & MyAtr,
+        0);
+
+    if ((status & 1) == 1)
+    {
+        status = Iosb.iosb$w_status;
+    }
+    check_status(status, "sys$qio", "set_attr");
+
+    // Release file.
+
+    status = sys$dassgn (DevChan);
+
+    check_status(status, "sys$dassgn", "deassign_name");
+
     return true;
-  }
-
-  // File does exist:
-
-  /* initialize RMS structures, we need a NAM to retrieve the FID */
-
-  Fab = cc$rms_fab;
-
-  Fab.fab$l_fna = (char *) path.c_str ();	/* name of file */
-  Fab.fab$b_fns = strlen (path.c_str ());
-  Fab.fab$l_nam = &Nam;		/* FAB has an associated NAM */
-
-  Nam = cc$rms_nam;
-
-  Nam.nam$l_esa = EName;	/* expanded filename */
-  Nam.nam$b_ess = sizeof (EName);
-  Nam.nam$l_rsa = RName;	/* resultant filename */
-  Nam.nam$b_rss = sizeof (RName);
-
-  /* do $PARSE and $SEARCH here */
-
-  status = sys$parse (&Fab);
-
-  check_rms_status (status, Fab.fab$l_stv, "sys$parse", "parse_name");
-
-  // Open the file.
-
-  DevDesc.dsc$w_length = Nam.nam$t_dvi[0];
-
-  status = sys$assign (&DevDesc,
-		       &DevChan,
-		       0, 0);
-
-  check_status (status, "sys$assign", "assign_name");
-
-  // Get current file revision date.
-
-  FileName.dsc$a_pointer = Nam.nam$l_name;
-  FileName.dsc$w_length = Nam.nam$b_name + Nam.nam$b_type + Nam.nam$b_ver;
-
-  /* Initialize the FIB */
-  for (i = 0; i < 3; i++)
-  {
-    Fib.fib$w_fid[i] = Nam.nam$w_fid[i];
-    Fib.fib$w_did[i] = Nam.nam$w_did[i];
-  }
-
-  status = sys$qiow (0,
-		     DevChan,
-		     IO$_ACCESS,
-		     &Iosb,
-		     0,
-		     0,
-		     &FibDesc,
-		     (__int64) & FileName,
-		     0,
-		     0,
-		     (__int64) & MyAtr,
-		     0);
-
-  if ((status & 1) == 1)
-  {
-    status = Iosb.iosb$w_status;
-  }
-  check_status (status, "sys$qio", "get_attr");
-
-  // Get current time.
-  Rdate = CurTime;
-
-  // Set new file revision time.
-
-  status = sys$qiow (0,
-		     DevChan,
-		     IO$_MODIFY,
-		     &Iosb,
-		     0, 0,
-		     &FibDesc,
-		     (__int64) & FileName,
-		     0,
-		     0,
-		     (__int64) & MyAtr,
-		     0);
-
-  if ((status & 1) == 1)
-  {
-    status = Iosb.iosb$w_status;
-  }
-  check_status (status, "sys$qio", "set_attr");
-
-  // Release file.
-
-  status = sys$dassgn (DevChan);
-
-  check_status (status, "sys$dassgn", "deassign_name");
-
-  return true;
 }
 
 //+
@@ -405,18 +383,18 @@ bool TouchFile (const string & path)
 //
 //-
 
-bool GetFileSize (const string & path, size_t &size)
+bool GetFileSize(const string& path, size_t& size)
 {
-  struct stat st;
+    struct stat st;
 
-  strcpy (cstr, (char *) path.c_str ());
-  if (stat (path.c_str (), &st) != 0)
-  {
-    return false;
-  }
+    strcpy (cstr, (char *) path.c_str());
+    if (stat(path.c_str(), &st) != 0)
+    {
+        return false;
+    }
 
-  size = (size_t) (st.st_size);
-  return true;
+    size = (size_t) (st.st_size);
+    return true;
 }
 
 //+
@@ -425,10 +403,10 @@ bool GetFileSize (const string & path, size_t &size)
 //
 //-
 
-bool Exists (const string & path)
+bool Exists(const string& path)
 {
-  strcpy (cstr, (char *) path.c_str ());
-  return access (path.c_str (), F_OK) == 0;
+    strcpy(cstr, (char *) path.c_str());
+    return access(path.c_str(), F_OK) == 0;
 }
 
 //+
@@ -437,10 +415,10 @@ bool Exists (const string & path)
 //
 //-
 
-bool Readable (const string & path)
+bool Readable(const string& path)
 {
-  strcpy (cstr, (char *) path.c_str ());
-  return access (path.c_str (), R_OK) == 0;
+    strcpy (cstr, (char *) path.c_str());
+    return access(path.c_str(), R_OK) == 0;
 }
 
 //+
@@ -449,10 +427,10 @@ bool Readable (const string & path)
 //
 //-
 
-bool Writable (const string & path)
+bool Writable(const string& path)
 {
-  strcpy (cstr, (char *) path.c_str ());
-  return access (path.c_str (), W_OK) == 0;
+    strcpy(cstr, (char *) path.c_str());
+    return access (path.c_str(), W_OK) == 0;
 }
 
 //+
@@ -461,11 +439,11 @@ bool Writable (const string & path)
 //
 //-
 
-bool IsDir (const string & path)
+bool IsDir(const string& path)
 {
-  struct stat st;
-  strcpy (cstr, (char *) path.c_str ());
-  return stat (path.c_str (), &st) == 0 && S_ISDIR (st.st_mode);
+    struct stat st;
+    strcpy(cstr, (char *) path.c_str());
+    return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
 //+
@@ -474,30 +452,30 @@ bool IsDir (const string & path)
 //
 //-
 
-bool parse_name (const string & name)
+bool parse_name(const string& name)
 {
-  /* initialize RMS structures, we need a NAM to retrieve the FID */
+    /* initialize RMS structures, we need a NAM to retrieve the FID */
 
-  Fab = cc$rms_fab;
+    Fab = cc$rms_fab;
 
-  Fab.fab$l_fna = (char *) name.c_str ();	/* name of file */
-  Fab.fab$b_fns = strlen (name.c_str ());
-  Fab.fab$l_nam = &Nam;		/* FAB has an associated NAM */
+    Fab.fab$l_fna = (char *) name.c_str();    /* name of file */
+    Fab.fab$b_fns = strlen(name.c_str());
+    Fab.fab$l_nam = &Nam;    /* FAB has an associated NAM */
 
-  Nam = cc$rms_nam;
+    Nam = cc$rms_nam;
 
-  Nam.nam$l_esa = EName;	/* expanded filename */
-  Nam.nam$b_ess = sizeof (EName);
-  Nam.nam$l_rsa = RName;	/* resultant filename */
-  Nam.nam$b_rss = sizeof (RName);
+    Nam.nam$l_esa = EName;    /* expanded filename */
+    Nam.nam$b_ess = sizeof (EName);
+    Nam.nam$l_rsa = RName;    /* resultant filename */
+    Nam.nam$b_rss = sizeof (RName);
 
-  /* do $PARSE and $SEARCH here */
+    /* do $PARSE and $SEARCH here */
 
-  strcpy (cstr, (char *) name.c_str ());
-  status = sys$parse (&Fab);
+    strcpy(cstr, (char *) name.c_str());
+    status = sys$parse(&Fab);
 
-  check_rms_status (status, Fab.fab$l_stv, "sys$parse", "parse_name");
-  return 0;
+    check_rms_status(status, Fab.fab$l_stv, "sys$parse", "parse_name");
+    return 0;
 }
 
 //+
@@ -506,16 +484,17 @@ bool parse_name (const string & name)
 //
 //-
 
-bool assign_name (void)
+bool assign_name(void)
 {
-  DevDesc.dsc$w_length = Nam.nam$t_dvi[0];
+    DevDesc.dsc$w_length = Nam.nam$t_dvi[0];
 
-  status = sys$assign (&DevDesc,
-		       &DevChan,
-		       0, 0);
+    status = sys$assign(
+        &DevDesc,
+        &DevChan,
+        0, 0);
 
-  check_status (status, "sys$assign", "assign_name");
-  return 0;
+    check_status(status, "sys$assign", "assign_name");
+    return 0;
 }
 
 //+
@@ -524,49 +503,50 @@ bool assign_name (void)
 //
 //-
 
-bool get_attr (void)
+bool get_attr(void)
 {
-  int i;
+    int i;
 
-  FileName.dsc$a_pointer = Nam.nam$l_name;
-  FileName.dsc$w_length = Nam.nam$b_name + Nam.nam$b_type + Nam.nam$b_ver;
+    FileName.dsc$a_pointer = Nam.nam$l_name;
+    FileName.dsc$w_length = Nam.nam$b_name + Nam.nam$b_type + Nam.nam$b_ver;
 
-  /* Initialize the FIB */
-  for (i = 0; i < 3; i++)
-  {
-    Fib.fib$w_fid[i] = Nam.nam$w_fid[i];
-    Fib.fib$w_did[i] = Nam.nam$w_did[i];
-  }
+    /* Initialize the FIB */
+    for (i = 0; i < 3; i++)
+    {
+        Fib.fib$w_fid[i] = Nam.nam$w_fid[i];
+        Fib.fib$w_did[i] = Nam.nam$w_did[i];
+    }
 
-  FibDesc.dsc$w_length = sizeof (Fib);
-  FibDesc.dsc$b_dtype = DSC$K_DTYPE_Z;
-  FibDesc.dsc$b_class = DSC$K_CLASS_S;
-  FibDesc.dsc$a_pointer = (char *) &Fib;
+    FibDesc.dsc$w_length = sizeof (Fib);
+    FibDesc.dsc$b_dtype = DSC$K_DTYPE_Z;
+    FibDesc.dsc$b_class = DSC$K_CLASS_S;
+    FibDesc.dsc$a_pointer = (char *) &Fib;
 
-  MyAtr.atr$w_size = sizeof (Rdate);
-  MyAtr.atr$w_type = ATR$C_REVDATE;
-  MyAtr.atr$l_addr = &Rdate;
-  MyAtr.fill = 0;
+    MyAtr.atr$w_size = sizeof (Rdate);
+    MyAtr.atr$w_type = ATR$C_REVDATE;
+    MyAtr.atr$l_addr = &Rdate;
+    MyAtr.fill = 0;
 
-  status = sys$qiow (0,
-		     DevChan,
-		     IO$_ACCESS,
-		     &Iosb,
-		     0,
-		     0,
-		     &FibDesc,
-		     (__int64) & FileName,
-		     0,
-		     0,
-		     (__int64) & MyAtr,
-		     0);
+    status = sys$qiow(
+        0,
+        DevChan,
+        IO$_ACCESS,
+        &Iosb,
+        0,
+        0,
+        &FibDesc,
+        (__int64) & FileName,
+        0,
+        0,
+        (__int64) & MyAtr,
+        0);
 
-  if ((status & 1) == 1)
-  {
-    status = Iosb.iosb$w_status;
-  }
-  check_status (status, "sys$qio", "get_attr");
-  return 0;
+    if ((status & 1) == 1)
+    {
+        status = Iosb.iosb$w_status;
+    }
+    check_status(status, "sys$qio", "get_attr");
+    return 0;
 }
 
 //+
@@ -575,46 +555,47 @@ bool get_attr (void)
 //
 //-
 
-bool set_attr (void)
+bool set_attr(void)
 {
-  int i;
+    int i;
 
-  FileName.dsc$a_pointer = Nam.nam$l_name;
-  FileName.dsc$w_length = Nam.nam$b_name + Nam.nam$b_type + Nam.nam$b_ver;
+    FileName.dsc$a_pointer = Nam.nam$l_name;
+    FileName.dsc$w_length = Nam.nam$b_name + Nam.nam$b_type + Nam.nam$b_ver;
 
-  for (i = 0; i < 3; i++)
-  {
-    Fib.fib$w_fid[i] = Nam.nam$w_fid[i];
-    Fib.fib$w_did[i] = Nam.nam$w_did[i];
-  }
+    for (i = 0; i < 3; i++)
+    {
+        Fib.fib$w_fid[i] = Nam.nam$w_fid[i];
+        Fib.fib$w_did[i] = Nam.nam$w_did[i];
+    }
 
-  FibDesc.dsc$w_length = sizeof (Fib);
-  FibDesc.dsc$b_dtype = DSC$K_DTYPE_Z;
-  FibDesc.dsc$b_class = DSC$K_CLASS_S;
-  FibDesc.dsc$a_pointer = (char *) &Fib;
+    FibDesc.dsc$w_length = sizeof (Fib);
+    FibDesc.dsc$b_dtype = DSC$K_DTYPE_Z;
+    FibDesc.dsc$b_class = DSC$K_CLASS_S;
+    FibDesc.dsc$a_pointer = (char *) &Fib;
 
-  MyAtr.atr$w_size = sizeof (Rdate);
-  MyAtr.atr$w_type = ATR$C_REVDATE;
-  MyAtr.atr$l_addr = &Rdate;
-  MyAtr.fill = 0;
+    MyAtr.atr$w_size = sizeof (Rdate);
+    MyAtr.atr$w_type = ATR$C_REVDATE;
+    MyAtr.atr$l_addr = &Rdate;
+    MyAtr.fill = 0;
 
-  status = sys$qiow (0,
-		     DevChan,
-		     IO$_MODIFY,
-		     &Iosb,
-		     0, 0,
-		     &FibDesc,
-		     (__int64) & FileName,
-		     0, 0,
-		     (__int64) & MyAtr,
-		     0);
+    status = sys$qiow(
+        0,
+        DevChan,
+        IO$_MODIFY,
+        &Iosb,
+        0, 0,
+        &FibDesc,
+        (__int64) & FileName,
+        0, 0,
+        (__int64) & MyAtr,
+        0);
 
-  if ((status & 1) == 1)
-  {
-    status = Iosb.iosb$w_status;
-  }
-  check_status (status, "sys$qio", "set_attr");
-  return 0;
+    if ((status & 1) == 1)
+    {
+        status = Iosb.iosb$w_status;
+    }
+    check_status(status, "sys$qio", "set_attr");
+    return 0;
 }
 
 //+
@@ -623,13 +604,12 @@ bool set_attr (void)
 //
 //-
 
-bool deassign_name (void)
+bool deassign_name(void)
 {
+    status = sys$dassgn(DevChan);
 
-  status = sys$dassgn (DevChan);
-
-  check_status (status, "sys$dassgn", "deassign_name");
-  return 0;
+    check_status(status, "sys$dassgn", "deassign_name");
+    return 0;
 }
 
 //+
@@ -643,22 +623,22 @@ bool deassign_name (void)
 //
 //-
 
-char *msgtxt (int msgid, char *buffer, int buflen)
+char* msgtxt(int msgid, char *buffer, int buflen)
 {
-  int status;
-  unsigned short msglen;
-  static struct dsc$descriptor bufdsc;
-  bufdsc.dsc$w_length = buflen - 1;	// Leave room for null
+    int status;
+    unsigned short msglen;
+    static struct dsc$descriptor bufdsc;
+    bufdsc.dsc$w_length = buflen - 1;    // Leave room for null
 
-  bufdsc.dsc$a_pointer = buffer;
+    bufdsc.dsc$a_pointer = buffer;
 
-  status = sys$getmsg (msgid, &msglen, &bufdsc, 15, 0);
-  if (!$VMS_STATUS_SUCCESS (status))
-  {
-    lib$stop (status);
-  }
+    status = sys$getmsg(msgid, &msglen, &bufdsc, 15, 0);
+    if (!$VMS_STATUS_SUCCESS(status))
+    {
+        lib$stop(status);
+    }
 
-  buffer[0] = '-';
-  buffer[msglen] = '\0';
-  return buffer;
-}				// end msgtxt
+    buffer[0] = '-';
+    buffer[msglen] = '\0';
+    return buffer;
+}

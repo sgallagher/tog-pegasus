@@ -81,14 +81,14 @@ bool GetDirEntries(const string& path, vector<string>& filenames)
     DIR* dir = opendir(path.c_str());
 
     if (!dir)
-	return false;
+        return false;
 
     for (dirent* entry = readdir(dir); entry; entry = readdir(dir))
     {
-	string name = entry->d_name;
+        string name = entry->d_name;
 
-	if (name != "." && name != "..")
-	    filenames.push_back(name);
+        if (name != "." && name != "..")
+            filenames.push_back(name);
     }
 
     closedir(dir);
@@ -99,7 +99,7 @@ bool GetDirEntries(const string& path, vector<string>& filenames)
 bool TouchFile(const string& path)
 {
     if (IsDir(path))
-	return false;
+        return false;
 
     // Get file-size:
 
@@ -109,13 +109,13 @@ bool TouchFile(const string& path)
 
     if (stat(path.c_str(), &sbuf) != 0)
     {
-	int fd = open(path.c_str(), O_WRONLY | O_CREAT, 0666);
+        int fd = open(path.c_str(), O_WRONLY | O_CREAT, 0666);
 
-	if (fd < 0)
-	    return false;
+        if (fd < 0)
+            return false;
 
-	close(fd);
-	return true;
+        close(fd);
+        return true;
     }
 
     // File does exist:
@@ -124,59 +124,59 @@ bool TouchFile(const string& path)
 
     if (size == 0)
     {
-	// Open file:
+        // Open file:
 
-	int fd = open(path.c_str(), O_RDWR, 0666);
+        int fd = open(path.c_str(), O_RDWR, 0666);
 
-	if (fd < 0)
-	    return false;
+        if (fd < 0)
+            return false;
 
-	char c = '\0';
+        char c = '\0';
 
-	// Write one byte:
+        // Write one byte:
 
-	if (write(fd, &c, sizeof(char)) != 1)
-	    return false;
+        if (write(fd, &c, sizeof(char)) != 1)
+            return false;
 
-	// Truncate back to zero size:
+        // Truncate back to zero size:
 
-	if (ftruncate(fd, size) < 0)
-	    return false;
+        if (ftruncate(fd, size) < 0)
+            return false;
 
-	// Close the file:
+        // Close the file:
 
-	close(fd);
+        close(fd);
 
-	return true;
+        return true;
     }
     else
     {
-	// Open the file:
+        // Open the file:
 
-	int fd = open(path.c_str(), O_RDWR, 0666);
+        int fd = open(path.c_str(), O_RDWR, 0666);
 
-	if (fd < 0)
-	    return false;
+        if (fd < 0)
+            return false;
 
-	// Read first character, rewind, then rewrite it:
+        // Read first character, rewind, then rewrite it:
 
-	char c;
+        char c;
 
-	if (read(fd, &c, sizeof(char)) != 1)
-	    return false;
+        if (read(fd, &c, sizeof(char)) != 1)
+            return false;
 
-	if (lseek(fd, 0, SEEK_SET) < 0)
-	    return false;
+        if (lseek(fd, 0, SEEK_SET) < 0)
+            return false;
 
-	if (write(fd, &c, sizeof(char)) != 1)
-	    return false;
+        if (write(fd, &c, sizeof(char)) != 1)
+            return false;
 
-	// Truncate file to force mod of times:
+        // Truncate file to force mod of times:
 
-	if (ftruncate(fd, size) < 0)
-	    return false;
+        if (ftruncate(fd, size) < 0)
+            return false;
 
-	close(fd);
+        close(fd);
     }
 
     return true;
@@ -187,7 +187,7 @@ bool GetFileSize(const string& path, size_t& size)
     struct stat st;
 
     if (stat(path.c_str(), &st) != 0)
-	return false;
+        return false;
 
     size = (size_t)(st.st_size);
     return true;

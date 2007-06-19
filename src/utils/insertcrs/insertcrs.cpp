@@ -58,19 +58,19 @@ bool CopyFile(const string& fromFile, const string& toFile)
     ifstream is(fromFile.c_str() PEGASUS_IOS_BINARY);
 
     if (!is)
-	return false;
+        return false;
 
     // Open output file:
 
     ofstream os(toFile.c_str() PEGASUS_IOS_BINARY);
 
     if (!os)
-	return false;
+        return false;
 
     char c;
 
     while (is.get(c))
-	os.put(c);
+        os.put(c);
 
     return true;
 }
@@ -83,9 +83,9 @@ void ProcessFile(const char* fileName)
 
     if (!is)
     {
-	cerr << arg0 << "warning: failed to open \"" << fileName << "\"";
-	cerr << endl;
-	return;
+        cerr << arg0 << "warning: failed to open \"" << fileName << "\"";
+        cerr << endl;
+        return;
     }
 
     const char TEMP_FILE_NAME[] = "insertcrs.tmp";
@@ -94,9 +94,9 @@ void ProcessFile(const char* fileName)
 
     if (!os)
     {
-	cerr << arg0 << ": failed to open \"";
-	cerr << TEMP_FILE_NAME << "\"" << endl;
-	exit(1);
+        cerr << arg0 << ": failed to open \"";
+        cerr << TEMP_FILE_NAME << "\"" << endl;
+        exit(1);
     }
 
     char c;
@@ -115,8 +115,8 @@ void ProcessFile(const char* fileName)
 
     if (!CopyFile(TEMP_FILE_NAME, fileName))
     {
-	cerr << arg0 << ": failed to copy back file" << endl;
-	exit(1);
+        cerr << arg0 << ": failed to copy back file" << endl;
+        exit(1);
     }
 
     RemoveFile(TEMP_FILE_NAME);
@@ -126,14 +126,14 @@ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-	cerr << "Usage: " << argv[0] << " filenames..." << endl;
-	exit(1);
+        cerr << "Usage: " << argv[0] << " filenames..." << endl;
+        exit(1);
     }
 
     for (int i = 1; i < argc; i++)
     {
-	cout << argv[i] << endl;
-	ProcessFile(argv[i]);
+        cout << argv[i] << endl;
+        ProcessFile(argv[i]);
     }
 
     return 0;

@@ -51,8 +51,8 @@ static int _Strip(
 
     if (!is)
     {
-	cerr << arg0 << ": failed to open \"" << fileName << "\"" << endl;
-	return 1;
+        cerr << arg0 << ": failed to open \"" << fileName << "\"" << endl;
+        return 1;
     }
 
     string tmpFileName = fileName + ".tmp";
@@ -64,8 +64,8 @@ static int _Strip(
 
     if (!os)
     {
-	cerr << arg0 << ": failed to open \"" << tmpFileName << "\"" << endl;
-	return 1;
+        cerr << arg0 << ": failed to open \"" << tmpFileName << "\"" << endl;
+        return 1;
     }
 
     // -- Strip out the unwanted lines:
@@ -77,21 +77,21 @@ static int _Strip(
 
     while (getline(is, line))
     {
-	if (!foundStart && line.substr(0, startPattern.size()) == startPattern)
-	{
-	    foundStart = true;
-	    inside = true;
-	    continue;
-	}
+        if (!foundStart && line.substr(0, startPattern.size()) == startPattern)
+        {
+            foundStart = true;
+            inside = true;
+            continue;
+        }
 
-	if (!inside)
-	    os << line << endl;
+        if (!inside)
+            os << line << endl;
 
-	if (!foundEnd && line.substr(0, endPattern.size()) == endPattern)
-	{
-	    foundEnd = true;
-	    inside = false;
-	}
+        if (!foundEnd && line.substr(0, endPattern.size()) == endPattern)
+        {
+            foundEnd = true;
+            inside = false;
+        }
     }
 
     is.close();
@@ -99,8 +99,8 @@ static int _Strip(
 
     if (!foundStart || !foundEnd)
     {
-	RemoveFile(tmpFileName);
-	return 0;
+        RemoveFile(tmpFileName);
+        return 0;
     }
 
 
@@ -108,8 +108,8 @@ static int _Strip(
 
     if (!CopyFile(tmpFileName, fileName))
     {
-	cerr << arg0 << ": failed to copy file" << endl;
-	return 1;
+        cerr << arg0 << ": failed to copy file" << endl;
+        return 1;
     }
 
     // -- Remove the temporary file:
@@ -125,8 +125,8 @@ int StripCmd(const vector<string>& args)
 
     if (args.size() < 4)
     {
-	cerr << args[0] << ": insufficient arguments" << endl;
-	return 1;
+        cerr << args[0] << ": insufficient arguments" << endl;
+        return 1;
     }
 
     // -- Create complete glob list:
@@ -134,14 +134,14 @@ int StripCmd(const vector<string>& args)
     vector<string> fileNames;
 
     for (size_t i = 3; i < args.size(); i++)
-	Glob(args[i], fileNames);
+        Glob(args[i], fileNames);
 
     for (size_t j = 0; j < fileNames.size(); j++)
     {
-	int result = _Strip(args[0], args[1], args[2], fileNames[j]);
+        int result = _Strip(args[0], args[1], args[2], fileNames[j]);
 
-	if (result != 0)
-	    return result;
+        if (result != 0)
+            return result;
     }
 
     return 0;

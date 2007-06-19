@@ -40,12 +40,12 @@
 //Print error message and exit
 void ErrorExit(const char* programName, const string& message);
 
-//Print vector 
+//Print vector
 void PrintVector(const vector<string>& v);
 
 //Process Command "depend" and "srclist" Options
 void ProcessOptions(
-    int& argc, 
+    int& argc,
     char**& argv,
     const char* programName,
     vector<string>& includePath,
@@ -53,7 +53,7 @@ void ProcessOptions(
     string& prependDir,
     bool& warn);
 
-/*Define function Pointer PrintFunc, which take one string 
+/*Define function Pointer PrintFunc, which take one string
  *objectFileName and one string fileName
  */
 

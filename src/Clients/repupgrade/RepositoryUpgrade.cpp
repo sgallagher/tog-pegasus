@@ -48,7 +48,7 @@
 #include <Clients/cliutils/CommandException.h>
 #include "RepositoryUpgrade.h"
 
-#if defined(PEGASUS_USE_RELEASE_DIRS) \ 
+#if defined(PEGASUS_USE_RELEASE_DIRS) \
     && defined (PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
 # include <Pegasus/Config/ProductDirectoryStructure.h>
 #endif

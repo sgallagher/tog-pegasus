@@ -45,6 +45,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
+#include <Pegasus/Provider/CMPI/CmpiStatus.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -122,77 +123,101 @@ void setError(ProviderVector &miVector,
 
 void CMPIProvider::initialize(CIMOMHandle & cimom,
                               ProviderVector & miVector,
-			      String & name,
+                              String & name,
                               CMPI_Broker & broker)
 {
-        broker.hdl=& cimom;
-        broker.bft=CMPI_Broker_Ftab;
-        broker.eft=CMPI_BrokerEnc_Ftab;
-        broker.xft=CMPI_BrokerExt_Ftab;
-        broker.mft=NULL;    // CMPI memory services not supported
-        {
-            WriteLock writeLock (broker.rwsemClassCache);
+    broker.hdl=& cimom;
+    broker.bft=CMPI_Broker_Ftab;
+    broker.eft=CMPI_BrokerEnc_Ftab;
+    broker.xft=CMPI_BrokerExt_Ftab;
+    broker.mft=NULL;    // CMPI memory services not supported
+    {
+        WriteLock writeLock (broker.rwsemClassCache);
 
-            broker.clsCache=new ClassCache();
-        }
-        broker.name=name;
+        broker.clsCache=new ClassCache();
+    }
+    broker.name=name;
 
-        const OperationContext opc;
-        CMPI_ContextOnStack eCtx(opc);
-        CMPI_ThreadContext thr(&broker,&eCtx);
-        CMPIStatus rc = {CMPI_RC_OK, NULL};
-        String error;
-        String realProviderName(name);
+    const OperationContext opc;
+    CMPI_ContextOnStack eCtx(opc);
+    CMPI_ThreadContext thr(&broker,&eCtx);
+    CMPIStatus rc = {CMPI_RC_OK, NULL};
+    String error;
+    String realProviderName(name);
 
+    try
+    {
         if (miVector.genericMode) {
-           CString mName=realProviderName.getCString();
-           if (miVector.miTypes & CMPI_MIType_Instance)
-              miVector.instMI=miVector.createGenInstMI(&broker,&eCtx,mName, &rc);
-           if (miVector.miTypes & CMPI_MIType_Association)
-              miVector.assocMI=miVector.createGenAssocMI(&broker,&eCtx,mName, &rc);
-           if (miVector.miTypes & CMPI_MIType_Method)
-              miVector.methMI=miVector.createGenMethMI(&broker,&eCtx,mName, &rc);
-           if (miVector.miTypes & CMPI_MIType_Property)
-              miVector.propMI=miVector.createGenPropMI(&broker,&eCtx,mName, &rc);
-           if (miVector.miTypes & CMPI_MIType_Indication)
-              miVector.indMI=miVector.createGenIndMI(&broker,&eCtx,mName, &rc);
+            CString mName=realProviderName.getCString();
+
+            if (miVector.miTypes & CMPI_MIType_Instance)
+                miVector.instMI=miVector.createGenInstMI(&broker,&eCtx,mName, &rc);
+            if (miVector.miTypes & CMPI_MIType_Association)
+                miVector.assocMI=miVector.createGenAssocMI(&broker,&eCtx,mName, &rc);
+            if (miVector.miTypes & CMPI_MIType_Method)
+                miVector.methMI=miVector.createGenMethMI(&broker,&eCtx,mName, &rc);
+            if (miVector.miTypes & CMPI_MIType_Property)
+                miVector.propMI=miVector.createGenPropMI(&broker,&eCtx,mName, &rc);
+            if (miVector.miTypes & CMPI_MIType_Indication)
+                miVector.indMI=miVector.createGenIndMI(&broker,&eCtx,mName, &rc);
         }
         else {
-           if (miVector.miTypes & CMPI_MIType_Instance)
-              miVector.instMI=miVector.createInstMI(&broker,&eCtx, &rc);
-           if (miVector.miTypes & CMPI_MIType_Association)
-              miVector.assocMI=miVector.createAssocMI(&broker,&eCtx, &rc);
-           if (miVector.miTypes & CMPI_MIType_Method)
-              miVector.methMI=miVector.createMethMI(&broker,&eCtx, &rc);
-           if (miVector.miTypes & CMPI_MIType_Property)
-              miVector.propMI=miVector.createPropMI(&broker,&eCtx, &rc);
-           if (miVector.miTypes & CMPI_MIType_Indication)
-              miVector.indMI=miVector.createIndMI(&broker,&eCtx, &rc);
+            if (miVector.miTypes & CMPI_MIType_Instance)
+                miVector.instMI=miVector.createInstMI(&broker,&eCtx, &rc);
+            if (miVector.miTypes & CMPI_MIType_Association)
+                miVector.assocMI=miVector.createAssocMI(&broker,&eCtx, &rc);
+            if (miVector.miTypes & CMPI_MIType_Method)
+                miVector.methMI=miVector.createMethMI(&broker,&eCtx, &rc);
+            if (miVector.miTypes & CMPI_MIType_Property)
+                miVector.propMI=miVector.createPropMI(&broker,&eCtx, &rc);
+            if (miVector.miTypes & CMPI_MIType_Indication)
+                miVector.indMI=miVector.createIndMI(&broker,&eCtx, &rc);
+        }
+    }
+    catch (const CmpiStatus& e)
+    {
+        CIMStatusCode stat = CIM_ERR_FAILED;
+
+        if (  e.rc () >  CMPI_RC_ERR_FAILED
+           && e.rc () <= CMPI_RC_ERR_METHOD_NOT_FOUND
+           )
+        {
+           stat = (CIMStatusCode)e.rc ();
         }
 
-           if (miVector.miTypes & CMPI_MIType_Instance)
-              if (miVector.instMI == NULL || rc.rc != CMPI_RC_OK)
-			setError(miVector, error, realProviderName, _Generic_Create_InstanceMI, _Create_InstanceMI);
-           if (miVector.miTypes & CMPI_MIType_Association)
-              if (miVector.assocMI == NULL || rc.rc != CMPI_RC_OK)
-			setError(miVector, error, realProviderName, _Generic_Create_AssociationMI, _Create_AssociationMI);
-           if (miVector.miTypes & CMPI_MIType_Method)
-              if (miVector.methMI == NULL || rc.rc != CMPI_RC_OK)
-			setError(miVector, error, realProviderName, _Generic_Create_MethodMI, _Create_MethodMI);
-           if (miVector.miTypes & CMPI_MIType_Property)
-			 if (miVector.propMI == NULL || rc.rc != CMPI_RC_OK)
-			setError(miVector, error, realProviderName, _Generic_Create_PropertyMI, _Create_PropertyMI);
-           if (miVector.miTypes & CMPI_MIType_Indication)
-              if (miVector.indMI == NULL || rc.rc != CMPI_RC_OK)
-			setError(miVector, error, realProviderName, _Generic_Create_IndicationMI, _Create_IndicationMI);
+        String msg;
 
-		if (error.size() != 0)
-		 {
-		    	throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
-            			"ProviderInitFailure: Error initializing $0 the following API(s): $1",
-				realProviderName,
-				error.subString(0, error.size()-2)));
-		  }
+        if (e.msg ())
+        {
+           msg = e.msg ();
+        }
+
+        throw CIMException (stat, msg);
+    }
+
+    if (miVector.miTypes & CMPI_MIType_Instance)
+        if (miVector.instMI == NULL || rc.rc != CMPI_RC_OK)
+            setError(miVector, error, realProviderName, _Generic_Create_InstanceMI, _Create_InstanceMI);
+    if (miVector.miTypes & CMPI_MIType_Association)
+        if (miVector.assocMI == NULL || rc.rc != CMPI_RC_OK)
+            setError(miVector, error, realProviderName, _Generic_Create_AssociationMI, _Create_AssociationMI);
+    if (miVector.miTypes & CMPI_MIType_Method)
+        if (miVector.methMI == NULL || rc.rc != CMPI_RC_OK)
+            setError(miVector, error, realProviderName, _Generic_Create_MethodMI, _Create_MethodMI);
+    if (miVector.miTypes & CMPI_MIType_Property)
+        if (miVector.propMI == NULL || rc.rc != CMPI_RC_OK)
+            setError(miVector, error, realProviderName, _Generic_Create_PropertyMI, _Create_PropertyMI);
+    if (miVector.miTypes & CMPI_MIType_Indication)
+        if (miVector.indMI == NULL || rc.rc != CMPI_RC_OK)
+            setError(miVector, error, realProviderName, _Generic_Create_IndicationMI, _Create_IndicationMI);
+
+    if (error.size() != 0)
+    {
+        throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
+                            "ProviderInitFailure: Error initializing $0 the following API(s): $1",
+                            realProviderName,
+                            error.subString(0, error.size()-2)));
+    }
 }
 
 void CMPIProvider::initialize(CIMOMHandle & cimom)

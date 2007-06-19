@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -36,7 +36,7 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_CMPIPM_INTERNAL -DPEGASUS_INTERNALONLY 
+LOCAL_DEFINES = -DPEGASUS_CMPIPM_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = CMPIProviderManager
 
@@ -60,6 +60,7 @@ endif
 LIBRARIES += \
     pegquerycommon \
     pegconfig \
+    cmpiCppImpl \
     pegcommon
 
 SOURCES = \
@@ -90,7 +91,7 @@ SOURCES = \
         CMPI_SelectCond.cpp \
         CMPI_SubCond.cpp \
         CMPI_Predicate.cpp \
-        CMPI_SelectExpAccessor_WQL.cpp 
+        CMPI_SelectExpAccessor_WQL.cpp
 
 ifndef PEGASUS_DISABLE_CQL
 SOURCES += \

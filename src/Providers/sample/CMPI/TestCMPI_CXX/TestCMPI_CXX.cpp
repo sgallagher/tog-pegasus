@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -36,6 +36,7 @@
 #include "TestCMPI_CXX.h"
 
 #include <ctime>
+#include <sstream>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 
@@ -77,11 +78,11 @@ CMInstanceMIFactory (TestCMPI_CXX, TestCMPI_CXX_Provider);
 /*                          Base Provider Interface                       */
 /* -----------------------------------------------------------------------*/
 
-TestCMPI_CXX::TestCMPI_CXX (const CmpiBroker&  mbp, 
+TestCMPI_CXX::TestCMPI_CXX (const CmpiBroker&  mbp,
                             const CmpiContext& ctx)
     : CmpiBaseMI (mbp, ctx),
       CmpiInstanceMI (mbp, ctx),
-      cppBroker (mbp) 
+      cppBroker (mbp)
 {
 #ifdef PEGASUS_DEBUG
     cout << "TestCMPI_CXX::TestCMPI_CXX ()" << endl;
@@ -126,13 +127,13 @@ printData (const CmpiData& d)
 
    if (type & CMPI_ARRAY)
    {
-      CmpiArray v = d.getArray ();
+      L;CmpiArray v = d.getArray ();
       cout << "[" << v.size () << ":";
-      for (CMPICount i = 0, n = v.size (); i < n; i++)
+      L;for (CMPICount i = 0, n = v.size (); i < n; i++)
       {
-         CmpiArrayIdx idx = v[i];
+         L;CmpiArrayIdx idx = v[i];
 
-         printData (idx.getData ());
+         L;printData (idx.getData ());
 
          if (i + 1 < n)
          {
@@ -147,79 +148,79 @@ printData (const CmpiData& d)
    {
    case CMPI_boolean:
    {
-      CMPIBoolean v = d.getBoolean ();
+      L;CMPIBoolean v = d.getBoolean ();
       cout << v;
       break;
    }
    case CMPI_char16:
    {
-      CMPIChar16 v = d.getChar16 ();
+      L;CMPIChar16 v = d.getChar16 ();
       cout << v;
       break;
    }
    case CMPI_real32:
    {
-      CMPIReal32 v = d.getReal32 ();
+      L;CMPIReal32 v = d.getReal32 ();
       cout << v;
       break;
    }
    case CMPI_real64:
    {
-      CMPIReal64 v = d.getReal64 ();
+      L;CMPIReal64 v = d.getReal64 ();
       cout << v;
       break;
    }
    case CMPI_uint8:
    {
-      CMPIUint8 v = d.getUint8 ();
+      L;CMPIUint8 v = d.getUint8 ();
       cout << v;
       break;
    }
    case CMPI_uint16:
    {
-      CMPIUint16 v = d.getUint16 ();
+      L;CMPIUint16 v = d.getUint16 ();
       cout << v;
       break;
    }
    case CMPI_uint32:
    {
-      CMPIUint32 v = d.getUint32 ();
+      L;CMPIUint32 v = d.getUint32 ();
       cout << v;
       break;
    }
    case CMPI_uint64:
    {
-      CMPIUint64 v = d.getUint64 ();
+      L;CMPIUint64 v = d.getUint64 ();
       cout << v;
       break;
    }
    case CMPI_sint8:
    {
-      CMPISint8 v = d.getSint8 ();
+      L;CMPISint8 v = d.getSint8 ();
       cout << v;
       break;
    }
    case CMPI_sint16:
    {
-      CMPISint16 v = d.getSint16 ();
+      L;CMPISint16 v = d.getSint16 ();
       cout << v;
       break;
    }
    case CMPI_sint32:
    {
-      CMPISint32 v = d.getSint32 ();
+      L;CMPISint32 v = d.getSint32 ();
       cout << v;
       break;
    }
    case CMPI_sint64:
    {
-      CMPISint64 v = d.getSint64 ();
+      L;CMPISint64 v = d.getSint64 ();
       cout << v;
       break;
    }
    case CMPI_instance:
    {
-      CmpiInstance v = d.getInstance ();
+      L;CmpiInstance v = d.getInstance ();
       cout << "Instance";
       break;
    }
@@ -250,8 +251,8 @@ printData (const CmpiData& d)
    }
    case CMPI_string:
    {
-      CmpiString v = d.getString ();
-      if (v.charPtr ())
+      L;CmpiString v = d.getString ();
+      L;if (v.charPtr ())
       {
          cout << "\"" << v.charPtr () << "\"";
       }
@@ -263,7 +264,7 @@ printData (const CmpiData& d)
    }
    case CMPI_chars:
    {
-      const char *v = d.getCString ();
+      L;const char *v = d.getCString ();
       if (v)
       {
          cout << "\"" << v << "\"";
@@ -276,11 +277,11 @@ printData (const CmpiData& d)
    }
    case CMPI_dateTime:
    {
-      CmpiDateTime v = d.getDateTime ();
+      L;CmpiDateTime v = d.getDateTime ();
       cout << "DateTime ";
       try
       {
-         CMPIUint64 dt = v.getDateTime();
+         L;CMPIUint64 dt = v.getDateTime();
          cout << dt;
       }
       catch (const CmpiStatus& e)
@@ -325,17 +326,17 @@ printInstance (const CmpiInstance& inst)
 
    for (int i = 0, n = inst.getPropertyCount (); i < n; i++)
    {
-      CmpiString name;
-      CmpiData   d;
+      L;CmpiString name;
+      L;CmpiData   d;
 
-      d = inst.getProperty (i, &name);
+      L;d = inst.getProperty (i, &name);
 
       cout << i << ":";
-      if (name.charPtr ())
+      L;if (name.charPtr ())
       {
-         cout << name.charPtr () << ":";
+         L;cout << name.charPtr () << ":";
       }
-      printData (d);
+      L;printData (d);
    }
 #endif
 }
@@ -345,35 +346,35 @@ printObjectPath (const CmpiObjectPath& cop)
 {
 #ifdef PEGASUS_DEBUG
    cout << "Hostname = ";
-   CmpiString hostname = cop.getHostname ();
-   if (hostname.charPtr ())
+   L;CmpiString hostname = cop.getHostname ();
+   L;if (hostname.charPtr ())
    {
-      cout << hostname.charPtr ();
+      L;cout << hostname.charPtr ();
    }
    cout << endl;
 
    cout << "classname = ";
-   CmpiString classname = cop.getClassName ();
-   if (classname.charPtr ())
+   L;CmpiString classname = cop.getClassName ();
+   L;if (classname.charPtr ())
    {
-      cout << classname.charPtr ();
+      L;cout << classname.charPtr ();
    }
    cout << endl;
-   cout << "keycount = " << cop.getKeyCount () << endl;
+   L;cout << "keycount = " << cop.getKeyCount () << endl;
 
-   for (unsigned int i = 0, n = cop.getKeyCount (); i < n; i++)
+   L;for (unsigned int i = 0, n = cop.getKeyCount (); i < n; i++)
    {
-      CmpiString name;
-      CmpiData   value;
+      L;CmpiString name;
+      L;CmpiData   value;
 
-      value = cop.getKey (i, &name);
+      L;value = cop.getKey (i, &name);
 
       cout << i << ":";
-      if (name.charPtr ())
+      L;if (name.charPtr ())
       {
-         cout << name.charPtr () << ":";
+         L;cout << name.charPtr () << ":";
       }
-      printData (value);
+      L;printData (value);
    }
 #endif
 }
@@ -865,7 +866,6 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
 #endif
 
         // Test CmpiInstance
-#if 0
         L;copData1.setKey ("CSCreationClassName",
                            "CIM_UnitaryComputerSystem");
         L;copData1.setKey ("CSName",
@@ -876,11 +876,12 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
                            "/Simulated/CMPI/tests/");
         L;copData1.setKey ("Name",
                            "/Simulated/CMPI/tests/Providers/CWS_Directory.c");
-#endif
 
+#if 0
         L;CmpiObjectPath copData2 ("root/PG_InterOp", "CIM_NameSpace");
 //      L;copData2.setNameSpace ("root/PG_InterOp");
 //      L;copData2.setClassName ("CIM_NameSpace");
+#endif
 
         L;CmpiEnumeration enumer;
 
@@ -892,7 +893,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         {
            CmpiInstance inst = enumer.getNext ();
 
-           printInstance (inst);
+           L;printInstance (inst);
         }
 
         L;enumer = cppBroker.enumInstanceNames (ctx,
@@ -944,24 +945,35 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
     }
     catch (const CmpiStatus& e)
     {
-        static char achMessage[512];
+        ostringstream oss;
 
 #ifdef PEGASUS_DEBUG
         cout << "TestCMPI_CXX::initialize: Caught exception. rc = "
              << e.rc ();
         if (e.msg ())
         {
-           cout << "msg = \"" << e.msg () << "\"";
+           cout << ", msg = \"" << e.msg () << "\"";
         }
         cout << ", line # " << line << endl;
 #endif
 
-        sprintf (achMessage,
-                 "TestCMPI_CXX::initialize: Caught exception. rc = %d line = %d",
-                 e.rc (),
-                 line);
+        oss << "TestCMPI_CXX::initialize: Caught exception. rc = "
+            << e.rc ()
+            << ", line = "
+            << line;
 
-        return CmpiStatus (e.rc (), achMessage);
+        if (e.msg ())
+        {
+            oss << ", msg = "
+                << e.msg ();
+        }
+
+        oss << ends;
+
+        string     msg = oss.str ();
+        CmpiStatus rc  = CmpiStatus (e.rc (), msg.c_str ());
+
+        return rc;
     }
     catch (...)
     {
@@ -996,7 +1008,7 @@ TestCMPI_CXX::enumInstances (const CmpiContext&     ctx,
    return CmpiStatus (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot enumInstances");
 }
 
-CmpiStatus 
+CmpiStatus
 TestCMPI_CXX::getInstance (const CmpiContext&     ctx,
                            CmpiResult&            rslt,
                            const CmpiObjectPath&  cop,

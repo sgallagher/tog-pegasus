@@ -18,7 +18,7 @@
 ** rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 ** sell copies of the Software, and to permit persons to whom the Software is
 ** furnished to do so, subject to the following conditions:
-** 
+**
 ** THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 ** ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 ** "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -42,6 +42,7 @@ void chksrc(const char* path,
             int checktab,
             int checklen,
             int checkbadcr,
+            int checktrailbl,
             int summarize)
 {
     char buf[4096];
@@ -53,6 +54,7 @@ void chksrc(const char* path,
     int tabcount = 0;
     int longlinecount = 0;
     int badcrcount = 0;
+    int trailingblankscount = 0;
 
     if (!is)
     {
@@ -79,7 +81,7 @@ void chksrc(const char* path,
             continue;
         }
 
-        /* Check for tabs */
+        /* Check for tabs characters anywhere in the line*/
 
         if ( checktab && (strchr(buf, '\t')))
         {
@@ -89,6 +91,39 @@ void chksrc(const char* path,
             }
             reject = 1;
             tabcount++;
+        }
+
+        /* check for trailing blank on the line if not zero length*/
+
+        if (checktrailbl)
+        {
+            /* Error if /n or /r  or no more characters after last blank or tab
+            */
+
+            /* start at end of buf */
+            char *pos = strchr(buf,'\0');
+
+            /* back up past any eol characters */
+            while (pos > buf)
+            {
+                pos--;
+                /* if we have backed up past any eol characters*/
+                if (*pos != '\n' && *pos != '\r')
+                {
+                    /* and if current character is blank or tab, we gen error*/
+                    if( *pos == ' ' || *pos == '\t')
+                    {
+                        if (!summarize)
+                        {
+                            fprintf(stderr, "%s:%d: trailing blanks\n",
+                                path, line);
+                        }
+                        reject = 1;
+                        trailingblankscount++;
+                    }
+                    break;
+                }
+            }
         }
 
         /* Check for Ctrl-M characters in non-windows platforms */
@@ -101,7 +136,7 @@ void chksrc(const char* path,
         {
             if (!summarize)
             {
-                fprintf(stderr, "%s:%d: illegal carriage return character\n", 
+                fprintf(stderr, "%s:%d: illegal carriage return character\n",
                     path, line);
             }
             reject = 1;
@@ -112,7 +147,7 @@ void chksrc(const char* path,
 
         /* Check for lines longer than 80 characters
            Note: This is actually testing for 81 characters because
-           it includes the EOL in the test. 
+           it includes the EOL in the test.
            ISSUE: We must confirm that this works for windows.
         */
 
@@ -120,7 +155,7 @@ void chksrc(const char* path,
         {
             if (!summarize)
             {
-                fprintf(stderr, "%s:%d: line longer than 80 characters\n", 
+                fprintf(stderr, "%s:%d: line longer than 80 characters\n",
                     path, line);
             }
             reject = 1;
@@ -129,20 +164,33 @@ void chksrc(const char* path,
     }
 
     fclose(is);
+    /* If rejected, generate message.  if also summarize set, generate
+     * message with details of counts. The intention is that the
+     * error messages above are formatted like normal compiler errors so can
+     * be used in an editor to go directly to errors and the
+     * non-suuamize message below is simply a warning.
+    */
 
     if (reject)
     {
         if (summarize)
         {
-            fprintf(stderr,
-                    "Rejected source file %s tabs = %u, long lines = %u",
-                    path, tabcount, longlinecount);
+            fprintf(stderr, "%s", path);
+            if (checktab)
+                fprintf(stderr, " tabs = %d", tabcount);
+            if (checklen)
+                fprintf(stderr, " long lines = %d", longlinecount);
+            if (checktrailbl)
+                fprintf(stderr, " trailing blanks = %d", trailingblankscount);
 #if !defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) && \
     !defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) && \
     !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-            if (badcrcount != 0)
+            /* we don't print this one unless there were errors
+             * because it is so infrequent
+             */
+            if (checkbadcr && (badcrcount != 0))
             {
-                fprintf(stderr, " Bad CRs = %u",badcrcount);
+                fprintf(stderr, " Bad CRs = %d",badcrcount);
             }
 #endif /* PEGASUS_OS_TYPE_WINDOWS */
             fprintf(stderr,"\n");
@@ -187,24 +235,32 @@ int isSourceFile(const char* path)
 void usage()
 {
     printf("Usage: %s [options] source-files...\n", arg0);
-    printf("    Checks file list for tabs characters and lines");
-    printf(" longer than 80 characters");
+    printf("    Checks file list for tabs characters,\n");
+    printf("        lines longer than 80 characters,");
+    printf("\n        trailing blanks");
+
     /* show the following if not windows */
 #if !defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) && \
     !defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) && \
     !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    printf("\n    and windows Ctrl-M returns in non-windows platforms");
+    printf(",\n        and windows Ctrl-M returns in non-windows platforms");
 #endif
     printf(".\n");
     printf("    Disable with keyword NOCHKSRC in source code.\n");
     printf("    Reenable with keyword DOCHKSRC in source code.\n");
     printf("Options:\n");
-
+    printf("    The t, l, and m options are on by default. If you set \n"
+           "    any of the options, any not set are turned off. Thus \n"
+           "    -t tests only for tabs and -tl tests for tabs and length.\n"
+           "    WARNING: -b is set off by default and only enabled by"
+           "    setting the option.\n");
     printf("    -t : Test only for tabs\n");
     printf("    -l : Test only for length\n");
+    printf("    -b : Test only for trailing blanks\n");
     printf("    -m : Test only Ctrl-M (useful only on linux platforms)\n");
     printf("    -s : Generate only a summary file path list\n");
     printf("    -h : help\n");
+    printf("Only the following file suffixes are tested: .l .y .h .c .cpp\n");
 }
 
 int main(int argc, char** argv)
@@ -215,6 +271,7 @@ int main(int argc, char** argv)
     int checklen = 0;
     int summarize = 0;
     int checkbadcr = 0;
+    int checktrailbl = 0;
 
     char c;
 
@@ -232,12 +289,14 @@ int main(int argc, char** argv)
         {
             if( c =='t' )
                 checktab++;
-            else if( c =='l' )
+            else if( c == 'l' )
                 checklen++;
-            else if( c =='m' )
+            else if( c == 'm' )
                 checkbadcr++;
-            else if( c =='s' )
+            else if( c == 's' )
                 summarize++;
+            else if( c == 'b' )
+                checktrailbl++;
             else if( c =='h' )
                 {usage(); exit(1);}
             else
@@ -247,11 +306,15 @@ int main(int argc, char** argv)
            ++argv;
     }
     /* default is to test all  if none optioned*/
-    if (checktab == 0 && checklen == 0)
+    if (checktab == 0 && checklen == 0 && checktrailbl == 0)
     {
         checktab = 1;
         checklen = 1;
         checkbadcr = 1;
+        /* Defaults to off for now since there are so many 
+         * cased of trailing blanks in the environment today
+         */
+        checktrailbl = 0;
     }
 
     /* retest after argument removal */
@@ -263,7 +326,8 @@ int main(int argc, char** argv)
     for (i = 1; i < argc; i++)
     {
         if (isSourceFile(argv[i]))
-            chksrc(argv[i], checktab, checklen, checkbadcr,summarize);
+            chksrc(argv[i], checktab, checklen, checkbadcr,
+                checktrailbl,summarize);
     }
 
     return 0;

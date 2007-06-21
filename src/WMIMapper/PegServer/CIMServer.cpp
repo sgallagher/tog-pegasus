@@ -507,7 +507,7 @@ void CIMServer::runForever()
         if (handleShutdownSignal)
         {
         	shutdown(); 
-            Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+            PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
                 "CIMServer::runForever - signal received.  Shutting down.");
             //ShutdownService::getInstance(this)->shutdown(true, 10, false);
             // Set to false must be after call to shutdown.  See

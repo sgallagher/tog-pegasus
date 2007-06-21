@@ -126,15 +126,12 @@ void error_at_line(int a_num,
                    char* message, ...)
 {
     va_list ap;
-    char * msg = (char *) malloc(512);
 
     va_start(ap, message);
-    vsprintf(msg, message, ap);
-
-    fprintf(stderr, "Error in line %d of file %s: %s - %s\n",
-        line, filename, strerror(error), msg);
-
-    free(msg);
+   fprintf(stderr, "Error in line %d of file %s: %s -", line, filename,
+       strerror(error));
+   vfprintf(stderr, message, ap);
+   fprintf(stderr, "\n");
 
     if (a_num < 0)
     {

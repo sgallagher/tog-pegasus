@@ -48,7 +48,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct RegistrationTable;
-struct ProviderRegistrationTable;
 
 struct ClassNamespaceTable;
 
@@ -445,22 +444,6 @@ private:
         */
         Array<Uint16> _getProviderModuleStatus(
             const String& providerModuleName);
-#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
-        bool _loadtableForAllpvdrcapab( const CIMNamespaceName&, 
-                                        const CIMName&, 
-                                        const String&,
-                                        ProviderRegistrationTable** );
-        CIMInstance _getpvdrmodule( const CIMInstance& 
-                                                 /*PG_ProviderCapabilities*/ );
-        CIMInstance _getpvdrmodule( const String& /* pvdr mod name */ );
-        CIMInstance _getpvdr( const CIMInstance& /*PG_ProviderCapabilities*/ );
-#endif        
-
-        void _loadtableforpvdrmod( CIMInstance& /*PG_ProviderModule*/ );
-        void _loadtableforpvdr( const CIMInstance& /*PG_Provider*/ );
-        void _loadtableforpvdrcapab( const Array<String>&, const String&, 
-                                     const Array<Uint16>&, 
-                                     const CIMInstance& );
 };
 
 class PEGASUS_PRM_LINKAGE WildCardNamespaceNames {

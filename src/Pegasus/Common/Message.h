@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +39,9 @@
 #include <cstring>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/CIMOperationType.h>
+#include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Linkable.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -56,11 +60,184 @@ enum HttpMethod
 {
     HTTP_METHOD__POST,
     HTTP_METHOD_M_POST
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    ,HTTP_METHOD_GET,
-    HTTP_METHOD_HEAD
-#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
 };
+
+/** The Message class and derived classes are used to pass messages between
+    modules. Messages are passed between modules using the message queues
+    (see MessageQueue class). Derived classes may add their own fields.
+    This base class defines a common type field, which is the type of
+    the message.
+*/
+class PEGASUS_COMMON_LINKAGE Message : public Linkable
+{
+public:
+
+    Message(
+        Uint32 type,
+        Uint32 destination = 0,
+        Uint32 mask = 0)
+        :
+        _type(type),
+        _mask(mask),
+        _httpMethod (HTTP_METHOD__POST),
+#ifndef PEGASUS_DISABLE_PERFINST
+        _serverStartTimeMicroseconds(0),
+        _providerTimeMicroseconds(0),
+        _totalServerTimeMicroseconds(0),
+#endif
+        _close_connect(false),
+        _last_thread_id(Threads::self()),
+        _async(0),
+        dest(destination),
+        _isComplete(true),
+        _index(0)
+    {
+    }
+
+    virtual ~Message();
+
+    // NOTE: The compiler default implementation of the copy constructor
+    // is used for this class.
+
+    Boolean getCloseConnect() const { return _close_connect; }
+    void setCloseConnect(Boolean close_connect)
+    {
+        _close_connect = close_connect;
+    }
+
+    Uint32 getType() const { return _type; }
+
+    void setType(Uint32 type) { _type = type; }
+
+    Uint32 getMask() const { return _mask; }
+
+    void setMask(Uint32 mask) { _mask = mask; }
+
+    HttpMethod getHttpMethod() const { return _httpMethod; }
+
+    void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
+
+#ifndef PEGASUS_DISABLE_PERFINST
+    //
+    // Needed for performance measurement
+    //
+
+    Uint64 getServerStartTime() const
+    {
+        return _serverStartTimeMicroseconds;
+    }
+
+    void setServerStartTime(Uint64 serverStartTimeMicroseconds)
+    {
+         _serverStartTimeMicroseconds = serverStartTimeMicroseconds;
+    }
+
+    void endServer();
+
+    Uint64 getProviderTime() const
+    {
+        return _providerTimeMicroseconds;
+    }
+
+    void setProviderTime(Uint64 providerTimeMicroseconds)
+    {
+        _providerTimeMicroseconds = providerTimeMicroseconds;
+    }
+
+    Uint64 getTotalServerTime() const
+    {
+        return _totalServerTimeMicroseconds;
+    }
+
+    void setTotalServerTime(Uint64 totalServerTimeMicroseconds)
+    {
+        _totalServerTimeMicroseconds = totalServerTimeMicroseconds;
+    }
+
+#endif
+
+    static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
+
+#ifdef PEGASUS_DEBUG
+    virtual void print(
+        PEGASUS_STD(ostream)& os,
+        Boolean printHeader = true) const;
+#endif
+
+    Message* get_async()
+    {
+        Message *ret = _async;
+        _async = 0;
+        return ret;
+    }
+
+    void put_async(Message* msg)
+    {
+        _async = msg;
+    }
+
+    // << Tue Jul  1 11:02:49 2003 mdd >> pep_88 and helper for i18n and l10n
+    Boolean thread_changed()
+    {
+        if (!Threads::equal(_last_thread_id, Threads::self()))
+        {
+            _last_thread_id = Threads::self();
+            return true;
+        }
+
+        return false;
+    }
+
+    // set the message index indicating what piece (or sequence) this is
+    // message indexes start at zero
+    void setIndex(Uint32 index) { _index = index; }
+
+    // increment the message index
+    void incrementIndex() { _index++; }
+
+    // set the complete flag indicating if this message piece is the
+    // last or not
+    void setComplete(Boolean isComplete)
+    {
+        _isComplete = isComplete ? true:false;
+    }
+
+    // get the message index (or sequence number)
+    Uint32 getIndex() const { return _index; }
+
+    // is this the first piece of the message ?
+    Boolean isFirst() const { return _index == 0 ? true : false; }
+
+    // is this message complete? (i.e the last in a one or more sequence)
+    Boolean isComplete() const { return _isComplete; }
+
+private:
+    Uint32 _type;
+    Uint32 _mask;
+    HttpMethod _httpMethod;
+
+#ifndef PEGASUS_DISABLE_PERFINST
+    // Needed for performance measurement
+    Uint64 _serverStartTimeMicroseconds;
+    Uint64 _providerTimeMicroseconds;
+    Uint64 _totalServerTimeMicroseconds;
+#endif
+    Boolean _close_connect;
+
+    // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
+    ThreadType _last_thread_id;
+
+public:
+    Message *_async;
+    Uint32 dest;
+
+private:
+    Message& operator=(const Message& msg);
+
+    Boolean _isComplete;
+    Uint32 _index;
+};
+
 
 enum MessageType
 {
@@ -157,14 +334,34 @@ enum MessageType
 
     CLIENT_EXCEPTION_MESSAGE,
 
-    ASYNC_IOCLOSE,
-    ASYNC_CIMSERVICE_START,
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+    DIRECTACCESSCIM_NOTSUPPORTED_TEMP,
+    DIRECTACCESSCIM_NOTSUPPORTED_REQUEST,
+#endif
+
+    ASYNC_REGISTER_CIM_SERVICE,
+    ASYNC_DEREGISTER_CIM_SERVICE,
+    ASYNC_UPDATE_CIM_SERVICE,
+    ASYNC_IOCTL,
+    ASYNC_CIMSERVICE_START,  // 80
     ASYNC_CIMSERVICE_STOP,
+    ASYNC_CIMSERVICE_PAUSE,
+    ASYNC_CIMSERVICE_RESUME,
 
     ASYNC_ASYNC_OP_START,
-    ASYNC_ASYNC_OP_RESULT, // 80
+    ASYNC_ASYNC_OP_RESULT,
     ASYNC_ASYNC_LEGACY_OP_START,
     ASYNC_ASYNC_LEGACY_OP_RESULT,
+
+    ASYNC_FIND_SERVICE_Q,
+    ASYNC_FIND_SERVICE_Q_RESULT,
+    ASYNC_ENUMERATE_SERVICE,  // 90
+    ASYNC_ENUMERATE_SERVICE_RESULT,
+
+    ASYNC_REGISTERED_MODULE,
+    ASYNC_DEREGISTERED_MODULE,
+    ASYNC_FIND_MODULE_IN_SERVICE,
+    ASYNC_FIND_MODULE_IN_SERVICE_RESPONSE,
 
     ASYNC_ASYNC_MODULE_OP_START,
     ASYNC_ASYNC_MODULE_OP_RESULT,
@@ -172,11 +369,14 @@ enum MessageType
     CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE,
     CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE,
 
-    CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE,
+    CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE,  // 100
     CIM_NOTIFY_PROVIDER_FAIL_RESPONSE_MESSAGE,
 
+    CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
+    CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE,
+
     CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE,
-    CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE, // 90
+    CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE,
 
     CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE,
     CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE,
@@ -184,130 +384,10 @@ enum MessageType
     CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE,
     CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE,
 
-    CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE,
-    CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE,
-
-    PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE,
-    PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE,
-
-    CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_REQUEST_MESSAGE,
-    CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_RESPONSE_MESSAGE,
-
-    CIM_NOTIFY_LISTENER_NOT_ACTIVE_REQUEST_MESSAGE,
-    CIM_NOTIFY_LISTENER_NOT_ACTIVE_RESPONSE_MESSAGE,
-
-    WSMAN_EXPORT_INDICATION_REQUEST_MESSAGE,
-    WSMAN_EXPORT_INDICATION_RESPONSE_MESSAGE,
     NUMBER_OF_MESSAGES
 };
 
-PEGASUS_COMMON_LINKAGE const char* MessageTypeToString(MessageType messageType);
-
-
-/** The Message class and derived classes are used to pass messages between
-    modules. Messages are passed between modules using the message queues
-    (see MessageQueue class). Derived classes may add their own fields.
-    This base class defines a common type field, which is the type of
-    the message.
-*/
-class PEGASUS_COMMON_LINKAGE Message : public Linkable
-{
-public:
-
-    Message(
-        MessageType type,
-        Uint32 destination = 0,
-        Uint32 mask = 0)
-        :
-        dest(destination),
-        _type(type),
-        _mask(mask),
-        _httpMethod(HTTP_METHOD__POST),
-        _httpCloseConnect(false),
-        _isComplete(true),
-        _index(0),
-        _async(0)
-    {
-    }
-
-    virtual ~Message();
-
-    // NOTE: The compiler default implementation of the copy constructor
-    // is used for this class.
-
-    Boolean getCloseConnect() const { return _httpCloseConnect; }
-    void setCloseConnect(Boolean httpCloseConnect)
-    {
-        _httpCloseConnect = httpCloseConnect;
-    }
-
-    MessageType getType() const { return _type; }
-
-    Uint32 getMask() const { return _mask; }
-
-    void setMask(Uint32 mask) { _mask = mask; }
-
-    HttpMethod getHttpMethod() const { return _httpMethod; }
-
-    void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
-
-    static CIMOperationType convertMessageTypetoCIMOpType(MessageType type);
-
-
-    virtual void print(
-        PEGASUS_STD(ostream)& os,
-        Boolean printHeader = true) const;
-
-
-    Message* get_async()
-    {
-        Message *ret = _async;
-        _async = 0;
-        return ret;
-    }
-
-    void put_async(Message* msg)
-    {
-        _async = msg;
-    }
-
-    // set the message index indicating what piece (or sequence) this is
-    // message indexes start at zero
-    void setIndex(Uint32 index) { _index = index; }
-
-    // get the message index (or sequence number)
-    Uint32 getIndex() const { return _index; }
-
-    // is this the first piece of the message ?
-    Boolean isFirst() const { return _index == 0; }
-
-    // set the complete flag indicating whether this message piece is the last
-    void setComplete(Boolean isComplete)
-    {
-        _isComplete = isComplete;
-    }
-
-    // is this message complete? (i.e the last in a one or more sequence)
-    Boolean isComplete() const { return _isComplete; }
-
-    Uint32 dest;
-
-private:
-
-    Message& operator=(const Message& msg);
-
-    MessageType _type;
-    Uint32 _mask;
-
-    HttpMethod _httpMethod;
-    Boolean _httpCloseConnect;
-
-    Boolean _isComplete;
-    Uint32 _index;
-
-    Message* _async;
-};
-
+PEGASUS_COMMON_LINKAGE const char* MessageTypeToString(Uint32 messageType);
 
 /** This class implements a stack of queue-ids. Many messages must keep a
     stack of queue-ids of queues which they must be returned to. This provides
@@ -377,8 +457,6 @@ public:
 
     /** Make a copy of this stack and then pop the top element. */
     QueueIdStack copyAndPop() const;
-
-    Uint32 operator[](Uint32 i) const { return _items[i]; }
 
 private:
 

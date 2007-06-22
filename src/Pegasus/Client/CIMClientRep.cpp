@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,17 +36,44 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Common/Stopwatch.h>
 
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
+#include <sys/types.h>
 #include <Pegasus/Common/Network.h>
-#include <Pegasus/Common/Logger.h>
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+#endif
+
+int numdacim=0, numnondacim=0,numconnect=0,numredirok=0,numredirnok=0;
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static Stopwatch temptimer;  // ebbfix
 
+
+
+// _directaccess_redirect flag should only be set via this macro
+#if PEGASUS_DIRECTACCESS_BUILDTYPE == dacimINTEGRATED
+#define ck_dacim_redirect() \
+    if (_directaccesslocalproviders) { \
+        disconnect();\
+        _directaccess_redirect = true; \
+        try { connectLocal();\
+++numredirok; \
+        } \
+		catch( Exception& e ) { \
+++numredirnok; \
+            _directaccess_redirect = false; \
+            connectLocal(); \
+            } \
+        }
+#else
+#define ck_dacim_redirect()  ;
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 //
 // CIMClientRep
@@ -54,13 +83,25 @@ PEGASUS_NAMESPACE_BEGIN
 CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     :
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
-    _binaryResponse(false),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _doReconnect(false),
-    _binaryRequest(false),
-    _localConnect(false)
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+    _allowdirectaccesslocalproviders(true),
+    _directaccess_redirect(false),	
+    _localizer(  //new CIMDirectAccessRep() ) 
+                 CIMDirectAccessRep::get() )
+#else
+    _allowdirectaccesslocalproviders(false),
+    _directaccess_redirect(false),	
+    _localizer(NULL)
+#endif
 {
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+#endif
+temptimer.start();    
+
+gid_t groupid = getegid();
     //
     // Create Monitor and HTTPConnector
     //
@@ -71,25 +112,97 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     requestContentLanguages.clear();
 }
 
+//----------------------------------------------------------
 CIMClientRep::~CIMClientRep()
 {
    disconnect();
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+   _localizer->release();
+   //delete _localizer;
+#endif
+temptimer.stop();   
 }
 
 void CIMClientRep::handleEnqueue()
 {
 }
 
-void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
+Uint32 _getShowType(String& s)
 {
-    ClientTrace::setup();
+    String log = "log";
+    String con = "con";
+    String both = "both";
+    if (s == log)
+        return 2;
+    if (s == con)
+        return 1;
+    if (s == both)
+        return 3;
+    return 0;
+}
+
+//---------------------------------------------
+void CIMClientRep::_connect()
+{
+    //
+    // Test for Display optons of the form
+    // Use Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
+    // intrace = "con" | "log" | "both"
+    // outtrace = intrace
+    // ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
+    // to console and log
+    // Keywords are case insensitive.
+    // PEP 90
+    //
+++numconnect;
+    Uint32 showOutput = 0;
+    Uint32 showInput = 0;
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    String input;
+    if (char * envVar = getenv("PEGASUS_CLIENT_TRACE"))
+    {
+        input = envVar;
+        input.toLower();
+        String io;
+        Uint32 pos = input.find(':');
+        if (pos == PEG_NOT_FOUND)
+            pos = 0;
+        else
+            io = input.subString(0,pos);
+
+        // some compilers do not allow temporaries to be passed to a
+        // reference argument - so break into 2 lines
+        String out = input.subString(pos + 1);
+        showOutput = _getShowType(out);
+
+        showInput = _getShowType(io);
+    }
+#endif
+    char *ckdacim = getenv("PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT");
+    if (ckdacim) {
+        _allowdirectaccesslocalproviders = (strcmp(ckdacim,"false") != 0);
+        }
+    else { 
+        // do nothing; use the default compile time value 
+        }
+    if (_directaccesslocalproviders =     // (assign is intentional)
+             _allowdirectaccesslocalproviders 
+			 && !_directaccess_redirect && _isLocalHost() ) {
+        _connected = true;
+        _connectHost = "localhost";
+        }
+
+    else { // do the usual connection functions ...
+
+
+        _allowdirectaccesslocalproviders = true; // reset each connect
 
     //
     // Create response decoder:
     //
     AutoPtr<CIMOperationResponseDecoder> responseDecoder(
         new CIMOperationResponseDecoder(
-            this, _requestEncoder.get(), &_authenticator ));
+            this, _requestEncoder.get(), &_authenticator, showInput));
 
     //
     // Attempt to establish a connection:
@@ -98,7 +211,6 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
         _connectHost,
         _connectPortNumber,
         _connectSSLContext.get(),
-        _timeoutMilliseconds,
         responseDecoder.get()));
 
     //
@@ -114,9 +226,7 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 
     AutoPtr<CIMOperationRequestEncoder> requestEncoder(
         new CIMOperationRequestEncoder(
-            httpConnection.get(), connectHost, &_authenticator,
-            binaryRequest,
-            binaryResponse));
+            httpConnection.get(), connectHost, &_authenticator, showOutput));
 
     _responseDecoder.reset(responseDecoder.release());
     _httpConnection = httpConnection.release();
@@ -129,15 +239,16 @@ void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 
     _doReconnect = false;
     _connected = true;
-    _binaryRequest = binaryRequest;
-    _binaryResponse = binaryResponse;
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+    }
 }
 
-void CIMClientRep::_disconnect(bool keepChallengeStatus)
+//------------------------------------------
+void CIMClientRep::_disconnect()
 {
     if (_connected)
     {
+        if (!_directaccesslocalproviders) {
         //
         // destroy response decoder
         //
@@ -157,8 +268,14 @@ void CIMClientRep::_disconnect(bool keepChallengeStatus)
         // destroy request encoder
         //
         _requestEncoder.reset();
+        }
 
         _connected = false;
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+        _allowdirectaccesslocalproviders = true;
+#else
+        _allowdirectaccesslocalproviders = false;
+#endif
     }
 
     // Reconnect no longer applies
@@ -166,14 +283,16 @@ void CIMClientRep::_disconnect(bool keepChallengeStatus)
 
     // Let go of the cached request message if we have one
     _authenticator.setRequestMessage(0);
-
-    if (keepChallengeStatus == false)
-    {
-    // Reset the challenge status
-    _authenticator.resetChallengeStatus();
-}
 }
 
+//-----------------------------------------------
+Boolean CIMClientRep::_isLocalHost() 
+{
+    if ( _connectHost == String::EMPTY  || 
+         String::equalNoCase(_connectHost,"localhost") ) return true;
+    return System::sameHost( _connectHost );
+}
+//-------------------------------------------
 void CIMClientRep::connect(
     const String& host,
     const Uint32 portNumber,
@@ -187,11 +306,10 @@ void CIMClientRep::connect(
         throw AlreadyConnectedException();
 
     //
-    // If the host is empty and port is valid, set hostName to "localhost"
-    // Otherwise, HTTPConnector will use the unix domain socket.
+    // If the host is empty, set hostName to "localhost"
     //
     String hostName = host;
-    if (!host.size() && (portNumber != 0))
+    if (host == String::EMPTY)
     {
         hostName = "localhost";
     }
@@ -214,10 +332,12 @@ void CIMClientRep::connect(
     _connectSSLContext.reset();
     _connectHost = hostName;
     _connectPortNumber = portNumber;
-    _connect(_binaryRequest, _binaryResponse);
+
+    _connect();
 }
 
 
+//------------------------------------------
 void CIMClientRep::connect(
     const String& host,
     const Uint32 portNumber,
@@ -259,34 +379,24 @@ void CIMClientRep::connect(
     _connectPortNumber = portNumber;
 
     _connectSSLContext.reset(new SSLContext(sslContext));
-    _connect(_binaryRequest, _binaryResponse);
+    _connect();
 }
 
 
+//----------------------------------------------
 void CIMClientRep::connectLocal()
 {
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    _connectLocal(true);
-#else
-    _connectLocal(false);
-#endif
-}
-
-void CIMClientRep::connectLocalBinary()
-{
-    _connectLocal(true);
-}
-
-void CIMClientRep::_connectLocal(bool binary)
-{
-    bool binaryRequest = binary;
-    bool binaryResponse = binary;
-
     //
     // If already connected, bail out!
     //
     if (_connected)
         throw AlreadyConnectedException();
+    if (_allowdirectaccesslocalproviders && !_directaccess_redirect) {
+		// set up direct access CIM	
+        _connectHost = String::EMPTY;
+        _connect();
+        return;                    // <--- note
+        }
 
     //
     // Set authentication type
@@ -294,13 +404,11 @@ void CIMClientRep::_connectLocal(bool binary)
     _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
-    _localConnect=true;
-
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     _connectSSLContext.reset();
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
-    _connect(binaryRequest, binaryResponse);
+    _connect();
 #else
 
     try
@@ -318,7 +426,7 @@ void CIMClientRep::_connectLocal(bool binary)
 
         _connectSSLContext.reset();
 
-        _connect(binaryRequest, binaryResponse);
+        _connect();
     }
     catch (const CannotConnectException &)
     {
@@ -340,36 +448,37 @@ void CIMClientRep::_connectLocal(bool binary)
 
         String randFile;
 
-# ifdef PEGASUS_SSL_RANDOMFILE
+#ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-# endif
+#endif
 
-        // May throw SSLException
-        _connectSSLContext.reset(
-            new SSLContext(String::EMPTY, NULL, randFile));
+        try
+        {
+            _connectSSLContext.reset(
+                new SSLContext(String::EMPTY, NULL, randFile));
+        }
+        catch (const SSLException &)
+        {
+            throw;
+        }
 
-        _connect(binaryRequest, binaryResponse);
+        _connect();
     }
 #endif
 }
+
 
 void CIMClientRep::disconnect()
 {
     _disconnect();
     _authenticator.clear();
     _connectSSLContext.reset();
-    _localConnect=false;
 }
 
 Boolean CIMClientRep::isConnected() const throw()
 {
     return _connected;
-}
-
-Boolean CIMClientRep::isLocalConnect() const throw()
-{
-    return _localConnect;
 }
 
 AcceptLanguageList CIMClientRep::getRequestAcceptLanguages() const
@@ -430,7 +539,7 @@ CIMClass CIMClientRep::getClass(
     return response->cimClass;
 }
 
-CIMResponseData CIMClientRep::getInstance(
+CIMInstance CIMClientRep::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     Boolean localOnly,
@@ -442,12 +551,11 @@ CIMResponseData CIMClientRep::getInstance(
         String::EMPTY,
         nameSpace,
         instanceName,
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,
         QueueIdStack()));
-    dynamic_cast<CIMGetInstanceRequestMessage*>(request.get())->localOnly =
-        localOnly;
 
     Message* message = _doRequest(request, CIM_GET_INSTANCE_RESPONSE_MESSAGE);
 
@@ -456,7 +564,7 @@ CIMResponseData CIMClientRep::getInstance(
 
     AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->cimInstance;
 }
 
 void CIMClientRep::deleteClass(
@@ -468,9 +576,9 @@ void CIMClientRep::deleteClass(
         nameSpace,
         className,
         QueueIdStack()));
-
+	ck_dacim_redirect()
     Message* message = _doRequest(request, CIM_DELETE_CLASS_RESPONSE_MESSAGE);
-
+    _directaccess_redirect = false;
     CIMDeleteClassResponseMessage* response =
         (CIMDeleteClassResponseMessage*)message;
 
@@ -486,10 +594,10 @@ void CIMClientRep::deleteInstance(
         nameSpace,
         instanceName,
         QueueIdStack()));
-
+	if (nameSpace == "root/PG_InterOp") { ck_dacim_redirect() }
     Message* message =
         _doRequest(request, CIM_DELETE_INSTANCE_RESPONSE_MESSAGE);
-
+    _directaccess_redirect = false;
     CIMDeleteInstanceResponseMessage* response =
         (CIMDeleteInstanceResponseMessage*)message;
 
@@ -506,8 +614,9 @@ void CIMClientRep::createClass(
         newClass,
         QueueIdStack()));
 
+    ck_dacim_redirect()
     Message* message = _doRequest(request, CIM_CREATE_CLASS_RESPONSE_MESSAGE);
-
+    _directaccess_redirect = false;
     CIMCreateClassResponseMessage* response =
         (CIMCreateClassResponseMessage*)message;
 
@@ -524,8 +633,10 @@ CIMObjectPath CIMClientRep::createInstance(
         newInstance,
         QueueIdStack()));
 
+	if (nameSpace == "root/PG_InterOp") { ck_dacim_redirect() }
     Message* message =
         _doRequest(request, CIM_CREATE_INSTANCE_RESPONSE_MESSAGE);
+    _directaccess_redirect = false;
 
     CIMCreateInstanceResponseMessage* response =
         (CIMCreateInstanceResponseMessage*)message;
@@ -545,8 +656,9 @@ void CIMClientRep::modifyClass(
         modifiedClass,
         QueueIdStack()));
 
+	ck_dacim_redirect()
     Message* message = _doRequest(request, CIM_MODIFY_CLASS_RESPONSE_MESSAGE);
-
+    _directaccess_redirect = false;
     CIMModifyClassResponseMessage* response =
         (CIMModifyClassResponseMessage*)message;
 
@@ -567,9 +679,10 @@ void CIMClientRep::modifyInstance(
         propertyList,
         QueueIdStack()));
 
+	if (nameSpace == "root/PG_InterOp") { ck_dacim_redirect() }
     Message* message =
         _doRequest(request, CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE);
-
+    _directaccess_redirect = false;
     CIMModifyInstanceResponseMessage* response =
         (CIMModifyInstanceResponseMessage*)message;
 
@@ -635,7 +748,7 @@ Array<CIMName> CIMClientRep::enumerateClassNames(
     return classNameArray;
 }
 
-CIMResponseData CIMClientRep::enumerateInstances(
+Array<CIMInstance> CIMClientRep::enumerateInstances(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
@@ -649,12 +762,11 @@ CIMResponseData CIMClientRep::enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,
         QueueIdStack()));
-    dynamic_cast<CIMEnumerateInstancesRequestMessage*>(
-        request.get())->localOnly = localOnly;
 
     Message* message =
         _doRequest(request, CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
@@ -664,13 +776,15 @@ CIMResponseData CIMClientRep::enumerateInstances(
 
     AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->cimNamedInstances;
 }
 
-CIMResponseData CIMClientRep::enumerateInstanceNames(
+Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+#endif
     AutoPtr<CIMRequestMessage> request(
         new CIMEnumerateInstanceNamesRequestMessage(
             String::EMPTY,
@@ -686,10 +800,10 @@ CIMResponseData CIMClientRep::enumerateInstanceNames(
 
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->instanceNames;
 }
 
-CIMResponseData CIMClientRep::execQuery(
+Array<CIMObject> CIMClientRep::execQuery(
     const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
     const String& query)
@@ -708,10 +822,10 @@ CIMResponseData CIMClientRep::execQuery(
 
     AutoPtr<CIMExecQueryResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->cimObjects;
 }
 
-CIMResponseData CIMClientRep::associators(
+Array<CIMObject> CIMClientRep::associators(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -742,10 +856,10 @@ CIMResponseData CIMClientRep::associators(
 
     AutoPtr<CIMAssociatorsResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->cimObjects;
 }
 
-CIMResponseData CIMClientRep::associatorNames(
+Array<CIMObjectPath> CIMClientRep::associatorNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -771,10 +885,10 @@ CIMResponseData CIMClientRep::associatorNames(
 
     AutoPtr<CIMAssociatorNamesResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->objectNames;
 }
 
-CIMResponseData CIMClientRep::references(
+Array<CIMObject> CIMClientRep::references(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
@@ -801,10 +915,10 @@ CIMResponseData CIMClientRep::references(
 
     AutoPtr<CIMReferencesResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->cimObjects;
 }
 
-CIMResponseData CIMClientRep::referenceNames(
+Array<CIMObjectPath> CIMClientRep::referenceNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
@@ -826,7 +940,7 @@ CIMResponseData CIMClientRep::referenceNames(
 
     AutoPtr<CIMReferenceNamesResponseMessage> destroyer(response);
 
-    return response->getResponseData();
+    return response->objectNames;
 }
 
 CIMValue CIMClientRep::getProperty(
@@ -902,9 +1016,9 @@ void CIMClientRep::setQualifier(
         nameSpace,
         qualifierDeclaration,
         QueueIdStack()));
-
+	ck_dacim_redirect()
     Message* message = _doRequest(request, CIM_SET_QUALIFIER_RESPONSE_MESSAGE);
-
+    _directaccess_redirect = false;
     CIMSetQualifierResponseMessage* response =
         (CIMSetQualifierResponseMessage*)message;
 
@@ -921,9 +1035,10 @@ void CIMClientRep::deleteQualifier(
         qualifierName,
         QueueIdStack()));
 
+	ck_dacim_redirect()
     Message* message =
         _doRequest(request, CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE);
-
+    _directaccess_redirect = false;
     CIMDeleteQualifierResponseMessage* response =
         (CIMDeleteQualifierResponseMessage*)message;
 
@@ -982,28 +1097,75 @@ CIMValue CIMClientRep::invokeMethod(
     outParameters = response->outParameters;
 
     return response->retValue;
-
 }
 
+//------------------------------------------------------
 Message* CIMClientRep::_doRequest(
     AutoPtr<CIMRequestMessage>& request,
-    MessageType expectedResponseMessageType)
+    Uint32 expectedResponseMessageType)
 {
     if (!_connected && !_doReconnect)
     {
+        request.reset();
         throw NotConnectedException();
     }
-
-    // Check if the connection has to be re-established
-    if ( _connected && _httpConnection->needsReconnect() )
-    {
-        _disconnect();
-        _doReconnect = true;
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+    if ( _directaccesslocalproviders && !_directaccess_redirect ) {
+++numdacim;        
+        Message *response = _localizer->dorequest(request);
+        if (!response) {
+            }
+        if ( response->getType() == CLIENT_EXCEPTION_MESSAGE ) {
+            Exception *clientexcep = ((ClientExceptionMessage*)response)->
+                                     clientException;
+            CIMException *cimexcep = dynamic_cast<CIMException*>(clientexcep);
+            delete response;                  // fix! deletes what??
+            if (cimexcep) throw cimexcep;
+            throw *clientexcep;
+            }
+        else if ( response->getType() == DIRECTACCESSCIM_NOTSUPPORTED_TEMP ) {
+			// should see these only during dev; should not occur with intg 
+			// build done.
+            CIMException cimexcep( CIM_ERR_NOT_SUPPORTED,
+                                   "DACIM does not yet handle this." );
+            delete response;
+            throw cimexcep;
+            }
+        //else if ( response->getType() == DIRECTACCESSCIM_NOTSUPPORTED_REQUEST ) {
+		//	// pass these along to the cimserver, bau, as if direct access cim didn't
+		//	// exist.
+		//	_directaccess_redirect = true;
+		//	connectLocal();
+		//	_directaccess_redirect = false;
+		//	// note; don't return here.
+		//    }	
+        else {
+            if ( response->getType() != expectedResponseMessageType ) {   
+                MessageLoaderParms mlParms(
+                  "Client.CIMOperationResponseDecoder.MISMATCHED_RESPONSE_TYPE",
+                  "Mismatched response message type.");               // fix
+                String mlString(MessageLoader::getMessage(mlParms));
+                CIMClientResponseException responseexcep(mlString);             
+                delete response;
+                throw responseexcep;
+                }
+            CIMResponseMessage *crm = (CIMResponseMessage*)response;
+            if (crm->cimException.getCode() != CIM_ERR_SUCCESS) {
+                CIMException cimexcep( crm->cimException.getCode(),
+                                       crm->cimException.getMessage() );
+                delete response;
+                throw cimexcep;
+                }
+            return response;                          // <-- note.
+            }
     }
+#endif
+
+++numnondacim;    
 
     if (_doReconnect)
     {
-        _connect(_binaryRequest, _binaryResponse);
+        _connect();
         _doReconnect = false;
     }
 
@@ -1043,11 +1205,7 @@ Message* CIMClientRep::_doRequest(
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;
-#ifdef PEGASUS_DISABLE_CLIENT_TIMEOUT
-    Uint64 stopMilliseconds = (Uint64) -1;
-#else
     Uint64 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
-#endif
 
     while (nowMilliseconds < stopMilliseconds)
     {
@@ -1073,7 +1231,7 @@ Message* CIMClientRep::_doRequest(
             //
             if (response->getCloseConnect() == true)
             {
-                _disconnect(true);
+                _disconnect();
                 _doReconnect = true;
                 response->setCloseConnect(false);
             }
@@ -1205,7 +1363,7 @@ Message* CIMClientRep::_doRequest(
                 //
                 if (_doReconnect)
                 {
-                    _connect(_binaryRequest, _binaryResponse);
+                    _connect();
                 }
 
                 _requestEncoder->enqueue(response.release());
@@ -1235,6 +1393,7 @@ Message* CIMClientRep::_doRequest(
     //
 
     _disconnect();
+    _authenticator.resetChallengeStatus();
     _doReconnect = true;
 
     //
@@ -1243,6 +1402,18 @@ Message* CIMClientRep::_doRequest(
     throw ConnectionTimeoutException();
 }
 
+//---------------------------------------------
+String CIMClientRep::_getLocalHostName()
+{
+    static String hostname;
+
+    if (!hostname.size())
+    {
+        hostname.assign(System::getHostName());
+    }
+
+    return hostname;
+}
 void CIMClientRep::registerClientOpPerformanceDataHandler(
     ClientOpPerformanceDataHandler& handler)
 {
@@ -1256,93 +1427,4 @@ void CIMClientRep::deregisterClientOpPerformanceDataHandler()
     perfDataStore.setClassRegistered(false);
 }
 
-
-/*
-    Implementation of the Trace mechanism
-*/
-
-// static variables to store the display state for input and output.
-Uint32 ClientTrace::inputState;
-Uint32 ClientTrace::outputState;
-
-ClientTrace::TraceType ClientTrace::selectType(const String& str)
-{
-    if (str == "con")
-    {
-        return TRACE_CON;
-    }
-    if (str == "log")
-    {
-        return TRACE_LOG;
-    }
-    if (str == "both")
-    {
-        return TRACE_BOTH;
-    }
-    return TRACE_NONE;
-}
-
-Boolean ClientTrace::displayOutput(TraceType tt)
-{
-    return (tt & outputState);
-}
-
-Boolean ClientTrace::displayInput(TraceType tt)
-{
-    return (tt & inputState);
-}
-
-// Set up the input and output state variables from the input
-// environment variable.
-void ClientTrace::setup()
-{
-    String input;
-    if (char * envVar = getenv("PEGASUS_CLIENT_TRACE"))
-    {
-        input = envVar;
-        input.toLower();
-        String in;
-        String out;
-        Uint32 pos = input.find(':');
-
-        // if no colon found, input and output have same mask
-        if (pos == PEG_NOT_FOUND)
-        {
-            in = input;
-            out = input;
-        }
-        else
-        {
-            // if string starts with colon, input empty, else
-            // either both or output empty
-            if (input[0] == ':')
-            {
-                in = "";
-                out = input.subString(1);
-            }
-            else
-            {
-                in = input.subString(0,pos);
-                if (pos == (input.size() - 1))
-                {
-                    out = "";
-                }
-                else
-                {
-                    out =input.subString(pos + 1);
-                }
-            }
-        }
-
-        // set the state variables
-        outputState = ClientTrace::selectType(out);
-        inputState = ClientTrace::selectType(in);
-
-        // Test for logging requested and if so set log parameters
-        if (((outputState| inputState) & TRACE_LOG) != 0)
-        {
-            Logger::setlogLevelMask("");
-        }
-    }
-}
 PEGASUS_NAMESPACE_END

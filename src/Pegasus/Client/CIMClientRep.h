@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +60,12 @@
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Client/CIMClientInterface.h>
 #include <Pegasus/Client/ClientPerfDataStore.h>
+#include <Pegasus/Client/CIMClient.h>
+#ifdef   PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#include <Pegasus/Client/CIMDirectAccessRep.h>
+#else
+class    CIMDirectAccessRep;
+#endif
 
 #include "CIMOperationResponseDecoder.h"
 #include "CIMOperationRequestEncoder.h"
@@ -92,8 +100,16 @@ public:
     virtual void setTimeout(Uint32 timeoutMilliseconds)
     {
         _timeoutMilliseconds = timeoutMilliseconds;
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+        char * runTimeDacim = getenv("PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT");
+        if (strcmp(runTimeDacim,"true") != 0)
+        {
+#endif
         if ((_connected) && (_httpConnection != 0))
            _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+        }
+#endif
     }
 
     AcceptLanguageList getRequestAcceptLanguages() const;
@@ -124,8 +140,6 @@ public:
 
     Boolean isConnected() const throw();
 
-    Boolean isLocalConnect() const throw();
-
     virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -135,7 +149,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData getInstance(
+    virtual CIMInstance getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
@@ -191,7 +205,7 @@ public:
         Boolean deepInheritance = false
     );
 
-    virtual CIMResponseData enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstances(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
@@ -201,18 +215,18 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className
     );
 
-    virtual CIMResponseData execQuery(
+    virtual Array<CIMObject> execQuery(
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query
     );
 
-    virtual CIMResponseData associators(
+    virtual Array<CIMObject> associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -224,7 +238,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData associatorNames(
+    virtual Array<CIMObjectPath> associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -233,7 +247,7 @@ public:
         const String& resultRole = String::EMPTY
     );
 
-    virtual CIMResponseData references(
+    virtual Array<CIMObject> references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -243,7 +257,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData referenceNames(
+    virtual Array<CIMObjectPath> referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -295,24 +309,16 @@ public:
 
     void deregisterClientOpPerformanceDataHandler();
 
-    void setBinaryResponse(bool x) { _binaryResponse = x; }
-
-    void setBinaryRequest(bool x) { _binaryRequest = x; }
-
-    void connectLocalBinary();
-
-    bool _binaryResponse;
-
 private:
 
-    void _connect(bool binaryRequest, bool binaryResponse);
-    void _disconnect(bool keepChallengeStatus = false);
-    void _connectLocal(bool binary);
+    void _connect();
+    void _disconnect();
 
     Message* _doRequest(
         AutoPtr<CIMRequestMessage>& request,
-        MessageType expectedResponseMessageType);
+        Uint32 expectedResponseMessageType);
 
+    String                 _getLocalHostName();
     AutoPtr<Monitor> _monitor;
     AutoPtr<HTTPConnector> _httpConnector;
     HTTPConnection* _httpConnection;
@@ -340,66 +346,14 @@ private:
     AutoPtr<SSLContext> _connectSSLContext;
     ClientPerfDataStore perfDataStore;
 
+    Boolean                _directaccesslocalproviders, 
+                           _allowdirectaccesslocalproviders,
+                           _directaccess_redirect; 
+    Boolean                _isLocalHost();
+    CIMDirectAccessRep    *_localizer;
     AcceptLanguageList requestAcceptLanguages;
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;
-    bool _binaryRequest;
-    bool _localConnect;
-};
-
-/****************************************************************************
-**
-**   Implementation of ClientTrace class.  This allows setup of variables
-**   to control display of Client network send and receive.
-**
-****************************************************************************/
-// Tests for Display optons of the form:
-// Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
-// intrace = "con" | "log" | "both"
-// outtrace = intrace
-// ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
-// to console and log
-// Keywords are case insensitive.
-// PEP 90
-// options allowed are:
-//     keyword:keyword  separately define input and output
-//     keyword:         Input only
-//     :keyword         Output Only
-//     keyword          Input and output defined by keyword
-//
-class ClientTrace
-{
-public:
-    // Bit flags, that define what is to be displayed.
-    enum TraceType
-    {
-        TRACE_NONE = 0,
-        TRACE_CON = 1,
-        TRACE_LOG = 2,
-        TRACE_BOTH = 3
-    };
-
-    // setup the control variables from env variable
-    static void setup();
-
-    // Called from OperationRequest and Response handlers to test for
-    // particular masks set.  Return true if the TraceType mask defined by
-    // tt is set in the state variable.
-    static Boolean displayOutput(TraceType tt);
-    static Boolean displayInput(TraceType tt);
-
-private:
-    // constructors, etc. are private and not to be used.
-    ClientTrace();
-    ClientTrace(ClientTrace const&);
-    ClientTrace& operator=(ClientTrace const&);
-
-    // internal function to translate input strings to TraceTypes
-    static TraceType selectType(const String& str);
-
-    // Define the display states set by setup.
-    static Uint32 inputState;
-    static Uint32 outputState;
 };
 
 PEGASUS_NAMESPACE_END

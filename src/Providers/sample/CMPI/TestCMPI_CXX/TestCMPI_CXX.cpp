@@ -36,7 +36,7 @@
 #include "TestCMPI_CXX.h"
 
 #include <ctime>
-#include <sstream>
+#include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 
@@ -65,6 +65,20 @@ std::ostream& operator<<(std::ostream& os, CMPISint64 i)
     return os;
 }
 #endif
+
+static Buffer& operator<<(Buffer& out, const char* x)
+{
+    out.append(x, strlen(x));
+    return out;
+}
+
+static Buffer& operator<<(Buffer& out, Uint32 x)
+{
+    char buffer[32];
+    sprintf(buffer, "%u", x);
+    out.append(buffer, strlen(buffer));
+    return out;
+}
 
 /* -----------------------------------------------------------------------*/
 /*      Provider Factory - IMPORTANT for entry point generation           */
@@ -945,7 +959,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
     }
     catch (const CmpiStatus& e)
     {
-        ostringstream oss;
+        Buffer oss;
 
 #ifdef PEGASUS_DEBUG
         cout << "TestCMPI_CXX::initialize: Caught exception. rc = "
@@ -968,10 +982,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
                 << e.msg ();
         }
 
-        oss << ends;
-
-        string     msg = oss.str ();
-        CmpiStatus rc  = CmpiStatus (e.rc (), msg.c_str ());
+        CmpiStatus rc = CmpiStatus(e.rc(), oss.getData());
 
         return rc;
     }

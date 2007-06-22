@@ -76,8 +76,6 @@ public:
 
     virtual const char* getProcessName() const = 0;
 
-    virtual const char* getPIDFileName() const = 0;
-
     virtual int cimserver_run(
         int argc,
         char** argv,

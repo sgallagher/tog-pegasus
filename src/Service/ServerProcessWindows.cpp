@@ -599,7 +599,7 @@ int ServerProcess::platform_run(
     //
 
     // NOTE: This object must persist for the life of the server process
-    ServerRunStatus serverRunStatus(getProcessName(), getPIDFileName());
+    ServerRunStatus serverRunStatus(getProcessName(), 0);
 
     if (!shutdownOption)
     {

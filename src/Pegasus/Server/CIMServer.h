@@ -36,7 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Cimom.h>
+#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ProviderManager2/Default/ProviderMessageHandler.h>
@@ -52,7 +52,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct ServerRep;
 
-class Monitor;
 class CIMOperationRequestDispatcher;
 class CIMOperationResponseEncoder;
 class CIMOperationRequestDecoder;
@@ -79,13 +78,8 @@ public:
     enum Protocol { PROPRIETARY, STANDARD };
 
     /** Constructor - Creates a CIMServer object.
-        The CIM Server objects establishes a repository object,
-        a dispatcher object, and creates a channnel factory and
-        acceptor for the Server.
-        @param monitor monitor object for the server.
-        @exception - ATTN
     */
-    CIMServer(Monitor* monitor);
+    CIMServer();
 
     ~CIMServer();
 
@@ -166,7 +160,7 @@ private:
     Boolean _runSLP;
 #endif
 
-    Monitor* _monitor;
+    AutoPtr<Monitor> _monitor;
     CIMRepository* _repository;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
@@ -180,7 +174,7 @@ private:
 
     Array<HTTPAcceptor*> _acceptors;
     Array<ProviderMessageHandler*> _controlProviders;
-    AutoPtr<CIMServerState> _serverState; //PEP101
+    AutoPtr<CIMServerState> _serverState;
 
     ModuleController* _controlService;
     IndicationHandlerService* _handlerService;

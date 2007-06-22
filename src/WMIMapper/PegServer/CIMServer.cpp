@@ -704,8 +704,11 @@ SSLContext* CIMServer::_getSSLContext()
             if (String::equal(verifyClient, "required"))
             {
                 MessageLoaderParms parms(
-                    "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE",
-                    "The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. cimserver not started.");
+                    "Pegasus.Server.SSLContextManager."
+                        "SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE",
+                    "The \"sslTrustStore\" configuration property must be set "
+                        "if \"sslClientVerificationMode\" is 'required' or "
+                        "'optional'.");
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -727,12 +730,15 @@ SSLContext* CIMServer::_getSSLContext()
         if (String::equal(verifyClient, "required"))
         {
             if (!ConfigManager::parseBooleanValue(
-                configManager->getCurrentValue(
-                    PROPERTY_NAME__HTTP_ENABLED)))
+                    configManager->getCurrentValue(
+                        PROPERTY_NAME__HTTP_ENABLED)))
             {
                 MessageLoaderParms parms(
-                    "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED",
-                    "The HTTP port must be enabled if \"sslClientVerificationMode\" is 'required' in order for the cimserver to properly shutdown. cimserver not started.");
+                    "Pegasus.Server.SSLContextManager."
+                       "SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED",
+                    "The HTTP port must be enabled if "
+                        "\"sslClientVerificationMode\" is 'required' in order "
+                        "for the cimserver to properly shutdown.");
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -751,8 +757,14 @@ SSLContext* CIMServer::_getSSLContext()
             if (trustStoreUserName == String::EMPTY)
             {
                 MessageLoaderParms parms(
-                    "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
-                    "The \"sslTrustStoreUserName\" property must specify a valid username if \"sslClientVerificationMode\" is 'required' or 'optional' and the truststore is a single CA file. To register individual certificates to users, you must use a truststore directory along with the CertificateProvider.  cimserver not started.");
+                    "Pegasus.Server.SSLContextManager."
+                        "SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
+                    "The \"sslTrustStoreUserName\" property must specify a "
+                        "valid username if \"sslClientVerificationMode\" is "
+                        "'required' or 'optional' and the truststore is a "
+                        "single CA file. To register individual certificates "
+                        "to users, you must use a truststore directory along "
+                        "with the CertificateProvider.");
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }

@@ -242,8 +242,8 @@ void CIMServer::shutdownSignal()
 }
 
 
-CIMServer::CIMServer(Monitor* monitor)
-    : _dieNow(false), _monitor(monitor)
+CIMServer::CIMServer()
+    : _dieNow(false)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
     _cimserver = this;
@@ -259,6 +259,8 @@ void CIMServer::tickle_monitor()
 
 void CIMServer::_init()
 {
+    _monitor.reset(new Monitor());
+
 #ifdef PEGASUS_ENABLE_SLP
     _runSLP = true;         // Boolean cannot be set in definition.
     _slpRegistrationComplete = false;
@@ -277,7 +279,7 @@ void CIMServer::_init()
 
 #ifdef DO_NOT_CREATE_REPOSITORY_ON_STARTUP
     // If this code is enable, the CIMServer will fail to start
-    // if the repository directory does not exit. If called,
+    // if the repository directory does not exist. If called,
     // the Repository will create an empty repository.
 
     // This check has been disabled to allow cimmof to call
@@ -661,7 +663,7 @@ void CIMServer::addAcceptor(
     HTTPAcceptor* acceptor;
 
     acceptor = new HTTPAcceptor(
-        _monitor,
+        _monitor.get(),
         _httpAuthenticatorDelegator,
         localConnection,
         portNumber,
@@ -956,11 +958,11 @@ SSLContext* CIMServer::_getSSLContext()
         if (trustStore == String::EMPTY)
         {
             MessageLoaderParms parms(
-                "Pegasus.Server.CIMServer."
+                "Pegasus.Server.SSLContextManager."
                     "SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE",
                 "The \"sslTrustStore\" configuration property must be set "
                     "if \"sslClientVerificationMode\" is 'required' or "
-                    "'optional'. cimserver not started.");
+                    "'optional'.");
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -988,8 +990,7 @@ SSLContext* CIMServer::_getSSLContext()
                         "set to \"required\" if HTTP is disabled, as the "
                         "cimserver will be unable to properly shutdown.  "
                         "The recommended course of action is to change "
-                        "the property value to \"optional\".  cimserver "
-                        "not started.");
+                        "the property value to \"optional\".");
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1008,15 +1009,14 @@ SSLContext* CIMServer::_getSSLContext()
             if (trustStoreUserName == String::EMPTY)
             {
                 MessageLoaderParms parms(
-                    "Pegasus.Server.CIMServer."
+                    "Pegasus.Server.SSLContextManager."
                         "SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
                     "The \"sslTrustStoreUserName\" property must specify a "
                         "valid username if \"sslClientVerificationMode\" is "
                         "'required' or 'optional' and the truststore is a "
                         "single CA file. To register individual certificates "
                         "to users, you must use a truststore directory along "
-                        "with the CertificateProvider.  cimserver not "
-                        "started.");
+                        "with the CertificateProvider.");
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }

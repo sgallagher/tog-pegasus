@@ -111,7 +111,23 @@ private:
     Boolean _isServerProcess(PEGASUS_PID_T pid);
 
     const char* _serverName;
+
+    /**
+        The path to the PID file for this server.  The PID of the server
+        process is written to this file by setServerRunning().  The
+        isServerRunning() and kill() methods also use this file.
+        NOTE: The PID file is not used in the Windows implementation.
+    */
     const char* _pidFilePath;
+
+    /**
+        Indicates whether this ServerRunStatus instance is for the server that
+        is actually running.  A call to setServerRunning() sets this to true.
+        If this flag is true when the ServerRunStatus instance is destructed,
+        the PID file is removed.
+    */
+    Boolean _isRunningServerInstance;
+
     PEGASUS_PID_T _parentPid;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS

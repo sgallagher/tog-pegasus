@@ -73,6 +73,7 @@ ServerRunStatus::ServerRunStatus(
     const char* pidFilePath)
     : _serverName(serverName),
       _pidFilePath(pidFilePath),
+      _isRunningServerInstance(false),
       _parentPid(0),
       _event(NULL),
       _wasAlreadyRunning(false)
@@ -126,12 +127,18 @@ ServerRunStatus::ServerRunStatus(
     const char* pidFilePath)
     : _serverName(serverName),
       _pidFilePath(pidFilePath),
+      _isRunningServerInstance(false),
       _parentPid(0)
 {
 }
 
 ServerRunStatus::~ServerRunStatus()
 {
+    if (_isRunningServerInstance)
+    {
+        PidFile pidFile(_pidFilePath);
+        pidFile.remove();
+    }
 }
 
 Boolean ServerRunStatus::isServerRunning()
@@ -153,6 +160,7 @@ void ServerRunStatus::setServerRunning()
 {
     PidFile pidFile(_pidFilePath);
     pidFile.setPid(System::getPID());
+    _isRunningServerInstance = true;
 }
 
 void ServerRunStatus::setParentPid(PEGASUS_PID_T parentPid)

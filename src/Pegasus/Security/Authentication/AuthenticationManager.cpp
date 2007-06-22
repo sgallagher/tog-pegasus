@@ -439,15 +439,16 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
             {
                 handler.reset(0);
             }
-            // L10N TODO DONE
-            //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, 
-                //"CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started.");
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, 
-            	"Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
-                "CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started.");
-            // end the server because Kerberos could not initialized.
-            MessageLoaderParms parms(           	"Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
-                "CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started.");
+                "Security.Authentication.AuthenticationManager."
+                    "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
+                "CIMOM server authentication handler for Kerberos failed to "
+                    "initialize properly.");
+            MessageLoaderParms parms(
+           	"Security.Authentication.AuthenticationManager."
+                    "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
+                "CIMOM server authentication handler for Kerberos failed to "
+                    "initialize properly.");
 	    throw Exception(parms);
         }
     }

@@ -175,11 +175,6 @@ public:
         return PEGASUS_LISTENER_PROCESS_NAME;
     }
 
-    virtual const char* getPIDFileName() const
-    {
-        return LISTENER_START_FILE;
-    }
-
     int cimserver_run(
         int argc,
         char** argv,
@@ -560,10 +555,11 @@ int CIMListenerProcess::cimserver_run(
     if (shutdownOption)
     {
         //gracefully exit
-        //Uncomment the following line when signals are implemented on all platforms.
+        //Uncomment the following line when signals are implemented on all
+        //platforms.
         //The workaround is to use a file.
 #ifdef PEGASUS_HAS_SIGNALS
-        PidFile pidFile(getPIDFileName());
+        PidFile pidFile(LISTENER_START_FILE);
         PEGASUS_PID_T pid = (PEGASUS_PID_T) pidFile.getPid();
 
         if (pid == 0)
@@ -918,34 +914,20 @@ MessageLoader::_useProcessLocale = false;
         Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER,
             Logger::INFORMATION, "src.Server.cimserver.STOPPED",
             "$0 stopped.", _cimListenerProcess->getProductName());
-
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
-|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
-|| defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
-        //
-        // close the file created at startup time to indicate that the
-        // cimserver has terminated normally.
-        //
-        FileSystem::removeFile(_cimListenerProcess->getPIDFileName());
-#endif
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-
-    //l10n
-    //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            //"Error: $0", e.getMessage());
-    Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::WARNING,
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMLISTENER, Logger::WARNING,
             "src.Server.cimserver.ERROR",
             "Error: $0", e.getMessage());
 
-    //l10n
-    //PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-    MessageLoaderParms parms("DynListener.cimlistener.ERROR",
-                             "CIM Listener error: $0");
-    PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+        MessageLoaderParms parms("DynListener.cimlistener.ERROR",
+            "CIM Listener error: $0");
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
+            PEGASUS_STD(endl);
 
-    //
+        //
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)
@@ -966,7 +948,3 @@ MessageLoader::_useProcessLocale = false;
 
     return 0;
 }
-
-
-
-

@@ -152,12 +152,6 @@ public:
         return PEGASUS_PROCESS_NAME;
     }
 
-    //defined in Constants.h
-    virtual const char* getPIDFileName() const
-    {
-        return PEGASUS_CIMSERVER_START_FILE;
-    }
-
     int cimserver_run(
         int argc,
         char** argv,
@@ -541,19 +535,14 @@ int CIMServerProcess::cimserver_run(
 #ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     if (!enableHttpConnection && !enableHttpsConnection)
     {
-        //l10n
-        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            //"Neither HTTP nor HTTPS connection is enabled.  "
-            //"CIMServer will not be started.");
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
-            "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
-        //cerr << "Neither HTTP nor HTTPS connection is enabled.  "
-            //"CIMServer will not be started." << endl;
-        MessageLoaderParms parms("src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
-                                 "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
+            "Neither HTTP nor HTTPS connection is enabled.");
+        MessageLoaderParms parms(
+            "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
+            "Neither HTTP nor HTTPS connection is enabled.");
         cerr << MessageLoader::getMessage(parms) << endl;
-        return(1);
+        return 1;
     }
 #endif
 
@@ -681,20 +670,12 @@ int CIMServerProcess::cimserver_run(
 
 #if defined(PEGASUS_DEBUG)
     // Put out startup up message.
-    cout << _cimServerProcess->getProductName() << " " << _cimServerProcess->getVersion() << endl;
-    //l10n
-    //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
-    //cout <<"Starting..."
-    MessageLoaderParms parms("src.Server.cimserver.STARTUP_MESSAGE",
-                             "Built $0 $1\nStarting...",
-                             __DATE__,
-                             __TIME__);
+    cout << _cimServerProcess->getProductName() << " " <<
+        _cimServerProcess->getVersion() << endl;
 #endif
 
-//l10n
-// reset message loading to NON-process locale
-MessageLoader::_useProcessLocale = false; 
-//l10n
+    // reset message loading to NON-process locale
+    MessageLoader::_useProcessLocale = false; 
 
     // Get the parent's PID before forking
     _serverRunStatus.setParentPid(System::getPID());
@@ -888,34 +869,19 @@ MessageLoader::_useProcessLocale = false;
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
             Logger::INFORMATION, "src.Server.cimserver.STOPPED",
             "$0 stopped.", _cimServerProcess->getProductName());
-
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
-|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
-|| defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
-        //
-        // close the file created at startup time to indicate that the 
-        // cimserver has terminated normally.
-        //
-        FileSystem::removeFile(_cimServerProcess->getPIDFileName());
-#endif
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-
-    //l10n
-    //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            //"Error: $0", e.getMessage()); 
-    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             "src.Server.cimserver.ERROR",
             "Error: $0", e.getMessage());  
 
-    //l10n
-    //PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-    MessageLoaderParms parms("src.Server.cimserver.ERROR",
-                             "Error: $0", e.getMessage());
-    PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+        MessageLoaderParms parms("src.Server.cimserver.ERROR",
+                                 "Error: $0", e.getMessage());
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
+            PEGASUS_STD(endl);
 
-    //
+        //
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)

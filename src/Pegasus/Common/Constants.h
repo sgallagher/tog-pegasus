@@ -373,8 +373,8 @@
 #define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
 #endif
 
-/* Use the configuration file as a semaphore for repository access */
-#define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_CURRENT_CONFIG_FILE_PATH
+/* Use the PID file as a semaphore for repository access */
+#define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_CIMSERVER_START_FILE
 
 /* Constant defines for path to icu resource bundles */
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)

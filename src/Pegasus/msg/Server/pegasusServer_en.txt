@@ -770,7 +770,7 @@ not be valid."}
         //  Please use message prefix "PGS02000"
         // ==========================================================
 
-        Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE:string {"PGS02000: The CIM server authentication handler for Kerberos failed to initialize properly. The CIM server is not started."}
+        Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE:string {"PGS02000: The CIM server authentication handler for Kerberos failed to initialize properly."}
 
 
         // ==========================================================
@@ -3194,24 +3194,31 @@ not be valid."}
         //  Please use message prefix "PGS10000"
         // ==========================================================
 
+        /**
+        * @note  PGS09700:
+        *    This message is no longer used as of version 2.7 (or earlier).
+        */
         src.Server.cimserver_windows.HTTP_NOT_ENABLED_SERVER_NOT_STARTING:string {"PGS10004: Neither HTTP nor HTTPS connection is enabled.  The CIM server is not started."}
 
         /**
         * @note  PGS10005:
         *    Substitution {0} is a string containing the Pegasus CIM server name
         *    Substitution {1} is a string containing the version of the Pegasus CIMOM
+        *    This message is no longer used as of version 2.7 (or earlier).
         */
         src.Server.cimserver_windows.STARTED_VERSION:string {"PGS10005:  Started {0} version {1}."}
 
         /**
         * @note PGS10006:
-        *     Substitution {0} is an integer that is the port number.
-          */
-        src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT:string {"PGS10006: The CIM server is listening on HTTP port {0}."} // 485
+        *    Substitution {0} is an integer that is the port number.
+        *    This message is no longer used as of version 2.7 (or earlier).
+        */
+        src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT:string {"PGS10006: The CIM server is listening on HTTP port {0}."}
 
         /**
         * @note  PGS10007:
         *    Substitution {0} is an integer that is the port number
+        *    This message is no longer used as of version 2.7 (or earlier).
         */
         src.Server.cimserver_windows.LISTENING_ON_HTTPS_PORT:string {"PGS10007:
 CIM server listening on HTTPS port {0}."}
@@ -3220,7 +3227,7 @@ CIM server listening on HTTPS port {0}."}
 
         src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY:string {"PGS10009: Error in the CIM server shutdown operation: The repository may be empty."} //485
 
-        src.Server.cimserver.SERVER_FORCED_SHUTDOWN:string {"PGS10010: A forced shutdown of the CIM server is initiated."} //485
+        src.Server.cimserver.SERVER_FORCED_SHUTDOWN:string {"PGS10010: A forced shutdown of the CIM server is initiated."}
 
         /**
         * @note PGS10011:
@@ -3259,7 +3266,7 @@ CIM server listening on HTTPS port {0}."}
 
         src.Server.cimserver.STOPPED_NT_SERVICE:string {"\nCIMSVR_STOPPED_NT_SERVICE:  The CIM server is stopped as a Windows service."}
 
-        src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING:string {"PGS10018: Neither HTTP nor HTTPS connection is enabled.  CIM server is not started."}
+        src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING:string {"PGS10018: Neither HTTP nor HTTPS connection is enabled."}
 
         src.Server.cimserver.SERVER_STOPPED:string {"PGS10019: CIM server is stopped."}
 
@@ -3275,6 +3282,7 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS10022:
         *    Substitution {0} is a date
         *    Substitution {1} is a time
+        *    This message is no longer used in version 2.7 (or earlier).
         */
         src.Server.cimserver.STARTUP_MESSAGE:string {"PGS10022: CIM server built {0} {1}\nCIM server starting..."}
 
@@ -3401,7 +3409,7 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS10033:
         *    Substitution {0} is a string containing the Exception message
         */
-        src.Server.cimserver.SERVER_NOT_STARTED:string {"PGS10033: The CIM server is not started : {0}"}
+        src.Server.cimserver.SERVER_NOT_STARTED:string {"PGS10033: The CIM Server is not started: {0}"}
 
         /**
         * @note PGS10034:
@@ -4475,21 +4483,21 @@ CIM server listening on HTTPS port {0}."}
           * DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is ''required'' or ''optional''. The CIM server is not started."}
+         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is ''required'' or ''optional''."}
 
         /*
          * @note  PGS13301:
           * DO NOT TRANSLATE "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is ''required'' in order for the cimserver to properly shutdown. The CIM server not started."}
+         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is ''required'' in order for the cimserver to properly shutdown."}
 
         /*
          * @note  PGS13302:
           * DO NOT TRANSLATE "sslTrustStoreUserName" or "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is ''required'' or ''optional'', and a trust store is specified. The CIM server is not started."}
+         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is ''required'' or ''optional'', and a trust store is specified."}
 
         /*
          * @note  PGS13303:
@@ -4547,7 +4555,7 @@ CIM server listening on HTTPS port {0}."}
           * DO NOT TRANSLATE "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\". The CIM server is not started."}
+         Pegasus.Server.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\"."}
 
         // ==========================================================
         // Messages for AnonymousPipe

@@ -194,8 +194,10 @@
 # include <Pegasus/Common/ProductDirectoryStructure.h>
 #else
 # if defined(PEGASUS_OS_HPUX)
-#  undef CIMSERVER_LOCK_FILE
-#  define CIMSERVER_LOCK_FILE               "/var/opt/wbem/cimserver_start.lock"
+#  undef PEGASUS_CIMSERVER_START_FILE
+#  define PEGASUS_CIMSERVER_START_FILE      "/etc/opt/wbem/cimserver_start.conf"
+#  undef PEGASUS_CIMSERVER_START_LOCK_FILE
+#  define PEGASUS_CIMSERVER_START_LOCK_FILE "/var/opt/wbem/cimserver_start.lock"
 #  undef PEGASUS_REPOSITORY_DIR
 #  define PEGASUS_REPOSITORY_DIR            "/var/opt/wbem/repository"
 #  undef PEGASUS_CURRENT_CONFIG_FILE_PATH
@@ -204,8 +206,6 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/var/opt/wbem/cimserver_planned.conf"
-#  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      "/etc/opt/wbem/cimserver_start.conf"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/hp/sslshare/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -223,8 +223,10 @@
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/lbin/cimprovagt"
 # elif defined(PEGASUS_OS_AIX)
-#  undef CIMSERVER_LOCK_FILE
-#  define CIMSERVER_LOCK_FILE               \
+#  undef PEGASUS_CIMSERVER_START_FILE
+#  define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
+#  undef PEGASUS_CIMSERVER_START_LOCK_FILE
+#  define PEGASUS_CIMSERVER_START_LOCK_FILE \
     "/opt/freeware/cimom/pegasus/etc/cimserver_start.lock"
 #  undef PEGASUS_REPOSITORY_DIR
 #  define PEGASUS_REPOSITORY_DIR            \
@@ -235,8 +237,6 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/opt/freeware/cimom/pegasus/etc/cimserver_planned.conf"
-#  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE \
     "/opt/freeware/cimom/pegasus/etc/client.pem"
@@ -253,9 +253,11 @@
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  \
     "/opt/freeware/cimom/pegasus/bin/cimservera"
 # elif defined(PEGASUS_OS_LINUX)
-#  undef CIMSERVER_LOCK_FILE
-#  define CIMSERVER_LOCK_FILE               \
-    "/var/opt/tog-pegasus/cimserver_start.lock"
+#  undef PEGASUS_CIMSERVER_START_FILE
+#  define PEGASUS_CIMSERVER_START_FILE      "/var/run/tog-pegasus/cimserver.pid"
+#  undef PEGASUS_CIMSERVER_START_LOCK_FILE
+#  define PEGASUS_CIMSERVER_START_LOCK_FILE \
+    "/var/run/tog-pegasus/cimserver_start.lock"
 #  undef PEGASUS_REPOSITORY_DIR
 #  define PEGASUS_REPOSITORY_DIR            "/var/opt/tog-pegasus/repository"
 #  undef PEGASUS_CURRENT_CONFIG_FILE_PATH
@@ -264,8 +266,6 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/var/opt/tog-pegasus/cimserver_planned.conf"
-#  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      "/var/run/tog-pegasus/cimserver.pid"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/tog-pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -285,8 +285,11 @@
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/tog-pegasus/sbin/cimprovagt"
 # elif defined(PEGASUS_OS_VMS)
-#  undef CIMSERVER_LOCK_FILE
-#  define CIMSERVER_LOCK_FILE               \
+#  undef PEGASUS_CIMSERVER_START_FILE
+#  define PEGASUS_CIMSERVER_START_FILE      \
+    "/wbem_var/opt/wbem/cimserver_start.conf"
+#  undef PEGASUS_CIMSERVER_START_LOCK_FILE
+#  define PEGASUS_CIMSERVER_START_LOCK_FILE \
     "/wbem_var/opt/wbem/cimserver_start.lock"
 #  undef PEGASUS_REPOSITORY_DIR
 #  define PEGASUS_REPOSITORY_DIR            "/wbem_var/opt/wbem/repository"
@@ -296,9 +299,6 @@
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/wbem_var/opt/wbem/cimserver_planned.conf"
-#  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      \
-    "/wbem_var/opt/wbem/cimserver_start.conf"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE \
     "/wbem_etc/opt/hp/sslshare/client.pem"
@@ -323,21 +323,27 @@
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/wbem/cimxml.socket"
 # elif defined(PEGASUS_OS_DARWIN)
+#  undef PEGASUS_CIMSERVER_START_FILE
+#  define PEGASUS_CIMSERVER_START_FILE      \
+    "/var/cache/pegasus/cimserver_start.conf"
+#  undef PEGASUS_CIMSERVER_START_LOCK_FILE
+#  define PEGASUS_CIMSERVER_START_LOCK_FILE      \
+    "/var/cache/pegasus/cimserver_start.lock"
 #  undef PEGASUS_CURRENT_CONFIG_FILE_PATH
 #  define PEGASUS_CURRENT_CONFIG_FILE_PATH  \
     "/etc/pegasus/cimserver_current.conf"
 #  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/etc/pegasus/cimserver_planned.conf"
-#  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      \
-    "/var/cache/pegasus/cimserver_start.conf"
 # endif
 #endif
 #endif
 
-#ifndef CIMSERVER_LOCK_FILE
-#define CIMSERVER_LOCK_FILE               "cimserver_start.lock"
+#ifndef PEGASUS_CIMSERVER_START_FILE
+#define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
+#endif
+#ifndef PEGASUS_CIMSERVER_START_LOCK_FILE
+#define PEGASUS_CIMSERVER_START_LOCK_FILE "/tmp/cimserver_start.lock"
 #endif
 #ifndef PEGASUS_REPOSITORY_DIR
 #define PEGASUS_REPOSITORY_DIR            "repository"
@@ -347,9 +353,6 @@
 #endif
 #ifndef PEGASUS_PLANNED_CONFIG_FILE_PATH
 #define PEGASUS_PLANNED_CONFIG_FILE_PATH  "cimserver_planned.conf"
-#endif
-#ifndef PEGASUS_CIMSERVER_START_FILE
-#define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
 #endif
 #ifndef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"

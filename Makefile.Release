@@ -786,10 +786,10 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
 	@$(ECHO-E) "# define PEGASUS_PROVIDER_AGENT_PROC_NAME"  \
              "\""$(PEGASUS_SBIN_DIR)/cimprovagt"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef CIMSERVER_LOCK_FILE" \
+	@$(ECHO-E) "# undef PEGASUS_CIMSERVER_START_LOCK_FILE" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define CIMSERVER_LOCK_FILE"  \
-             "\""$(CIMSERVER_LOCK_FILE)"\"" \
+	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_LOCK_FILE"  \
+             "\""$(PEGASUS_CIMSERVER_START_LOCK_FILE)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# undef PEGASUS_PLANNED_CONFIG_FILE_PATH" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
@@ -1114,8 +1114,8 @@ endif
 	@$(ECHO-E) "%global PEGASUS_CIMSERVER_START_FILE" \
              "$(PEGASUS_CIMSERVER_START_FILE)"  \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global CIMSERVER_LOCK_FILE" \
-             "$(CIMSERVER_LOCK_FILE)"  \
+	@$(ECHO-E) "%global PEGASUS_CIMSERVER_START_LOCK_FILE" \
+             "$(PEGASUS_CIMSERVER_START_LOCK_FILE)"  \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_REPOSITORY_DIR $(PEGASUS_REPOSITORY_DIR)" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)

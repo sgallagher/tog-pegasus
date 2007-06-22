@@ -775,7 +775,7 @@ int CIMServerProcess::cimserver_run(
         // starting at the same time.
         //
         CString startupLockFileName = ConfigManager::getHomedPath(
-            CIMSERVER_LOCK_FILE).getCString();
+            PEGASUS_CIMSERVER_START_LOCK_FILE).getCString();
 
         // Make sure the start-up lock file exists
         FILE* startupLockFile;

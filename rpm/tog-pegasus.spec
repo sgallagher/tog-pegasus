@@ -152,7 +152,7 @@ sources.
 %global PEGASUS_VARDATA_CACHE_DIR /var/lib/Pegasus/cache
 %global PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  /var/run/tog-pegasus/socket/cimxml.socket
 %global PEGASUS_CIMSERVER_START_FILE /var/run/tog-pegasus/cimserver.pid
-%global CIMSERVER_LOCK_FILE /var/run/tog-pegasus/cimserver_start.lock
+%global PEGASUS_CIMSERVER_START_LOCK_FILE /var/run/tog-pegasus/cimserver_start.lock
 %global PEGASUS_REPOSITORY_DIR /var/lib/Pegasus/repository
 %global PEGASUS_PREV_REPOSITORY_DIR_NAME prev_repository
 %global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
@@ -373,7 +373,7 @@ if [ $1 -eq 0 ]; then
    [ -d %PEGASUS_VARDATA_CACHE_DIR ]  && rm -rf %PEGASUS_VARDATA_CACHE_DIR;
    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
    rm -f %PEGASUS_CIMSERVER_START_FILE;
-   rm -f %CIMSERVER_LOCK_FILE;
+   rm -f %PEGASUS_CIMSERVER_START_LOCK_FILE;
 fi
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-preun.spec

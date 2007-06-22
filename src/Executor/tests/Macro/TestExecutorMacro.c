@@ -44,9 +44,32 @@
 #define TEST_DUMP_FILE "dumpfile"
 #define MAX_DUMP_SIZE 1024
 
+static void UnsetEnvironmentVariable(const char* name)
+{
+    int namelen = strlen(name);
+    int i;
+
+    for (i = 0; environ[i]; i++)
+    {
+        if ((strncmp(name, environ[i], namelen) == 0) &&
+            (environ[i][namelen] == '='))
+        {
+            break;
+        }
+    }
+
+    if (environ[i])
+    {
+        int j = i;
+        while (environ[++j])
+            ;
+        environ[i] = environ[j-1];
+        environ[j-1] = 0;
+    }
+}
+
 int main()
 {
-
     /* Test DefineMacro() */
     {
         assert(DefineMacro("x", "100") == 0);
@@ -143,9 +166,9 @@ int main()
         assert(UndefineMacro("option2") == 0);
     }
 
-    /* Clear the environment so PEGASUS_HOME cannot be determined */
+    /* Remove PEGASUS_HOME from the environment */
 
-    assert(clearenv() == 0);
+    UnsetEnvironmentVariable("PEGASUS_HOME");
 
     /* Test DefineConfigPathMacro() with no PEGASUS_HOME defined */
     {

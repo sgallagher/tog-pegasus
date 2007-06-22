@@ -40,6 +40,31 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+
+static void UnsetEnvironmentVariable(const char* name)
+{
+    int namelen = strlen(name);
+    int i;
+
+    for (i = 0; environ[i]; i++)
+    {
+        if ((strncmp(name, environ[i], namelen) == 0) &&
+            (environ[i][namelen] == '='))
+        {
+            break;
+        }
+    }
+
+    if (environ[i])
+    {
+        int j = i;
+        while (environ[++j])
+            ;
+        environ[i] = environ[j-1];
+        environ[j-1] = 0;
+    }
+}
 
 static int test(const char* path, const char* expect)
 {
@@ -105,9 +130,9 @@ int main()
         assert(strcmp(expect, actual) == 0);
     }
 
-    /* Clear the environment so PEGASUS_HOME cannot be determined */
+    /* Remove PEGASUS_HOME from the environment */
 
-    assert(clearenv() == 0);
+    UnsetEnvironmentVariable("PEGASUS_HOME");
 
     /* GetHomedPath() with no PEGASUS_HOME defined */
     {

@@ -1153,6 +1153,10 @@ Message *CIMDirectAccessRep::do_ein_( CIMRequestMessage *req ) {
 
 
     CIMResponseMessage *globresponse = request->buildResponse();
+//Bug#74759
+    CIMEnumerateInstanceNamesResponseMessage* providerResponse =
+        dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>
+           ( request->buildResponse());
 
     if (reposi_->isDefaultInstanceProvider())
     {
@@ -1189,6 +1193,7 @@ Message *CIMDirectAccessRep::do_ein_( CIMRequestMessage *req ) {
                 response->instanceNames = 
                         reposi_->enumerateInstanceNamesForClass(
                         request->nameSpace, providerInfo.className );
+                providerResponse->instanceNames.appendArray(response->instanceNames);
                 }
             catch (const CIMException& exception) {
                 response->cimException = exception;
@@ -1218,13 +1223,14 @@ Message *CIMDirectAccessRep::do_ein_( CIMRequestMessage *req ) {
         {
             //opreqdispatch_->handleEnumerateInstanceNamesResponseAggregation(poA);
             CIMResponseMessage *response = poA->removeResponse(0);  // ????????????  why???
-
-            forwardRequestForAggregation_(                          // from loop 1
+//Bug#74759
+/*/            forwardRequestForAggregation_(                          // from loop 1
                 String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
                 String(),
                 new CIMEnumerateInstanceNamesRequestMessage(*request),
                 poA,
                 response);
+/*/
         }
     } // if isDefaultInstanceProvider
     else
@@ -1234,8 +1240,11 @@ Message *CIMDirectAccessRep::do_ein_( CIMRequestMessage *req ) {
     }
 
 
-
-
+//Bug#74759
+/*    CIMEnumerateInstanceNamesResponseMessage* providerResponse =
+        dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>
+           ( request->buildResponse());
+*/
     // Loop through providerInfos, forwarding requests to providers
     for (Uint32 i = 0; i < numClasses; i++)  // loop 2 ein
                                              // loop 2 ein
@@ -1274,12 +1283,31 @@ Message *CIMDirectAccessRep::do_ein_( CIMRequestMessage *req ) {
         if (checkClassException.getCode() != CIM_ERR_SUCCESS)
         {
             CIMResponseMessage* response = request->buildResponse();
-            forwardRequestForAggregation_(                   // loop 2 ein cim err
+/*            forwardRequestForAggregation_(                   // loop 2 ein cim err
                 String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
                 String(),
                 new CIMEnumerateInstanceNamesRequestMessage(*request),
                 poA,
                 response);
+*/
+//Bug#74759
+            CIMEnumerateInstanceNamesResponseMessage* aggResp = dynamic_cast
+                <CIMEnumerateInstanceNamesResponseMessage*>
+                    (forwardRequestForAggregation_(                   // loop 2 ein cim err
+                        String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                        String(),
+                        new CIMEnumerateInstanceNamesRequestMessage(*request),
+                        poA,
+                        response));
+            if (aggResp)
+            {
+             while(!globresponse->isComplete())
+             {
+             }
+
+                providerResponse->instanceNames.appendArray(
+                                      providerResponse->instanceNames);
+            }
         }
 
         if (providerInfo.providerIdContainer.get() != 0)
@@ -1304,22 +1332,64 @@ const CIMName pvdr=pid->getProvider().getClassName();
 
         if (checkClassException.getCode() == CIM_ERR_SUCCESS)
         {
-            forwardRequestForAggregation_(          // loop 2 ein
+/*            forwardRequestForAggregation_(          // loop 2 ein
                 providerInfo.serviceName,
                 providerInfo.controlProviderName,
                 requestCopy,
                 poA,
                 globresponse);
+*/
+//Bug#74759
+           CIMEnumerateInstanceNamesResponseMessage* aggResp = dynamic_cast
+                 <CIMEnumerateInstanceNamesResponseMessage*>
+                     ( forwardRequestForAggregation_(          // loop 2 ein
+                           providerInfo.serviceName,
+                           providerInfo.controlProviderName,
+                           requestCopy,
+                           poA,
+                           globresponse));
+           if (aggResp)
+           {
+               if (aggResp->cimException.getCode() != CIM_ERR_SUCCESS)
+               {
+                   providerResponse->cimException = aggResp->cimException;
+                   return providerResponse;
+               }
+
+             // CIMClient need not know neither the namespace nor the host name
+             // in the response as the client would have specified them in
+             // the CIM Request. So reset the host and namespace to NULL
+/*              for (Uint32 index =0; index < aggResp->instanceNames.size(); index++)
+              {
+                  aggResp->instanceNames[index].setHost(String::EMPTY);
+                  CIMNamespaceName name;
+                  aggResp->instanceNames[index].setNameSpace(name);
+              }
+*/
+             while(!globresponse->isComplete())
+             {
+             }
+              providerResponse->instanceNames.appendArray(aggResp->instanceNames);
+
+           }
+
         }
     } // for all classes and derived classes -- loop 2 ein
 
     // now, aggregate whatever responses are in poA.
-    opreqdispatch_->handleEnumerateInstanceNamesResponseAggregation(poA);
-    globresponse = poA->removeResponse(0);
-    globresponse->setComplete(true);
+//    opreqdispatch_->handleEnumerateInstanceNamesResponseAggregation(poA);
+//    globresponse = poA->removeResponse(0);
+//    globresponse->setComplete(true);
+              for (Uint32 index =0; index < providerResponse->instanceNames.size(); index++)
+              {
+                  providerResponse->instanceNames[index].setHost(String::EMPTY);
+                  CIMNamespaceName name;
+                  providerResponse->instanceNames[index].setNameSpace(name);
+              }
 
     PEG_METHOD_EXIT();
-    return globresponse;
+//    return globresponse;
+    return providerResponse;
     
 } // do_ein_()
 
@@ -1917,10 +1987,13 @@ Message *CIMDirectAccessRep::do_ea_( CIMRequestMessage* request){
     if ((req->role != String::EMPTY) && (!CIMName::legal(req->role)))
     {
         CIMResponseMessage* response = req->buildResponse();
-        response->cimException =
+/*        response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, req->role);
-
-        //_enqueueResponse(request, response);
+*/
+//Bug#74759
+        response->cimException = CIMException(CIM_ERR_INVALID_PARAMETER, 
+                                              req->role);
+       //_enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
         return response;
@@ -1931,9 +2004,12 @@ Message *CIMDirectAccessRep::do_ea_( CIMRequestMessage* request){
         (!CIMName::legal(req->resultRole)))
     {
         CIMResponseMessage* response = req->buildResponse();
-        response->cimException = PEGASUS_CIM_EXCEPTION(
+/*        response->cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, req->resultRole);
-
+*/
+//Bug#74759
+        response->cimException = CIMException(CIM_ERR_INVALID_PARAMETER, 
+                                              req->role);
         //_enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
@@ -1980,9 +2056,9 @@ Message *CIMDirectAccessRep::do_ea_( CIMRequestMessage* request){
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "Associators executing Class request");
-
+*/
         AutoPtr<CIMAssociatorsResponseMessage> response(
             dynamic_cast<CIMAssociatorsResponseMessage*>(
                 req->buildResponse()));
@@ -2050,9 +2126,9 @@ Message *CIMDirectAccessRep::do_ea_( CIMRequestMessage* request){
             return response;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
-
+*/
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
@@ -2116,10 +2192,11 @@ Message *CIMDirectAccessRep::do_ea_( CIMRequestMessage* request){
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "Associators repository access: class = %s, count = %u.",
                     (const char*)req->objectName.toString().getCString(),
                     response->cimObjects.size());
+*/
         }
 
         //
@@ -2152,12 +2229,14 @@ Message *CIMDirectAccessRep::do_ea_( CIMRequestMessage* request){
         {
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
-            return forwardRequestForAggregation_(
+//Bug#74759
+/*/            forwardRequestForAggregation_(
                 String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
                 String(),
                 new CIMAssociatorsRequestMessage(*req),
                 poA,
                 response.release());
+/*/
         }
         else
         {
@@ -2180,11 +2259,41 @@ Message *CIMDirectAccessRep::do_ea_( CIMRequestMessage* request){
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
                     providerInfos[i].className.getString());
-                forwardRequestForAggregation_(providerInfos[i].serviceName,
+/*                forwardRequestForAggregation_(providerInfos[i].serviceName,
                     providerInfos[i].controlProviderName, requestCopy, poA);
+*/
+//Bug#74759
+                CIMAssociatorsResponseMessage* aggResp =dynamic_cast
+                        <CIMAssociatorsResponseMessage*>( 
+                            forwardRequestForAggregation_(
+                                     providerInfos[i].serviceName,
+                                     providerInfos[i].controlProviderName,
+                                     requestCopy, poA));
+		 if (aggResp)
+                 {
+
+                   if (aggResp->cimException.getCode() != CIM_ERR_SUCCESS)
+                   {
+                       response->cimException = aggResp->cimException;
+                       return response.release();
+                   }
+
+                        for (Uint32 index = 0; index < aggResp->cimObjects.size(); index++)
+                        {
+			        CIMNamespaceName n1;
+		        	CIMObjectPath& objPath1= const_cast < CIMObjectPath&> (aggResp->cimObjects[index].getPath());
+			      objPath1.setHost(String::EMPTY);
+			      objPath1.setNameSpace(n1);
+
+                        }
+                }
+//                while (!aggResp->isComplete());
+                response->cimObjects.appendArray((aggResp->cimObjects));
                 // Note: poA must not be referenced after last "forwardRequest"
             }
         }
+//Bug#74759
+       return response.release();
     }  // End of instance processing
 
     PEG_METHOD_EXIT();
@@ -2215,9 +2324,12 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
     if ((req->role != String::EMPTY) && (!CIMName::legal(req->role)))
     {
         CIMResponseMessage* response = req->buildResponse();
-        response->cimException =
+/*        response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, req->role);
-
+*/
+//Bug#74759
+        response->cimException = CIMException(CIM_ERR_INVALID_PARAMETER,
+                                               req->role);
         //_enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
@@ -2229,9 +2341,14 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
         (!CIMName::legal(req->resultRole)))
     {
         CIMResponseMessage* response = req->buildResponse();
+/*
         response->cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, req->resultRole);
+*/
+//Bug#74759
 
+        response->cimException = CIMException(CIM_ERR_INVALID_PARAMETER, 
+                                              req->resultRole);
         //_enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
@@ -2246,8 +2363,12 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
     {
         if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
         {
-            checkClassException = PEGASUS_CIM_EXCEPTION(
+/*            checkClassException = PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_PARAMETER, req->objectName.toString());
+*/
+//Bug#74759
+           checkClassException = CIMException(CIM_ERR_INVALID_PARAMETER, 
+                                            req->objectName.toString());
         }
 
         CIMResponseMessage* response = req->buildResponse();
@@ -2278,9 +2399,9 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "AssociatorNames executing Class request");
-
+*/
         AutoPtr<CIMAssociatorNamesResponseMessage> response(
             dynamic_cast<CIMAssociatorNamesResponseMessage*>(
                 req->buildResponse()));
@@ -2346,9 +2467,9 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
             return response;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
-
+*/
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
@@ -2409,10 +2530,11 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "AssociatorNames repository access: class = %s, count = %u.",
                     (const char*)req->objectName.toString().getCString(),
                     response->objectNames.size());
+*/
         }
 
         //
@@ -2445,12 +2567,14 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
         {
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
-            return forwardRequestForAggregation_(
+//Bug#74759
+/*            return forwardRequestForAggregation_(
                 String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
                 String(),
                 new CIMAssociatorNamesRequestMessage(*req),
                 poA,
                 response.release());
+*/
         }
         else
         {
@@ -2475,11 +2599,31 @@ Message *CIMDirectAccessRep::do_ean_(CIMRequestMessage* request){
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
                     providerInfos[i].className.getString());
-                forwardRequestForAggregation_(providerInfos[i].serviceName,    // fix
+/*                forwardRequestForAggregation_(providerInfos[i].serviceName,    // fix
                     providerInfos[i].controlProviderName, requestCopy, poA);
+*/
+//Bug#74759
+                CIMAssociatorNamesResponseMessage* aggResp =dynamic_cast
+                       <CIMAssociatorNamesResponseMessage*>( 
+                        forwardRequestForAggregation_(
+                           providerInfos[i].serviceName,    // fix
+                           providerInfos[i].controlProviderName,
+                           requestCopy, poA));
+               if (aggResp)
+               {
+                   if (aggResp->cimException.getCode() != CIM_ERR_SUCCESS)
+                   {
+                       response->cimException = aggResp->cimException;
+                       return response.release();
+                   }
+          
+                   response->objectNames.appendArray((aggResp->objectNames));
+               }
                 // Note: poA must not be referenced after last "forwardRequest"
-            }
+           }
         }
+//Bug#74759
+        return response.release();
     }  // End of instance processing
 
     PEG_METHOD_EXIT();
@@ -2526,10 +2670,17 @@ Message *CIMDirectAccessRep::do_er_( CIMRequestMessage* request){
         checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+/*        if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
         {
             checkClassException = PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_PARAMETER, req->objectName.toString());
+        }
+*/
+//Bug#74759
+        if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+        {
+            checkClassException = //PEGASUS_CIM_EXCEPTION(
+                CIMException (CIM_ERR_INVALID_PARAMETER, req->objectName.toString());
         }
 
         CIMResponseMessage* response = req->buildResponse();
@@ -2560,9 +2711,9 @@ Message *CIMDirectAccessRep::do_er_( CIMRequestMessage* request){
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "References executing Class request");
-
+*/
         AutoPtr<CIMReferencesResponseMessage> response(
             dynamic_cast<CIMReferencesResponseMessage*>(
                 req->buildResponse()));
@@ -2629,9 +2780,9 @@ Message *CIMDirectAccessRep::do_er_( CIMRequestMessage* request){
             return response;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
-
+*/
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
@@ -2643,8 +2794,12 @@ Message *CIMDirectAccessRep::do_er_( CIMRequestMessage* request){
                 "CIM_ERR_NOT_SUPPORTED for " + req->className.getString());
 
             CIMResponseMessage* response = req->buildResponse();
-            response->cimException =
+/*            response->cimException =
                 PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+*/
+//Bug#74759
+            response->cimException =
+                  CIMException (CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
             //_enqueueResponse(request, response);
 
@@ -2693,10 +2848,11 @@ Message *CIMDirectAccessRep::do_er_( CIMRequestMessage* request){
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "References repository access: class = %s, count = %u.",
                     (const char*)req->objectName.toString().getCString(),
                     response->cimObjects.size());
+*/
         }
 
         //
@@ -2728,13 +2884,15 @@ Message *CIMDirectAccessRep::do_er_( CIMRequestMessage* request){
         if (response.get() != 0)
         {
             poA->setTotalIssued(providerCount+1);
+//Bug#74759
             // send the repository's results
-            return forwardRequestForAggregation_(
+/*            return forwardRequestForAggregation_(
                 String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
                 String(),
                 new CIMReferencesRequestMessage(*req),
                 poA,
                 response.release());
+*/
         }
         else
         {
@@ -2759,11 +2917,45 @@ Message *CIMDirectAccessRep::do_er_( CIMRequestMessage* request){
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
                     providerInfos[i].className.getString());
-                forwardRequestForAggregation_(providerInfos[i].serviceName,     // fix
+/*                forwardRequestForAggregation_(providerInfos[i].serviceName,     // fix
                     providerInfos[i].controlProviderName, requestCopy, poA);
+*/
+//Bug#74759
+                CIMReferencesResponseMessage*  aggResp =dynamic_cast
+                           <CIMReferencesResponseMessage*>(
+                           forwardRequestForAggregation_(
+                             providerInfos[i].serviceName,     // fix
+                              providerInfos[i].controlProviderName, 
+                              requestCopy, poA));
+                if (aggResp)
+                {
+                   if (aggResp->cimException.getCode() != CIM_ERR_SUCCESS)
+                   {
+                       response->cimException = aggResp->cimException;
+                       return response.release();
+                   }
+
+                     response->cimObjects.appendArray((aggResp->cimObjects));
+                     if (aggResp->cimObjects.size())
+                     {
+                        for (Uint32 index = 0; index < aggResp->cimObjects.size(); index++)
+                        {
+                          CIMNamespaceName n1;
+                          CIMObjectPath& objPath1= const_cast < CIMObjectPath&> 
+                              (aggResp->cimObjects[index].getPath());
+                          objPath1.setHost(String::EMPTY);
+                          objPath1.setNameSpace(n1);
+                        }
+                     }
+
+                }
+
                 // Note: poA must not be referenced after last "forwardRequest"
+
             }
         }
+//Bug#74759
+        return response.release();
     }  // End of instance processing
 
     PEG_METHOD_EXIT();
@@ -2795,9 +2987,12 @@ Message *CIMDirectAccessRep::do_ern_( CIMRequestMessage* request){
     if ((req->role != String::EMPTY) && (!CIMName::legal(req->role)))
     {
         CIMResponseMessage* response = req->buildResponse();
-        response->cimException =
+/*        response->cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, req->role);
-
+*/
+//Bug#74759
+       response->cimException =
+          CIMException (CIM_ERR_INVALID_PARAMETER, req->role);
         //_enqueueResponse(request, response);
 
         PEG_METHOD_EXIT();
@@ -2812,8 +3007,12 @@ Message *CIMDirectAccessRep::do_ern_( CIMRequestMessage* request){
     {
         if (checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
         {
-            checkClassException = PEGASUS_CIM_EXCEPTION(
+/*            checkClassException = PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_PARAMETER, req->objectName.toString());
+*/
+//Bug#74759
+            checkClassException = 
+                CIMException (CIM_ERR_INVALID_PARAMETER, req->objectName.toString());
         }
 
         CIMResponseMessage* response = req->buildResponse();
@@ -2844,9 +3043,9 @@ Message *CIMDirectAccessRep::do_ern_( CIMRequestMessage* request){
         // For Class requests, get the results from the repository
         //
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "ReferenceNames executing Class request");
-
+*/
         AutoPtr<CIMReferenceNamesResponseMessage> response(
             dynamic_cast<CIMReferenceNamesResponseMessage*>(
                 req->buildResponse()));
@@ -2910,9 +3109,9 @@ Message *CIMDirectAccessRep::do_ern_( CIMRequestMessage* request){
             return response;
         }
 
-        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+        /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
-
+*/
         // If no provider is registered and the repository isn't the default,
         // return CIM_ERR_NOT_SUPPORTED
 
@@ -2971,10 +3170,11 @@ Message *CIMDirectAccessRep::do_ern_( CIMRequestMessage* request){
                     CIM_ERR_FAILED, String::EMPTY);
             }
 
-            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+            /* Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "ReferenceNames repository access: class = %s, count = %u.",
                     (const char*)req->objectName.toString().getCString(),
                     response->objectNames.size());
+            */
         }
 
         //
@@ -3006,12 +3206,14 @@ Message *CIMDirectAccessRep::do_ern_( CIMRequestMessage* request){
         if (response.get() != 0)
         {
             poA->setTotalIssued(providerCount+1);
-            return forwardRequestForAggregation_(
+//Bug#74759
+/*            return forwardRequestForAggregation_(
                 String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
                 String(),
                 new CIMReferenceNamesRequestMessage(*req),
                 poA,
                 response.release());
+*/
         }
         else
         {
@@ -3036,11 +3238,37 @@ Message *CIMDirectAccessRep::do_ern_( CIMRequestMessage* request){
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
                     providerInfos[i].className.getString());
-                forwardRequestForAggregation_(providerInfos[i].serviceName,    // fix
+/*                forwardRequestForAggregation_(providerInfos[i].serviceName,    // fix
                     providerInfos[i].controlProviderName, requestCopy, poA);
+*/
+//Bug#74759
+               CIMReferenceNamesResponseMessage* aggResp= dynamic_cast
+                   <CIMReferenceNamesResponseMessage*>(
+                       forwardRequestForAggregation_(
+                           providerInfos[i].serviceName,    // fix
+                           providerInfos[i].controlProviderName,
+                           requestCopy, poA));
+               if (aggResp)
+               {
+                   if (aggResp->cimException.getCode() != CIM_ERR_SUCCESS)
+                   {
+                       response->cimException = aggResp->cimException;
+                       return response.release();
+                   }
+
+                   response->objectNames.appendArray((aggResp->objectNames));
+               }
+
+//Bug#74759
+/*      aggResp->objectNames[0].setHost(String::EMPTY);
+  CIMNamespaceName n1;
+   aggResp->objectNames[0].setNameSpace(n1);
+*/
+
                 // Note: poA must not be referenced after last "forwardRequest"
             }
         }
+     return response.release();
     }  // End of instance processing
 
     PEG_METHOD_EXIT();
@@ -3726,9 +3954,11 @@ Message *CIMDirectAccessRep::forwardRequestForAggregation_(
                 throw r->cimException;
                 }
             }    
-        else if ( serviceName=="CIMOpRequestDispacther" ) {
+/*        else if ( serviceName=="CIMOpRequestDispatcher" ) {
             // is recognized service, and there is nothing to to here!
             }
+*/
+//Bug#74759
         else {
             MessageQueue *q = MessageQueue::lookup(request->queueIds.top());
             }                
@@ -3801,6 +4031,11 @@ Message *CIMDirectAccessRep::forwardRequestForAggregation_(
             response = 
                 odiniter_((ConfigSettingProvider*)NULL)->processMessage( request );
             }
+        else if ( controlProviderName ==
+                               "ControlService::CIMQueryCapabilitiesProvider") {
+            response =
+                odiniter_((CIMQueryCapabilitiesProvider*)NULL)->processMessage( request );
+        }
         else {
             }
 
@@ -3936,10 +4171,14 @@ Message *CIMDirectAccessRep::forwardRequestToProvider_(
             }
 		else if (controlProviderName == 
 						"ControlService::CIMQueryCapabilitiesProvider") {
-            CIMException cimException = PEGASUS_CIM_EXCEPTION(
+/*            CIMException cimException = PEGASUS_CIM_EXCEPTION(
 					 CIM_ERR_FAILED, ">> qry capab not ready yet");  // fix
-			response = request->buildResponse();
-            response->cimException = cimException;
+*/
+            response =
+                odiniter_((CIMQueryCapabilitiesProvider*)NULL)->processMessage(request);
+
+//			response = request->buildResponse();
+//            response->cimException = cimException;
 		    }	
 		else {
             CIMException cimException = PEGASUS_CIM_EXCEPTION(
@@ -4373,6 +4612,26 @@ ProviderMessageHandler *CIMDirectAccessRep::odiniter_(ConfigSettingProvider*) {
             controlProviderReceiveMessageCallback, 0 );
     }
     return cfgpvdr_;
+}
+
+ProviderMessageHandler *CIMDirectAccessRep::odiniter_(CIMQueryCapabilitiesProvider*)
+{
+    if (!queryPvdr_)
+    {
+       queryPvdr_ = new ProviderMessageHandler(
+           "CIMQueryCapabilitiesProvider",
+           new CIMQueryCapabilitiesProvider(),
+           0, 0, false);
+       controlpvdr_.append(queryPvdr_);
+       ModuleController::register_module(
+           PEGASUS_QUEUENAME_CONTROLSERVICE,
+           PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
+           queryPvdr_,
+           controlProviderReceiveMessageCallback,
+           0);
+
+    }
+    return queryPvdr_;
 }
 #if PEGASUS_DIRECTACCESS_BUILDTYPE >= dacimSEPREPOSI           
 //---------------------------------------------------------------------------

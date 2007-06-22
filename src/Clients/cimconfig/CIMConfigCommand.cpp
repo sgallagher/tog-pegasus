@@ -1003,22 +1003,10 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 
 }
 
-/** 
-    Print message to the given stream
-*/
-
-//void CIMConfigCommand::_printErrorMessage(
-//    CIMStatusCode code, 
-//    const String&,
-//    ostream& errPrintWriter)
-//{
-//
-//}
-
 /**
     Executes the command and writes the results to the PrintWriters.
 */
-Uint32 CIMConfigCommand::execute (
+Uint32 CIMConfigCommand::execute(
     ostream& outPrintWriter, 
     ostream& errPrintWriter)
 {
@@ -1030,61 +1018,22 @@ Uint32 CIMConfigCommand::execute (
     Boolean   gotCurrentValue = false;
     Boolean   gotPlannedValue = false;
 
-    if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
+    if (_operationType == OPERATION_TYPE_UNINITIALIZED)
     {
         //
         // The command was not initialized
         //
-        return ( RC_ERROR );
+        return RC_ERROR;
     }
-    //PEP#167 - Added Options HELP and VERSION
-    //PEP#167 - CIMServer need not be running for these to work
     else if (_operationType == OPERATION_TYPE_HELP)
     {
         cerr << usage << endl;
-        return (RC_SUCCESS);
+        return RC_SUCCESS;
     }
-    else if(_operationType == OPERATION_TYPE_VERSION)
+    else if (_operationType == OPERATION_TYPE_VERSION)
     {
         cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
-        return (RC_SUCCESS);
-    }
-
-    //
-    // Get environment variables
-    //
-    const char* env = getenv("PEGASUS_HOME");
-
-    String currentFile =
-        FileSystem::getAbsolutePath(env, PEGASUS_CURRENT_CONFIG_FILE_PATH);
-    String plannedFile =
-        FileSystem::getAbsolutePath(env, PEGASUS_PLANNED_CONFIG_FILE_PATH);
-
-    try
-    {
-        //
-        // Open default config files and load current config properties
-        //
-        _configFileHandler = 
-            new ConfigFileHandler(currentFile, plannedFile, true);
-    }
-    catch (const NoSuchFile&)
-    {
-    }
-    catch (const FileNotReadable& fnr)
-    {
-        //l10n
-        //errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
-        errPrintWriter 
-            << localizeMessage(
-                    MSG_PATH, FILE_NOT_READABLE_KEY, FILE_NOT_READABLE) 
-            << fnr.getMessage() << endl;
-        return ( RC_ERROR );
-    }
-    catch (const ConfigFileSyntaxError& cfse)
-    {
-        errPrintWriter << cfse.getMessage() << endl;
-        return ( RC_ERROR );
+        return RC_SUCCESS;
     }
 
     //
@@ -1097,12 +1046,12 @@ Uint32 CIMConfigCommand::execute (
         // Construct the CIMClient and set to request server messages
         // in the default language of this client process.
         _client.reset(new CIMClient);
-        _client->setRequestDefaultLanguages(); //l10n
+        _client->setRequestDefaultLanguages();
     }
-    catch (const Exception & e)
+    catch (const Exception& e)
     {
         errPrintWriter << e.getMessage() << endl;
-        return ( RC_ERROR );        
+        return RC_ERROR;        
     }
 
     try
@@ -1114,22 +1063,62 @@ Uint32 CIMConfigCommand::execute (
 
         connected = true;
     }
-    catch(const Exception&)
+    catch (const Exception&)
     {
         //
         // Failed to connect, so process the request offline.
-        // When CIMOM is running the config command updates changes to 
-        // config properties in the planned config file, so load only
+        //
+        connected = false;
+    }
+
+    if (!connected)
+    {
+        //
+        // Locate the config files
+        //
+        const char* env = getenv("PEGASUS_HOME");
+
+        String currentFile =
+            FileSystem::getAbsolutePath(env, PEGASUS_CURRENT_CONFIG_FILE_PATH);
+        String plannedFile =
+            FileSystem::getAbsolutePath(env, PEGASUS_PLANNED_CONFIG_FILE_PATH);
+
+        try
+        {
+            //
+            // Open default config files and load current config properties
+            //
+            _configFileHandler = 
+                new ConfigFileHandler(currentFile, plannedFile, true);
+        }
+        catch (const NoSuchFile&)
+        {
+        }
+        catch (const FileNotReadable& fnr)
+        {
+            errPrintWriter 
+                << localizeMessage(
+                       MSG_PATH, FILE_NOT_READABLE_KEY, FILE_NOT_READABLE) 
+                << fnr.getMessage() << endl;
+            return RC_ERROR;
+        }
+        catch (const ConfigFileSyntaxError& cfse)
+        {
+            errPrintWriter << cfse.getMessage() << endl;
+            return RC_ERROR;
+        }
+
+        //
+        // When the CIM Server is not running, cimconfig only updates the
         // planned config properties. 
         //
         _configFileHandler->loadPlannedConfigProperties();
-        connected = false;
     }
 
     //
     // Perform the requested operation
     //
-    switch ( _operationType )
+    switch (_operationType)
     {
         case OPERATION_TYPE_GET:
             try

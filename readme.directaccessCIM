@@ -1,0 +1,111 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+// Copyright (c) 2007 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+
+    Direct Access CIM readme 
+    ========================
+
+    Filename:  readme.directaccessCIM
+    Authors:   Ed Boden 
+    Date:      1 May 2007
+
+      PEPs 273 & 274 describe the direct access CIM (also referred to as
+      'CIM API').  This is the ability to access all local CIM information
+      (classes, qualifieres, instances, associations, properties, etc.) 
+      via the normal CIM operations, without going through a CIM server 
+      (the CIM server need not be running).   
+
+      Direct access CIM uses the existing CIMClient.h API with no changes.
+      The full CIMClient.h API is supported to the same level its supported
+      when used to access a CIM server.
+
+      Direct access CIM supports all existing OpenPegasus provider types, 
+      transparently.
+
+      Direct access indications; direct access CIM adds a few additional 
+      APIs and function function related to CIM indications.  This is 
+      in addition to the existing CIM server indication functions.  The 
+      key feature of direct access indications is that they are delivered
+      via callback, where the recieving code is able to do whatever is 
+      needed with the indication.  See CIMDirectAccess.h for details.
+      
+      There are 3 types of direct access CIM builds;
+      
+          1) 'integrated dacim' -- uses the local CIM server repository.
+             May be used with or without the CIM server running.  If
+             running, the CIM server will be used for repository updates.
+             If the CIM server is not running, dacim will perform the
+             operation.
+             
+          2) 'separate repository dacim' -- has its own repository.
+          
+          3) 'stand-alone dacim' -- uses separate repository and separate
+             shared libraries. (The CIM server need not be installed.)
+
+      The initial release of dacim supports integrated dacim. (See PEP 274
+      for more specifics about the 3 builds.)               
+      
+
+
+    Building direct access CIM
+    ===================================================================
+
+      Direct access CIM is built by setting the environment variable
+      PEGASUS_USE_DIRECTACCESS_FOR_LOCAL to 'true', and then run
+      make as usual.
+
+
+
+    Testing direct access CIM
+    =====================================================================
+
+      If OpenPegasus has been built with direct access CIM capability (check
+      --version on some command), the existing test targets will run 
+      direct access CIM tests.
+
+      Example; make servertests
+
+
+
+    Runtime switching of direct access CIM
+    ===========================================================
+
+      Direct access CIM may be switched on and off at runtime by
+      setting PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT 'true' or
+      'false' (see 'pegasus/toggledacim').
+
+
+
+==========================================================================
+For additional information refer to PEP273, 274.   To determine what build
+of OpenPgasus you have, enter one of the commands with '--version'.
+

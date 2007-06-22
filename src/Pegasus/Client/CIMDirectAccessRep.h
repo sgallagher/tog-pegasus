@@ -48,6 +48,7 @@
 #include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/Statistic/CIMOMStatDataProvider.h>
+#include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 //#include <Pegasus/Client/CIMClientRep.h>
 //#include <Pegasus/Client/CIMClient.h>
@@ -104,7 +105,9 @@ class PEGASUS_COMMON_LINKAGE  CIMDirectAccessRep  {
                                        *interoppvdr_,
                                        *pvdrregipvdr_,
                                        *statdatapvdr_,
-                                       *cfgpvdr_;
+                                       *cfgpvdr_,
+                                       *queryPvdr_;
+
         Array<ProviderMessageHandler*>  controlpvdr_;
         ModuleController               *controlsvc_;
         int                             numsubscri_;
@@ -127,7 +130,7 @@ class PEGASUS_COMMON_LINKAGE  CIMDirectAccessRep  {
         ProviderMessageHandler *odiniter_(ProviderRegistrationProvider*);
         ProviderMessageHandler *odiniter_(CIMOMStatDataProvider*);
         ProviderMessageHandler *odiniter_(ConfigSettingProvider*);
-
+        ProviderMessageHandler *odiniter_(CIMQueryCapabilitiesProvider*);
                 
         
         void chunkCallback_( CIMRequestMessage*, CIMResponseMessage* ),

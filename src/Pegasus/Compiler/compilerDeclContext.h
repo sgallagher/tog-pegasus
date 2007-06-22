@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Gerarda Marquez (gmarquez@us.ibm.com)
-//              -- PEP 43 changes
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusCompiler_Compiler_Decl_Context_h
@@ -46,8 +38,8 @@
 //
 // compilerDeclContext
 //
-//	This context is used by the resolve() methods to lookup dependent
-//	objects during resolution.  This subclass takes into account
+//  This context is used by the resolve() methods to lookup dependent
+//  objects during resolution.  This subclass takes into account
 //      environments where some or all of the objects which need
 //      to exist are not in the repository, but rather have been
 //      explicitly provided.
@@ -64,31 +56,32 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMPILER_LINKAGE compilerDeclContext :
-public RepositoryDeclContext {
+public RepositoryDeclContext
+{
  public:
   compilerDeclContext(CIMRepository *repository,
-			      compilerCommonDefs::operationType ot);
+                  compilerCommonDefs::operationType ot);
 
   virtual ~compilerDeclContext();
 
   virtual
     CIMQualifierDecl lookupQualifierDecl (const CIMNamespaceName &nameSpace,
-					  const CIMName &qualifierName) const;
+                      const CIMName &qualifierName) const;
   virtual
     CIMClass         lookupClass        (const CIMNamespaceName &nameSpace,
-					 const CIMName &className) const;
+                     const CIMName &className) const;
 
   void               addQualifierDecl   (const CIMNamespaceName &nameSpace,
-					 const CIMQualifierDecl& x);
+                     const CIMQualifierDecl& x);
 
   void               addClass           (const CIMNamespaceName &nameSpace,
-					 CIMClass &x);
+                     CIMClass &x);
 
   void               addInstance        (const CIMNamespaceName &nameSpace,
-					 CIMInstance &x);
+                     CIMInstance &x);
 
   void               modifyClass           (const CIMNamespaceName &nameSpace,
-					 CIMClass &x);
+                     CIMClass &x);
 
  private:
   CIMRepository *_cimRepository;

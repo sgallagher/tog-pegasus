@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By: Gerarda Marquez (gmarquez@us.ibm.com)
-//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -86,16 +81,16 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean         _emit_xml;
   compilerCommonDefs::operationType _ot;
   Boolean         _trace;
-  Boolean	  _update_class;
-  Boolean	  _allow_experimental;
-  Boolean	  _allow_version;
+  Boolean     _update_class;
+  Boolean     _allow_experimental;
+  Boolean     _allow_version;
   Boolean         _no_usage_warning;
 
   PEGASUS_STD(ostream)      *_traceos;
   PEGASUS_STD(ostream)      *_erroros;
   PEGASUS_STD(ostream)      *_warningos;
  public:
-  mofCompilerOptions() : _repository(String::EMPTY), 
+  mofCompilerOptions() : _repository(String::EMPTY),
     _repository_name(String::EMPTY),
     _repository_mode(String::EMPTY),
     _namespacePath(""),
@@ -160,15 +155,15 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean xml_output() const { return _emit_xml; }
   void set_traceos(PEGASUS_STD(ostream) &os) { _traceos = &os; }
   void reset_traceos() { _traceos = 0; }
-  ostream &traceos() const 
+  ostream &traceos() const
       { return _traceos ? (ostream&)*_traceos : (ostream&)cout; }
   void set_erroros(ostream &os) { _erroros = &os; }
   void reset_erroros() { _erroros = 0; }
-  ostream &erroros() const 
+  ostream &erroros() const
       { return _erroros ? (ostream&)*_erroros : (ostream&)cerr; }
   void set_warningos(ostream &os) { _warningos = &os; }
   void reset_warningos() { _warningos = 0; }
-  ostream &warningos() const 
+  ostream &warningos() const
       {return _warningos ? (ostream&)*_warningos : (ostream&)cerr;}
   void set_namespacePath(const String &path) { _namespacePath = path; }
   const String &get_namespacePath() const  { return _namespacePath; }

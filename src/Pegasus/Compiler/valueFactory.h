@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,13 +50,14 @@ PEGASUS_USING_STD;
 // whether this is a Array type, the CIM type to be coerced, and
 // a String representation of the value.
 //
-class PEGASUS_COMPILER_LINKAGE valueFactory  {
- public:
-  static String stringWComma(String tmp);
-  static long Stoi(const String &s);
-  static CIMValue * createValue(CIMType type, int arrayDimension,
-                             Boolean isNull,
-			     const String *rep);
+class PEGASUS_COMPILER_LINKAGE valueFactory
+{
+    public:
+        static String stringWComma(String tmp);
+        static long Stoi(const String &s);
+        static CIMValue * createValue(CIMType type, int arrayDimension,
+            Boolean isNull,
+            const String *rep);
 };
 
 #endif

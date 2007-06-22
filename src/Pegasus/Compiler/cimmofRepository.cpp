@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,16 +29,7 @@
 //
 //==============================================================================
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Gerarda Marquez (gmarquez@us.ibm.com)
-//              -- PEP 43 changes
-//
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 //
 // implementation of  cimmofRepository
 //
@@ -53,84 +44,78 @@
 
 PEGASUS_USING_PEGASUS;
 
-cimmofRepository::cimmofRepository(
-    const String& path,
+cimmofRepository::cimmofRepository(const String& path,
     Uint32 mode,
     compilerCommonDefs::operationType ot)
     : _cimrepository(0), _context(0), _ot(ot)
 {
-  // don't catch the exceptions that might be thrown.  They should go up.
-  if (_ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-    _cimrepository = new CIMRepository(path, mode);
-  }
-  _context = new compilerDeclContext(_cimrepository, _ot);
-  if (_cimrepository)
-    _cimrepository->setDeclContext(_context);
+    // don't catch the exceptions that might be thrown.  They should go up.
+    if (_ot != compilerCommonDefs::IGNORE_REPOSITORY) {
+        _cimrepository = new CIMRepository(path, mode);
+    }
+    _context = new compilerDeclContext(_cimrepository, _ot);
+    if (_cimrepository)
+        _cimrepository->setDeclContext(_context);
 }
 
-cimmofRepository::~cimmofRepository() {
-  if (_cimrepository)
-    delete(_cimrepository);
-  if (_context)
-    delete(_context);
-}
-
-int 
-cimmofRepository::addClass(const CIMNamespaceName &nameSpace, 
-                           CIMClass *classdecl)
+cimmofRepository::~cimmofRepository()
 {
-  // Don't catch errors: pass them up to the requester
-  _context->addClass( nameSpace,  *classdecl);
-  return 0;
+    if (_cimrepository)
+        delete(_cimrepository);
+    if (_context)
+        delete(_context);
 }
 
-
-int 
-cimmofRepository::addInstance(const CIMNamespaceName &nameSpace, 
-                              CIMInstance *instance)
-{ 
-  // Don't catch errors: pass them up to the requester
-  _context->addInstance(nameSpace, *instance);
-  return 0;
-}
-
-int 
-cimmofRepository::addQualifier(const CIMNamespaceName &nameSpace,
-			       CIMQualifierDecl *qualifier)
-{ 
-  // Don't catch errors: pass them up to the requester
-  _context->addQualifierDecl(nameSpace, *qualifier);
-  return 0;
-}
-
-CIMQualifierDecl
-cimmofRepository::getQualifierDecl(const CIMNamespaceName &nameSpace, 
-                                   const CIMName &name)
+int cimmofRepository::addClass(const CIMNamespaceName &nameSpace,
+    CIMClass *classdecl)
 {
-  // Don't catch errors: pass them up to the requester
-  return _context->lookupQualifierDecl(nameSpace, name);
+    // Don't catch errors: pass them up to the requester
+    _context->addClass( nameSpace,  *classdecl);
+    return 0;
 }
 
-CIMClass
-cimmofRepository::getClass(const CIMNamespaceName &nameSpace, 
-                           const CIMName &classname)
+
+int cimmofRepository::addInstance(const CIMNamespaceName &nameSpace,
+    CIMInstance *instance)
 {
-  // Don't catch errors: pass them up to the requester
-  return _context->lookupClass(nameSpace, classname);
+    // Don't catch errors: pass them up to the requester
+    _context->addInstance(nameSpace, *instance);
+    return 0;
 }
 
-int 
-cimmofRepository::modifyClass(const CIMNamespaceName &nameSpace, 
-                           CIMClass *classdecl)
+int cimmofRepository::addQualifier(const CIMNamespaceName &nameSpace,
+    CIMQualifierDecl *qualifier)
 {
-  // Don't catch errors: pass them up to the requester
-  _context->modifyClass( nameSpace,  *classdecl);
-  return 0;
+    // Don't catch errors: pass them up to the requester
+    _context->addQualifierDecl(nameSpace, *qualifier);
+    return 0;
 }
 
-void 
-cimmofRepository::createNameSpace(const CIMNamespaceName &nameSpaceName)
+CIMQualifierDecl cimmofRepository::getQualifierDecl(
+    const CIMNamespaceName &nameSpace,
+    const CIMName &name)
 {
-  if (_cimrepository && _ot != compilerCommonDefs::IGNORE_REPOSITORY)
-    _cimrepository->createNameSpace(nameSpaceName);
+    // Don't catch errors: pass them up to the requester
+    return _context->lookupQualifierDecl(nameSpace, name);
+}
+
+CIMClass cimmofRepository::getClass(const CIMNamespaceName &nameSpace,
+    const CIMName &classname)
+{
+    // Don't catch errors: pass them up to the requester
+    return _context->lookupClass(nameSpace, classname);
+}
+
+int cimmofRepository::modifyClass(const CIMNamespaceName &nameSpace,
+    CIMClass *classdecl)
+{
+    // Don't catch errors: pass them up to the requester
+    _context->modifyClass( nameSpace,  *classdecl);
+    return 0;
+}
+
+void cimmofRepository::createNameSpace(const CIMNamespaceName &nameSpaceName)
+{
+    if (_cimrepository && _ot != compilerCommonDefs::IGNORE_REPOSITORY)
+        _cimrepository->createNameSpace(nameSpaceName);
 }

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,20 +49,22 @@
 namespace ParserExceptions {
 #endif
 
-class PEGASUS_COMPILER_LINKAGE ParserException {
- private:
-  const String _msg;
- public:
-  ParserException(const char *msg) : _msg(msg) {} ;
-  ParserException(const String &msg) :  _msg(msg) {};
-  const String &getMessage() const { return _msg; };
+class PEGASUS_COMPILER_LINKAGE ParserException
+{
+    private:
+        const String _msg;
+    public:
+        ParserException(const char *msg) : _msg(msg) {} ;
+        ParserException(const String &msg) :  _msg(msg) {};
+        const String &getMessage() const { return _msg; };
 };
 
-class PEGASUS_COMPILER_LINKAGE ParserLexException : public ParserException  {
- public:
-  ParserLexException(const char *msg) : ParserException(msg) {};
-  ParserLexException(const String &msg) : ParserException(msg) {};
-  ~ParserLexException() {};
+class PEGASUS_COMPILER_LINKAGE ParserLexException : public ParserException
+{
+    public:
+        ParserLexException(const char *msg) : ParserException(msg) {};
+        ParserLexException(const String &msg) : ParserException(msg) {};
+        ~ParserLexException() {};
 };
 
 #ifdef PEGASUS_HAVE_NAMESPACES

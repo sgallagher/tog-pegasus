@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,33 +29,29 @@
 //
 //==============================================================================
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
-
 
 //
 //
 // implements class qualifierList
-// NOTE: This could be replaced as some point by the common function 
+// NOTE: This could be replaced as some point by the common function
 // CIMQualifier list but that would require modifications elsewhere.
 
 #include "qualifierList.h"
 
-qualifierList::~qualifierList() {
-  delete (_pv);
+qualifierList::~qualifierList()
+{
+    delete (_pv);
 }
 
-void
-qualifierList::init(int size) {
-  delete (_pv);
-  _pv = new qplist;
-  _pv->reserveCapacity(size ? size : _initsize);
+void qualifierList::init(int size)
+{
+    delete (_pv);
+    _pv = new qplist;
+    _pv->reserveCapacity(size ? size : _initsize);
 }
 
-void
-qualifierList::add(CIMQualifier *q) {
-  _pv->append(q);
+void qualifierList::add(CIMQualifier *q)
+{
+    _pv->append(q);
 }

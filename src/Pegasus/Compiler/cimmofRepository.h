@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,17 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Gerarda Marquez (gmarquez@us.ibm.com)
-//              -- PEP 43 changes
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-// 
+//
 // interface definition for the cimmofRepository class, a specialiazation
 // of the Pegasus CIMRepository class with error handling.
 //
@@ -58,37 +51,40 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_COMPILER_LINKAGE cimmofRepository  {
- public:
-  cimmofRepository(
-      const String& path,
-      Uint32 mode,
-      compilerCommonDefs::operationType ot);
-  virtual ~cimmofRepository();
+class PEGASUS_COMPILER_LINKAGE cimmofRepository
+{
+    public:
+        cimmofRepository(
+                const String& path,
+                Uint32 mode,
+                compilerCommonDefs::operationType ot);
+        virtual ~cimmofRepository();
 
-  // Add some methods for use at the compiler level
-  virtual int addClass(const CIMNamespaceName &nameSpace, CIMClass *classdecl);
-  virtual int addInstance(
-      const CIMNamespaceName &nameSpace, 
-      CIMInstance *instance);
-  virtual int addQualifier(
-      const CIMNamespaceName &nameSpace,
-      CIMQualifierDecl *qualifier);
+        // Add some methods for use at the compiler level
+        virtual int addClass(const CIMNamespaceName &nameSpace,
+                CIMClass *classdecl);
+        virtual int addInstance(
+                const CIMNamespaceName &nameSpace,
+                CIMInstance *instance);
+        virtual int addQualifier(
+                const CIMNamespaceName &nameSpace,
+                CIMQualifierDecl *qualifier);
 
-  virtual CIMQualifierDecl getQualifierDecl(
-      const CIMNamespaceName &nameSpace,
-       const CIMName &name);
-  virtual CIMClass getClass(
-      const CIMNamespaceName &nameSpace, 
-      const CIMName &classname);
+        virtual CIMQualifierDecl getQualifierDecl(
+                const CIMNamespaceName &nameSpace,
+                const CIMName &name);
+        virtual CIMClass getClass(
+                const CIMNamespaceName &nameSpace,
+                const CIMName &classname);
 
-  virtual int modifyClass(const CIMNamespaceName &nameSpace, CIMClass *classdecl);
+        virtual int modifyClass(const CIMNamespaceName &nameSpace,
+                CIMClass *classdecl);
 
-  virtual void createNameSpace(const CIMNamespaceName &nameSpaceName);
- private:
-  CIMRepository *_cimrepository;
-  compilerDeclContext *_context;
-  compilerCommonDefs::operationType _ot;
+        virtual void createNameSpace(const CIMNamespaceName &nameSpaceName);
+    private:
+        CIMRepository *_cimrepository;
+        compilerDeclContext *_context;
+        compilerCommonDefs::operationType _ot;
 };
 
 PEGASUS_NAMESPACE_END

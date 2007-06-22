@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,24 +28,16 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By: Seema Gupta (gseema@in.ibm.com)
-//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, Bug#3032
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-// A main for the cimmof_parser.  It can be embedded elsewhere, too. 
+// A main for the cimmof_parser.  It can be embedded elsewhere, too.
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <Pegasus/Compiler/mofCompilerOptions.h>
 #include "cmdlineExceptions.h"
-#include "cmdline.h" 
+#include "cmdline.h"
 #include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Compiler/parserExceptions.h>
 
@@ -59,160 +51,175 @@ using namespace ParserExceptions;
 // through include files
 static mofCompilerOptions cmdline;
 
-
 extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
-
 extern "C++" ostream& help(ostream& os, int progtype);
-
 extern "C++" ostream& cimmofl_warning(ostream& os);
 
 #define NAMESPACE_ROOT "root/cimv2"
 
-static const char MSG_PATH [] 				= "pegasus/pegasusServer";
+static const char MSG_PATH [] = "pegasus/pegasusServer";
 
-int
-main(int argc, char ** argv) {
-  int ret = 0;
-  String msg_;
-  MessageLoaderParms parms;
+int main(int argc, char ** argv)
+{
+    int ret = 0;
+    String msg_;
+    MessageLoaderParms parms;
+    // set message loading to use process locale
+    MessageLoader::_useProcessLocale = true;
+    MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
-  MessageLoader::_useProcessLocale = true; //l10n set message loading to use process locale
-  MessageLoader::setPegasusMsgHomeRelative(argv[0]);
+    try
+    {
+        ret = processCmdLine(argc, argv, cmdline, cerr);
+    }
+    catch (ArgumentErrorsException &e)
+    {
+        String msg(e.getMessage());
 
-  try {
-    ret = processCmdLine(argc, argv, cmdline, cerr);
-  } catch (ArgumentErrorsException &e) {
-   String msg(e.getMessage());
-
-
-   cerr << argv[0] << ": " << msg << endl;
-
- 
-
+        cerr << argv[0] << ": " << msg << endl;
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-         {
+        {
             MessageLoaderParms parms;
             parms.msg_id = "Compiler.cimmofMessages.ERR_OPTION_NOT_SUPPORTED";
-            parms.default_msg = "Invalid option. Use '--help' to obtain command syntax.";
+            parms.default_msg =
+                "Invalid option. Use '--help' to obtain command syntax.";
             parms.msg_src_path = MSG_PATH;
             cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
-         }
+        }
         else
-         {
+        {
             MessageLoaderParms parms;
             parms.msg_id = "Compiler.cimmofMessages.ERR_USAGE";
-            parms.default_msg = "Incorrect usage. Use '--help' to obtain command syntax.";
+            parms.default_msg =
+                "Incorrect usage. Use '--help' to obtain command syntax.";
             parms.msg_src_path = MSG_PATH;
             cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
-         }
-
-    ret =  PEGASUS_CIMMOF_CIM_EXCEPTION;
-  } catch (CmdlineNoRepository &e) {
-    cerr << e.getMessage() << endl;
-    ret = PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY;
-  } catch (CIMException &e) {
-  	//l10n
-    //cerr << "Unexpected condition: " << e.getMessage() << endl;
-    parms.msg_id = "Compiler.cmdline.cimmof.main.UNEXPECTED_CONDITION";
-    parms.default_msg = "Unexpected condition: ";
-    cerr << MessageLoader::getMessage(parms) << e.getMessage() << endl;
-    ret = PEGASUS_CIMMOF_UNEXPECTED_CONDITION;
-  }
-
-  if (ret) {
-    if (ret > 0) {
-    	//l10n
-      //cerr << "Unexpected result from processing command line: " << ret <<endl;
-      //cerr << "Compilation terminating." << endl;
-      parms.msg_id = "Compiler.cmdline.cimmof.main.UNEXPECTED_RESULT";
-      parms.default_msg = "Unexpected result from processing command line: $0";
-      parms.arg0 = ret;
-      cerr << MessageLoader::getMessage(parms) << endl;
-      parms.msg_id = "Compiler.cmdline.cimmof.main.COMPILE_TERMINATING";
-      parms.default_msg = "Compilation terminating.";
-      cerr << MessageLoader::getMessage(parms) << endl;
-    }
-
-    return ret;
-  }
-
-  if (cmdline.is_local() && !cmdline.get_no_usage_warning())
-  {
-        cimmofl_warning(cerr);
-  }
-
-  const Array<String>& filespecs = cmdline.get_filespec_list();
-
-  // For most options, a real repository is required.  If we can't
-  // create one and we need to, bail. 
-  cimmofParser *p = cimmofParser::Instance(); 
-  p->setCompilerOptions(&cmdline);
-  if ( p->setRepository() ) {	
-    p->setDefaultNamespacePath(NAMESPACE_ROOT);
-  } else {
-  	//l10n
-    //cerr << "Failed to set DefaultNamespacePath." << endl;
-    parms.msg_id = "Compiler.cmdline.cimmof.main.FAILED_TO_SET";
-    parms.default_msg = "Failed to set DefaultNamespacePath.";
-    cerr << MessageLoader::getMessage(parms) << endl;
-    // ATTN: P3 BB 2001 Did not set namespace.  We may need to log an error here.
-	ret = PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH;
-    return ret;
-  }
-  if (filespecs.size())    // user specified command line args
-    for (unsigned int i = 0; i < filespecs.size(); i++) {
-      if (p->setInputBufferFromName((const String &)filespecs[i]) == 0) {
-        try {
-          ret = p->parse();
-        } catch(ParserLexException &e) {
-          //l10n
-          parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
-          parms.default_msg = "Lexer error: ";
-          //msg_ = String("Lexer error: ").append(e.getMessage());
-          msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-          ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
-        } catch(Exception &e) {
-          //l10n
-          parms.msg_id = "Compiler.cmdline.cimmof.main.PARSING_ERROR";
-          parms.default_msg = "Parsing error: ";
-          //msg_ = String("Parsing error: ").append(e.getMessage());
-          msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-          ret = PEGASUS_CIMMOF_PARSING_ERROR;
         }
-      } else {
-        //l10n
-        // ATTN: l10n TODO - this path was not localized by the msg freeze for R2.3.  So, use an
-        // internal exception msg for now.  But, need to replace this with
-        // a new cimmof msg in release 2.4.
-        parms.msg_id = "Common.InternalException.CANNOT_OPEN_FILE";
-        parms.default_msg = "Can't open file $0";
-        parms.arg0 = filespecs[i];
-        //msg_ = String("Can't open file ").append(filespecs[i]);
-        msg_ = MessageLoader::getMessage(parms);
-        ret = PEGASUS_CIMMOF_BAD_FILENAME;
-      }
-    }
-  else {
-    try {
-    int ret =  p->parse();
-    } catch(ParserLexException &e) {
-    	//l10n
-    	parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
-        parms.default_msg = "Lexer error: ";
-	    //msg_ = String("Lexer error: ").append(e.getMessage());
-	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-        ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
-    } catch(Exception &e) {
-    	//l10n
-    	parms.msg_id = "Compiler.cmdline.cimmof.main.GENERAL_EXCEPTION";
-    	parms.default_msg = "Compiler general exception: ";
-	    //msg_ = String("Compiler general exception: ").append(e.getMessage());
-	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-        ret = PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION;
-    }
-  }
-  cerr << msg_ << endl;
 
-  return ret;
+        ret =  PEGASUS_CIMMOF_CIM_EXCEPTION;
+    }
+    catch (CmdlineNoRepository &e)
+    {
+        cerr << e.getMessage() << endl;
+        ret = PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY;
+    }
+    catch (CIMException &e)
+    {
+        parms.msg_id = "Compiler.cmdline.cimmof.main.UNEXPECTED_CONDITION";
+        parms.default_msg = "Unexpected condition: ";
+        cerr << MessageLoader::getMessage(parms) << e.getMessage() << endl;
+        ret = PEGASUS_CIMMOF_UNEXPECTED_CONDITION;
+    }
+
+    if (ret)
+    {
+        if (ret > 0)
+        {
+            parms.msg_id = "Compiler.cmdline.cimmof.main.UNEXPECTED_RESULT";
+            parms.default_msg =
+                "Unexpected result from processing command line: $0";
+            parms.arg0 = ret;
+            cerr << MessageLoader::getMessage(parms) << endl;
+            parms.msg_id = "Compiler.cmdline.cimmof.main.COMPILE_TERMINATING";
+            parms.default_msg = "Compilation terminating.";
+            cerr << MessageLoader::getMessage(parms) << endl;
+        }
+
+        return ret;
+    }
+
+    if (cmdline.is_local() && !cmdline.get_no_usage_warning())
+    {
+        cimmofl_warning(cerr);
+    }
+
+    const Array<String>& filespecs = cmdline.get_filespec_list();
+
+    // For most options, a real repository is required.  If we can't
+    // create one and we need to, bail.
+    cimmofParser *p = cimmofParser::Instance();
+    p->setCompilerOptions(&cmdline);
+    if ( p->setRepository() )
+    {
+        p->setDefaultNamespacePath(NAMESPACE_ROOT);
+    }
+    else
+    {
+        parms.msg_id = "Compiler.cmdline.cimmof.main.FAILED_TO_SET";
+        parms.default_msg = "Failed to set DefaultNamespacePath.";
+        cerr << MessageLoader::getMessage(parms) << endl;
+        // ATTN: P3 BB 2001 Did not set namespace.
+        // We may need to log an error here.
+        ret = PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH;
+        return ret;
+    }
+    if (filespecs.size())    // user specified command line args
+    {
+        for (unsigned int i = 0; i < filespecs.size(); i++)
+        {
+            if (p->setInputBufferFromName((const String &)filespecs[i]) == 0)
+            {
+                try
+                {
+                    ret = p->parse();
+                } catch(ParserLexException &e)
+                {
+                    parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
+                    parms.default_msg = "Lexer error: ";
+                    msg_ = MessageLoader::getMessage(parms).append(
+                            e.getMessage());
+                    ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
+                }
+                catch(Exception &e)
+                {
+                    parms.msg_id = "Compiler.cmdline.cimmof.main.PARSING_ERROR";
+                    parms.default_msg = "Parsing error: ";
+                    //msg_ = String("Parsing error: ").append(e.getMessage());
+                    msg_ = MessageLoader::getMessage(parms).append(
+                            e.getMessage());
+                    ret = PEGASUS_CIMMOF_PARSING_ERROR;
+                }
+            }
+            else
+            {
+                //l10n
+                // ATTN: l10n TODO - this path was not localized by the msg
+                // freeze for R2.3.  So, use an
+                // internal exception msg for now.
+                // But, need to replace this with
+                // a new cimmof msg in release 2.4.
+                parms.msg_id = "Common.InternalException.CANNOT_OPEN_FILE";
+                parms.default_msg = "Can't open file $0";
+                parms.arg0 = filespecs[i];
+                //msg_ = String("Can't open file ").append(filespecs[i]);
+                msg_ = MessageLoader::getMessage(parms);
+                ret = PEGASUS_CIMMOF_BAD_FILENAME;
+            }
+        }
+    }
+    else
+    {
+        try
+        {
+            int ret =  p->parse();
+        }
+        catch(ParserLexException &e)
+        {
+            parms.msg_id = "Compiler.cmdline.cimmof.main.LEXER_ERROR";
+            parms.default_msg = "Lexer error: ";
+            msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
+            ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
+        }
+        catch(Exception &e)
+        {
+            parms.msg_id = "Compiler.cmdline.cimmof.main.GENERAL_EXCEPTION";
+            parms.default_msg = "Compiler general exception: ";
+            msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
+            ret = PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION;
+        }
+    }
+    cerr << msg_ << endl;
+
+    return ret;
 }

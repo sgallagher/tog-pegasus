@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,16 +29,7 @@
 //
 //==============================================================================
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By:  Gerarda Marquez (gmarquez@us.ibm.com)
-//               -- PEP 43 changes
-//               Seema Gupta (gseema@in.ibm.com)
-//               Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//               
-//
 //%/////////////////////////////////////////////////////////////////////////////
-
 
 //
 // Constants for use by cmdline.cpp
@@ -50,32 +41,33 @@
 #include <Pegasus/Common/String.h>
 
 enum opttypes {FILESPEC,
-	       HELPFLAG, 
-	       INCLUDEPATH,
-	       SUPPRESSFLAG,
-	       NAMESPACE,
-	       REPOSITORYDIR,
+           HELPFLAG,
+           INCLUDEPATH,
+           SUPPRESSFLAG,
+           NAMESPACE,
+           REPOSITORYDIR,
 
-	       UPDATEFLAG,
-	       ALLOWFLAG,
+           UPDATEFLAG,
+           ALLOWFLAG,
 #ifndef PEGASUS_OS_HPUX
-	       SYNTAXFLAG,
-//PEP167     FILELIST, 
-	       TRACEFLAG,
-	       XMLFLAG,
+           SYNTAXFLAG,
+//PEP167     FILELIST,
+           TRACEFLAG,
+           XMLFLAG,
 #endif
-	       VERSIONFLAG,
-             OPTEND_CIMMOF,    //PEP167
-	       REPOSITORYNAME,
-	       REPOSITORYMODE,
-	       NO_USAGE_WARNING,
-             OPTEND_CIMMOFL};  //PEP167
+           VERSIONFLAG,
+           OPTEND_CIMMOF,    //PEP167
+           REPOSITORYNAME,
+           REPOSITORYMODE,
+           NO_USAGE_WARNING,
+           OPTEND_CIMMOFL};  //PEP167
 
-struct optspec {
-  char *flag;
-  opttypes catagory;
-  int islong;
-  int needsvalue;
+struct optspec
+{
+    char *flag;
+    opttypes catagory;
+    int islong;
+    int needsvalue;
 };
 
 // Wrap this around the PEGASUS_HOME define for OS/400

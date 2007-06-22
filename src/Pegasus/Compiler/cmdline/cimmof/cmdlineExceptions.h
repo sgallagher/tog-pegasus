@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,20 +44,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ArgumentErrorsException : public Exception {
- public:
-  static const String MSG;
-  ArgumentErrorsException(const String &msg) : Exception(msg) {};
-  //l10n
-  ArgumentErrorsException(MessageLoaderParms &parms) : Exception(parms) {};
+class ArgumentErrorsException : public Exception
+{
+    public:
+        static const String MSG;
+        ArgumentErrorsException(const String &msg) : Exception(msg) {};
+        ArgumentErrorsException(MessageLoaderParms &parms)
+            : Exception(parms) {};
 };
 
-class CmdlineNoRepository : public Exception {
- public:
-  static const String MSG;
-  CmdlineNoRepository(const String &msg) : Exception(msg) {};
-  //l10n
-  CmdlineNoRepository(MessageLoaderParms &parms) : Exception(parms) {};
+class CmdlineNoRepository : public Exception
+{
+    public:
+        static const String MSG;
+        CmdlineNoRepository(const String &msg) : Exception(msg) {};
+        CmdlineNoRepository(MessageLoaderParms &parms) : Exception(parms) {};
 };
 
 PEGASUS_NAMESPACE_END

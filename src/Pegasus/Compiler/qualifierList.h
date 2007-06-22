@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,16 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 //
 // class to encapsulate a qualifier list construct in the MOF grammer
-// Since qualifier lists can appear before a lot of different metaelements, 
+// Since qualifier lists can appear before a lot of different metaelements,
 // we have to collect them before we know where they go; then apply
 // them to the metaelement one at a time.
 // NOTE: KS. Sept 2003. Most of this could be replaced by CIMQualifierList.
@@ -57,28 +54,29 @@ PEGASUS_USING_STD;
 
 typedef Array<CIMQualifier *> qplist;
 
-/**	Class to create and add to a qualifierList
+/** Class to create and add to a qualifierList
 */
-class PEGASUS_COMPILER_LINKAGE qualifierList {
- public:
-  qplist *_pv;
-  unsigned int _initsize;
- public:
-	 /** constructor - creates instance of list with size
-	     @param - optional parameter to set size
-	 */
-	 qualifierList(unsigned int vsize = 10) : _pv(0), _initsize(vsize) 
-	{init(vsize);}
-	
-	~qualifierList();
-	/** init function sets list size
-	    @param size to set. Default is zero
-	*/
-	void init(int size = 0);
-	/** add a qualifier to the list
-		@param - pointer to CIMQualifer object to add to list.
-	*/
-	void add(CIMQualifier *q);
+class PEGASUS_COMPILER_LINKAGE qualifierList
+{
+    public:
+        qplist *_pv;
+        unsigned int _initsize;
+    public:
+        /** constructor - creates instance of list with size
+          @param - optional parameter to set size
+         */
+        qualifierList(unsigned int vsize = 10) : _pv(0), _initsize(vsize)
+            {init(vsize);}
+
+        ~qualifierList();
+        /** init function sets list size
+          @param size to set. Default is zero
+         */
+        void init(int size = 0);
+        /** add a qualifier to the list
+          @param - pointer to CIMQualifer object to add to list.
+         */
+        void add(CIMQualifier *q);
 };
 
 /** applyQualifierList applies the qualifier list in the
@@ -88,25 +86,27 @@ class PEGASUS_COMPILER_LINKAGE qualifierList {
     @param - pointer to qualifierList object that containes
     the qualifier list to be applied
     @param - pointer to object to which it is to be applied.
-  	This is a template.
+    This is a template.
     The efficacy of this template depends on each metaelement
     (class, instance, method, etc., supporting an addQualifier()
     method.
 */
-template <class T> 
+template <class T>
 void applyQualifierList(qualifierList* that, T *c)
 {
-  if (that->_pv) {
-    for (Uint32 i = 0;
-         i < that->_pv->size();  // && (*that->_pv)[i] ?
-         i++) {
-      CIMQualifier** qpp = &((*that->_pv)[i]);
-      c->addQualifier( **qpp );
-      delete *qpp;
-      *qpp = 0;
+    if (that->_pv)
+    {
+        for (Uint32 i = 0;
+                i < that->_pv->size();  // && (*that->_pv)[i] ?
+                i++)
+        {
+            CIMQualifier** qpp = &((*that->_pv)[i]);
+            c->addQualifier( **qpp );
+            delete *qpp;
+            *qpp = 0;
+        }
+        that->init(that->_initsize);
     }
-    that->init(that->_initsize);
-  }
 }
 
 #endif

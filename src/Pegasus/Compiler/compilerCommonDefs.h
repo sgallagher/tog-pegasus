@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,22 +29,19 @@
 //
 //==============================================================================
 //
-// Author: Bob Blair (bblair@bmc.com)
-//
-// Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////  
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusCompiler_Compiler_Common_Defs_h
 #define PegasusCompiler_Compiler_Common_Defs_h
 
 #include <Pegasus/Compiler/Linkage.h>
 
-class PEGASUS_COMPILER_LINKAGE compilerCommonDefs {
- public: 
-  enum operationType {IGNORE_REPOSITORY,
-		      DO_NOT_ADD_TO_REPOSITORY,
-		      USE_REPOSITORY};
+class PEGASUS_COMPILER_LINKAGE compilerCommonDefs
+{
+    public:
+        enum operationType {IGNORE_REPOSITORY,
+            DO_NOT_ADD_TO_REPOSITORY,
+            USE_REPOSITORY};
 
 };
 

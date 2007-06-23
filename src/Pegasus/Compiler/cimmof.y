@@ -1126,8 +1126,7 @@ realDataType: TOK_DT_REAL32
 qualifierList: qualifierListBegin qualifiers TOK_RIGHTSQUAREBRACKET
     | /* empty */ 
         {
-            //yydebug = 1;
-            stderr = stdout;
+            //yydebug = 1; stderr = stdout;
         };
 
 qualifierListBegin: TOK_LEFTSQUAREBRACKET {

@@ -768,9 +768,9 @@ static const yytype_uint16 yyrline[] =
     1039,  1040,  1042,  1043,  1044,  1045,  1046,  1050,  1053,  1059,
     1063,  1064,  1078,  1080,  1081,  1082,  1083,  1086,  1088,  1091,
     1092,  1096,  1097,  1098,  1099,  1100,  1103,  1104,  1105,  1106,
-    1107,  1108,  1109,  1110,  1111,  1114,  1116,  1126,  1128,  1133,
-    1138,  1140,  1143,  1157,  1159,  1165,  1171,  1177,  1183,  1190,
-    1193
+    1107,  1108,  1109,  1110,  1111,  1114,  1116,  1126,  1128,  1132,
+    1137,  1139,  1142,  1156,  1158,  1164,  1170,  1176,  1182,  1189,
+    1192
 };
 #endif
 
@@ -2832,13 +2832,12 @@ yyreduce:
   case 148:
 #line 1128 "cimmof.y"
     {
-            //yydebug = 1;
-            stderr = stdout;
+            //yydebug = 1; stderr = stdout;
         ;}
     break;
 
   case 149:
-#line 1133 "cimmof.y"
+#line 1132 "cimmof.y"
     {
     //yydebug = 1; stderr = stdout;
     YACCTRACE("qualifierListbegin");
@@ -2846,17 +2845,17 @@ yyreduce:
     break;
 
   case 150:
-#line 1139 "cimmof.y"
+#line 1138 "cimmof.y"
     { ;}
     break;
 
   case 151:
-#line 1141 "cimmof.y"
+#line 1140 "cimmof.y"
     { ;}
     break;
 
   case 152:
-#line 1144 "cimmof.y"
+#line 1143 "cimmof.y"
     {
     cimmofParser *p = cimmofParser::Instance();
     // The qualifier value can't be set until we know the contents of the
@@ -2872,20 +2871,20 @@ yyreduce:
     break;
 
   case 153:
-#line 1157 "cimmof.y"
+#line 1156 "cimmof.y"
     {
         g_flavor = CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 154:
-#line 1159 "cimmof.y"
+#line 1158 "cimmof.y"
     {
         (yyval.strval) = new String((*(yyvsp[(1) - (1)].scope)).toString ());
         g_flavor = CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 155:
-#line 1166 "cimmof.y"
+#line 1165 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(2) - (3)].strval);
@@ -2894,7 +2893,7 @@ yyreduce:
     break;
 
   case 156:
-#line 1172 "cimmof.y"
+#line 1171 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2903,7 +2902,7 @@ yyreduce:
     break;
 
   case 157:
-#line 1178 "cimmof.y"
+#line 1177 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2912,7 +2911,7 @@ yyreduce:
     break;
 
   case 158:
-#line 1183 "cimmof.y"
+#line 1182 "cimmof.y"
     {   /* empty */
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2921,18 +2920,18 @@ yyreduce:
     break;
 
   case 159:
-#line 1190 "cimmof.y"
+#line 1189 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 160:
-#line 1193 "cimmof.y"
+#line 1192 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2936 "cimmoftemp"
+#line 2935 "cimmoftemp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3146,7 +3145,7 @@ yyreturn:
 }
 
 
-#line 1195 "cimmof.y"
+#line 1194 "cimmof.y"
 
 
 /*

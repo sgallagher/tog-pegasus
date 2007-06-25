@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -128,11 +130,22 @@ static const char LONG_HELP [] = "help";
 
 static const char LONG_VERSION [] = "version";
 
-static const char ERR_USAGE [] =
-    "Use '--help' to obtain command syntax.";
+static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
 
-static const char ERR_USAGE_KEY [] =
-    "Clients.cimuser.CIMUserCommand.ERR_USAGE";
+static const char REQUIRED_ARGS_MISSING_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
+static const char ERR_OPTION_NOT_SUPPORTED [] =
+    "Invalid option. Use '--help' to obtain command syntax.";
+
+static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = 
+    "Clients.cimuser.CIMUserCommand..ERR_OPTION_NOT_SUPPORTED";
+
+static const char ERR_USAGE [] =
+    "Incorrect usage. Use '--help' to obtain command syntax.";
+
+static const char ERR_USAGE_KEY [] = 
+    "Clients.cimuser.CIMUserCommand..ERR_USAGE";
 
 /**
     This constant signifies that an operation option has not been recorded
@@ -201,10 +214,8 @@ OSInfoCommand::OSInfoCommand ()
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
 #ifndef DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
-#ifdef PEGASUS_HAS_SSL
     usage.append (_OPTION_SSL);
     usage.append (" ] [ -");
-#endif
     usage.append (_OPTION_HOSTNAME);
     usage.append (" hostname ] [ -");
     usage.append (_OPTION_PORTNUMBER);
@@ -229,10 +240,8 @@ OSInfoCommand::OSInfoCommand ()
     usage.append("    --help     - Display this help message\n");
     usage.append("    -p         - Connect to CIM Server on specified"
                                     " portnumber\n");
-#ifdef PEGASUS_HAS_SSL
     usage.append("    -s         - Use SSL protocol between 'osinfo' client"
                                     " and the CIM Server\n");
-#endif
     usage.append("    -t         - Specify response timeout value in"
                                     " milliseconds\n");
     usage.append("    -u         - Connect to CIM Server using the specified"
@@ -298,7 +307,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet)
+    if ((!_hostNameSet) && (!_portNumberSet) 
             && (!_userNameSet) && (!_passwordSet))
     {
         connectToLocal = true;
@@ -313,12 +322,8 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
         {
            if( _useSSL )
            {
-#ifdef PEGASUS_HAS_SSL
                _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
-#else
-               PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-#endif
            }
            else
            {
@@ -350,7 +355,6 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
         }
         if( _useSSL )
         {
-#ifdef PEGASUS_HAS_SSL
            //
            // Get environment variables:
            //
@@ -360,16 +364,12 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
               pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
            String randFile;
-#ifdef PEGASUS_SSL_RANDOMFILE
+
            randFile = FileSystem::getAbsolutePath(
                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-#endif
            SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
            client.connect(host, portNumber, sslcontext,  _userName, _password );
-#else
-           PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-#endif
         }
         else
         {
@@ -409,9 +409,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_PORTNUMBER);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
-#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
@@ -435,7 +433,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        throw CommandFormatException(getOpts.getErrorStrings()[0]);
+        CommandFormatException e (getOpts.getErrorStrings () [0]);
+        throw e;
     }
 
     //
@@ -453,7 +452,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     //
                     // More than one operation option was found
                     //
-                    throw UnexpectedOptionException(param);
+                    UnexpectedOptionException e (param);
+                    throw e;
                 }
 
                _operationType = OPERATION_TYPE_HELP;
@@ -462,10 +462,12 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                 {
+                    String param = String (LONG_VERSION);
                     //
                     // More than one operation option was found
                     //
-                    throw UnexpectedOptionException(String(LONG_VERSION));
+                    UnexpectedOptionException e (param);
+                    throw e;
                 }
 
                _operationType = OPERATION_TYPE_VERSION;
@@ -473,7 +475,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
         }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
-            throw UnexpectedArgumentException(getOpts[i].Value());
+            UnexpectedArgumentException e (
+                         getOpts [i].Value ());
+            throw e;
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -487,11 +491,12 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one hostname option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HOSTNAME);
+                        DuplicateOptionException e (_OPTION_HOSTNAME);
+                        throw e;
                     }
                     _hostName = getOpts [i].Value ();
-                    HostAddress addr;
-                    if (!addr.setHostAddress(_hostName))
+                    HostAddress addr(_hostName);
+                    if (!addr.isValid())
                     {
                         throw InvalidLocatorException (_hostName);
                     }
@@ -506,7 +511,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one portNumber option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
+                        DuplicateOptionException e (_OPTION_PORTNUMBER);
+                        throw e;
                     }
 
                     _portNumberStr = getOpts [i].Value ();
@@ -517,9 +523,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            _portNumberStr,
+                        InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
+                        throw e;
                     }
                     _portNumberSet = true;
                     break;
@@ -552,7 +558,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one timeout option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TIMEOUT);
+                        DuplicateOptionException e (_OPTION_TIMEOUT);
+                        throw e;
                     }
 
                     timeoutStr = getOpts [i].Value ();
@@ -563,9 +570,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        throw InvalidOptionArgumentException(
-                            timeoutStr,
+                        InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
+                        throw e;
                     }
                     break;
                 }
@@ -577,7 +584,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one username option was found
                         //
-                        throw DuplicateOptionException(_OPTION_USERNAME);
+                        DuplicateOptionException e (_OPTION_USERNAME);
+                        throw e;
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
@@ -591,7 +599,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one password option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PASSWORD);
+                        DuplicateOptionException e (_OPTION_PASSWORD);
+                        throw e;
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
@@ -617,10 +626,12 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified
         // Show the usage
         //
-        throw CommandFormatException(localizeMessage(
-            MSG_PATH,
-            REQUIRED_ARGS_MISSING_KEY,
-            REQUIRED_ARGS_MISSING));
+        //l10n
+        //CommandFormatException e (REQUIRED_ARGS_MISSING);
+        CommandFormatException e (localizeMessage(MSG_PATH,
+                                                  REQUIRED_ARGS_MISSING_KEY,
+                                                  REQUIRED_ARGS_MISSING));
+        throw e;
     }*/
     if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)
     {
@@ -637,9 +648,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Portnumber out of valid range
             //
-            throw InvalidOptionArgumentException(
-                _portNumberStr,
+            InvalidOptionArgumentException e (_portNumberStr,
                 _OPTION_PORTNUMBER);
+            throw e;
         }
     }
 
@@ -653,12 +664,14 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
     }
     else
     {
-        if (_timeout == 0)
+        if (_timeout <= 0)
         {
             //
             //  Timeout out of valid range
             //
-            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
+            InvalidOptionArgumentException e (timeoutStr,
+                _OPTION_TIMEOUT);
+            throw e;
         }
     }
 }
@@ -692,10 +705,10 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
    int minute = 0;
    int second = 0;
    int microsecond = 0;
-   int timeZone = 0;
+   int timezone = 0;
    sscanf(cimString, "%04d%02d%02d%02d%02d%02d.%06d%04d",
           &year, &month, &day, &hour, &minute, &second,
-          &microsecond, &timeZone);
+          &microsecond, &timezone);
    char monthString[5];
    switch (month)
    {
@@ -716,9 +729,11 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
       default : { strcpy(dateTime, cimString); return; }
    }
 
-   sprintf(dateTime, "%s %d, %d  %d:%02d:%02d (%+03d%02d)",
+   sprintf(dateTime, "%s %d, %d  %d:%02d:%02d (%03d%02d)",
            monthString, day, year, hour, minute, second,
-           timeZone/60, timeZone%60);
+           timezone/60, timezone%60);
+
+   return;
 }
 
 
@@ -751,7 +766,7 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          Uint32 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
          char tmpString[80];
-         sprintf(tmpString, "%u processes", propertyValue);
+         sprintf(tmpString, "%d processes", propertyValue);
          osNumberOfProcesses.assign(tmpString);
       }  // end if NumberOfProcesses
 
@@ -760,7 +775,7 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          Uint32 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
          char tmpString[80];
-         sprintf(tmpString, "%u users", propertyValue);
+         sprintf(tmpString, "%d users", propertyValue);
          osNumberOfUsers.assign(tmpString);
       }  // end if NumberOfUsers
 
@@ -797,7 +812,7 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          else  // standard number of users
          {
             char users[80];
-            sprintf(users, "%u users", propertyValue);
+            sprintf(users, "%d users", propertyValue);
             osLicensedUsers.assign(users);
          }
       }   // end if NumberOfLicensedUsers
@@ -866,26 +881,18 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
             char minuteString[20];
             char secondString[20];
 
-            if(!days)
-            {
-                sprintf(dayString," " );
-            }
-            else
-            {
-                sprintf(dayString, (days == 1 ? 
-                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u day," :
-                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u days," ), days);
-
-            }
+            sprintf(dayString,
+                (days == 0 ? "" : (days == 1 ? "1 day," :
+                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u days,")), days);
 
             // for other values, want to display the 0s
-            sprintf(hourString, (hours == 1 ? "%u hr," : "%u hrs,"), hours);
+            sprintf(hourString, (hours == 1 ? "1 hr," : "%u hrs,"), hours);
 
             sprintf(minuteString,
-                (minutes == 1 ? "%u min," : "%u mins,"), minutes);
+                (minutes == 1 ? "1 min," : "%u mins,"), minutes);
 
             sprintf(secondString,
-                (seconds == 1 ? "%u sec" : "%u secs"), seconds);
+                (seconds == 1 ? "1 sec" : "%u secs"), seconds);
 
             sprintf(uptime,
                 "%" PEGASUS_64BIT_CONVERSION_WIDTH "u seconds = %s %s %s %s",
@@ -947,7 +954,7 @@ void OSInfoCommand::displayProperties(ostream& outPrintWriter)
       outPrintWriter << "  Number of Users: Unknown" << endl;
 
    if (osNumberOfProcesses != String::EMPTY)
-      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses
+      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses 
                      << endl;
    else
       outPrintWriter << "  Number of Processes: Unknown" << endl;
@@ -1097,12 +1104,25 @@ int main (int argc, char* argv [])
     }
     catch (const CommandFormatException& cfe)
     {
-        cerr << OSInfoCommand::COMMAND_NAME << ": " << cfe.getMessage() << endl;
+        String msg(cfe.getMessage());
 
-        MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
-        parms.msg_src_path = MSG_PATH;
-        cerr << OSInfoCommand::COMMAND_NAME <<
-            ": " << MessageLoader::getMessage(parms) << endl;
+        cerr << OSInfoCommand::COMMAND_NAME << ": " << msg <<  endl;
+
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+         {
+           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
+                                    ERR_OPTION_NOT_SUPPORTED);
+              parms.msg_src_path = MSG_PATH;
+           cerr << OSInfoCommand::COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
+        else
+         {
+           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+              parms.msg_src_path = MSG_PATH;
+           cerr << OSInfoCommand::COMMAND_NAME <<
+             ": " << MessageLoader::getMessage(parms) << endl;
+         }
 
         exit (Command::RC_ERROR);
     }

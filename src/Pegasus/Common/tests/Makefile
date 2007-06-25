@@ -102,6 +102,7 @@ DIRS = \
     AsyncQueue \
     IDFactory \
     SharedPtr \
+    HostAddress \
     HostLocator
     
 

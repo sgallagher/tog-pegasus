@@ -79,7 +79,7 @@ extern "C" {
       CMPI_Object* obj=new CMPI_Object(cArg);
       obj->unlink();
       CMPIArgs* neArg=reinterpret_cast<CMPIArgs*>(obj);
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return neArg;
    }
 
@@ -144,7 +144,7 @@ extern "C" {
          *name=(CMPIString*)string2CMPIString(n);
       }
 
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return data;
    }
 

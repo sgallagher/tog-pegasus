@@ -77,7 +77,7 @@ PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr)
       }
       CMPI_Object* obj=new CMPI_Object(str);
       obj->unlink();
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return reinterpret_cast<CMPIString*>(obj);
    }
 

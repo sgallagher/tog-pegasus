@@ -185,7 +185,7 @@ extern "C" {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return false;
         }
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
          CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
          if (ie->cursor<ie->max) return true;

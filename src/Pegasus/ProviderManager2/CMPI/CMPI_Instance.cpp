@@ -83,10 +83,10 @@ extern "C" {
             AutoPtr<CMPI_Object> obj(new CMPI_Object(cInst.get()));
             cInst.release();
             obj->unlink();
-            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            CMSetStatus(rc,CMPI_RC_OK);
             return reinterpret_cast<CMPIInstance *>(obj.release());
       } catch(const PEGASUS_STD(bad_alloc)&) {
-          if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+          CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
           return NULL;
       }
    }
@@ -119,7 +119,7 @@ extern "C" {
          *name=(CMPIString*)string2CMPIString(str);
       }
 
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return data;
    }
 
@@ -143,7 +143,7 @@ extern "C" {
       Uint32 pos=inst->findProperty(String(name));
 
       if (pos!=PEG_NOT_FOUND) {
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
          return instGetPropertyAt(eInst,pos,NULL,rc);
       }
       CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
@@ -160,7 +160,7 @@ extern "C" {
           CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
           return 0;
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return inst->getPropertyCount();
    }
 
@@ -303,10 +303,10 @@ extern "C" {
               objPath.reset(new CIMObjectPath(clsRef));
             obj.reset(new CMPI_Object(objPath.get()));
             objPath.release();
-            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            CMSetStatus(rc,CMPI_RC_OK);
             return reinterpret_cast<CMPIObjectPath*> (obj.release()); 
       } catch(const PEGASUS_STD(bad_alloc)&) {
-          if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+          CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
           return NULL;
       }
    }

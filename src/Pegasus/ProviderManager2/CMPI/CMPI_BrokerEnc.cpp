@@ -153,7 +153,7 @@ static String typeToString(CIMType t) {
 static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
 
    CMPIType type=va_arg(*argptr,int);
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   CMSetStatus(rc,CMPI_RC_OK);
 
    if (*err) return Formatter::Arg("*failed*");
 
@@ -222,12 +222,12 @@ extern "C" {
    static CMPIInstance* mbEncNewInstance(const CMPIBroker* mb, const CMPIObjectPath* eCop,
                                        CMPIStatus *rc) {
       if (!eCop) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+		CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return NULL;
 	  }
       CIMObjectPath* cop=(CIMObjectPath*)eCop->hdl;
 	  if (!cop) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+		CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return NULL;
 	  }
 
@@ -246,13 +246,13 @@ extern "C" {
          ci = new CIMInstance(newInst);
       }
       else {
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+         CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
          return NULL;
       }
 
       ci->setPath(*cop);
       CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
    //   CMPIString *str=mbEncToString(mb,neInst,NULL);
       return neInst;
    }
@@ -272,17 +272,17 @@ extern "C" {
 				nameSpace=NameSpaceName("");
       CIMObjectPath *cop=new CIMObjectPath(host,nameSpace,className,keyBindings);
       CMPIObjectPath *nePath=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(cop));
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return nePath;
    }
 
    static CMPIArgs* mbEncNewArgs(const CMPIBroker* mb, CMPIStatus *rc) {
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return reinterpret_cast<CMPIArgs*>(new CMPI_Object(new Array<CIMParamValue>()));
    }
 
    static CMPIString* mbEncNewString(const CMPIBroker* mb, const char *cStr, CMPIStatus *rc) {
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
 	  if (cStr == NULL)
       	return reinterpret_cast<CMPIString*>(new CMPI_Object((char*)NULL));
       return reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
@@ -294,7 +294,7 @@ extern "C" {
 
    CMPIArray* mbEncNewArray(const CMPIBroker* mb, CMPICount count, CMPIType type,
                                  CMPIStatus *rc) {
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       CMPIData *dta=new CMPIData[count+1];
       dta->type=type;
       dta->value.uint32=count;
@@ -310,7 +310,7 @@ extern "C" {
 
    static CMPIDateTime* mbEncNewDateTime(const CMPIBroker* mb, CMPIStatus *rc) {
    // cout<<"--- mbEncNewDateTime()"<<endl;
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return newDateTime();
    }
 
@@ -319,7 +319,7 @@ extern "C" {
    static CMPIDateTime* mbEncNewDateTimeFromBinary(const CMPIBroker* mb, CMPIUint64 time,
          CMPIBoolean interval ,CMPIStatus *rc) {
    // cout<<"--- mbEncNewDateTimeFromBinary()"<<endl;
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return newDateTimeBin(time,interval);
    }
 
@@ -328,10 +328,10 @@ extern "C" {
    static CMPIDateTime* mbEncNewDateTimeFromString(const CMPIBroker* mb, const char *t ,CMPIStatus *rc) {
    //   cout<<"--- mbEncNewDateTimeFromString()"<<endl;
 	  CMPIDateTime *date = NULL;
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       date=newDateTimeChar(t);
 	  if (!date)
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+		CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	  return date;
    }
 
@@ -351,7 +351,7 @@ extern "C" {
       }
       cmpiError = newCMPIError(owner, msgID, msg, sev, pc, cimStatusCode);
 	  if (!cmpiError)
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+		CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
       return cmpiError;
   }
 #endif
@@ -362,13 +362,13 @@ extern "C" {
       char msg[128];
       if (obj==NULL) {
          sprintf(msg,"** Null object ptr (%p) **",o);
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+         CMSetStatus(rc,CMPI_RC_ERR_FAILED);
          return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
       }
 
       if (obj->getHdl()==NULL) {
          sprintf(msg,"** Null object hdl (%p) **",o);
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+         CMSetStatus(rc,CMPI_RC_ERR_FAILED);
          return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
       }
 
@@ -403,7 +403,7 @@ extern "C" {
 			  }
       else {
          sprintf(msg,"** Object not recognized (%p) **",o);
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+         CMSetStatus(rc,CMPI_RC_ERR_FAILED);
          return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
       }
 
@@ -414,12 +414,12 @@ extern "C" {
    static CMPIBoolean mbEncClassPathIsA(const CMPIBroker *mb, const CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {
 
 	  if ((eCp==NULL) || (type==NULL)) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+		CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return false;
 	  }
       if (CIMName::legal(type) == false)
 		{
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_CLASS);
+      CMSetStatus(rc,CMPI_RC_ERR_INVALID_CLASS);
 	   return 0;
 		}
       CIMObjectPath* cop=(CIMObjectPath*)eCp->hdl;
@@ -453,7 +453,7 @@ extern "C" {
          return 0;
       }
 
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
 
       Ftab = obj->getFtab();
 
@@ -518,7 +518,7 @@ extern "C" {
          return 0;
       }
 
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
 	  Ftab = obj->getFtab();
 
       if ((Ftab==(void*)CMPI_Instance_Ftab) || (Ftab==(void*)CMPI_InstanceOnStack_Ftab))
@@ -1001,13 +1001,13 @@ extern "C" {
    static CMPIArray * mbEncGetKeyList(CMPIBroker *mb, CMPIContext *ctx,
                   CMPIObjectPath *cop, CMPIStatus *rc) {
 	  if ((cop==NULL) || (ctx==NULL)) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+		CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return NULL;
 	  }
       CIMObjectPath *op=(CIMObjectPath*)cop->hdl;
 
 	  if (!op) {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+		CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return NULL;
 	  }
       CIMClass *cls=mbGetClass(mb,*op);
@@ -1025,7 +1025,7 @@ extern "C" {
          CMPIString *str=string2CMPIString(s);
          ar->ft->setElementAt(ar,i,(CMPIValue*)&str,CMPI_string);
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return ar;
    }
 

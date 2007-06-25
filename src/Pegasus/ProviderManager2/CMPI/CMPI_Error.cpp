@@ -63,14 +63,14 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
         CIMError* cErr=new CIMError(*cer);
         CMPI_Object* obj=new CMPI_Object(cErr);
         obj->unlink();
         CMPIError* neErr=reinterpret_cast<CMPIError*>(obj);
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return neErr;
     }
 
@@ -90,7 +90,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return UnknownErrorType;
         }
 
@@ -102,17 +102,17 @@ extern "C"
             notNull = cer->getErrorType(pgErrorType);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return UnknownErrorType;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return UnknownErrorType;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return (CMPIErrorType)pgErrorType;
     }
 
@@ -121,7 +121,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -133,17 +133,17 @@ extern "C"
             notNull = cer->getOtherErrorType(pgOtherErrorType);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgOtherErrorType);
     }
 
@@ -152,7 +152,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -164,17 +164,17 @@ extern "C"
             notNull = cer->getOwningEntity(pgOwningEntity);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgOwningEntity);
     }
 
@@ -183,7 +183,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -195,17 +195,17 @@ extern "C"
             notNull = cer->getMessageID(pgMessageID);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgMessageID);
     }
 
@@ -214,7 +214,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -226,17 +226,17 @@ extern "C"
             notNull = cer->getMessage(pgMessage);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgMessage);
     }
 
@@ -245,7 +245,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return ErrorSevUnknown;
         }
 
@@ -257,17 +257,17 @@ extern "C"
             notNull = cer->getPerceivedSeverity(pgPerceivedSeverity);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return ErrorSevUnknown;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return ErrorSevUnknown;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return (CMPIErrorSeverity)pgPerceivedSeverity;
     }
 
@@ -277,7 +277,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return ErrorProbCauseUnknown;
         }
 
@@ -289,17 +289,17 @@ extern "C"
             notNull = cer->getProbableCause(pgProbableCause);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return ErrorProbCauseUnknown;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return ErrorProbCauseUnknown;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return (CMPIErrorProbableCause)pgProbableCause;
     }
 
@@ -309,7 +309,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -321,17 +321,17 @@ extern "C"
             notNull = cer->getProbableCauseDescription(pgProbCauseDesc);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgProbCauseDesc);
     }
 
@@ -341,7 +341,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -353,13 +353,13 @@ extern "C"
             notNull = cer->getRecommendedActions(pgRecommendedActions);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
@@ -374,7 +374,7 @@ extern "C"
            String s = pgRecommendedActions[i-1];
            dta[i].value.string=string2CMPIString(s);
         }
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
     }
 
@@ -383,7 +383,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -395,17 +395,17 @@ extern "C"
             notNull = cer->getErrorSource(pgErrorSource);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgErrorSource);
     }
 
@@ -415,7 +415,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return CMPIErrSrcUnknown;
         }
 
@@ -427,17 +427,17 @@ extern "C"
             notNull = cer->getErrorSourceFormat(pgErrorSourceFormat);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return CMPIErrSrcUnknown;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return CMPIErrSrcUnknown;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return (CMPIErrorSrcFormat)pgErrorSourceFormat;
     }
 
@@ -447,7 +447,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -459,17 +459,17 @@ extern "C"
             notNull = cer->getOtherErrorSourceFormat(pgOtherErrorSourceFormat);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgOtherErrorSourceFormat);
     }
 
@@ -478,7 +478,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return CMPI_RC_ERR_INVALID_PARAMETER;
         }
 
@@ -490,17 +490,17 @@ extern "C"
             notNull = cer->getCIMStatusCode(pgCIMStatusCode);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return CMPI_RC_ERR_INVALID_PARAMETER;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return CMPI_RC_ERR_FAILED;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return (CMPIrc)pgCIMStatusCode;
     }
 
@@ -510,7 +510,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -523,17 +523,17 @@ extern "C"
                 pgCIMStatusCodeDescription);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return string2CMPIString(pgCIMStatusCodeDescription);
     }
 
@@ -543,7 +543,7 @@ extern "C"
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return NULL;
         }
 
@@ -555,13 +555,13 @@ extern "C"
             notNull = cer->getMessageArguments(pgMessageArguments);
             if (!notNull)
             {
-                if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 return NULL;
             }
         }
         catch (...)
         {
-            if (rc) CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             return NULL;
         }
 
@@ -576,7 +576,7 @@ extern "C"
            String s = pgMessageArguments[i-1];
            dta[i].value.string=string2CMPIString(s);
         }
-        if (rc) CMSetStatus(rc,CMPI_RC_OK);
+        CMSetStatus(rc,CMPI_RC_OK);
         return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
     }
 

@@ -91,7 +91,6 @@ extern "C"
 #endif
           !se->wql_stmt || se->_context || se->hdl)
       {
-    if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
   }
@@ -144,7 +143,7 @@ extern "C"
         {
 	  DDD(cout<<"### exception: _check_WQL - ... " <<endl);
           delete stmt;
-          if (rc) CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
+          CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
           return false;
         }
         /* Only set it for success */
@@ -182,7 +181,7 @@ extern "C"
         catch (...)
         {
 	  DDD(cout<<"### exception: _check_CQL - ... " <<endl);
-          if (rc) CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
+          CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
 	  fail = true;
         }
 	if (fail) 
@@ -201,13 +200,11 @@ extern "C"
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
     if (!inst)
       {
-        if (rc)
           CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return false;
       }
     if (!inst->hdl)
       {
-        if (rc)
           CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return false;
       }
@@ -232,7 +229,7 @@ extern "C"
             catch (...)
             {
 	      DDD(cout<<"### exception: selxEvaluate - ... " <<endl);
-              if (rc) CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+              CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
             }
           }
@@ -262,7 +259,7 @@ extern "C"
             catch (...)
             {
 	      DDD(cout<<"### exception: selxEvaluate - ... " <<endl);
-              if (rc) CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+              CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
             }
           }
@@ -271,7 +268,6 @@ extern "C"
       }
 #endif
     /* Tried some other weird query language which we don't support */
-    if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
     return false;
   }
@@ -283,7 +279,6 @@ extern "C"
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
     if (!accessor)
       {
-        if (rc)
           CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return false;
       }
@@ -296,7 +291,6 @@ extern "C"
             CMPI_SelectExpAccessor_WQL ips (accessor, parm);
             try
             {
-              if (rc)
                 CMSetStatus (rc, CMPI_RC_OK);
               return sx->wql_stmt->evaluateWhereClause (&ips);
             }
@@ -310,7 +304,6 @@ extern "C"
             catch (...)
             {
 	      DDD(cout<<"### exception: selxEvaluateUsingAccessor - ..." << endl);
-              if (rc)
                 CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
             }
@@ -330,7 +323,6 @@ extern "C"
                                             sx->classNames[0]);
             try
             {
-              if (rc)
                 CMSetStatus (rc, CMPI_RC_OK);
               return sx->cql_stmt->evaluate (ips.getInstance ());
             }
@@ -344,7 +336,6 @@ extern "C"
             catch (...)
             {
 	      DDD(cout<<"### exception: selxEvaluateUsingAccessor - ..." << endl);
-              if (rc)
                 CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
             }
@@ -359,7 +350,6 @@ extern "C"
   PEGASUS_STATIC CMPIString *selxGetString (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
-    if (rc)
       CMSetStatus (rc, CMPI_RC_OK);
     return string2CMPIString (sx->cond);
   }
@@ -436,7 +426,6 @@ extern "C"
 #endif
     if (sc)
       {
-        if (rc)
           CMSetStatus (rc, CMPI_RC_OK);
         CMPI_Object *obj = new CMPI_Object (sc);
         obj->priv = ((CMPI_SelectCond *) sc)->priv;
@@ -444,14 +433,12 @@ extern "C"
       }
 
     /* If the sc was null, we just exit */
-    if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_FAILED);
     return NULL;
   }
 
   PEGASUS_STATIC CMPISelectCond *selxGetCOD (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
-    if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
   }

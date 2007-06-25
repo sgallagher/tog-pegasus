@@ -140,7 +140,7 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          ci.setPath(*CM_ObjectPath(cop));
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
          return reinterpret_cast<CMPIInstance*>(new CMPI_Object(new CIMInstance(ci)));
       }
       catch (const CIMException &e) {
@@ -163,7 +163,7 @@ extern "C" {
                      OperationContext(*CM_Context(ctx)),
          CM_ObjectPath(cop)->getNameSpace(),
                      *CM_Instance(ci));
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
          return reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(new CIMObjectPath(ncop)));
       }
       catch (const CIMException &e) {
@@ -238,7 +238,7 @@ extern "C" {
          CM_ObjectPath(cop)->getNameSpace(),
          String(query),
          String(lang));
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
 
          return  reinterpret_cast<CMPIEnumeration*> (new CMPI_Object(
             new CMPI_ObjEnumeration(new Array<CIMObject>(en))));
@@ -271,7 +271,7 @@ extern "C" {
          CM_IncludeQualifiers(flgs),
          CM_ClassOrigin(flgs),
          props);
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
 
          // Workaround for bugzilla 4677
          // When running out of process the returned instances don't contain
@@ -309,7 +309,7 @@ extern "C" {
                      OperationContext(*CM_Context(ctx)),
          CM_ObjectPath(cop)->getNameSpace(),
          CM_ObjectPath(cop)->getClassName());
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
 
           // When running out of process the returned instances don't contain
           // a name space. Create a writable copy of the array and add the
@@ -355,7 +355,7 @@ extern "C" {
          CM_IncludeQualifiers(flgs),
          CM_ClassOrigin(flgs),
          props);
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
 
          // Workaround for bugzilla 4677
          // When running out of process the returned instances don't contain
@@ -403,7 +403,7 @@ extern "C" {
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY,
          resultRole ? String(resultRole) : String::EMPTY);
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
 
          // When running out of process the returned instances don't contain
          // a name space. Create a writable copy of the array and add the
@@ -448,7 +448,7 @@ extern "C" {
          CM_IncludeQualifiers(flgs),
          CM_ClassOrigin(flgs),
          props);
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
          // Workaround for bugzilla 4677
          // When running out of process the returned instances don't contain
          // a name space. Create a writable copy of the array and add the
@@ -490,7 +490,7 @@ extern "C" {
          qop,
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY);
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
 
          // When running out of process the returned instances don't contain
          // a name space. Create a writable copy of the array and add the
@@ -598,11 +598,11 @@ extern "C" {
          CIMType vType=v.getType();
          CMPIType t=type2CMPIType(vType,v.isArray());
          value2CMPIData(v,t,&data);
-         if (rc) CMSetStatus(rc,CMPI_RC_OK);
+         CMSetStatus(rc,CMPI_RC_OK);
       }
       catch (const CIMException &e) {
          DDD(cout<<"### exception: mbGetProperty - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-         if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+         CMSetStatus(rc,(CMPIrc)e.getCode());
       }
       return data; // "data" will be valid data or nullValue (in error case)
    }

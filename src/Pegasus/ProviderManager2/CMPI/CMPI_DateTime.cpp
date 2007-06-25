@@ -132,7 +132,7 @@ extern "C" {
 	    return NULL;
       }
       CMPIString *str=reinterpret_cast<CMPIString*>(new CMPI_Object(dt->toString()));
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return str;
    }
 

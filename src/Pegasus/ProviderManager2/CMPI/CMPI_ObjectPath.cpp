@@ -76,7 +76,7 @@ extern "C" {
       CMPI_Object* obj=new CMPI_Object(nRef);
       obj->unlink();
       CMPIObjectPath* neRef=reinterpret_cast<CMPIObjectPath*>(obj);
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return neRef;
    }
 
@@ -106,7 +106,7 @@ extern "C" {
       }
       const CIMNamespaceName &ns=ref->getNameSpace();
       CMPIString *eNs=(CMPIString*)string2CMPIString(ns.getString());
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return eNs;
    }
 
@@ -135,7 +135,7 @@ extern "C" {
       }
       const String &hn=ref->getHost();
       CMPIString *eHn=(CMPIString*)string2CMPIString(hn);
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return eHn;
    }
 
@@ -164,7 +164,7 @@ extern "C" {
       }
       const CIMName &cn=ref->getClassName();
       CMPIString* eCn=(CMPIString*)string2CMPIString(cn.getString());
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return eCn;
    }
 
@@ -220,14 +220,14 @@ extern "C" {
       }
       const CIMName eName(name);
       const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
 
       long i=locateKey(akb,eName);
       if (i>=0)  {
          key2CMPIData(akb[i].getValue(),akb[i].getType(),&data);
          return data;
       }
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
       return data;
    }
 
@@ -244,7 +244,7 @@ extern "C" {
       }
 
       const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
 
       if (pos >= akb.size())
       {
@@ -270,7 +270,7 @@ extern "C" {
 	    return 0;
       }
       const Array<CIMKeyBinding> &akb=ref->getKeyBindings();
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return akb.size();
    }
 
@@ -310,7 +310,7 @@ extern "C" {
 	    return NULL;
       }
       String str=ref->toString();
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
+      CMSetStatus(rc,CMPI_RC_OK);
       return reinterpret_cast<CMPIString*>(new CMPI_Object(str));
    }
 

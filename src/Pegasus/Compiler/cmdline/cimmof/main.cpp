@@ -219,11 +219,7 @@ int main(int argc, char ** argv)
             ret = PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION;
         }
     }
-
-    if (msg_.size() > 0)
-    {     
-        cerr << msg_ << endl;
-    }
+    cerr << msg_ << endl;
 
     return ret;
 }

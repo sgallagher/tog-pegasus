@@ -110,8 +110,6 @@
 #define START_DEBUGGER
 #endif
 
-#ifdef PEGASUS_DEBUG
-
 #if defined (PEGASUS_CMPI_PROXY_INTERNAL) || \
     defined (PEGASUS_CMPI_NATIVE_INTERNAL)
 #define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_EXPORT
@@ -119,14 +117,18 @@
 #define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_IMPORT
 #endif
 
+#ifdef PEGASUS_DEBUG
+
 PEGASUS_RCMPI_DEBUG_VISIBILITY int trace_level(int);
 PEGASUS_RCMPI_DEBUG_VISIBILITY char* trace_format(const char *fmt, ...);
 PEGASUS_RCMPI_DEBUG_VISIBILITY void trace_this(int, const char *, int, char *);
 PEGASUS_RCMPI_DEBUG_VISIBILITY void start_debugger();
+
+#endif /* PEGASUS_DEBUG */
+
 #ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 PEGASUS_RCMPI_DEBUG_VISIBILITY void error_at_line(int a_num, int error,
     char* filename, int line, char* message, ...);
 #endif
 
-#endif // PEGASUS_DEBUG
-#endif // _REMOTE_CMPI_DEBUG_H
+#endif /* _REMOTE_CMPI_DEBUG_H */

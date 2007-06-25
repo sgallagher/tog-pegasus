@@ -96,7 +96,7 @@ void start_debugger()
     {
         if ((ch = fork())) 
         {
-            sleep(20); // wait until debugger traces us
+            sleep(20); /* wait until debugger traces us */
         } 
         else
         {
@@ -117,6 +117,7 @@ void start_debugger()
     }
 #endif
 }
+#endif  /* PEGASUS_DEBUG */
 
 #ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 void error_at_line(int a_num,
@@ -126,12 +127,15 @@ void error_at_line(int a_num,
                    char* message, ...)
 {
     va_list ap;
+    char * msg = (char *) malloc(512);
 
     va_start(ap, message);
-   fprintf(stderr, "Error in line %d of file %s: %s -", line, filename,
-       strerror(error));
-   vfprintf(stderr, message, ap);
-   fprintf(stderr, "\n");
+    vsprintf(msg, message, ap);
+
+    fprintf(stderr, "Error in line %d of file %s: %s - %s\n",
+        line, filename, strerror(error), msg);
+
+    free(msg);
 
     if (a_num < 0)
     {
@@ -139,6 +143,3 @@ void error_at_line(int a_num,
     }
 }
 #endif
-
-#endif
-

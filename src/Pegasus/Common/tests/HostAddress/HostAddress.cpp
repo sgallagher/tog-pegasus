@@ -114,11 +114,16 @@ void testHostAddress()
 
 
     // Invalid hostnames or addresses 
+
+    HostAddress hostaddr3;
+    PEGASUS_TEST_ASSERT(hostaddr3.getHost() == String::EMPTY);
+
     hostaddr.setHostAddress("[1.2.3.4]:");
     PEGASUS_TEST_ASSERT(!hostaddr.isValid());
     PEGASUS_TEST_ASSERT(!HostAddress::isValidHostName(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV6Address(hostaddr.getHost()));
+    PEGASUS_TEST_ASSERT(hostaddr3.getHost() == String::EMPTY);
 
     hostaddr.setHostAddress("[1.2.3.4]:1234");
     PEGASUS_TEST_ASSERT(!hostaddr.isValid());

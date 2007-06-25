@@ -106,7 +106,7 @@ public:
 
     /**
         Constructor. addrStr can be HostName or IPv4Address or
-        IPv6Address.
+        IPv6Address (without brackets).
     */ 
     HostAddress(const String &addrStr);
     HostAddress(const HostAddress &rhs);
@@ -115,18 +115,21 @@ public:
     void setHostAddress(const String &addrStr);
 
     /**
-        Returns true if the address is valid. If vaild it can be HostName
-        or IPv4Address or IPv6Address.
+        Returns true if the constructed HostAddress is valid. 
+        If valid it can be HostName or IPv4Address or IPv6Address.
+        Check if HostAddress is valid by using isValid() method
+        before making any calls on HostAddress object.
     */
     Boolean isValid();
 
     /**
-        Verifies given ipv4Address and returns true if it is valid.
+        Verifies given IPv4Address and returns true if it is valid.
     */
     static Boolean isValidIPV4Address(const String &ipv4Address);
 
     /**
-        Verifies given ipv6Address and returns true if it is valid.
+        Verifies given IPv6Address (without brackets) and returns
+        true if it is valid.
     */
     static Boolean isValidIPV6Address(const String &ipv6Address);
 
@@ -171,9 +174,9 @@ public:
     static Boolean equal(int af, void *p1, void *p2);
 
     /**
-        Returns HostName or IPv4Address or IPv6Address. Removes port number
-        from HostAddress if present. This returns empty string HostAddress is
-        not valid. Check if HostAddress is valid by using isValid() method
+        Returns HostName or IPv4Address or IPv6Address. This returns an empty
+        String if HostAddress is not valid.
+        Check if HostAddress is valid by using isValid() method
         before making any calls on HostAddress object.
     */
     String getHost();

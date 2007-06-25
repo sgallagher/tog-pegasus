@@ -215,7 +215,7 @@ static CMPIData __getDataProperty ( struct native_property * prop,
 {
     struct native_property * p = __getProperty ( prop, name );
 
-    if ( rc ) CMSetStatus ( rc,
+    CMSetStatus ( rc,
                 ( p )?
                 CMPI_RC_OK:
                 CMPI_RC_ERR_NO_SUCH_PROPERTY );
@@ -243,7 +243,7 @@ static CMPIData __getDataPropertyAt ( struct native_property * prop,
 {
     struct native_property * p = __getPropertyAt ( prop, pos );
 
-    if ( rc ) CMSetStatus ( rc,
+    CMSetStatus ( rc,
                 ( p )?
                 CMPI_RC_OK:
                 CMPI_RC_ERR_NO_SUCH_PROPERTY );
@@ -257,7 +257,7 @@ static CMPICount __getPropertyCount ( struct native_property * prop,
 {
     CMPICount c = 0;
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
 
     while ( prop != NULL ) {
         c++;
@@ -286,7 +286,7 @@ static struct native_property * __clone ( struct native_property * prop,
 
     if ( prop == NULL ) {
 
-        if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+        CMSetStatus ( rc, CMPI_RC_OK );
         return NULL;
     }
 

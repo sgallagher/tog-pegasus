@@ -209,10 +209,7 @@ static struct native_selectexp * __new_exp ( int mm_add,
     exp->mem_state   = mm_add;
     exp->id          = id;
 
-    if ( rc )
-    {
         CMSetStatus ( rc, CMPI_RC_OK );
-    }
     return exp;
 }
 

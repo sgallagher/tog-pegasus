@@ -1503,7 +1503,7 @@ CMPIString* TCPCOMM_getMessage(CONST CMPIBroker* broker,
     }
     va_end(argptr);
 
-    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+    CMSetStatus(rc,CMPI_RC_OK);
     {
     CMPIStatus __rc = (__sft)->deserialize_CMPIStatus(socket, broker);
     if ((rc))
@@ -1546,7 +1546,7 @@ CMPIError* TCPCOMM_newCMPIError(
     (__sft)->serialize_CMPIErrorProbableCause(socket, pc);
     (__sft)->serialize_CMPIrc(socket, cimStatusCode);
 
-    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+    CMSetStatus(rc,CMPI_RC_OK);
 
     {
         CMPIStatus __rc = (__sft)->deserialize_CMPIStatus(socket, broker);
@@ -1709,7 +1709,7 @@ CMPIString* TCPCOMM_getMessage2(
     }
     va_end(argptr);
 
-    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+    CMSetStatus(rc,CMPI_RC_OK);
     {
     CMPIStatus __rc = (__sft)->deserialize_CMPIStatus(socket, broker);
     if ((rc))

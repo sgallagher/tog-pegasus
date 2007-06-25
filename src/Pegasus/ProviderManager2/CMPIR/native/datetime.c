@@ -177,7 +177,7 @@ static CMPIUint64 __dtft_getBinaryFormat ( CONST CMPIDateTime * dt,
          return 0;
     }
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return ndt->msecs;
 }
 
@@ -232,7 +232,7 @@ static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
 
         if ( localtime_r ( &secs, &tm_time ) == NULL ) {
 
-            if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_FAILED );
+            CMSetStatus ( rc, CMPI_RC_ERR_FAILED );
             return NULL;
         }
 
@@ -282,7 +282,7 @@ static CMPIBoolean __dtft_isInterval ( CONST CMPIDateTime * dt, CMPIStatus * rc 
     {
          return 0;
     }
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return ndt->interval;
 }
 
@@ -328,7 +328,7 @@ static struct native_datetime * __new_datetime ( int mm_add,
     ndt->msecs     = msecs;
     ndt->interval  = interval;
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return ndt;
 }
 

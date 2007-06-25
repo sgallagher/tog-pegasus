@@ -165,7 +165,7 @@ static CMPIBoolean __beft_classPathIsA ( CONST CMPIBroker * broker,
 
      CMPIString *clsn;
 
-     if (rc) CMSetStatus(rc,CMPI_RC_OK);
+     CMSetStatus(rc,CMPI_RC_OK);
 
      clsn=CMGetClassName(cop,NULL);
 
@@ -201,7 +201,7 @@ static CMPIString * __beft_toString ( CONST CMPIBroker * broker,
        }
     }
     TRACE_CRITICAL(("This operation is not yet supported."));
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
+    CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
     return NULL;
 }
 
@@ -216,7 +216,7 @@ static CMPIBoolean __beft_isOfType ( CONST CMPIBroker * broker,
 
     TRACE_NORMAL(("Verifying encapsulated object type."));
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return ( strcmp ( t, type ) == 0 );
 }
 

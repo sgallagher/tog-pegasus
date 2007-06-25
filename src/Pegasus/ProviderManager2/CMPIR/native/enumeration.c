@@ -94,7 +94,7 @@ static CMPIEnumeration * __eft_clone ( CONST CMPIEnumeration * enumeration,
 
     if ( tmp.rc != CMPI_RC_OK ) {
 
-        if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_FAILED );
+        CMSetStatus ( rc, CMPI_RC_ERR_FAILED );
         return NULL;
     }
 
@@ -168,7 +168,7 @@ static struct native_enum * __new_enumeration ( int mm_add,
         ( mm_add == TOOL_MM_NO_ADD )?
         CMClone ( array, rc ): array;
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return enumeration;
 }
 

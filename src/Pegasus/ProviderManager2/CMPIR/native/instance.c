@@ -480,7 +480,6 @@ CMPIInstance * native_new_CMPIInstance(
         tmp2.rc != CMPI_RC_OK ||
         tmp3.rc != CMPI_RC_OK)
     {
-        if (rc)
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
     }
     else
@@ -499,7 +498,6 @@ CMPIInstance * native_new_CMPIInstance(
                 &tmp.value);
         }
 
-        if (rc)
             CMSetStatus(rc, tmp1.rc);
     }
 

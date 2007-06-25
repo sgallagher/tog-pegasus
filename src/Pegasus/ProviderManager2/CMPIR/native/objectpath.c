@@ -118,7 +118,6 @@ static CMPIObjectPath * __oft_clone(CONST CMPIObjectPath * cop, CMPIStatus * rc)
     }
     else
     {
-        if (rc)
             CMSetStatus(rc, tmp.rc);
     }
 
@@ -479,7 +478,7 @@ static struct native_cop * __new_empty_cop(
         tool_mm_add(cop->hostname);
     }
 
-    if (rc) CMSetStatus(rc, CMPI_RC_OK);
+    CMSetStatus(rc, CMPI_RC_OK);
     return cop;
 }
 

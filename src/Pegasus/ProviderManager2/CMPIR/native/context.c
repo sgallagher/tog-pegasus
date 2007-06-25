@@ -88,7 +88,7 @@ static CMPIContext * __cft_clone ( CONST CMPIContext * ctx, CMPIStatus * rc )
     {
          return 0;
     }
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
+    CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
     return NULL;
 }
 

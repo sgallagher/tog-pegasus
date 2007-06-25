@@ -210,7 +210,7 @@ static struct native_args * __new_empty_args ( int mm_add, CMPIStatus * rc )
     args->args      = a;
     args->mem_state = mm_add;
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return args;
 }
 

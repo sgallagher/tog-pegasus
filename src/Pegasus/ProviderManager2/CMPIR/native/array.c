@@ -152,7 +152,7 @@ static CMPIArray * __aft_clone ( CONST CMPIArray * array, CMPIStatus * rc )
         }
     }
 
-    if ( rc ) CMSetStatus ( rc, tmp.rc );
+    CMSetStatus ( rc, tmp.rc );
 
     return (CMPIArray *) new;
 }
@@ -166,7 +166,7 @@ static CMPICount __aft_getSize ( CONST CMPIArray * array, CMPIStatus * rc )
         return 0;
     }
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return a->size;
 }
 
@@ -179,7 +179,7 @@ static CMPIType __aft_getSimpleType ( CONST CMPIArray * array, CMPIStatus * rc )
         return 0;
     }
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return a->type;
 }
 
@@ -324,7 +324,7 @@ static struct native_array * __new_empty_array ( int mm_add,
 
     __make_NULL ( array, 0, size - 1, 0 );
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return array;
 }
 

@@ -127,7 +127,7 @@ static struct native_string * __new_string ( int mm_add,
         tool_mm_add ( string->string.hdl );
     }
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return string;
 }
 

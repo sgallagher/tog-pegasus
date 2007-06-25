@@ -201,7 +201,7 @@ static struct native_result * __new_empty_result ( int mm_add,
     result->result    = r;
     result->mem_state = mm_add;
 
-    if ( rc ) CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return result;
 }
 

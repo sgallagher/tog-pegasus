@@ -46,9 +46,12 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/AuditLogger.h>
-#include "ProviderRegistrationTable.h"
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/MessageLoader.h>
+
+#if 1
+#undef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -115,6 +118,14 @@ struct RegistrationTable
 {
     Table table;
 };
+
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+extern bool runtime_context_is_directaccess_cim;
+static bool local_runtime_context_override = false,
+            init_has_been_done = false;
+#endif
+
 
 Boolean containsCIMInstance (
     const Array <CIMInstance> & instanceArray,
@@ -210,6 +221,22 @@ static const char UNSUPPORTED_PROVIDER_TYPE_KEY[] =
 static const char UNSUPPORTED_PROVIDER_TYPE[] = 
     "Unsupported ProviderType \"$0\" in ProviderModule \"$1\".";
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+/**
+   Provider status
+*/
+static const Uint16 _PROVIDER_OK        = 2;
+
+static const Uint16 _PROVIDER_STOPPING   = 9;
+
+static const Uint16 _PROVIDER_STOPPED   = 10;
+
+/**
+   Module status
+*/
+static const Uint16 _MODULE_ERROR        = 6;
+
+#endif
 ProviderRegistrationManager::ProviderRegistrationManager(
                                         CIMRepository* repository)
     : _repository(repository)
@@ -218,6 +245,11 @@ ProviderRegistrationManager::ProviderRegistrationManager(
     supportWildCardNamespaceNames=true;
 #else
     supportWildCardNamespaceNames=false;
+#endif
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+    local_runtime_context_override = false;
+    init_has_been_done = false;
 #endif
 
     _registrationTable = new RegistrationTable;
@@ -435,23 +467,33 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
 
     String capabilityKey;
-    if (!is_assoc) {
-       if (has_no_query) {
+    if (!is_assoc) 
+    {
+       if (has_no_query) 
+       {
           *has_no_query=true;
           capabilityKey = _generateKey(nameSpaceKey, className,
                   INSTANCE_QUERY_PROVIDER);
           if (!_registrationTable->table.lookup(
                   capabilityKey, providerCapability))
+          {
              capabilityKey = _generateKey(nameSpaceKey, className,
                      INS_PROVIDER);
-          else *has_no_query=false;
+          }
+          else 
+          {
+             *has_no_query=false;
+          }
        }
-    else
+       else
+       {
           capabilityKey = _generateKey(nameSpaceKey, className, INS_PROVIDER);
-    }
-    else {
+       }
+   }
+   else 
+   {
         capabilityKey = _generateKey(nameSpaceKey, className, ASSO_PROVIDER);
-    }
+   }
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                      "\nnameSpace = " + nameSpace.getString() +
                      "; className = " + className.getString() +
@@ -465,10 +507,19 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (providerCapability==0 && !_registrationTable->table.lookup(
                   capabilityKey, providerCapability))
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                CAPABILITY_NOT_REGISTERED);
-            PEG_METHOD_EXIT();
-            return false;
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+            if (!_loadtableForAllpvdrcapab( nameSpace, className,
+                                            capabilityKey, &providerCapability ))
+            {
+#endif
+
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    CAPABILITY_NOT_REGISTERED);
+                PEG_METHOD_EXIT();
+                return false;
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+            }
+#endif
         }
 
         Array<CIMInstance> instances = providerCapability->getInstances();
@@ -519,10 +570,21 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                PROVIDER_NOT_FOUND);
-            PEG_METHOD_EXIT();
-            return false;
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+            CIMInstance pvdr = _getpvdr( instances[0] );
+            _loadtableforpvdr( pvdr );
+            if (!_registrationTable->table.lookup(_providerKey, _provider))
+            {
+#endif
+            
+
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    PROVIDER_NOT_FOUND);
+                PEG_METHOD_EXIT();
+                return false;
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+            }
+#endif
         }
 
         Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -533,10 +595,21 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                MODULE_NOT_FOUND);
-            PEG_METHOD_EXIT();
-            return false;
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+            CIMInstance pvdrmod = _getpvdrmodule( instances[0] );
+            _loadtableforpvdrmod( pvdrmod );
+            if (!_registrationTable->table.lookup( _moduleKey,
+                                                   _providerModule))
+            {
+#endif
+
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    MODULE_NOT_FOUND);
+                PEG_METHOD_EXIT();
+                return false;
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+            }
+#endif
         }
 
         Array<CIMInstance> providerModuleInstances = 
@@ -591,7 +664,18 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     if (_registrationTable->table.lookup(capabilityKey, providerCapability))
     {
         // provider was registered to support all the methods
-
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+            // 3rd try is the charm; maybe table not loaded yet. try it.
+            if (!_loadtableForAllpvdrcapab( nameSpace, className,
+                                            capabilityKey, &providerCapability ))
+            {
+                PEG_METHOD_EXIT();
+                // l10n
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                              MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+                                                 CAPABILITY_NOT_REGISTERED));
+            }
+#endif
         instances = providerCapability->getInstances();
 
         //
@@ -635,7 +719,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 
         instances[0].getProperty(pos2).getValue().get(providerModuleName);
     }
-    else
+    else 
     {
         //
         // provider was not registered to support all the methods
@@ -702,7 +786,6 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
         }
 
     }
-
     //
     // create the key by using providerModuleName and providerName
     //
@@ -718,11 +801,21 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     //
     if (!_registrationTable->table.lookup(_providerKey, _provider))
     {
-        PEG_METHOD_EXIT();
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        CIMInstance pvdr = _getpvdr( instances[0] );
+        _loadtableforpvdr( pvdr );
+        if (!_registrationTable->table.lookup(_providerKey, _provider))
+        {
+#endif
 
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                PROVIDER_NOT_FOUND));
+            PEG_METHOD_EXIT();
+
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+                    PROVIDER_NOT_FOUND));
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        }
+#endif
     }
 
     Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -733,11 +826,22 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     //
     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
-        PEG_METHOD_EXIT();
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        CIMInstance pvdrmod = _getpvdrmodule( instances[0] );
+        _loadtableforpvdrmod( pvdrmod );
+        if (!_registrationTable->table.lookup( _moduleKey,
+                                               _providerModule))
+        {
+#endif
 
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                MODULE_NOT_FOUND));
+            PEG_METHOD_EXIT();
+
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+                    MODULE_NOT_FOUND));
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        }
+#endif
     }
 
     Array<CIMInstance> providerModuleInstances =
@@ -830,17 +934,25 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     //
     if (! _registrationTable->table.lookup(capabilityKey, providerCapability))
     {
-        PEG_METHOD_EXIT();
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        if (!_loadtableForAllpvdrcapab( nameSpace, className,
+                                        capabilityKey, &providerCapability ))
+        {
+#endif
+
+            PEG_METHOD_EXIT();
 
         // l10n
 
         // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
         // CAPABILITY_NOT_REGISTERED);
 
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
-            CAPABILITY_NOT_REGISTERED));
-
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+                CAPABILITY_NOT_REGISTERED));
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+       }
+#endif
     }
 
     Array<CIMInstance> instances = providerCapability->getInstances();
@@ -914,11 +1026,21 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             //
             if (!_registrationTable->table.lookup(_providerKey, _provider))
             {
-                PEG_METHOD_EXIT();
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                CIMInstance pvdr = _getpvdr( instances[i] );
+                _loadtableforpvdr( pvdr );
+                if (!_registrationTable->table.lookup(_providerKey, _provider))
+                {
+#endif
 
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                    MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                    PROVIDER_NOT_FOUND));
+                    PEG_METHOD_EXIT();
+
+                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                        MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+                        PROVIDER_NOT_FOUND));
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                }
+#endif
             }
 
             //
@@ -926,11 +1048,22 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             //
             if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
             {
-                PEG_METHOD_EXIT();
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                CIMInstance pvdrmod = _getpvdrmodule( instances[i] );
+                _loadtableforpvdrmod( pvdrmod );
+                if (!_registrationTable->table.lookup( _moduleKey,
+                                                       _providerModule) )
+                {
+#endif
 
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                    MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                    MODULE_NOT_FOUND));
+                    PEG_METHOD_EXIT();
+
+                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                        MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+                        MODULE_NOT_FOUND));
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                }
+#endif
             }
 
             _providerInstances = _provider->getInstances();
@@ -982,11 +1115,21 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
                     if (!_registrationTable->table.lookup(_providerKey,
                                 _provider))
                     {
-                        PEG_METHOD_EXIT();
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                        CIMInstance pvdr = _getpvdr( instances[i] );
+                        _loadtableforpvdr( pvdr );
+                        if (!_registrationTable->table.lookup(_providerKey,_provider))
+                        {
+#endif
 
-                        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                             MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
-                             PROVIDER_NOT_FOUND));
+                            PEG_METHOD_EXIT();
+
+                            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                                 MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+                                 PROVIDER_NOT_FOUND));
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                        }
+#endif
                     }
 
                     _providerInstances = _provider->getInstances();
@@ -997,12 +1140,22 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
                     if (!_registrationTable->table.lookup(_moduleKey,
                                 _providerModule))
                     {
-                        PEG_METHOD_EXIT();
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                        CIMInstance pvdrmod = _getpvdrmodule( instances[i] );
+                        _loadtableforpvdrmod( pvdrmod );
+                        if (!_registrationTable->table.lookup( _moduleKey,
+                                                               _providerModule) )
+                        {
+#endif
 
-                        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                            MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-                            MODULE_NOT_FOUND));
+                            PEG_METHOD_EXIT();
 
+                            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                                MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+                                MODULE_NOT_FOUND));
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                        }
+#endif
                     }
 
                     _providerModuleInstances = _providerModule->getInstances();
@@ -1246,6 +1399,14 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
     // get class name
     CIMName className = instanceReference.getClassName();
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+    if ( !init_has_been_done ) {
+        local_runtime_context_override = true;
+        _initialRegistrationTable();
+        local_runtime_context_override = false;
+    }
+#endif
 
     Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
 
@@ -1866,6 +2027,14 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
 
 void ProviderRegistrationManager::_initialRegistrationTable()
 {
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+    if (runtime_context_is_directaccess_cim &&
+        !local_runtime_context_override          ) {
+        return; // reg table built on-demand, when a lookup*() is called
+    }
+#endif
+
     CIMInstance instance;
     CIMObjectPath reference;
     String providerName;
@@ -1906,6 +2075,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
         for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
         {
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL 
+            _loadtableforpvdrmod( cimNamedInstances[i] );
+#else
             Array<Uint16> status;
             Array<CIMInstance> instances;
             instance = cimNamedInstances[i];
@@ -2106,6 +2278,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             //
             instances.append(instance);
             _addInitialInstancesToTable(_moduleKey, instances);
+#endif
         }
 
         //
@@ -2127,7 +2300,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             Array<CIMInstance> instances;
 
             instance = cimNamedInstances[i];
-
+#ifdef PEGASUS_USE_DIRECTACESS_FOR_LOCAL
+            _loadtableforpvdr( instance );
+#else
             // get provider module name
             instance.getProperty(instance.findProperty
                 (_PROPERTY_PROVIDERMODULENAME)).getValue().
@@ -2148,6 +2323,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             //
             instances.append(instance);
             _addInitialInstancesToTable(_providerKey, instances);
+#endif
         }
 
         //
@@ -2217,7 +2393,11 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             // get provider type
             instance.getProperty(instance.findProperty
                 (_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+                _loadtableforpvdrcapab( namespaces,  className,
+                                        providerType, instance  );
 
+#else
             for (Uint32 j=0; j < providerType.size(); j++)
             {
                 switch (providerType[j])
@@ -2450,6 +2630,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                         break;
                 }
             }
+#endif
         }
     }
     catch (CIMException& exception)
@@ -2470,6 +2651,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "");
     }
+
+#ifdef PEGASUS_USE_DIRECTACESS_FOR_LOCAL
+    init_has_been_done = true;
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -4243,9 +4428,20 @@ Array<Uint16> ProviderRegistrationManager::_getProviderModuleStatus(
     ProviderRegistrationTable* _providerModule = 0;
     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
-        MessageLoaderParms mlp(MessageLoaderParms(MODULE_NOT_FOUND_KEY,
-            MODULE_NOT_FOUND));
-        throw CIMException(CIM_ERR_FAILED, mlp);
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        CIMInstance pvdrmod = _getpvdrmodule( providerModuleName );
+        _loadtableforpvdrmod( pvdrmod );
+        if (!_registrationTable->table.lookup( _moduleKey,
+                                               _providerModule))
+        {
+#endif
+
+            MessageLoaderParms mlp(MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+                MODULE_NOT_FOUND));
+            throw CIMException(CIM_ERR_FAILED, mlp);
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        }
+#endif
     }
 
     //
@@ -4258,6 +4454,671 @@ Array<Uint16> ProviderRegistrationManager::_getProviderModuleStatus(
 
     return outStatus;
 }
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+//-----------------------------------------------------------------
+static int _loadtable_callcount = 0;
+
+void ProviderRegistrationManager::_loadtableforpvdrmod(
+                                          CIMInstance& pvdrmod ) {
+    Array<Uint16>  status;
+    //instance = cimNamedInstances[i];
+    CIMObjectPath reference = pvdrmod /*cimNamedInstances[i]*/ .getPath();
+    String vendor, version, interfaceType, interfaceVersion, location,
+           providerModuleName;
+    Boolean userContextSpecified = false;
+    Uint16 userContext = 0;
+    //
+    // Name, Version, InterfaceType, InterfaceVersion, and Location
+    // properties must be set, otherwise, property OperationalStatus
+    // is set to Error.
+    //
+    Uint32 posModuleName = pvdrmod.findProperty(_PROPERTY_PROVIDERMODULE_NAME);
+    Uint32 posVendor = pvdrmod.findProperty(_PROPERTY_VENDOR);
+    Uint32 posVersion = pvdrmod.findProperty(_PROPERTY_VERSION);
+    Uint32 posInterfaceType = pvdrmod.findProperty(_PROPERTY_INTERFACETYPE);
+    Uint32 posInterfaceVersion =
+                         pvdrmod.findProperty(_PROPERTY_INTERFACEVERSION);
+    Uint32 posLocation = pvdrmod.findProperty(_PROPERTY_LOCATION);
+    Uint32 posUserContext = pvdrmod.findProperty(
+                    PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+    Uint32 posDesignatedUser = pvdrmod.findProperty(
+                    PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER);
+    if (posModuleName != PEG_NOT_FOUND)
+    {
+        // get provider module name
+        pvdrmod.getProperty(posModuleName).getValue().get(providerModuleName);
+    }
+    else
+    {
+        providerModuleName.clear();
+    }
+    if (posVendor != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posVendor).getValue().get(vendor);
+    }
+    if (posVersion != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posVersion).getValue().get(version);
+    }
+    if (posInterfaceType != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posInterfaceType).getValue().get(interfaceType);
+    }
+    if (posInterfaceVersion != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posInterfaceVersion).getValue().
+                                             get(interfaceVersion);
+    }
+    if (posLocation != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posLocation).getValue().get(location);
+    }
+   if (posUserContext != PEG_NOT_FOUND)
+    {
+        CIMValue userContextValue = pvdrmod.getProperty(posUserContext).getValue();
+        if (!userContextValue.isNull())
+        {
+            userContextSpecified = true;
+            userContextValue.get(userContext);
+        }
+    }
+    if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0 ||
+        posVendor == PEG_NOT_FOUND || vendor.size() == 0 ||
+        posVersion == PEG_NOT_FOUND || version.size() == 0 ||
+        posInterfaceType == PEG_NOT_FOUND ||
+        posInterfaceVersion == PEG_NOT_FOUND ||
+        !(((interfaceType == "C++Default") &&
+           ((interfaceVersion == "2.1.0") ||
+            (interfaceVersion == "2.2.0") ||
+            (interfaceVersion == "2.3.0") ||
+            (interfaceVersion == "2.5.0") ||
+            (interfaceVersion == "2.6.0")))
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+          || ((interfaceType == "CMPI") &&
+             (interfaceVersion == "2.0.0"))
+#endif
+#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+          || ((interfaceType == "JMPI") &&
+              (interfaceVersion == "1.0.0") ||
+              (interfaceVersion == "2.0.0") ||
+              (interfaceVersion == "2.2.0"))
+          || ((interfaceType == "JMPIExperimental") &&
+              (interfaceVersion == "0.0.1"))
+#endif
+         ) ||
+        posLocation == PEG_NOT_FOUND || location.size() == 0
+#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+        || (userContextSpecified)
+#else
+        || (userContextSpecified &&
+           !(
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+              (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+              (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
+              (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
+              (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
+# endif
+               0)) ||
+           ((userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) &&
+            ((posDesignatedUser == PEG_NOT_FOUND) ||
+             (pvdrmod.getProperty(posDesignatedUser).getValue().
+                  isNull())))
+#endif
+            )
+    {
+        status.append(_MODULE_ERROR);
+        _setStatus(status, pvdrmod);
+    }
+    // get operational status
+    Uint32 pos = pvdrmod.findProperty(_PROPERTY_OPERATIONALSTATUS);
+    if (pos != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(pos).getValue().get(status);
+    }
+    //
+    // If operationalStatus is not set, set it to OK
+    //
+    if (status.size() == 0)
+    {
+        status.append(_PROVIDER_OK);
+        _setStatus(status, pvdrmod);
+    }
+    else
+    {
+        Boolean statusModified = false;
+        Boolean stoppingFound = false;
+        for (Uint32 j=0; j < status.size(); j++)
+        {
+            //
+            //  Degraded status should not persist across CIM Server
+            //  restarts
+            //  Replace Degraded status with OK status
+            if (status[j] == CIM_MSE_OPSTATUS_VALUE_DEGRADED)
+            {
+                status[j] = CIM_MSE_OPSTATUS_VALUE_OK;
+                statusModified = true;
+            }
+            else if (status[j] == _PROVIDER_STOPPING)
+            {
+                // if operational status is stopping
+                // change module status to be Stopped
+                status[j] = _PROVIDER_STOPPED;
+                stoppingFound = true;
+                statusModified = true;
+            }
+        }
+        //
+        //  If a Stopping status was found and replaced with a Stopped
+        //  status, any OK status must be removed from the status array
+        if (stoppingFound)
+        {
+            for (Uint32 k=0; k < status.size(); k++)
+            {
+                if (status[k] == CIM_MSE_OPSTATUS_VALUE_OK)
+                {
+                    status.remove(k);
+                }
+            }
+        }
+        //
+        //  If status has been modified, update the repository
+        if (statusModified)
+        {
+            _setStatus(status, pvdrmod);
+        }
+    }
+    //
+    // create the key by using providerModuleName and MODULE_KEY
+    String _moduleKey = _generateKey( providerModuleName, MODULE_KEY );
+
+if (pvdrmod.getClassName() != "PG_ProviderModule" ) {
+}
+
+    //
+    // add the instance to the hash table by using _moduleKey
+    Array<CIMInstance> instances;
+    instances.append(pvdrmod);
+    _addInitialInstancesToTable(_moduleKey, instances);
+} // loadtableforpvdrmod()
+
+//-------------------------------------------------------------------
+CIMInstance ProviderRegistrationManager::_getpvdr(
+                                      const CIMInstance& pvdrcap ) {
+    // PG_ProviderCapabilities --> PG_Provider
+    String  pvdrmodname,pvdrname;
+    pvdrcap.getProperty(pvdrcap.findProperty(_PROPERTY_PROVIDERMODULENAME)).
+                             getValue().get( pvdrmodname );
+    pvdrcap.getProperty(pvdrcap.findProperty(_PROPERTY_PROVIDERNAME)).
+                             getValue().get( pvdrname );
+    Array<CIMKeyBinding> kbset;
+    kbset.append(CIMKeyBinding("ProviderModuleName", pvdrmodname,
+                                                     CIMKeyBinding::STRING));
+    kbset.append(CIMKeyBinding("Name", pvdrname, CIMKeyBinding::STRING));
+    CIMObjectPath op( "localhost", "root/PG_InterOp",
+                      PEGASUS_CLASSNAME_PROVIDER, kbset );
+    CIMInstance pvdr = _repository->getInstance("root/PG_InterOp",op,false);
+    return pvdr;
+}
+
+//-------------------------------------------------------------------
+CIMInstance ProviderRegistrationManager::_getpvdrmodule(
+                                      const String& pvdrmodname ) {
+    // String pvdr mod name --> PG_ProviderModule
+    Array<CIMKeyBinding> kbset;
+    kbset.append(CIMKeyBinding("Name",pvdrmodname,CIMKeyBinding::STRING));
+    CIMObjectPath op( "localhost", "root/PG_InterOp",
+                      PEGASUS_CLASSNAME_PROVIDERMODULE, kbset);
+    CIMInstance pvdrmod = _repository->getInstance("root/PG_InterOp",op,false );
+    return pvdrmod;
+}
+
+//-------------------------------------------------------------------
+CIMInstance ProviderRegistrationManager::_getpvdrmodule(
+                                      const CIMInstance& pvdrcap ) {
+    // PG_ProviderCapabilities --> PG_ProviderModule
+    String  pvdrmodname;
+    pvdrcap.getProperty(pvdrcap.findProperty(_PROPERTY_PROVIDERMODULENAME)).
+                             getValue().get( pvdrmodname );
+    Array<CIMKeyBinding> kbset;
+    kbset.append(CIMKeyBinding("Name",pvdrmodname,CIMKeyBinding::STRING));
+    CIMObjectPath op( "localhost", "root/PG_InterOp",
+                      PEGASUS_CLASSNAME_PROVIDERMODULE, kbset);
+    CIMInstance pvdrmod = _repository->getInstance("root/PG_InterOp",op,false );
+    return pvdrmod;
+}
+
+void ProviderRegistrationManager::_loadtableforpvdrmod(
+                                          CIMInstance& pvdrmod ) {
+    Array<Uint16>  status;
+    //instance = cimNamedInstances[i];
+    CIMObjectPath reference = pvdrmod  .getPath();
+    String vendor, version, interfaceType, interfaceVersion, location,
+           providerModuleName;
+    Boolean userContextSpecified = false;
+    Uint16 userContext = 0;
+    //
+    // Name, Version, InterfaceType, InterfaceVersion, and Location
+    // properties must be set, otherwise, property OperationalStatus
+    // is set to Error.
+    //
+    Uint32 posModuleName = pvdrmod.findProperty(_PROPERTY_PROVIDERMODULE_NAME);
+    Uint32 posVendor = pvdrmod.findProperty(_PROPERTY_VENDOR);
+    Uint32 posVersion = pvdrmod.findProperty(_PROPERTY_VERSION);
+    Uint32 posInterfaceType = pvdrmod.findProperty(_PROPERTY_INTERFACETYPE);
+    Uint32 posInterfaceVersion =
+                         pvdrmod.findProperty(_PROPERTY_INTERFACEVERSION);
+    Uint32 posLocation = pvdrmod.findProperty(_PROPERTY_LOCATION);
+    Uint32 posUserContext = pvdrmod.findProperty(
+                    PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+    Uint32 posDesignatedUser = pvdrmod.findProperty(
+                    PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER);
+    if (posModuleName != PEG_NOT_FOUND)
+    {
+        // get provider module name
+        pvdrmod.getProperty(posModuleName).getValue().get(providerModuleName);
+    }
+    else
+    {
+        providerModuleName.clear();
+    }
+    if (posVendor != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posVendor).getValue().get(vendor);
+    }
+    if (posVersion != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posVersion).getValue().get(version);
+    }
+    if (posInterfaceType != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posInterfaceType).getValue().get(interfaceType);
+    }
+    if (posInterfaceVersion != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posInterfaceVersion).getValue().
+                                             get(interfaceVersion);
+    }
+    if (posLocation != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(posLocation).getValue().get(location);
+    }
+    if (posUserContext != PEG_NOT_FOUND)
+    {
+        CIMValue userContextValue = pvdrmod.getProperty(posUserContext).getValue();
+        if (!userContextValue.isNull())
+        {
+            userContextSpecified = true;
+            userContextValue.get(userContext);
+        }
+    }
+    if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0 ||
+        posVendor == PEG_NOT_FOUND || vendor.size() == 0 ||
+        posVersion == PEG_NOT_FOUND || version.size() == 0 ||
+        posInterfaceType == PEG_NOT_FOUND ||
+        posInterfaceVersion == PEG_NOT_FOUND ||
+        !(((interfaceType == "C++Default") &&
+           ((interfaceVersion == "2.1.0") ||
+            (interfaceVersion == "2.2.0") ||
+            (interfaceVersion == "2.3.0") ||
+            (interfaceVersion == "2.5.0") ||
+            (interfaceVersion == "2.6.0")))
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+          || ((interfaceType == "CMPI") &&
+             (interfaceVersion == "2.0.0"))
+#endif
+#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+          || ((interfaceType == "JMPI") &&
+              (interfaceVersion == "1.0.0") ||
+              (interfaceVersion == "2.0.0") ||
+              (interfaceVersion == "2.2.0"))
+          || ((interfaceType == "JMPIExperimental") &&
+              (interfaceVersion == "0.0.1"))
+#endif
+         ) ||
+        posLocation == PEG_NOT_FOUND || location.size() == 0
+#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+        || (userContextSpecified)
+#else
+        || (userContextSpecified &&
+           !(
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
+              (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
+              (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
+              (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
+# endif
+# ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
+              (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
+# endif
+               0)) ||
+           ((userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) &&
+            ((posDesignatedUser == PEG_NOT_FOUND) ||
+             (pvdrmod.getProperty(posDesignatedUser).getValue().
+                  isNull())))
+#endif
+            )
+    {
+        status.append(_MODULE_ERROR);
+        _setStatus(status, pvdrmod);
+    }
+    // get operational status
+    Uint32 pos = pvdrmod.findProperty(_PROPERTY_OPERATIONALSTATUS);
+    if (pos != PEG_NOT_FOUND)
+    {
+        pvdrmod.getProperty(pos).getValue().get(status);
+    }
+    //
+    // If operationalStatus is not set, set it to OK
+    //
+    if (status.size() == 0)
+    {
+        status.append(_PROVIDER_OK);
+        _setStatus(status, pvdrmod);
+    }
+    else
+    {
+        Boolean statusModified = false;
+        Boolean stoppingFound = false;
+        for (Uint32 j=0; j < status.size(); j++)
+        {
+            //
+            //  Degraded status should not persist across CIM Server
+            //  restarts
+            //  Replace Degraded status with OK status
+            if (status[j] == CIM_MSE_OPSTATUS_VALUE_DEGRADED)
+            {
+                status[j] = CIM_MSE_OPSTATUS_VALUE_OK;
+                statusModified = true;
+            }
+            else if (status[j] == _PROVIDER_STOPPING)
+            {
+                // if operational status is stopping
+                // change module status to be Stopped
+                status[j] = _PROVIDER_STOPPED;
+                stoppingFound = true;
+                statusModified = true;
+            }
+        }
+        //
+        //  If a Stopping status was found and replaced with a Stopped
+        //  status, any OK status must be removed from the status array
+        if (stoppingFound)
+        {
+            for (Uint32 k=0; k < status.size(); k++)
+            {
+                if (status[k] == CIM_MSE_OPSTATUS_VALUE_OK)
+                {
+                    status.remove(k);
+                }
+            }
+        }
+        //
+        //  If status has been modified, update the repository
+        if (statusModified)
+        {
+            _setStatus(status, pvdrmod);
+        }
+    }
+    //
+    // create the key by using providerModuleName and MODULE_KEY
+    String _moduleKey = _generateKey( providerModuleName, MODULE_KEY );
+if (pvdrmod.getClassName() != "PG_ProviderModule" ) {
+}
+
+    //
+    // add the instance to the hash table by using _moduleKey
+    Array<CIMInstance> instances;
+    instances.append(pvdrmod);
+    _addInitialInstancesToTable(_moduleKey, instances);
+} // loadtableforpvdrmod()
+
+//---------------------------------------------------------------
+void ProviderRegistrationManager::_loadtableforpvdrcapab(
+                const Array<String>& nsn, const String& cls,
+                const Array<Uint16>& pvdrtype, const CIMInstance& pvdrcap ) {
+    //pvdrcap = cimNamedInstances[i];
+    // get class name
+    //pvdrcap.getProperty(pvdrcap.findProperty
+    //(_PROPERTY_CLASSNAME)).getValue().get(className);
+    // get Namespace
+    //pvdrcap.getProperty(pvdrcap.findProperty
+    //(_PROPERTY_NAMESPACES)).getValue().get(namespaces);
+    //// get provider type
+    //pvdrcap.getProperty(pvdrcap.findProperty
+    //(_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+    String capabilityKey;
+
+
+    for (Uint32 j=0; j < pvdrtype.size(); j++)
+    {
+        switch ( pvdrtype[j] )
+        {
+
+
+            case _INSTANCE_PROVIDER:
+            {
+                for (Uint32 k=0; k < nsn.size(); k++)
+                {
+                    Array<CIMInstance> instances;
+                    //
+                    // create a key by using namespace, className
+                    // and providerType. Use this key to store the
+                    // instance to the hash table
+                    if (supportWildCardNamespaceNames) capabilityKey =
+                       _generateKey(WildCardNamespaceNames::add(nsn[k]),
+                       cls, INS_PROVIDER);
+                    else capabilityKey = _generateKey(nsn[k],
+                                                      cls, INS_PROVIDER);
+                    instances.append(pvdrcap);
+                    _addInitialInstancesToTable(capabilityKey, instances);
+                }
+                break;
+            }
+
+
+            case _ASSOCIATION_PROVIDER:
+            {
+                for (Uint32 k=0; k < nsn.size(); k++)
+                {
+                    Array<CIMInstance> instances;
+                    //
+                    // create a key by using namespace, className
+                    // and providerType. Use this key to store the
+                    // instance to the hash table
+                    //
+                    if (supportWildCardNamespaceNames) capabilityKey =
+                       _generateKey(WildCardNamespaceNames::add(nsn[k]),
+                       cls, ASSO_PROVIDER);
+                    else capabilityKey = _generateKey(nsn[k],
+                                        cls, ASSO_PROVIDER);
+                    instances.append(pvdrcap);
+                    _addInitialInstancesToTable(capabilityKey, instances);
+                }
+                break;
+            }
+
+
+            case _INDICATION_PROVIDER:
+            {
+                for (Uint32 k=0; k < nsn.size(); k++)
+                {
+                    Array<CIMInstance> instances;
+                    ProviderRegistrationTable* capabilities;
+                    //
+                    // create key by using namespace, className and
+                    // providerType, store the instance to the table
+                    if (supportWildCardNamespaceNames) capabilityKey =
+                       _generateKey(WildCardNamespaceNames::add(nsn[k]),
+                       cls, IND_PROVIDER);
+                    else capabilityKey = _generateKey(nsn[k],
+                                cls, IND_PROVIDER);
+
+                    if (_registrationTable->table.lookup(capabilityKey, capabilities))
+                    {
+                        // the class is already in the table
+                        instances = capabilities->getInstances();
+                        instances.append(pvdrcap);
+                        //
+                        // remove the entry from the table
+                        delete capabilities;
+                        _registrationTable->table.remove(capabilityKey);
+                    }
+                    else
+                    {
+                        instances.append(pvdrcap);
+                    }
+
+                    // Add the entry to the table
+                    _addInitialInstancesToTable(capabilityKey, instances);
+                }
+                break;
+            }
+
+            case _METHOD_PROVIDER:
+            {
+                Array<String> supportedMethods;
+                //
+                // get supported methods
+                Uint32 pos;
+                Boolean suppMethodIsNull = true;
+                CIMValue value;
+                Uint32 methodsCount = 0;
+
+                pos = pvdrcap.findProperty(_PROPERTY_SUPPORTEDMETHODS);
+                if (pos != PEG_NOT_FOUND)
+                {
+                    value = pvdrcap.getProperty(pos).getValue();
+                    if (!value.isNull())
+                        {
+                        suppMethodIsNull = false;
+                        value.get(supportedMethods);
+                        methodsCount = supportedMethods.size();
+                    }
+                }
+
+                for (Uint32 k=0; k < nsn.size(); k++)
+                {
+                    //
+                    // create a key by using namespace, className,
+                    // method name and providerType
+                    if (suppMethodIsNull)
+                    {
+                        Array<CIMInstance> instances;
+
+                        // The provider supports all the methods
+                    if (supportWildCardNamespaceNames) capabilityKey =
+                       _generateKey(WildCardNamespaceNames::add(nsn[k]),
+                       cls, "{}", MET_PROVIDER);
+                    else capabilityKey = _generateKey(nsn[k],
+                            cls, "{}", MET_PROVIDER);
+
+                    instances.append(pvdrcap);
+                    _addInitialInstancesToTable(capabilityKey, instances);
+                    }
+                    else
+                    {
+                        for (Uint32 n=0; n < methodsCount; n++)
+                        {
+                            Array<CIMInstance> instances;
+
+                            if (supportWildCardNamespaceNames) capabilityKey =
+                               _generateKey(WildCardNamespaceNames::add(nsn[k]),
+                               cls, supportedMethods[n], MET_PROVIDER);
+                            else capabilityKey = _generateKey(nsn[k],
+                                cls, supportedMethods[n], MET_PROVIDER);
+                            instances.append(pvdrcap);
+                            _addInitialInstancesToTable(capabilityKey, instances);
+                        }
+                    }
+                }
+                break;
+            }
+
+
+            case _INSTANCE_QUERY_PROVIDER:
+            {
+                for (Uint32 k=0; k < nsn.size(); k++)
+                {
+                    Array<CIMInstance> instances;
+
+                    //
+                    // create a key by using namespace, className
+                    // and providerType. Use this key to store the
+                    // instance to the hash table
+                    if (supportWildCardNamespaceNames) capabilityKey =
+                       _generateKey(WildCardNamespaceNames::add( nsn[k] ),
+                       cls, INSTANCE_QUERY_PROVIDER);
+                    else capabilityKey = _generateKey(nsn[k],
+                                        cls, INSTANCE_QUERY_PROVIDER);
+                    instances.append(pvdrcap);
+                    _addInitialInstancesToTable( capabilityKey, instances );
+                }
+                break;
+            }
+
+
+            default:
+                //  Error condition: provider type not supported
+                //PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                            String::EMPTY);
+                break;
+        }
+    }
+} // _loadtableforpvdrcapab()
+
+bool ProviderRegistrationManager::_loadtableForAllpvdrcapab(
+            const CIMNamespaceName& nsn,
+            const CIMName& cls,
+            const String& capabilityKey,
+            ProviderRegistrationTable **result ) {
+    Array<String> nsni;
+    String clsi;
+    CIMInstance pvdrcap;
+    Array<Uint16> pvdrtypei;
+    Uint32 i,matchi;
+    if (++_loadtable_callcount > 1) {
+        // happens when not found
+        //return false;
+    }
+    _pg_pvdrcapab_loaded = true;
+    // only need to load all these once, since all existing are loaded.
+    Array<CIMInstance> insts = _repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
+            false, false, false, CIMPropertyList() );
+    for (i=0, matchi=insts.size(); i<insts.size(); ++i ) {
+        // look for PG_ProviderCapabilities matching nsn & cls. if match
+        // found remember it.  And load all in the reg table.
+        pvdrcap = insts[i];
+        pvdrcap.getProperty(pvdrcap.findProperty(_PROPERTY_CLASSNAME)).
+                             getValue().get(clsi);
+        pvdrcap.getProperty(pvdrcap.findProperty(_PROPERTY_NAMESPACES)).
+                             getValue().get(nsni);
+        pvdrcap.getProperty(pvdrcap.findProperty(_PROPERTY_PROVIDERTYPE)).
+                             getValue().get(pvdrtypei);
+        _loadtableforpvdrcapab( nsni, clsi, pvdrtypei, pvdrcap );
+        if ( (nsni[0] == nsn.getString()) &&
+             (clsi == cls.getString())        ) matchi = i;
+    }
+    if (matchi >= insts.size()) return false;
+    CIMInstance pvdrmod = _getpvdrmodule( insts[matchi] ),
+                pvdr = _getpvdr( insts[matchi] );
+    _loadtableforpvdrmod( pvdrmod );
+    _loadtableforpvdr   ( pvdr );
+    return _registrationTable->table.lookup( capabilityKey, *result );
+
+#endif
 
 Array<String> WildCardNamespaceNames::_nsstr;
 Array<Uint32> WildCardNamespaceNames::_nsl;

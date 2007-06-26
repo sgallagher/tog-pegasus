@@ -43,7 +43,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/CIMMessage.h>
-
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -444,6 +444,25 @@ private:
         */
         Array<Uint16> _getProviderModuleStatus(
             const String& providerModuleName);
+#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+        void _loadtableforpvdr( const CIMInstance& );
+        CIMInstance _getpvdr( const CIMInstance& );
+        CIMInstance _getpvdrmodule( const String& );
+        CIMInstance _getpvdrmodule( const CIMInstance&
+                                                  );
+        void _loadtableforpvdrmod( CIMInstance& );
+        void _loadtableforpvdrcapab( const Array<String>&, const String&,
+                                     const Array<Uint16>&,
+                                     const CIMInstance& );
+
+        bool _loadtableForAllpvdrcapab( const CIMNamespaceName&,
+                                        const CIMName&,
+                                        const String&,
+                                        ProviderRegistrationTable** );
+
+
+#endif
+
 };
 
 class PEGASUS_PRM_LINKAGE WildCardNamespaceNames {

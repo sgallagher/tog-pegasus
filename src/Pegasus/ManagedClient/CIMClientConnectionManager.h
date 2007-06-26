@@ -39,6 +39,7 @@
 #include <Pegasus/Common/String.h>		// for usage of class String out of Pegasus/Common
 #include <Pegasus/Client/CIMClientRep.h>
 #include <Pegasus/Client/Linkage.h>
+#include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

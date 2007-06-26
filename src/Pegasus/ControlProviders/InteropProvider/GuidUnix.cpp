@@ -45,8 +45,9 @@ String Guid::getGuid(const String &prefix)
   CIMValue secondsValue(seconds);
   CIMValue milliSecondsValue(milliSeconds);
   String ipAddress;
+  int af;
   String hostName(System::getHostName());
-  if ((ipAddress = System::getHostIP(hostName)) == String::EMPTY)
+  if (!System::getHostIP(hostName, &af, ipAddress))
   {
       // set default address if everything else failed
       ipAddress = String("127.0.0.1");

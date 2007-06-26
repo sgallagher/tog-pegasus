@@ -58,3 +58,24 @@ tests:
 
 poststarttests:
 	$(PROGRAM)
+
+# IPv6 Tests.
+
+ifeq ($(PEGASUS_ENABLE_IPV6), true)
+	@$(ECHO) "Testing with IPv6 loop-back address."
+	$(PROGRAM) [::1]:5988
+endif
+
+#
+# Testing for ipv4 mapped ipv6 addresses.
+# ATTN: These tests are not avilable on windows platforms as windows does not
+# support ipv4 mapped ipv6 addresses in XP and 2003. At present these tests
+# are enabled only on Unix platforms.
+#
+
+ifeq ($(OS_TYPE), unix)
+ifeq ($(PEGASUS_ENABLE_IPV6), true)
+	@$(ECHO) "Testing with IPv4 Mapped IPv6 Addresses."
+	$(PROGRAM) [::ffff:127.0.0.1]:5988
+endif
+endif

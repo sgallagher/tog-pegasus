@@ -68,21 +68,29 @@ tests:
 ## Indication stress-test testcase Makefile from the directory
 ## TestProviders/CMPI/TestIndicationStressTestProvider/tests . 
 cmpitests:
-	$(MAKE) poststarttests PROGRAM2=$(PROGRAM) \
+	$(MAKE) poststarttests2 PROGRAM2=$(PROGRAM) \
 			PROGRAM2+=TestCMPI_IndicationStressTestClass \
 			PROGRAM2+=test/TestProvider
 
 rcmpitests:
-	$(MAKE) poststarttests PROGRAM2=$(PROGRAM) \
+	$(MAKE) poststarttests2 PROGRAM2=$(PROGRAM) \
 			PROGRAM2+=TestCMPI_IndicationStressTestClass \
 			PROGRAM2+=test/Remote/Localhost
 
-poststarttests:
+poststarttests2:
 	$(MAKE) wql_10_1
 	$(MAKE) cql_10_1
 	$(MAKE) wql_10_1 p=HTTP
 	$(MAKE) cql_10_1 p=HTTP
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
+
+poststarttests:
+	$(MAKE) poststarttests2
+ifeq ($(PEGASUS_ENABLE_IPV6), true)
+	$(MAKE) poststarttests2 PROGRAM2=$(PROGRAM) \
+			PROGRAM2+=IPv6TestClass \
+			PROGRAM2+=test/TestProvider
+endif
 
 wql_10_1:
 	$(PROGRAM2) setup$L WQL $p 

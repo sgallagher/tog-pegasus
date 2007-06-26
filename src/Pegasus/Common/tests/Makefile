@@ -101,7 +101,9 @@ DIRS = \
     List \
     AsyncQueue \
     IDFactory \
-    SharedPtr
+    SharedPtr \
+    HostAddress \
+    HostLocator
     
 
 ifndef PEGASUS_DISABLE_PERFINST

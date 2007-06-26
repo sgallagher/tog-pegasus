@@ -44,6 +44,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/HostLocator.h>
 #if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && \
     !defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_AIX)
 // Remove SLP #include <slp/slp.h>
@@ -1640,16 +1641,13 @@ int main(int argc, char** argv)
     // ----------------------------------------
         // * Get host and port number from hostport
         // ----------------------------------------
-    Uint32 index = connectionList[i].find (':');
-        host = connectionList[i].subString (0, index);
-        portNumber = 0;
-        if (index != PEG_NOT_FOUND)
+        HostLocator addr(connectionList[i]);
+        String host = addr.getHost();
+        Uint32 portNumber = 0;
+        if (addr.isPortSpecified())
         {
-            String portStr = connectionList[i].subString(index + 1, 
-                                                connectionList[i].size ());
-            sscanf (portStr.getCString (), "%u", &portNumber);
+            portNumber = addr.getPort();
         }
-
 
         Array<CIMClient*> clientConnections;
 

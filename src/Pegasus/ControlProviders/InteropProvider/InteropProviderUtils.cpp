@@ -269,10 +269,11 @@ String getHostAddress(
     const String& port)
 {
   String ipAddress;
+  int af;
   if(hostName == String::EMPTY)
-      ipAddress = System::getHostIP(System::getHostName());
+      System::getHostIP(System::getHostName(), &af, ipAddress);
   else
-      ipAddress = System::getHostIP(hostName);
+      System::getHostIP(hostName, &af, ipAddress);
 
   if(ipAddress == String::EMPTY)
   {
@@ -283,7 +284,12 @@ String getHostAddress(
   // Question: Is there a case where we leave off the port number?
   // Code to get the property service_location_tcp ( which is equivalent to
   // "IP address:5988")
-
+#ifdef PEGASUS_ENABLE_IPV6
+  if (af == AF_INET6)
+  {
+      ipAddress = "[" + ipAddress + "]";
+  }
+#endif     
   ipAddress.append(":");
   ipAddress.append(port);
 

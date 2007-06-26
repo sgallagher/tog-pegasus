@@ -873,7 +873,15 @@ int CIMServerProcess::cimserver_run(
                 }
             }
 
-            _cimServer->addAcceptor(false, portNumberHttp, false);
+#ifdef PEGASUS_ENABLE_IPV6
+            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                portNumberHttp, false);
+#endif
+
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                portNumberHttp, false);
+#endif
 
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTP_PORT",
@@ -912,7 +920,15 @@ int CIMServerProcess::cimserver_run(
                 }
             }
 
-            _cimServer->addAcceptor(false, portNumberHttps, true);
+#ifdef PEGASUS_ENABLE_IPV6
+            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                portNumberHttps, true);
+#endif
+
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                portNumberHttps, true);
+#endif
 
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
@@ -927,7 +943,7 @@ int CIMServerProcess::cimserver_run(
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
         {
-            _cimServer->addAcceptor(true, 0, false);
+            _cimServer->addAcceptor(HTTPAcceptor::LOCAL_CONNECTION, 0, false);
 
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_LOCAL",

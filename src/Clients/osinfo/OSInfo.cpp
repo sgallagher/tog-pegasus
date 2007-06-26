@@ -40,6 +40,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/HostAddress.h>
 
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
@@ -494,6 +495,11 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         throw e;
                     }
                     _hostName = getOpts [i].Value ();
+                    HostAddress addr(_hostName);
+                    if (!addr.isValid())
+                    {
+                        throw InvalidLocatorException (_hostName);
+                    }
                     _hostNameSet = true;
                     break;
                 }
@@ -1118,6 +1124,11 @@ int main (int argc, char* argv [])
              ": " << MessageLoader::getMessage(parms) << endl;
          }
 
+        exit (Command::RC_ERROR);
+    }
+    catch (const InvalidLocatorException &ile)
+    {
+        cerr << OSInfoCommand::COMMAND_NAME << ": " << ile.getMessage() << endl;
         exit (Command::RC_ERROR);
     }
 

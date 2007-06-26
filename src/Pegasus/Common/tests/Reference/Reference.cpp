@@ -279,20 +279,6 @@ void test01()
     errorDetected = false;
     try
     {
-        //more than three digits in an octect
-        //case to test for peceeding zero's in an octet
-        CIMObjectPath h_ErrIp1("//192.168.00001.80:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-        errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
-
-    errorDetected = false;
-    try
-    {
         // Octet out of range
         CIMObjectPath h5("//192.168.256.80:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");

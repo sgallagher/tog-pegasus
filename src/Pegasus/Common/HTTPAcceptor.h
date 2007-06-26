@@ -52,6 +52,9 @@ class Monitor;
 class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 {
 public:
+    // Connection types.
+    enum { LOCAL_CONNECTION, IPV4_CONNECTION, IPV6_CONNECTION };
+
     typedef MessageQueue Base;
 
     /** Constructor.
@@ -59,9 +62,10 @@ public:
         solicit SocketMessages on the server port (socket).
         @param outputMessageQueue output message queue for connections
         created by this acceptor.
-        @param localConnection Boolean indicating whether this acceptor is
-        only for local connections.  If true, the portNumber argument is
-        ignored.
+        @param connectionType indicating the type of connection for 
+        this acceptor. connectionType can be any one of  LOCAL_CONNECTION,
+        IPV4_CONNECTION and IPV6_CONNECTION. If connectionType is
+        LOCAL_CONNECTION portNumber is ignored.
         @param portNumber Specifies which port number this acceptor is to
         listen on.  If this value is 0 then a port is automatically selected
         by bind().  In this case, the actual port number used can be retrieved
@@ -73,7 +77,7 @@ public:
     HTTPAcceptor(
         Monitor* monitor,
         MessageQueue* outputMessageQueue,
-        Boolean localConnection,
+        Uint16 connectionType,
         Uint32 portNumber,
         SSLContext * sslcontext,
         ReadWriteSem* sslContextObjectLock = 0);
@@ -138,7 +142,7 @@ private:
 
     int _entry_index;
 
-    Boolean _localConnection;
+    Uint16 _connectionType;
     Uint32 _portNumber;
     SSLContext* _sslcontext;
     ReadWriteSem*  _sslContextObjectLock;

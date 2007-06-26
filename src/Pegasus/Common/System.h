@@ -123,26 +123,18 @@ public:
     static String getHostName();
     static String getFullyQualifiedHostName ();
     static String getSystemCreationClassName ();
-    static String getHostIP(const String &hostName);
 
-    static Uint32 _acquireIP(const char* hostname);
+    // Gets IP address assosiated with hostName. af indicates the
+    // type of address (ipv4 or ipv6) returned.
+    static Boolean getHostIP(const String &hostName, int *af, String &hostIP);
+
+    // Gets IP address in binary form. af indicates the type of
+    // address (ipv4 or ipv6) returned. Address will be copied to dst.
+    static Boolean _acquireIP(const char* hostname, int *af, void *dst);
 
     static Uint32 lookupPort(
         const char * serviceName,
         Uint32 defaultPort);
-
-    /**
-        Attempts to validate that the input hostName represents the same host as
-        the host represented by the value returned by the
-        getFullyQualifiedHostName() method.
-
-        @param  hostName  the host name to validate
-
-        @return  True if the input hostName can be validated to represent the
-                 same host;
-                 False otherwise
-     */
-    static Boolean sameHost (const String & hostName);
 
     /**
         Attempts to find the given IP address(32bit) on any of the local defined
@@ -180,6 +172,13 @@ public:
         use the DNS
      */
     static Boolean isLocalHost(const String& hostName);
+
+    /**
+        Checks binIPAddress represented by address family and returns true
+        if binary representation matches with loopback ip address. binIPAddress
+        must be in host-byte order.
+    */
+    static Boolean isLoopBack(int af, void *binIPAddress);
 
     static String getEffectiveUserName();
 

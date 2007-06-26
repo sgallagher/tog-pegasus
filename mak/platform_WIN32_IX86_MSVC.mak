@@ -49,6 +49,20 @@ CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 
 
 #
+# Determine the version of Windows being used.
+# IPv6 is not supported on Windows 2000 (earliest Windows version supported
+# by Pegasus), nor by the VC 6 compiler (CL_MAJOR_VERSION is 12 for VC 6).
+#
+WIN_VERSION := $(shell ver)
+ifeq ($(findstring [Version 5.0.,$(WIN_VERSION)),[Version 5.0.)
+    PEGASUS_ENABLE_IPV6 = false
+endif
+ifeq ($(CL_MAJOR_VERSION), 12)
+    PEGASUS_ENABLE_IPV6 = false
+endif
+
+
+#
 # The flags set here should be valid for VC 6.
 #
 # The -Zm105 flag was added as part of bug 4418 to resolve this compile error:

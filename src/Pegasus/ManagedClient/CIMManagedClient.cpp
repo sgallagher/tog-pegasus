@@ -797,19 +797,14 @@ CIMClientRep* CIMManagedClient::getTargetCIMOM(const CIMObjectPath& inObjectPath
 	// test if a host is given at all not necessary	here
 	// if there is no we failed to detect that before anyway
 	// wonder how that should possibly happen???
-
-	// splitting the port from hostname
-	int i = inHost.find(":");
-	// only if there is a ":" we should split a port address from hostname string
-	if (i > 0)
+        HostLocator addr(inHost);
+        Uint32 portNumber = 0;
+        if (addr.isPortSpecified())
 	{
-		inPort = inHost.subString(i+1);
-		inHost.remove(i);
-	} else
-	{
-		// if there is no : , there is no port, we use the default empty port
-		inPort = String::EMPTY;
+            inHost = addr.getHost();
+            inPort = addr.getPortString();
 	}
+
 	return getTargetCIMOM(inHost, inPort, inNameSpace);
 }
 

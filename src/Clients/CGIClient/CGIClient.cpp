@@ -60,6 +60,7 @@ Pegasus.
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/CIMMethod.h>
+#include <Pegasus/Common/HostLocator.h>
 
 #include "CGIQueryString.h"
 
@@ -139,13 +140,12 @@ void getHostAndPort (String & host, Uint32 & portNumber)
 
     if (tmpStr.size () > 0)
     {
-        Uint32 index = tmpStr.find (':');
-        host = tmpStr.subString (0, index);
+        HostLocator addr(tmpStr);
         portNumber = 0;
-        if (index != PEG_NOT_FOUND)
+        host = addr.getHost ();
+        if (addr.isPortSpecified())
         {
-            String portStr = tmpStr.subString (index + 1, tmpStr.size ());
-            sscanf (portStr.getCString (), "%u", &portNumber);
+            portNumber = addr.getPort();
         }
     }
     else

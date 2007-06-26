@@ -656,7 +656,7 @@ CIMServer::~CIMServer ()
 }
 
 void CIMServer::addAcceptor(
-    Boolean localConnection,
+    Uint16 connectionType,
     Uint32 portNumber,
     Boolean useSSL)
 {
@@ -665,7 +665,7 @@ void CIMServer::addAcceptor(
     acceptor = new HTTPAcceptor(
         _monitor.get(),
         _httpAuthenticatorDelegator,
-        localConnection,
+        connectionType,
         portNumber,
         useSSL ? _getSSLContext() : 0,
         useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );

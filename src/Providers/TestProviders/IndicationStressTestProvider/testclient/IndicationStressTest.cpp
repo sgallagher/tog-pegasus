@@ -53,6 +53,15 @@ PEGASUS_USING_STD;
 
 CIMNamespaceName sourceNamespace;
 String indicationClassName;
+Boolean Ipv6Test;
+
+const CIMNamespaceName DEFAULT_NAMESPACE =
+    CIMNamespaceName ("test/TestProvider");
+const String DEFAULT_CLASS_NAME = String ("IndicationStressTestClass");
+const String HTTP_IPV6_DESTINATION = String ("http://[::1]:5988");
+const String HTTPS_IPV6_DESTINATION = String ("https://[::1]:5989");
+const String HTTP_IPV4_DESTINATION = String ("http://localhost:5988");
+const String HTTPS_IPV4_DESTINATION = String ("https://localhost:5989");
 
 const CIMNamespaceName INDICATION_CONSUMER_NAMESPACE =
           CIMNamespaceName ("test/TestProvider");
@@ -717,11 +726,25 @@ void _setup (CIMClient & client, String& qlang,
             }
             else if (handleProtocol == PROTOCOL_CIMXML_HTTP)
             {
-               destinationProtocol = "http://localhost:5988";
+                 if (Ipv6Test)
+                 {
+                     destinationProtocol = HTTP_IPV6_DESTINATION;
+                 }
+                 else
+                 {
+                     destinationProtocol = HTTP_IPV4_DESTINATION;
+                 } 
             }
             else if (handleProtocol == PROTOCOL_CIMXML_HTTPS)
             {
-               destinationProtocol = "https://localhost:5989";
+                 if (Ipv6Test)
+                 { 
+                     destinationProtocol = HTTPS_IPV6_DESTINATION;
+                 }
+                 else
+                 {
+                     destinationProtocol = HTTPS_IPV4_DESTINATION;
+                 }  
             }
             else
             {
@@ -780,6 +803,8 @@ void _setup (CIMClient & client, String& qlang,
             // Create the handler with this program as the CIMListener
             clientHandlerObjectPath = _createHandlerInstance (client,
                 CLIENT_RESIDENT_HANDLER_NAME,
+                Ipv6Test ? 
+                String ("http://[::1]:2005/TestIndicationStressTest") :
                 String ("http://localhost:2005/TestIndicationStressTest"));
         }
         catch (CIMException& e)
@@ -1089,9 +1114,17 @@ int _beginTest(CIMClient& workClient, const char* opt,
             // Finish starting the CIMListener
             try
             {
-                cout << "+++++ Starting the CIMListener at destination\n"
-                     << "       http://localhost:2005/TestIndicationStressTest"
-                     << endl;
+                cout << "+++++ Starting the CIMListener at destination\n";
+                if (Ipv6Test)
+                {
+                    cout  << "     http://[::1]:2005/TestIndicationStressTest";
+                }
+                else
+                {
+                    cout  <<
+                         "     http://localhost:2005/TestIndicationStressTest";
+                }
+                cout << endl;
 
                 // Start the listener
                 listener.start();
@@ -1452,8 +1485,23 @@ int main (int argc, char** argv)
             optThree = NULL;
             optFour = NULL;
         }
-        indicationClassName = argv[1];
-        sourceNamespace = CIMNamespaceName (argv[2]);
+        Ipv6Test = false;
+        // Check if class name is IPv6TestClass, handle this class name
+        // differently. We use default class-name and namespace for 
+        // IPv6TestClass class. IPv6TestClass class does not exist, it is used
+        // to test IndicationStressTestProvider on IPv6.
+        if (!strcmp(argv[1], "IPv6TestClass"))
+        {
+            Ipv6Test = true;
+            indicationClassName = DEFAULT_CLASS_NAME;
+            sourceNamespace = DEFAULT_NAMESPACE;
+            cout << "++++ Testing with IPv6 LoopBack address " << endl;
+        }
+        else
+        {
+            indicationClassName = argv[1];
+            sourceNamespace = CIMNamespaceName (argv[2]);
+        } 
         cout << "++++ Testing with class " << indicationClassName
              << " and Namespace " << sourceNamespace.getString () << endl;
         try

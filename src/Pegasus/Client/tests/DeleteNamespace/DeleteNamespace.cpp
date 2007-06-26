@@ -49,6 +49,7 @@
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -552,15 +553,14 @@ int main(int argc, char** argv)
                      //
                      //  Get host and port number from connection list entry
                      //
-                     Uint32 index = connectionList[i].find (':');
-                     String host = connectionList[i].subString (0, index);
+                     HostLocator addr(connectionList[i]);
+                     String host = addr.getHost();
                      Uint32 portNumber = 0;
-                     if (index != PEG_NOT_FOUND)
+                     if (addr.isPortSpecified())
                      {
-                         String portStr = connectionList[i].subString
-                             (index + 1, connectionList[i].size ());
-                         sscanf (portStr.getCString (), "%u", &portNumber);
+                         portNumber = addr.getPort();
                      }
+
 
                      if (useSSL)
              {

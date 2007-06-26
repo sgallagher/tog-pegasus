@@ -52,6 +52,7 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/IPCExceptions.h>
+#include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -2006,12 +2007,11 @@ static void TestLocalizedIndications( CIMClient& client,
     // Construct our CIMListener in case we use it.
     Boolean listenerError = false;
 
-    Uint32 index = listenerHost.find (':');
     Uint32 portNumber = 2003;
-    if (index != PEG_NOT_FOUND)
+    HostLocator addr(listenerHost);
+    if (addr.isPortSpecified())
     {
-      String portStr = listenerHost.subString(index + 1, listenerHost.size());
-      sscanf (portStr.getCString(), "%u", &portNumber);
+        portNumber = addr.getPort();
     }
 
     CIMListener listener(portNumber);
@@ -2540,14 +2540,12 @@ int main(int argc, char** argv)
           //
           //  Get host and port number from connection list entry
           //
-          Uint32 index = connectionList[i].find (':');
-          String host = connectionList[i].subString (0, index);
+          HostLocator addr(connectionList[i]);
+          String host = addr.getHost();
           Uint32 portNumber = 0;
-          if (index != PEG_NOT_FOUND)
+          if (addr.isPortSpecified())
         {
-          String portStr = connectionList[i].subString
-            (index + 1, connectionList[i].size ());
-          sscanf (portStr.getCString (), "%u", &portNumber);
+              portNumber = addr.getPort();
         }
 
           if (om.isTrue("local"))

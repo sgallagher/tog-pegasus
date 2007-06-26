@@ -84,15 +84,17 @@ public:
     ~CIMServer();
 
     /** Adds a connection acceptor for the specified listen socket.
-        @param localConnection Boolean specifying whether the acceptor should
-               listen on a local-system-only connection.
+        @param connectionType specifying whether the acceptor should
+               listen on LOCAL_CONNECTION or IPV4_CONNECTION or
+               IPV6_CONNECTION socket. portNumber is ignored if
+               connectionType is LOCAL_CONNECTION.
         @param portNumber Port number that should be used by the listener.
                This parameter is ignored if localConnection=true.
         @param useSSL Boolean specifying whether SSL should be used for
                connections created by this acceptor.
     */
     void addAcceptor(
-        Boolean localConnection,
+        Uint16 connectionType,
         Uint32 portNumber,
         Boolean useSSL);
 

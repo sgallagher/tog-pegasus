@@ -40,6 +40,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/HostAddress.h>
 
 #include "CIMExportRequestEncoder.h"
 #include "CIMExportResponseDecoder.h"
@@ -109,6 +110,14 @@ void CIMExportClient::_connect()
     // Create request encoder:
 
     String connectHost = _connectHost;
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if (HostAddress::isValidIPV6Address(connectHost))
+    {
+        connectHost = "[" + connectHost + "]";
+    }
+#endif
+
     if (connectHost.size())
     {
         char portStr[32];

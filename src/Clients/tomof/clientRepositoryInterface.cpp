@@ -37,6 +37,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Exception.h>
 #include "clientRepositoryInterface.h"
+#include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -69,14 +70,14 @@ clientRepositoryInterface::init(_repositoryType type,
     // create a CIMClient object and put it in _client
     try
     {
-        Uint32 index = location.find (':');
-        String host = location.subString (0, index);
+        HostLocator addr(location);
+        String host = addr.getHost();
         Uint32 portNumber = 0;
-        if (index != PEG_NOT_FOUND)
+        if (addr.isPortSpecified())
         {
-            String portStr = location.subString (index + 1, location.size ());
-            sscanf (portStr.getCString (), "%u", &portNumber);
+            portNumber = addr.getPort();
         }
+
         cout << "open " << host << " port " << portNumber << endl;
         _client = new CIMClient();
         _client->connect (host, portNumber, String::EMPTY, String::EMPTY);

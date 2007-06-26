@@ -71,6 +71,9 @@
 #       include <winsock2.h>
 #   endif
 #   include <wincrypt.h>
+#   ifdef PEGASUS_ENABLE_IPV6
+#   include <ws2tcpip.h>
+#   endif   
 #endif
 
 //------------------------------------------------------------------------------

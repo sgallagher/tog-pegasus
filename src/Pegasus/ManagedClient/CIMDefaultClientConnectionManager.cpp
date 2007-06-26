@@ -64,26 +64,17 @@ CIMClientRep* CIMDefaultClientConnectionManager::getConnection(
 								const CIMNamespaceName& nameSpace)
 
 {
-	Uint32 requestedIP;
+	char requestedIP[PEGASUS_INET6_ADDRSTR_LEN];
 	Uint32 requestedPort;
 
-	// build a single host unique integer representation
-	requestedIP = System::_acquireIP((const char*) host.getCString());
-
-	if (requestedIP == 0x7F000001)
+        int af;
+        System::_acquireIP((const char*)host.getCString(), &af, requestedIP);
+        if (System::isLoopBack(af, requestedIP))
 	{
 		// localhost or ip address of 127.0.0.1
 		// still for compare we need the real ip address
-		requestedIP = System::_acquireIP((const char *) System::getHostName().getCString());
-	}
-	if (requestedIP == 0xFFFFFFFF)
-	{
-		// bad formatted ip address or not resolveable
-/*		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATH_IP_UNRESOLVEABLE",
-												 "Failed validation of CIM object path: failed to resolve IP address($0) from object path",
-												 ObjHost);
-		throw TypeMismatchException(typeMismatchMessage);
-*/		
+            System::_acquireIP((const char *)
+                System::getHostName().getCString(), &af, requestedIP);
 	}
 		
 	requestedPort = strtoul((const char*) port.getCString(), NULL, 0);
@@ -95,7 +86,7 @@ CIMClientRep* CIMDefaultClientConnectionManager::getConnection(
 	for (Uint32 i=0;i<_cccm_container.size();i++)
 	{
 		ccc = _cccm_container[i];
-		if (ccc->equals(requestedIP, port))
+		if (ccc->equals(requestedIP, af, port))
 		{
 			// okay, we found the correct connection
 			// in case it isn't already connected, lets connect and return the connection to caller

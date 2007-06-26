@@ -52,6 +52,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/HostAddress.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -414,6 +415,12 @@ int main(int argc, char** argv)
     //Get hostname form (option manager) command line if none use default
     String location;
     om.lookupValue("location", location);
+    HostAddress addr(location);
+    if (!addr.isValid())
+    {
+        cerr << "Invalid Locator : " << location << endl;
+        exit(1);
+    }
 
     // Get port number from (option manager) command line; if none use the
     // default.  The lookup will always be successful since the optionTable

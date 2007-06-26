@@ -97,7 +97,13 @@ private:
     Semaphore* _shutdownSem;
 
     Monitor*        _monitor;
-    HTTPAcceptor*   _acceptor;
+
+#ifdef PEGASUS_ENABLE_IPV6
+    HTTPAcceptor *_ip6Acceptor;
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    HTTPAcceptor *_ip4Acceptor;
+#endif
 
     CIMExportResponseEncoder* _responseEncoder;
     CIMExportRequestDecoder*  _requestDecoder;

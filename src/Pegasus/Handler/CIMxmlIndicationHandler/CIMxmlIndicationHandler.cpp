@@ -41,6 +41,7 @@
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -268,30 +269,16 @@ public:
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
             }
 
-            bool parseError = false;
-            colon = destStr.find (":");
-            //
-            // get hostname and port number from destination string
-            //
-            if (colon != PEG_NOT_FOUND)
+            HostLocator addr(destStr.subString(0, destStr.find("/")));
+            char hostName[PEGASUS_MAXHOSTNAMELEN];
+            if (addr.isValid())
             {
-                hostStr = destStr.subString (0, colon);
-                destStr = destStr.subString(colon + 1, PEG_NOT_FOUND);
-                String portStr = destStr.subString (0, destStr.find ("/"));
-
-                char dummy;
-                int noOfConversions = sscanf(portStr.getCString (), "%u%c",
-                    &portNumber, &dummy);
-                parseError = (noOfConversions != 1);
-            }
-            //
-            // There is no port number in the destination string,
-            // get port number from system
-            //
-            else
-            {
-                hostStr = destStr.subString(0, destStr.find ("/"));
-                if (useHttps)
+                strcpy(hostName, addr.getHost().getCString());
+                if (addr.isPortSpecified())
+                {
+                    portNumber = addr.getPort();
+                }
+                else if (useHttps)
                 {
                      portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
                         WBEM_DEFAULT_HTTPS_PORT);
@@ -302,17 +289,7 @@ public:
                         WBEM_DEFAULT_HTTP_PORT);
                 }
             }
-
-            char hostName[PEGASUS_MAXHOSTNAMELEN];
-            if (!parseError)
-            {
-                char dummy;
-                int noOfConversions = sscanf(hostStr.getCString (), "%s%c",
-                    hostName, &dummy);
-                parseError = (noOfConversions != 1);
-            }
-
-            if (parseError)
+            else
             {
                 String msg = _getMalformedExceptionMsg(dest);
 

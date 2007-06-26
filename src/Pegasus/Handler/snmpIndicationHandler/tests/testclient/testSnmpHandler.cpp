@@ -41,6 +41,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/HostAddress.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -56,7 +57,7 @@ const String SNMPV2C_HANDLER_NAME = String ("SNMPHandler02");
 const String FILTER_NAME = String ("IPFilter01");
 
 enum SNMPVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3};
-enum TargetHostFormat {_HOST_NAME = 2, _IPV4_ADDRESS = 3};
+enum TargetHostFormat {_HOST_NAME = 2, _IPV4_ADDRESS = 3, _IPV6_ADDRESS = 4};
 
 #define PORT_NUMBER 2006
 
@@ -344,12 +345,15 @@ void _setup (CIMClient & client, const String& qlang)
 
     try
     {
+        String ipAddress;
+        int af;
+        System::getHostIP(System::getFullyQualifiedHostName (), &af, ipAddress);
         // Create SNMPv2 trap handler 
         snmpv2HandlerObjectPath = _createHandlerInstance (client,
             SNMPV2C_HANDLER_NAME,
-            System::getHostIP(System::getFullyQualifiedHostName ()),
+            ipAddress,
             "public",
-            _IPV4_ADDRESS,
+            af == AF_INET ? _IPV4_ADDRESS : _IPV6_ADDRESS,
             _SNMPV2C_TRAP);
     }
     catch (CIMException& e)

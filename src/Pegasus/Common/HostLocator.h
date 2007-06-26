@@ -1,4 +1,4 @@
-//%2006////////////////////////////////////////////////////////////////////////
+//%2007////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -29,51 +29,88 @@
 //
 //==============================================================================
 //
-// Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
-#ifndef Pegasus_CIMClientConnection_h
-#define Pegasus_CIMClientConnection_h
+ 
+#ifndef Pegasus_HostLocator_h
+#define Pegasus_HostLocator_h
 
-#include <Pegasus/Client/CIMClientRep.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Client/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/HostAddress.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CLIENT_LINKAGE CIMClientConnection
-{
+/**
+    This class is used to store the host locator. HostLocator can be Hostname or
+    IPv4 address or IPv6 address with optional port. IPv6 address must be 
+    enclosed in brackets.
+*/
 
+class PEGASUS_COMMON_LINKAGE HostLocator
+{
 public:
 
-	// class constructor
-	CIMClientConnection();
-	
-	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd);
-	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd, const SSLContext& sslcontext);
+    /**
+        Port Numbers. Values for Max, valid and unspecified ports. 
+    */
+    enum
+    {
+        PORT_UNSPECIFIED =  Uint32(-2),
+        PORT_INVALID = Uint32(-1),
+        MAX_PORT_NUMBER = 65535
+    };
 
-	Boolean equals(void *binIPAddress, int af, const String& port);
+    HostLocator();
+    ~HostLocator();
 
-	CIMClientRep *  getConnectionHandle(void);
+    HostLocator(const String &locator);
+    HostLocator(const HostLocator &rhs);
+    HostLocator& operator =(const HostLocator &rhs);
+ 
+    void setHostLocator(const String &locator);
 
-	String getUser(void);
-	String getPass(void);
-	SSLContext* getSSLContext(void);
+    /**
+        Returns true if the address is valid. If vaild it can be HostName
+        or IPv4Address or IPv6Address.
+    */
+    Boolean isValid();
+
+    /**
+        Returns HostName or IPv4Address or IPv6Address. Removes port number
+        from HostLocator if present. This returns empty string if HostLocator
+        is not valid. Check if HostLocator is valid by using isValid() method
+        before making any calls on HostLocator object.
+    */
+    String getHost();
+
+    /**
+        Returns port number assosiated with this HostLocator.
+    */
+    Uint32 getPort();
+
+    /**
+        Returns port number in the string form.
+    */
+    String getPortString();
+
+    /*
+        Returns true if port is specified as part of HostAddress and it is
+        valid.
+    */
+    Boolean isPortSpecified ();
+
+    /**
+       Returns address type. It can be AT_IPV4, AT_IPV6 or AT_HOSTNAME of
+       HostAddress.
+    */
+    Uint16 getAddressType();
 
 private:
-    AutoPtr<CIMClientRep> _connectionHandle;
-	String	_hostname;
-	String	_port;
-	String  _userid;
-	String  _passwd;
-    AutoPtr<SSLContext> _sslcontext;
-	
-	char  _resolvedIP[PEGASUS_INET6_ADDRSTR_LEN];
+    void _init();
+    void _parseLocator(const String &locator);
+    HostAddress _hostAddr;
+    Boolean _isValid;
+    Uint32 _portNumber;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif  // Pegasus_CIMClientConnection_h
+#endif //Pegasus_HostLocator_h

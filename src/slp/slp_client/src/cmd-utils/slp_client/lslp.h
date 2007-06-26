@@ -35,7 +35,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp.h,v 1.6 2006/01/31 14:50:42 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp.h,v 1.7 2007/06/26 07:16:12 ks.madhusudan Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -70,11 +70,9 @@
 extern "C" {
 #endif
 
-#ifndef NUCLEUS   //jeb
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #pragma pack( push, lslp_defs )
 #pragma pack(1)
-#endif
 #endif
 #include "config.h"
 #include "endian.h"
@@ -273,46 +271,6 @@ extern "C" {
 
 #else  /* BIG ENDIAN */
 
-#ifdef NUCLEUS   //nucleus use some existing functions
-#define _LSLP_GETBYTE(h, o) GET8(h, o) 
-#define _LSLP_GETSHORT(h, o) GET16(h, o)
-#define _LSLP_SETBYTE(h, i, o) PUT8(h, o, i)   //buf,offset,value
-#define _LSLP_SETSHORT(h, i, o) PUT16(h, o, i) //buf,offset,value
-#define _LSLP_GETLONG(h, o)  GET32(h, o)
-#define _LSLP_SETLONG(h, i, o) 	PUT32(h, o, i) //buf,offset,value
-
-
-#define _LSLP_GETLENGTH(h) ((0xff0000 & (GET8(h, LSLP_LENGTH) << 16)) + \
-			                 (0x00ff00 & (GET8(h, LSLP_LENGTH+1) << 8)) + \
-			                  (0x0000ff & (GET8(h, LSLP_LENGTH+2))) )
-  /***********************
-#define _LSLP_SETLENGTH(h, i)  ((PUT8((h), (LSLP_LENGTH), ((uint8)(((i)) >> 16)) )) + \
-                 (PUT8((h), (LSLP_LENGTH + 1), ((uint8)(((i)) >> 8)) )) + \ 
-                  (PUT8((h), (LSLP_LENGTH + 2), ((uint8)(i)) )))       
-  *****************************/   
-#define _LSLP_SETLENGTH(h, i)  ((PUT8((h), (LSLP_LENGTH), ((uint8)(((i)) >> 16)))) + (PUT8((h), (LSLP_LENGTH + 1), ((uint8)(((i)) >> 8)) )) + (PUT8((h), (LSLP_LENGTH + 2), ((uint8)(i)) )))          
-
-#define _LSLP_GETNEXTEXT(h) ((0xff0000 & (GET8(h, LSLP_NEXT_EX) << 16)) + \
-			(0x00ff00 & (GET8(h, (LSLP_NEXT_EX + 1)) << 8)) + \
-			 (0x0000ff & (GET8(h, (LSLP_NEXT_EX + 2)))))
-#define _LSLP_SETNEXTEXT(h, i)  ((PUT8(h, (LSLP_NEXT_EX), ((uint8)((i) >> 16)))) + (PUT8(h, (LSLP_NEXT_EX + 1), ((uint8)((i) >> 8)))) + (PUT8(h, (LSLP_NEXT_EX + 2), ((uint8)(i)))))     
-  /*********************************
-#define _LSLP_SETNEXTEXT(h, i)  ((PUT8((h), (LSLP_NEXT_EX), ((uint8)((i) >> 16)))) + \
-                 (PUT8((h), (LSLP_NEXT_EX + 1), ((uint8)((i) >> 8)))) + \ 
-                  (PUT8((h), (LSLP_NEXT_EX + 2), ((uint8)(i)))))     
-  ************************/
-
-#define _LSLP_GET3BYTES(h, o) ((0xff0000 & (GET8(h, o) << 16)) + \
-			(0x00ff00 & (GET8(h, ((o) + 1)) << 8)) + \
-			 (0x0000ff & (GET8(h, ((o) + 2)))))
-
-
-//#define _LSLP_SET3BYTES(h, i, o) (PUT16((h),(o),(i))); (PUT8((h),((o)+2),(i))) 
-#define _LSLP_SET3BYTES(h, i, o)  ((PUT8((h), (o), ((uint8)((i) >> 16)))) + (PUT8((h), ((o) + 1), ((uint8)((i) >> 8)))) + (PUT8((h), ((o) + 2), ((uint8)(i)))))          
-
-
-
-#else //big endian - not nucleus
 #define _LSLP_GETBYTE(h, o)  (0x00ff  & *((uint8 *) &((h)[(o)])))
 #define _LSLP_GETSHORT(h, o) ((0xff00 & _LSLP_GETBYTE((h), (o))) + \
                                (0x00ff & _LSLP_GETBYTE((h), (o) + 1)))
@@ -346,7 +304,6 @@ extern "C" {
 #define _LSLP_GETNEXTEXT _LSLP_GET3BYTES
 #define _LSLP_SETNEXTEXT _LSLP_SET3BYTES
 
-#endif //#ifdef nucleus
 #endif  /* ENDIAN definitions */
 
   /* macros to get and set header fields */
@@ -410,17 +367,12 @@ struct api_hdr {
 
 #define _LSLP_FREE_DEINIT(a) if((a) != NULL) { free(a); a = NULL; }
 
-#ifdef NUCLEUS
-#define LSLP_MTU ETHERNT_MTU //jeb
-#endif
 
 
 #ifdef	__cplusplus
 }
 #endif
-#ifndef NUCLEUS  //jeb
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #pragma pack( pop, lslp_defs )
-#endif
 #endif
 #endif /* _LSLPDEFS_INCLUDE */

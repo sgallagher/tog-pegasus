@@ -30,7 +30,7 @@
 //==============================================================================
 /*****************************************************************************
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/endian.h,v 1.5 2006/01/31 14:50:42 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/endian.h,v 1.6 2007/06/26 07:16:12 ks.madhusudan Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -65,12 +65,8 @@
 #endif
 #define	__PDP_ENDIAN__	3412
 
-#ifdef NUCLEUS
-   #define __BYTE_ORDER__ __BIG_ENDIAN__
-#else
    #ifdef WORDS_BIGENDIAN
       #define __BYTE_ORDER__ __BIG_ENDIAN__
    #else 
       #define __BYTE_ORDER__ __LITTLE_ENDIAN__
    #endif 
-#endif

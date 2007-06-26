@@ -443,31 +443,6 @@ void free_url_list(struct url_entry *list)
 	return(0);
 }
 
-#elif defined( NUCLEUS )  //jeb
-
- int Gethostbyname_r(const char *name,
-		     struct hostent *resultbuf,
-		     char *buf,
-		     size_t bufsize,
-		     struct hostent **result,
-		     int *errnop)
-{
-  name = name;
-  resultbuf = resultbuf;
-  buf = buf;
-  bufsize = bufsize;
-
-  if(NULL == (*result = _LSLP_GETHOSTBYNAME(name))) {
-#ifdef NUCLEUS
-      *errnop = -2;
-#else
-      *errnop = h_errno;
-#endif
-    return(-1);
-  }
-  return(0);
-}
-
 #else
 
 #define Gethostbyname_r gethostbyname_r
@@ -487,8 +462,6 @@ char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     _snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
-#elif defined (NUCLEUS)                                              //jeb
-    sprintf(name, "%s:%d", inet_ntoa(a.sin_addr), a.sin_port );  //jeb
 #else                                                                   //jeb
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 	sprintf(name, "%s:%d",  inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
@@ -592,11 +565,7 @@ BOOL  get_addr_from_url(const char *url, SOCKADDR_IN *addr, char **host)
 	while(temp != NULL && (result = Gethostbyname_r(bptr, &hostbuf,
 	    temp,
 	    hostbuflen,
-#ifdef NUCLEUS
-	    &host, &err)) == -1){
-#else
         &host, &err)) == ERANGE){   //
-#endif
 	  hostbuflen *= 2;
 	  temp = (char *) realloc(temp, hostbuflen);
 	}
@@ -677,29 +646,6 @@ errcode = WSAGetLastError();
     _LSLP_CLOSESOCKET(sock);
   }
 
-
-#elif defined ( NUCLEUS )   //jeb
-  /* only one interface do the following: */
-  *list = (uint32 *)malloc(sizeof(uint32));
-
-  //get name of external ethernet
-  NU_IOCTL_OPTION option;
-  option.s_optval = (unsigned char *)ETHER0;
-
-  //get IP address
-  if (NU_Ioctl(IOCTL_GETIFADDR, &option, sizeof(option)) == NU_SUCCESS)
-  {
-     //get IP address
-     memcpy(*list, option.s_ret.s_ipaddr, 4);
-     interfaces = 1;
-  }
-  else // no interfaces
-     interfaces = 0;
-
-  *list = (uint32 *)malloc(sizeof uint32);
-  *list[0] = inet_addr(" address of interface ");
-  interfaces = 1;
-
 #else
   if( -1 < (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0) ) ) {
     struct ifconf conf;
@@ -751,12 +697,7 @@ errcode = WSAGetLastError();
 
 BOOL  slp_join_multicast(SOCKETD sock, uint32 addr)      //jeb
 {
-#if defined(NUCLEUS )    //jeb
-  //don't support for now
-  DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast:no support "));
-  return(FALSE);         //jeb
 
-#else
  struct ip_mreq mreq;
   DEBUG_PRINT((DEBUG_ENTER, "slp_join_multicast "));
   // don't join on the loopback interface
@@ -778,7 +719,6 @@ BOOL  slp_join_multicast(SOCKETD sock, uint32 addr)      //jeb
 
   DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast:ok "));
   return(TRUE);    //jeb
-#endif
 }
 
 
@@ -812,9 +752,7 @@ SOCKETD slp_open_listen_sock( void )       //jeb
 
   DEBUG_PRINT((DEBUG_ENTER, "slp_open_listen_sock "));
 
-#ifndef NUCLEUS    //jeb not supported
   _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err));
-#endif
   local.sin_family = AF_INET;
   local.sin_port = htons(427);
   local.sin_addr.s_addr  = INADDR_ANY;
@@ -877,9 +815,7 @@ void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, char response,
     if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
       SOCKADDR_IN local;
       int err = 1;
-#ifndef NUCLEUS
       _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
-#endif
       local.sin_family = AF_INET;
       local.sin_port = client->_target_port ;
             local.sin_addr.s_addr = local_address;
@@ -1338,11 +1274,7 @@ void local_srv_req( struct slp_client *client,
   tv_save.tv_sec = client->_tv.tv_sec;
   tv_save.tv_usec = client->_tv.tv_usec;
   client->_tv.tv_sec = 0;
-#ifdef NUCLEUS     //jeb
-  client->_tv.tv_usec = 2*TICKS_PER_SECOND;  //socket call with timer UINT32
-#else
   client->_tv.tv_usec = 10000;
-#endif
   // let the host decide which interface to use
   client->_local_addr = INADDR_ANY;
   client->_target_addr = inet_addr("127.0.0.1");
@@ -2280,9 +2212,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
       if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 	SOCKADDR_IN local;
 	int err = 1;
-#ifndef NUCLEUS
 	_LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
-#endif
 	local.sin_family = AF_INET;
 	local.sin_port = client->_target_port ;
 	local.sin_addr.s_addr = local_address;
@@ -2449,12 +2379,8 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
 
   if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
     int err = 1;
-#ifndef NUCLEUS    //jeb
     _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
     local.sin_port = 0;
-#else
-      local.sin_port = 427;  for loopback to work the first time client inits
-#endif
     local.sin_family = AF_INET;
 
 //jeb
@@ -2613,83 +2539,6 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
   if(extra_sock)
     _LSLP_FD_SET( extra_sock, &fds);
 
-#ifdef NUCLEUS
-    const char fun_name[] = "service_listener";
-    err = -1;
-    tv.tv_sec = client->_tv.tv_sec;
-    tv.tv_usec = client->_tv.tv_usec;
-    err = _LSLP_SELECT(((client->_rcv_sock != INVALID_SOCKET) &&
-			(client->_rcv_sock > extra_sock)) ?
-		       client->_rcv_sock + 1: extra_sock + 1, &fds, NULL, NULL, &tv);
-
-    // was there some data?
-    if (err == NU_SUCCESS)
-    {   //yes
-        SOCKADDR_IN remote;
-        int size = sizeof(SOCKADDR_IN);
-
-        if (client->_rcv_sock != INVALID_SOCKET)
-        {
-          if (_LSLP_FD_ISSET(client->_rcv_sock, &fds))
-          {
-     	    err = _LSLP_RECV_FROM(client->_rcv_sock, client->_rcv_buf, LSLP_MTU, 0, &remote, &size);
-          }
-        }
-        //did we receive data or invalid socket
-        if (err > 0 )
-        {
-          //go decode the inbound message
-          decode_msg( client, &remote );
-
-	  DEBUG_PRINT((DEBUG_EXIT, "__service_listener 1 err = %d", err));
-          return(err);
-        }
-        else //error on receive or invalid socket
-        {
-          _system_info(TRUE,"%s:Receive error=%d,skt=%d",fun_name, err, client->_rcv_sock);
-          //close our socket
-          _LSLP_CLOSESOCKET(client->_rcv_sock );
-
-          //go check if the interface is still up
-          if ((slp_get_local_interfaces( &(client->_local_addr_list))) > 0  )
-          {
-             if(client->_rcv_sock != INVALID_SOCKET)
-      	        client->_rcv_sock = slp_open_listen_sock();
-          }
-
-	  DEBUG_PRINT((DEBUG_EXIT, "__service_listener 2 err = %d", err));
-          return(err);
-        }
-    }
-    //was it just no data yet
-    else if (err == NU_NO_DATA)
-    {
-      //This is OK just return to retry select again later
-      DEBUG_PRINT((DEBUG_EXIT, "__service_listener 3 err = %d", err));
-      return(err);
-    }
-    //see if other than we time-out with no data
-    else
-    {
-      _system_info(TRUE,"%s:Select:sck error=%d,sck=%d",fun_name, err,client->_rcv_sock);
-
-      // our interfaces could be disconnected or we could be a laptop that
-      // just got pulled from the network, etc.
-      //close our socket
-      _LSLP_CLOSESOCKET(client->_rcv_sock );
-
-      //go check if the interface is still up
-      if ((slp_get_local_interfaces( &(client->_local_addr_list))) > 0  )
-      {
-         if(client->_rcv_sock != INVALID_SOCKET)
-      	    client->_rcv_sock = slp_open_listen_sock();
-      }
-    }
-
-    DEBUG_PRINT((DEBUG_EXIT, "__service_listener 4 err = %d", err));
- return(err);
-
-#else //all other OS's
 
    do {
      tv.tv_sec = client->_tv.tv_sec;
@@ -2728,7 +2577,6 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
 
    DEBUG_PRINT((DEBUG_EXIT, "__service_listener err = %d", err));
    return(err);
-#endif
 
 }
 
@@ -3012,11 +2860,7 @@ struct slp_client *create_slp_client(const char *target_addr,
   len = (int16)strlen(scope_copy) + 1;
   client->_scopes = lslpScopeStringToList(scope_copy, len);
   free(scope_copy);
-#ifdef NUCLEUS     //jeb
-  client->_tv.tv_usec = TICKS_PER_SECOND; //socket call with timer UINT32
-#else
   client->_tv.tv_usec = 200000;     //.2 sec
-#endif
 
   client->_use_das = use_das;
   client->_retries = 3;
@@ -3382,9 +3226,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		  if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 		    SOCKADDR_IN local;
 		    int err = 1;
-#ifndef NUCLEUS
 		    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
-#endif
 		    local.sin_family = AF_INET;
 		    local.sin_port = client->_target_port ;
 		    local.sin_addr.s_addr = local_address;

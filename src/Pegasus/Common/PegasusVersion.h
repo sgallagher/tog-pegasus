@@ -75,17 +75,7 @@ PEGASUS_NAMESPACE_BEGIN
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
 
 # define PEGASUS_PRODUCT_STATUS  "Development"
-#if PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
-  #if PEGASUS_DIRECTACCESS_BUILDTYPE ==         1 
-      #define PEGASUS_PRODUCT_VERSION "2.7.0 intg'd dacim"
-  #elif PEGASUS_DIRECTACCESS_BUILDTYPE ==       2 
-      #define PEGASUS_PRODUCT_VERSION "2.7.0 own repository dacim"
-  #elif PEGASUS_DIRECTACCESS_BUILDTYPE ==       3 
-      #define PEGASUS_PRODUCT_VERSION "2.7.0 stand-alone dacim"
-  #endif
-#else
 # define PEGASUS_PRODUCT_VERSION "2.7.0"
-#endif
 
 # define PEGASUS_CIMOM_GENERIC_NAME "Pegasus"
 // If the following is non-zero length it becomes SLP description.

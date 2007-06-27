@@ -532,13 +532,13 @@ void pegasus_locking_callback(
     if ( mode & CRYPTO_LOCK )
     {
         /*PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "Now locking for %d", Threads::id()));*/
+                "Now locking for type %d", type));*/
         SSLContextRep::_sslLocks.get()[type].lock( );
     }
     else
     {
         /*PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "Now unlocking for %d", Threads::id()));*/
+                "Now unlocking for type %d", type));*/
         SSLContextRep::_sslLocks.get()[type].unlock( );
     }
 }
@@ -636,21 +636,21 @@ SSLContextRep::SSLContextRep(
             //
             // load SSL library
             //
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_load_error_strings %d", Threads::id()));
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "Before calling SSL_load_error_strings");
 
             SSL_load_error_strings();
 
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_load_error_strings %d", Threads::id()));
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "After calling SSL_load_error_strings");
 
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_library_init %d", Threads::id()));
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "Before calling SSL_library_init");
 
             SSL_library_init();
 
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_library_init %d", Threads::id()));
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "After calling SSL_library_init");
         }
 
         _countRep++;

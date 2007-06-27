@@ -31,8 +31,18 @@
 
 ROOT = ../../../..
 
+DIR = Executor/tests/lib
+
+# The source files in the Executor directory are built twice, once
+# as part of the Executor executable (cimserver) and once as part
+# of the a test library (pegexecutor). The object files for the
+# Executor executable are placed in $PEGASUS_HOME/obj/Executor.
+# To avoid conflict with these objects, the ALT_OBJ_DIR variable
+# is used to define an alternative object directory for the objects
+# used to build the test library.
+#
 # Need two more levels since ../.. will remove two levels.
-DIR = Executor/tests/lib/tests/lib
+ALT_OBJ_DIR = Executor/tests/lib/tests/lib
 
 include $(ROOT)/mak/config.mak
 

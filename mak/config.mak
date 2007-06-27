@@ -98,7 +98,27 @@ else
     GCC_VERSION =
 endif
 
-OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
+#############################################################################
+## As a general rule, the directory structure for the object files mirrors
+## the directory structure of the source files.  E.g.,
+## $PEGASUS_HOME/obj/Pegasus/Common contains the object files for the
+## source files in $PEGASUS_ROOT/src/Pegasus/Common.  Each source-level
+## Makefile includes a DIR value that defines this common path (e.g.,
+## Pegasus/Common). In a small number of cases, source files are built
+## multiple times with difference compile options.  
+## To handle this situation, the ALT_OBJ_DIR variable can be used to
+## specify an alternative object directory for use in building the
+## objects defined in the Makefile.
+##
+
+ifndef ALT_OBJ_DIR
+    OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
+else
+    OBJ_DIR = $(HOME_DIR)/obj/$(ALT_OBJ_DIR)
+endif
+
+#############################################################################
+
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 

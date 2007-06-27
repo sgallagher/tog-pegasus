@@ -30,7 +30,7 @@
 #//=============================================================================
 
 ROOT = $(PEGASUS_ROOT)
-DIR = Executor/tests/TestStrlcpy
+DIR = Executor/tests/Strlcpy
 
 include $(ROOT)/mak/config.mak
 

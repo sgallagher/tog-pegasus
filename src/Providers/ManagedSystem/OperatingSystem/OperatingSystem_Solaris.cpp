@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jim Wunderlich <Jim_Wunderlich@prodigy.net>
-//
-// Modified By:
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -59,13 +55,19 @@
 
 PEGASUS_USING_STD;
 
-#define OSP_DEBUG(X) // Logger::put(Logger::DEBUG_LOG, "Solaris OSProvider",Logger::INFORMATION, "$0", X)
+#if 0
+#define OSP_DEBUG(X) \
+    Logger::put(Logger::DEBUG_LOG, "Solaris OSProvider",Logger::INFORMATION, \
+        $0", X)
+#else
+# define OSP_DEBUG(X)
+#endif
 
-OperatingSystem::OperatingSystem(void)
+OperatingSystem::OperatingSystem()
 {
 }
 
-OperatingSystem::~OperatingSystem(void)
+OperatingSystem::~OperatingSystem()
 {
 }
 

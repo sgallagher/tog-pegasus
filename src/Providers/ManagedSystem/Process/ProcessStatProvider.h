@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By:
-//         David Kennedy       <dkennedy@linuxcare.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
-//         Jim Metcalfe, Hewlett-Packard Company
-//         Carlos Bonilla, Hewlett-Packard Company
-//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PG_PROCESS_STAT_PROVIDER_H
@@ -59,73 +46,79 @@ PEGASUS_USING_PEGASUS;
 
 class ProcessStatProvider : public CIMInstanceProvider
 {
-
 public:
 
-  ProcessStatProvider();
+    ProcessStatProvider();
 
-  ~ProcessStatProvider();
+    ~ProcessStatProvider();
 
-  void createInstance(const OperationContext       &context,
-                    const CIMObjectPath           &instanceName,
-                    const CIMInstance            &instanceObject,
-                    ObjectPathResponseHandler &handler);
+    void createInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceName,
+        const CIMInstance &instanceObject,
+        ObjectPathResponseHandler &handler);
 
-  void deleteInstance(const OperationContext       &context,
-                    const CIMObjectPath           &instanceReference,
-                    ResponseHandler &handler);
+    void deleteInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceReference,
+        ResponseHandler &handler);
 
-  void enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler);
+    void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-  void enumerateInstanceNames(const OperationContext        &context,
-                            const CIMObjectPath            &ref,
-                            ObjectPathResponseHandler &handler);
+    void enumerateInstanceNames(
+        const OperationContext &context,
+        const CIMObjectPath &ref,
+        ObjectPathResponseHandler &handler);
 
-  void getInstance(const OperationContext       &context,
-                 const CIMObjectPath           &instanceName,
-                 const Boolean                 includeQualifiers,
-                 const Boolean                 includeClassOrigin,
-                 const CIMPropertyList        &propertyList,
-                 InstanceResponseHandler &handler);
+    void getInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceName,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList &propertyList,
+        InstanceResponseHandler &handler);
 
-  void modifyInstance(const OperationContext       &context,
-                    const CIMObjectPath           &instanceName,
-                    const CIMInstance            &instanceObject,
-                    const Boolean                includeQualifiers,
-		    const CIMPropertyList        &propertyList,
-                    ResponseHandler &handler);
+    void modifyInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceName,
+        const CIMInstance &instanceObject,
+        const Boolean includeQualifiers,
+        const CIMPropertyList &propertyList,
+        ResponseHandler &handler);
 
-  void initialize(CIMOMHandle&);
+    void initialize(CIMOMHandle&);
 
-  void terminate(void);
+    void terminate();
 
 private:
 
-  // Please see comments in ProcessProvider.h for information
-  // on these private functions and data members
+    // Please see comments in ProcessProvider.h for information
+    // on these private functions and data members
 
-  CIMOMHandle _cimomHandle;
+    CIMOMHandle _cimomHandle;
 
-  Array<CIMKeyBinding> _constructKeyBindings(const Process&);
+    Array<CIMKeyBinding> _constructKeyBindings(const Process&);
 
-  CIMInstance _constructInstance(const CIMName&, const CIMNamespaceName&, 
-      const Process&);
+    CIMInstance _constructInstance(
+        const CIMName&,
+        const CIMNamespaceName&,
+        const Process&);
 
-  void _checkClass(CIMName&);
+    void _checkClass(CIMName&);
 
-  String &_getCSName(void);
+    String &_getCSName();
 
-  String &_getOSName(void);
+    String &_getOSName();
 
-  String _hostName;
+    String _hostName;
 
-  String _osName;
+    String _osName;
 };
 
 

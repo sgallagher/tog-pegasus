@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -46,124 +42,129 @@ PEGASUS_USING_STD;
 
 // Standard verify method to property <do not remove>
 
-   /*
-GoodThis property retrieve class namemethod for the NTP Provider Test Client
+/*
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodCreationClassName(String & param, Boolean verbose)
+Boolean NTPTestClient::goodCreationClassName(
+    String & param,
+    Boolean verbose)
 {
-   Boolean ok = true;
-   String retValue;
+    Boolean ok = true;
+    String retValue;
 
-   // Insert here source code to assign the variable retValue
+    // Insert here source code to assign the variable retValue
 
-   if(verbose)
-      // Insert here source code to display debug messages
-      // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+    //if (verbose)
+        // Insert here source code to display debug messages
+        // Sample: cout << "Checking " << param << " against " << retValue <<
+        //             endl;
 
-   return ok;
+    return ok;
 }
 
-   /*
-GoodThis property retrieve primary server name method for the NTP Provider Test Client
+/*
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodName(String & param, Boolean verbose)
+Boolean NTPTestClient::goodName(
+    String & param,
+    Boolean verbose)
 {
-   Boolean ok = true;
-   String retValue;
+    Boolean ok = true;
+    String retValue;
 
-   // Insert here source code to assign the variable retValue
+    // Insert here source code to assign the variable retValue
 
-   if(verbose)
-      // Insert here source code to display debug messages
-      // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+    //if (verbose)
+        // Insert here source code to display debug messages
+        // Sample: cout << "Checking " << param << " against " << retValue <<
+        //             endl;
 
-   return ok;
+    return ok;
 }
 
-   /*
-GoodThis property retrieve product captionmethod for the NTP Provider Test Client
+/*
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodCaption(String & param, Boolean verbose)
+Boolean NTPTestClient::goodCaption(
+    String & param,
+    Boolean verbose)
 {
-   Boolean ok = true;
-   String retValue;
+    Boolean ok = true;
+    String retValue;
 
-   // Insert here source code to assign the variable retValue
+    // Insert here source code to assign the variable retValue
 
-   if(verbose)
-      // Insert here source code to display debug messages
-      // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+    //if (verbose)
+        // Insert here source code to display debug messages
+        // Sample: cout << "Checking " << param << " against " << retValue <<
+        //             endl;
 
-   return ok;
+    return ok;
 }
 
-   /*
-GoodThis property retrieve product descriptionmethod for the NTP Provider Test Client
+/*
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodDescription(String & param, Boolean verbose)
+Boolean NTPTestClient::goodDescription(
+    String & param,
+    Boolean verbose)
 {
-   Boolean ok = true;
-   String retValue;
+    Boolean ok = true;
+    String retValue;
 
-   // Insert here source code to assign the variable retValue
+    // Insert here source code to assign the variable retValue
 
-   if(verbose)
-      // Insert here source code to display debug messages
-      // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+    //if (verbose)
+        // Insert here source code to display debug messages
+        // Sample: cout << "Checking " << param << " against " << retValue <<
+        //             endl;
 
-   return ok;
+    return ok;
 }
 
-   /*
-GoodThis property retrieve server addresses array, if is NTP clientmethod for the NTP Provider Test Client
+/*
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodServerAddress(Array<String> & param, Boolean verbose)
+Boolean NTPTestClient::goodServerAddress(
+    Array<String> & param,
+    Boolean verbose)
 {
-   Boolean ok = true;
-   Array<String> retValue;
+    Boolean ok = true;
+    Array<String> retValue;
 
-   // Insert here source code to assign the variable retValue
+    // Insert here source code to assign the variable retValue
 
-   if(verbose)
-      // Insert here source code to display debug messages
-      // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+    //if (verbose)
+        // Insert here source code to display debug messages
+        // Sample: cout << "Checking " << param << " against " << retValue <<
+        //             endl;
 
-   return ok;
+    return ok;
 }
 
-   /*
-GoodThis property retrieve name format valuemethod for the NTP Provider Test Client
+/*
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodNameFormat(String & param, Boolean verbose)
+Boolean NTPTestClient::goodNameFormat(
+    String & param,
+    Boolean verbose)
 {
-   Boolean ok = true;
-   String retValue;
+    Boolean ok = true;
+    String retValue;
 
-   // Insert here source code to assign the variable retValue
+    // Insert here source code to assign the variable retValue
 
-   if(verbose)
-      // Insert here source code to display debug messages
-      // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+    //if (verbose)
+        // Insert here source code to display debug messages
+        // Sample: cout << "Checking " << param << " against " << retValue <<
+        //             endl;
 
    return ok;
 }
-
 

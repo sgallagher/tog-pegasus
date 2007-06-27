@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By:
-//         David Kennedy       <dkennedy@linuxcare.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
-//         Jim Metcalfe, Hewlett-Packard Company
-//         Carlos Bonilla, Hewlett-Packard Company
-//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//         Chad Smith, Hewlett-Packard Company <chad_smith@hp.com>
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PG_PROCESS_LINUX_H
@@ -53,11 +41,11 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/String.h>
 #include <dirent.h>
-#include <fcntl.h> 			// for O_RDONLY
-#include <stdio.h>			// for sprintf
-#include <unistd.h>			// for close, read and getpagesize
-#include <string.h>			// for strchr
-#include <pthread.h>			// for pthreads and spinlocks
+#include <fcntl.h>    // for O_RDONLY
+#include <stdio.h>    // for sprintf
+#include <unistd.h>   // for close, read and getpagesize
+#include <string.h>   // for strchr
+#include <pthread.h>  // for pthreads and spinlocks
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -70,33 +58,33 @@ PEGASUS_USING_PEGASUS;
    Type Definitions.
    ========================================================================== */
 typedef struct peg_proc_status {
-	char pst_ucomm[16];
-	String pst_cmd;
-	char   pst_stat;
-	int    pst_pid;
-	int   pst_ppid;
-	int   pst_uid;
-	int   pst_gid;
-	int   pst_sid;
-	int   pst_pgrp;
-	int   pst_tty;
-        unsigned long   pst_vdsize;
-        unsigned long   pst_vssize;
-        unsigned long   pst_vmmsize;
-        unsigned long   pst_start;
-        unsigned long   pst_dsize;
-	long pst_stime;                //kernel time
-	long pst_utime;
-	long pst_cutime;
-	long pst_cstime;
-	long  pst_pri;
-	long  pst_nice;
-	long  pst_vshmsize;
-	long  pst_tsize;
-	unsigned int  pst_pctcpu;
-	long size;
-	
-	struct peg_proc_status *l, *r; // linked list pointers
+    char pst_ucomm[16];
+    String pst_cmd;
+    char   pst_stat;
+    int    pst_pid;
+    int   pst_ppid;
+    int   pst_uid;
+    int   pst_gid;
+    int   pst_sid;
+    int   pst_pgrp;
+    int   pst_tty;
+    unsigned long   pst_vdsize;
+    unsigned long   pst_vssize;
+    unsigned long   pst_vmmsize;
+    unsigned long   pst_start;
+    unsigned long   pst_dsize;
+    long pst_stime;                //kernel time
+    long pst_utime;
+    long pst_cutime;
+    long pst_cstime;
+    long  pst_pri;
+    long  pst_nice;
+    long  pst_vshmsize;
+    long  pst_tsize;
+    unsigned int  pst_pctcpu;
+    long size;
+
+    struct peg_proc_status *l, *r; // linked list pointers
 } peg_proc_t;
 
 int file2str(char *directory, char *myFile, char *ret, int cap);
@@ -108,16 +96,13 @@ void doPercentCPU(char *inputFileString, peg_proc_t *P);
 
 class Process
 {
-
-protected:
-
 public:
 
   Process();
   ~Process();
 
   Boolean getCaption(String&) const;
-  
+
   Boolean getDescription(String&) const;
 
   Boolean getInstallDate(CIMDateTime&) const;
@@ -155,7 +140,7 @@ public:
   Boolean getParameters(Array<String>&) const;
 
   Boolean getProcessNiceValue(Uint32&) const;
-  
+
   Boolean getProcessWaitingForEvent(String&) const;
 
   Boolean getCPUTime(Uint32&) const;
@@ -183,30 +168,28 @@ public:
   Boolean getParentProcessID(String&) const;
 
   Boolean getRealSpace(Uint64&) const;
-  
+
   // Loads the internal process status structure with
   // the status data for the indexed process and, if
   // necessary (on HP-UX) updates pIndex to skip unused
   // entries so that a simple increment will allow next
   // call to access next entry
   Boolean loadProcessInfo(int &pIndex);
-  
+
   // Finds the requested process and loads its info into
   // the internal process status structure
   Boolean findProcess(const String& handle);
 
-  String getHandle(void) const;
+  String getHandle() const;
 
-  String getCurrentTime(void) const;
-  
-  String getOSName(void) const;
-  
-  String getCSName(void) const;
+  String getCurrentTime() const;
+
+  String getOSName() const;
+
+  String getCSName() const;
 
 private:
   peg_proc_t pInfo;
 };
-
-
 
 #endif  /* #ifndef PG_PROCESS_LINUX_H */

@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -44,7 +37,7 @@
 // Required to build this provider from SDK
 // 
 #if !defined (PEGASUS_OS_VMS)
- #include <Pegasus/Common/PegasusVersion.h>
+# include <Pegasus/Common/PegasusVersion.h>
 #endif
 
 PEGASUS_USING_PEGASUS;
@@ -58,12 +51,12 @@ PEGASUS_USING_STD;
 extern "C"
 PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
-   if (String::equalNoCase(providerName, OPERATINGSYSTEMPROVIDERNAME))
-   {
-	OSP_DEBUG("losp-> started up provider");
-	return(new OperatingSystemProvider());
-   }
-   OSP_DEBUG("losp-> started with ?" + providerName);
-   return NULL;
+    if (String::equalNoCase(providerName, OPERATINGSYSTEMPROVIDERNAME))
+    {
+        OSP_DEBUG("losp-> started up provider");
+        return new OperatingSystemProvider();
+    }
+    OSP_DEBUG("losp-> started with ?" + providerName);
+    return NULL;
 }
 

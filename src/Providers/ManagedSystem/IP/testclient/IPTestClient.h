@@ -29,18 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _IPTESTCLIENT_H
 #define _IPTESTCLIENT_H
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>	
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -106,84 +101,85 @@ static const CIMName PROPERTY_SYSTEM_NAME = CIMName ("SystemName");
 
 class IPTestClient
 {
-  public:
-     IPTestClient(CIMClient &client);
-     ~IPTestClient(void);
+public:
+    IPTestClient(CIMClient &client);
+    ~IPTestClient();
 
-     void testEIN(CIMClient &client, CIMName className, Boolean verbose);
-     void testEI(CIMClient &client, CIMName className, Boolean verbose);
-     void testGI(CIMClient &client, CIMName className, Boolean verbose);
+    void testEIN(CIMClient &client, CIMName className, Boolean verbose);
+    void testEI(CIMClient &client, CIMName className, Boolean verbose);
+    void testGI(CIMClient &client, CIMName className, Boolean verbose);
 
-  private:
+private:
 
-     // utility methods for common test functions
-     void _errorExit(const String &message);
-     void _testLog(const String &message);
-
-
-     // all the checks to see if the properties are valid
-     // this are all intended to be in the OS-specific source
-
-     // PG_BindsIPToLANEndpoint Checks
-     void _check_BIPTLEp_Antecedent(String &pv, Boolean verbose);
-     void _check_BIPTLEp_Dependent(String &pv, Boolean verbose);
-     void _check_BIPTLEp_FrameType(Uint16 &pv, Boolean verbose);
-
-     // CIM_IPProtocolEndpoint Checks -- key properties also needed as one of
-     //                                  the references of PG_BindsToLANEndpoint
-     void _check_IPPEp_Caption(String &pv, Boolean verbose);
-     void _check_IPPEp_Description(String &pv, Boolean verbose);
-     void _check_IPPEp_InstallDate(CIMDateTime &pv, Boolean verbose);
-     void _check_IPPEp_Status(String &pv, Boolean verbose);
-     void _check_IPPEp_SystemCreationClassName(String &pv, Boolean verbose);
-     void _check_IPPEp_SystemName(String &pv, Boolean verbose);
-     void _check_IPPEp_CreationClassName(String &pv, Boolean verbose);
-     void _check_IPPEp_Name(String &pv, Boolean verbose);
-     void _check_IPPEp_NameFormat(String &pv, Boolean verbose);
-     void _check_IPPEp_ProtocolType(Uint16 &pv, Boolean verbose);
-     void _check_IPPEp_OtherTypeDescription(String &pv, Boolean verbose);
-     void _check_IPPEp_Address(String &pv, Boolean verbose);
-     void _check_IPPEp_SubnetMask(String &pv, Boolean verbose);
-     void _check_IPPEp_AddressType(Uint16 &pv, Boolean verbose);
-     void _check_IPPEp_IPVersionSupport(Uint16 &pv, Boolean verbose);
-
-     // PG_IPRoute Checks
-     void _check_IPRoute_Caption(String &pv, Boolean verbose);
-     void _check_IPRoute_Description(String &pv, Boolean verbose);
-     void _check_IPRoute_InstallDate(CIMDateTime &pv, Boolean verbose);
-     void _check_IPRoute_Status(String &pv, Boolean verbose);
-     void _check_IPRoute_Name(String &pv, Boolean verbose);
-     void _check_IPRoute_NextHop(String &pv, Boolean verbose);
-     void _check_IPRoute_IsStatic(Boolean &pv, Boolean verbose);
-     void _check_IPRoute_SystemCreationClassName(String &pv, Boolean verbose);
-     void _check_IPRoute_SystemName(String &pv, Boolean verbose);
-     void _check_IPRoute_ServiceCreationClassName(String &pv, Boolean verbose);
-     void _check_IPRoute_ServiceName(String &pv, Boolean verbose);
-     void _check_IPRoute_CreationClassName(String &pv, Boolean verbose);
-     void _check_IPRoute_IPDestinationAddress(String &pv, Boolean verbose);
-     void _check_IPRoute_IPDestinationMask(String &pv, Boolean verbose);
-     void _check_IPRoute_AddressType(Uint16 &pv, Boolean verbose);
-     void _check_IPRoute_DestinationAddress(String &pv, Boolean verbose);
-     void _check_IPRoute_DestinationMask(String &pv, Boolean verbose);
-
-     // PG_LANEndpoint Checks -- need because it's referenced by
-     //                          PG_BindsToLANEndpoint
-     void _check_LEP_SystemCreationClassName(String &pv, Boolean verbose);
-     void _check_LEP_SystemName(String &pv, Boolean verbose);
-     void _check_LEP_CreationClassName(String &pv, Boolean verbose);
-     void _check_LEP_Name(String &pv, Boolean verbose);
+    // utility methods for common test functions
+    void _errorExit(const String &message);
+    void _testLog(const String &message);
 
 
-     // validate keys of the class
-     void _validateKeys(CIMObjectPath &cimRef,
-                              CIMName classname,
-			      Boolean verboseTest);
+    // all the checks to see if the properties are valid
+    // this are all intended to be in the OS-specific source
 
-     // validate properties of the class
-     void _validateProperties(CIMInstance &cimInst,
-                              CIMName classname,
-			      Boolean verboseTest);
+    // PG_BindsIPToLANEndpoint Checks
+    void _check_BIPTLEp_Antecedent(String &pv, Boolean verbose);
+    void _check_BIPTLEp_Dependent(String &pv, Boolean verbose);
+    void _check_BIPTLEp_FrameType(Uint16 &pv, Boolean verbose);
 
+    // CIM_IPProtocolEndpoint Checks -- key properties also needed as one of
+    //                                  the references of PG_BindsToLANEndpoint
+    void _check_IPPEp_Caption(String &pv, Boolean verbose);
+    void _check_IPPEp_Description(String &pv, Boolean verbose);
+    void _check_IPPEp_InstallDate(CIMDateTime &pv, Boolean verbose);
+    void _check_IPPEp_Status(String &pv, Boolean verbose);
+    void _check_IPPEp_SystemCreationClassName(String &pv, Boolean verbose);
+    void _check_IPPEp_SystemName(String &pv, Boolean verbose);
+    void _check_IPPEp_CreationClassName(String &pv, Boolean verbose);
+    void _check_IPPEp_Name(String &pv, Boolean verbose);
+    void _check_IPPEp_NameFormat(String &pv, Boolean verbose);
+    void _check_IPPEp_ProtocolType(Uint16 &pv, Boolean verbose);
+    void _check_IPPEp_OtherTypeDescription(String &pv, Boolean verbose);
+    void _check_IPPEp_Address(String &pv, Boolean verbose);
+    void _check_IPPEp_SubnetMask(String &pv, Boolean verbose);
+    void _check_IPPEp_AddressType(Uint16 &pv, Boolean verbose);
+    void _check_IPPEp_IPVersionSupport(Uint16 &pv, Boolean verbose);
+
+    // PG_IPRoute Checks
+    void _check_IPRoute_Caption(String &pv, Boolean verbose);
+    void _check_IPRoute_Description(String &pv, Boolean verbose);
+    void _check_IPRoute_InstallDate(CIMDateTime &pv, Boolean verbose);
+    void _check_IPRoute_Status(String &pv, Boolean verbose);
+    void _check_IPRoute_Name(String &pv, Boolean verbose);
+    void _check_IPRoute_NextHop(String &pv, Boolean verbose);
+    void _check_IPRoute_IsStatic(Boolean &pv, Boolean verbose);
+    void _check_IPRoute_SystemCreationClassName(String &pv, Boolean verbose);
+    void _check_IPRoute_SystemName(String &pv, Boolean verbose);
+    void _check_IPRoute_ServiceCreationClassName(String &pv, Boolean verbose);
+    void _check_IPRoute_ServiceName(String &pv, Boolean verbose);
+    void _check_IPRoute_CreationClassName(String &pv, Boolean verbose);
+    void _check_IPRoute_IPDestinationAddress(String &pv, Boolean verbose);
+    void _check_IPRoute_IPDestinationMask(String &pv, Boolean verbose);
+    void _check_IPRoute_AddressType(Uint16 &pv, Boolean verbose);
+    void _check_IPRoute_DestinationAddress(String &pv, Boolean verbose);
+    void _check_IPRoute_DestinationMask(String &pv, Boolean verbose);
+
+    // PG_LANEndpoint Checks -- need because it's referenced by
+    //                          PG_BindsToLANEndpoint
+    void _check_LEP_SystemCreationClassName(String &pv, Boolean verbose);
+    void _check_LEP_SystemName(String &pv, Boolean verbose);
+    void _check_LEP_CreationClassName(String &pv, Boolean verbose);
+    void _check_LEP_Name(String &pv, Boolean verbose);
+
+
+    // validate keys of the class
+    void _validateKeys(
+        CIMObjectPath &cimRef,
+        CIMName classname,
+        Boolean verboseTest);
+
+    // validate properties of the class
+    void _validateProperties(
+        CIMInstance &cimInst,
+        CIMName classname,
+        Boolean verboseTest);
 };
 
 #endif

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -50,8 +46,9 @@ PEGASUS_USING_STD;
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
 */
-Boolean DNSTestClient::goodCreationClassName(const String &ccn, 
-                                            Boolean verbose)
+Boolean DNSTestClient::goodCreationClassName(
+    const String &ccn,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking " << ccn << " against " << CLASS_NAME <<endl;
@@ -64,83 +61,90 @@ Boolean DNSTestClient::goodCreationClassName(const String &ccn,
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
 */
-Boolean DNSTestClient::goodName(const String &name, Boolean verbose)
+Boolean DNSTestClient::goodName(
+    const String &name,
+    Boolean verbose)
 {
     if (verbose)
-      cout<<"Checking " << name << " against Name" <<endl;
-	
-    cout<<"- No check written for DNS Name " << endl;
-    return true;  
+        cout<<"Checking " << name << " against Name" <<endl;
+
+    cout << "- No check written for DNS Name " << endl;
+    return true;
 }
 
-/* GoodCaption method for the DNS Provider Test Client 
+/* GoodCaption method for the DNS Provider Test Client
 
-   Checks the specified value against the expected value 
-   and returns TRUE if the same, else FALSE 
+   Checks the specified value against the expected value
+   and returns TRUE if the same, else FALSE
 */
-Boolean DNSTestClient::goodCaption(const String &cap, 
-                                   	  Boolean verbose)
+Boolean DNSTestClient::goodCaption(
+    const String &cap,
+    Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking Caption " << cap << endl;
+       cout<<"Checking Caption " << cap << endl;
 
-   return (String::equalNoCase(cap, CAPTION));
+   return String::equalNoCase(cap, CAPTION);
 }
 
 
-/* GoodDescription method for the DNS Provider Test Client 
+/* GoodDescription method for the DNS Provider Test Client
 
-   Checks the specified value against the expected value 
-   and returns TRUE if the same, else FALSE 
+   Checks the specified value against the expected value
+   and returns TRUE if the same, else FALSE
 */
-Boolean DNSTestClient::goodDescription(const String &des, 
-                                   	  Boolean verbose)
+Boolean DNSTestClient::goodDescription(
+    const String &des,
+    Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking Description " << des << endl;
+       cout<<"Checking Description " << des << endl;
 
-   return (String::equalNoCase(des, DESCRIPTION));
+   return String::equalNoCase(des, DESCRIPTION);
 }
 
-/* GoodNameFormat method for the DNS Provider Test Client 
+/* GoodNameFormat method for the DNS Provider Test Client
 
-   Checks the specified value against the expected value 
-   and returns TRUE if the same, else FALSE 
+   Checks the specified value against the expected value
+   and returns TRUE if the same, else FALSE
 */
-Boolean DNSTestClient::goodNameFormat(const String &nf, 
-                                   	  Boolean verbose)
+Boolean DNSTestClient::goodNameFormat(
+    const String &nf,
+    Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking NameFormat " << nf << endl;
-   return (String::equalNoCase(nf, NAMEFORMAT));
+       cout<<"Checking NameFormat " << nf << endl;
+   return String::equalNoCase(nf, NAMEFORMAT);
 }
 
-/* GoodSearchList method for the DNS Provider Test Client 
+/* GoodSearchList method for the DNS Provider Test Client
 
-   Checks the specified values against the expected array 
-   values and returns TRUE if the same, else FALSE 
+   Checks the specified values against the expected array
+   values and returns TRUE if the same, else FALSE
  */
-Boolean DNSTestClient::goodSearchList(const String &src, 
-                                   	  Boolean verbose)
+Boolean DNSTestClient::goodSearchList(
+    const String &src,
+    Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking SearchList " << src << endl;
+       cout << "Checking SearchList " << src << endl;
 
-   cout<<"- No check written for DNS SearchList " << endl;
+   cout << "- No check written for DNS SearchList " << endl;
    return true;
 }
 
-/* GoodAddresses method for the DNS Provider Test Client 
+/* GoodAddresses method for the DNS Provider Test Client
 
-   Checks the specified values against the expected array 
-   values and returns TRUE if the same, else FALSE 
+   Checks the specified values against the expected array
+   values and returns TRUE if the same, else FALSE
 */
-Boolean DNSTestClient::goodAddresses(const String &addr, 
-                                     Boolean verbose)
+Boolean DNSTestClient::goodAddresses(
+    const String &addr,
+    Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking Addresses " << addr << endl;
+       cout << "Checking Addresses " << addr << endl;
 
-   cout<<"- No check written for DNS Addresses " << endl;
+   cout << "- No check written for DNS Addresses " << endl;
    return true;
 }

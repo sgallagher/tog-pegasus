@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By:
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // Using the general CIMOM TestClient as an example, developed an
@@ -65,7 +60,7 @@ NTPTestClient::NTPTestClient(CIMClient &client)
 
 /**  Destructor for NTP Test Client
   */
-NTPTestClient::~NTPTestClient(void)
+NTPTestClient::~NTPTestClient()
 {
 }
 
@@ -75,8 +70,7 @@ NTPTestClient::~NTPTestClient(void)
     @return - None, Terminates the program
     @exception - This function terminates the program
 */
-void
-NTPTestClient::errorExit(const String& message)
+void NTPTestClient::errorExit(const String& message)
 {
     cerr << "Error: " << message << endl;
     cerr << "Re-run with verbose for details (NTPTestClient verbose)" <<endl;
@@ -85,19 +79,17 @@ NTPTestClient::errorExit(const String& message)
 
 // testLog method used for messages to really stand out
 // for example, Test Start and Test Passed messages
-void
-NTPTestClient::testLog(const String& message)
+void NTPTestClient::testLog(const String& message)
 {
     cout << "++++ " << message << " ++++" << endl;
-
 }
 
 /**
    _validateKeys method of the NTP provider Test Client
   */
-void
-NTPTestClient::_validateKeys(CIMObjectPath &cimRef,
-                                 Boolean verboseTest)
+void NTPTestClient::_validateKeys(
+    CIMObjectPath &cimRef,
+    Boolean verboseTest)
 {
     // don't have a try here - want it to be caught by caller
     String keyVal;
@@ -128,9 +120,9 @@ NTPTestClient::_validateKeys(CIMObjectPath &cimRef,
 /**
    _validateProperties method of the NTP provider Test Client
   */
-void
-NTPTestClient::_validateProperties(CIMInstance &inst,
-                                   Boolean verboseTest)
+void NTPTestClient::_validateProperties(
+    CIMInstance &inst,
+    Boolean verboseTest)
 {
     if (verboseTest)
         cout << "Checking " <<inst.getPropertyCount()<<" properties"<<endl;
@@ -200,9 +192,9 @@ NTPTestClient::_validateProperties(CIMInstance &inst,
 /*
    testEnumerateInstanceNames of the NTP provider.
 */
-void
-NTPTestClient::testEnumerateInstanceNames(CIMClient &client,
-                                          Boolean verboseTest)
+void NTPTestClient::testEnumerateInstanceNames(
+    CIMClient &client,
+    Boolean verboseTest)
 {
     try
     {
@@ -215,7 +207,8 @@ NTPTestClient::testEnumerateInstanceNames(CIMClient &client,
 
         numberInstances = cimReferences.size();
         if (verboseTest)
-            cout << numberInstances << " instances of " << CLASS_NAME.getString() <<endl;
+            cout << numberInstances << " instances of " <<
+                CLASS_NAME.getString() <<endl;
 
         for (Uint32 i = 0; i < cimReferences.size(); i++)
         {
@@ -230,8 +223,7 @@ NTPTestClient::testEnumerateInstanceNames(CIMClient &client,
         }   // end for looping through instances
 
         testLog("NTP Provider Test EnumInstanceNames Passed");
-    }  // end try
-
+    }
     catch(Exception& e)
     {
         errorExit(e.getMessage());
@@ -241,9 +233,9 @@ NTPTestClient::testEnumerateInstanceNames(CIMClient &client,
 /*
    testEnumerateInstances of the NTP provider.
 */
-void
-NTPTestClient::testEnumerateInstances(CIMClient &client,
-                                          Boolean verboseTest)
+void NTPTestClient::testEnumerateInstances(
+    CIMClient &client,
+    Boolean verboseTest)
 {
     try
     {
@@ -296,9 +288,9 @@ NTPTestClient::testEnumerateInstances(CIMClient &client,
 /*
    testGetInstance of the NTP provider.
 */
-void
-NTPTestClient::testGetInstance (CIMClient &client,
-                                    Boolean verboseTest)
+void NTPTestClient::testGetInstance(
+    CIMClient &client,
+    Boolean verboseTest)
 {
     CIMObjectPath  getTestRef;    //  will need an instance for Get
 
@@ -367,7 +359,6 @@ NTPTestClient::testGetInstance (CIMClient &client,
 ///////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-
     Boolean enumInst = true;
     Boolean enumInstNames = true;
     Boolean getInst = true;
@@ -419,7 +410,7 @@ int main(int argc, char** argv)
         cout << "NTPTestClient disconnecting from CIMOM " << endl;
         client.disconnect();
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
         cout << "---- NTP Provider Test Failed " << e.getMessage() << endl;
     }

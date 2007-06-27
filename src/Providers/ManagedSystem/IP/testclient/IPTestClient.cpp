@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By:
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // Using the general CIMOM TestClient as an example, developed an
@@ -63,7 +58,7 @@ IPTestClient::IPTestClient(CIMClient &client)
 //
 //  Destructor for IP Test Client
 //
-IPTestClient::~IPTestClient(void)
+IPTestClient::~IPTestClient()
 {
 }
 
@@ -71,8 +66,7 @@ IPTestClient::~IPTestClient(void)
 //    @param - Text for error message
 //    @return - None, Terminates the program
 //    @exception - This function terminates the program
-void
-IPTestClient::_errorExit(const String& message)
+void IPTestClient::_errorExit(const String& message)
 {
     cerr << "Error: " << message << endl;
     cerr << "Re-run with verbose for details (IPTestClient -v)" << endl;
@@ -81,8 +75,7 @@ IPTestClient::_errorExit(const String& message)
 
 // _testLog method used for messages to really stand out
 // for example, Test Start and Test Passed messages
-void
-IPTestClient::_testLog(const String& message)
+void IPTestClient::_testLog(const String& message)
 {
     cout << "+++ " << message << " +++" << endl;
 }
@@ -90,9 +83,10 @@ IPTestClient::_testLog(const String& message)
 //
 //   _validateKeys method of the IP provider Test Client
 //
-void
-IPTestClient::_validateKeys(CIMObjectPath &cimRef, CIMName className,
-                                 Boolean verbose)
+void IPTestClient::_validateKeys(
+    CIMObjectPath &cimRef,
+    CIMName className,
+    Boolean verbose)
 {
    // don't have a try here - want it to be caught by caller
    CIMName keyName;
@@ -250,9 +244,10 @@ IPTestClient::_validateKeys(CIMObjectPath &cimRef, CIMName className,
 //
 //   _validateProperties method of the IP provider Test Client
 //
-void
-IPTestClient::_validateProperties(CIMInstance &inst, CIMName className,
-                                   Boolean verbose)
+void IPTestClient::_validateProperties(
+    CIMInstance &inst,
+    CIMName className,
+    Boolean verbose)
 {
     if (verbose)
     {
@@ -536,13 +531,15 @@ IPTestClient::_validateProperties(CIMInstance &inst, CIMName className,
 //
 //   testEnumerateInstanceNames of the IP provider.
 //
-void
-IPTestClient::testEI(CIMClient &client, CIMName className,
-                                          Boolean verbose)
+void IPTestClient::testEI(
+    CIMClient &client,
+    CIMName className,
+    Boolean verbose)
 {
     try
     {
-        _testLog("IPTestClient: Starting EIN for class " + className.getString());
+        _testLog("IPTestClient: Starting EIN for class " +
+            className.getString());
 
         Array<CIMObjectPath> cimReferences =
             client.enumerateInstanceNames(NAMESPACE, className);
@@ -581,9 +578,10 @@ IPTestClient::testEI(CIMClient &client, CIMName className,
 //
 //   testEnumerateInstances of the IP provider.
 //
-void
-IPTestClient::testEIN(CIMClient &client, CIMName className,
-                                          Boolean verbose)
+void IPTestClient::testEIN(
+    CIMClient &client,
+    CIMName className,
+    Boolean verbose)
 {
     try
     {
@@ -592,7 +590,8 @@ IPTestClient::testEIN(CIMClient &client, CIMName className,
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
 
-        _testLog("IPTestClient: Starting EI for class " + className.getString());
+        _testLog("IPTestClient: Starting EI for class " +
+            className.getString());
 
         Array<CIMInstance> cimNInstances =
             client.enumerateInstances(NAMESPACE, className,
@@ -639,13 +638,15 @@ IPTestClient::testEIN(CIMClient &client, CIMName className,
 //
 //   testGetInstance of the IP provider.
 //
-void
-IPTestClient::testGI(CIMClient &client, CIMName className,
-                                    Boolean verbose)
+void IPTestClient::testGI(
+    CIMClient &client,
+    CIMName className,
+    Boolean verbose)
 {
     try
     {
-        _testLog("IPTestClient: Starting GI for class " + className.getString());
+        _testLog("IPTestClient: Starting GI for class " +
+            className.getString());
 
         // first do an EnumerateInstanceNames - select one to play with
         // doesn't hurt to keep testing enumerate :-)

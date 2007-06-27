@@ -29,12 +29,9 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: Jair Francisco T. dos Santos (t.dos.santos.francisco@non.hp.com)
-//==============================================================================
-// Based on DNSService.h file
 //%/////////////////////////////////////////////////////////////////////////////
+// Based on DNSService.h file
+
 #ifndef _NTP_H
 #define _NTP_H
 
@@ -61,83 +58,85 @@ static const String NTP_ROLE_CLIENT("server");
 #define SYSTEM_CREATION_CLASS_NAME CIMName ("CIM_UnitaryComputerSystem")
 #define CREATION_CLASS_NAME CIMName ("PG_NTPService")
 static const String NTP_CAPTION("NTP daemon");
-static const String NTP_DESCRIPTION("Describes the Network Time Protocol (NTP) daemon");
+static const String NTP_DESCRIPTION(
+    "Describes the Network Time Protocol (NTP) daemon");
 
 // Insert MOF property definitions
 static const int MAX_KEYS = 4;
-static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME("SystemCreationClassName");
+static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME(
+    "SystemCreationClassName");
 static const String PROPERTY_SYSTEM_NAME("SystemName");
 static const String PROPERTY_CREATION_CLASS_NAME("CreationClassName");
 static const String PROPERTY_NAME("Name");
 static const String PROPERTY_CAPTION("Caption");
 static const String PROPERTY_DESCRIPTION("Description");
 static const String PROPERTY_SERVER_ADDRESS("ServerAddress");
-    
+
 //------------------------------------------------------------------------------
 // Class [NTPService] Definition
 //------------------------------------------------------------------------------
 class NTPService
 {
-    public:
-        //Constructor/Destructor
-        NTPService(void);
-        ~NTPService(void);
-        
-    public:  
-        //
-        // Public Functions - Interface
-        //
+public:
+    //Constructor/Destructor
+    NTPService();
+    ~NTPService();
 
-        // This function retrieve TRUE, if user have permissions, otherwise FALSE
-        Boolean AccessOk(const OperationContext & context);
+public:
+    //
+    // Public Functions - Interface
+    //
 
-        // This function retrieves the system name
-        Boolean getSystemName(String & hostName);
-  
-        // This function retrieves the local host name
-        Boolean getLocalHostName(String & hostName);
+    // This function retrieve TRUE, if user have permissions, otherwise FALSE
+    Boolean AccessOk(const OperationContext & context);
 
-        // This function returns TRUE if the Service Name is valid
-        // returns the Name property on the 'strValue' argument
-        Boolean getNTPName(String & strValue);
+    // This function retrieves the system name
+    Boolean getSystemName(String & hostName);
 
-        // This function returns TRUE if the Caption is valid
-        // returns the Caption property on the 'strValue' argument
-        Boolean getCaption(String & strValue);
+    // This function retrieves the local host name
+    Boolean getLocalHostName(String & hostName);
 
-        // This function returns TRUE if the Description is valid
-        // returns the Description property on the 'strValue' argument
-        Boolean getDescription(String & strValue);
+    // This function returns TRUE if the Service Name is valid
+    // returns the Name property on the 'strValue' argument
+    Boolean getNTPName(String & strValue);
 
-        // This function returns TRUE if the ServerAddress is valid
-        // returns the ServerAddress property on the 'strValue' argument
-        Boolean getServerAddress(Array<String> & strValue);
+    // This function returns TRUE if the Caption is valid
+    // returns the Caption property on the 'strValue' argument
+    Boolean getCaption(String & strValue);
 
-    private:
+    // This function returns TRUE if the Description is valid
+    // returns the Description property on the 'strValue' argument
+    Boolean getDescription(String & strValue);
 
-        //
-        // Private Functions
-        //
+    // This function returns TRUE if the ServerAddress is valid
+    // returns the ServerAddress property on the 'strValue' argument
+    Boolean getServerAddress(Array<String> & strValue);
 
-        // This function retrieves the NTP information from "/etc/ntp.conf" file
-        Boolean getNTPInfo(void);
+private:
 
-        // This function resolves host name servers
-        Boolean getHostName(String serverAddress, String & nameServer);
+    //
+    // Private Functions
+    //
 
-        // This function verify if host is address
-        Boolean isHostAddress(String host);
+    // This function retrieves the NTP information from "/etc/ntp.conf" file
+    Boolean getNTPInfo();
 
-        // This function resolves address servers
-        Boolean getHostAddress(String nameServer, String & serverAddress);
+    // This function resolves host name servers
+    Boolean getHostName(String serverAddress, String & nameServer);
 
-        // This function retrieves the key value from line buffer
-        Boolean getKeyValue(String strLine, String & strValue);
+    // This function verify if host is address
+    Boolean isHostAddress(String host);
 
-        //
-        // Class Variables
-        //
-        String ntpName;
-        Array<String> ntpServerAddress;         
+    // This function resolves address servers
+    Boolean getHostAddress(String nameServer, String & serverAddress);
+
+    // This function retrieves the key value from line buffer
+    Boolean getKeyValue(String strLine, String & strValue);
+
+    //
+    // Class Variables
+    //
+    String ntpName;
+    Array<String> ntpServerAddress;
 };
 #endif

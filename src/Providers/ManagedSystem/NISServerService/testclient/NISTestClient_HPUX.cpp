@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -49,16 +45,15 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 //------------------------------------------------------------------------------
-// FUNCTION: getUtilGetHostName 
+// FUNCTION: getUtilGetHostName
 //
-// REMARKS: 
+// REMARKS:
 //
-// PARAMETERS:  [OUT] systemName -> string that will contain the host name 
+// PARAMETERS:  [OUT] systemName -> string that will contain the host name
 //
 // RETURN: TRUE if successful, FALSE otherwise
 //------------------------------------------------------------------------------
-static 
-Boolean getUtilGetHostName(String& systemName)
+static Boolean getUtilGetHostName(String& systemName)
 {
      char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
      struct  hostent *he;
@@ -89,24 +84,26 @@ Boolean getUtilGetHostName(String& systemName)
     Checks the specified value against the expected value and returns
     TRUE if the same, else FALSE.
 */
-Boolean 
-NISTestClient::goodSystemName(String & param, Boolean verbose)
+Boolean NISTestClient::goodSystemName(
+    String & param,
+    Boolean verbose)
 {
    String host;
    getUtilGetHostName(host);
-   
-   if(verbose)
+
+   if (verbose)
       cout<< "Checking " << param << " against " << host.getCString() << endl;
    return (String::equalNoCase(param, host));
 }
 
 /**
-    Retrieves the SystemCreationClassName property value for the NIS Provider 
+    Retrieves the SystemCreationClassName property value for the NIS Provider
     Test Client.  Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE.
 */
-Boolean 
-NISTestClient::goodSystemCreationClassName(String & param, Boolean verbose)
+Boolean NISTestClient::goodSystemCreationClassName(
+    String & param,
+    Boolean verbose)
 {
    if(verbose)
       cout<< "Checking " << param << " against ";
@@ -131,7 +128,7 @@ NISTestClient::goodCreationClassName(String & param, Boolean verbose)
 
 /**
     Retrieves Name property value for the NIS Provider Test Client.
-    Checks the specified value against the expected value and returns 
+    Checks the specified value against the expected value and returns
     TRUE if the same, else FALSE
 */
 Boolean
@@ -144,26 +141,27 @@ NISTestClient::goodName(String & param, Boolean verbose)
    String strValue;
    String strBuffer;
 
-   if(verbose)
+   if (verbose)
       cout<< "Checking Name property ... " <<endl;
-   
+
    // Open file
-   if((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
+   if ((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
        return ok;
-   
+
     memset(buffer, 0, sizeof(buffer));
-    while(fgets(buffer, sizeof(buffer), fp) != NULL) {
+    while (fgets(buffer, sizeof(buffer), fp) != NULL)
+    {
         buffer[strlen(buffer) - 1] = 0;
         strBuffer.assign(buffer);
-        
+
         ps = strBuffer.find(KEY_DOMAIN);
-        if(ps < 0)
+        if (ps < 0)
             continue;
-        
+
         ps = strBuffer.find("=");
-        if(ps < 0)
+        if (ps < 0)
             continue;
-        
+
         strValue = strBuffer.subString(ps + 1);
         if(String::equalNoCase(strValue, param) ||
            strValue.size() == 0)
@@ -173,7 +171,7 @@ NISTestClient::goodName(String & param, Boolean verbose)
     }
     fclose(fp);
     if(verbose)
-        cout << "Name = " << strValue << endl;    
+        cout << "Name = " << strValue << endl;
    return ok;
 }
 
@@ -206,133 +204,144 @@ NISTestClient::goodDescription(String & param, Boolean verbose)
 }
 
 /**
-    Retrieves the ServerWaitFlag property value for the NIS Provider Test 
+    Retrieves the ServerWaitFlag property value for the NIS Provider Test
     Client.  Checks the specified value against the expected value and returns
     TRUE if the same, else FALSE.
 */
-Boolean
-NISTestClient::goodServerWaitFlag(Uint16 & param, Boolean verbose)
+Boolean NISTestClient::goodServerWaitFlag(
+    Uint16 & param,
+    Boolean verbose)
 {
     FILE *fp;
     int ps;
     Boolean ok = false,
-               found = false;
+            found = false;
     char buffer[1000];
     Uint16 intValue = 0; // Set default to "Unknown"
     String strValue;
     String strBuffer;
 
     // Open file
-    if((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
+    if ((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
         return ok;
-    
-     memset(buffer, 0, sizeof(buffer));
-     while(fgets(buffer, sizeof(buffer), fp) != NULL) {
-         buffer[strlen(buffer) - 1] = 0;
-         strBuffer.assign(buffer);
-         
-         found = true;
-         ps = strBuffer.find(KEY_WAIT_SERVER);
-         if(ps < 0)
-             continue;
-         
-         ps = strBuffer.find("=");
-         if(ps < 0)
-             continue;
-         
-         strValue.assign(strBuffer.subString(ps + 1));
-         if(String::equalNoCase(strValue, "TRUE"))
-             intValue = 2;
-         else if(String::equalNoCase(strValue, "FALSE"))
-             intValue = 3;
-         else 
-             intValue = 1;
-         
-         if(param == intValue)
-             ok = true;
 
-         break;
-     }
-     fclose(fp);    
+    memset(buffer, 0, sizeof(buffer));
+    while (fgets(buffer, sizeof(buffer), fp) != NULL)
+    {
+        buffer[strlen(buffer) - 1] = 0;
+        strBuffer.assign(buffer);
 
-     if(verbose) 
-	cout<< "Checking " << param << " against " << intValue << endl;
+        found = true;
+        ps = strBuffer.find(KEY_WAIT_SERVER);
+        if (ps < 0)
+            continue;
 
-     return found;
+        ps = strBuffer.find("=");
+        if (ps < 0)
+            continue;
+
+        strValue.assign(strBuffer.subString(ps + 1));
+        if (String::equalNoCase(strValue, "TRUE"))
+            intValue = 2;
+        else if (String::equalNoCase(strValue, "FALSE"))
+            intValue = 3;
+        else
+            intValue = 1;
+
+        if (param == intValue)
+            ok = true;
+
+        break;
+    }
+    fclose(fp);
+
+    if (verbose)
+        cout<< "Checking " << param << " against " << intValue << endl;
+
+    return found;
 }
 
 /**
     Retrieves the ServerType property value for the NIS Provider Test Client.
-    Checks the specified value against the expected value and returns 
+    Checks the specified value against the expected value and returns
     TRUE if the same, else FALSE.
 */
-Boolean
-NISTestClient::goodServerType(Uint16 & param, Boolean verbose)
+Boolean NISTestClient::goodServerType(
+    Uint16 & param,
+    Boolean verbose)
 {
     FILE *fp;
     int ps, i, ind = 0,
-    	count = 0;
+        count = 0;
     char buffer[1000];
     Boolean okMaster = false,
-        	okSlave = false,
-        	okPlus = false,
-    		ok = false;
+            okSlave = false,
+            okPlus = false,
+            ok = false;
     String strValue;
     String strBuffer;
-    Uint16 serverType = 2;	// Set default to "None";
+    Uint16 serverType = 2;  // Set default to "None";
 
     // Open file
-    if((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
+    if ((fp = fopen(FILE_NAMESVRS.getCString(), "r")) == NULL)
         return ok;
-   
-     memset(buffer, 0, sizeof(buffer));
-     while(fgets(buffer, sizeof(buffer), fp) != NULL) {
-         buffer[strlen(buffer) - 1] = 0;
-         strBuffer.assign(buffer);
-         
-         ind = 0;
-         ps = strBuffer.find(KEY_MASTER_SERVER);
-         if(ps < 0) {
-             ind = 1;
-	         ps = strBuffer.find(KEY_SLAVE_SERVER);
-	         if(ps < 0) {
-                 ind = 2;
-                 ps = strBuffer.find(KEY_PLUS_SERVER);
-                 if(ps < 0)
-             		continue;
-             }
-         }
-         
-         ps = strBuffer.find("=");
-         if(ps < 0)
-             continue;
-         
-         ok = true;
-         strValue.assign(strBuffer.subString(ps + 1));
-         switch(ind) {
-             case 0: if(String::equalNoCase(strValue, "1")) 
-             			serverType = 3;
-            		 break;
-             case 1: if(String::equalNoCase(strValue, "1"))  
-             			serverType = 4;
-              		 break;
-             case 2: if(serverType == 2) {
-                 		if(String::equalNoCase(strValue, "1"))
-                            serverType = 0;
-                        else
-                    		serverType = 1;
-             		 }
-              		 break;
-             default:
-                 break;        
-         }
-     }
-     fclose(fp);
-     
-     if(param != serverType)
-         return false;
-     
-     if(verbose) 
-	cout<< "Checking " << param << " against " << serverType << endl;
-     return ok;
+
+    memset(buffer, 0, sizeof(buffer));
+    while(fgets(buffer, sizeof(buffer), fp) != NULL)
+    {
+        buffer[strlen(buffer) - 1] = 0;
+        strBuffer.assign(buffer);
+
+        ind = 0;
+        ps = strBuffer.find(KEY_MASTER_SERVER);
+        if (ps < 0)
+        {
+            ind = 1;
+            ps = strBuffer.find(KEY_SLAVE_SERVER);
+            if (ps < 0)
+            {
+                ind = 2;
+                ps = strBuffer.find(KEY_PLUS_SERVER);
+                if (ps < 0)
+                    continue;
+            }
+        }
+
+        ps = strBuffer.find("=");
+        if (ps < 0)
+            continue;
+
+        ok = true;
+        strValue.assign(strBuffer.subString(ps + 1));
+        switch(ind)
+        {
+            case 0:
+                if (String::equalNoCase(strValue, "1"))
+                    serverType = 3;
+                break;
+            case 1:
+                if (String::equalNoCase(strValue, "1"))
+                    serverType = 4;
+                break;
+            case 2:
+                if (serverType == 2)
+                {
+                    if (String::equalNoCase(strValue, "1"))
+                        serverType = 0;
+                    else
+                        serverType = 1;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    fclose(fp);
+
+    if (param != serverType)
+        return false;
+
+    if (verbose)
+        cout<< "Checking " << param << " against " << serverType << endl;
+    return ok;
 }

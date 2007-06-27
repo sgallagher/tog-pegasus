@@ -29,17 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------------------------------------------------
 // INCLUDES
 //------------------------------------------------------------------------------
 //Pegasus includes
-#include "NTPProviderSecurity.h"    
+#include "NTPProviderSecurity.h"
 
 
 //==============================================================================
@@ -59,9 +55,9 @@ NTPProviderSecurity::NTPProviderSecurity(const OperationContext & context)
 //------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
-NTPProviderSecurity::~NTPProviderSecurity(void)
+NTPProviderSecurity::~NTPProviderSecurity()
 {
-}    
+}
 
 //------------------------------------------------------------------------------
 // FUNCTION: checkAccess
@@ -69,18 +65,18 @@ NTPProviderSecurity::~NTPProviderSecurity(void)
 // REMARKS: Status of context user
 //
 // PARAMETERS:    [IN]  username  -> user to retrieve information
-//                [IN]  filename  -> file name to verify access    
+//                [IN]  filename  -> file name to verify access
 //                [IN]  chkoper   -> valid options: OPT_READ,
-//						OPT_WRITE,
-//						OPT_READ_WRITE or
-//						OPT_EXECUTE
+//                                                  OPT_WRITE,
+//                                                  OPT_READ_WRITE or
+//                                                  OPT_EXECUTE
 //
 // RETURN: TRUE, if user has privileges, otherwise FALSE
 //------------------------------------------------------------------------------
-Boolean
-NTPProviderSecurity::checkAccess(const String filename,
-                                 const String chkoper) 
+Boolean NTPProviderSecurity::checkAccess(
+    const String filename,
+    const String chkoper)
 {
     // Insert your code here
-    return true;    
+    return true;
 }

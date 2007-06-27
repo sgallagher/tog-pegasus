@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // This file has the NTPProvider-specific routines that will be called to get
@@ -48,7 +44,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <unistd.h>    
+#include <unistd.h>
 #include "NTPTestClient.h"
 
 //------------------------------------------------------------------------------
@@ -65,29 +61,30 @@ PEGASUS_USING_STD;
 //
 // RETURN: TRUE if valid host IP, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPTestClient::getHostName(String serverAddress, String & hostName) 
+Boolean NTPTestClient::getHostName(
+    String serverAddress,
+    String & hostName)
 {
     Boolean ok = false;
     int ps, value = 0;
     String strValue;
     struct hostent *host;
     struct in_addr ia;
-    
+
     hostName.clear();
-    if((ia.s_addr = inet_addr(serverAddress.getCString())) != 0) 
+    if ((ia.s_addr = inet_addr(serverAddress.getCString())) != 0)
     {
-        host = gethostbyaddr((const char *)&ia, 
+        host = gethostbyaddr((const char *)&ia,
                               sizeof(struct in_addr),
                                AF_INET);
-        if(host != NULL) 
+        if (host != NULL)
         {
             hostName.assign(host->h_name);
             ok = true;
         }
    }
    return ok;
-}    
+}
 
 //------------------------------------------------------------------------------
 // FUNCTION: getHostAddress
@@ -99,25 +96,26 @@ NTPTestClient::getHostName(String serverAddress, String & hostName)
 //
 // RETURN: TRUE if valid host name, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPTestClient::getHostAddress(String serverName, String & serverAddress) 
+Boolean NTPTestClient::getHostAddress(
+    String serverName,
+    String & serverAddress)
 {
     Boolean ok = false;
     int ps, value = 0;
     String strValue;
     struct hostent *host;
     struct in_addr ia;
-    
+
     serverAddress.clear();
     host = gethostbyname(serverName.getCString());
-    if(host != NULL) 
+    if (host != NULL)
     {
         ia = *(struct in_addr *)(host->h_addr);
         serverAddress.assign(inet_ntoa(ia));
         ok = true;
     }
-       return ok;
-}    
+    return ok;
+}
 
 //------------------------------------------------------------------------------
 // FUNCTION: isHostAddress
@@ -128,14 +126,15 @@ NTPTestClient::getHostAddress(String serverName, String & serverAddress)
 //
 // RETURN: TRUE if host address, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPTestClient::isHostAddress(String host) {
+Boolean NTPTestClient::isHostAddress(String host)
+{
     int ps;
     String strValue;
     Boolean ok = false;
-    
+
     ps = host.find(".");
-    if(ps > 0) {
+    if (ps > 0)
+    {
         strValue.assign(host.subString(0, ps - 1));
         ok = (atoi(strValue.getCString()) > 0);
     }
@@ -151,8 +150,7 @@ NTPTestClient::isHostAddress(String host) {
 //
 // RETURN: TRUE if local hostname is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPTestClient::getLocalHostName(String & hostName) 
+Boolean NTPTestClient::getLocalHostName(String & hostName)
 {
     char host[PEGASUS_MAXHOSTNAMELEN + 1];
     if(gethostname(host, sizeof(host)))
@@ -161,23 +159,27 @@ NTPTestClient::getLocalHostName(String & hostName)
     }
     host[sizeof(host)-1] = 0;
 
-       hostName.assign(host);
+    hostName.assign(host);
     return true;
 }
 
 // Searches for a specified string into an given array
-Boolean
-NTPTestClient::FindInArray(Array<String> src, String text) {
-	Boolean ok = false;
-	int i;
-	
-	for(i=0; i<src.size(); i++) {
-		if(src[i] == text) {
-			ok = true;
-			break;
-		}
-	}
-	return ok;
+Boolean NTPTestClient::FindInArray(
+    Array<String> src,
+    String text)
+{
+    Boolean ok = false;
+    int i;
+
+    for (i=0; i<src.size(); i++)
+    {
+        if (src[i] == text)
+        {
+            ok = true;
+            break;
+        }
+    }
+    return ok;
 }
 
 //------------------------------------------------------------------------------
@@ -186,40 +188,47 @@ NTPTestClient::FindInArray(Array<String> src, String text) {
 // REMARKS: Remove spaces left and right from string variable
 //
 // PARAMETERS:  [IN] strText -> string that will contain the string value
-//				[OUT] strOut -> string cleaned    
+//              [OUT] strOut -> string cleaned
 //
-// RETURN: 
+// RETURN:
 //------------------------------------------------------------------------------
-void
-NTPTestClient::trim(String strText, String & strOut) {
-	int i, ps = -1;
+void NTPTestClient::trim(
+    String strText,
+    String & strOut)
+{
+    int i, ps = -1;
 
-	if(strText.size() == 0) {
-		strOut.clear();
-		return;
-	}
+    if (strText.size() == 0)
+    {
+        strOut.clear();
+        return;
+    }
 
-	strOut.assign(strText);
-	// Clean left string
-	for(i=0; i <= strOut.size(); i++) {
-		if(strOut.subString(i, 1) != " ") {
-			ps = i;
-			break;
-		}
-	}
-	if(ps >= 0)
-		strOut.assign(strOut.subString(ps));
+    strOut.assign(strText);
+    // Clean left string
+    for (i=0; i <= strOut.size(); i++)
+    {
+        if (strOut.subString(i, 1) != " ")
+        {
+            ps = i;
+            break;
+        }
+    }
+    if (ps >= 0)
+        strOut.assign(strOut.subString(ps));
 
-	// Clean rigth string
-	ps = -1;
-	for(i=strOut.size(); i >= 0; i--) {
-		if(strOut.subString(i, 1) != " ") {
-			ps = i;
-			break;
-		}
-	}
-	if(ps >= 0)
-		strOut.assign(strOut.subString(0, ps));
+    // Clean right string
+    ps = -1;
+    for (i=strOut.size(); i >= 0; i--)
+    {
+        if (strOut.subString(i, 1) != " ")
+        {
+            ps = i;
+            break;
+        }
+    }
+    if (ps >= 0)
+        strOut.assign(strOut.subString(0, ps));
 }
 
 //------------------------------------------------------------------------------
@@ -228,148 +237,166 @@ NTPTestClient::trim(String strText, String & strOut) {
 // REMARKS: Return value of numPos position from string with separator
 //
 // PARAMETERS:  [IN] strText -> string that will contain the string value
-//				[IN] strSep  -> string that will contain the string separator
-//				[IN] numPos  -> number position    
-//				[OUT] strOut -> value returned
+//              [IN] strSep  -> string that will contain the string separator
+//              [IN] numPos  -> number position
+//              [OUT] strOut -> value returned
 //
 // RETURN: TRUE if is OK, otherwise false
 //------------------------------------------------------------------------------
-Boolean
-NTPTestClient::piece(String strText, String strSep, int numPos, String &strOut) 
+Boolean NTPTestClient::piece(
+    String strText,
+    String strSep,
+    int numPos,
+    String &strOut)
 {
-	String strAux;
-	int count = 1;
-	int ps1 = 0, ps2 = 0;
+    String strAux;
+    int count = 1;
+    int ps1 = 0, ps2 = 0;
 
-	if(strText.size() == 0 || numPos < 1)
-		return false;
-	
-	strAux.assign(strText);	
-	strOut.clear();
-	while(count <= numPos) {
-		ps1 = strAux.find(strSep);
-		if(count == numPos) {
-			trim(strAux.subString(0, ps1), strOut);
-			break;
-		}
-		if(ps1 < 0) {
-			if(count == numPos && strAux.size() > 0)
-				trim(strAux, strOut);
-			else
-				strOut.clear();
-			break;
-		}
-		strAux.assign(strAux.subString(ps1+1));
-		count++;
-	}
+    if (strText.size() == 0 || numPos < 1)
+        return false;
+
+    strAux.assign(strText);
+    strOut.clear();
+    while (count <= numPos)
+    {
+        ps1 = strAux.find(strSep);
+        if (count == numPos)
+        {
+            trim(strAux.subString(0, ps1), strOut);
+            break;
+        }
+        if (ps1 < 0)
+        {
+            if (count == numPos && strAux.size() > 0)
+                trim(strAux, strOut);
+            else
+                strOut.clear();
+            break;
+        }
+        strAux.assign(strAux.subString(ps1+1));
+        count++;
+    }
     return (strOut.size() > 0);
 }
 
 // Standard verify method to property <do not remove>
 /*
-	goodCreationClassName property retrieve class name
-	method for the NTP Provider Test Client
+    goodCreationClassName property retrieve class name
+    method for the NTP Provider Test Client
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodCreationClassName(String & ccn, Boolean verbose) {
-   if (verbose)
-      cout<<"Checking " << ccn << " against " << CLASS_NAME.getString() <<endl;
+Boolean NTPTestClient::goodCreationClassName(
+    String & ccn,
+    Boolean verbose)
+{
+    if (verbose)
+        cout << "Checking " << ccn << " against " << CLASS_NAME.getString() <<
+            endl;
 
-   return (String::equalNoCase(ccn, CLASS_NAME.getString()));
+    return String::equalNoCase(ccn, CLASS_NAME.getString());
 }
 
 /*
-	goodName property retrieve primary server name 
-	method for the NTP Provider Test Client
+    goodName property retrieve primary server name
+    method for the NTP Provider Test Client
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodName(String & name, Boolean verbose) {
-   if (verbose)
-      cout<<"Checking Name " << name << " against " << NTP_NAME << endl;
+Boolean NTPTestClient::goodName(
+    String & name,
+    Boolean verbose)
+{
+    if (verbose)
+        cout << "Checking Name " << name << " against " << NTP_NAME << endl;
     return String::equalNoCase(NTP_NAME, name);
 }
 
 /*
-	goodCaption property retrieve product caption
-	method for the NTP Provider Test Client
+    goodCaption property retrieve product caption
+    method for the NTP Provider Test Client
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodCaption(String & cap, Boolean verbose) {
-   if (verbose)
-      cout<<"Checking Caption " << cap << endl;
+Boolean NTPTestClient::goodCaption(
+    String & cap,
+    Boolean verbose)
+{
+    if (verbose)
+        cout << "Checking Caption " << cap << endl;
 
-   return (String::equalNoCase(cap, CAPTION));
+    return String::equalNoCase(cap, CAPTION);
 }
 
 /*
-	goodDescription property retrieve product description
-	method for the NTP Provider Test Client
+    goodDescription property retrieve product description
+    method for the NTP Provider Test Client
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodDescription(String & des, Boolean verbose) {
-   if (verbose)
-      cout<<"Checking Description " << des << endl;
+Boolean NTPTestClient::goodDescription(
+    String & des,
+    Boolean verbose)
+{
+    if (verbose)
+        cout << "Checking Description " << des << endl;
 
-   return (String::equalNoCase(des, DESCRIPTION));
+    return String::equalNoCase(des, DESCRIPTION);
 }
 
 /*
-	goodServerAddress property retrieve server addresses array, if is NTP client
-	method for the NTP Provider Test Client
+    goodServerAddress property retrieve server addresses array, if is NTP client
+    method for the NTP Provider Test Client
     Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE
 */
-Boolean
-NTPTestClient::goodServerAddress(Array<String> & srvAddress, Boolean verbose) {
+Boolean NTPTestClient::goodServerAddress(
+    Array<String> & srvAddress,
+    Boolean verbose)
+{
     FILE *fp;
-    int i, j, ps, 
-      	count = 0;
+    int i, j, ps,
+        count = 0;
     char key[50];
     char host[50];
     char buffer[5000];
     long lstPos;
     Boolean ok = false,
-    		okRet = false;
+            okRet = false;
     String strValue;
     String strKey;
     String strHost;
     String strBuffer;
     Array<String> srvAddr;
 
-   	if(verbose)
+    if (verbose)
         cout << "Checking ServerAddress array ... " << endl;
 
-	// Open NTP file configuration
-	if((fp = fopen(FILE_CONFIG.getCString(), "r")) == NULL)
-	    return ok;
-    
+    // Open NTP file configuration
+    if ((fp = fopen(FILE_CONFIG.getCString(), "r")) == NULL)
+        return ok;
+
     srvAddr.clear();
     memset(buffer, 0, sizeof(buffer));
     memset(buffer, 0, sizeof(buffer));
-    while(fgets(buffer, sizeof(buffer), fp) != NULL) 
+    while (fgets(buffer, sizeof(buffer), fp) != NULL)
     {
         buffer[strlen(buffer)-1] = 0;
         strBuffer.assign(buffer);
 
         ps = strBuffer.find(ROLE_CLIENT);
         okRet = true;
-        
-        if(ps == 0) 
+
+        if (ps == 0)
         {
-        	okRet = true;
+            okRet = true;
             fseek(fp, lstPos, SEEK_SET);
             fscanf(fp, "%s", buffer);
             strBuffer.assign(buffer);
             ps = strBuffer.find(ROLE_CLIENT);
-            if(ps < 0) {
+            if (ps < 0)
+            {
                 lstPos = ftell(fp);
                 continue;
             }
@@ -377,36 +404,43 @@ NTPTestClient::goodServerAddress(Array<String> & srvAddress, Boolean verbose) {
             fscanf(fp, "%s", buffer);
             strHost.assign(buffer);
 
-	        ok = false;
-	        okRet = true;
-	        for(i=0; i < srvAddr.size(); i++) {
-	            if(String::equalNoCase(srvAddr[i], strHost)) {
-	                ok = true;
-	                break;
-	            }
-	        }
-	        if(!ok) 
-	        	srvAddr.append(strHost);
+            ok = false;
+            okRet = true;
+            for (i=0; i < srvAddr.size(); i++)
+            {
+                if (String::equalNoCase(srvAddr[i], strHost))
+                {
+                    ok = true;
+                    break;
+                }
+            }
+            if (!ok)
+                srvAddr.append(strHost);
         }
         lstPos = ftell(fp);
     }
-	fclose(fp);
+    fclose(fp);
 
-	if(okRet && srvAddr.size() != srvAddress.size())
-		okRet = false;
-		
-    if(okRet) {
+    if (okRet && srvAddr.size() != srvAddress.size())
+        okRet = false;
+
+    if (okRet)
+    {
         count = 0;
-        for(i=0; i < srvAddress.size(); i++) {
-            for(j=0; j < srvAddr.size(); j++) {
-                if(String::equalNoCase(srvAddress[i], srvAddr[j])) {
-                    if(verbose) 
-                    	cout << "ServerAddress[" << i << "]: " << srvAddress[i] << endl;
+        for(i=0; i < srvAddress.size(); i++)
+        {
+            for (j=0; j < srvAddr.size(); j++)
+            {
+                if (String::equalNoCase(srvAddress[i], srvAddr[j]))
+                {
+                    if (verbose)
+                        cout << "ServerAddress[" << i << "]: " <<
+                            srvAddress[i] << endl;
                     count++;
                 }
             }
         }
         okRet = (count == srvAddr.size());
     }
-	return okRet;
+    return okRet;
 }

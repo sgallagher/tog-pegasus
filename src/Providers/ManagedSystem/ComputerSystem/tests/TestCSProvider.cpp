@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Sean Keenan, Hewlett-Packard Company
-//                  (sean.keenan@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -299,7 +292,8 @@ int testClass(CIMClient &c, const String& className)
   // There should be several instances
   if (ia.size() == 0)
   {
-    cout << "+++++ Error: enumerateInstances on " << className << " returned too few instances" << endl;
+    cout << "+++++ Error: enumerateInstances on " << className <<
+        " returned too few instances" << endl;
     cout << "+++++ Test failed" << endl;
     return 1;
   }

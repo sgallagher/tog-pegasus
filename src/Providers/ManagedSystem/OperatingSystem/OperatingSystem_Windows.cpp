@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
-//              Alex Dunfey (dunfey_alexander@emc.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
@@ -50,11 +43,11 @@
 #include <sstream>
 #include <iomanip>
 
-OperatingSystem::OperatingSystem(void)
+OperatingSystem::OperatingSystem()
 {
 }
 
-OperatingSystem::~OperatingSystem(void)
+OperatingSystem::~OperatingSystem()
 {
 }
 
@@ -196,11 +189,12 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 
    std::stringstream ss;
 
-   ss << ver.dwMajorVersion << '.' << ver.dwMinorVersion << '.' << ver.dwBuildNumber;
+   ss << ver.dwMajorVersion << '.' << ver.dwMinorVersion << '.' <<
+      ver.dwBuildNumber;
 
    osVersion = ss.str().c_str();
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getOSType(Uint16& osType)
@@ -260,7 +254,7 @@ Boolean OperatingSystem::getOSType(Uint16& osType)
            break;
    }
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
@@ -278,7 +272,8 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
         sysUpTime *= (1000 * 1000);
 
         CIMDateTime currentTime = CIMDateTime::getCurrentDateTime();
-        CIMDateTime bootTime = CIMDateTime(currentTime.toMicroSeconds() - sysUpTime, false);
+        CIMDateTime bootTime =
+            CIMDateTime(currentTime.toMicroSeconds() - sysUpTime, false);
 
         // adjust UTC offset
         String s1 = currentTime.toString();
@@ -291,10 +286,10 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 
         lastBootUpTime = CIMDateTime(s2);
 
-        return(true);
+        return true;
     }
 
-    return(false);
+    return false;
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
@@ -325,7 +320,7 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 
    localDateTime = CIMDateTime (String (ss.str().c_str()));
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
@@ -350,13 +345,15 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
       break;
    }
 
-   // the bias used to calculate the time zone is a factor that is used to determine the
-   // UTC time from the local time. to get the UTC offset from the local time, use the inverse.
-   if(currentTimeZone != 0) {
+   // the bias used to calculate the time zone is a factor that is used to
+   // determine the UTC time from the local time. to get the UTC offset from
+   // the local time, use the inverse.
+   if(currentTimeZone != 0)
+   {
       currentTimeZone *= -1;
    }
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
@@ -373,7 +370,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 {
     numberOfProcesses = 0;
 
-    #if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
+#if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
     DWORD processHandles[1024];
     DWORD size = 0;
 
@@ -383,13 +380,13 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
             sizeof(processHandles),
             &size);
 
-    if((rc == TRUE) && (sizeof(processHandles) != size))
+    if ((rc == TRUE) && (sizeof(processHandles) != size))
     {
         numberOfProcesses = size / sizeof(processHandles[0]);
     }
-    #endif
+#endif
 
-    return(numberOfProcesses == 0 ? false : true);
+    return (numberOfProcesses == 0 ? false : true);
 }
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
@@ -436,7 +433,7 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 
    freeVirtualMemory = mem.dwAvailVirtual / 1024;
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
@@ -453,7 +450,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 
    total = mem.dwAvailPhys / 1024;
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
@@ -490,11 +487,11 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 
    total = mem.dwTotalPageFile / 1024;
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getFreeSpaceInPagingFiles(
-                                              Uint64& freeSpaceInPagingFiles)
+    Uint64& freeSpaceInPagingFiles)
 {
    freeSpaceInPagingFiles = 0;
 
@@ -508,7 +505,7 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(
 
    freeSpaceInPagingFiles = mem.dwAvailPageFile / 1024;
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
@@ -526,7 +523,7 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
                  reinterpret_cast<char *>(sys.lpMinimumApplicationAddress))
                                 / 1024;
 
-   return(true);
+   return true;
 }
 
 Boolean OperatingSystem::getDistributed(Boolean& distributed)
@@ -587,7 +584,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
     }
     #endif
 
-    return(mUpTime == 0 ? false : true);
+    return (mUpTime == 0 ? false : true);
 }
 
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)

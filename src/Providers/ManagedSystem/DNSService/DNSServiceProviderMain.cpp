@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -41,18 +36,19 @@
 // Required to build this provider from SDK
 //
 #if !defined (PEGASUS_OS_VMS)
- #include <Pegasus/Common/PegasusVersion.h>
+# include <Pegasus/Common/PegasusVersion.h>
 #endif
 #include <Pegasus/Provider/ProviderException.h>    
 #include "DNSServiceProvider.h"
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C"
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& name)
 {
-    if(String::equalNoCase(name, "DNSProvider"))
+    if (String::equalNoCase(name, "DNSProvider"))
     {
-        if(DNSFileOk())
-            return(new DNSServiceProvider());
+        if (DNSFileOk())
+            return new DNSServiceProvider();
     }
 
-    return(0);
+    return 0;
 }

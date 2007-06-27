@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By:
-//         David Kennedy       <dkennedy@linuxcare.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
-//         Jim Metcalfe, Hewlett-Packard Company
-//         Carlos Bonilla, Hewlett-Packard Company
-//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//	   Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include "IPPEpProvider.h"
@@ -52,7 +38,7 @@
 // Required to build this provider from SDK
 //
 #if !defined (PEGASUS_OS_VMS)
- #include <Pegasus/Common/PegasusVersion.h>
+# include <Pegasus/Common/PegasusVersion.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -61,8 +47,11 @@ PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(String &name)
 {
-  if (name == "IPPEpProvider") return new IPPEpProvider;
-  else if (name == "BIPTLEpProvider") return new BIPTLEpProvider;
-  else if (name == "IPRouteProvider") return new IPRouteProvider;
-  else return 0;
+    if (name == "IPPEpProvider")
+        return new IPPEpProvider;
+    else if (name == "BIPTLEpProvider")
+        return new BIPTLEpProvider;
+    else if (name == "IPRouteProvider")
+        return new IPRouteProvider;
+    else return 0;
 }

@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By:
-//         David Kennedy       <dkennedy@linuxcare.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
-//         Jim Metcalfe, Hewlett-Packard Company
-//         Carlos Bonilla, Hewlett-Packard Company
-//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 /* ==========================================================================
@@ -64,10 +52,10 @@ IPInterface::~IPInterface()
 ================================================================================
 NAME              : getCaption
 DESCRIPTION       :
-ASSUMPTIONS       : 
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getCaption(String& s) const
@@ -80,10 +68,10 @@ Boolean IPInterface::getCaption(String& s) const
 ================================================================================
 NAME              : getDescription
 DESCRIPTION       :
-ASSUMPTIONS       : 
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getDescription(String& s) const
@@ -95,11 +83,11 @@ Boolean IPInterface::getDescription(String& s) const
 /*
 ================================================================================
 NAME              : getInstallDate
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getInstallDate(CIMDateTime& d) const
@@ -114,11 +102,11 @@ Boolean IPInterface::getInstallDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getName
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getName(String& s) const
@@ -130,11 +118,11 @@ Boolean IPInterface::getName(String& s) const
 /*
 ================================================================================
 NAME              : getStatus
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getStatus(String& s) const
@@ -152,8 +140,8 @@ NAME              : getSystemName
 DESCRIPTION       : Platform-specific routine to get the System Name
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getSystemName(String& s)
@@ -166,11 +154,11 @@ Boolean IPInterface::getSystemName(String& s)
 /*
 ================================================================================
 NAME              : getNameFormat
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getNameFormat(String& s) const
@@ -182,11 +170,11 @@ Boolean IPInterface::getNameFormat(String& s) const
 /*
 ================================================================================
 NAME              : getProtocolType
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getProtocolType(Uint16& i16) const
@@ -198,11 +186,11 @@ Boolean IPInterface::getProtocolType(Uint16& i16) const
 /*
 ================================================================================
 NAME              : getOtherTypeDesription
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getOtherTypeDescription(String& s) const
@@ -214,11 +202,11 @@ Boolean IPInterface::getOtherTypeDescription(String& s) const
 /*
 ================================================================================
 NAME              : getAddress
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getAddress(String& s) const
@@ -230,11 +218,11 @@ Boolean IPInterface::getAddress(String& s) const
 /*
 ================================================================================
 NAME              : getSubnetMask
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getSubnetMask(String& s) const
@@ -246,11 +234,11 @@ Boolean IPInterface::getSubnetMask(String& s) const
 /*
 ================================================================================
 NAME              : getAddressType
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getAddressType(Uint16& i16) const
@@ -262,11 +250,11 @@ Boolean IPInterface::getAddressType(Uint16& i16) const
 /*
 ================================================================================
 NAME              : getIPVersionSupport
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getIPVersionSupport(Uint16& i16) const
@@ -278,11 +266,11 @@ Boolean IPInterface::getIPVersionSupport(Uint16& i16) const
 /*
 ================================================================================
 NAME              : getFrameType
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getFrameType(Uint16& i16) const
@@ -295,14 +283,14 @@ Boolean IPInterface::getFrameType(Uint16& i16) const
 /*
 ================================================================================
 NAME              : get_LANInterfaceName
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
-String IPInterface::get_LANInterfaceName(void) const
+String IPInterface::get_LANInterfaceName() const
 {
   // This routine must be written to return a value.
   return String::EMPTY;
@@ -311,14 +299,14 @@ String IPInterface::get_LANInterfaceName(void) const
 /*
 ================================================================================
 NAME              : bindsToLANInterface
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
-Boolean IPInterface::bindsToLANInterface(void) const
+Boolean IPInterface::bindsToLANInterface() const
 {
   return false;
 }
@@ -330,11 +318,11 @@ NAME              : initSystemName
 DESCRIPTION       : Platform-specific routine to get the System Name
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
-void IPInterface::initSystemName(void)
+void IPInterface::initSystemName()
 {
   // Do nothing
 }
@@ -345,8 +333,8 @@ NAME              : InterfaceList Constructor
 DESCRIPTION       : Build the list IP Interfaces
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 InterfaceList::InterfaceList()
@@ -359,8 +347,8 @@ NAME              : InterfaceList Destructor
 DESCRIPTION       : None
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 InterfaceList::~InterfaceList()
@@ -374,12 +362,13 @@ NAME              : findInterface
 DESCRIPTION       : find the requested interface
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
-Boolean InterfaceList::findInterface(const String &ifName,
-			     IPInterface &ipIfInst) const
+Boolean InterfaceList::findInterface(
+    const String &ifName,
+    IPInterface &ipIfInst) const
 {
     // Always return interface not found
     return false;
@@ -392,8 +381,8 @@ NAME              : getInterface
 DESCRIPTION       : Get an interface based on an index.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 IPInterface InterfaceList::getInterface(const int index) const
@@ -410,11 +399,11 @@ NAME              : size
 DESCRIPTION       : Find the size of the Interface List.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
-int InterfaceList::size(void) const
+int InterfaceList::size() const
 {
     // no interfaces
     return 0;
@@ -438,10 +427,10 @@ IPRoute::~IPRoute()
 ================================================================================
 NAME              : getCaption
 DESCRIPTION       :
-ASSUMPTIONS       : 
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getCaption(String& s) const
@@ -454,10 +443,10 @@ Boolean IPRoute::getCaption(String& s) const
 ================================================================================
 NAME              : getDescription
 DESCRIPTION       :
-ASSUMPTIONS       : 
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getDescription(String& s) const
@@ -469,11 +458,11 @@ Boolean IPRoute::getDescription(String& s) const
 /*
 ================================================================================
 NAME              : getInstallDate
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getInstallDate(CIMDateTime& d) const
@@ -488,11 +477,11 @@ Boolean IPRoute::getInstallDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getName
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getName(String& s) const
@@ -504,11 +493,11 @@ Boolean IPRoute::getName(String& s) const
 /*
 ================================================================================
 NAME              : getStatus
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getStatus(String& s) const
@@ -522,11 +511,11 @@ Boolean IPRoute::getStatus(String& s) const
 /*
 ================================================================================
 NAME              : getDestinationAddress
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getDestinationAddress(String& s) const
@@ -538,11 +527,11 @@ Boolean IPRoute::getDestinationAddress(String& s) const
 /*
 ================================================================================
 NAME              : getDestinationMask
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getDestinationMask(String& s) const
@@ -554,11 +543,11 @@ Boolean IPRoute::getDestinationMask(String& s) const
 /*
 ================================================================================
 NAME              : getNextHop
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getNextHop(String& s) const
@@ -570,11 +559,11 @@ Boolean IPRoute::getNextHop(String& s) const
 /*
 ================================================================================
 NAME              : getIsStatic
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getIsStatic(Boolean& s) const
@@ -586,11 +575,11 @@ Boolean IPRoute::getIsStatic(Boolean& s) const
 /*
 ================================================================================
 NAME              : getAddressType
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean IPRoute::getAddressType(Uint16& i16) const
@@ -605,8 +594,8 @@ NAME              : RouteList Constructor
 DESCRIPTION       : Build the list of IP Routes
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 RouteList::RouteList()
@@ -619,8 +608,8 @@ NAME              : RouteList Destructor
 DESCRIPTION       : None
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 RouteList::~RouteList()
@@ -632,17 +621,18 @@ RouteList::~RouteList()
 ================================================================================
 NAME              : findRoute
 DESCRIPTION       : Find the requested IP Route based on the destination
-		  : address, destination mask, and address type.
+                  : address, destination mask, and address type.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
-Boolean RouteList::findRoute(const String &destAddr,
-			     const String &destMask,
-			     const Uint16 &addrType,
-			     IPRoute      &ipRInst) const
+Boolean RouteList::findRoute(
+    const String &destAddr,
+    const String &destMask,
+    const Uint16 &addrType,
+    IPRoute &ipRInst) const
 {
     // Always return route not found
     return false;
@@ -655,8 +645,8 @@ NAME              : getRoute
 DESCRIPTION       : Get an IP Route based on an index.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 IPRoute RouteList::getRoute(const int index) const
@@ -673,11 +663,11 @@ NAME              : size
 DESCRIPTION       : Find the size of the Route List.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
-int RouteList::size(void) const
+int RouteList::size() const
 {
     return 0;
 }

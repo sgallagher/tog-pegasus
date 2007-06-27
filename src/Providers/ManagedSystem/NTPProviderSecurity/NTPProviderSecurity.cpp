@@ -29,18 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//	Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 //
 // Required to build this provider from SDK
 //
 #if !defined (PEGASUS_OS_VMS)
- #include <Pegasus/Common/PegasusVersion.h>
+# include <Pegasus/Common/PegasusVersion.h>
 #endif
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)

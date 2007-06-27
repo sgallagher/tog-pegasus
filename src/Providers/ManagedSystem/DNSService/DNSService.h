@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DNSService_h
@@ -54,21 +49,19 @@ static const String DNS_ROLE_NAMESERVER("nameserver");
 static const String DNS_ROLE_SEARCH("search");
 
 // Defines
-#define CLASS_NAME CIMName ("PG_DNSService")
-#define SYSTEM_CREATION_CLASS_NAME CIMName ("CIM_UnitaryComputerSystem")
-#define CREATION_CLASS_NAME CIMName ("PG_DNSService")
+#define CLASS_NAME CIMName("PG_DNSService")
+#define SYSTEM_CREATION_CLASS_NAME CIMName("CIM_UnitaryComputerSystem")
+#define CREATION_CLASS_NAME CIMName("PG_DNSService")
 static const String DNS_CAPTION("DNS Service");
-static const String DNS_DESCRIPTION
-			  ("Describes the Domain Name System (DNS) Service");
+static const String DNS_DESCRIPTION(
+    "Describes the Domain Name System (DNS) Service");
 
 class DNSService
 {
-    
 public:
-    DNSService(void);
-    virtual ~DNSService(void);
+    DNSService();
+    virtual ~DNSService();
 
-public:
     // Verify and return Caption property
     Boolean getCaption(String & capt);
 

@@ -29,15 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//        
-//
-// Modified By: Jair Francisco T. dos Santos (t.dos.santos.francisco@non.hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//==============================================================================
-// This template was created from DNSServiceProvider.h
 //%/////////////////////////////////////////////////////////////////////////
+
+// This template was created from DNSServiceProvider.h
+
 #ifndef _NTPPROVIDER_H
 #define _NTPPROVIDER_H
 
@@ -46,7 +41,7 @@
 //------------------------------------------------------------------------------
 //Pegasus includes
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>    
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/OperationContext.h>
@@ -59,88 +54,98 @@ PEGASUS_USING_STD;
 //------------------------------------------------------------------------------
 // Class [NTPServiceProvider] Definition
 //------------------------------------------------------------------------------
-class NTPServiceProvider: public CIMInstanceProvider,
-                            public CIMMethodProvider
+class NTPServiceProvider :
+    public CIMInstanceProvider,
+    public CIMMethodProvider
 {
-    public:
-        //Constructor/Destructor
-        NTPServiceProvider(void);
-        ~NTPServiceProvider(void);
+public:
+    //Constructor/Destructor
+    NTPServiceProvider();
+    ~NTPServiceProvider();
 
-    public:
+public:
 
-          //-- CIMInstanceProvider methods
-          /** Given a reference to an instance of the CIM class, fills in the data
-           *  elements of the class with the details gleaned from the system. */
-        void getInstance(const OperationContext & context,
-                         const CIMObjectPath & ref,
-                         const Boolean includeQualifiers,
-                         const Boolean includeClassOrigin,
-                         const CIMPropertyList & propertyList,
-                         InstanceResponseHandler & handler);
+    //-- CIMInstanceProvider methods
+    /** Given a reference to an instance of the CIM class, fills in the data
+     *  elements of the class with the details gleaned from the system. */
+    void getInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-          /** Returns filled instances for all instances of the CIM class detected
-           *  on the system. */
-        void enumerateInstances(const OperationContext & context,
-                                const CIMObjectPath & ref,
-                                const Boolean includeQualifiers,
-                                const Boolean includeClassOrigin,
-                                const CIMPropertyList & propertyList,
-                                InstanceResponseHandler & handler);
+    /** Returns filled instances for all instances of the CIM class detected
+     *  on the system. */
+    void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-          /** Produces a list of references to all instances of the CIM class
-           *  detected on the system, but does not fill the instances
-           *  themselves. */
-        void enumerateInstanceNames(const OperationContext & context,
-                                    const CIMObjectPath & ref,
-                                    ObjectPathResponseHandler & handler);
+    /** Produces a list of references to all instances of the CIM class
+     *  detected on the system, but does not fill the instances
+     *  themselves. */
+    void enumerateInstanceNames(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ObjectPathResponseHandler & handler);
 
-          /** Currently unimplemented in the NTPService provider, 
-        *  this is a no-op here. */
-        void modifyInstance(const OperationContext & context,
-                            const CIMObjectPath & ref,
-                            const CIMInstance & obj,
-                            const Boolean includeQualifiers,
-                            const CIMPropertyList & propertyList,
-                            ResponseHandler & handler);
+    /** Currently unimplemented in the NTPService provider,
+     *  this is a no-op here. */
+    void modifyInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList & propertyList,
+        ResponseHandler & handler);
 
-          /** Currently unimplemented in the NTPService provider, 
-        *  this is a no-op here. */
-        void createInstance(const OperationContext & context,
-                            const CIMObjectPath & ref,
-                            const CIMInstance & obj,
-                            ObjectPathResponseHandler & handler);
+    /** Currently unimplemented in the NTPService provider,
+     *  this is a no-op here. */
+    void createInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        ObjectPathResponseHandler & handler);
 
-          /** Currently unimplemented in the NTPService provider, 
-        *  this is a no-op here. */
-        void deleteInstance(const OperationContext & context,
-                            const CIMObjectPath & ref,
-                            ResponseHandler & handler);
+    /** Currently unimplemented in the NTPService provider,
+     *  this is a no-op here. */
+    void deleteInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ResponseHandler & handler);
 
-        /** Currently unimplemented in the NTPService provider, 
-        *  this is a no-op here. */
-          void invokeMethod(const OperationContext& context,
-                          const CIMObjectPath& objectReference,
-                          const CIMName& methodName,
-                          const Array<CIMParamValue>& inParameters,
-                          MethodResultResponseHandler& handler);
+    /** Currently unimplemented in the NTPService provider,
+     *  this is a no-op here. */
+    void invokeMethod(
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
 
-        /** Currently unimplemented in the NTPService provider, 
-        *  this is a no-op here. */
-          void initialize(CIMOMHandle & cimom);
+    /** Currently unimplemented in the NTPService provider,
+     *  this is a no-op here. */
+    void initialize(CIMOMHandle & cimom);
 
-        /** frees the object itself loaded */
-          void terminate(void);
+    /** frees the object itself loaded */
+    void terminate();
 
-    private:
-          // Builds a reference (a set of Key,Value pairs)
-        CIMObjectPath _fill_reference(const CIMNamespaceName &nameSpace,
-                                       const CIMName &className,
-				       NTPService ntp);
-          // Builds a filled-in instance.
-        CIMInstance    _build_instance(const CIMName & classname,
-                                    const CIMNamespaceName & nameSpace,
-                                    const Array<CIMKeyBinding> keys,
-				    NTPService ntp);
+private:
+    // Builds a reference (a set of Key,Value pairs)
+    CIMObjectPath _fill_reference(
+        const CIMNamespaceName &nameSpace,
+        const CIMName &className,
+        NTPService ntp);
+    // Builds a filled-in instance.
+    CIMInstance _build_instance(
+        const CIMName & classname,
+        const CIMNamespaceName & nameSpace,
+        const Array<CIMKeyBinding> keys,
+        NTPService ntp);
 };
 #endif

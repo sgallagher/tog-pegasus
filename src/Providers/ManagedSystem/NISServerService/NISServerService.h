@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_NISServerService_h
@@ -50,8 +46,8 @@
 
 //used by gethostname function
 #include <unistd.h>
-   
-//------------------------------------------------------------------------------ 
+
+//------------------------------------------------------------------------------
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -77,7 +73,8 @@ static const String NIS_CAPTION("NIS Service");
 static const String NIS_DESCRIPTION("This is the PG_NISServerService object");
 
 // Insert MOF property definitions
-static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME("SystemCreationClassName");
+static const String PROPERTY_SYSTEM_CREATION_CLASS_NAME(
+    "SystemCreationClassName");
 static const String PROPERTY_SYSTEM_NAME("SystemName");
 static const String PROPERTY_CREATION_CLASS_NAME("CreationClassName");
 static const String PROPERTY_NAME("Name");
@@ -91,72 +88,72 @@ static const String PROPERTY_SERVER_TYPE("ServerType");
 //------------------------------------------------------------------------------
 class NISServerService
 {
-    public:
-        NISServerService(void);
-        ~NISServerService(void);
-        
-    public:    
-        //
-        // Public Functions - Interface
-        //
+public:
+    NISServerService();
+    ~NISServerService();
 
-	/** Returns TRUE, if user have permissions, otherwise FALSE
-	*/
-        Boolean AccessOk(const OperationContext & context);
+public:
+    //
+    // Public Functions - Interface
+    //
 
-        /** Returns the local host name
-        */
-        Boolean getLocalHostName(String & hostName);
+    /** Returns TRUE, if user have permissions, otherwise FALSE
+    */
+    Boolean AccessOk(const OperationContext & context);
 
-        /** Returns the system name
-        */     
-        Boolean getSystemName(String & hostName);
+    /** Returns the local host name
+    */
+    Boolean getLocalHostName(String & hostName);
 
-        /** Returns the class name
-        */
-        Boolean getCreationClassName(String & strValue);
+    /** Returns the system name
+    */
+    Boolean getSystemName(String & hostName);
 
-        /** Returns the NIS domain name
-        */
-        Boolean getName(String & strValue);
+    /** Returns the class name
+    */
+    Boolean getCreationClassName(String & strValue);
 
-        /** Returns the caption
-        */
-        Boolean getCaption(String & strValue);
+    /** Returns the NIS domain name
+    */
+    Boolean getName(String & strValue);
 
-        /** Returns the description
-        */
-        Boolean getDescription(String & strValue);
+    /** Returns the caption
+    */
+    Boolean getCaption(String & strValue);
 
-        /** Returns one of the following values: 0-Unknown, 1-Other, 2-None, 
-            3-NIS Master, and 4-NIS Slave. 
-        */
-        Boolean getServerType(Uint16 & paramValue);
+    /** Returns the description
+    */
+    Boolean getDescription(String & strValue);
 
-        /** Returns one of the following wait flag values: 0-Unknown, 1-Other, 
-            2-Wait, amd 3-No Wait. 
-        */
-        Boolean getServerWaitFlag(Uint16 & paramValue);
+    /** Returns one of the following values: 0-Unknown, 1-Other, 2-None,
+        3-NIS Master, and 4-NIS Slave.
+    */
+    Boolean getServerType(Uint16 & paramValue);
 
-    private:
-        //
-        // Private Functions
-        //
+    /** Returns one of the following wait flag values: 0-Unknown, 1-Other,
+        2-Wait, amd 3-No Wait.
+    */
+    Boolean getServerWaitFlag(Uint16 & paramValue);
 
-        /** Returns the host name based on the server address
-        */
-        Boolean getHostName(String serverAddress, String & hostName);
+private:
+    //
+    // Private Functions
+    //
 
-        /** Returns NIS information
-        */
-        Boolean getNISInfo();
+    /** Returns the host name based on the server address
+    */
+    Boolean getHostName(String serverAddress, String & hostName);
 
-        //
-        // Class Attributes
-        //
-                
-        String        nisName;
-        Uint16 	      nisServerType;
-        Uint16 	      nisServerWaitFlag;
+    /** Returns NIS information
+    */
+    Boolean getNISInfo();
+
+    //
+    // Class Attributes
+    //
+
+    String nisName;
+    Uint16 nisServerType;
+    Uint16 nisServerWaitFlag;
 };
 #endif

@@ -299,7 +299,8 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
     return false;
 }
 
-Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFiles)
+Boolean OperatingSystem::getFreeSpaceInPagingFiles(
+    Uint64& freeSpaceInPagingFiles)
 {
     return false;
 }
@@ -341,7 +342,7 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
     }
 #endif
 
-	return false;
+    return false;
 }
 
 Uint32 OperatingSystem::_reboot()

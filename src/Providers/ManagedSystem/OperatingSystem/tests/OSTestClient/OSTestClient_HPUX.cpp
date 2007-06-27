@@ -29,20 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//         Mike Day (mdday@us.ibm.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
-//         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Sushma Fernandes , Hewlett-Packard Company
-//                (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -57,7 +43,7 @@
 #include <netinet/in.h>     // for gethostbyname
 #include <netdb.h>          // for gethostbyname
 #include <utmpx.h>          // for utxent calls
-#include <sys/pstat.h>      // for pstat 
+#include <sys/pstat.h>      // for pstat
 #include <dl.h>             // for shl_findsym
 
 /**
@@ -66,7 +52,7 @@
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn, 
+Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn,
                                               Boolean verbose)
 {
    if (verbose)
@@ -112,7 +98,7 @@ Boolean OSTestClient::goodCSName(const String &csname, Boolean verbose)
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodCreationClassName(const String &ccn, 
+Boolean OSTestClient::goodCreationClassName(const String &ccn,
                                             Boolean verbose)
 {
    if (verbose)
@@ -129,7 +115,7 @@ Boolean OSTestClient::goodCreationClassName(const String &ccn,
 Boolean OSTestClient::goodName(const String &name, Boolean verbose)
 {
     struct utsname  unameInfo;
-   
+
     if (verbose)
       cout<<"Checking " << name << " against OS name"<<endl;
 
@@ -141,16 +127,16 @@ Boolean OSTestClient::goodName(const String &name, Boolean verbose)
 
     if (verbose)
       cout<<" OS name should be " << unameInfo.sysname << endl;
-   
-    return (String::equalNoCase(name, unameInfo.sysname));   
+
+    return (String::equalNoCase(name, unameInfo.sysname));
 }
 
-/* GoodCaption method for the OS Provider Test Client 
+/* GoodCaption method for the OS Provider Test Client
 
-   Checks the specified value against the expected value 
-   and returns TRUE if the same, else FALSE 
+   Checks the specified value against the expected value
+   and returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodCaption(const String &cap, 
+Boolean OSTestClient::goodCaption(const String &cap,
                                   Boolean verbose)
 {
 
@@ -174,7 +160,7 @@ Boolean OSTestClient::goodCaption(const String &cap,
   if (verbose)
        cout<<" Should be  " << _cap << endl;
 
-   return (String::equalNoCase(cap,_cap)); 
+   return (String::equalNoCase(cap,_cap));
 }
 
 /*
@@ -183,7 +169,7 @@ Boolean OSTestClient::goodCaption(const String &cap,
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodDescription(const String &desc, 
+Boolean OSTestClient::goodDescription(const String &desc,
                                       Boolean verbose)
 {
    if (verbose)
@@ -212,7 +198,7 @@ Boolean OSTestClient::goodInstallDate(const CIMDateTime &idate,
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodStatus(const String &stat, 
+Boolean OSTestClient::goodStatus(const String &stat,
                                  Boolean verbose)
 {
    if (verbose)
@@ -270,9 +256,10 @@ Boolean OSTestClient::goodVersion(const String &version, Boolean verbose)
 
    Gets information from pstat call.  Internally in UTC (Universal
    Time Code) which must be converted to localtime for CIM
-  */                
-Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
-					 Boolean verbose)
+  */
+Boolean OSTestClient::goodLastBootUpTime(
+    const CIMDateTime &btime,
+    Boolean verbose)
 {
    struct tm tmval;
    struct pst_static pst;
@@ -321,8 +308,9 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
    Uses the CIMOM getCurrentDateTime function and checks that the
    current time from the instance is within one hour of that time.
   */
-Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
-					Boolean verbose)
+Boolean OSTestClient::goodLocalDateTime(
+    const CIMDateTime &ltime,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking LocalDateTime " << ltime.toString() << endl;
@@ -340,18 +328,18 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
        return false;
    }
    Uint64 delta = labs(raw_delta);
-   
+
    if (verbose) {
       cout<<" Should be close to " << currentDT.toString() << endl;
       printf( " Delta should be within 360 seconds, is %lld\n",delta);
       fflush(stdout);
    }
    // arbitrary choice of expecting them to be within 360 seconds
-   return (delta < 360000000);   
+   return (delta < 360000000);
 }
 
 /**
-   goodCurrentTimeZone method of HP-UX OS Provider Test Client 
+   goodCurrentTimeZone method of HP-UX OS Provider Test Client
 
    Expect the timezone now to be identical to that returned.
   */
@@ -359,21 +347,21 @@ Boolean OSTestClient::goodCurrentTimeZone(const Sint16 &tz, Boolean verbose)
 {
    if (verbose)
       cout<<"Checking CurrentTimeZone " << tz << endl;
-  
+
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
    String ds = currentDT.toString();  // want timezone
 
    // cheat here since we know the position of the timezone info
-   // subtracting '0' gets us the number from the ASCII, while 
+   // subtracting '0' gets us the number from the ASCII, while
    // the multiplies do our shifts and we use the sign appropriately
    Sint32 calctz = ((ds[22]-'0') * 100 +
                     (ds[23]-'0') * 10 +
                     (ds[24]-'0')) *
                     (ds[21]=='-'?-1:1);
 
-   if (verbose) 
+   if (verbose)
       cout << " Should be " << calctz << endl;
-   
+
    return (tz == calctz);
 }
 
@@ -385,16 +373,17 @@ Boolean OSTestClient::goodCurrentTimeZone(const Sint16 &tz, Boolean verbose)
    between 128, 256, and unlimited user licensed (all = U).
    Need to determine how to differentiate and fix this, for now return
    0 (which is unlimited).  Don't know if uname -l has same limitation.
-  */       
-Boolean OSTestClient::goodNumberOfLicensedUsers(const Uint32 &nlusers,
-						Boolean verbose)
+  */
+Boolean OSTestClient::goodNumberOfLicensedUsers(
+    const Uint32 &nlusers,
+    Boolean verbose)
 {
     struct utsname  unameInfo;
     Uint32 numberOfLicensedUsers;
 
     if (verbose)
       cout<<"Checking NumberOfLicensedUsers " << nlusers << endl;
-   
+
     // Call uname and check for any errors.
     if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
@@ -423,7 +412,7 @@ Boolean OSTestClient::goodNumberOfLicensedUsers(const Uint32 &nlusers,
     if (verbose)
       cout<<" Should be " << numberOfLicensedUsers << endl;
 
-   return (nlusers == numberOfLicensedUsers);   
+   return (nlusers == numberOfLicensedUsers);
 }
 
 /**
@@ -431,9 +420,10 @@ Boolean OSTestClient::goodNumberOfLicensedUsers(const Uint32 &nlusers,
 
    Goes through the utents, counting the number of type USER_PROCESS
    Works in isolated test env without new users logging in
-  */      
-Boolean OSTestClient::goodNumberOfUsers(const Uint32 &nusers,
-					Boolean verbose)
+  */
+Boolean OSTestClient::goodNumberOfUsers(
+    const Uint32 &nusers,
+    Boolean verbose)
 {
    struct utmpx * utmpp;
    Uint32 numberOfUsers;
@@ -453,21 +443,22 @@ Boolean OSTestClient::goodNumberOfUsers(const Uint32 &nusers,
        }
    }
 
-   endutxent();  
+   endutxent();
    if (verbose)
       cout << " Should be " << numberOfUsers << endl;
 
 // works in isolated test env without new users logging in
-   return (nusers == numberOfUsers);   
+   return (nusers == numberOfUsers);
 }
 
 /**
    goodNumberOfProcesses method for HP-UX implementation of OS Provider
 
    Gets number of active processes from pstat.
-  */         
-Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
-					    Boolean verbose)
+  */
+Boolean OSTestClient::goodNumberOfProcesses(
+    const Uint32 &nprocs,
+    Boolean verbose)
 {
    struct pst_dynamic psd;
    Uint32 numberOfProcesses;
@@ -479,7 +470,7 @@ Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
    {
        return false;
    }
-   
+
    numberOfProcesses = psd.psd_activeprocs;
 
    Sint32 raw_delta = nprocs - numberOfProcesses;
@@ -487,7 +478,7 @@ Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
 
    if (verbose)
    {
-      printf (" Delta should be within 10, is %d\n", delta); 
+      printf (" Delta should be within 10, is %d\n", delta);
       fflush(stdout);
    }
 
@@ -498,9 +489,10 @@ Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
    goodMaxNumberOfProcesses method for HP-UX implementation of OS Provider
 
    Gets maximum number of processes from pstat.
-  */             
-Boolean OSTestClient::goodMaxNumberOfProcesses(const Uint32 &maxprocs,
-					       Boolean verbose)
+  */
+Boolean OSTestClient::goodMaxNumberOfProcesses(
+    const Uint32 &maxprocs,
+    Boolean verbose)
 {
    struct pst_static pst;
    Uint32 maxNumberOfProcesses;
@@ -513,10 +505,10 @@ Boolean OSTestClient::goodMaxNumberOfProcesses(const Uint32 &maxprocs,
       return false;
    }
 
-   maxNumberOfProcesses = pst.max_proc; 
+   maxNumberOfProcesses = pst.max_proc;
    if (verbose)
       cout<<" Should be " << maxNumberOfProcesses << endl;
-   
+
    return (maxprocs == maxNumberOfProcesses);
 }
 
@@ -526,7 +518,7 @@ Boolean OSTestClient::goodMaxNumberOfProcesses(const Uint32 &maxprocs,
    Gets information from swapinfo -q command (already in KB).
    Invoked for TotalVirtualMemory as well as TotalSwapSpaceSize.
    Would be more efficient to get this only once.
-  */ 
+  */
 static Uint64 _totalVM()
 {
     char               mline[80];
@@ -555,13 +547,14 @@ static Uint64 _totalVM()
    Gets information from swapinfo -q command (techically not swap
    space, it's paging).   No formal paging files, report as swap.
 
-  */     
-Boolean OSTestClient::goodTotalSwapSpaceSize(const Uint64 &totalswap,
-					     Boolean verbose)
+  */
+Boolean OSTestClient::goodTotalSwapSpaceSize(
+    const Uint64 &totalswap,
+    Boolean verbose)
 {
    Uint64 mTotalSwapSpaceSize = 0;
 
-   if (verbose) 
+   if (verbose)
    {
       printf("Checking TotalSwapSpaceSize %lld\n", totalswap);
       fflush(stdout);
@@ -586,19 +579,20 @@ Boolean OSTestClient::goodTotalSwapSpaceSize(const Uint64 &totalswap,
    space, it's paging).  Same as the information returned for
    TotalSwapSpace.
 
-  */    
-Boolean OSTestClient::goodTotalVirtualMemorySize(const Uint64 &totalvmem,
-						 Boolean verbose)
+  */
+Boolean OSTestClient::goodTotalVirtualMemorySize(
+    const Uint64 &totalvmem,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking TotalVirtualMemorySize "<<Uint32(totalvmem)<<endl;
-  
+
    Uint64 totalVMem = _totalVM();
 
    if (verbose)
       cout<<" Should be " << Uint32(totalVMem) << endl;
- 
-   return (totalvmem == totalVMem);  // will return false if totalVMem=0   
+
+   return (totalvmem == totalVMem);  // will return false if totalVMem=0
 }
 
 /**
@@ -606,16 +600,17 @@ Boolean OSTestClient::goodTotalVirtualMemorySize(const Uint64 &totalvmem,
    OS Provider Test Client.
 
    Gets information from swapinfo -at command (the Free column)
-  */  
-Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
-					    Boolean verbose)
+  */
+Boolean OSTestClient::goodFreeVirtualMemory(
+    const Uint64 &freevmem,
+    Boolean verbose)
 {
    char               mline[80];
    FILE             * mswapInfo;
    Uint32             swapAvailable;
    Uint32             swapUsed;
-   Uint32             swapFree;  
-   
+   Uint32             swapFree;
+
    if (verbose)
       cout<<"Checking FreeVirtualMemory "<< Uint32(freevmem) << endl;
 
@@ -641,13 +636,13 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
 
    if (verbose)
    {
-      printf (" Delta should be within 131072, is %lld\n", delta); 
+      printf (" Delta should be within 131072, is %lld\n", delta);
       fflush(stdout);
    }
 
    // Empirical results have shown a delta as high as 104788, so use a
    // maximum delta of 2^17 = 131072.
-   Boolean isInRange = (delta < 131072);   
+   Boolean isInRange = (delta < 131072);
 
    if (!isInRange)
    {
@@ -660,15 +655,16 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
 
 /**
    goodFreePhysicalMemory method for HP-UX implementation of
-   OS Provider Test Client. 
+   OS Provider Test Client.
 
    Gets information from the pstat system call (psd_free field)
-  */     
-Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
-					     Boolean verbose)
+  */
+Boolean OSTestClient::goodFreePhysicalMemory(
+    const Uint64 &freepmem,
+    Boolean verbose)
 {
-   struct pst_dynamic psd;  
-   struct pst_static pst;  
+   struct pst_dynamic psd;
+   struct pst_static pst;
    float psize;
 
    if (verbose)
@@ -679,12 +675,12 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
        return false;
    }
    psize = pst.page_size / 1024;
- 
+
    if (pstat_getdynamic(&psd, sizeof(psd), (size_t)1, 0) == -1)
    {
        return false;
    }
- 
+
    if (verbose)
       cout<<" Should be close to "  << Sint32(psd.psd_free * psize) << endl;
 
@@ -708,18 +704,19 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
 }
 
 /**
-   goodTotalVisibleMemorySize method for HP-UX implementation of 
+   goodTotalVisibleMemorySize method for HP-UX implementation of
    OS Provider Test Client.
 
    Gets information from pstat (pst.physical_memory adjusted for
    the page size.
    */
-Boolean OSTestClient::goodTotalVisibleMemorySize(const Uint64 &totalvmem,
-						 Boolean verbose)
+Boolean OSTestClient::goodTotalVisibleMemorySize(
+    const Uint64 &totalvmem,
+    Boolean verbose)
 {
    float         psize;
    float         total;
-   struct        pst_static pst;   
+   struct        pst_static pst;
 
    if (verbose)
       cout<<"Checking TotalVisibleMemorySize "<<Uint32(totalvmem)<<endl;
@@ -732,33 +729,35 @@ Boolean OSTestClient::goodTotalVisibleMemorySize(const Uint64 &totalvmem,
    psize = pst.page_size / 1024;
    total = ((float)pst.physical_memory * psize);
    Uint64 totalVMem = total;
- 
+
    if (verbose)
       cout<<" Should be " << Uint32(totalVMem) << endl;
-   
+
    return (totalvmem == totalVMem);
 }
 
-Boolean OSTestClient::goodSizeStoredInPagingFiles(const Uint64 &pgsize,
-						  Boolean verbose)
+Boolean OSTestClient::goodSizeStoredInPagingFiles(
+    const Uint64 &pgsize,
+    Boolean verbose)
 {
-   if (verbose) 
+   if (verbose)
    {
       cout<<"Checking SizeStoredInPagingFiles " << endl;
       cout<<" Should be 0 on HP-UX" << endl;
    }
-   return (pgsize == 0);   
+   return (pgsize == 0);
 }
 
-Boolean OSTestClient::goodFreeSpaceInPagingFiles(const Uint64 &freepg,
-						 Boolean verbose)
+Boolean OSTestClient::goodFreeSpaceInPagingFiles(
+    const Uint64 &freepg,
+    Boolean verbose)
 {
-   if (verbose) 
+   if (verbose)
    {
       cout<<"Checking FreeSpaceInPagingFiles " <<endl; //<< freepg << endl;
       cout<<" Should be 0 on HP-UX" << endl;
    }
-   return (freepg == 0);   
+   return (freepg == 0);
 }
 
 static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
@@ -816,7 +815,7 @@ static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
        return false;
     }
 }
-           
+
 
 static Boolean getMaxProcMemViaGettune(Boolean are32bit,
                                        Uint64& maxProcMemSize)
@@ -870,16 +869,16 @@ static Boolean getMaxProcMemViaGettune(Boolean are32bit,
     else
     {  // are 64bit
        if (gettune_sym("maxdsiz_64bit", &maxdsiz_64bit) != 0)
-          return false;  // fail if can't get info     
+          return false;  // fail if can't get info
        if (gettune_sym("maxssiz_64bit", &maxssiz_64bit) != 0)
           return false;  // fail if can't get info
-       if (gettune_sym("maxtsiz_64bit", &maxtsiz_64bit) != 0) 
+       if (gettune_sym("maxtsiz_64bit", &maxtsiz_64bit) != 0)
           return false;  // fail if can't get info
        total  = maxdsiz_64bit + maxtsiz_64bit + maxssiz_64bit;
        maxProcMemSize = total;
        return true;
     }
-}    
+}
 /**
    goodMaxProcessMemorySize method for HP-UX implementation of OS Provider
 
@@ -890,27 +889,28 @@ static Boolean getMaxProcMemViaGettune(Boolean are32bit,
 
    Could use the gettune(2) system call on some systems, but it isn't
    available for 11.0, so used kmtune for all releases.
-   */   
-Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
-					       Boolean verbose)
+   */
+Boolean OSTestClient::goodMaxProcessMemorySize(
+    const Uint64 &maxpmem,
+    Boolean verbose)
 {
-   long               ret;    
+   long ret;
 
-   if (verbose) 
+   if (verbose)
    {
       printf("Checking maxProcessMemorySize = 0x%llx = %lld\n",
              maxpmem, maxpmem);
       fflush(stdout);   // flush, especially since mix of cout and printf
    }
-   
+
    Uint64 maxProcessMemorySize = 0;
 
    ret = sysconf (_SC_KERNEL_BITS);
-   if (ret == -1) 
+   if (ret == -1)
    {
       return false;  // fail if no validation info
    }
-   
+
    // First, check if we're an 11.0 system, if so, use kmtune parsing
    // If have many such checks, can store off Release/Version versus
    // getting as needed.
@@ -953,9 +953,9 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
          if (getMaxProcMemViaGettune(false, maxProcessMemorySize) == false)
             return false;  //fail if can't get info to check
       }
-   }  // end else      
+   }  // end else
 
-   if (verbose) 
+   if (verbose)
    {
       printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
              maxProcessMemorySize);
@@ -965,12 +965,13 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
    return (maxpmem == maxProcessMemorySize);
 }
 
-Boolean OSTestClient::goodDistributed(const Boolean &distr,
-				      Boolean verbose)
+Boolean OSTestClient::goodDistributed(
+    const Boolean &distr,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking Distributed against FALSE" << endl;
-   return (distr == false);  // HP-UX always false   
+   return (distr == false);  // HP-UX always false
 }
 
 /**
@@ -978,8 +979,9 @@ Boolean OSTestClient::goodDistributed(const Boolean &distr,
 
    Gets the information from kmtune
   */
-Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
-				               Boolean verbose)
+Boolean OSTestClient::goodMaxProcessesPerUser(
+    const Uint32& umaxproc,
+    Boolean verbose)
 {
     Uint32             maxProcsPerUser;
     FILE             * mtuneInfo;
@@ -990,7 +992,7 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
     if  (verbose)
       cout<<"Checking MaxProcsPerUser " << umaxproc << endl;
 
-// Call uname and check for any errors.
+    // Call uname and check for any errors.
     if ((uname(&unameInfo) < 0) && (errno != EOVERFLOW))
     {
         return false;
@@ -998,39 +1000,40 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
 
     if (strcmp(unameInfo.release,"B.11.00")==0)
     {
-// Use a pipe to invoke kmtune (since don't have gettune on 11.0)
-		      if ((mtuneInfo = popen("/usr/sbin/kmtune"
-						      	   " -q maxuprc 2>/dev/null", "r")) != NULL)
-		      {
-// Now extract the value
-		          while (fgets(mline, 80, mtuneInfo))
-		          {
-			             sscanf(mline, "maxuprc %lld", &ret);
-		          }
-		          (void)pclose (mtuneInfo);
-		      }
-		      else
-		      {
-		          return false;
-		      }
+        // Use a pipe to invoke kmtune (since don't have gettune on 11.0)
+        if ((mtuneInfo =
+                 popen("/usr/sbin/kmtune -q maxuprc 2>/dev/null", "r")) != NULL)
+        {
+            // Now extract the value
+            while (fgets(mline, 80, mtuneInfo))
+            {
+                sscanf(mline, "maxuprc %lld", &ret);
+            }
+            (void)pclose (mtuneInfo);
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
-// we may be compiling on a system without gettune, but
-// run-time would have checked version and only be here
-// if we expect to have the gettune system call in libc
+        // we may be compiling on a system without gettune, but
+        // run-time would have checked version and only be here
+        // if we expect to have the gettune system call in libc
 
-// if handle is NULL, findsym is supposed to check currently
-// loaded libraries (and we know libc should be loaded)
+        // if handle is NULL, findsym is supposed to check currently
+        // loaded libraries (and we know libc should be loaded)
 
-// get the procedure pointer for gettune
+        // get the procedure pointer for gettune
         int (*gettune_sym) (const char *, uint64_t *) = NULL;
         shl_t handle = NULL;
 
-        if (shl_findsym(&handle,
-		       "gettune",
-		       TYPE_PROCEDURE,
-		  (void *)&gettune_sym) != 0)
+        if (shl_findsym(
+                &handle,
+                "gettune",
+                TYPE_PROCEDURE,
+                (void *)&gettune_sym) != 0)
         {
             return false;
         }
@@ -1042,8 +1045,8 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
         {
             return false;  // fail if can't get info
         }
-    }    
-    
+    }
+
     if (ret != (uint64_t) -1)
     {
         maxProcsPerUser = ret;
@@ -1065,7 +1068,7 @@ Boolean OSTestClient::goodOSCapability(const String &cap, Boolean verbose)
    // determine what the OS capability should be
    long ret = sysconf(_SC_KERNEL_BITS);
 
-   if (ret == 32) 
+   if (ret == 32)
    {
       if (verbose)
          cout << " Should be 32 bit " << endl;
@@ -1084,14 +1087,14 @@ Boolean OSTestClient::goodOSCapability(const String &cap, Boolean verbose)
    goodSystemUpTime method of HP-UX OS Provider Test Client
 
    checks the value of uptime versus the value presently.  Expect the
-   current value to be greater (by no more than one hour).  Return 
+   current value to be greater (by no more than one hour).  Return
    TRUE if within this allowable delta, else FALSE
   */
 Boolean OSTestClient::goodSystemUpTime(const Uint64 &uptime, Boolean verbose)
 {
    time_t  timeval;
    struct pst_static pst;
- 
+
    if (verbose)
       // want to print out the Uint64, for now cheat with cast
       cout<<"Checking SystemUpTime " << Uint32(uptime) << endl;
@@ -1105,17 +1108,17 @@ Boolean OSTestClient::goodSystemUpTime(const Uint64 &uptime, Boolean verbose)
    timeval = (time_t)((long)timeval - (long)pst.boot_time);
    Uint64 calcUpTime = Uint64(timeval);
 
-   if (verbose) 
+   if (verbose)
    {
       printf (" Should be slightly > %lld\n", calcUpTime);
       fflush(stdout);
    }
- 
+
    Uint32 delta = calcUpTime - uptime;
-   
+
    if (verbose)
       cout << " Delta should be within 360 seconds, is " << delta << endl;
-   
-   return (delta <= 360);   
+
+   return (delta <= 360);
 }
 

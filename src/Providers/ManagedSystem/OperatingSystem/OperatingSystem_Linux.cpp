@@ -54,20 +54,27 @@
 
 PEGASUS_USING_STD;
 
-#define OSP_DEBUG(X) // Logger::put(Logger::DEBUG_LOG, "Linux OSProvider",Logger::INFORMATION, "$0", X)
+#if 0
+# define OSP_DEBUG(X) \
+    Logger::put(Logger::DEBUG_LOG, "Linux OSProvider", Logger::INFORMATION, \
+        "$0", X)
+#else
+# define OSP_DEBUG(X)
+#endif
 
-OperatingSystem::OperatingSystem(void)
+OperatingSystem::OperatingSystem()
 {
 }
 
-OperatingSystem::~OperatingSystem(void)
+OperatingSystem::~OperatingSystem()
 {
 }
 
 //-- this table is used by getName to load the distribution Name
 //   into osName. The table documents distro specific
 //   configuration files that getName will parse in /etc
-//   if the optional_string is NULL, otherwise the optional string will be used in osName.
+//   if the optional_string is NULL, otherwise the optional string will be
+//   used in osName.
 //
 
 static const struct
@@ -717,30 +724,30 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(
    */
 Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 {
-   Uint32 count;
-   const char proc_file[] = "/proc/sys/vm/overcommit_memoryt";
-   char buffer[MAXPATHLEN];
+    Uint32 count;
+    const char proc_file[] = "/proc/sys/vm/overcommit_memoryt";
+    char buffer[MAXPATHLEN];
 
-   count = 0;
-   FILE* vf = fopen(proc_file, "r");
-   if (vf)
-   {
-      if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-         sscanf(buffer, "%d", &count);
-      fclose(vf);
-   }
+    count = 0;
+    FILE* vf = fopen(proc_file, "r");
+    if (vf)
+    {
+        if (fgets(buffer, MAXPATHLEN, vf) != NULL)
+            sscanf(buffer, "%d", &count);
+        fclose(vf);
+    }
 
-   if (count)
-   {
-      maxProcessMemorySize = count;
-   }
-   else
-   {
-//ATTN-SLC-P3-18-Apr-02: Optimization?  get this once & share
-      if( ! getTotalSwapSpaceSize(maxProcessMemorySize) )
-	      return false;
-   }
-   return true;
+    if (count)
+    {
+        maxProcessMemorySize = count;
+    }
+    else
+    {
+        //ATTN-SLC-P3-18-Apr-02: Optimization?  get this once & share
+        if (!getTotalSwapSpaceSize(maxProcessMemorySize))
+            return false;
+    }
+    return true;
 }
 
  /**
@@ -784,7 +791,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
          if (sscanf(read_buffer, " %lu.", &uptime))
          {
          mUpTime = uptime;
-	 fclose(procfile);
+         fclose(procfile);
          return true;
          }
       fclose(procfile);

@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By:
-//         David Kennedy       <dkennedy@linuxcare.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
-//         Jim Metcalfe, Hewlett-Packard Company
-//         Carlos Bonilla, Hewlett-Packard Company
-//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PG_PROCESSOR_PROVIDER_H
@@ -57,81 +44,85 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-
 class ProcessorProvider : public CIMInstanceProvider
 {
-
 public:
 
   ProcessorProvider();
 
   ~ProcessorProvider();
 
-  void createInstance(const OperationContext &context,
-                      const CIMObjectPath &instanceName,
-                      const CIMInstance &instanceObject,
-                      ObjectPathResponseHandler &handler);
+    void createInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceName,
+        const CIMInstance &instanceObject,
+        ObjectPathResponseHandler &handler);
 
-  void deleteInstance(const OperationContext &context,
-                      const CIMObjectPath &instanceReference,
-                      ResponseHandler &handler);
+    void deleteInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceReference,
+        ResponseHandler &handler);
 
-  void enumerateInstances(const OperationContext & context,
-	                  const CIMObjectPath & classReference,
-                          const Boolean includeQualifiers,
-                          const Boolean includeClassOrigin,
-	                  const CIMPropertyList & propertyList,
-	                  InstanceResponseHandler & handler);
+    void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-  void enumerateInstanceNames(const OperationContext &context,
-                             const CIMObjectPath  &ref,
-                             ObjectPathResponseHandler &handler);
+    void enumerateInstanceNames(
+        const OperationContext &context,
+        const CIMObjectPath  &ref,
+        ObjectPathResponseHandler &handler);
 
-  void getInstance(const OperationContext &context,
-                   const CIMObjectPath &instanceName,
-                   const Boolean includeQualifiers,
-                   const Boolean includeClassOrigin,
-                   const CIMPropertyList &propertyList,
-                   InstanceResponseHandler &handler);
+    void getInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceName,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList &propertyList,
+        InstanceResponseHandler &handler);
 
-  void modifyInstance(const OperationContext &context,
-                      const CIMObjectPath &instanceName,
-                      const CIMInstance &instanceObject,
-                      const Boolean includeQualifiers,
-		      const CIMPropertyList &propertyList,
-                      ResponseHandler &handler);
+    void modifyInstance(
+        const OperationContext &context,
+        const CIMObjectPath &instanceName,
+        const CIMInstance &instanceObject,
+        const Boolean includeQualifiers,
+        const CIMPropertyList &propertyList,
+        ResponseHandler &handler);
 
-  void initialize(CIMOMHandle&);
+    void initialize(CIMOMHandle&);
 
-  void terminate(void);
+    void terminate();
 
 private:
 
-  // private member to store handle passed by initialize()
-  CIMOMHandle _cimomHandle;
+    // private member to store handle passed by initialize()
+    CIMOMHandle _cimomHandle;
 
-  Array<CIMKeyBinding> _constructKeyBindings(const Processor&);
+    Array<CIMKeyBinding> _constructKeyBindings(const Processor&);
 
-  // Used to add properties to an instance
-  // first argument is the class of instance to be built
-  // second argument is a Processor instance that contains
-  // process status information that has been fetched
-  CIMInstance _constructInstance(const CIMName &clnam,
-                                 const CIMNamespaceName &nameSpace,
-                                 const Processor &p);
+    // Used to add properties to an instance
+    // first argument is the class of instance to be built
+    // second argument is a Processor instance that contains
+    // process status information that has been fetched
+    CIMInstance _constructInstance(
+        const CIMName &clnam,
+        const CIMNamespaceName &nameSpace,
+        const Processor &p);
 
-  // checks the class passed by the cimom and throws
-  // an exception if it's not supported by this provider
-  void _checkClass(CIMName&);
+    // checks the class passed by the cimom and throws
+    // an exception if it's not supported by this provider
+    void _checkClass(CIMName&);
 
-  // returns the private member _hostname
-  // used so that a future version could obtain this
-  // value dynamically, if necessary
-  String &_getSysName(void);
+    // returns the private member _hostname
+    // used so that a future version could obtain this
+    // value dynamically, if necessary
+    String &_getSysName();
 
-  // uninitialized; will be set during initialize() processing
-  String _hostName;
+    // uninitialized; will be set during initialize() processing
+    String _hostName;
 };
-
 
 #endif  /* #ifndef PG_PROCESSOR_PROVIDER_H */

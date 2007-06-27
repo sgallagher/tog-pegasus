@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan <sean.keenan@hp.com>
-//
-// Modified By:
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PG_PROCESS_VMS_H
@@ -65,47 +61,50 @@
 /*
  * collected proc info
  */
-typedef	struct proc_info	*proc_info_t;
-struct	proc_info {
-        uid_t                   uid;                    // user ID-
-        gid_t                   rgid;                   // real group ID
-        pid_t                   pid;                    // process ID-
-        pid_t                   ppid;                   // parent PID-
-        pid_t                   pgrp;                   // parent group-
-        pid_t                   session;                // session ID-
-        pid_t                   tpgrp;                  // session associated with parent group
-        pid_t                   tsession;               // session associated with terminal
-        int                     jobc;                   // current process count qualifying for job control
-        int                     status;                 // process status (i.e., ZOMBIE)-
-        int                     flag;                   // process flags
-        int                     state;                  // process execution state
-        int                     pri;                    // process priority-
-        int                     base_pri;               // base scheduling priority-
-        char                    p_cursig;               // current signal pointer
-        sigset_t                p_sig;                  // pointer to signals pending to this process
-        sigset_t                p_sigmask;              // pointer to signal mask (blocked)
-        sigset_t                p_sigignore;            // pointer to signals being ignored
-        sigset_t                p_sigcatch;             // pointer to signals being caught
-        int                     all_swapped;            // process swapped out
-        long                    p_utime;                // time spent in user space
-        unsigned __int64        p_stime;                // process start time pointer
-        long                    virtual_size;           // process virtual address size-
-        long                    resident_size;          // real memory size of process-
-        float                   percent_mem;            // percent real memory usage
-        int                     cpu_usage;              // percent CPU usage
-        char                    tty[8];                 // controlling terminal device name
-        char                    command[256];           // process command string-
-        char                    *args;                  // process command arguments string pointer-
-        long                    slptime;                // process sleep time
-        long                    wait_chan;              // address of wait event
-        char                    uname[13];              // user name string-
-        int                     suspend_count;          // process suspend count
-        int                     num_threads;            // process thread count
-        int                     cpu;                    // current CPU time used
-        int                     bound;                  //
-        int                     policy;                 // process scheduling policy
-        int                     pset;                   // current process set
-        proc_info_t             threads; /* array */    // pointer to next proc_info struct
+typedef struct proc_info *proc_info_t;
+struct proc_info
+{
+    uid_t             uid;          // user ID-
+    gid_t             rgid;         // real group ID
+    pid_t             pid;          // process ID-
+    pid_t             ppid;         // parent PID-
+    pid_t             pgrp;         // parent group-
+    pid_t             session;      // session ID-
+    pid_t             tpgrp;        // session associated with parent group
+    pid_t             tsession;     // session associated with terminal
+    int               jobc;         // current process count qualifying for
+                                    // job control
+    int               status;       // process status (i.e., ZOMBIE)-
+    int               flag;         // process flags
+    int               state;        // process execution state
+    int               pri;          // process priority-
+    int               base_pri;     // base scheduling priority-
+    char              p_cursig;     // current signal pointer
+    sigset_t          p_sig;        // pointer to signals pending to this
+                                    // process
+    sigset_t          p_sigmask;    // pointer to signal mask (blocked)
+    sigset_t          p_sigignore;  // pointer to signals being ignored
+    sigset_t          p_sigcatch;   // pointer to signals being caught
+    int               all_swapped;  // process swapped out
+    long              p_utime;      // time spent in user space
+    unsigned __int64  p_stime;      // process start time pointer
+    long              virtual_size; // process virtual address size-
+    long              resident_size;// real memory size of process-
+    float             percent_mem;  // percent real memory usage
+    int               cpu_usage;    // percent CPU usage
+    char              tty[8];       // controlling terminal device name
+    char              command[256]; // process command string-
+    char              *args;        // process command arguments string pointer-
+    long              slptime;      // process sleep time
+    long              wait_chan;    // address of wait event
+    char              uname[13];    // user name string-
+    int               suspend_count;// process suspend count
+    int               num_threads;  // process thread count
+    int               cpu;          // current CPU time used
+    int               bound;        //
+    int               policy;       // process scheduling policy
+    int               pset;         // current process set
+    proc_info_t       threads;      // (array) pointer to next proc_info struct
 };
 
 #undef NZERO
@@ -132,7 +131,7 @@ public:
   ~Process();
 
   Boolean getCaption(String&) const;
-  
+
   Boolean getDescription(String&) const;
 
   Boolean getInstallDate(CIMDateTime&) const;
@@ -170,7 +169,7 @@ public:
   Boolean getParameters(Array<String>&) const;
 
   Boolean getProcessNiceValue(Uint32&) const;
-  
+
   Boolean getProcessWaitingForEvent(String&) const;
 
   Boolean getCPUTime(Uint32&) const;
@@ -198,7 +197,7 @@ public:
   Boolean getParentProcessID(String&) const;
 
   Boolean getRealSpace(Uint64&) const;
-  
+
   Boolean loadProcessInfo(int &pIndex);
 
   Boolean getProcessInfo(int pIndex);
@@ -210,17 +209,17 @@ public:
   String getHandle(void) const;
 
   String getCurrentTime(void) const;
-  
+
   String getOSName(void) const;
-  
+
   String getCSName(void) const;
 
 protected:
 
 private:
 
-	static struct proc_info *pInfo;
-	static struct proc_info *pData;
+    static struct proc_info *pInfo;
+    static struct proc_info *pData;
 
 };
 

@@ -29,16 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Al Stone <ahs3@fc.hp.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Mike Glantz         <michael_glantz@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 // This file should be generic, and while it allows for a
@@ -80,11 +70,11 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-ComputerSystemProvider::ComputerSystemProvider(void)
+ComputerSystemProvider::ComputerSystemProvider()
 {
 }
 
-ComputerSystemProvider::~ComputerSystemProvider(void)
+ComputerSystemProvider::~ComputerSystemProvider()
 {
 }
 
@@ -111,28 +101,28 @@ void ComputerSystemProvider::getInstance(
 
     for (unsigned int ii = 0; ii < keys.size(); ii++)
     {
-         keyName = keys[ii].getName();
-         keyValue = keys[ii].getValue();
+        keyName = keys[ii].getName();
+        keyValue = keys[ii].getValue();
 
-         if (keyName.equal (PROPERTY_CREATION_CLASS_NAME) &&
-              (String::equalNoCase(keyValue,CLASS_CIM_COMPUTER_SYSTEM) ||
-               String::equalNoCase(keyValue,CLASS_CIM_UNITARY_COMPUTER_SYSTEM) ||
-               String::equalNoCase(keyValue,CLASS_EXTENDED_COMPUTER_SYSTEM) ||
-               String::equalNoCase(keyValue,String::EMPTY)) )
-         {
-              keyCount--;
-         }
-         else if (keyName.equal ("Name") &&
-                   String::equalNoCase(keyValue,_cs.getHostName()) )
-         {
-              keyCount--;
-         }
-     }
+        if (keyName.equal(PROPERTY_CREATION_CLASS_NAME) &&
+            (String::equalNoCase(keyValue,CLASS_CIM_COMPUTER_SYSTEM) ||
+             String::equalNoCase(keyValue,CLASS_CIM_UNITARY_COMPUTER_SYSTEM) ||
+             String::equalNoCase(keyValue,CLASS_EXTENDED_COMPUTER_SYSTEM) ||
+             String::equalNoCase(keyValue,String::EMPTY)))
+        {
+            keyCount--;
+        }
+        else if (keyName.equal("Name") &&
+                 String::equalNoCase(keyValue,_cs.getHostName()))
+        {
+            keyCount--;
+        }
+    }
 
-     if (keyCount)
-     {
+    if (keyCount)
+    {
         throw CIMInvalidParameterException(String::EMPTY);
-     }
+    }
 
     // return instance of specified class
     CIMInstance instance = _cs.buildInstance(ref.getClassName());
@@ -145,12 +135,12 @@ void ComputerSystemProvider::getInstance(
 }
 
 void ComputerSystemProvider::enumerateInstances(
-      				const OperationContext& context,
-			        const CIMObjectPath& ref,
-				const Boolean includeQualifiers,
-				const Boolean includeClassOrigin,
-			        const CIMPropertyList& propertyList,
-			        InstanceResponseHandler& handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     CIMName className = ref.getClassName();
     _checkClass(className);
@@ -160,20 +150,24 @@ void ComputerSystemProvider::enumerateInstances(
     // Deliver instance only if request was for leaf class
     if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
-      Array<CIMKeyBinding> keys;
-      keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
-                                CLASS_CIM_COMPUTER_SYSTEM,
-                                CIMKeyBinding::STRING));
-      keys.append(CIMKeyBinding(PROPERTY_NAME,
-                                _cs.getHostName(),
-                                CIMKeyBinding::STRING));
-      CIMObjectPath instanceName(String::EMPTY,       // Hostname not required
-                                 CIMNamespaceName(),  // Namespace not required
-                                 CLASS_EXTENDED_COMPUTER_SYSTEM,
-                                 keys);
-      CIMInstance instance = _cs.buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
-      instance.setPath(instanceName);
-      handler.deliver(instance);
+        Array<CIMKeyBinding> keys;
+        keys.append(CIMKeyBinding(
+            PROPERTY_CREATION_CLASS_NAME,
+            CLASS_CIM_COMPUTER_SYSTEM,
+            CIMKeyBinding::STRING));
+        keys.append(CIMKeyBinding(
+            PROPERTY_NAME,
+            _cs.getHostName(),
+            CIMKeyBinding::STRING));
+        CIMObjectPath instanceName(
+            String::EMPTY,       // Hostname not required
+            CIMNamespaceName(),  // Namespace not required
+            CLASS_EXTENDED_COMPUTER_SYSTEM,
+            keys);
+        CIMInstance instance =
+            _cs.buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
+        instance.setPath(instanceName);
+        handler.deliver(instance);
     }
 
     handler.complete();
@@ -181,9 +175,9 @@ void ComputerSystemProvider::enumerateInstances(
 }
 
 void ComputerSystemProvider::enumerateInstanceNames(
-      				const OperationContext& context,
-			  	const CIMObjectPath &ref,
-			  	ObjectPathResponseHandler& handler )
+    const OperationContext& context,
+    const CIMObjectPath &ref,
+    ObjectPathResponseHandler& handler)
 {
     CIMName className = ref.getClassName();
     _checkClass(className);
@@ -191,76 +185,76 @@ void ComputerSystemProvider::enumerateInstanceNames(
     handler.processing();
 
     // Deliver instance only if request was for leaf class
-    if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
+    if (className.equal(CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
-      Array<CIMKeyBinding> keys;
+        Array<CIMKeyBinding> keys;
 
-      keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
-                             CLASS_CIM_COMPUTER_SYSTEM,
-                             CIMKeyBinding::STRING));
-      keys.append(CIMKeyBinding(PROPERTY_NAME,
-                             _cs.getHostName(),
-                             CIMKeyBinding::STRING));
+        keys.append(CIMKeyBinding(
+            PROPERTY_CREATION_CLASS_NAME,
+            CLASS_CIM_COMPUTER_SYSTEM,
+            CIMKeyBinding::STRING));
+        keys.append(CIMKeyBinding(
+            PROPERTY_NAME,
+            _cs.getHostName(),
+            CIMKeyBinding::STRING));
 
-      handler.deliver(CIMObjectPath(_cs.getHostName(),
-                                   ref.getNameSpace(),
-                                   CLASS_EXTENDED_COMPUTER_SYSTEM,
-                                   keys));
+        handler.deliver(CIMObjectPath(
+            _cs.getHostName(),
+            ref.getNameSpace(),
+            CLASS_EXTENDED_COMPUTER_SYSTEM,
+            keys));
     }
 
     handler.complete();
     return;
 }
 
-void
-ComputerSystemProvider::modifyInstance(
-      				const OperationContext& context,
-			  	const CIMObjectPath& ref,
-			  	const CIMInstance& instanceObject,
-				const Boolean includeQualifiers,
-			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler& handler )
+void ComputerSystemProvider::modifyInstance(
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const CIMInstance& instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler& handler)
 {
     throw CIMNotSupportedException(String::EMPTY);
 }
 
-void
-ComputerSystemProvider::createInstance(
-      				const OperationContext& context,
-			  	const CIMObjectPath& ref,
-			  	const CIMInstance& instanceObject,
-			  	ObjectPathResponseHandler& handler )
+void ComputerSystemProvider::createInstance(
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const CIMInstance& instanceObject,
+    ObjectPathResponseHandler& handler)
 {
     throw CIMNotSupportedException(String::EMPTY);
 }
 
-void
-ComputerSystemProvider::deleteInstance(
-      				const OperationContext& context,
-			  	const CIMObjectPath& ref,
-			  	ResponseHandler& handler )
+void ComputerSystemProvider::deleteInstance(
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    ResponseHandler& handler)
 {
     throw CIMNotSupportedException(String::EMPTY);
 }
 
 void ComputerSystemProvider::initialize(CIMOMHandle& handle)
 {
-  _ch = handle;
-  // platform-specific routine to initialize protected members
-  _cs.initialize();
+    _ch = handle;
+    // platform-specific routine to initialize protected members
+    _cs.initialize();
 }
 
 
-void ComputerSystemProvider::terminate(void)
+void ComputerSystemProvider::terminate()
 {
     delete this;
 }
 
 void ComputerSystemProvider::_checkClass(CIMName& className)
 {
-    if (!className.equal (CLASS_CIM_COMPUTER_SYSTEM) &&
-        !className.equal (CLASS_CIM_UNITARY_COMPUTER_SYSTEM) &&
-        !className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
+    if (!className.equal(CLASS_CIM_COMPUTER_SYSTEM) &&
+        !className.equal(CLASS_CIM_UNITARY_COMPUTER_SYSTEM) &&
+        !className.equal(CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
         throw CIMNotSupportedException(String::EMPTY);
     }

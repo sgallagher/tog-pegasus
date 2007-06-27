@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-// 	   Al Stone <ahs3@fc.hp.com>
-//
-// Modified By: Al Stone <ahs3@fc.hp.com>
-// Modified by: Mike Glantz <michael_glantz@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////
 
 #ifndef _COMPUTERSYSTEM_H
@@ -53,56 +47,52 @@ PEGASUS_USING_PEGASUS;
 
 class ComputerSystem
 {
-   public:
-      ComputerSystem();
-      ~ComputerSystem();
+public:
+    ComputerSystem();
+    ~ComputerSystem();
 
-      Boolean getCaption(CIMProperty&);
-      Boolean getDescription(CIMProperty&);
-      Boolean getInstallDate(CIMProperty&);
-      Boolean getCreationClassName(CIMProperty&);
-      Boolean getName(CIMProperty&);
-      Boolean getStatus(CIMProperty&);
-      Boolean getOperationalStatus(CIMProperty&);
-      Boolean getStatusDescriptions(CIMProperty&);
-      Boolean getNameFormat(CIMProperty&);
-      Boolean getPrimaryOwnerName(CIMProperty&);
-      Boolean setPrimaryOwnerName(const String&);
-      Boolean getPrimaryOwnerContact(CIMProperty&);
-      Boolean setPrimaryOwnerContact(const String&);
-      Boolean getRoles(CIMProperty&);
-      Boolean getOtherIdentifyingInfo(CIMProperty&);
-      Boolean getIdentifyingDescriptions(CIMProperty&);
-      Boolean getDedicated(CIMProperty&);
-      Boolean getResetCapability(CIMProperty&);
-      Boolean getPowerManagementCapabilities(CIMProperty&);
+    Boolean getCaption(CIMProperty&);
+    Boolean getDescription(CIMProperty&);
+    Boolean getInstallDate(CIMProperty&);
+    Boolean getCreationClassName(CIMProperty&);
+    Boolean getName(CIMProperty&);
+    Boolean getStatus(CIMProperty&);
+    Boolean getOperationalStatus(CIMProperty&);
+    Boolean getStatusDescriptions(CIMProperty&);
+    Boolean getNameFormat(CIMProperty&);
+    Boolean getPrimaryOwnerName(CIMProperty&);
+    Boolean setPrimaryOwnerName(const String&);
+    Boolean getPrimaryOwnerContact(CIMProperty&);
+    Boolean setPrimaryOwnerContact(const String&);
+    Boolean getRoles(CIMProperty&);
+    Boolean getOtherIdentifyingInfo(CIMProperty&);
+    Boolean getIdentifyingDescriptions(CIMProperty&);
+    Boolean getDedicated(CIMProperty&);
+    Boolean getResetCapability(CIMProperty&);
+    Boolean getPowerManagementCapabilities(CIMProperty&);
 
 // CIM_UnitaryComputerSystem
-      Boolean getInitialLoadInfo(CIMProperty&);
-      Boolean getLastLoadInfo(CIMProperty&);
-      Boolean getPowerManagementSupported(CIMProperty&);
-      Boolean getPowerState(CIMProperty&);
-      Boolean getWakeUpType(CIMProperty&);
-      Boolean getPrimaryOwnerPager(CIMProperty&);
-      Boolean setPrimaryOwnerPager(const String&);
-      Boolean getSecondaryOwnerName(CIMProperty&);
-      Boolean setSecondaryOwnerName(const String&);
-      Boolean getSecondaryOwnerContact(CIMProperty&);
-      Boolean setSecondaryOwnerContact(const String&);
-      Boolean getSecondaryOwnerPager(CIMProperty&);
-      Boolean setSecondaryOwnerPager(const String&);
-      Boolean getSerialNumber(CIMProperty&);
-      Boolean getIdentificationNumber(CIMProperty&);
+    Boolean getInitialLoadInfo(CIMProperty&);
+    Boolean getLastLoadInfo(CIMProperty&);
+    Boolean getPowerManagementSupported(CIMProperty&);
+    Boolean getPowerState(CIMProperty&);
+    Boolean getWakeUpType(CIMProperty&);
+    Boolean getPrimaryOwnerPager(CIMProperty&);
+    Boolean setPrimaryOwnerPager(const String&);
+    Boolean getSecondaryOwnerName(CIMProperty&);
+    Boolean setSecondaryOwnerName(const String&);
+    Boolean getSecondaryOwnerContact(CIMProperty&);
+    Boolean setSecondaryOwnerContact(const String&);
+    Boolean getSecondaryOwnerPager(CIMProperty&);
+    Boolean setSecondaryOwnerPager(const String&);
+    Boolean getSerialNumber(CIMProperty&);
+    Boolean getIdentificationNumber(CIMProperty&);
 
-      void initialize(void);
-      String getHostName(void);
+    void initialize();
+    String getHostName();
 
-      /** Builds a filled-in instance. */
-      CIMInstance buildInstance(const CIMName& className);
-
-   protected:
-
+    /** Builds a filled-in instance. */
+    CIMInstance buildInstance(const CIMName& className);
 };
-
 
 #endif

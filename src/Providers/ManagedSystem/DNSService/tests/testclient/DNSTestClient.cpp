@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: Sean Keenan Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // Using the general CIMOM TestClient as an example, developed an
@@ -228,7 +224,10 @@ DNSTestClient::testEnumerateInstanceNames(CIMClient &client,
 
         numberInstances = cimReferences.size();
         if (verboseTest)
-            cout << numberInstances << " instances of " << CLASS_NAME.getString() <<endl;
+        {
+            cout << numberInstances << " instances of " <<
+                CLASS_NAME.getString() << endl;
+        }
 
         for (Uint32 i = 0; i < cimReferences.size(); i++)
         {
@@ -254,9 +253,9 @@ DNSTestClient::testEnumerateInstanceNames(CIMClient &client,
 /*
    testEnumerateInstances of the DNS provider.
 */
-void
-DNSTestClient::testEnumerateInstances(CIMClient &client,
-                                      Boolean verboseTest)
+void DNSTestClient::testEnumerateInstances(
+    CIMClient &client,
+    Boolean verboseTest)
 {
     try
     {
@@ -281,34 +280,36 @@ DNSTestClient::testEnumerateInstances(CIMClient &client,
             cout << numberInstances << " instances of PG_DNSService" <<endl;
         for (Uint32 i = 0; i < cimNInstances.size(); i++)
         {
-            CIMObjectPath instanceRef = cimNInstances[i].getPath ();
+            CIMObjectPath instanceRef = cimNInstances[i].getPath();
             if (verboseTest)
-                cout<<"Instance ClassName is " << instanceRef.getClassName().getString() << endl;
-            if( !(instanceRef.getClassName().equal( CLASS_NAME.getString() ) ) )
+            {
+                cout << "Instance ClassName is " <<
+                    instanceRef.getClassName().getString() << endl;
+            }
+
+            if (!(instanceRef.getClassName().equal(CLASS_NAME.getString())))
             {
                 errorExit("EnumInstances failed");
             }
 
             // now validate the properties
-            _validateProperties(cimNInstances[i],
-                                 verboseTest);
+            _validateProperties(cimNInstances[i], verboseTest);
         }   // end for looping through instances
 
         testLog("DNS Provider Test EnumInstances Passed");
-    }  // end try
-
-    catch(Exception& e)
+    }
+    catch (Exception& e)
     {
-      errorExit(e.getMessage());
+        errorExit(e.getMessage());
     }
 }
 
 /*
    testGetInstance of the DNS provider.
 */
-void
-DNSTestClient::testGetInstance (CIMClient &client,
-                                Boolean verboseTest)
+void DNSTestClient::testGetInstance(
+    CIMClient &client,
+    Boolean verboseTest)
 {
     CIMObjectPath  getTestRef;    //  will need an instance for Get
 
@@ -364,8 +365,7 @@ DNSTestClient::testGetInstance (CIMClient &client,
         _validateProperties(getTestInstance, verboseTest);
 
         testLog("DNS Provider Test Get Instance passed ");
-    }  // end try
-
+    }
     catch(Exception& e)
     {
       errorExit(e.getMessage());
@@ -430,7 +430,7 @@ int main(int argc, char** argv)
         cout << "DNSTestClient disconnecting from CIMOM " << endl;
         client.disconnect();
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
         cout << "---- DNS Provider Test Failed " << e.getMessage() << endl;
     }

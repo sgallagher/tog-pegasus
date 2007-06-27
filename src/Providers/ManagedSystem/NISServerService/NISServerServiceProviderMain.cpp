@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -45,11 +41,11 @@
 #endif
 #include "NISServerServiceProvider.h"
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)    
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& name)
 {
     if (String::equalNoCase(name, "NISProvider"))
     {
-        return(new NISServerServiceProvider());
+        return new NISServerServiceProvider();
     }
     return NULL;
 }

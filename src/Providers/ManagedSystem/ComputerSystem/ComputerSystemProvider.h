@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-// 	   Al Stone <ahs3@fc.hp.com>
-//
-// Modified By: Al Stone <ahs3@fc.hp.com>
-//              Mike Glantz <michael_glantz@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////
 
 #ifndef _COMPUTERSYSTEMPROVIDER_H
@@ -111,56 +103,61 @@ PEGASUS_USING_PEGASUS;
 
 class ComputerSystemProvider: public CIMInstanceProvider
 {
-   public:
-      ComputerSystemProvider(void);
-      ~ComputerSystemProvider(void);
+public:
+    ComputerSystemProvider();
+    ~ComputerSystemProvider();
 
-      //-- CIMInstanceProvider methods
+    //-- CIMInstanceProvider methods
 
-      void getInstance(const OperationContext& context,
-		       const CIMObjectPath& ref,
-                       const Boolean includeQualifiers,
-                       const Boolean includeClassOrigin,
-		       const CIMPropertyList& propertyList,
-		       InstanceResponseHandler& handler);
+    void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-      void enumerateInstances(const OperationContext& context,
-			      const CIMObjectPath& ref,
-                              const Boolean includeQualifiers,
-                              const Boolean includeClassOrigin,
-			      const CIMPropertyList& propertyList,
-			      InstanceResponseHandler& handler);
+    void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-      void enumerateInstanceNames(const OperationContext& context,
-			          const CIMObjectPath& ref,
-			          ObjectPathResponseHandler& handler);
+    void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ObjectPathResponseHandler& handler);
 
-      void modifyInstance(const OperationContext& context,
-		          const CIMObjectPath& ref,
-		          const CIMInstance& instanceObject,
-                          const Boolean includeQualifiers,
-		          const CIMPropertyList& propertyList,
-		          ResponseHandler& handler );
+    void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& instanceObject,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler );
 
-      void createInstance(const OperationContext& context,
-		          const CIMObjectPath& ref,
-		          const CIMInstance& instanceObject,
-		          ObjectPathResponseHandler& handler );
+    void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& instanceObject,
+        ObjectPathResponseHandler& handler);
 
-      void deleteInstance(const OperationContext& context,
-		          const CIMObjectPath& ref,
-		          ResponseHandler& handler );
+    void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ResponseHandler& handler);
 
-      void initialize(CIMOMHandle& handle);
-      void terminate(void);
+    void initialize(CIMOMHandle& handle);
+    void terminate();
 
-   protected:
+protected:
 
-      CIMOMHandle _ch;
-      ComputerSystem _cs;
+    CIMOMHandle _ch;
+    ComputerSystem _cs;
 
-      void _checkClass(CIMName& className);
+    void _checkClass(CIMName& className);
 };
-
 
 #endif

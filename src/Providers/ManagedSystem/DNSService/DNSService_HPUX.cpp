@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------------------------------------------------
@@ -65,7 +60,6 @@ PEGASUS_USING_STD;
 
 static const String DNS_FILE_CONFIG("/etc/resolv.conf");
 static const String DNS_NAME("named");
-    
 
 //------------------------------------------------------------------------------
 // FUNCTION: getUtilGetHostName
@@ -111,10 +105,10 @@ static Boolean getUtilGetHostName(String& systemName)
 //
 // RETURN: true.
 //------------------------------------------------------------------------------
-Boolean DNSFileOk() 
+Boolean DNSFileOk()
 {
     return true;
-}            
+}
 
 //==============================================================================
 //
@@ -157,8 +151,7 @@ DNSService::~DNSService(void)
 //
 // RETURN:     true, hardcoded
 //------------------------------------------------------------------------------
-Boolean 
-DNSService::getCaption(String & capt)
+Boolean DNSService::getCaption(String & capt)
 {
     capt.assign(DNS_CAPTION);
     return true;
@@ -173,8 +166,7 @@ DNSService::getCaption(String & capt)
 //
 // RETURN:     true, hardcoded
 //------------------------------------------------------------------------------
-Boolean 
-DNSService::getDescription(String & desc)
+Boolean DNSService::getDescription(String & desc)
 {
     desc.assign(DNS_DESCRIPTION);
     return true;
@@ -189,8 +181,7 @@ DNSService::getDescription(String & desc)
 //
 // RETURN: TRUE if local hostname is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-DNSService::getSystemName(String & systemName) 
+Boolean DNSService::getSystemName(String & systemName)
 {
    return getUtilGetHostName(systemName);
 }
@@ -205,12 +196,11 @@ DNSService::getSystemName(String & systemName)
 //
 // RETURN:
 //------------------------------------------------------------------------------
-Boolean 
-DNSService::FindInArray(Array<String> src, String text)
+Boolean DNSService::FindInArray(Array<String> src, String text)
 {
     Boolean ok = false;
     int i;
-    
+
     for(i=0; i<src.size(); i++) {
         if(src[i] == text) {
             ok = true;
@@ -229,8 +219,7 @@ DNSService::FindInArray(Array<String> src, String text)
 //
 // RETURN:     true, if there's a DNS Name
 //------------------------------------------------------------------------------
-Boolean 
-DNSService::getDNSName(String & name) 
+Boolean DNSService::getDNSName(String & name)
 {
 #ifdef DEBUG
     cout << "DNSService::getDNSName()" << endl;
@@ -255,13 +244,12 @@ DNSService::getDNSName(String & name)
 //
 // PARAMETERS: [OUT]  srclst -> the array of search entries
 //
-// RETURN: 
+// RETURN:
 //------------------------------------------------------------------------------
-Boolean 
-DNSService::getSearchList(Array<String> & srclst) 
+Boolean DNSService::getSearchList(Array<String> & srclst)
 {
     srclst.clear();
-    for(int i=0; i < dnsSearchList.size(); i++) 
+    for(int i=0; i < dnsSearchList.size(); i++)
         srclst.append(dnsSearchList[i]);
     return true;
 }
@@ -273,13 +261,12 @@ DNSService::getSearchList(Array<String> & srclst)
 //
 // PARAMETERS: [OUT]  addrlst -> the array of addresses
 //
-// RETURN: 
+// RETURN:
 //------------------------------------------------------------------------------
-Boolean 
-DNSService::getAddresses(Array<String> & addrlst) 
+Boolean DNSService::getAddresses(Array<String> & addrlst)
 {
     addrlst.clear();
-    for(int i=0; i < dnsAddresses.size(); i++) 
+    for(int i=0; i < dnsAddresses.size(); i++)
         addrlst.append(dnsAddresses[i]);
     return true;
 }
@@ -303,14 +290,14 @@ DNSService::getDNSInfo()
     String strBuffer;
 
     // Open file DNS Configuration File
-    if((fp = fopen(DNS_FILE_CONFIG.getCString(), "r")) == NULL)
+    if ((fp = fopen(DNS_FILE_CONFIG.getCString(), "r")) == NULL)
     {
-        throw CIMOperationFailedException
-		    ("DNSService: can't open configuration file.");
+        throw CIMOperationFailedException(
+            "DNSService: can't open configuration file.");
     }
 
     // Check configuration file contents.
-    while(!feof(fp)) 
+    while (!feof(fp))
     {
         memset(buffer, 0, sizeof(buffer));
         fscanf(fp, "%511s", buffer);
@@ -340,7 +327,7 @@ DNSService::getDNSInfo()
     dnsName.clear();
     dnsSearchList.clear();
     dnsAddresses.clear();
-    
+
     // Retrieve DNS informations from file
     while(!feof(fp)) {
         memset(buffer, 0, sizeof(buffer));
@@ -349,8 +336,8 @@ DNSService::getDNSInfo()
         if(!strlen(buffer))
             continue;
 
-	strBuffer.assign(buffer);
-        
+        strBuffer.assign(buffer);
+
         // Verify if key is domain name
         if(String::equalNoCase(strBuffer, DNS_ROLE_DOMAIN)) {
             fscanf(fp, "%511s", buffer);
@@ -375,16 +362,18 @@ DNSService::getDNSInfo()
             }
             else
             {
-                switch(ind) {
+                switch (ind) 
+                {
                     case SEARCHLIST:
-			// Make sure not to add multiple identical entries
-                        if(!FindInArray(dnsSearchList, strBuffer)) {
+                        // Make sure not to add multiple identical entries
+                        if (!FindInArray(dnsSearchList, strBuffer))
+                        {
                             dnsSearchList.append(strBuffer);
-			    // if there's not already a Domain Name, use
-			    // the first Search entry.
-                    	    if(dnsName.size() == 0)
+                            // if there's not already a Domain Name, use
+                            // the first Search entry.
+                            if (dnsName.size() == 0)
                                 dnsName.assign(strBuffer);
-                    	}
+                        }
                         break;
 
                     case ADDRESSES:
@@ -403,7 +392,7 @@ DNSService::getDNSInfo()
     }
     fclose(fp);
     return ok;
-}                        
+}
 
 //------------------------------------------------------------------------------
 // FUNCTION: AccessOk
@@ -414,8 +403,7 @@ DNSService::getDNSInfo()
 //
 // RETURN: TRUE, if user have privileges, otherwise FALSE
 //------------------------------------------------------------------------------
-Boolean 
-DNSService::AccessOk(const OperationContext & context)
+Boolean DNSService::AccessOk(const OperationContext & context)
 {
     NTPProviderSecurity sec(context);
     Boolean ok = sec.checkAccess(DNS_FILE_CONFIG,

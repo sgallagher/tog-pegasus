@@ -1,4 +1,4 @@
-//%2006///////////////////////////////////////////////////////////////////////////
+//%2006/////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -29,34 +29,29 @@
 //
 //==============================================================================
 //
-// Author: Ray Boucher, Hewlett-Packard Company <ray.boucher@hp.com>
-//
-// Modified By:
-//
-// Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
-//
 //%////////////////////////////////////////////////////////////////////////////
+
 //
 //  PTR 73-51-32
-//  Modified getNumberOfUsers() function to return the 
+//  Modified getNumberOfUsers() function to return the
 //  number of interactive user names for number of users
-//  property 
+//  property
 //
 //  PTR 73-51-30 and PTR 73-51-2
 //  Changes made to address review comments in PTR 73-51-2
 //  Replacing sys$specific:[000000] with wbem_tmp: logical
-//  as first argument to tempnam() in 
+//  as first argument to tempnam() in
 //  in getNumberOfLicensedUsers() and getInstallDate() functions.
 //
 //  PTR 73-51-27
-//  Changed getNumberOfLicensedUsers() to return number of licensed users 
-//  as 0 (unlimited licensed users) in case of I64 as the base O/S license on 
+//  Changed getNumberOfLicensedUsers() to return number of licensed users
+//  as 0 (unlimited licensed users) in case of I64 as the base O/S license on
 //  IA64 (FOE) provides unlimited number of users
 //
 //  PTR 73-51-22 21-Jul-2006
 //  Changed the getTotalSwapSpaceSize(),getFreeSpaceInPagingFiles(),
 //  getSizeStoredInPagingFiles(), getTotalVisibleMemorySize() and
-//  getFreePhysicalMemory() functions to get teh pagesize using the 
+//  getFreePhysicalMemory() functions to get teh pagesize using the
 //  sys$getsyiw() call using item code SYI$_PAGE_SIZE
 //
 //  PTR 73-51-28 12-Jul-2006
@@ -69,9 +64,12 @@
 //  The installDate and NumberOfLicensedUsers are not displayed in the wbemexec
 //  enumerate instance output. The same was seen as appearing fine, when
 //  CIMserver is running interactively.
-//  The function getInstallDate() and getNumberOfLicensedUsers() is modifled as below:
-//  The first argument of tempname() call is changed from NULL to "SYS$SPECIFIC:[000000]"
-//  as tempnam() would take a default of "SYS$SCRATCH:" directory, if first argument is not specified.
+//  The function getInstallDate() and getNumberOfLicensedUsers() is modified
+//  as below:
+//  The first argument of tempname() call is changed from NULL to
+//  "SYS$SPECIFIC:[000000]"
+//  as tempnam() would take a default of "SYS$SCRATCH:" directory, if first
+//  argument is not specified.
 //
 //  PTR 73-51-21 10-Jul-06.
 //  changed The checking for define PEGASUS_PLATFORM_VMS_IPF_DECCXX
@@ -128,16 +126,16 @@ extern "C"
 
 PEGASUS_USING_STD;
 
-OperatingSystem::OperatingSystem(void)
+OperatingSystem::OperatingSystem()
 {
 }
 
-OperatingSystem::~OperatingSystem(void)
+OperatingSystem::~OperatingSystem()
 {
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getUtilGetHostName
 // DESCRIPTION       : Gets the name of the host system from gethostname
 //                      and gethostbyname.
@@ -145,7 +143,7 @@ OperatingSystem::~OperatingSystem(void)
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 static Boolean getUtilGetHostName(String & csName)
@@ -176,7 +174,7 @@ static Boolean getUtilGetHostName(String & csName)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : convertToCIMDateString
 // DESCRIPTION       : Converts a tm struct to a CIMDateTime formatted
 //                      char *.
@@ -184,34 +182,34 @@ static Boolean getUtilGetHostName(String & csName)
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 int convertToCIMDateString(struct tm *t, char *time)
 {
   // Format the date.
   sprintf(time, "%04d%02d%02d%02d%02d%02d.000000%c%03d",
-	  t->tm_year + 1900,
-	  t->tm_mon + 1,
-	  t->tm_mday,
-	  t->tm_hour,
-	  t->tm_min,
-	  t->tm_sec,
-	  (timezone > 0) ? '-' : '+',
-	  timezone / 60 - (t->tm_isdst ? 60 : 0));
+      t->tm_year + 1900,
+      t->tm_mon + 1,
+      t->tm_mday,
+      t->tm_hour,
+      t->tm_min,
+      t->tm_sec,
+      (timezone > 0) ? '-' : '+',
+      timezone / 60 - (t->tm_isdst ? 60 : 0));
 
   return 1;
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : get_time
 // DESCRIPTION       : Returns a tm structure, which contains the current time.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 struct tm *get_time()
@@ -221,13 +219,13 @@ struct tm *get_time()
 
   if (getclock(TIMEOFDAY, &since_epoch) != 0)
   {
-    return (NULL);		/*getclock error */
+    return (NULL);   /*getclock error */
   }
   else
   {
     if ((local = localtime(&since_epoch.tv_sec)) == (struct tm *) NULL)
     {
-      return (NULL);		/*localtime error */
+      return (NULL);   /*localtime error */
     }
     else
     {
@@ -237,14 +235,14 @@ struct tm *get_time()
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : GetFreeMem
 // DESCRIPTION       : kernel routine - link/sysexe to pick up SCH$GL_FREECNT
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 int GetFreeMem(long *pFreeMem)
@@ -259,14 +257,14 @@ int GetFreeMem(long *pFreeMem)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCSName
 // DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getCSName(String & csName)
@@ -275,14 +273,14 @@ Boolean OperatingSystem::getCSName(String & csName)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getName
 // DESCRIPTION       : Calls uname() to get the operating system name.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getName(String & osName)
@@ -301,14 +299,14 @@ Boolean OperatingSystem::getName(String & osName)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCaption
 // DESCRIPTION       : Return a string constant for the caption.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getCaption(String & caption)
@@ -318,27 +316,27 @@ Boolean OperatingSystem::getCaption(String & caption)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getDescription
 // DESCRIPTION       : Return a string constant for the description.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getDescription(String & description)
 {
-  description.assign("This instance reflects the Operating System"
-      " on which the CIMOM is executing (as distinguished from instances"
-	    " of other installed operating systems that could be run).");
+    description.assign("This instance reflects the Operating System"
+        " on which the CIMOM is executing (as distinguished from instances"
+        " of other installed operating systems that could be run).");
 
-  return true;
+    return true;
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getInstallDate
 // DESCRIPTION       : Get the date that the OS was installed. Requires
 //                      VMS SYSLCK priviledge.
@@ -346,7 +344,7 @@ Boolean OperatingSystem::getDescription(String & description)
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
@@ -405,7 +403,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
   sysinfo.dsc$a_pointer = t_string;
 
 
-  // "pipe product show history openvms | 
+  // "pipe product show history openvms |
   //       search/nolog/nowarn/out=history.out sys$input install");
   strcpy(cmd, "pipe product show history openvms | search/nolog/nowarn/out=");
   strcat(cmd, HistFile);
@@ -415,11 +413,11 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 //       just the date, no time.
 // OpenVMS 8.2
 // $ product sho history openvms
-// ----------------------------------- ----------- ----------- --------------------
-// PRODUCT                             KIT TYPE    OPERATION   DATE AND TIME
-// ----------------------------------- ----------- ----------- --------------------
-// HP I64VMS OPENVMS V8.2              Platform    Install     25-JAN-2005 10:26:24
-// HP I64VMS OPENVMS X8.2-ALQ          Platform    Remove      25-JAN-2005 10:26:24
+// -------------------------------- ----------- ----------- --------------------
+// PRODUCT                          KIT TYPE    OPERATION   DATE AND TIME
+// -------------------------------- ----------- ----------- --------------------
+// HP I64VMS OPENVMS V8.2           Platform    Install     25-JAN-2005 10:26:24
+// HP I64VMS OPENVMS X8.2-ALQ       Platform    Remove      25-JAN-2005 10:26:24
 //
 // VI::_TNA37:> product sho history openvms
 // ------------------------------------ ----------- ----------- --- -----------
@@ -449,19 +447,20 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
     {
       for (istr = 0; istr <= (sizeof (record1) - 4); istr++)
       {
-	if ((rptr1 = strstr(record1 + istr, "-")) && !strncmp(rptr1 + 4, "-", 1))
-	{
-	  break;
-	}
-	rptr1 = 0;
+        if ((rptr1 = strstr(record1 + istr, "-")) &&
+            !strncmp(rptr1 + 4, "-", 1))
+        {
+          break;
+        }
+        rptr1 = 0;
       }
       if (rptr1)
       {
-	time(&tme);
-	tme1 = mktime(ptimetm);	/* get timezone */
-	strcpy(t_string, rptr1 - 2);
+        time(&tme);
+        tme1 = mktime(ptimetm);        /* get timezone */
+        strcpy(t_string, rptr1 - 2);
         if (t_string[11] == 10) {
-          // a <cr>. 
+          // a <cr>.
           // When the date; but not the time is provided, fill in zeros.
           t_string[11] = ' ';
           t_string[12] = '0';
@@ -473,84 +472,84 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
           t_string[18] = '0';
           t_string[19] = '0';
         }
-	t_string[20] = '.';
-	t_string[21] = '0';
-	t_string[22] = '0';
-	t_string[23] = '0';
-	status = sys$bintim(&sysinfo, &bintime);
-	if (!$VMS_STATUS_SUCCESS(status))
-	{
-	  bStatus = false;
+        t_string[20] = '.';
+        t_string[21] = '0';
+        t_string[22] = '0';
+        t_string[23] = '0';
+        status = sys$bintim(&sysinfo, &bintime);
+        if (!$VMS_STATUS_SUCCESS(status))
+        {
+          bStatus = false;
           goto done;
-	}
+        }
 
-	libop = LIB$K_DAY_OF_WEEK;
-	status = lib$cvt_from_internal_time(&libop, &libdayweek, &bintime);
-	if (!$VMS_STATUS_SUCCESS(status))
-	{
-	  bStatus = false;
+        libop = LIB$K_DAY_OF_WEEK;
+        status = lib$cvt_from_internal_time(&libop, &libdayweek, &bintime);
+        if (!$VMS_STATUS_SUCCESS(status))
+        {
+          bStatus = false;
           goto done;
-	}
+        }
 
-	libop = LIB$K_DAY_OF_YEAR;
-	status = lib$cvt_from_internal_time(&libop, &libdayear, &bintime);
-	if (!$VMS_STATUS_SUCCESS(status))
-	{
-	  bStatus = false;
+        libop = LIB$K_DAY_OF_YEAR;
+        status = lib$cvt_from_internal_time(&libop, &libdayear, &bintime);
+        if (!$VMS_STATUS_SUCCESS(status))
+        {
+          bStatus = false;
           goto done;
-	}
+        }
 
-	dst_desc[0] = strlen(log_string);
-	dst_desc[1] = (long) log_string;
-	item_list.wLength = 1;
-	item_list.wCode = LNM$_STRING;
-	item_list.pBuffer = &libdst;
-	item_list.pRetLen = &retlen;
-	item_list.term = 0;
+        dst_desc[0] = strlen(log_string);
+        dst_desc[1] = (long) log_string;
+        item_list.wLength = 1;
+        item_list.wCode = LNM$_STRING;
+        item_list.pBuffer = &libdst;
+        item_list.pRetLen = &retlen;
+        item_list.term = 0;
 
-	status = sys$trnlnm(0, &lnm_tbl, &dst_desc, 0, &item_list);
-	if (!$VMS_STATUS_SUCCESS(status))
-	{
-	  bStatus = false;
+        status = sys$trnlnm(0, &lnm_tbl, &dst_desc, 0, &item_list);
+        if (!$VMS_STATUS_SUCCESS(status))
+        {
+          bStatus = false;
           goto done;
-	}
+        }
 
-	status = sys$numtim(timbuf, &bintime);
-	if (!$VMS_STATUS_SUCCESS(status))
-	{
-	  bStatus = false;
+        status = sys$numtim(timbuf, &bintime);
+        if (!$VMS_STATUS_SUCCESS(status))
+        {
+          bStatus = false;
           goto done;
-	}
+        }
 
-	timetm.tm_sec = timbuf[5];
-	timetm.tm_min = timbuf[4];
-	timetm.tm_hour = timbuf[3];
-	timetm.tm_mday = timbuf[2];
-	timetm.tm_mon = timbuf[1] - 1;
-	timetm.tm_year = timbuf[0] - 1900;
-	timetm.tm_wday = libdayweek - 1;
-	timetm.tm_yday = libdayear - 1;
-	if (libdst != 48)
-	  timetm.tm_isdst = 1;
+        timetm.tm_sec = timbuf[5];
+        timetm.tm_min = timbuf[4];
+        timetm.tm_hour = timbuf[3];
+        timetm.tm_mday = timbuf[2];
+        timetm.tm_mon = timbuf[1] - 1;
+        timetm.tm_year = timbuf[0] - 1900;
+        timetm.tm_wday = libdayweek - 1;
+        timetm.tm_yday = libdayear - 1;
+        if (libdst != 48)
+          timetm.tm_isdst = 1;
 
-	status = convertToCIMDateString(ptimetm, cimtime);
-	if (!$VMS_STATUS_SUCCESS(status))
-	{
-	  bStatus = false;
+        status = convertToCIMDateString(ptimetm, cimtime);
+        if (!$VMS_STATUS_SUCCESS(status))
+        {
+          bStatus = false;
           goto done;
-	}
+        }
 
-	installDate.clear();
-	installDate.set(cimtime);
+        installDate.clear();
+        installDate.set(cimtime);
 
-	bStatus = true;
+        bStatus = true;
         goto done;
-      }				// end if (rptr1 = strstr(record1,"Install"))
+      }    // end if (rptr1 = strstr(record1,"Install"))
 
     }
     bStatus = false;
     goto done;
-  }				// end if (fptr1 = fopen(HistFile, "r"))
+  }    // end if (fptr1 = fopen(HistFile, "r"))
 
   else
   {
@@ -575,14 +574,15 @@ return bStatus;
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getStatus
-// DESCRIPTION       : Since the OS is up and running, we'll return unknown here.
+// DESCRIPTION       : Since the OS is up and running, we'll return unknown
+//                     here.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getStatus(String & status)
@@ -592,21 +592,22 @@ Boolean OperatingSystem::getStatus(String & status)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getVersion
-// DESCRIPTION       : Uses uname system call to extract the release and version.
+// DESCRIPTION       : Uses uname system call to extract the release and
+//                     version.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getVersion(String & osVersion)
 {
   struct utsname unameInfo;
   // Changed to fix PTR -73-51-2
-  char version[sizeof (unameInfo.version)]; 
+  char version[sizeof (unameInfo.version)];
 
   // Call uname and check for any errors.
 
@@ -623,14 +624,14 @@ Boolean OperatingSystem::getVersion(String & osVersion)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getOSType
 // DESCRIPTION       : Return OSType value for OpenVms.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getOSType(Uint16 & osType)
@@ -640,31 +641,31 @@ Boolean OperatingSystem::getOSType(Uint16 & osType)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getOtherTypeDescription
 // DESCRIPTION       : Return NULL since we have an OSType.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getOtherTypeDescription(String & otherTypeDescription)
 {
-otherTypeDescription = String::EMPTY;
+  otherTypeDescription = String::EMPTY;
   return true;
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getLastBootUpTime
 // DESCRIPTION       : Get the time the OS was last booted.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime & lastBootUpTime)
@@ -775,14 +776,14 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime & lastBootUpTime)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getLocalDateTime
 // DESCRIPTION       : Get the local date and time.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime & localDateTime)
@@ -806,14 +807,14 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime & localDateTime)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCurrentTimeZone
 // DESCRIPTION       : Get the number of minutes that OS is offset from GMT.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getCurrentTimeZone(Sint16 & currentTimeZone)
@@ -838,17 +839,18 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16 & currentTimeZone)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getNumberOfLicensedUsers
 // DESCRIPTION       : Get the number of user licenses for the OS.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 //PTR 73-51-27 - Changed to return 0 for number of licensed users on I64.
-Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers)
+Boolean OperatingSystem::getNumberOfLicensedUsers(
+    Uint32 & numberOfLicensedUsers)
 {
   Boolean bStatus = false;
   int status,
@@ -891,7 +893,7 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
 // Alpha
 // $ sho lic/usage
 //
-// View of loaded licenses from node WALNUT                20-JAN-2006 11:57:02.12
+// View of loaded licenses from node WALNUT             20-JAN-2006 11:57:02.12
 //
 // ------- Product ID --------   ---- Unit usage information ----
 // Product            Producer       Loaded  Allocated  Available
@@ -918,10 +920,10 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
 //
   strcpy(usage_cmd, "show license/usage/nowarning_interval/out=");
   strcat(usage_cmd, UsageFile);
-#ifdef	PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
+#ifdef PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
   strcat(usage_cmd, " openvms-alpha");
 #endif
-#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
+#ifdef PEGASUS_PLATFORM_VMS_IA64_DECCXX
 // Which of these to use for IA64?
 // When a machine has more than one of these installed, this will
 // find the first one.
@@ -938,11 +940,12 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
     goto done;
   }
 
-// Alpha 
+// Alpha
 // $ sho lic/units/nowarn
 //   VMS/LMF Charge Information for node WALNUT
 //   This is a COMPAQ AlphaServer DS20E 666 MHz, hardware model type 1940
-//   Type: A, Units Required: 75     (VAX/VMS Capacity or OpenVMS Unlimited or Base)
+//   Type: A, Units Required: 75     (VAX/VMS Capacity or OpenVMS Unlimited or
+//                                    Base)
 //   Type: B, * Not Permitted *      (VAX/VMS F&A Server)
 //   Type: C, * Not Permitted *      (VAX/VMS Concurrent User)
 //   Type: D, * Not Permitted *      (VAX/VMS Workstation)
@@ -973,85 +976,85 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
   {
     while (fgets(record1, sizeof (record1), fptr1))
     {
-#ifdef	PEGASUS_PLATFORM_VMS_IA64_DECCXX
+#ifdef PEGASUS_PLATFORM_VMS_IA64_DECCXX
 // The base O/S license on IA64 (FOE) provides unlimited number
 // of users - PTR 73-51-27
 
       if (rptr1 = strstr(record1, "HP "))
       {
           // either  FOE,EOE or MCOE license is existing on the system
-          // Return Unlimited number of users  
+          // Return Unlimited number of users
           numberOfLicensedUsers = 0;
           bStatus = true;
           goto done;
       }
 #endif
 
-#ifdef	PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
+#ifdef PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
       if (rptr1 = strstr(record1, "DEC "))
       {
-	rptr2 = strstr(rptr1 + 3, "Unlimited license");
-	if (rptr2)
-	{
-	  numberOfLicensedUsers = 0;
-	  bStatus = true;
+        rptr2 = strstr(rptr1 + 3, "Unlimited license");
+        if (rptr2)
+        {
+          numberOfLicensedUsers = 0;
+          bStatus = true;
           goto done;
-	}
-	else
-	{
-	  rptr2 = strtok(rptr1 + 3, " ");
-	  loaded_units = strtol(rptr2, NULL, 10);
-	  if (fptr2 = fopen(UnitsFile, "r"))
-	  {
-	    while (fgets(record2, sizeof (record2), fptr2))
-	    {
-	      if (rptr1 = strstr(record2, "Type: A, Units Required:"))
-	      {
-		rptr3 = strtok(rptr1 + 25, " ");
-		req_units = strtol(rptr3, NULL, 10);
-		if (req_units != 0)
-		{
-		  numberOfLicensedUsers = loaded_units / req_units;
-		  bStatus = true;
+        }
+        else
+        {
+          rptr2 = strtok(rptr1 + 3, " ");
+          loaded_units = strtol(rptr2, NULL, 10);
+          if (fptr2 = fopen(UnitsFile, "r"))
+          {
+            while (fgets(record2, sizeof (record2), fptr2))
+            {
+              if (rptr1 = strstr(record2, "Type: A, Units Required:"))
+              {
+                rptr3 = strtok(rptr1 + 25, " ");
+                req_units = strtol(rptr3, NULL, 10);
+                if (req_units != 0)
+                {
+                  numberOfLicensedUsers = loaded_units / req_units;
+                  bStatus = true;
                   goto done;
-		}
-		else
-		{
-		  bStatus = false;
+                }
+                else
+                {
+                  bStatus = false;
                   goto done;
-		}
-	      }
-	    }			// end while (fgets(record2, sizeof(record2), fptr2))
+                }
+              }
+            }    // end while (fgets(record2, sizeof(record2), fptr2))
             if (!fptr2 == 0)
             {
               fclose(fptr2);
               fptr2 = 0;
             }
-	  }			// end if (fptr2 = fopen(UnitsFile, "r"))
+          }    // end if (fptr2 = fopen(UnitsFile, "r"))
 
-	  else
-	  {
-	    bStatus = false;
+          else
+          {
+            bStatus = false;
             goto done;
-	  }
-	}			// end if (rptr2)
+          }
+        }    // end if (rptr2)
 
-      }				// end if (rptr1 = strstr(record1,"DEC "))
+      }    // end if (rptr1 = strstr(record1,"DEC "))
 
-#endif  //#ifdef  PEGASUS_PLATFORM_VMS_ALPHA_DECCXX                        
+#endif  //#ifdef  PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
 
-    }				// end while (fgets(record1, sizeof(record1), fptr1))
-  
-#ifdef PEGASUS_PLATFORM_VMS_IA64_DECCXX      
+    }    // end while (fgets(record1, sizeof(record1), fptr1))
+
+#ifdef PEGASUS_PLATFORM_VMS_IA64_DECCXX
      // no FOE,EOE or MCOE license is existing on the system
      // Returning False
      bStatus = false;
      goto done;
 #endif
 
- }				// end if (fptr1 = fopen(UsageFile, "r"))
+ }    // end if (fptr1 = fopen(UsageFile, "r"))
 
-done: 
+done:
 
   if (!fptr1 == 0)
   {
@@ -1095,14 +1098,14 @@ done:
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getNumberOfUsers
 // DESCRIPTION       : Number of user sessions.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 //Made changes to return only the numbers of interactive users - PTR-73-51-32
@@ -1168,13 +1171,13 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
       ptr1 = &username[i * 13];
       if (!strncmp(usernamebuf, ptr1, 13))
       {
-	break;
+        break;
       }
       else if (!strcmp(ptr1, ""))
       {
-	strncpy(ptr1, usernamebuf, 13);
-	count++;
-	break;
+        strncpy(ptr1, usernamebuf, 13);
+        count++;
+        break;
       }
     }
   }
@@ -1183,14 +1186,14 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getNumberOfProcesses
 // DESCRIPTION       : Number of process contexts currently loaded or running.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             : VMS WORLD priviledge is needed for this routine.
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getNumberOfProcesses(Uint32 & numberOfProcesses)
@@ -1364,14 +1367,14 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32 & numberOfProcesses)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getMaxNumberOfProcesses
 // DESCRIPTION       : Maximum number of process contexts supported.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32 & mMaxProcesses)
@@ -1411,14 +1414,14 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32 & mMaxProcesses)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getTotalSwapSpaceSize
 // DESCRIPTION       : Total system swap space in Kbytes.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 
@@ -1452,7 +1455,7 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64 & mTotalSwapSpaceSize)
   itmlst3[2].pretlen = NULL;
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
- 
+
   // Pagesize in KB
   pagesize = pagesize/1024;
 
@@ -1468,15 +1471,16 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64 & mTotalSwapSpaceSize)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getTotalVirtualMemorySize
 // DESCRIPTION       : Number of Kbytes of virtual memory for this process.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
-// NOTES             : returns the sum of TotalVisibleMemorySize and SizeStoredInPagingFiles,
-//                     which would be the total physical memory and total size in pagefile.sys
-// ================================================================================
+// NOTES             : returns the sum of TotalVisibleMemorySize and
+//                     SizeStoredInPagingFiles, which would be the total
+//                     physical memory and total size in pagefile.sys
+// =============================================================================
 //
 
 Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64 & total)
@@ -1491,20 +1495,22 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64 & total)
     return false;
 
   total = visibleMemory + sizeInPageFile;
- 
+
   return true;
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getFreeVirtualMemory
-// DESCRIPTION       : Number of Kbytes of unused virtual memory for this process.
+// DESCRIPTION       : Number of Kbytes of unused virtual memory for this
+//                     process.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
-// NOTES             : returns the sum of FreePhysicalMemory and FreeSpaceInPagingFiles
-//                     which would be the free physical memory and free size in pagefile.sys
-// ================================================================================
+// NOTES             : returns the sum of FreePhysicalMemory and
+//                     FreeSpaceInPagingFiles which would be the free physical
+//                     memory and free size in pagefile.sys
+// =============================================================================
 //
 
 Boolean OperatingSystem::getFreeVirtualMemory(Uint64 & freeVirtualMemory)
@@ -1523,14 +1529,14 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64 & freeVirtualMemory)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getFreePhysicalMemory
 // DESCRIPTION       : Number of Kbytes of physical memory unused.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 // Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
@@ -1540,7 +1546,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
     lFreeMem;
 
   int pagesize;
-  
+
   typedef struct
   {
     unsigned short wlength;
@@ -1567,16 +1573,16 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
   pagesize = pagesize/1024;
 
   struct k1_arglist
-  {				// kernel call arguments
+  {    // kernel call arguments
 
-    long lCount;		// number of arguments
+    long lCount;    // number of arguments
 
     long *pFreeMem;
   }
   getfreememkargs =
   {
     1
-  };				// init 1 argument
+  };    // init 1 argument
 
   getfreememkargs.pFreeMem = &lFreeMem;
 
@@ -1594,14 +1600,14 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getTotalVisibleMemorySize
 // DESCRIPTION       : Number of Kbytes of physical memory.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 // Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
@@ -1637,7 +1643,7 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64 & memory)
 
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
-  
+
   // Pagesize in KB
   pagesize = pagesize/1024;
 
@@ -1654,15 +1660,15 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64 & memory)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getSizeStoredInPagingFiles
 // DESCRIPTION       : Number of Kbytes that can be stored in the OS's paging
-//                      files.
+//                     files.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 // Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
@@ -1670,7 +1676,7 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
 {
   int status,
     pagesize;
- 
+
   int pgsize;
   typedef struct
   {
@@ -1697,7 +1703,7 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
   itmlst3[2].pretlen = NULL;
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
-  
+
   // Pagesize in KB
   pgsize = pgsize/1024;
 
@@ -1713,22 +1719,23 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getFreeSpaceInPagingFiles
 // DESCRIPTION       : Number of Kbytes that can be mapped into the OS's paging
-//                      files without causing other pages to be swapped out.
+//                     files without causing other pages to be swapped out.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 // Added calculation of pagesize using sys$getsyi() -PTR 73-51-22
-Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64 & freeSpaceInPagingFiles)
+Boolean OperatingSystem::getFreeSpaceInPagingFiles(
+    Uint64 & freeSpaceInPagingFiles)
 {
   int status,
-    pagefree;                                   
+    pagefree;
   int pagesize;
 
   typedef struct
@@ -1756,7 +1763,7 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64 & freeSpaceInPagingFil
   itmlst3[2].pretlen = NULL;
 
   status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
-  
+
   // Pagesize in KB
   pagesize = pagesize/1024;
 
@@ -1772,15 +1779,15 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64 & freeSpaceInPagingFil
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getMaxProcessMemorySize
-// DESCRIPTION       : Maximum amount of Kbytes of memory that can be allocated to
-//                      this process.
+// DESCRIPTION       : Maximum amount of Kbytes of memory that can be
+//                     allocated to this process.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getMaxProcessMemorySize(Uint64 & maxProcessMemorySize)
@@ -1820,7 +1827,7 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64 & maxProcessMemorySize)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getDistributed
 // DESCRIPTION       : Determine whether the OS is distributed across several
 //                      nodes. If the system is a cluster member, it is
@@ -1829,7 +1836,7 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64 & maxProcessMemorySize)
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getDistributed(Boolean & distributed)
@@ -1869,14 +1876,14 @@ Boolean OperatingSystem::getDistributed(Boolean & distributed)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getMaxProcsPerUser
 // DESCRIPTION       : Maximum number of procs this user can have.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getMaxProcsPerUser(Uint32 & maxProcsPerUser)
@@ -1916,14 +1923,14 @@ Boolean OperatingSystem::getMaxProcsPerUser(Uint32 & maxProcsPerUser)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getSystemUpTime
 // DESCRIPTION       : Elapsed time since the OS was booted, in seconds.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getSystemUpTime(Uint64 & mUpTime)
@@ -2030,14 +2037,14 @@ Boolean OperatingSystem::getSystemUpTime(Uint64 & mUpTime)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getOperatingSystemCapability
 // DESCRIPTION       : The OS capability.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Boolean OperatingSystem::getOperatingSystemCapability(String & scapability)
@@ -2047,14 +2054,14 @@ Boolean OperatingSystem::getOperatingSystemCapability(String & scapability)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : _reboot
 // DESCRIPTION       : Method to reboot the system.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Uint32 OperatingSystem::_reboot()
@@ -2063,14 +2070,14 @@ Uint32 OperatingSystem::_reboot()
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : _shutdown
 // DESCRIPTION       : Method to shutdown system.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
 // NOTES             :
-// ================================================================================
+// =============================================================================
 //
 
 Uint32 OperatingSystem::_shutdown()

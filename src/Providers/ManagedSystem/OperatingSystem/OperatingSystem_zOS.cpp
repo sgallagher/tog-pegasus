@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Al Stone <ahs3@fc.hp.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//				Marek Szermutzky, <mszermutzky@de.ibm.com>
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include "OperatingSystem.h"
@@ -48,193 +40,193 @@
 
 PEGASUS_USING_STD;
 
-OperatingSystem::OperatingSystem(void)
+OperatingSystem::OperatingSystem()
 {
 }
 
-OperatingSystem::~OperatingSystem(void)
+OperatingSystem::~OperatingSystem()
 {
 }
 
 Boolean OperatingSystem::getCSName(String& csName)
 {
-	char    hostName[PEGASUS_MAXHOSTNAMELEN];
-	struct  hostent *he;
+    char    hostName[PEGASUS_MAXHOSTNAMELEN];
+    struct  hostent *he;
 
-	if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
-	{
-		return false;
-	}
+    if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+    {
+        return false;
+    }
 
 // Now get the official hostname.  If this call fails then return
 // the value from gethostname().
 
-	if (he=gethostbyname(hostName))
-	{
-		strcpy(hostName, he->h_name);
-	}
+    if (he=gethostbyname(hostName))
+    {
+        strcpy(hostName, he->h_name);
+    }
 
-	csName.assign(hostName);
+    csName.assign(hostName);
 
-	return true;
+    return true;
 }
 
 Boolean OperatingSystem::getName(String& osName)
 {
-	struct utsname osname;
+    struct utsname osname;
 
-	if (uname(&osname) != -1)
-	{
-		osName.assign(osname.nodename);
-		cerr << "OperatingSystem_zOS::getName(osName)=" << osName << endl;
-		return true;
-	} else return false;
+    if (uname(&osname) != -1)
+    {
+        osName.assign(osname.nodename);
+        cerr << "OperatingSystem_zOS::getName(osName)=" << osName << endl;
+        return true;
+    } else return false;
 }
 
 Boolean OperatingSystem::getCaption(String& caption)
 {
-	caption.assign("The current Operating System");
-	return true;
+    caption.assign("The current Operating System");
+    return true;
 }
 
 Boolean OperatingSystem::getDescription(String& description)
 {
-	description.assign(
+    description.assign(
      "This instance reflects the Operating System on which the "
      "CIMOM is executing (as distinguished from instances of "
      "other installed operating systems that could be run).");
-	return true;
+    return true;
 }
 
 Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getStatus(String& status)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getVersion(String& osVersion)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getOSType(Uint16& osType)
 {
-	osType = OS_390;
-	return true;
+    osType = OS_390;
+    return true;
 }
 
 Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getFreeSpaceInPagingFiles(
-												  Uint64& freeSpaceInPagingFiles)
+    Uint64& freeSpaceInPagingFiles)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getDistributed(Boolean& distributed)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 {
-	return false;
+    return false;
 }
 
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
 {
-	return false;
+    return false;
 }
 
 Uint32 OperatingSystem::_reboot()
 {
-	return false;
+    return false;
 }
 
 Uint32 OperatingSystem::_shutdown()
 {
-	return false;
+    return false;
 }
 

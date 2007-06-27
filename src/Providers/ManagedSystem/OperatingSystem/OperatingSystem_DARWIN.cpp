@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Uday Birajdar (uday@spsoftindia.com)
-//
-//
-// Modified By: Swapnil Joshi (joshi.swapnil@spsoftindia.com)
-//              Girish Dudhe (dudhe.girish@spsoftindia.com)
-//		Mukesh Bafna (bafna.mukesh@spsoftindia.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -102,19 +95,19 @@ static Boolean getUtilGetHostName(String& csName)
 
 Boolean OperatingSystem::getCSName(String& csName)
 {
-return getUtilGetHostName(csName);
+    return getUtilGetHostName(csName);
 }
 
 Boolean OperatingSystem::getName(String& osName)
 {
-	return _getOSName(osName);
+    return _getOSName(osName);
 }
 
 Boolean OperatingSystem::getCaption(String& caption)
 {
-      caption.assign("The current Operating System");
+    caption.assign("The current Operating System");
 
-     return true;
+    return true;
 }
 
 Boolean OperatingSystem::getDescription(String& description)
@@ -255,13 +248,13 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
 
     endutxent();
 */
-	numberOfUsers =0;
+    numberOfUsers =0;
     return true;
 }
 
 Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 {
-      return false;
+    return false;
 }
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
@@ -299,7 +292,8 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
     return false;
 }
 
-Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFiles)
+Boolean OperatingSystem::getFreeSpaceInPagingFiles(
+    Uint64& freeSpaceInPagingFiles)
 {
     return false;
 }

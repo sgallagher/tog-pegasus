@@ -29,18 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By:
-//         David Kennedy       <dkennedy@linuxcare.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
-//         Jim Metcalfe, Hewlett-Packard Company
-//         Carlos Bonilla, Hewlett-Packard Company
-//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PG_IP_STUB_H
@@ -71,8 +59,7 @@ PEGASUS_USING_PEGASUS;
 
 class IPInterface
 {
-
-  public:
+public:
 
     IPInterface();
     ~IPInterface();
@@ -97,13 +84,13 @@ class IPInterface
     static Boolean getSystemName(String&);
 
     // Method to Get the Simple Interface Name before the colon (":")
-    String get_LANInterfaceName(void) const;
+    String get_LANInterfaceName() const;
 
     // Method to determine if this IP interface ties to a LAN Interface
-    Boolean bindsToLANInterface(void) const;
+    Boolean bindsToLANInterface() const;
 
     // Method to obtain/save the fully qualified host name
-    static void initSystemName(void);
+    static void initSystemName();
 
     // Methods to Load Instances
 
@@ -116,30 +103,29 @@ class IPInterface
 
 class InterfaceList
 {
+public:
 
-  public:
-
-    InterfaceList();	// Constructor - should load list of interfaces
+    InterfaceList();  // Constructor - should load list of interfaces
 
     ~InterfaceList();
 
     // Method to get a particular element based on an Interface Name
     // Returns false if one is not found.
-    Boolean findInterface(const String &ifName,
-                          IPInterface &ipIfInst ) const;
+    Boolean findInterface(
+        const String &ifName,
+        IPInterface &ipIfInst) const;
 
     // Method to get a particular element based on an index
     IPInterface getInterface(const int index) const;
- 
+
     // Number of Elements in the InterfaceList
-    int size(void) const;
+    int size() const;
 
 };
 
 class IPRoute
 {
-
-  public:
+public:
 
     IPRoute();
     ~IPRoute();
@@ -168,26 +154,26 @@ class IPRoute
 
 class RouteList
 {
+public:
 
-  public:
-
-    RouteList();	// Constructor - should load list of interfaces
+    RouteList();  // Constructor - should load list of interfaces
 
     ~RouteList();
 
     // Method to find a particular IP Route based on a Destination
     // Address, Destination Mask, and Address Type (e.g. IPv4):
     // Returns false if a match is not found.
-    Boolean findRoute(const String &destAddr,
-		      const String &destMask,
-		      const Uint16 &addrType,
-                           IPRoute &ipRInst ) const;
+    Boolean findRoute(
+        const String &destAddr,
+        const String &destMask,
+        const Uint16 &addrType,
+        IPRoute &ipRInst ) const;
 
     // Method to get a particular element based on an index
     IPRoute getRoute(const int index) const;
- 
+
     // Number of Elements in the IP Route
-    int size(void) const;
+    int size() const;
 
 };
 

@@ -29,25 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//         Mike Day (mdday@us.ibm.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
-//         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//         Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 // Using the general CIMOM TestClient as an example, developed an
 // OperatingSystem test client to exercise the intrinsic methods of
-// the CIM_OperatingSystem class and PG_OperatingSystem subclass: 
+// the CIM_OperatingSystem class and PG_OperatingSystem subclass:
 // testing EnumerateInstanceNames, EnumerateInstances
 // and GetInstance.  InvokeMethod is not currently tested.
 
@@ -76,7 +63,7 @@ PEGASUS_USING_STD;
 /**  Constructor for OS Test Client
   */
 
-OSTestClient::OSTestClient(CIMClient &client) 
+OSTestClient::OSTestClient(CIMClient &client)
 {
    // aborted attempt to optimize by having the
    // client stored off vs. passed to each routine
@@ -114,8 +101,9 @@ void OSTestClient::testLog(const String& message)
 /**
    _validateKeys method of the OS provider Test Client
   */
-void OSTestClient::_validateKeys(CIMObjectPath &cimRef, 
-                                 Boolean verboseTest)
+void OSTestClient::_validateKeys(
+    CIMObjectPath &cimRef,
+    Boolean verboseTest)
 {
    // don't have a try here - want it to be caught by caller
 
@@ -132,28 +120,28 @@ void OSTestClient::_validateKeys(CIMObjectPath &cimRef,
       if (((keyName.equal ("CSCreationClassName")) &&
           (goodCSCreationClassName(
                keyBindings[j].getValue(),
-               verboseTest) == false))) 
+               verboseTest) == false)))
       {
          errorExit ("CSCreationClassName not CIM_UnitaryComputerSystem");
       }
       else if ((keyName.equal ("CSName")) &&
                (goodCSName(keyBindings[j].getValue(),
                        verboseTest) == false))
-      { 
+      {
          errorExit ("CSName not correct");
       }
       else if ((keyName.equal ("CreationClassName")) &&
-          (goodCreationClassName( 
+          (goodCreationClassName(
             keyBindings[j].getValue(),
             verboseTest) == false))
-      { 
+      {
          errorExit ("CreationClassName not correct");
       }
       else if ((keyName.equal ("Name")) &&
-                (goodName( 
+                (goodName(
                   keyBindings[j].getValue(),
                   verboseTest) == false))
-      { 
+      {
          errorExit ("Name not correct");
       }
     }  // end for j looping through properties
@@ -162,8 +150,9 @@ void OSTestClient::_validateKeys(CIMObjectPath &cimRef,
 /**
    _validateProperties method of the OS provider Test Client
   */
-void OSTestClient::_validateProperties(CIMInstance &inst, 
-                                       Boolean verboseTest)
+void OSTestClient::_validateProperties(
+    CIMInstance &inst,
+    Boolean verboseTest)
 {
    // don't have a try here - want it to be caught by caller
 
@@ -180,7 +169,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodCSCreationClassName(propertyValue,
              verboseTest) == false)
-         { 
+         {
             errorExit ("CSCreationClassName not CIM_UnitaryComputerSystem");
          }
       } // end if CSCreationClassName
@@ -188,7 +177,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
       else if (propertyName.equal ("CSName"))
       {
          String propertyValue;
-         inst.getProperty(j).getValue().get(propertyValue); 
+         inst.getProperty(j).getValue().get(propertyValue);
          if (goodCSName(propertyValue, verboseTest) == false)
          {
             errorExit ("CSName not correct");
@@ -198,19 +187,19 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
       else if (propertyName.equal ("CreationClassName"))
       {
          String propertyValue;
-         inst.getProperty(j).getValue().get(propertyValue); 
-         if (goodCreationClassName(propertyValue, 
+         inst.getProperty(j).getValue().get(propertyValue);
+         if (goodCreationClassName(propertyValue,
                                    verboseTest) == false)
-         { 
+         {
             errorExit ("CreationClassName not CIM_OperatingSystem");
          }
       }  // end if CreationClassName
       else if (propertyName.equal ("Name"))
       {
          String propertyValue;
-         inst.getProperty(j).getValue().get(propertyValue); 
-         if (goodName(propertyValue, verboseTest) == false) 
-         { 
+         inst.getProperty(j).getValue().get(propertyValue);
+         if (goodName(propertyValue, verboseTest) == false)
+         {
             errorExit ("Name not correct");
          }
       }  // end if Name
@@ -218,39 +207,39 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
       else if (propertyName.equal ("Caption"))
       {
          String propertyValue;
-         inst.getProperty(j).getValue().get(propertyValue); 
-         if (goodCaption(propertyValue, verboseTest) == false) 
-         { 
+         inst.getProperty(j).getValue().get(propertyValue);
+         if (goodCaption(propertyValue, verboseTest) == false)
+         {
             errorExit ("Caption not correct");
          }
       }   // end if Caption
 
-      else if (propertyName.equal ("Description")) 
+      else if (propertyName.equal ("Description"))
       {
          String propertyValue;
-         inst.getProperty(j).getValue().get(propertyValue); 
-         if (goodDescription(propertyValue, verboseTest) == false) 
-         { 
+         inst.getProperty(j).getValue().get(propertyValue);
+         if (goodDescription(propertyValue, verboseTest) == false)
+         {
             errorExit ("Description not correct");
          }
       }   // end if Description
 
-      else if (propertyName.equal ("InstallDate")) 
+      else if (propertyName.equal ("InstallDate"))
       {
          CIMDateTime idate;
          inst.getProperty(j).getValue().get(idate);
-         if (goodInstallDate(idate, verboseTest) == false) 
-         { 
+         if (goodInstallDate(idate, verboseTest) == false)
+         {
             errorExit ("InstallDate not correct");
          }
       }   //  end if InstallDate
 
       else if (propertyName.equal ("Status"))
-      { 
+      {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodStatus(propertyValue, verboseTest) == false)
-         { 
+         {
             errorExit ("Status not correct");
          }
       }   // end if Status
@@ -260,7 +249,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          Uint16 ostype;
          inst.getProperty(j).getValue().get(ostype);
          if (goodOSType(ostype, verboseTest) == false)
-         { 
+         {
             errorExit ("OSType not correct");
          }
       }   // end if OSType
@@ -269,9 +258,9 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
-         if (goodOtherTypeDescription(propertyValue, 
+         if (goodOtherTypeDescription(propertyValue,
                                       verboseTest) == false)
-         { 
+         {
             errorExit ("OtherTypeDescription not correct");
          }
       }   // end if OtherTypeDescription
@@ -281,7 +270,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodVersion(propertyValue, verboseTest) == false)
-         { 
+         {
             errorExit ("Version not correct");
          }
       }   // end if Version
@@ -290,18 +279,18 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
       {
          CIMDateTime bdate;
          inst.getProperty(j).getValue().get(bdate);
-         if (goodLastBootUpTime(bdate, verboseTest) == false) 
-         { 
+         if (goodLastBootUpTime(bdate, verboseTest) == false)
+         {
             errorExit ("LastBootUpTime not correct");
          }
       }   // end if LastBootUpTime
- 
+
       else if (propertyName.equal ("LocalDateTime"))
       {
          CIMDateTime ldate;
          inst.getProperty(j).getValue().get(ldate);
-         if (goodLocalDateTime(ldate, verboseTest) == false) 
-         { 
+         if (goodLocalDateTime(ldate, verboseTest) == false)
+         {
             errorExit ("LocalDateTime not correct");
          }
       }   // end if LocalDateTime
@@ -311,29 +300,29 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          Sint16 tz;
          inst.getProperty(j).getValue().get(tz);
          if (goodCurrentTimeZone(tz, verboseTest) == false)
-         { 
+         {
             errorExit ("CurrentTimeZone not correct");
          }
       }   // end if CurrentTimeZone
- 
+
       else if (propertyName.equal ("NumberOfLicensedUsers"))
       {
          Uint32 numlusers;
          inst.getProperty(j).getValue().get(numlusers);
-         if (goodNumberOfLicensedUsers(numlusers, 
+         if (goodNumberOfLicensedUsers(numlusers,
                                        verboseTest) == false)
-         { 
+         {
             errorExit ("NumberOfLicensedUsers not correct");
          }
       }   // end if numberOfLicensedUsers
- 
+
       else if (propertyName.equal ("NumberOfUsers"))
       {
          Uint32 numUsers;
          inst.getProperty(j).getValue().get(numUsers);
-         if (goodNumberOfUsers(numUsers, 
+         if (goodNumberOfUsers(numUsers,
                                verboseTest) == false)
-         { 
+         {
             errorExit ("NumberOfUsers not correct");
          }
       }   // end if NumberOfUsers
@@ -344,21 +333,21 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(numProcs);
          if (goodNumberOfProcesses(numProcs,
                                verboseTest) == false)
-         { 
+         {
             errorExit ("NumberOfProcesses not correct");
          }
-      }   // end if NumberOfProcesses 
-      
+      }   // end if NumberOfProcesses
+
       else if (propertyName.equal ("MaxNumberOfProcesses"))
       {
          Uint32 maxProcs;
          inst.getProperty(j).getValue().get(maxProcs);
          if (goodMaxNumberOfProcesses(maxProcs,
                                verboseTest) == false)
-         { 
+         {
             errorExit ("MaxNumberOfProcesses not correct");
          }
-      }   // end if MaxNumberOfProcesses 
+      }   // end if MaxNumberOfProcesses
 
       else if (propertyName.equal ("TotalSwapSpaceSize"))
       {
@@ -366,7 +355,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(totalSwap);
          if (goodTotalSwapSpaceSize(totalSwap,
                                     verboseTest) == false)
-         { 
+         {
             errorExit ("TotalSwapSpaceSize not correct");
          }
       }   // end if TotalSwapSpaceSize
@@ -377,7 +366,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(totalVmem);
          if (goodTotalVirtualMemorySize(totalVmem,
                                     verboseTest) == false)
-         { 
+         {
             errorExit ("TotalVirtualMemorySize not correct");
          }
       }   // end if TotalVirtualMemorySize
@@ -388,7 +377,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(freeVmem);
          if (goodFreeVirtualMemory(freeVmem,
                                    verboseTest) == false)
-         { 
+         {
             errorExit ("FreeVirtualMemory not correct");
          }
       }   // end if FreeVirtualMemory
@@ -399,7 +388,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(freePmem);
          if (goodFreePhysicalMemory(freePmem,
                                    verboseTest) == false)
-         { 
+         {
             errorExit ("FreePhysicalMemory not correct");
          }
       }   // end if FreePhysicalMemory
@@ -410,7 +399,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(totalVisMem);
          if (goodTotalVisibleMemorySize(totalVisMem,
                                         verboseTest) == false)
-         { 
+         {
             errorExit ("TotalVisibleMemorySize not correct");
          }
       }   // end if TotalVisibleMemorySize
@@ -421,10 +410,10 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodSizeStoredInPagingFiles(propertyValue,
                                          verboseTest) == false)
-         { 
+         {
             errorExit ("SizeStoredInPagingFiles not correct");
          }
-      }   // end if SizeStoredInPagingFiles 
+      }   // end if SizeStoredInPagingFiles
 
       else if (propertyName.equal ("FreeSpaceInPagingFiles"))
       {
@@ -432,10 +421,10 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodFreeSpaceInPagingFiles(propertyValue,
                                         verboseTest) == false)
-         { 
+         {
             errorExit ("FreeSpaceInPagingFiles not correct");
          }
-      }   // end if FreeSpaceInPagingFiles 
+      }   // end if FreeSpaceInPagingFiles
 
       else if (propertyName.equal ("MaxProcessMemorySize"))
       {
@@ -443,10 +432,10 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodMaxProcessMemorySize(propertyValue,
                                         verboseTest) == false)
-         { 
+         {
             errorExit ("MaxProcessMemorySize not correct");
          }
-      }   // end if MaxProcessMemorySize 
+      }   // end if MaxProcessMemorySize
 
       else if (propertyName.equal ("Distributed"))
       {
@@ -454,10 +443,10 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodDistributed(propertyValue,
                              verboseTest) == false)
-         { 
+         {
             errorExit ("Distributed not correct");
          }
-      }   // end if Distributed 
+      }   // end if Distributed
 
       else if (propertyName.equal ("MaxProcessesPerUser"))
       {
@@ -465,10 +454,10 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodMaxProcessesPerUser(propertyValue,
                                      verboseTest) == false)
-         { 
+         {
             errorExit ("MaxProcessesPerUser not correct");
          }
-      }   // end if MaxProcessesPerUser 
+      }   // end if MaxProcessesPerUser
 
       else if (propertyName.equal ("OperatingSystemCapability"))
       {
@@ -476,7 +465,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodOSCapability(propertyValue,
                               verboseTest) == false)
-         { 
+         {
             errorExit ("OSCapability not correct");
          }
       }   // end if OSCapability
@@ -487,162 +476,168 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          inst.getProperty(j).getValue().get(propertyValue);
          if (goodSystemUpTime(propertyValue,
                               verboseTest) == false)
-         { 
+         {
             errorExit ("SystemUpTime not correct");
          }
-      }   // end if SystemUptime 
+      }   // end if SystemUptime
 
    }  // end of for looping through properties
 }
 
-/* 
-   testEnumerateInstanceNames of the OS provider. 
+/*
+   testEnumerateInstanceNames of the OS provider.
 */
-void OSTestClient::testEnumerateInstanceNames(CIMClient &client,
-                                              Boolean verboseTest)
+void OSTestClient::testEnumerateInstanceNames(
+    CIMClient &client,
+    Boolean verboseTest)
 {
-  try
+    try
     {
-      Uint32  numberInstances;
-      String  propertyName;
+        Uint32  numberInstances;
+        String  propertyName;
 
-      testLog("OS Provider Test Start EnumerateInstanceNames");
-      
-      Array<CIMObjectPath> cimReferences = 
-	    client.enumerateInstanceNames(NAMESPACE, CLASSNAME);
- 
-      numberInstances = cimReferences.size();
-      if (verboseTest)
-	cout << numberInstances << " instances of PG_OperatingSystem" <<endl;
+        testLog("OS Provider Test Start EnumerateInstanceNames");
 
-      for (Uint32 i = 0; i < cimReferences.size(); i++)
-      {
-         CIMName className = cimReferences[i].getClassName();
-         if (!className.equal (CLASSNAME))
-         {
-	    errorExit("EnumInstanceNames failed - wrong class");
-	 }
+        Array<CIMObjectPath> cimReferences =
+            client.enumerateInstanceNames(NAMESPACE, CLASSNAME);
 
-         _validateKeys(cimReferences[i], verboseTest);
+        numberInstances = cimReferences.size();
+        if (verboseTest)
+            cout << numberInstances << " instances of PG_OperatingSystem" <<
+                endl;
 
-      }   // end for looping through instances
-    
-    testLog("OS Provider Test EnumInstanceNames Passed");
-    }  // end try 
-   
-    catch(Exception& e)
+        for (Uint32 i = 0; i < cimReferences.size(); i++)
+        {
+            CIMName className = cimReferences[i].getClassName();
+            if (!className.equal (CLASSNAME))
+            {
+                errorExit("EnumInstanceNames failed - wrong class");
+            }
+
+            _validateKeys(cimReferences[i], verboseTest);
+
+        }   // end for looping through instances
+
+        testLog("OS Provider Test EnumInstanceNames Passed");
+    }
+    catch (Exception& e)
     {
-      errorExit(e.getMessage());
+        errorExit(e.getMessage());
     }
 }
 
-/* 
-   testEnumerateInstances of the OS provider. 
+/*
+   testEnumerateInstances of the OS provider.
 */
-void OSTestClient::testEnumerateInstances(CIMClient &client,
-                                          Boolean verboseTest)
+void OSTestClient::testEnumerateInstances(
+    CIMClient &client,
+    Boolean verboseTest)
 {
-  try
+    try
     {
-      Boolean deepInheritance = true;
-      Boolean localOnly = true;
-      Boolean includeQualifiers = false;
-      Boolean includeClassOrigin = false;
-      Uint32 numberInstances;
+        Boolean deepInheritance = true;
+        Boolean localOnly = true;
+        Boolean includeQualifiers = false;
+        Boolean includeClassOrigin = false;
+        Uint32 numberInstances;
 
-      testLog("OS Provider Test EnumerateInstances");
-      
-      Array<CIMInstance> cimNInstances = 
-	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
-                                         deepInheritance,
-				         localOnly,  includeQualifiers,
-				         includeClassOrigin );
-	  
-      numberInstances = cimNInstances.size();
-      if (verboseTest)
-	cout << numberInstances << " instances of PG_OperatingSystem" <<endl;
-      for (Uint32 i = 0; i < cimNInstances.size(); i++)
-      {
-         CIMObjectPath instanceRef = cimNInstances[i].getPath ();
-         //String instanceRef = cimNInstances[i].getInstanceName().toString();
-         if (verboseTest)
-             cout<<"Instance ClassName is "<<instanceRef.getClassName()<<endl; 
-	 if(!instanceRef.getClassName().equal (CLASSNAME))
-         {
-	    errorExit("EnumInstances failed");
-	 }
+        testLog("OS Provider Test EnumerateInstances");
 
-         // now validate the properties
-         _validateProperties(cimNInstances[i],
-                             verboseTest);
-      }   // end for looping through instances
-    
-    testLog("OS Provider Test EnumInstances Passed");
-    }  // end try 
-   
-    catch(Exception& e)
+        Array<CIMInstance> cimNInstances =
+            client.enumerateInstances(
+                NAMESPACE,
+                CLASSNAME,
+                deepInheritance,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin);
+
+        numberInstances = cimNInstances.size();
+        if (verboseTest)
+            cout << numberInstances << " instances of PG_OperatingSystem" <<
+                endl;
+        for (Uint32 i = 0; i < cimNInstances.size(); i++)
+        {
+            CIMObjectPath instanceRef = cimNInstances[i].getPath();
+            //String instanceRef =
+            //    cimNInstances[i].getInstanceName().toString();
+            if (verboseTest)
+                cout << "Instance ClassName is " <<
+                    instanceRef.getClassName() << endl;
+            if (!instanceRef.getClassName().equal (CLASSNAME))
+            {
+                errorExit("EnumInstances failed");
+            }
+
+            // now validate the properties
+            _validateProperties(cimNInstances[i], verboseTest);
+        }   // end for looping through instances
+
+        testLog("OS Provider Test EnumInstances Passed");
+    }
+    catch (Exception& e)
     {
-      errorExit(e.getMessage());
+        errorExit(e.getMessage());
     }
 }
 
-/* 
-   testGetInstance of the OS provider. 
+/*
+   testGetInstance of the OS provider.
 */
-void OSTestClient::testGetInstance (CIMClient &client,
-                                    Boolean verboseTest)
+void OSTestClient::testGetInstance(
+    CIMClient &client,
+    Boolean verboseTest)
 {
-  CIMObjectPath  getTestRef;    //  will need an instance for Get
-  
-  try
+    CIMObjectPath  getTestRef;    //  will need an instance for Get
+
+    try
     {
-      Boolean deepInheritance = true;
-      Boolean localOnly = true;
-   
-      testLog("OS Provider Test GetInstance");
-     
-      // first do an EnumerateInstanceNames - select one to play with 
-      // doesn't hurt to keep testing enumerate :-)
- 
-      Array<CIMObjectPath> cimReferences = 
-	    client.enumerateInstanceNames(NAMESPACE, CLASSNAME);
- 
-      Uint32 numberInstances = cimReferences.size();
-      if (verboseTest)
-	cout << numberInstances << " instances of PG_OperatingSystem" <<endl;
+        Boolean deepInheritance = true;
+        Boolean localOnly = true;
 
-      for (Uint32 i = 0; i < cimReferences.size(); i++)
-      {
-         CIMName className = cimReferences[i].getClassName();
-         if (!className.equal (CLASSNAME))
-         {
-	    errorExit("EnumInstanceNames failed - wrong class");
-	 }
-         // add in some content checks on the keys returned
+        testLog("OS Provider Test GetInstance");
 
-         _validateKeys(cimReferences[i], verboseTest);
+        // first do an EnumerateInstanceNames - select one to play with
+        // doesn't hurt to keep testing enumerate :-)
 
-         // let's just take the first instance found
-         getTestRef = cimReferences[i];
+        Array<CIMObjectPath> cimReferences =
+            client.enumerateInstanceNames(NAMESPACE, CLASSNAME);
 
-    }   // end for looping through instances
-    
-    if (verboseTest)
-       cout<<"EnumerateInstanceNames for Get Instance completed"<<endl; 
-   
-    // now call GetInstance with the appropriate references
-    CIMInstance getTestInstance = client.getInstance(NAMESPACE,
-                                                     getTestRef);
+        Uint32 numberInstances = cimReferences.size();
+        if (verboseTest)
+            cout << numberInstances << " instances of PG_OperatingSystem" <<
+                endl;
 
-    // now validate the properties returned
-    _validateProperties(getTestInstance, verboseTest);
+        for (Uint32 i = 0; i < cimReferences.size(); i++)
+        {
+            CIMName className = cimReferences[i].getClassName();
+            if (!className.equal (CLASSNAME))
+            {
+               errorExit("EnumInstanceNames failed - wrong class");
+            }
+            // add in some content checks on the keys returned
 
-    testLog("OS Provider Test Get Instance passed ");
-    }  // end try 
-   
+            _validateKeys(cimReferences[i], verboseTest);
+
+            // let's just take the first instance found
+            getTestRef = cimReferences[i];
+
+        }   // end for looping through instances
+
+        if (verboseTest)
+            cout << "EnumerateInstanceNames for Get Instance completed" << endl;
+
+        // now call GetInstance with the appropriate references
+        CIMInstance getTestInstance = client.getInstance(NAMESPACE, getTestRef);
+
+        // now validate the properties returned
+        _validateProperties(getTestInstance, verboseTest);
+
+        testLog("OS Provider Test Get Instance passed ");
+    }
     catch(Exception& e)
     {
-      errorExit(e.getMessage());
+        errorExit(e.getMessage());
     }
 }
 
@@ -652,32 +647,31 @@ void OSTestClient::testGetInstance (CIMClient &client,
 
 int main(int argc, char** argv)
 {
+    Boolean enumInst = true;
+    Boolean enumInstNames = true;
+    Boolean getInst = true;
 
-    Boolean    enumInst = true;
-    Boolean    enumInstNames = true;
-    Boolean    getInst = true;  
-
-    Boolean    verboseTest = false;
+    Boolean verboseTest = false;
 
     // check if have a "verbose" on the command line
     if (argv[1] != 0)
     {
-       const char *arg = argv[1];
-       if ((strcmp(arg, "-verbose") == 0) || 
-           (strcmp(arg, "verbose") == 0))
-           verboseTest = true;
+        const char *arg = argv[1];
+        if ((strcmp(arg, "-verbose") == 0) ||
+            (strcmp(arg, "verbose") == 0))
+            verboseTest = true;
     }
 
     // need to first connect to the CIMOM
     // use null string for user and password, port 5988
 
     if (verboseTest)
-	cout << "Starting OS Client test" << endl;
+        cout << "Starting OS Client test" << endl;
 
     try
     {
         if (verboseTest)
-           cout << "Create client" << endl;
+            cout << "Create client" << endl;
         // specify the timeout value for the connection (if inactive)
         // in milliseconds, thus setting to one minute
         CIMClient client;
@@ -690,25 +684,25 @@ int main(int argc, char** argv)
         cout << "OSTestClient Connected" << endl;
 
         OSTestClient testClient(client);
-        if (enumInstNames) 
-        { 
-	   testClient.testEnumerateInstanceNames(client, verboseTest);
-	}
+        if (enumInstNames)
+        {
+            testClient.testEnumerateInstanceNames(client, verboseTest);
+        }
         if (enumInst)
         {
-           testClient.testEnumerateInstances(client, verboseTest);
+            testClient.testEnumerateInstances(client, verboseTest);
         }
         if (getInst)
         {
-           testClient.testGetInstance(client, verboseTest);
+            testClient.testGetInstance(client, verboseTest);
         }
         cout << "OSTestClient disconnecting from CIMOM " << endl;
         client.disconnect();
-  }
-  catch(Exception& e)
-  {
-     cout << "---- OS Provider Test Failed " << e.getMessage() << endl;
-  }
+    }
+    catch(Exception& e)
+    {
+        cout << "---- OS Provider Test Failed " << e.getMessage() << endl;
+    }
     return 0;
 }
 

@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges, Qualità Informática Company
-//		   (pfborges@wowmail.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DNSServiceProvider_h
@@ -54,74 +47,81 @@ PEGASUS_USING_STD;
 Boolean DNSFileOk();
 
 class DNSServiceProvider :
-	public CIMInstanceProvider
+    public CIMInstanceProvider
 {
-	public:
-		DNSServiceProvider(void);
-		virtual ~DNSServiceProvider(void);
+public:
+    DNSServiceProvider();
+    virtual ~DNSServiceProvider();
 
-      	//-- CIMInstanceProvider methods
-      	/** Given a reference to an instance of the CIM class, fills in the data
-       	*  elements of the class with the details gleaned from the system. */
-		void getInstance(const OperationContext & context,
-				 const CIMObjectPath & ref,
-				 const Boolean includeQualifiers,
-				 const Boolean includeClassOrigin,
-				 const CIMPropertyList & propertyList,
-				 InstanceResponseHandler & handler);
+    //-- CIMInstanceProvider methods
+    /** Given a reference to an instance of the CIM class, fills in the data
+     *  elements of the class with the details gleaned from the system. */
+    void getInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-      	/** Returns filled instances for all instances of the CIM class detected
-       	*  on the system. */
-		void enumerateInstances(const OperationContext & context,
-					const CIMObjectPath & ref,
-					const Boolean includeQualifiers,
-					const Boolean includeClassOrigin,
-					const CIMPropertyList & propertyList,
-					InstanceResponseHandler & handler);
+    /** Returns filled instances for all instances of the CIM class detected
+     *  on the system. */
+    void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-      	/** Produces a list of references to all instances of the CIM class
-       	*  detected on the system, but does not fill the instances
-       	*  themselves. */
-		void enumerateInstanceNames(const OperationContext & context,
-									const CIMObjectPath & ref,
-									ObjectPathResponseHandler & handler);
+    /** Produces a list of references to all instances of the CIM class
+     *  detected on the system, but does not fill the instances
+     *  themselves. */
+    void enumerateInstanceNames(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ObjectPathResponseHandler & handler);
 
-      	/** Currently unimplemented in the provider, this is a no-op
-       	*  here. */
-		void modifyInstance(const OperationContext & context,
-				    const CIMObjectPath & ref,
-				    const CIMInstance & obj,
-				    const Boolean includeQualifiers,
-				    const CIMPropertyList & propertyList,
-				    ResponseHandler & handler);
+    /** Currently unimplemented in the provider, this is a no-op
+     *  here. */
+    void modifyInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList & propertyList,
+        ResponseHandler & handler);
 
-      	/** Currently unimplemented in the provider, this is a no-op
-       	*  here. */
-		void createInstance(const OperationContext & context,
-							const CIMObjectPath & ref,
-							const CIMInstance & obj,
-							ObjectPathResponseHandler & handler);
+    /** Currently unimplemented in the provider, this is a no-op
+     *  here. */
+    void createInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        ObjectPathResponseHandler & handler);
 
-      	/** Currently unimplemented in the provider, this is a no-op
-       	*  here. */
-		void deleteInstance(const OperationContext & context,
-							const CIMObjectPath & ref,
-							ResponseHandler & handler);
+    /** Currently unimplemented in the provider, this is a no-op
+     *  here. */
+    void deleteInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ResponseHandler & handler);
 
-		void initialize(CIMOMHandle & cimom);
-		void terminate(void);
+    void initialize(CIMOMHandle & cimom);
+    void terminate();
 
-	private:
-      	// Builds a reference (a set of Key,Value pairs)
-		CIMObjectPath _fill_reference(const CIMNamespaceName &nameSpace,
-					      const CIMName &className,
-					      DNSService dns);
-      	// Builds a filled-in instance.
-		CIMInstance _build_instance(const CIMName & classname,
-                                            const CIMNamespaceName & nameSpace,
-                                            const Array<CIMKeyBinding> keys,
-					    DNSService dns);
-
+private:
+    // Builds a reference (a set of Key,Value pairs)
+    CIMObjectPath _fill_reference(
+        const CIMNamespaceName &nameSpace,
+        const CIMName &className,
+        DNSService dns);
+    // Builds a filled-in instance.
+    CIMInstance _build_instance(
+        const CIMName & classname,
+        const CIMNamespaceName & nameSpace,
+        const Array<CIMKeyBinding> keys,
+        DNSService dns);
 };
 
 #endif

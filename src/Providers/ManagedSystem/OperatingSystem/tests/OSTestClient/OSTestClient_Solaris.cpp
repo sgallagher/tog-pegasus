@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//
-// Modified By:  
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -54,7 +50,7 @@
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn, 
+Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn,
                                               Boolean verbose)
 {
    if (verbose)
@@ -100,7 +96,7 @@ Boolean OSTestClient::goodCSName(const String &csname, Boolean verbose)
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodCreationClassName(const String &ccn, 
+Boolean OSTestClient::goodCreationClassName(const String &ccn,
                                             Boolean verbose)
 {
    if (verbose)
@@ -117,7 +113,7 @@ Boolean OSTestClient::goodCreationClassName(const String &ccn,
 Boolean OSTestClient::goodName(const String &name, Boolean verbose)
 {
     struct utsname  unameInfo;
-   
+
     if (verbose)
       cout<<"Checking " << name << " against OS name"<<endl;
 
@@ -129,16 +125,16 @@ Boolean OSTestClient::goodName(const String &name, Boolean verbose)
 
     if (verbose)
       cout<<" OS name should be " << unameInfo.sysname << endl;
-   
-    return (String::equalNoCase(name, unameInfo.sysname));   
+
+    return (String::equalNoCase(name, unameInfo.sysname));
 }
 
-/* GoodCaption method for the OS Provider Test Client 
+/* GoodCaption method for the OS Provider Test Client
 
-   Checks the specified value against the expected value 
-   and returns TRUE if the same, else FALSE 
+   Checks the specified value against the expected value
+   and returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodCaption(const String &cap, 
+Boolean OSTestClient::goodCaption(const String &cap,
                                   Boolean verbose)
 {
 
@@ -162,7 +158,7 @@ Boolean OSTestClient::goodCaption(const String &cap,
   if (verbose)
        cout<<" Should be  " << _cap << endl;
 
-   return (String::equalNoCase(cap,_cap)); 
+   return (String::equalNoCase(cap,_cap));
 }
 
 /*
@@ -171,7 +167,7 @@ Boolean OSTestClient::goodCaption(const String &cap,
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodDescription(const String &desc, 
+Boolean OSTestClient::goodDescription(const String &desc,
                                       Boolean verbose)
 {
    // has check against standard description
@@ -203,7 +199,7 @@ Boolean OSTestClient::goodInstallDate(const CIMDateTime &idate,
    Checks the specified value against the expected value and
    returns TRUE if the same, else FALSE
  */
-Boolean OSTestClient::goodStatus(const String &stat, 
+Boolean OSTestClient::goodStatus(const String &stat,
                                  Boolean verbose)
 {
    if (verbose)
@@ -224,7 +220,7 @@ Boolean OSTestClient::goodOSType(const Uint16 &ostype,
 {
    if (verbose)
       cout<<"Checking OSType " << ostype << " against SunOS=30" << endl;
-   return (ostype == 30);  
+   return (ostype == 30);
 }
 
 Boolean OSTestClient::goodOtherTypeDescription(const String &otdesc,
@@ -281,9 +277,10 @@ Boolean OSTestClient::goodVersion(const String &version, Boolean verbose)
 
    Gets information from pstat call.  Internally in UTC (Universal
    Time Code) which must be converted to localtime for CIM
-  */                
-Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
-					 Boolean verbose)
+  */
+Boolean OSTestClient::goodLastBootUpTime(
+    const CIMDateTime &btime,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking LastBootUpTime " << btime.toString() << endl;
@@ -298,8 +295,9 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
    Uses the CIMOM getCurrentDateTime function and checks that the
    current time from the instance is within one hour of that time.
   */
-Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
-					Boolean verbose)
+Boolean OSTestClient::goodLocalDateTime(
+    const CIMDateTime &ltime,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking LocalDateTime " << ltime.toString() << endl;
@@ -317,18 +315,18 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
        exit;
    }
    Uint64 delta = labs(raw_delta);
-   
+
    if (verbose) {
       cout<<" Should be close to " << currentDT.toString() << endl;
       printf( " Delta should be within 360 seconds, is %lld\n",delta);
       fflush(stdout);
    }
    // arbitrary choice of expecting them to be within 360 seconds
-   return (delta < 360000000);   
+   return (delta < 360000000);
 }
 
 /**
-   goodCurrentTimeZone method of SunOS OS Provider Test Client 
+   goodCurrentTimeZone method of SunOS OS Provider Test Client
 
    Expect the timezone now to be identical to that returned.
   */
@@ -336,21 +334,21 @@ Boolean OSTestClient::goodCurrentTimeZone(const Sint16 &tz, Boolean verbose)
 {
    if (verbose)
       cout<<"Checking CurrentTimeZone " << tz << endl;
-  
+
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
    String ds = currentDT.toString();  // want timezone
 
    // cheat here since we know the position of the timezone info
-   // subtracting '0' gets us the number from the ASCII, while 
+   // subtracting '0' gets us the number from the ASCII, while
    // the multiplies do our shifts and we use the sign appropriately
    Sint32 calctz = ((ds[22]-'0') * 100 +
                     (ds[23]-'0') * 10 +
                     (ds[24]-'0')) *
                     (ds[21]=='-'?-1:1);
 
-   if (verbose) 
+   if (verbose)
       cout << " Should be " << calctz << endl;
-   
+
    return (tz == calctz);
 }
 
@@ -362,19 +360,20 @@ Boolean OSTestClient::goodCurrentTimeZone(const Sint16 &tz, Boolean verbose)
    between 128, 256, and unlimited user licensed (all = U).
    Need to determine how to differentiate and fix this, for now return
    0 (which is unlimited).  Don't know if uname -l has same limitation.
-  */       
-Boolean OSTestClient::goodNumberOfLicensedUsers(const Uint32 &nlusers,
-						Boolean verbose)
+  */
+Boolean OSTestClient::goodNumberOfLicensedUsers(
+    const Uint32 &nlusers,
+    Boolean verbose)
 {
     Uint32 numberOfLicensedUsers=0;
 
     if (verbose)
       cout<<"Checking NumberOfLicensedUsers " << nlusers << endl;
-   
+
     if (verbose)
       cout<<" Should be " << numberOfLicensedUsers << endl;
 
-   return (nlusers == numberOfLicensedUsers);   
+   return (nlusers == numberOfLicensedUsers);
 }
 
 /**
@@ -382,9 +381,10 @@ Boolean OSTestClient::goodNumberOfLicensedUsers(const Uint32 &nlusers,
 
    Goes through the utents, counting the number of type USER_PROCESS
    Works in isolated test env without new users logging in
-  */      
-Boolean OSTestClient::goodNumberOfUsers(const Uint32 &nusers,
-					Boolean verbose)
+  */
+Boolean OSTestClient::goodNumberOfUsers(
+    const Uint32 &nusers,
+    Boolean verbose)
 {
    struct utmpx * utmpp;
    Uint32 numberOfUsers;
@@ -404,21 +404,22 @@ Boolean OSTestClient::goodNumberOfUsers(const Uint32 &nusers,
        }
    }
 
-   endutxent();  
+   endutxent();
    if (verbose)
       cout << " Should be " << numberOfUsers << endl;
 
 // works in isolated test env without new users logging in
-   return (nusers == numberOfUsers);   
+   return (nusers == numberOfUsers);
 }
 
 /**
    goodNumberOfProcesses method for SunOS implementation of OS Provider
 
    Gets number of active processes from pstat.
-  */         
-Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
-					    Boolean verbose)
+  */
+Boolean OSTestClient::goodNumberOfProcesses(
+    const Uint32 &nprocs,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking NumberOfProcesses " << nprocs << endl;
@@ -430,9 +431,10 @@ Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
    goodMaxNumberOfProcesses method for SunOS implementation of OS Provider
 
    Gets maximum number of processes from pstat.
-  */             
-Boolean OSTestClient::goodMaxNumberOfProcesses(const Uint32 &maxprocs,
-					       Boolean verbose)
+  */
+Boolean OSTestClient::goodMaxNumberOfProcesses(
+    const Uint32 &maxprocs,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking MaxNumberOfProcs " << maxprocs << endl;
@@ -447,7 +449,7 @@ Boolean OSTestClient::goodMaxNumberOfProcesses(const Uint32 &maxprocs,
    Gets information from swapinfo -q command (already in KB).
    Invoked for TotalVirtualMemory as well as TotalSwapSpaceSize.
    Would be more efficient to get this only once.
-  */ 
+  */
 static Uint64 _totalVM()
 {
     char               mline[80];
@@ -476,13 +478,14 @@ static Uint64 _totalVM()
    Gets information from swapinfo -q command (techically not swap
    space, it's paging).   No formal paging files, report as swap.
 
-  */     
-Boolean OSTestClient::goodTotalSwapSpaceSize(const Uint64 &totalswap,
-					     Boolean verbose)
+  */
+Boolean OSTestClient::goodTotalSwapSpaceSize(
+    const Uint64 &totalswap,
+    Boolean verbose)
 {
    Uint64 mTotalSwapSpaceSize = 0;
 
-   if (verbose) 
+   if (verbose)
    {
       printf("Checking TotalSwapSpaceSize %lld\n", totalswap);
       fflush(stdout);
@@ -507,35 +510,37 @@ Boolean OSTestClient::goodTotalSwapSpaceSize(const Uint64 &totalswap,
    space, it's paging).  Same as the information returned for
    TotalSwapSpace.
 
-  */    
-Boolean OSTestClient::goodTotalVirtualMemorySize(const Uint64 &totalvmem,
-						 Boolean verbose)
+  */
+Boolean OSTestClient::goodTotalVirtualMemorySize(
+    const Uint64 &totalvmem,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking TotalVirtualMemorySize "<<Uint32(totalvmem)<<endl;
-  
+
    Uint64 totalVMem = _totalVM();
 
    if (verbose)
       cout<<" Should be " << Uint32(totalVMem) << endl;
- 
-   return (totalvmem == totalVMem);  // will return false if totalVMem=0   
+
+   return (totalvmem == totalVMem);  // will return false if totalVMem=0
 }
 
 /**
    goodFreeVirtualMemorySize method for SunOS implementation of OS Provider
 
    Gets information from swapinfo -at command (the Free column)
-  */  
-Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
-					    Boolean verbose)
+  */
+Boolean OSTestClient::goodFreeVirtualMemory(
+    const Uint64 &freevmem,
+    Boolean verbose)
 {
    char               mline[80];
    FILE             * mswapInfo;
    Uint32             swapAvailable;
    Uint32             swapUsed;
-   Uint32             swapFree;  
-   
+   Uint32             swapFree;
+
    if (verbose)
       cout<<"Checking FreeVirtualMemory "<< Uint32(freevmem) << endl;
 
@@ -561,24 +566,25 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
 
    if (verbose)
    {
-      printf (" Delta should be within 65536, is %lld\n", delta); 
+      printf (" Delta should be within 65536, is %lld\n", delta);
       fflush(stdout);
    }
 
-   // arbitrary choice of valid delta - typically ran within 
-   // 2048, but with many client connections, went as high as 
+   // arbitrary choice of valid delta - typically ran within
+   // 2048, but with many client connections, went as high as
    // 36,000+.  Thus chose 2^16 = 65536 (still helps weed out
    // garbage values).
-   return (delta < 65536 );   
+   return (delta < 65536);
 }
 
 /**
    goodFreePhysicalMemory method for SunOS implementation of
-   OS Provider Test Client. 
+   OS Provider Test Client.
 
-  */     
-Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
-					     Boolean verbose)
+  */
+Boolean OSTestClient::goodFreePhysicalMemory(
+    const Uint64 &freepmem,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking FreePhysicalMemory " << endl;
@@ -587,14 +593,15 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
 }
 
 /**
-   goodTotalVisibleMemorySize method for SunOS implementation of 
+   goodTotalVisibleMemorySize method for SunOS implementation of
    OS Provider Test Client.
 
    Gets information from pstat (pst.physical_memory adjusted for
    the page size.
    */
-Boolean OSTestClient::goodTotalVisibleMemorySize(const Uint64 &totalvmem,
-						 Boolean verbose)
+Boolean OSTestClient::goodTotalVisibleMemorySize(
+    const Uint64 &totalvmem,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking TotalVisibleMemorySize " << endl;
@@ -602,8 +609,9 @@ Boolean OSTestClient::goodTotalVisibleMemorySize(const Uint64 &totalvmem,
    return true;
 }
 
-Boolean OSTestClient::goodSizeStoredInPagingFiles(const Uint64 &pgsize,
-						  Boolean verbose)
+Boolean OSTestClient::goodSizeStoredInPagingFiles(
+    const Uint64 &pgsize,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking SizeStoredInPagingFiles " << endl;
@@ -611,8 +619,9 @@ Boolean OSTestClient::goodSizeStoredInPagingFiles(const Uint64 &pgsize,
    return true;
 }
 
-Boolean OSTestClient::goodFreeSpaceInPagingFiles(const Uint64 &freepg,
-						 Boolean verbose)
+Boolean OSTestClient::goodFreeSpaceInPagingFiles(
+    const Uint64 &freepg,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking FreeSpaceInPagingFiles " << endl;
@@ -624,9 +633,10 @@ Boolean OSTestClient::goodFreeSpaceInPagingFiles(const Uint64 &freepg,
 /**
    goodMaxProcessMemorySize method for Solaris implementation of OS Provider
 
-   */   
-Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
-					       Boolean verbose)
+   */
+Boolean OSTestClient::goodMaxProcessMemorySize(
+    const Uint64 &maxpmem,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking MaxProcessMemSize " << endl;
@@ -634,20 +644,22 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
    return true;
 }
 
-Boolean OSTestClient::goodDistributed(const Boolean &distr,
-				      Boolean verbose)
+Boolean OSTestClient::goodDistributed(
+    const Boolean &distr,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking Distributed against FALSE" << endl;
-   return (distr == false);  // Solaris always false   
+   return (distr == false);  // Solaris always false
 }
 
 /**
    goodMaxProcessesPerUser method for Solaris implementation of OS Provider
 
   */
-Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
-				               Boolean verbose)
+Boolean OSTestClient::goodMaxProcessesPerUser(
+    const Uint32& umaxproc,
+    Boolean verbose)
 {
    if (verbose)
       cout<<"Checking MaxProcsPerUser " << umaxproc << endl;

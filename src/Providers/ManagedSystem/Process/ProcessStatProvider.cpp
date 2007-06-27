@@ -29,19 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By:
-//         David Kennedy       <dkennedy@linuxcare.com>
-//         Christopher Neufeld <neufeld@linuxcare.com>
-//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
-//         Jim Metcalfe, Hewlett-Packard Company
-//         Carlos Bonilla, Hewlett-Packard Company
-//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -135,11 +122,11 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::createInstance(const OperationContext       &context,
-                    const CIMObjectPath           &instanceName,
-                    const CIMInstance            &instanceObject,
-                    ObjectPathResponseHandler &handler)
-
+void ProcessStatProvider::createInstance(
+    const OperationContext &context,
+    const CIMObjectPath &instanceName,
+    const CIMInstance &instanceObject,
+    ObjectPathResponseHandler &handler)
 {
   // There is no useful meaning to creating an instance
   // of this class
@@ -157,9 +144,10 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::deleteInstance(const OperationContext       &context,
-                    const CIMObjectPath           &instanceReference,
-                    ResponseHandler &handler)
+void ProcessStatProvider::deleteInstance(
+    const OperationContext &context,
+    const CIMObjectPath &instanceReference,
+    ResponseHandler &handler)
 
 {
   // There is no useful meaning to deleting an instance
@@ -181,12 +169,12 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessStatProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
   // cout << "ProcessStatProvider::enumerateInstances()" << endl;
 
@@ -221,8 +209,8 @@ void ProcessStatProvider::enumerateInstances(
 /*
 ================================================================================
 NAME              : enumerateInstanceNames
-DESCRIPTION       : Enumerates all UnixProcessStatisticalInformation instance names.
-                    An array of instance references is returned.
+DESCRIPTION       : Enumerates all UnixProcessStatisticalInformation instance
+                    names.  An array of instance references is returned.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
@@ -230,9 +218,10 @@ NOTES             : Localization is not supported
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
-                            const CIMObjectPath &ref,
-                            ObjectPathResponseHandler &handler)
+void ProcessStatProvider::enumerateInstanceNames(
+    const OperationContext &ctx,
+    const CIMObjectPath &ref,
+    ObjectPathResponseHandler &handler)
 {
   // cout << "ProcessStatProvider::enumerateInstanceNames()" << endl;
 
@@ -277,13 +266,14 @@ NOTES             : LocalOnly, DeepInheritance and propertyList are not
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::getInstance(const OperationContext &ctx,
-                 const CIMObjectPath           &instanceName,
-                 const Boolean                 includeQualifiers,
-                 const Boolean                 includeClassOrigin,
-                 const CIMPropertyList        &propertyList,
-                 InstanceResponseHandler &handler)
-{	
+void ProcessStatProvider::getInstance(
+    const OperationContext &ctx,
+    const CIMObjectPath &instanceName,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList &propertyList,
+    InstanceResponseHandler &handler)
+{
   // cout << "ProcessStatProvider::getInstance()" << endl;
 
   CIMKeyBinding kb;
@@ -325,7 +315,7 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
             keyName.getString());
     }
-	
+
     // CSName can be empty or must match
     else if (keyName.equal (PROPERTY_CS_NAME))
     {
@@ -341,7 +331,7 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
     else if (keyName.equal (PROPERTY_OS_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-	  String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM))
+          String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM))
         keysFound |= 4;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -352,7 +342,7 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
     else if (keyName.equal (PROPERTY_OS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-	  String::equalNoCase(keyValue, _getOSName()))
+          String::equalNoCase(keyValue, _getOSName()))
         keysFound |= 8;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -363,7 +353,7 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
     else if (keyName.equal (PROPERTY_PROCESS_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
-	  String::equalNoCase(keyValue, CLASS_UNIX_PROCESS))
+          String::equalNoCase(keyValue, CLASS_UNIX_PROCESS))
         keysFound |= 16;
       else
         throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -383,9 +373,9 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
       keysFound |= 64;
 
     // Key name was not recognized by any of the above tests
-    else throw CIMInvalidParameterException(keyName.getString() + 
+    else throw CIMInvalidParameterException(keyName.getString() +
         ": Unrecognized key");
-		
+
   } /* for */
 
   // We could get here if we didn't get all the keys, which
@@ -394,7 +384,7 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
   // any duplicates (e.g., two Handles, no OSName)
   if(keysFound != (1<<NUMKEYS_UNIX_PROCESS_STAT)-1)
     throw CIMInvalidParameterException("Bad object name");
-	
+
   /* Find the instance.  First convert the instance id which is the */
   /* process handle to an integer.  This is necessary because the   */
   /* handle is the process id on HP-UX which must be passed to      */
@@ -432,12 +422,13 @@ NOTES             : Currently not supported.
 PARAMETERS        :
 ================================================================================
 */
-void ProcessStatProvider::modifyInstance(const OperationContext       &context,
-                    const CIMObjectPath           &instanceName,
-                    const CIMInstance            &instanceObject,
-                    const Boolean                includeQualifiers,
-		    const CIMPropertyList        &propertyList,
-                    ResponseHandler &handler)
+void ProcessStatProvider::modifyInstance(
+    const OperationContext &context,
+    const CIMObjectPath &instanceName,
+    const CIMInstance &instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList &propertyList,
+    ResponseHandler &handler)
 {
   // There is no useful meaning for this operation
   // on this class
@@ -486,7 +477,7 @@ void ProcessStatProvider::terminate()
 }
 
 
-// ================================================================================
+// =============================================================================
 // NAME              : _constructKeyBindings
 // DESCRIPTION       : Constructs an array of keybindings for process
 // ASSUMPTIONS       : None
@@ -494,9 +485,10 @@ void ProcessStatProvider::terminate()
 // POST-CONDITIONS   :
 // NOTES             :
 // PARAMETERS        : className, Process
-// ================================================================================
+// =============================================================================
 
-Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(const Process& _p)
+Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(
+    const Process& _p)
 {
     Array<CIMKeyBinding> keyBindings;
 
@@ -504,7 +496,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(const Process& _
     keyBindings.append(CIMKeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
                                   CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
                                   CIMKeyBinding::STRING));
-		
+
     keyBindings.append(CIMKeyBinding(PROPERTY_CS_NAME,
                                   _getCSName(),
                                   CIMKeyBinding::STRING));
@@ -512,7 +504,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(const Process& _
     keyBindings.append(CIMKeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
                                   CLASS_CIM_OPERATING_SYSTEM,
                                   CIMKeyBinding::STRING));
-		
+
     keyBindings.append(CIMKeyBinding(PROPERTY_OS_NAME,
                                   _getOSName(),
                                   CIMKeyBinding::STRING));
@@ -535,7 +527,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(const Process& _
 }
 
 
-// ================================================================================
+// =============================================================================
 // NAME              : _constructInstance
 // DESCRIPTION       : Constructs instance by adding its properties. The
 //                   : Process instance argument has already been filled in
@@ -545,7 +537,7 @@ Array<CIMKeyBinding> ProcessStatProvider::_constructKeyBindings(const Process& _
 // POST-CONDITIONS   :
 // NOTES             :
 // PARAMETERS        : className, Process
-// ================================================================================
+// =============================================================================
 
 CIMInstance ProcessStatProvider::_constructInstance(
     const CIMName &className,
@@ -566,7 +558,7 @@ CIMInstance ProcessStatProvider::_constructInstance(
                              CLASS_UNIX_PROCESS_STAT,
                              _constructKeyBindings(_p)));
 
-  // Add properties                             
+  // Add properties
 
 // CIM_ManagedElement
 

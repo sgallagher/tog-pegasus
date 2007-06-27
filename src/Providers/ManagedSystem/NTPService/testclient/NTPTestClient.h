@@ -29,27 +29,24 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _NTPTESTCLIENT_H
 #define _NTPTESTCLIENT_H
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>	
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // Used defines
-static const CIMNamespaceName NAMESPACE("root/cimv2");    
+static const CIMNamespaceName NAMESPACE("root/cimv2");
 static const CIMName CLASS_NAME("PG_NTPService");
 static const String CAPTION("NTP daemon");
-static const String DESCRIPTION("Describes the Network Time Protocol (NTP) daemon");
+static const String DESCRIPTION(
+    "Describes the Network Time Protocol (NTP) daemon");
 static const String NAME_FORMAT("IP");
 static const String FILE_CONFIG("/etc/ntp.conf");
 static const String ROLE_CLIENT("server");
@@ -57,67 +54,67 @@ static const String NTP_NAME("xntpd");
 
 class NTPTestClient
 {
-  public:
-     NTPTestClient(CIMClient &client);
-     ~NTPTestClient(void);
+public:
+    NTPTestClient(CIMClient &client);
+    ~NTPTestClient();
 
-     void testEnumerateInstanceNames(CIMClient &client, Boolean verbose);
-     void testEnumerateInstances(CIMClient &client, Boolean verbose);
-     void testGetInstance(CIMClient &client, Boolean verbose);
+    void testEnumerateInstanceNames(CIMClient &client, Boolean verbose);
+    void testEnumerateInstances(CIMClient &client, Boolean verbose);
+    void testGetInstance(CIMClient &client, Boolean verbose);
 
-     // utility methods for common test functions
-     void errorExit(const String &message);
-     void testLog(const String &message);
+    // utility methods for common test functions
+    void errorExit(const String &message);
+    void testLog(const String &message);
 
-	// Return TRUE if CreationClassName property is ok
-	Boolean goodCreationClassName(String & ccn, Boolean verbose);
+    // Return TRUE if CreationClassName property is ok
+    Boolean goodCreationClassName(String & ccn, Boolean verbose);
 
-	// Return TRUE if Name property is ok
-	Boolean goodName(String & name, Boolean verbose);
+    // Return TRUE if Name property is ok
+    Boolean goodName(String & name, Boolean verbose);
 
-	// Return TRUE if Caption property is ok
-	Boolean goodCaption(String & cap, Boolean verbose);
+    // Return TRUE if Caption property is ok
+    Boolean goodCaption(String & cap, Boolean verbose);
 
-	// Return TRUE if Description property is ok
-	Boolean goodDescription(String & des, Boolean verbose);
+    // Return TRUE if Description property is ok
+    Boolean goodDescription(String & des, Boolean verbose);
 
-	// Return TRUE if ServerAddress property is ok
-	Boolean goodServerAddress(Array<String> & srvAddress, Boolean verbose);
+    // Return TRUE if ServerAddress property is ok
+    Boolean goodServerAddress(Array<String> & srvAddress, Boolean verbose);
 
-	// Return TRUE if NameFormat property is ok
-	Boolean goodNameFormat(String & nf, Boolean verbose);
+    // Return TRUE if NameFormat property is ok
+    Boolean goodNameFormat(String & nf, Boolean verbose);
 
-  private:
-	 // Function: getHostName
-	 // This function resolves name server
-	 Boolean getHostName(String serverAddress, String & hostName);
-     
-	 // Function: getHostAddress
-	 // This function resolves address servers
-	 Boolean getHostAddress(String serverName, String & serverAddress);
-     
-	 // Function: isHostAddress
-	 // This function verify if host is address
-	 Boolean isHostAddress(String host);
+private:
+    // Function: getHostName
+    // This function resolves name server
+    Boolean getHostName(String serverAddress, String & hostName);
 
-	 // Function: getLocalHostName
-	 // This function retrieves the local host name
-	 Boolean getLocalHostName(String & hostName);
+    // Function: getHostAddress
+    // This function resolves address servers
+    Boolean getHostAddress(String serverName, String & serverAddress);
 
-	 // Return partial string from string variable
-	 Boolean piece(String strText, String strSep, int numPos, String &strOut);
+    // Function: isHostAddress
+    // This function verify if host is address
+    Boolean isHostAddress(String host);
 
-	 // Return string cleaned
-	 void trim(String strText, String & strOut);
+    // Function: getLocalHostName
+    // This function retrieves the local host name
+    Boolean getLocalHostName(String & hostName);
 
-	 // Verify string into array
-	 Boolean FindInArray(Array<String> src, String text);
-    
-     // validate keys of the class
-     void _validateKeys(CIMObjectPath &cimRef, Boolean verboseTest);
-     
-     // validate properties of the class
-     void _validateProperties(CIMInstance &cimInst, Boolean verboseTest);
+    // Return partial string from string variable
+    Boolean piece(String strText, String strSep, int numPos, String &strOut);
+
+    // Return string cleaned
+    void trim(String strText, String & strOut);
+
+    // Verify string into array
+    Boolean FindInArray(Array<String> src, String text);
+
+    // validate keys of the class
+    void _validateKeys(CIMObjectPath &cimRef, Boolean verboseTest);
+
+    // validate properties of the class
+    void _validateProperties(CIMInstance &cimInst, Boolean verboseTest);
 };
 
 #endif

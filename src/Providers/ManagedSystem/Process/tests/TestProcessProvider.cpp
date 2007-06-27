@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -219,7 +214,8 @@ int testClass(const String& className)
     Array<CIMKeyBinding> keys = ref.getKeyBindings();
     cout << "  Keys:" << endl;
     for (i=0; i<keys.size(); i++)
-      cout << "    " << keys[i].getName() << " = " << keys[i].getValue() << endl;
+      cout << "    " << keys[i].getName() << " = " <<
+          keys[i].getValue() << endl;
   }
 
   // check returned property values
@@ -243,7 +239,7 @@ int testClass(const String& className)
   Uint32 i32a, i32b;
   Uint64 i64a, i64b;
   CIMDateTime da, db;
-  
+
   // For each property, get it from the just-loaded process
   // object and compare with what was returned by getInstance()
 
@@ -258,7 +254,7 @@ int testClass(const String& className)
       return 1;
     }
   }
-  
+
   if (p.getDescription(sa))
   {
     if (processTestVerbose) cout << "    Description" << endl;
@@ -269,7 +265,7 @@ int testClass(const String& className)
       return 1;
     }
   }
-  
+
   // The rest of the properties to check depend on the
   // class we are testing
 
@@ -288,7 +284,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getStatus(sa))
     {
       if (processTestVerbose) cout << "    Status" << endl;
@@ -299,7 +295,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getName(sa))
     {
       if (processTestVerbose) cout << "    Name" << endl;
@@ -310,7 +306,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getPriority(i32a))
     {
       if (processTestVerbose) cout << "    Priority" << endl;
@@ -335,18 +331,19 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getExecutionState(i16a))
     {
       if (processTestVerbose) cout << "    ExecutionState" << endl;
-      inst.getProperty(inst.findProperty("ExecutionState")).getValue().get(i16b);
+      inst.getProperty(
+          inst.findProperty("ExecutionState")).getValue().get(i16b);
       if (i16a != i16b)
       {
         cout << "+++++ Error: property mismatch: ExecutionState" << endl;
         return 1;
       }
     }
-  
+
     if (p.getOtherExecutionDescription(sa))
     {
       if (processTestVerbose) cout << "    OtherExecutionDescription" << endl;
@@ -358,11 +355,12 @@ int testClass(const String& className)
          sb = String::EMPTY;
       if (sa != sb)
       {
-        cout << "+++++ Error: property mismatch: OtherExecutionDescription" << endl;
+        cout << "+++++ Error: property mismatch: OtherExecutionDescription" <<
+            endl;
         return 1;
       }
     }
-  
+
     if (p.getCreationDate(da))
     {
       if (processTestVerbose) cout << "    CreationDate" << endl;
@@ -373,7 +371,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getTerminationDate(da))
     {
       if (processTestVerbose) cout << "    TerminationDate" << endl;
@@ -384,18 +382,19 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getKernelModeTime(i64a))
     {
       if (processTestVerbose) cout << "    KernelModeTime" << endl;
-      inst.getProperty(inst.findProperty("KernelModeTime")).getValue().get(i64b);
+      inst.getProperty(
+          inst.findProperty("KernelModeTime")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: KernelModeTime" << endl;
         return 1;
       }
     }
-  
+
     if (p.getUserModeTime(i64a))
     {
       if (processTestVerbose) cout << "    UserModeTime" << endl;
@@ -406,18 +405,19 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getWorkingSetSize(i64a))
     {
       if (processTestVerbose) cout << "    WorkingSetSize" << endl;
-      inst.getProperty(inst.findProperty("WorkingSetSize")).getValue().get(i64b);
+      inst.getProperty(
+          inst.findProperty("WorkingSetSize")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: WorkingSetSize" << endl;
         return 1;
       }
     }
-  
+
     if (p.getParentProcessID(sa))
     {
       if (processTestVerbose) cout << "    ParentProcessID" << endl;
@@ -428,7 +428,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getRealUserID(i64a))
     {
       if (processTestVerbose) cout << "    RealUserID" << endl;
@@ -439,29 +439,31 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getProcessGroupID(i64a))
     {
       if (processTestVerbose) cout << "    ProcessGroupID" << endl;
-      inst.getProperty(inst.findProperty("ProcessGroupID")).getValue().get(i64b);
+      inst.getProperty(
+          inst.findProperty("ProcessGroupID")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: ProcessGroupID" << endl;
         return 1;
       }
     }
-  
+
     if (p.getProcessSessionID(i64a))
     {
       if (processTestVerbose) cout << "    ProcessSessionID" << endl;
-      inst.getProperty(inst.findProperty("ProcessSessionID")).getValue().get(i64b);
+      inst.getProperty(
+          inst.findProperty("ProcessSessionID")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: ProcessSessionID" << endl;
         return 1;
       }
     }
-  
+
     if (p.getProcessTTY(sa))
     {
       if (processTestVerbose) cout << "    ProcessTTY" << endl;
@@ -472,7 +474,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getModulePath(sa))
     {
       if (processTestVerbose) cout << "    ModulePath" << endl;
@@ -483,7 +485,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getParameters(asa))
     {
       if (processTestVerbose) cout << "    Parameters" << endl;
@@ -494,25 +496,28 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getProcessNiceValue(i32a))
     {
       if (processTestVerbose) cout << "    ProcessNiceValue" << endl;
-      inst.getProperty(inst.findProperty("ProcessNiceValue")).getValue().get(i32b);
+      inst.getProperty(
+          inst.findProperty("ProcessNiceValue")).getValue().get(i32b);
       if (i32a != i32b)
       {
         cout << "+++++ Error: property mismatch: ProcessNiceValue" << endl;
         return 1;
       }
     }
-  
+
     if (p.getProcessWaitingForEvent(sa))
     {
       if (processTestVerbose) cout << "    ProcessWaitingForEvent" << endl;
-      inst.getProperty(inst.findProperty("ProcessWaitingForEvent")).getValue().get(sb);
+      inst.getProperty(
+          inst.findProperty("ProcessWaitingForEvent")).getValue().get(sb);
       if (sa != sb)
       {
-        cout << "+++++ Error: property mismatch: ProcessWaitingForEvent" << endl;
+        cout << "+++++ Error: property mismatch: ProcessWaitingForEvent" <<
+            endl;
         return 1;
       }
     }
@@ -521,7 +526,8 @@ int testClass(const String& className)
 
   // ========== UnixProcessStatisticalInformation instances ===============
 
-  else if (String::equalNoCase(className,"PG_UnixProcessStatisticalInformation"))
+  else if (String::equalNoCase(
+               className,"PG_UnixProcessStatisticalInformation"))
   {
     if (p.getCPUTime(i32a))
     {
@@ -540,7 +546,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getRealText(i64a))
     {
       if (processTestVerbose) cout << "    RealText" << endl;
@@ -551,7 +557,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getRealData(i64a))
     {
       if (processTestVerbose) cout << "    RealData" << endl;
@@ -562,7 +568,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getRealStack(i64a))
     {
       if (processTestVerbose) cout << "    RealStack" << endl;
@@ -573,7 +579,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getVirtualText(i64a))
     {
       if (processTestVerbose) cout << "    VirtualText" << endl;
@@ -584,7 +590,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getVirtualData(i64a))
     {
       if (processTestVerbose) cout << "    VirtualData" << endl;
@@ -595,7 +601,7 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getVirtualStack(i64a))
     {
       if (processTestVerbose) cout << "    VirtualStack" << endl;
@@ -606,33 +612,37 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     if (p.getVirtualMemoryMappedFileSize(i64a))
     {
       if (processTestVerbose) cout << "    VirtualMemoryMappedFileSize" << endl;
-      inst.getProperty(inst.findProperty("VirtualMemoryMappedFileSize")).getValue().get(i64b);
+      inst.getProperty(inst.findProperty(
+          "VirtualMemoryMappedFileSize")).getValue().get(i64b);
       if (i64a != i64b)
       {
-        cout << "+++++ Error: property mismatch: VirtualMemoryMappedFileSize" << endl;
+        cout << "+++++ Error: property mismatch: VirtualMemoryMappedFileSize"
+             << endl;
         return 1;
       }
     }
-  
+
     if (p.getVirtualSharedMemory(i64a))
     {
       if (processTestVerbose) cout << "    VirtualSharedMemory" << endl;
-      inst.getProperty(inst.findProperty("VirtualSharedMemory")).getValue().get(i64b);
+      inst.getProperty(
+          inst.findProperty("VirtualSharedMemory")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: VirtualSharedMemory" << endl;
         return 1;
       }
     }
-  
+
     if (p.getCpuTimeDeadChildren(i64a))
     {
       if (processTestVerbose) cout << "    CpuTimeDeadChildren" << endl;
-      inst.getProperty(inst.findProperty("CpuTimeDeadChildren")).getValue().get(i64b);
+      inst.getProperty(
+          inst.findProperty("CpuTimeDeadChildren")).getValue().get(i64b);
       if (i64a != i64b)
       {
         cout << "+++++ Error: property mismatch: CpuTimeDeadChildren" << endl;
@@ -643,14 +653,16 @@ int testClass(const String& className)
     if (p.getSystemTimeDeadChildren(i64a))
     {
       if (processTestVerbose) cout << "    SystemTimeDeadChildren" << endl;
-      inst.getProperty(inst.findProperty("SystemTimeDeadChildren")).getValue().get(i64b);
+      inst.getProperty(
+          inst.findProperty("SystemTimeDeadChildren")).getValue().get(i64b);
       if (i64a != i64b)
       {
-        cout << "+++++ Error: property mismatch: SystemTimeDeadChildren" << endl;
+        cout << "+++++ Error: property mismatch: SystemTimeDeadChildren" <<
+            endl;
         return 1;
       }
     }
-  
+
     if (p.getRealSpace(i64a))
     {
       if (processTestVerbose) cout << "    RealSpace" << endl;
@@ -661,10 +673,10 @@ int testClass(const String& className)
         return 1;
       }
     }
-  
+
     cout << "+++++ property values ok" << endl;
   }
-  
+
   else
   {
     cout << "+++++ Error: class " << className << " not recognized" << endl;
@@ -672,12 +684,12 @@ int testClass(const String& className)
   }
 
   // ------------------ do getInstance() with bad key ----------------------
-  
+
   Array<CIMKeyBinding> kb = ref.getKeyBindings();
   // mess up first key name
   kb[0].setName("foobar");
   ref.setKeyBindings(kb);
-  
+
   int status = 0;
 
   cout << "+++++ getInstance with bad key" << endl;
@@ -753,7 +765,7 @@ int testClass(const String& className)
   // =======================================================================
 
   cout << "+++++ enumerateInstances(" << className << ")" << endl;
-  
+
   Array<CIMInstance> ia;
   try
   {
@@ -767,10 +779,11 @@ int testClass(const String& className)
   // There should be several instances
   if (ia.size() < 5)
   {
-    cout << "+++++ Error: enumerateInstances on " << className << " returned too few instances" << endl;
+    cout << "+++++ Error: enumerateInstances on " << className <<
+        " returned too few instances" << endl;
     return 1;
   }
-  
+
   // For UnixProcess, we should be able to find this test process
   // and the cimserver
   if (String::equalNoCase(className,"CIM_Process") ||
@@ -839,7 +852,7 @@ int testClass(const String& className)
 int main()
 {
   cout << "+++++ Testing ProcessProviders" << endl;
-  
+
   // Connect
   try
   {
@@ -851,7 +864,7 @@ int main()
   }
 
   //
-  //  Set a timeout longer than the default to avoid operations such as 
+  //  Set a timeout longer than the default to avoid operations such as
   //  enumerateInstances timing out on slower systems
   //
   c.setTimeout (TIMEOUT);

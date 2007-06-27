@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Paulo F. Borges (pfborges@wowmail.com)
-//
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -66,8 +62,8 @@ Boolean getUtilGetHostName(String& systemName)
 Boolean NISTestClient::goodSystemName(String & param, Boolean verbose)
 {
     if (verbose)
-        cout<<"Checking " << param << " against SystemName "<<endl;
-    cout<<"- No check written for SystemName " <<endl;
+        cout << "Checking " << param << " against SystemName " << endl;
+    cout << "- No check written for SystemName " << endl;
     return true;
 }
 
@@ -76,13 +72,17 @@ Boolean NISTestClient::goodSystemName(String & param, Boolean verbose)
     Test Client.  Checks the specified value against the expected value and
     returns TRUE if the same, else FALSE.
 */
-Boolean NISTestClient::goodSystemCreationClassName(String & param, Boolean verbose)
+Boolean NISTestClient::goodSystemCreationClassName(
+    String & param,
+    Boolean verbose)
 {
-   if(verbose)
-      cout<< "Checking " << param << " against ";
-      cout<< SYSTEM_CREATION_CLASS_NAME.getString() << endl;
+   if (verbose)
+   {
+       cout << "Checking " << param << " against ";
+       cout << SYSTEM_CREATION_CLASS_NAME.getString() << endl;
+   }
 
-   return (String::equalNoCase(param, SYSTEM_CREATION_CLASS_NAME.getString()));
+   return String::equalNoCase(param, SYSTEM_CREATION_CLASS_NAME.getString());
 }
 
 /**
@@ -92,10 +92,10 @@ Boolean NISTestClient::goodSystemCreationClassName(String & param, Boolean verbo
 */
 Boolean NISTestClient::goodCreationClassName(String & param, Boolean verbose)
 {
-   if(verbose)
+   if (verbose)
       cout << "Checking " << param << " against " << CLASS_NAME.getString();
       cout << endl;
-   return (String::equalNoCase(param, CLASS_NAME.getString()));
+   return String::equalNoCase(param, CLASS_NAME.getString());
 }
 
 /**
@@ -121,7 +121,7 @@ Boolean NISTestClient::goodCaption(String & param, Boolean verbose)
    if (verbose)
       cout << "Checking " << param << " against " << CAPTION <<endl;
 
-   return (String::equalNoCase(param, CAPTION));
+   return String::equalNoCase(param, CAPTION);
 }
 
 /**
@@ -134,7 +134,7 @@ Boolean NISTestClient::goodDescription(String & param, Boolean verbose)
    if (verbose)
       cout << "Checking " << param << " against " << DESCRIPTION << endl;
 
-   return (String::equalNoCase(param, DESCRIPTION));
+   return String::equalNoCase(param, DESCRIPTION);
 }
 
 /**

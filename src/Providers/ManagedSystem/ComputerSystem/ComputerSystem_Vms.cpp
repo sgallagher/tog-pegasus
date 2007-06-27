@@ -29,12 +29,8 @@
 //
 //==============================================================================
 //
-// Author: Ray Boucher, Hewlett-Packard Company (ray.boucher@hp.com)
-//
-// Modified By: 
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
+
 //
 //  22-Aug-06
 //  PTR 73-51-30 , Made changes to replace sys$specific:[000000]
@@ -43,15 +39,15 @@
 //  11-July-06
 //  PTR 73-51-24 , Made changes to getInstallDate() and convertToCIMDateString()
 //  functions to display InstallDate()
-//    
+//
 //  11-July-06
 //  PTR 73-51-23, Changes made to get the correct string values to be displayed
-//  for Caption , Description, PrimaryOwner, PrimaryOwnerContact, 
-//  PrimaryOwnerPager, InitialLoadInfo, SecondaryOwnerName, 
-//  SecondaryOwnerContact and SecondaryOwnerPager properties 
+//  for Caption , Description, PrimaryOwner, PrimaryOwnerContact,
+//  PrimaryOwnerPager, InitialLoadInfo, SecondaryOwnerName,
+//  SecondaryOwnerContact and SecondaryOwnerPager properties
 //
 //  28-Jun-06
-//  PTR 73-51-4, 73-51-6 and PTR 73-51-8, changes made to use temp file 
+//  PTR 73-51-4, 73-51-6 and PTR 73-51-8, changes made to use temp file
 //  instead of hsitory.out in GetInstallDate()
 //
 //  28-Jun-06
@@ -141,7 +137,7 @@ int convertToCIMDateString(struct tm *t, char **time)
           t->tm_mon + 1,
           t->tm_mday,
           t->tm_hour,
-          t->tm_min,                                               
+          t->tm_min,
           t->tm_sec,
           (timezone>0)?'-':'+',
           timezone/60 - ( t->tm_isdst? 60:0 ));
@@ -154,10 +150,10 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
    Boolean bStatus;
    int status, istr;
    char record1[512], *rptr1=0;
-   // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
+   // Added to address PTR 73-51-4, 73-51-6 and 73-51-8
    char *HistFile = 0;
    char  cmd[512];
-   // end of addition 
+   // end of addition
 
    FILE *fptr1=0;
    unsigned __int64 bintime=0;
@@ -182,15 +178,15 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
         unsigned int* pRetLen;
         int term;
         } item_list;
-   
-  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
+
+  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8
   // A temp file is used to avoid a filename collision when two users
   // call OsInfo at the same time.
   // Note: The prefix string is limited to 5 chars.
   //       P3 = 0 returns unix format \sys$sratch\history_acca.out
   //       P3 = 1 returns vms format. sys$scratch:history_acca.out
-  
-  // Changed to address PTR 73-51-24 
+
+  // Changed to address PTR 73-51-24
   HistFile = tempnam("wbem_tmp:", "hist_", 1);
   if (!HistFile) {
     bStatus = false;
@@ -203,13 +199,14 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
    sysinfo.dsc$b_class=DSC$K_CLASS_S;
    sysinfo.dsc$w_length=sizeof(t_string);
    sysinfo.dsc$a_pointer=t_string;
- 
-  // Commented to address PTR 73-51-4, 73-51-6 and 73-51-8 
-  //   status = system("pipe product show history openvms | search/nolog/nowarn/out=history.out sys$input install");
+
+  // Commented to address PTR 73-51-4, 73-51-6 and 73-51-8
+  //   status = system("pipe product show history openvms |
+  //       search/nolog/nowarn/out=history.out sys$input install");
   // "pipe product show history openvms |
   //       search/nolog/nowarn/out=history.out sys$input install");
 
-  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
+  // Added to address PTR 73-51-4, 73-51-6 and 73-51-8
   strcpy(cmd, "pipe product show history openvms | search/nolog/nowarn/out=");
   strcat(cmd, HistFile);
   strcat(cmd, " sys$input install");
@@ -234,10 +231,11 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
         {
            for (istr=0; istr<=(sizeof(record1)-4); istr++)
            {
-                if ((rptr1 = strstr(record1+istr,"-")) && !strncmp(rptr1+4,"-",1)) break;
+                if ((rptr1 = strstr(record1+istr,"-")) &&
+                    !strncmp(rptr1+4,"-",1)) break;
                 rptr1 = 0;
            }
-          
+
           //Changed to address PTR 73-51-24
           if (rptr1)
           {
@@ -262,97 +260,96 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
              t_string[21] = '0';
              t_string[22] = '0';
              t_string[23] = '0';
-          
-		status = sys$bintim (&sysinfo, &bintime);
-		if (!$VMS_STATUS_SUCCESS(status))
-	        {
-        	  bStatus = false;
-	          goto done;
-        	}
 
-
-		libop=LIB$K_DAY_OF_WEEK;
-		status=lib$cvt_from_internal_time (&libop,&libdayweek,&bintime);
-		if (!$VMS_STATUS_SUCCESS(status))
-	        {
-          	 bStatus = false;
-          	 goto done;
-	        }
-
-
-		libop=LIB$K_DAY_OF_YEAR;
-		status=lib$cvt_from_internal_time (&libop,&libdayear,&bintime);
-		if (!$VMS_STATUS_SUCCESS(status))
-		{
-	          bStatus = false;
-	          goto done;
-                }
-
-
-		dst_desc[0]  = strlen(log_string);
-		dst_desc[1]  = (long) log_string;
-		item_list.wLength = 1;
-		item_list.wCode = LNM$_STRING;
-		item_list.pBuffer = &libdst;
-		item_list.pRetLen = &retlen;
-		item_list.term =0;
-
-		status = sys$trnlnm (0,&lnm_tbl,&dst_desc,0,&item_list);
-		if (!$VMS_STATUS_SUCCESS(status)) 
-	        {
-        	  bStatus = false;
-	          goto done;
-        	}
-
-
-		status = sys$numtim(timbuf,&bintime);
-		if (!$VMS_STATUS_SUCCESS(status)) 
+                status = sys$bintim (&sysinfo, &bintime);
+                if (!$VMS_STATUS_SUCCESS(status))
                 {
                   bStatus = false;
                   goto done;
                 }
 
-		
 
-		timetm.tm_sec = timbuf[5];
-		timetm.tm_min = timbuf[4];
-		timetm.tm_hour = timbuf[3];
-		timetm.tm_mday = timbuf[2];
-		timetm.tm_mon = timbuf[1]-1;
-		timetm.tm_year = timbuf[0]-1900;
-		timetm.tm_wday = libdayweek-1;
-		timetm.tm_yday = libdayear-1;
-		timetm.tm_isdst = 0;
-		if (libdst != 48) timetm.tm_isdst = 1;
+                libop=LIB$K_DAY_OF_WEEK;
+                status=lib$cvt_from_internal_time (&libop,&libdayweek,&bintime);
+                if (!$VMS_STATUS_SUCCESS(status))
+                {
+                   bStatus = false;
+                   goto done;
+                }
+
+
+                libop=LIB$K_DAY_OF_YEAR;
+                status=lib$cvt_from_internal_time (&libop,&libdayear,&bintime);
+                if (!$VMS_STATUS_SUCCESS(status))
+                {
+                  bStatus = false;
+                  goto done;
+                }
+
+
+                dst_desc[0]  = strlen(log_string);
+                dst_desc[1]  = (long) log_string;
+                item_list.wLength = 1;
+                item_list.wCode = LNM$_STRING;
+                item_list.pBuffer = &libdst;
+                item_list.pRetLen = &retlen;
+                item_list.term =0;
+
+                status = sys$trnlnm (0,&lnm_tbl,&dst_desc,0,&item_list);
+                if (!$VMS_STATUS_SUCCESS(status))
+                {
+                  bStatus = false;
+                  goto done;
+                }
+
+
+                status = sys$numtim(timbuf,&bintime);
+                if (!$VMS_STATUS_SUCCESS(status))
+                {
+                  bStatus = false;
+                  goto done;
+                }
+
+
+                timetm.tm_sec = timbuf[5];
+                timetm.tm_min = timbuf[4];
+                timetm.tm_hour = timbuf[3];
+                timetm.tm_mday = timbuf[2];
+                timetm.tm_mon = timbuf[1]-1;
+                timetm.tm_year = timbuf[0]-1900;
+                timetm.tm_wday = libdayweek-1;
+                timetm.tm_yday = libdayear-1;
+                timetm.tm_isdst = 0;
+                if (libdst != 48) timetm.tm_isdst = 1;
 
                 //Changed to address PTR 73-51-24
-		status = convertToCIMDateString(ptimetm,&cimtime);
-		if (!$VMS_STATUS_SUCCESS(status))
+                status = convertToCIMDateString(ptimetm,&cimtime);
+                if (!$VMS_STATUS_SUCCESS(status))
                 {
                   bStatus = false;
                   goto done;
                 }
 
-		CIMDateTime _installDate(cimtime);
-		p = CIMProperty(PROPERTY_INSTALL_DATE, _installDate);
+                CIMDateTime _installDate(cimtime);
+                p = CIMProperty(PROPERTY_INSTALL_DATE, _installDate);
 
-	        bStatus = true;
-        	goto done;
+                bStatus = true;
+                goto done;
 
            } // end if (rptr1 = strstr(record1,"Install"))
         }
-	    bStatus = false;
-	    goto done;
+        bStatus = false;
+        goto done;
 
 
    } // end if (fptr1 = fopen(history.out, "r"))
    else
    {
-	bStatus = false;
-    	goto done;
+       bStatus = false;
+       goto done;
    }
 
-// Added to address PTR 73-51-4, 73-51-6 and 73-51-8 
+// Added to address PTR 73-51-4, 73-51-6 and 73-51-8
 done:
 
 if (fptr1) {
@@ -471,12 +468,12 @@ Boolean ComputerSystem::getOtherIdentifyingInfo(CIMProperty& p)
    status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
    if ($VMS_STATUS_SUCCESS(status))
    {
-	_otherInfo.assign(hwname);
+        _otherInfo.assign(hwname);
 #ifdef  PEGASUS_PLATFORM_VMS_IA64_DECCXX
         _otherInfo = String("ia64 hp server, ") + _otherInfo;
 #endif
-	s.append(_otherInfo);
-	p = CIMProperty(PROPERTY_OTHER_IDENTIFYING_INFO,s);
+        s.append(_otherInfo);
+        p = CIMProperty(PROPERTY_OTHER_IDENTIFYING_INFO,s);
         return true;
    }
    else
@@ -539,18 +536,18 @@ Boolean ComputerSystem::getInitialLoadInfo(CIMProperty& p)
    status = sys$trnlnm (0,&lnm_tbl,&dst_desc,0,&item_list);
    if ($VMS_STATUS_SUCCESS(status))
    {
-	ptr1 = res_string;
-	ptr2 = strchr(ptr1,':');
-	if (ptr2) res_string[ptr2-ptr1] = '\0';
+        ptr1 = res_string;
+        ptr2 = strchr(ptr1,':');
+        if (ptr2) res_string[ptr2-ptr1] = '\0';
         // Changed to Adress PTR 73-51-23
-	p = CIMProperty(PROPERTY_INITIAL_LOAD_INFO, String(res_string));
-	return true;
+        p = CIMProperty(PROPERTY_INITIAL_LOAD_INFO, String(res_string));
+        return true;
    }
    else
    {
         // Changed to Adress PTR 73-51-23
-	p = CIMProperty(PROPERTY_INITIAL_LOAD_INFO, String("Unknown"));
-	return false;
+        p = CIMProperty(PROPERTY_INITIAL_LOAD_INFO, String("Unknown"));
+        return false;
    }
 }
 
@@ -670,13 +667,13 @@ Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
         {
 // Changed to Fix PTR 73-51-16
 #ifdef  PEGASUS_PLATFORM_VMS_IA64_DECCXX
-	   lSerNum[i] = lrSerNum[i];
+           lSerNum[i] = lrSerNum[i];
 #else
            lSerNum[strlen(lrSerNum)-i-1] = lrSerNum[i];
 #endif
         }
-	_serialNumber.assign(lSerNum);
-	p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber);
+        _serialNumber.assign(lSerNum);
+        p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber);
         return true;
     }
 

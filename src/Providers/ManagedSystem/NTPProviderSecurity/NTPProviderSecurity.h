@@ -54,7 +54,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
     
-//------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -83,9 +83,10 @@ public:
     // Public Functions - Interface
     //
 
-	// This function retrieves the permissions of file by username
-	Boolean checkAccess(const String filename,
-    		            const String chkoper);
+    // This function retrieves the permissions of file by username
+    Boolean checkAccess(
+        const String filename,
+        const String chkoper);
 
 private:
     //

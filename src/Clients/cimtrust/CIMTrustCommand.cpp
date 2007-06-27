@@ -46,6 +46,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/getoopt/getoopt.h>
@@ -663,8 +664,9 @@ void CIMTrustCommand::_addCertificate (
     {
         certificateType = _CERTIFICATE_TYPE_AUTHORITY_END_ENTITY;
     }
-    else if ( _type == _ARG_TYPE_SELF_SIGNED_IDENTITY )
+    else
     {
+        PEGASUS_ASSERT(_type == _ARG_TYPE_SELF_SIGNED_IDENTITY);
         certificateType = _CERTIFICATE_TYPE_SELF_SIGNED_IDENTITY;
     }
 

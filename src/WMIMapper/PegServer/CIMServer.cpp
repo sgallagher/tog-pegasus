@@ -93,8 +93,8 @@ void CIMServer::shutdownSignal()
 }
 
 
-CIMServer::CIMServer(Monitor* monitor)
-  : _dieNow(false), _monitor(monitor)
+CIMServer::CIMServer()
+  : _dieNow(false)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
     _init();
@@ -110,14 +110,16 @@ void CIMServer::tickle_monitor()
 
 void CIMServer::_init()
 {
+    _monitor.reset(new Monitor());
+
     String repositoryRootPath;
 
 #if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
     chdir( PEGASUS_CORE_DIR );
 #endif
     // -- Save the monitor or create a new one:
-    repositoryRootPath =
-            ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
+    repositoryRootPath = ConfigManager::getHomedPath(
+        ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
     // -- Create a repository:
 
@@ -435,7 +437,7 @@ void CIMServer::addAcceptor(
     HTTPAcceptor* acceptor;
 
     acceptor = new HTTPAcceptor(
-          _monitor,
+          _monitor.get(),
           _httpAuthenticatorDelegator,
           localConnection,
           portNumber,

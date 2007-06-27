@@ -85,7 +85,6 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <fstream>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
@@ -165,7 +164,6 @@ ServerRunStatus _serverRunStatus(
     PEGASUS_PROCESS_NAME, PEGASUS_CIMSERVER_START_FILE);
 AutoPtr<CIMServerProcess> _cimServerProcess(new CIMServerProcess());
 static CIMServer* _cimServer = 0;
-static Monitor* _monitor = 0;
 
 //
 //  The command name.
@@ -195,10 +193,6 @@ static const char   LONG_VERSION []  = "version";
 #if defined(PEGASUS_OS_HPUX)
 static const char OPTION_BINDVERBOSE = 'X';
 #endif
-
-static const String PROPERTY_TIMEOUT = "shutdownTimeout";
-
-ConfigManager*    configManager;
 
 /** GetOptions function - This function defines the Options Table
     and sets up the options from that table using the config manager.
@@ -267,16 +261,8 @@ void PrintHelp(const char* arg0)
 //We need to delete the _cimServer reference on exit in order for the destructors to get called.
 void deleteCIMServer()
 {
-    if (_cimServer)
-    {
-        delete _cimServer;
-        _cimServer = 0;
-    }
-
-	if (_monitor)
-	{
-		delete _monitor;
-	}
+    delete _cimServer;
+    _cimServer = 0;
 }
 
 // l10n
@@ -492,7 +478,7 @@ int CIMServerProcess::cimserver_run(
     //
     // Get an instance of the Config Manager.
     //
-    configManager = ConfigManager::getInstance();
+    ConfigManager* configManager = ConfigManager::getInstance();
     configManager->useConfigFiles = true;
 
     //
@@ -745,8 +731,7 @@ int CIMServerProcess::cimserver_run(
     // try loop to bind the address, and run the server
     try
     {
-        _monitor  = new Monitor();
-        _cimServer = new CIMServer(_monitor);
+        _cimServer = new CIMServer();
 
 
         if (enableHttpConnection)

@@ -69,7 +69,7 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
 #if defined(HAVE_MSG_CONTROL)
     size_t size;
     char* data;
-    struct cmsghdr* cmh = CMSG_FIRSTHDR(&mh);
+    struct cmsghdr* cmh;
 
     /*
      * This control data begins with a cmsghdr struct followed by the data
@@ -117,7 +117,12 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
     n = recvmsg(sock, &mh, 0);
 
     if (n <= 0)
+    {
+#if defined(HAVE_MSG_CONTROL)
+        free(data);
+#endif
         return -1;
+    }
 
     /* Get a pointer to control message. Return if the header is null or
      * does not contain what we expect.
@@ -132,12 +137,15 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
         cmh->cmsg_level != SOL_SOCKET ||
         cmh->cmsg_type != SCM_RIGHTS)
     {
+        free(data);
         return -1;
     }
 
     /* Copy the data: */
 
     memcpy(descriptors, CMSG_DATA(cmh), sizeof(int) * count);
+
+    free(data);
 
 #else /* !defined(HAVE_MSG_CONTROL) */
 

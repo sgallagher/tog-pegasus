@@ -6,13 +6,11 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
-
  
 cimmofl -ntest -R REPOSITORYDIR ValidMof1.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
-
 
  
 cimmofl -ntest -R REPOSITORYDIR -xml ValidMof2.mof
@@ -22,13 +20,11 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
-
  
 cimmofl -ntest -R REPOSITORYDIR ValidMof3.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
-
 
  
 cimmofl -ntest -R REPOSITORYDIR ValidMof4.mof
@@ -36,13 +32,11 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
-
  
 cimmofl -ntest -R REPOSITORYDIR ValidMof4a.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
-
 
  
 cimmofl -ntest -R REPOSITORYDIR ValidMof4b.mof
@@ -50,13 +44,11 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
 
-
  
 cimmofl -ntest -R REPOSITORYDIR ValidMof5.mof
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmofl should only be used under very controlled situations.
          cimmof is the recommended OpenPegasus MOF compiler.
-
 
  
 cimmofl -h

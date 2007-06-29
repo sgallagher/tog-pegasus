@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Vageesh Umesh (vagumesh@in.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -73,7 +71,12 @@ void test01()
         const Uint32 capabilities,
         const CIMName & method)
     */
-    ProviderName pnobj("dummylogicalname", "dummyphysicalname", "dummyinterfacename", 1, method);
+    ProviderName pnobj(
+        "dummylogicalname",
+        "dummyphysicalname",
+        "dummyinterfacename",
+        1,
+        method);
 
     /**
         Added to cover the Function
@@ -85,7 +88,9 @@ void test01()
     /**
         Added to cover the Function
         ProviderName::ProviderName(
-        const CIMObjectPath & path,const Uint32 capabilities,const CIMName & method)
+            const CIMObjectPath & path,
+            const Uint32 capabilities,
+            const CIMName & method)
     */
     CIMObjectPath cobjpath("//localhost/root/cimv2:MyClass");
     ProviderName pn2(cobjpath,1,method);
@@ -152,12 +157,14 @@ int main(int argc, char** argv)
     {
         test01();
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-        PEGASUS_STD (cout) << "Exception: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) << "Exception: " << e.getMessage() <<
+            PEGASUS_STD(endl);
         exit(1);
     }
 
-    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" <<
+        PEGASUS_STD(endl);
     return 0;
 }

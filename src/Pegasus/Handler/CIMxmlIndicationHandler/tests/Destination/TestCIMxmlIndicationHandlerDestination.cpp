@@ -29,7 +29,6 @@
 //
 //==============================================================================
 //
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
@@ -73,7 +72,7 @@ static void TestDestination(
     exceptionCaught = false;
     try
     {
-        handler->handleIndication(context, 
+        handler->handleIndication(context,
             PEGASUS_NAMESPACENAME_INTEROP.getString(),
             indicationInstance,
             indicationHandlerInstance,
@@ -83,9 +82,9 @@ static void TestDestination(
     catch (CIMException& e)
     {
         exceptionCaught = true;
-        testException = e; 
+        testException = e;
     }
-    PEGASUS_TEST_ASSERT(exceptionCaught && 
+    PEGASUS_TEST_ASSERT(exceptionCaught &&
         testException.getCode() == statusCode);
 }
 
@@ -104,7 +103,7 @@ static void TestDestinationExceptionHandling(CIMHandler* handler)
     TestDestination(handler, indicationHandlerInstance, CIM_ERR_FAILED);
 
     //destination       = "http" ["s"] ":" "//" authority ["/" pathSegment]
-    //authority         = hostname [":" portnumber]      
+    //authority         = hostname [":" portnumber]
 
     // Test "missing colon" exception
     indicationHandlerInstance = CreateHandlerInstance();
@@ -207,16 +206,16 @@ bool enableTrace=false;
         HandlerTable handlerTable;
         String handlerId = "CIMxmlIndicationHandler";
         CIMHandler* handler = handlerTable.getHandler(handlerId, repository);
-	PEGASUS_TEST_ASSERT(handler != 0);
+        PEGASUS_TEST_ASSERT(handler != 0);
 
         TestDestinationExceptionHandling(handler);
 
-	delete repository;
+        delete repository;
     }
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
     }
 
     cout << "+++++ passed all tests" << endl;

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_LocalAuthenticationHandler_h
@@ -50,13 +45,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
-/** 
-   This class implements the AuthenticationHandler for Pegasus Local authentication. 
-   It extends the Authenticator and provides the implementation.
+/**
+    This class implements the AuthenticationHandler for Pegasus Local
+    authentication.  It extends the Authenticator and provides the
+    implementation.
 */
 
-class PEGASUS_SECURITY_LINKAGE LocalAuthenticationHandler : public Authenticator
+class PEGASUS_SECURITY_LINKAGE LocalAuthenticationHandler
+    : public Authenticator
 {
 public:
 
@@ -65,16 +61,17 @@ public:
 
     /** Destructor  */
     ~LocalAuthenticationHandler();
-    
-    /** Verify the authentication of the user passed in the authorization header.
+
+    /** Verify the authentication of the user passed in the authorization
+        header.
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object
         @return true on successful authentication, false otherwise
     */
     Boolean authenticate(
-        const String& authHeader, 
+        const String& authHeader,
         AuthenticationInfo* authInfo);
-    
+
     /** Construct and return the Pegasus Local authentication challenge header
         @param authType String containing the HTTP authentication type
         @param userName String containing the user name
@@ -82,9 +79,9 @@ public:
         @return A string containing the authentication challenge header.
     */
     String getAuthResponseHeader(
-        const String& authType = String::EMPTY, 
-        const String& userName = String::EMPTY, 
-        AuthenticationInfo* authInfo = 0);    
+        const String& authType = String::EMPTY,
+        const String& userName = String::EMPTY,
+        AuthenticationInfo* authInfo = 0);
 
     /**
         Verify whether the user is valid.

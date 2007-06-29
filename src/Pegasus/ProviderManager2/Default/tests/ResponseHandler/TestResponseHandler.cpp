@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -76,7 +72,8 @@ int main(int argc, char** argv)
     }
 
     {
-        SimpleObjectPathResponseHandler handler = SimpleObjectPathResponseHandler();
+        SimpleObjectPathResponseHandler handler =
+            SimpleObjectPathResponseHandler();
 
         handler.processing();
         handler.deliver(CIMObjectPath());
@@ -84,7 +81,8 @@ int main(int argc, char** argv)
     }
 
     {
-        SimpleMethodResultResponseHandler handler = SimpleMethodResultResponseHandler();
+        SimpleMethodResultResponseHandler handler =
+            SimpleMethodResultResponseHandler();
 
         handler.processing();
         handler.deliverParamValue(CIMParamValue("param1", String("p1")));
@@ -95,5 +93,5 @@ int main(int argc, char** argv)
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
-    return(0);
+    return 0;
 }

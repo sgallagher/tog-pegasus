@@ -41,7 +41,7 @@
 #ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
 // Do NOT try to include it in your compile
-#include <Pegasus/Common/safCheckzOS_inline.h>
+# include <Pegasus/Common/safCheckzOS_inline.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -51,33 +51,34 @@ PEGASUS_NAMESPACE_BEGIN
 
 LocalAuthenticationHandler::LocalAuthenticationHandler()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
        "LocalAuthenticationHandler::LocalAuthenticationHandler()");
 
-    _localAuthenticator.reset((LocalAuthenticator*) new SecureLocalAuthenticator());
+    _localAuthenticator.reset(
+        (LocalAuthenticator*) new SecureLocalAuthenticator());
 
     PEG_METHOD_EXIT();
 }
 
 LocalAuthenticationHandler::~LocalAuthenticationHandler()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "LocalAuthenticationHandler::~LocalAuthenticationHandler()");
 
     PEG_METHOD_EXIT();
 }
 
-Boolean LocalAuthenticationHandler::authenticate(    
+Boolean LocalAuthenticationHandler::authenticate(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "LocalAuthenticationHandler::authenticate()");
 
     // Look for ':' seperator
     Uint32 colon1 = authHeader.find(':');
 
-    if ( colon1 == PEG_NOT_FOUND )
+    if (colon1 == PEG_NOT_FOUND)
     {
         PEG_METHOD_EXIT();
         return false;
@@ -92,17 +93,17 @@ Boolean LocalAuthenticationHandler::authenticate(
 
     String secretReceived;
 
-    if ( colon2 == PEG_NOT_FOUND )
+    if (colon2 == PEG_NOT_FOUND)
     {
         filePath = String::EMPTY;
 
-        secretReceived = authHeader.subString( colon1 + 1 );    
+        secretReceived = authHeader.subString(colon1 + 1);
     }
     else
     {
-        filePath = authHeader.subString( colon1 + 1, (colon2 - colon1 - 1) );
+        filePath = authHeader.subString(colon1 + 1, (colon2 - colon1 - 1));
 
-        secretReceived = authHeader.subString( colon2 + 1 );    
+        secretReceived = authHeader.subString(colon2 + 1);
     }
 
     //
@@ -125,9 +126,9 @@ Boolean LocalAuthenticationHandler::authenticate(
 
     String authenticatedUsername = authInfo->getAuthenticatedUser();
 
-    // 
-    // If this connection has been previously authenticated then ensure 
-    // the username passed with the current request matches the 
+    //
+    // If this connection has been previously authenticated then ensure
+    // the username passed with the current request matches the
     // username previously authenticated.
     //
     if (authenticatedUsername.size() != 0 &&
@@ -140,7 +141,7 @@ Boolean LocalAuthenticationHandler::authenticate(
     //
     // Check if the user is a valid system user
     //
-    if ( !System::isSystemUser( userName.getCString() ) )
+    if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
         return false;
@@ -148,13 +149,13 @@ Boolean LocalAuthenticationHandler::authenticate(
 
     // Check if the user is authorized to CIMSERV
 #ifdef PEGASUS_ZOS_SECURITY
-    if ( !CheckProfileCIMSERVclassWBEM(userName, __READ_RESOURCE) )
+    if (!CheckProfileCIMSERVclassWBEM(userName, __READ_RESOURCE))
     {
         Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
-            "Security.Authentication.LocalAuthenticationHandler"
-            ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
-            "Request UserID $0 doesn't have READ permission"
-            " to profile CIMSERV CL(WBEM).",
+            "Security.Authentication.LocalAuthenticationHandler."
+                "NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+            "Request UserID $0 doesn't have READ permission "
+                "to profile CIMSERV CL(WBEM).",
             userName);
         return false;
     }
@@ -186,13 +187,11 @@ Boolean LocalAuthenticationHandler::authenticate(
                       userName);
     }
 
-    PEG_AUDIT_LOG(logLocalAuthentication(
-                     userName,
-                     authenticated));
+    PEG_AUDIT_LOG(logLocalAuthentication(userName, authenticated));
 
     PEG_METHOD_EXIT();
 
-    return ( authenticated );
+    return authenticated;
 }
 
 Boolean LocalAuthenticationHandler::validateUser(const String& userName)
@@ -205,7 +204,7 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "LocalAuthenticationHandler::getAuthResponseHeader()");
 
     String secret;
@@ -215,10 +214,10 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
     //
     // Check if the user is a valid system user
     //
-    if ( !System::isSystemUser( userName.getCString() ) )
+    if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
-        return ( authResp );
+        return authResp;
     }
 
     authResp = _localAuthenticator->getAuthResponseHeader(
@@ -229,7 +228,7 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
 
     PEG_METHOD_EXIT();
 
-    return ( authResp );
+    return authResp;
 }
 
 PEGASUS_NAMESPACE_END

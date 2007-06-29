@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "QueryException.h"
@@ -42,37 +38,54 @@ PEGASUS_NAMESPACE_BEGIN
 const char QueryException::MSG[] = "Query error: $0";
 const char QueryException::KEY[] = "QueryCommon.QueryException.QUERY_EXCEPTION";
 
-const char QueryLanguageInvalidException::MSG[] = "Query invalid language error: $0";
-const char QueryLanguageInvalidException::KEY[] = "QueryCommon.QueryException.QUERY_LANGUAGE_INVALID_EXCEPTION";
+const char QueryLanguageInvalidException::MSG[] =
+    "Query invalid language error: $0";
+const char QueryLanguageInvalidException::KEY[] =
+    "QueryCommon.QueryException.QUERY_LANGUAGE_INVALID_EXCEPTION";
 
 const char QueryParseException::MSG[] = "Query parse error: $0";
-const char QueryParseException::KEY[] = "QueryCommon.QueryException.QUERY_PARSE_EXCEPTION";
+const char QueryParseException::KEY[] =
+    "QueryCommon.QueryException.QUERY_PARSE_EXCEPTION";
 
 const char QueryValidationException::MSG[] = "Query validation error: $0";
-const char QueryValidationException::KEY[] = "QueryCommon.QueryException.QUERY_VALIDATION_EXCEPTION";
+const char QueryValidationException::KEY[] =
+    "QueryCommon.QueryException.QUERY_VALIDATION_EXCEPTION";
 
 const char QueryRuntimeException::MSG[] = "Query runtime error: $0";
-const char QueryRuntimeException::KEY[] = "QueryCommon.QueryException.QUERY_RUNTIME_EXCEPTION";
+const char QueryRuntimeException::KEY[] =
+    "QueryCommon.QueryException.QUERY_RUNTIME_EXCEPTION";
 
 const char QueryRuntimePropertyException::MSG[] = "Query property error: $0";
-const char QueryRuntimePropertyException::KEY[] = "QueryCommon.QueryException.QUERY_RUNTIME_PROPERTY_EXCEPTION";
+const char QueryRuntimePropertyException::KEY[] =
+    "QueryCommon.QueryException.QUERY_RUNTIME_PROPERTY_EXCEPTION";
 
-const char QueryMissingPropertyException::MSG[] = "Query missing property error: $0";
-const char QueryMissingPropertyException::KEY[] = "QueryCommon.QueryException.QUERY_MISSINGPROPERTY_EXCEPTION";
+const char QueryMissingPropertyException::MSG[] =
+    "Query missing property error: $0";
+const char QueryMissingPropertyException::KEY[] =
+    "QueryCommon.QueryException.QUERY_MISSINGPROPERTY_EXCEPTION";
 
-const char CQLChainedIdParseException::MSG[] = "CQL chained identifier parse error: $0";
-const char CQLChainedIdParseException::KEY[] = "QueryCommon.QueryException.CQL_CHAINED_ID_EXCEPTION";
+const char CQLChainedIdParseException::MSG[] =
+    "CQL chained identifier parse error: $0";
+const char CQLChainedIdParseException::KEY[] =
+    "QueryCommon.QueryException.CQL_CHAINED_ID_EXCEPTION";
 
-const char CQLIdentifierParseException::MSG[] = "CQL identifier parse error: $0";
-const char CQLIdentifierParseException::KEY[] = "QueryCommon.QueryException.CQL_IDENTIFIER_EXCEPTION";
+const char CQLIdentifierParseException::MSG[] =
+    "CQL identifier parse error: $0";
+const char CQLIdentifierParseException::KEY[] =
+    "QueryCommon.QueryException.CQL_IDENTIFIER_EXCEPTION";
 
 const char CQLRuntimeException::MSG[] = "CQL runtime error: $0";
-const char CQLRuntimeException::KEY[] = "QueryCommon.QueryException.CQL_RUNTIME_EXCEPTION";
+const char CQLRuntimeException::KEY[] =
+    "QueryCommon.QueryException.CQL_RUNTIME_EXCEPTION";
 
-const char CQLSyntaxErrorException::MSG[] = "CQL syntax error: $0 around token $1 in position $2 while processing rule $3";
-const char CQLSyntaxErrorException::KEY[] = "QueryCommon.QueryException.CQL_SYNTAX_ERROR_EXCEPTION";
+const char CQLSyntaxErrorException::MSG[] =
+    "CQL syntax error: $0 around token $1 in position $2 while processing "
+        "rule $3";
+const char CQLSyntaxErrorException::KEY[] =
+    "QueryCommon.QueryException.CQL_SYNTAX_ERROR_EXCEPTION";
 
 const char CQLNullContagionException::MSG[] = "CQL null evaluation error: $0";
-const char CQLNullContagionException::KEY[] = "QueryCommon.QueryException.CQL_NULL_CONTAGION_EXCEPTION";
+const char CQLNullContagionException::KEY[] =
+    "QueryCommon.QueryException.CQL_NULL_CONTAGION_EXCEPTION";
 
 PEGASUS_NAMESPACE_END

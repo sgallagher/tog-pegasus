@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (Yi.Zhou@hp.com) 
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -47,7 +43,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
-const CIMNamespaceName SOURCE_NAMESPACE = 
+const CIMNamespaceName SOURCE_NAMESPACE =
     CIMNamespaceName ("root/SampleProvider");
 
 const String INDICATION_CLASS_NAME = String ("RT_TestIndication");
@@ -71,8 +67,9 @@ AtomicInt errorsEncountered(0);
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class T_Parms{
-   public:
+class T_Parms
+{
+public:
     AutoPtr<CIMClient> client;
     Uint32 indicationSendCount;
     Uint32 uniqueID;
@@ -80,8 +77,7 @@ class T_Parms{
 
 ///////////////////////////////////////////////////////////////////////////
 
-CIMObjectPath _getFilterObjectPath
-    (const String & name)
+CIMObjectPath _getFilterObjectPath(const String & name)
 {
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
@@ -96,8 +92,7 @@ CIMObjectPath _getFilterObjectPath
         PEGASUS_CLASSNAME_INDFILTER, keyBindings));
 }
 
-CIMObjectPath _getHandlerObjectPath
-    (const String & name)
+CIMObjectPath _getHandlerObjectPath(const String & name)
 {
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
@@ -113,9 +108,9 @@ CIMObjectPath _getHandlerObjectPath
         PEGASUS_CLASSNAME_INDHANDLER_SNMP, keyBindings));
 }
 
-CIMObjectPath _getSubscriptionObjectPath
-    (const String & filterName,
-     const String & handlerName)
+CIMObjectPath _getSubscriptionObjectPath(
+    const String & filterName,
+    const String & handlerName)
 {
     CIMObjectPath filterObjectPath = _getFilterObjectPath(filterName);
 
@@ -130,13 +125,13 @@ CIMObjectPath _getSubscriptionObjectPath
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings));
 }
 
-CIMObjectPath _createHandlerInstance
-    (CIMClient & client,
-     const String & name,
-     const String & targetHost,
-     const String & securityName,
-     const Uint16 targetHostFormat,
-     const Uint16 snmpVersion)
+CIMObjectPath _createHandlerInstance(
+    CIMClient & client,
+    const String & name,
+    const String & targetHost,
+    const String & securityName,
+    const Uint16 targetHostFormat,
+    const Uint16 snmpVersion)
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_SNMP);
     handlerInstance.addProperty (CIMProperty (CIMName
@@ -157,14 +152,15 @@ CIMObjectPath _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("PortNumber"),
         CIMValue ((Uint32) PORT_NUMBER)));
 
-    return(client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerInstance));
+    return client.createInstance(
+        PEGASUS_NAMESPACENAME_INTEROP, handlerInstance);
 }
 
-CIMObjectPath _createFilterInstance
-    (CIMClient & client,
-     const String & name,
-     const String & query,
-     const String & qlang)
+CIMObjectPath _createFilterInstance(
+    CIMClient & client,
+    const String & name,
+    const String & query,
+    const String & qlang)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty (CIMProperty (CIMName
@@ -180,13 +176,13 @@ CIMObjectPath _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCE_NAMESPACE.getString ()));
 
-    return(client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filterInstance));
+    return client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, filterInstance);
 }
 
-CIMObjectPath _createSubscriptionInstance
-    (CIMClient & client,
-     const CIMObjectPath & filterPath,
-     const CIMObjectPath & handlerPath)
+CIMObjectPath _createSubscriptionInstance(
+    CIMClient & client,
+    const CIMObjectPath & filterPath,
+    const CIMObjectPath & handlerPath)
 {
     CIMInstance subscriptionInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     subscriptionInstance.addProperty (CIMProperty (CIMName ("Filter"),
@@ -196,11 +192,14 @@ CIMObjectPath _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    return(client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionInstance));
+    return client.createInstance(
+        PEGASUS_NAMESPACENAME_INTEROP, subscriptionInstance);
 }
 
-void _sendTestIndication(CIMClient* client, const CIMName & methodName, 
-                         Uint32 indicationSendCount)
+void _sendTestIndication(
+    CIMClient* client,
+    const CIMName & methodName,
+    Uint32 indicationSendCount)
 {
     //
     //  Invoke method to send test indication
@@ -213,7 +212,7 @@ void _sendTestIndication(CIMClient* client, const CIMName & methodName,
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
         CIMName ("RT_TestIndication"), keyBindings);
 
-    inParams.append(CIMParamValue(String("indicationSendCount"), 
+    inParams.append(CIMParamValue(String("indicationSendCount"),
         CIMValue(indicationSendCount)));
 
     CIMValue retValue = client->invokeMethod
@@ -227,33 +226,34 @@ void _sendTestIndication(CIMClient* client, const CIMName & methodName,
     PEGASUS_TEST_ASSERT (result == 0);
 }
 
-void _deleteSubscriptionInstance
-    (CIMClient & client,
-     const String & filterName,
-     const String & handlerName)
+void _deleteSubscriptionInstance(
+    CIMClient & client,
+    const String & filterName,
+    const String & handlerName)
 {
     CIMObjectPath subscriptionObjectPath =
        _getSubscriptionObjectPath(filterName, handlerName);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionObjectPath);
+    client.deleteInstance(
+        PEGASUS_NAMESPACENAME_INTEROP, subscriptionObjectPath);
 }
 
-void _deleteHandlerInstance
-    (CIMClient & client,
-     const String & name)
+void _deleteHandlerInstance(
+    CIMClient & client,
+    const String & name)
 {
     CIMObjectPath handlerObjectPath = _getHandlerObjectPath(name);
     client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerObjectPath);
 }
 
-void _deleteFilterInstance
-    (CIMClient & client,
-     const String & name)
+void _deleteFilterInstance(
+    CIMClient & client,
+    const String & name)
 {
     CIMObjectPath filterObjectPath = _getFilterObjectPath(name);
     client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, filterObjectPath);
 }
 
-void _usage ()
+void _usage()
 {
    cerr << endl
         << "Usage:" << endl
@@ -299,7 +299,7 @@ void _setup (CIMClient & client, const String& qlang)
 
     try
     {
-        // Create SNMPv1 trap handler 
+        // Create SNMPv1 trap handler
         snmpv1HandlerObjectPath = _createHandlerInstance (client,
             SNMPV1_HANDLER_NAME,
             System::getFullyQualifiedHostName(),
@@ -348,7 +348,7 @@ void _setup (CIMClient & client, const String& qlang)
         String ipAddress;
         int af;
         System::getHostIP(System::getFullyQualifiedHostName (), &af, ipAddress);
-        // Create SNMPv2 trap handler 
+        // Create SNMPv2 trap handler
         snmpv2HandlerObjectPath = _createHandlerInstance (client,
             SNMPV2C_HANDLER_NAME,
             ipAddress,
@@ -493,7 +493,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
         }
         catch (Exception & e)
         {
-            cerr << "----- sendTestIndication failed: " << e.getMessage () << endl;
+            cerr << "----- sendTestIndication failed: " << e.getMessage () <<
+                endl;
             exit (-1);
         }
         elapsedTime.stop();
@@ -534,7 +535,7 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion)
 
     Uint32 receivedTrap1Count = 0;
     Uint32 receivedTrap2Count = 0;
- 
+
     ifstream ifs(_getLogFile().getCString());
     if (!ifs)
     {
@@ -575,9 +576,9 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion)
 }
 
 #ifdef PEGASUS_USE_NET_SNMP
-// Stop snmptrapd process if it is running and remove 
+// Stop snmptrapd process if it is running and remove
 // procIdFile file if it exists
-// 
+//
 void _stopSnmptrapd()
 {
     String procIdFileName = "procIdFile";
@@ -587,7 +588,7 @@ void _stopSnmptrapd()
     if ((fd = fopen(procIdFileName.getCString(), "r")) != NULL)
     {
         fscanf(fd, "%d\n", &receiverPid);
-        
+
         kill(receiverPid, SIGTERM);
 
         fclose(fd);
@@ -612,7 +613,7 @@ static Boolean _startSnmptrapd(
     // build snmptrapd cmd options
     //
 
-    // Specify logging incoming traps to trapLogFile 
+    // Specify logging incoming traps to trapLogFile
     // Save the process ID of the snmptrapd in procIdFile
     snmptrapdCmd.append(
         "/usr/sbin/snmptrapd -f -Lf trapLogFile -p procIdFile");
@@ -637,7 +638,7 @@ static Boolean _startSnmptrapd(
 
     Uint32 iterations = 0;
 
-    // Wait until snmptrapd startted 
+    // Wait until snmptrapd started
     while (iterations < MAX_ITERATIONS)
     {
         iterations++;
@@ -648,7 +649,7 @@ static Boolean _startSnmptrapd(
         else
         {
             System::sleep(SLEEP_SEC);
-        
+
         }
     }
 
@@ -667,19 +668,19 @@ void _removeTrapLogFile ()
     }
 }
 
-void _receiveExpectedTraps(CIMClient& workClient, 
+void _receiveExpectedTraps(
+    CIMClient& workClient,
     Uint32 indicationSendCount,
     Uint32 runClientThreadCount)
 {
-
     CIMClient * clientConnections = new CIMClient[runClientThreadCount];
 
     // determine total number of indication send count
     indicationSendCountTotal = indicationSendCount * runClientThreadCount;
 
     // calculate the timeout based on the total send count allowing
-    // using the MSG_PER_SEC rate 
-    // allow 20 seconds of test overhead for very small tests 
+    // using the MSG_PER_SEC rate
+    // allow 20 seconds of test overhead for very small tests
 
 #define MSG_PER_SEC 4
 
@@ -733,13 +734,13 @@ void _receiveExpectedTraps(CIMClient& workClient,
 
     //
     // Wait for the trap receiver to receive the expected
-    // number of Indication traps, indicationSendCountTotal. 
+    // number of Indication traps, indicationSendCountTotal.
     //
     // We will continue to wait until either indicationSendCountTotal
     // Indications have been received by the trap receiver or no new
     // Indications have been received in the previous
     // MAX_NO_CHANGE_ITERATIONS.
-    // iterations. 
+    // iterations.
     //
 
     Boolean receivedTrapCountComplete = false;
@@ -750,8 +751,8 @@ void _receiveExpectedTraps(CIMClient& workClient,
     {
         totalIterations++;
 
-        currentReceivedTrap1Count = _getReceivedTrapCount(_SNMPV1_TRAP); 
-        currentReceivedTrap2Count = _getReceivedTrapCount(_SNMPV2C_TRAP); 
+        currentReceivedTrap1Count = _getReceivedTrapCount(_SNMPV1_TRAP);
+        currentReceivedTrap2Count = _getReceivedTrapCount(_SNMPV2C_TRAP);
 
         if (totalIterations % COUT_TIME_INTERVAL == 1 &&
             !(receivedTrapCountComplete))
@@ -814,14 +815,14 @@ void _receiveExpectedTraps(CIMClient& workClient,
         trapReceiverElapsedTime.stop();
     }
 
-    // assert that all indications sent have been received. 
+    // assert that all indications sent have been received.
     PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
        currentReceivedTrap1Count);
     PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
        currentReceivedTrap2Count);
 }
 
-int _beginTest(CIMClient& workClient, 
+int _beginTest(CIMClient& workClient,
     Uint32 indicationSendCount,
     Uint32 runClientThreadCount)
 {
@@ -847,8 +848,8 @@ int _beginTest(CIMClient& workClient,
     }
 
     // Extended for all snmp implementation
-    _receiveExpectedTraps(workClient, indicationSendCount, 
-	runClientThreadCount);
+    _receiveExpectedTraps(workClient, indicationSendCount,
+        runClientThreadCount);
 
     // Stop snmptrapd process if it is running and remove procIdFile
     _stopSnmptrapd();
@@ -857,7 +858,7 @@ int _beginTest(CIMClient& workClient,
 
     // if error encountered then fail the test.
     if (errorsEncountered.get())
-    {  
+    {
         cout << "+++++ test failed" << endl;
         return (-1);
     }
@@ -904,12 +905,12 @@ int main (int argc, char** argv)
                 _usage();
                 return -1;
             }
-        
+
             _setup(workClient, argv[2]);
 
             cout << "+++++ setup completed successfully" << endl;
             return 0;
-        } 
+        }
         else if (String::equalNoCase(argv[1], "run"))
         {
             if (argc < 3)
@@ -923,15 +924,15 @@ int main (int argc, char** argv)
 
             Uint32 runClientThreadCount = 1;
 
-            if (argc == 4) 
+            if (argc == 4)
             {
                 runClientThreadCount = atoi(argv[3]);
             }
 
-            int rc = _beginTest(workClient, indicationSendCount, 
+            int rc = _beginTest(workClient, indicationSendCount,
                 runClientThreadCount);
             return rc;
-        } 
+        }
         else if (String::equalNoCase(argv[1], "cleanup"))
         {
             if (argc > 2)
@@ -940,7 +941,7 @@ int main (int argc, char** argv)
                 _usage ();
                 return -1;
             }
-       
+
             _cleanup (workClient);
 
             cout << "+++++ cleanup completed successfully" << endl;
@@ -954,7 +955,7 @@ int main (int argc, char** argv)
                 _usage ();
                 return -1;
             }
-       
+
             _removeTrapLogFile ();
             cout << "+++++ removelog completed successfully" << endl;
             return 0;

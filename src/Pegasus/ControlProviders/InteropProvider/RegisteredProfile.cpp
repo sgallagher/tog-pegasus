@@ -28,7 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -39,8 +40,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -112,7 +113,7 @@ CIMInstance InteropProvider::buildRegisteredProfile(
     CIMInstance instance = profileClass.buildInstance(
         false, false, CIMPropertyList());
 
-    // 
+    //
     setPropertyValue(instance, REGISTEREDPROFILE_PROPERTY_INSTANCEID,
         instanceId);
     setPropertyValue(instance, REGISTEREDPROFILE_PROPERTY_REGISTEREDNAME,
@@ -122,7 +123,7 @@ CIMInstance InteropProvider::buildRegisteredProfile(
     setPropertyValue(instance,
         REGISTEREDPROFILE_PROPERTY_REGISTEREDORGANIZATION,
         profileOrganization);
-    if(profileOrganization == 1) // Other
+    if (profileOrganization == 1) // Other
     {
         setPropertyValue(instance,
             REGISTEREDPROFILE_PROPERTY_OTHERREGISTEREDORGANIZATION,
@@ -165,14 +166,16 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
     Array<CIMInstance> instances;
     bool isRequiresProfileOperation = profileType.equal(
         PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE);
-    Array<CIMInstance> profileCapabilities = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false);
+    Array<CIMInstance> profileCapabilities =
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
+            false);
     Array<String> instanceIDs;
 
     CIMClass registeredProfileClass;
     CIMClass subprofileReqProfileClass;
-    if(isRequiresProfileOperation)
+    if (isRequiresProfileOperation)
     {
         registeredProfileClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
@@ -194,7 +197,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
     //
     Uint32 i = 0;
     Uint32 n = profileCapabilities.size();
-    for(; i < n; ++i)
+    for (; i < n; ++i)
     {
         // Extract the useful properties
         String profileName;
@@ -215,7 +218,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
             profileOrganizationNames, getRegisteredProfileInfo);
         Array<String> tmpInstanceIds;
 
-        if(getRegisteredProfileInfo)
+        if (getRegisteredProfileInfo)
         {
             tmpInstanceIds.append(profileId);
             profileNames.append(profileName);
@@ -225,7 +228,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
         }
         else
         {
-            for(Uint32 j = 0, m = profileNames.size(); j < m; ++j)
+            for (Uint32 j = 0, m = profileNames.size(); j < m; ++j)
             {
                 tmpInstanceIds.append(buildProfileInstanceId(
                     profileOrganizationNames[j], profileNames[j],
@@ -233,27 +236,27 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
             }
         }
 
-        for(Uint32 j = 0, m = tmpInstanceIds.size(); j < m; ++j)
+        for (Uint32 j = 0, m = tmpInstanceIds.size(); j < m; ++j)
         {
             // See if we've already retrieved an equivalent RegisteredSubProfile
             bool unique = true;
             String tmpId;
-            if(isRequiresProfileOperation)
+            if (isRequiresProfileOperation)
               tmpId = profileId + ":" + tmpInstanceIds[j];
             else
               tmpId = tmpInstanceIds[j];
-            for(Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
+            for (Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
             {
-                if(instanceIDs[k] == tmpId)
+                if (instanceIDs[k] == tmpId)
                 {
                     unique = false;
                     break;
                 }
             }
 
-            if(unique)
+            if (unique)
             {
-                if(isRequiresProfileOperation)
+                if (isRequiresProfileOperation)
                 {
                     instances.append(buildDependencyInstance(
                         profileId,
@@ -265,7 +268,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
                 else
                 {
                     String subprofileVersion = profileVersion;
-                    if(profileVersions.size() >= j)
+                    if (profileVersions.size() >= j)
                     {
                         subprofileVersion = profileVersions[j];
                     }
@@ -284,9 +287,9 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
     // Now build instances for the Profiles and/or Subprofiles that Pegasus
     // implements in this provider.
     //
-    for(i = 0, n = defaultSniaProfiles.size(); i < n; ++i)
+    for (i = 0, n = defaultSniaProfiles.size(); i < n; ++i)
     {
-        if(isRequiresProfileOperation)
+        if (isRequiresProfileOperation)
         {
             static String serverProfileId(buildProfileInstanceId(
                 SNIA_NAME, "Server", SNIA_VER_110));
@@ -294,16 +297,16 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
                 SNIA_NAME, defaultSniaProfiles[i], SNIA_VER_110);
             String compoundId = serverProfileId + ":" + subprofileId;
             bool unique = true;
-            for(Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
+            for (Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
             {
-                if(instanceIDs[k] == compoundId)
+                if (instanceIDs[k] == compoundId)
                 {
                     unique = false;
                     break;
                 }
             }
 
-            if(unique)
+            if (unique)
             {
                 instances.append(buildDependencyInstance(
                     serverProfileId, PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
@@ -314,27 +317,31 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
         }
         else
         {
-                // We always have the Indication Subprofile
-                const String & currentProfile = defaultSniaProfiles[i];
-                String instanceId = buildProfileInstanceId(SNIA_NAME,
-                    defaultSniaProfiles[i], SNIA_VER_110);
-                bool defaultProfileUnique = true;
-                for(Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
+            // We always have the Indication Subprofile
+            const String & currentProfile = defaultSniaProfiles[i];
+            String instanceId = buildProfileInstanceId(SNIA_NAME,
+                defaultSniaProfiles[i], SNIA_VER_110);
+            bool defaultProfileUnique = true;
+            for (Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
+            {
+                if (instanceIDs[j] == instanceId)
                 {
-                    if(instanceIDs[j] == instanceId)
-                    {
-                        defaultProfileUnique = false;
-                        break;
-                    }
+                    defaultProfileUnique = false;
+                    break;
                 }
+            }
 
-                if(defaultProfileUnique)
-                {
-                    instances.append(buildRegisteredProfile(instanceId,
-                        currentProfile, SNIA_VER_110, 11 /*"SNIA"*/, String::EMPTY,
-                        registeredProfileClass));
-                    instanceIDs.append(instanceId);
-                }
+            if (defaultProfileUnique)
+            {
+                instances.append(buildRegisteredProfile(
+                    instanceId,
+                    currentProfile,
+                    SNIA_VER_110,
+                    11 /*"SNIA"*/,
+                    String::EMPTY,
+                    registeredProfileClass));
+                instanceIDs.append(instanceId);
+            }
         }
     }
 
@@ -393,9 +400,11 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
     // instances. Those instances contain the lists used to create the
     // ReferencedProfiles associations.
     //
-    Array<CIMInstance> referencedProfiles = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES, false);
+    Array<CIMInstance> referencedProfiles =
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES,
+            false);
 
     CIMClass providerRefProfileClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
@@ -407,7 +416,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
             false, true, false);
 
     Array<String> instanceIds;
-    for(unsigned int i = 0, n = referencedProfiles.size(); i < n; ++i)
+    for (unsigned int i = 0, n = referencedProfiles.size(); i < n; ++i)
     {
         //
         // Retrieve the required properties linking profile instances via
@@ -428,7 +437,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
             REFERENCEDPROFILES_PROPERTY_DEPENDENTPROFILEVERSIONS);
 
         Uint32 m = registeredProfiles.size();
-        if(m != dependentProfiles.size() || m != profileVersions.size() ||
+        if (m != dependentProfiles.size() || m != profileVersions.size() ||
             m != dependentVersions.size())
         {
             throw CIMOperationFailedException(
@@ -451,7 +460,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
         Array<String> otherDependentOrganizations;
         Uint32 index = currentReferencedProfile.findProperty(
             REFERENCEDPROFILES_PROPERTY_OTHERREGISTEREDPROFILES);
-        if(index != PEG_NOT_FOUND)
+        if (index != PEG_NOT_FOUND)
         {
             currentReferencedProfile.getProperty(index).getValue().get(
                 otherProfiles);
@@ -460,7 +469,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
 
         index = currentReferencedProfile.findProperty(
             REFERENCEDPROFILES_PROPERTY_OTHERDEPENDENTPROFILES);
-        if(index != PEG_NOT_FOUND)
+        if (index != PEG_NOT_FOUND)
         {
             currentReferencedProfile.getProperty(index).getValue().get(
                 otherDependentProfiles);
@@ -469,7 +478,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
 
         index = currentReferencedProfile.findProperty(
             REFERENCEDPROFILES_PROPERTY_OTHERREGISTEREDPROFILEORGANIZATIONS);
-        if(index != PEG_NOT_FOUND)
+        if (index != PEG_NOT_FOUND)
         {
             currentReferencedProfile.getProperty(index).getValue().get(
                 otherProfileOrganizations);
@@ -477,13 +486,13 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
 
         index = currentReferencedProfile.findProperty(
             REFERENCEDPROFILES_PROPERTY_OTHERDEPENDENTPROFILEORGANIZATIONS);
-        if(index != PEG_NOT_FOUND)
+        if (index != PEG_NOT_FOUND)
         {
             currentReferencedProfile.getProperty(index).getValue().get(
                 otherDependentOrganizations);
         }
 
-        if(otherDependentOrganizations.size() != numOtherDependents ||
+        if (otherDependentOrganizations.size() != numOtherDependents ||
             otherProfileOrganizations.size() != numOtherProfiles)
         {
             throw CIMOperationFailedException(
@@ -495,7 +504,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
         // Loop through the registered profile and dependent profile
         // information gathered above.
         //
-        for(Uint32 j = 0; j < m; ++j)
+        for (Uint32 j = 0; j < m; ++j)
         {
             Uint16 currentProfile = registeredProfiles[j];
             Uint16 currentDependent = dependentProfiles[j];
@@ -507,9 +516,9 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
             //
             // Get information about the scoping/antecedent profile
             //
-            if(currentProfile == 0) // Other
+            if (currentProfile == 0) // Other
             {
-                if(otherProfilesIndex == numOtherProfiles)
+                if (otherProfilesIndex == numOtherProfiles)
                 {
                     throw CIMOperationFailedException(
                         currentReferencedProfile.getPath().toString() +
@@ -537,9 +546,9 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
             //
             // Get information about the referencing/dependent profile
             //
-            if(currentDependent == 0) // Other
+            if (currentDependent == 0) // Other
             {
-                if(otherDependentsIndex == numOtherDependents)
+                if (otherDependentsIndex == numOtherDependents)
                 {
                     throw CIMOperationFailedException(
                         currentReferencedProfile.getPath().toString() +
@@ -575,16 +584,16 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                 dependentName, dependentVersions[j]);
             String instanceId = profileId + ":" + dependentId;
             bool unique = true;
-            for(Uint32 k = 0, x = instanceIds.size(); k < x; ++k)
+            for (Uint32 k = 0, x = instanceIds.size(); k < x; ++k)
             {
-                if(instanceIds[k] == instanceId)
+                if (instanceIds[k] == instanceId)
                 {
                     unique = false;
                     break;
                 }
             }
 
-            if(unique)
+            if (unique)
             {
                 // This ReferencedProfile association hasn't been created yet.
                 // Adding this to the list of instanceIds ensures that a
@@ -594,13 +603,13 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                 // Now find out whether the profile and dependent profiles are
                 // RegisteredProfile or RegisteredSubProfile instances.
                 CIMName profileType;
-                if(currentProfile >= 1000)
+                if (currentProfile >= 1000)
                     profileType = PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE;
                 else
                     profileType = PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE;
 
                 CIMName dependentType;
-                if(currentDependent >= 1000)
+                if (currentDependent >= 1000)
                     dependentType = PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE;
                 else
                     dependentType = PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE;
@@ -639,7 +648,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         PROFILECAPABILITIES_PROPERTY_REGISTEREDPROFILE);
 
     // Retrieve information about the RegisteredProfile
-    if(registeredProfile == 0) // Other
+    if (registeredProfile == 0) // Other
     {
         name = getRequiredValue<String>(profileCapabilities,
             PROFILECAPABILITIES_PROPERTY_OTHERREGISTEREDPROFILE);
@@ -652,7 +661,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         String mappedProfileName = translateValue(registeredProfile,
             PROFILECAPABILITIES_PROPERTY_REGISTEREDPROFILE,
             VALUEMAP_QUALIFIERNAME, VALUES_QUALIFIERNAME, capabilitiesClass);
-        if(mappedProfileName.size() == 0)
+        if (mappedProfileName.size() == 0)
         {
             throw CIMOperationFailedException(
                 profileCapabilities.getPath().toString() +
@@ -675,7 +684,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
     String organizationMapping = translateValue(organizationName,
         REGISTEREDPROFILE_PROPERTY_REGISTEREDORGANIZATION,
         VALUES_QUALIFIERNAME, VALUEMAP_QUALIFIERNAME, profileClass);
-    if(organizationMapping.size() == 0)
+    if (organizationMapping.size() == 0)
     {
         organization = 1;
     }
@@ -687,7 +696,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
 
     // Check whether information about the subprofiles associated to the
     // registered profile is requested.
-    if(!noSubProfileInfo)
+    if (!noSubProfileInfo)
     {
         // Retrieve the ValueMap values for the subprofiles associated with the
         // RegisteredProfile.
@@ -701,15 +710,16 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         // array, then the version from the parent profile will be used.
         Uint32 subprofileVersionsIndex = profileCapabilities.findProperty(
             PROFILECAPABILITIES_PROPERTY_SUBPROFILEVERSIONS);
-        if(subprofileVersionsIndex != PEG_NOT_FOUND)
+        if (subprofileVersionsIndex != PEG_NOT_FOUND)
         {
-            CIMValue val =
-                profileCapabilities.getProperty(subprofileVersionsIndex).getValue();
-            if(!val.isNull())
+            CIMValue val = profileCapabilities.getProperty(
+                subprofileVersionsIndex).getValue();
+            if (!val.isNull())
             {
                 val.get(subprofileVersions);
                 Uint32 numVersions = subprofileVersions.size();
-                if(numVersions != 0 && numVersions != registeredSubprofiles.size())
+                if (numVersions != 0 &&
+                    numVersions != registeredSubprofiles.size())
                 {
                     throw CIMOperationFailedException(
                         profileCapabilities.getPath().toString() +
@@ -722,10 +732,10 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
 
         // Either none were supplied or the property wasn't supplied, so
         // use the version value from the scoping profile.
-        if(subprofileVersions.size() == 0)
+        if (subprofileVersions.size() == 0)
         {
             // Add a version string for each registered subprofile
-            for(unsigned int i = 0, n = registeredSubprofiles.size();
+            for (unsigned int i = 0, n = registeredSubprofiles.size();
                 i < n; ++i)
             {
                 subprofileVersions.append(version);
@@ -737,7 +747,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         Uint32 otherSubprofileIndex = profileCapabilities.findProperty(
             PROFILECAPABILITIES_PROPERTY_OTHERREGISTEREDSUBPROFILES);
         Uint32 numOtherSubprofiles = 0;
-        if(otherSubprofileIndex != PEG_NOT_FOUND)
+        if (otherSubprofileIndex != PEG_NOT_FOUND)
         {
             profileCapabilities.getProperty(otherSubprofileIndex).getValue().
                 get(otherRegisteredSubprofiles);
@@ -748,11 +758,11 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         Uint32 otherOrganizationsIndex = profileCapabilities.findProperty(
             PROFILECAPABILITIES_PROPERTY_OTHERSUBPROFILEORGANIZATIONS);
         Uint32 numOrgs = 0;
-        if(otherOrganizationsIndex != PEG_NOT_FOUND)
+        if (otherOrganizationsIndex != PEG_NOT_FOUND)
         {
-            CIMValue val =
-                profileCapabilities.getProperty(otherOrganizationsIndex).getValue();
-            if(!val.isNull())
+            CIMValue val = profileCapabilities.getProperty(
+                otherOrganizationsIndex).getValue();
+            if (!val.isNull())
             {
                 val.get(otherSubprofileOrganizations);
                 numOrgs = otherSubprofileOrganizations.size();
@@ -762,7 +772,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         // There must be corresponding entries in the
         // OtherRegisteredSubprofiles and OtherSubprofileOrganizations
         // properties
-        if(numOrgs != numOtherSubprofiles)
+        if (numOrgs != numOtherSubprofiles)
         {
             throw CIMOperationFailedException(
                 profileCapabilities.getPath().toString() +
@@ -774,16 +784,16 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         // Now loop through all of the retrieved subprofile information and
         // set the output parameters.
         otherSubprofileIndex = 0;
-        for(Uint32 k = 0, x = registeredSubprofiles.size(); k < x; ++k)
+        for (Uint32 k = 0, x = registeredSubprofiles.size(); k < x; ++k)
         {
             Uint16 subprofileMapping = registeredSubprofiles[k];
             String subprofileName;
             String subprofileOrg;
-            if(subprofileMapping == 0) // "Other"
+            if (subprofileMapping == 0) // "Other"
             {
                 // Retrieve the subprofile name and organization from the
                 // arrays containing the "other" information
-                if(otherSubprofileIndex == numOtherSubprofiles)
+                if (otherSubprofileIndex == numOtherSubprofiles)
                 {
                     throw CIMOperationFailedException(
                         profileCapabilities.getPath().toString() +
@@ -805,7 +815,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
                     PROFILECAPABILITIES_PROPERTY_REGISTEREDSUBPROFILES,
                     VALUEMAP_QUALIFIERNAME, VALUES_QUALIFIERNAME,
                     capabilitiesClass);
-                if(subprofileName.size() == 0)
+                if (subprofileName.size() == 0)
                 {
                     throw CIMOperationFailedException(
                         profileCapabilities.getPath().toString() +
@@ -815,7 +825,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
                 }
 
                 Uint32 orgIndex = subprofileName.find(Char16(':'));
-                if(orgIndex != PEG_NOT_FOUND)
+                if (orgIndex != PEG_NOT_FOUND)
                 {
                     subprofileOrg = subprofileName.subString(0, orgIndex);
                     subprofileName = subprofileName.subString(orgIndex+1);
@@ -833,7 +843,7 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
             String orgMapping = translateValue(organizationName,
                 REGISTEREDPROFILE_PROPERTY_REGISTEREDORGANIZATION,
                 VALUES_QUALIFIERNAME, VALUEMAP_QUALIFIERNAME, profileClass);
-            if(organizationMapping.size() == 0)
+            if (organizationMapping.size() == 0)
             {
                 subprofileOrganizations.append(Uint16(1)); // "Other"
             }

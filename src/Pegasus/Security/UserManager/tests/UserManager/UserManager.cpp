@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company 
-//         (sushma_fernandes@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -81,14 +75,14 @@ int main(int argc, char** argv)
 
     // -- Create a UserManager object:
 
-    UserManager*        userManager = UserManager::getInstance(repository);
-    Boolean      	exceptionFlag = false;
-    Array<String> 	userNames;
+    UserManager* userManager = UserManager::getInstance(repository);
+    Boolean exceptionFlag = false;
+    Array<String> userNames;
 
-    try 
+    try
     {
         //
-	// Try to add an invalid system user
+        // Try to add an invalid system user
         //
         userManager->addUser(BAD_USER, BAD_USER);
     }
@@ -99,10 +93,10 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT( exceptionFlag == true );
 
     exceptionFlag = false;
-    try 
+    try
     {
         //
-	// Try to modify an invalid user
+        // Try to modify an invalid user
         //
         userManager->modifyUser(BAD_USER, BAD_USER, BAD_USER);
     }
@@ -143,7 +137,7 @@ int main(int argc, char** argv)
     //
     // Positive tests
     //
-     
+
     String goodUser = System::getEffectiveUserName();
 
     exceptionFlag = false;
@@ -213,5 +207,5 @@ int main(int argc, char** argv)
 #else
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
-#endif 
+#endif
 }

@@ -28,7 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -39,8 +40,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -133,7 +134,7 @@ Array<CIMInstance> InteropProvider::enumNamespaceInManagerInstances()
         CIMInstance instance = instanceskel.clone();
         setPropertyValue(instance, PROPERTY_ANTECEDENT, objectManagerPath);
         setPropertyValue(instance, PROPERTY_DEPENDENT,
-            namespaceInstances[i].getPath()); 
+            namespaceInstances[i].getPath());
 
         CIMObjectPath objPath = instance.buildPath(targetClass);
         objPath.setHost(hostName);
@@ -258,7 +259,7 @@ CIMInstance InteropProvider::buildNamespaceInstance(
 
     // ParentNamespace
     setPropertyValue(instance, PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, parent);
-	  setPropertyValue(instance, PG_NAMESPACE_PROPERTY_NAME, name);
+    setPropertyValue(instance, PG_NAMESPACE_PROPERTY_NAME, name);
 
     CIMObjectPath objPath = instance.buildPath(targetClass);
     objPath.setHost(hostName);
@@ -270,7 +271,7 @@ CIMInstance InteropProvider::buildNamespaceInstance(
 
 //
 // Function that takes an instance of the CIM_Namespace class, checks whether
-// the key properties are present, 
+// the key properties are present,
 //
 String buildNamespacePath(
     CIMObjectPath & namespacePath,
@@ -427,7 +428,8 @@ CIMNamespaceName validateNamespaceKeys(
     }
 
     PEG_METHOD_EXIT();
-    return CIMNamespaceName(getKeyValue(objectPath, CIM_NAMESPACE_PROPERTY_NAME));
+    return CIMNamespaceName(
+        getKeyValue(objectPath, CIM_NAMESPACE_PROPERTY_NAME));
 }
 
 void InteropProvider::deleteNamespace(
@@ -520,9 +522,12 @@ CIMObjectPath InteropProvider::createNamespace(
             "Namespace = " + newNamespaceName.getString() +
                 " successfully created.");
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "Create Namespace: Shareable = $0, Updates allowed: $1,  Parent: $2",
-            newNamespaceName.getString(), shareable? 
-                    "true" : "false", shareable? "true" : "false", parent );
+            "Create Namespace $0: Shareable = $1, Updates allowed: $2, "
+                "Parent: $3",
+            newNamespaceName.getString(),
+            shareable? "true" : "false",
+            updatesAllowed? "true" : "false",
+            parent);
 
     }
     catch(const CIMException&)

@@ -46,7 +46,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class implements the HTTP authentication and Pegasus Local 
+/** This class implements the HTTP authentication and Pegasus Local
     authentication mecahnism. It provides methods to perform authentication
     and to generate authentication challenge headers.
 */
@@ -103,7 +103,7 @@ public:
     */
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     String AuthenticationManager::getHttpAuthResponseHeader(
-	AuthenticationInfo* authInfo = 0);
+        AuthenticationInfo* authInfo = 0);
 #else
     String getHttpAuthResponseHeader();
 #endif
@@ -114,14 +114,14 @@ public:
 private:
 
     Boolean _parseLocalAuthHeader(
-        const String& authHeader, 
-        String& authType, 
-        String& userName, 
+        const String& authHeader,
+        String& authType,
+        String& userName,
         String& cookie);
 
     Boolean _parseHttpAuthHeader(
-        const String& authHeader, 
-        String& authType, 
+        const String& authHeader,
+        String& authType,
         String& cookie);
 
     Authenticator* _getLocalAuthHandler();

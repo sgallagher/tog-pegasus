@@ -41,7 +41,6 @@ PEGASUS_USING_STD;
 
 void testHostAddress()
 {
-    
     // Check for valid hostnames or addresses
     HostAddress hostaddr("1.222.33.44");
     PEGASUS_TEST_ASSERT(hostaddr.isValid());
@@ -91,7 +90,7 @@ void testHostAddress()
     PEGASUS_TEST_ASSERT(!HostAddress::isValidHostName(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(HostAddress::isValidIPV6Address(hostaddr.getHost()));
-    PEGASUS_TEST_ASSERT(hostaddr.getHost() == 
+    PEGASUS_TEST_ASSERT(hostaddr.getHost() ==
         String("fe00:1231:23fe:3456:acde:ebcd:12fe:ecd4"));
     PEGASUS_TEST_ASSERT(hostaddr.getAddressType() == HostAddress::AT_IPV6);
 
@@ -113,7 +112,7 @@ void testHostAddress()
     PEGASUS_TEST_ASSERT(hostaddr.getAddressType() == HostAddress::AT_HOSTNAME);
 
 
-    // Invalid hostnames or addresses 
+    // Invalid hostnames or addresses
 
     HostAddress hostaddr3;
     PEGASUS_TEST_ASSERT(hostaddr3.getHost() == String::EMPTY);
@@ -137,7 +136,8 @@ void testHostAddress()
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV6Address(hostaddr.getHost()));
 
-    hostaddr.setHostAddress("[fe00:ef::1]");  // must not be enclosed in brackets.
+    // must not be enclosed in brackets.
+    hostaddr.setHostAddress("[fe00:ef::1]");
     PEGASUS_TEST_ASSERT(!hostaddr.isValid());
     PEGASUS_TEST_ASSERT(!HostAddress::isValidHostName(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));
@@ -161,7 +161,7 @@ void testHostAddress()
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV6Address(hostaddr.getHost()));
 
-    hostaddr.setHostAddress("[::1]"); 
+    hostaddr.setHostAddress("[::1]");
     PEGASUS_TEST_ASSERT(!hostaddr.isValid());
     PEGASUS_TEST_ASSERT(!HostAddress::isValidHostName(hostaddr.getHost()));
     PEGASUS_TEST_ASSERT(!HostAddress::isValidIPV4Address(hostaddr.getHost()));

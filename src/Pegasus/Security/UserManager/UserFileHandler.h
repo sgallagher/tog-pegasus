@@ -29,17 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
-//
-// Modified By:
-//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
-// This file implements the functionality required to manage password file. 
+//
+// This file implements the functionality required to manage password file.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +54,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-  This class implements the functionality required to manage password file. 
+  This class implements the functionality required to manage password file.
 */
 
 class PEGASUS_USERMANAGER_LINKAGE UserFileHandler
@@ -70,72 +65,74 @@ private:
     //
     // Contains the property name for password filepath
     //
-    static const String    	  _PROPERTY_NAME_PASSWORD_FILEPATH;
+    static const String _PROPERTY_NAME_PASSWORD_FILEPATH;
 
     //
     // Contains the salt string for password encryption
     //
-    static const unsigned char    _SALT_STRING[];
+    static const unsigned char _SALT_STRING[];
 
     //
     // Denotes the types of update operations
     //
     enum UpdateOperations
     {
-	 ADD_USER,
-	 MODIFY_USER,
-	 REMOVE_USER
+        ADD_USER,
+        MODIFY_USER,
+        REMOVE_USER
     };
 
     //
     // Contains the mutex timeout value
     //
-    static const Uint32    	  _MUTEX_TIMEOUT;
+    static const Uint32 _MUTEX_TIMEOUT;
 
     //
     // Flag to indicate whether password file exists
-    Boolean              	  _passwordFileExists;
+    //
+    Boolean _passwordFileExists;
 
     //
     // Password cache
     //
-    PasswordTable       	  _passwordTable;
+    PasswordTable _passwordTable;
 
     //
     // Instance of the PasswordFile
     //
-    AutoPtr<PasswordFile>      	          _passwordFile; //PEP101
+    AutoPtr<PasswordFile> _passwordFile;
 
     //
     // Mutex variable for consistent Password File and cache updates
     //
-    AutoPtr<Mutex>       	          _mutex; //PEP101
+    AutoPtr<Mutex> _mutex;
 
     /**
-    generate random salt key for password encryption
+        Generate random salt key for password encryption
 
-    @param salt  A array of 3 characters
+        @param salt  A array of 3 characters
     */
     void _GetSalt (char* salt);
 
     /**
-    Update the password hash table and write to password file
+        Update the password hash table and write to password file
     */
     void _Update(
-	    char operation, 
-	    const String& userName, 
-	    const String& password = String::EMPTY);
+        char operation,
+        const String& userName,
+        const String& password = String::EMPTY);
 
 
 protected:
 
     /**
-    Load the user information from the password file.
+        Load the user information from the password file.
 
-    @exception PasswordFileSyntaxError if password file contains a syntax error.
-    @exception CannotRenameFile if password file cannot be renamed.
+        @exception PasswordFileSyntaxError if password file contains a syntax
+        error.
+        @exception CannotRenameFile if password file cannot be renamed.
     */
-    void _loadAllUsers ();
+    void _loadAllUsers();
 
 public:
 
@@ -145,87 +142,88 @@ public:
     /** Destructor. */
     ~UserFileHandler();
 
+    /**
+        Add user entry to file
 
-    /** 
-    Add user entry to file
+        @param  userName  The name of the user to add.
+        @param  password  The password for the user.
 
-    @param  userName  The name of the user to add. 
-    @param  password  The password for the user.
-
-    @exception FileNotReadable    if unable to read password file
-    @exception DuplicateUser      if the user is already exists
-    @exception PasswordCacheError if there is an error processing 
-				  password hashtable
-    @exception CannotRenameFile if password file cannot be renamed.
+        @exception FileNotReadable    if unable to read password file
+        @exception DuplicateUser      if the user is already exists
+        @exception PasswordCacheError if there is an error processing
+                                      password hashtable
+        @exception CannotRenameFile if password file cannot be renamed.
     */
-    void addUserEntry(const String& userName, const String& passWord);
+    void addUserEntry(
+        const String& userName,
+        const String& passWord);
 
-    /** 
-    Modify user entry in file 
+    /**
+        Modify user entry in file
 
-    @param  userName       The name of the user to modify. 
-    @param  password       User's old password. 
-    @param  newPassword    User's new password.
+        @param  userName       The name of the user to modify.
+        @param  password       User's old password.
+        @param  newPassword    User's new password.
 
-    @exception InvalidUser        if the user does not exist.
-    @exception PasswordMismatch   if the specified password does not match
-				  user's current password.
-    @exception PasswordCacheError if there is an error processing 
-				  password hashtable
-    @exception CannotRenameFile   if password file cannot be renamed.
+        @exception InvalidUser        if the user does not exist.
+        @exception PasswordMismatch   if the specified password does not match
+                                      user's current password.
+        @exception PasswordCacheError if there is an error processing
+                                      password hashtable
+        @exception CannotRenameFile   if password file cannot be renamed.
 
     */
     void modifyUserEntry(
-			     const String& userName,
-			     const String& password,
-			     const String& newPassword );
+        const String& userName,
+        const String& password,
+        const String& newPassword);
 
-    /** 
-    Remove user entry from file 
+    /**
+        Remove user entry from file
 
-    @param  userName  The name of the user to add. 
+        @param  userName  The name of the user to add.
 
-    @exception FileNotReadable    if unable to read password file
-    @exception InvalidUser        if the user is does not exist
-    @exception PasswordCacheError if there is an error processing 
-				  password hashtable
-    @exception CannotRenameFile if password file cannot be renamed.
+        @exception FileNotReadable    if unable to read password file
+        @exception InvalidUser        if the user is does not exist
+        @exception PasswordCacheError if there is an error processing
+                                      password hashtable
+        @exception CannotRenameFile if password file cannot be renamed.
     */
     void removeUserEntry(const String& userName);
 
-
     /**
-    Get a list of all the user names.
+        Get a list of all the user names.
 
-    @param userNames  List containing all the user names.
+        @param userNames  List containing all the user names.
 
-    @exception FileNotReadable    if unable to read password file
+        @exception FileNotReadable    if unable to read password file
     */
     void getAllUserNames(Array<String>& userNames);
 
     /**
-    Verify user exists in the cimserver password file
+        Verify user exists in the cimserver password file
 
-    @param userName  Name of the user to be verified
-    @return true if the user exists, else false
+        @param userName  Name of the user to be verified
+        @return true if the user exists, else false
 
-    @exception FileNotReadable    if unable to read password file
+        @exception FileNotReadable    if unable to read password file
     */
     Boolean verifyCIMUser(const String& userName);
 
     /**
-    Verify user's password matches specified password 
+        Verify user's password matches specified password
 
-    @param userName  Name of the user to be verified
-    @param password  password to be verified
-    @return true if the user's password matches existing password, else false
+        @param userName  Name of the user to be verified
+        @param password  password to be verified
+        @return true if the user's password matches existing password, else
+        false
 
-    @exception FileNotReadable    if unable to read password file
-    @exception InvalidUser        if the specified user does not exist 
+        @exception FileNotReadable    if unable to read password file
+        @exception InvalidUser        if the specified user does not exist
     */
     Boolean verifyCIMUserPassword(
-                            const String& userName,
-                            const String& password );
+        const String& userName,
+        const String& password);
 };
 
 PEGASUS_NAMESPACE_END

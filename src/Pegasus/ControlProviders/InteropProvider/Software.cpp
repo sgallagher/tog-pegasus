@@ -28,6 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -38,8 +40,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -95,10 +97,10 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
     String name(provider + " (" + interfaceType + ")");
 
     // Use double-ifs to prevent locking for every request
-    if(softwareIdentityClass.isUninitialized())
+    if (softwareIdentityClass.isUninitialized())
     {
         AutoMutex autoMut(interopMut);
-        if(softwareIdentityClass.isUninitialized())
+        if (softwareIdentityClass.isUninitialized())
         {
             softwareIdentityClass = repository->getClass(
                 PEGASUS_NAMESPACENAME_INTEROP,
@@ -118,7 +120,7 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
         vendor);
     setPropertyValue(softwareIdentity,
         SOFTWAREIDENTITY_PROPERTY_CLASSIFICATIONS, providerClassifications);
-    if(extendedVersionSupplied)
+    if (extendedVersionSupplied)
     {
         setPropertyValue(softwareIdentity,
             SOFTWAREIDENTITY_PROPERTY_MAJORVERSION, majorVersion);
@@ -130,13 +132,13 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
             SOFTWAREIDENTITY_PROPERTY_BUILDNUMBER, buildNumber);
     }
 
-    if(elementName.size() > 0)
+    if (elementName.size() > 0)
     {
         setPropertyValue(softwareIdentity,
             SOFTWAREIDENTITY_PROPERTY_ELEMENTNAME, elementName);
     }
 
-    if(caption.size() > 0)
+    if (caption.size() > 0)
     {
         setPropertyValue(softwareIdentity,
             SOFTWAREIDENTITY_PROPERTY_CAPTION, caption);
@@ -196,11 +198,11 @@ void InteropProvider::extractSoftwareIdentityInfo(
     // Extract the element name if present
     Uint32 elementNameIndex = providerInstance.findProperty(
         PROVIDER_PROPERTY_ELEMENTNAME);
-    if(elementNameIndex != PEG_NOT_FOUND)
+    if (elementNameIndex != PEG_NOT_FOUND)
     {
         CIMValue elementNameValue(
             providerInstance.getProperty(elementNameIndex).getValue());
-        if(!elementNameValue.isNull())
+        if (!elementNameValue.isNull())
         {
             elementNameValue.get(elementName);
         }
@@ -209,11 +211,11 @@ void InteropProvider::extractSoftwareIdentityInfo(
     // Extract the caption if present
     Uint32 captionIndex = providerInstance.findProperty(
         PROVIDER_PROPERTY_CAPTION);
-    if(elementNameIndex != PEG_NOT_FOUND)
+    if (elementNameIndex != PEG_NOT_FOUND)
     {
         CIMValue captionValue(
             providerInstance.getProperty(captionIndex).getValue());
-        if(!captionValue.isNull())
+        if (!captionValue.isNull())
         {
             captionValue.get(caption);
         }
@@ -223,10 +225,11 @@ void InteropProvider::extractSoftwareIdentityInfo(
     extendedVersionSupplied = false;
     Uint32 majorIndex = providerInstance.findProperty(
         PROVIDERMODULE_PROPERTY_MAJORVERSION);
-    if(majorIndex != PEG_NOT_FOUND)
+    if (majorIndex != PEG_NOT_FOUND)
     {
-        CIMValue majorValue = providerInstance.getProperty(majorIndex).getValue();
-        if(!majorValue.isNull())
+        CIMValue majorValue =
+            providerInstance.getProperty(majorIndex).getValue();
+        if (!majorValue.isNull())
         {
             extendedVersionSupplied = true;
             majorValue.get(majorVersion);
@@ -237,11 +240,11 @@ void InteropProvider::extractSoftwareIdentityInfo(
             // Get the Version if present
             Uint32 index = providerInstance.findProperty(
                 PROVIDERMODULE_PROPERTY_VERSION);
-            if(index != PEG_NOT_FOUND)
+            if (index != PEG_NOT_FOUND)
             {
                 CIMValue propValue =
                   providerInstance.getProperty(index).getValue();
-                if(!propValue.isNull())
+                if (!propValue.isNull())
                 {
                     propValue.get(version);
                 }
@@ -250,11 +253,11 @@ void InteropProvider::extractSoftwareIdentityInfo(
             // Get the Minor version if present
             index = providerInstance.findProperty(
                 PROVIDERMODULE_PROPERTY_MINORVERSION);
-            if(index != PEG_NOT_FOUND)
+            if (index != PEG_NOT_FOUND)
             {
                 CIMValue propValue =
                   providerInstance.getProperty(index).getValue();
-                if(!propValue.isNull())
+                if (!propValue.isNull())
                 {
                     propValue.get(minorVersion);
                 }
@@ -263,11 +266,11 @@ void InteropProvider::extractSoftwareIdentityInfo(
             // Get the revision number if present
             index = providerInstance.findProperty(
                 PROVIDERMODULE_PROPERTY_REVISIONNUMBER);
-            if(index != PEG_NOT_FOUND)
+            if (index != PEG_NOT_FOUND)
             {
                 CIMValue propValue =
                   providerInstance.getProperty(index).getValue();
-                if(!propValue.isNull())
+                if (!propValue.isNull())
                 {
                     propValue.get(revisionNumber);
                 }
@@ -276,11 +279,11 @@ void InteropProvider::extractSoftwareIdentityInfo(
             // Get the build number if present
             index = providerInstance.findProperty(
                     PROVIDERMODULE_PROPERTY_BUILDNUMBER);
-            if(index != PEG_NOT_FOUND)
+            if (index != PEG_NOT_FOUND)
             {
                 CIMValue propValue =
                   providerInstance.getProperty(index).getValue();
-                if(!propValue.isNull())
+                if (!propValue.isNull())
                 {
                     propValue.get(buildNumber);
                 }
@@ -299,9 +302,12 @@ Array<CIMInstance> InteropProvider::enumSoftwareIdentityInstances()
 {
     Array<CIMInstance> instances;
 
-    Array<CIMInstance> registeredProviders = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER, false);
-    for(Uint32 i = 0, n = registeredProviders.size(); i < n; ++i)
+    Array<CIMInstance> registeredProviders =
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PROVIDER,
+            false);
+    for (Uint32 i = 0, n = registeredProviders.size(); i < n; ++i)
     {
         String moduleName;
         String providerName;
@@ -344,9 +350,11 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 {
     Array<CIMInstance> instances;
 
-    Array<CIMInstance> profileCapabilities = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false);
+    Array<CIMInstance> profileCapabilities =
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
+            false);
 
     CIMClass elementSoftwareIdentityClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -355,7 +363,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         false, true, false);
 
-    for(Uint32 i = 0, n = profileCapabilities.size(); i < n; ++i)
+    for (Uint32 i = 0, n = profileCapabilities.size(); i < n; ++i)
     {
         CIMInstance & currentCapabilities = profileCapabilities[i];
         String version;
@@ -396,10 +404,10 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 
         // Loop through the subprofile info and create associations between
         // the Provider's SoftwareIdentity and the Registered Subprofiles.
-        for(Uint32 j = 0, m = subprofiles.size(); j < m; ++j)
+        for (Uint32 j = 0, m = subprofiles.size(); j < m; ++j)
         {
             String subprofileVersion;
-            if(subprofileVersions.size() == 0)
+            if (subprofileVersions.size() == 0)
             {
                 subprofileVersion = version;
             }
@@ -462,7 +470,7 @@ Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
     CIMInstance skeletonInst =  buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY, installedSoftwareClass);
-    for(Uint32 i = 0, n = softwareInstances.size(); i < n; ++i)
+    for (Uint32 i = 0, n = softwareInstances.size(); i < n; ++i)
     {
         CIMInstance installedSoftwareInstance = skeletonInst.clone();
         setPropertyValue(installedSoftwareInstance,

@@ -29,8 +29,7 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
 #include <objbase.h>
@@ -53,7 +52,15 @@ String Guid::getGuid(const String &prefix)
       const Uint32 numChars =  sizeof(guid_strW)/sizeof(guid_strW[0]);
       if (StringFromGUID2(guid, guid_strW, numChars) > 0)
         {
-          WideCharToMultiByte(CP_ACP, 0, guid_strW, numChars, guid_str, sizeof(guid_str), NULL, NULL);
+          WideCharToMultiByte(
+              CP_ACP,
+              0,
+              guid_strW,
+              numChars,
+              guid_str,
+              sizeof(guid_str),
+              NULL,
+              NULL);
           // exclude the first and last chars (i.e., { and })
           for (Uint32 i=1; i<sizeof(guid_str); i++)
             {

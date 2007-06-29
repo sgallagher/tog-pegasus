@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
@@ -47,9 +43,9 @@ void dummyCallback(CIMRequestMessage* request, CIMResponseMessage* response)
 }
 
 // test null object checks
-void Test1(void)
+void Test1()
 {
-    if(verbose)
+    if (verbose)
     {
         cout << "Test1()" << endl;
     }
@@ -83,7 +79,9 @@ void Test1(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect null object in CIMGetInstanceResponseHandler::deliver().");
+        throw Exception(
+            "Failed to detect null object in "
+                "CIMGetInstanceResponseHandler::deliver().");
     }
     catch(CIMException &)
     {
@@ -121,7 +119,9 @@ void Test1(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect null object in CIMEnumerateInstancesResponseHandler::deliver().");
+        throw Exception(
+            "Failed to detect null object in "
+                "CIMEnumerateInstancesResponseHandler::deliver().");
     }
     catch(CIMException &)
     {
@@ -154,7 +154,9 @@ void Test1(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect null object in CIMEnumerateInstanceNamesResponseHandler::deliver().");
+        throw Exception(
+            "Failed to detect null object in "
+                "CIMEnumerateInstanceNamesResponseHandler::deliver().");
     }
     catch(CIMException &)
     {
@@ -187,7 +189,9 @@ void Test1(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect null object in CIMCreateInstanceResponseHandler::deliver().");
+        throw Exception(
+            "Failed to detect null object in "
+                "CIMCreateInstanceResponseHandler::deliver().");
     }
     catch(CIMException &)
     {
@@ -227,7 +231,9 @@ void Test2(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect too few objects in CIMGetInstanceResponseHandler::complete().");
+        throw Exception(
+            "Failed to detect too few objects in "
+                "CIMGetInstanceResponseHandler::complete().");
     }
     catch(CIMException &)
     {
@@ -267,7 +273,9 @@ void Test2(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect too many objects in CIMGetInstanceResponseHandler::deliver().");
+        throw Exception(
+            "Failed to detect too many objects in "
+                "CIMGetInstanceResponseHandler::deliver().");
     }
     catch(CIMException &)
     {
@@ -296,7 +304,9 @@ void Test2(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect too few objects in CIMCreateInstanceResponseHandler::complete().");
+        throw Exception(
+            "Failed to detect too few objects in "
+                "CIMCreateInstanceResponseHandler::complete().");
     }
     catch(CIMException &)
     {
@@ -332,7 +342,9 @@ void Test2(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect too many objects in CIMGetInstanceResponseHandler::deliver().");
+        throw Exception(
+            "Failed to detect too many objects in "
+                "CIMGetInstanceResponseHandler::deliver().");
     }
     catch(CIMException &)
     {
@@ -349,26 +361,27 @@ int main(int argc, char** argv)
         Test1();
         Test2();
     }
-    catch(CIMException & e)
+    catch (CIMException & e)
     {
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage() << endl;
+        cout << "CIMException: " << e.getCode() << " " << e.getMessage() <<
+            endl;
 
-        return(-1);
+        return -1;
     }
-    catch(Exception & e)
+    catch (Exception & e)
     {
         cout << "Exception: " << e.getMessage() << endl;
 
-        return(-1);
+        return -1;
     }
-    catch(...)
+    catch (...)
     {
         cout << "unknown exception" << endl;
 
-        return(-1);
+        return -1;
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
-    return(0);
+    return 0;
 }

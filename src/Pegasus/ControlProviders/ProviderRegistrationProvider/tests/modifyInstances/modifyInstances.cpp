@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -41,7 +36,9 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Constants.h>
+// NOCHKSRC
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+// DOCHKSRC
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -79,7 +76,8 @@ void TestModifyInstances(CIMClient& client)
 
     try
     {
-        returnRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
+        returnRef =
+            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
     }
     catch(const CIMException&)
     {
@@ -106,7 +104,8 @@ void TestModifyInstances(CIMClient& client)
 
     try
     {
-        returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+        returnRef2 =
+            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
     }
     catch(const CIMException&)
     {
@@ -163,7 +162,8 @@ void TestModifyInstances(CIMClient& client)
 
     try
     {
-        returnRef3 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
+        returnRef3 =
+            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
     }
     catch(const CIMException&)
     {
@@ -209,7 +209,11 @@ void TestModifyInstances(CIMClient& client)
 
     try
     {
-        client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, modifyedInstance, false, propertyList);
+        client.modifyInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            modifyedInstance,
+            false,
+            propertyList);
     }
     catch(const CIMException&)
     {
@@ -232,16 +236,16 @@ int main(int argc, char** argv)
 
     try
     {
-	client.connectLocal();
-	TestModifyInstances(client);
+        client.connectLocal();
+        TestModifyInstances(client);
     }
 
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << "+++++ modify instances failed"
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD (cout) << "+++++ modify instances failed"
                            << PEGASUS_STD (endl);
-	exit(-1);
+        exit(-1);
     }
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);

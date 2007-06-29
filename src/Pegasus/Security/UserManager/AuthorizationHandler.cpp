@@ -58,17 +58,17 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // This constant represents the  User name property in the schema
 //
-static const CIMName PROPERTY_NAME_USERNAME        = CIMName ("Username");
+static const CIMName PROPERTY_NAME_USERNAME = CIMName("Username");
 
 //
 // This constant represents the Namespace property in the schema
 //
-static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
+static const CIMName PROPERTY_NAME_NAMESPACE = CIMName("Namespace");
 
 //
 // This constant represents the Authorizations property in the schema
 //
-static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
+static const CIMName PROPERTY_NAME_AUTHORIZATION = CIMName("Authorization");
 
 
 //
@@ -83,39 +83,43 @@ static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 //
 // List of read only CIM Operations
 //
-static const CIMName READ_OPERATIONS []    = {
-    CIMName ("GetClass"),
-    CIMName ("GetInstance"),
-    CIMName ("EnumerateClassNames"),
-    CIMName ("References"),
-    CIMName ("ReferenceNames"),
-    CIMName ("AssociatorNames"),
-    CIMName ("Associators"),
-    CIMName ("EnumerateInstanceNames"),
-    CIMName ("GetQualifier"),
-    CIMName ("EnumerateQualifiers"),
-    CIMName ("EnumerateClasses"),
-    CIMName ("EnumerateInstances"),
-    CIMName ("ExecQuery"),
-    CIMName ("GetProperty") };
+static const CIMName READ_OPERATIONS [] =
+{
+    CIMName("GetClass"),
+    CIMName("GetInstance"),
+    CIMName("EnumerateClassNames"),
+    CIMName("References"),
+    CIMName("ReferenceNames"),
+    CIMName("AssociatorNames"),
+    CIMName("Associators"),
+    CIMName("EnumerateInstanceNames"),
+    CIMName("GetQualifier"),
+    CIMName("EnumerateQualifiers"),
+    CIMName("EnumerateClasses"),
+    CIMName("EnumerateInstances"),
+    CIMName("ExecQuery"),
+    CIMName("GetProperty")
+};
 
 //
 // List of write CIM Operations
 //
-static const CIMName WRITE_OPERATIONS []    = {
-    CIMName ("CreateClass"),
-    CIMName ("CreateInstance"),
-    CIMName ("DeleteQualifier"),
-    CIMName ("SetQualifier"),
-    CIMName ("ModifyClass"),
-    CIMName ("ModifyInstance"),
-    CIMName ("DeleteClass"),
-    CIMName ("DeleteInstance"),
-    CIMName ("SetProperty"),
-    CIMName ("InvokeMethod"),
-    CIMName ("EnableIndicationSubscription"),
-    CIMName ("ModifyIndicationSubscription"),
-    CIMName ("DisableIndicationSubscription") };
+static const CIMName WRITE_OPERATIONS [] =
+{
+    CIMName("CreateClass"),
+    CIMName("CreateInstance"),
+    CIMName("DeleteQualifier"),
+    CIMName("SetQualifier"),
+    CIMName("ModifyClass"),
+    CIMName("ModifyInstance"),
+    CIMName("DeleteClass"),
+    CIMName("DeleteInstance"),
+    CIMName("SetProperty"),
+    CIMName("InvokeMethod"),
+    CIMName("EnableIndicationSubscription"),
+    CIMName("ModifyIndicationSubscription"),
+    CIMName("DisableIndicationSubscription")
+};
 
 
 //
@@ -148,7 +152,7 @@ AuthorizationHandler::~AuthorizationHandler()
 // Check if a given namespace exists
 //
 Boolean AuthorizationHandler::verifyNamespace(
-    const CIMNamespaceName& nameSpace )
+    const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::verifyNamespace()");
@@ -179,7 +183,7 @@ Boolean AuthorizationHandler::verifyNamespace(
     catch (Exception& e)
     {
         PEG_METHOD_EXIT();
-	throw InvalidNamespace(nameSpace.getString() + e.getMessage());
+        throw InvalidNamespace(nameSpace.getString() + e.getMessage());
     }
 
     PEG_METHOD_EXIT();
@@ -203,7 +207,8 @@ void AuthorizationHandler::_loadAllAuthorizations()
         // call enumerateInstancesForClass of the repository
         //
         namedInstances = _repository->enumerateInstancesForClass(
-            PEGASUS_NAMESPACENAME_AUTHORIZATION, PEGASUS_CLASSNAME_AUTHORIZATION);
+            PEGASUS_NAMESPACENAME_AUTHORIZATION,
+            PEGASUS_CLASSNAME_AUTHORIZATION);
 
         //
         // get all the user names, namespaces, and authorizations
@@ -262,9 +267,9 @@ void AuthorizationHandler::_loadAllAuthorizations()
 }
 
 void AuthorizationHandler::setAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& nameSpace,
-			    const String& auth)
+    const String& userName,
+    const CIMNamespaceName& nameSpace,
+    const String& auth)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::setAuthorization()");
@@ -287,8 +292,8 @@ void AuthorizationHandler::setAuthorization(
 }
 
 void AuthorizationHandler::removeAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& nameSpace)
+    const String& userName,
+    const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::removeAuthorization()");
@@ -305,8 +310,8 @@ void AuthorizationHandler::removeAuthorization(
 }
 
 String AuthorizationHandler::getAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& nameSpace)
+    const String& userName,
+    const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::getAuthorization()");
@@ -332,9 +337,9 @@ String AuthorizationHandler::getAuthorization(
 // to be performed by the specified user.
 //
 Boolean AuthorizationHandler::verifyAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& nameSpace,
-                            const CIMName& cimMethodName)
+    const String& userName,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& cimMethodName)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::verifyAuthorization()");
@@ -347,19 +352,19 @@ Boolean AuthorizationHandler::verifyAuthorization(
 
     Uint32 writeOpSize = sizeof(WRITE_OPERATIONS) / sizeof(WRITE_OPERATIONS[0]);
 
-    for (Uint32 i = 0; i < readOpSize; i++ )
+    for (Uint32 i = 0; i < readOpSize; i++)
     {
-        if (cimMethodName.equal (READ_OPERATIONS[i]))
+        if (cimMethodName.equal(READ_OPERATIONS[i]))
         {
             readOperation = true;
             break;
         }
     }
-    if ( !readOperation )
+    if (!readOperation)
     {
         for (Uint32 i = 0; i < writeOpSize; i++ )
         {
-            if (cimMethodName.equal (WRITE_OPERATIONS[i]))
+            if (cimMethodName.equal(WRITE_OPERATIONS[i]))
             {
                 writeOperation = true;
                 break;
@@ -381,16 +386,16 @@ Boolean AuthorizationHandler::verifyAuthorization(
         return authorized;
     }
 
-    if ( ( String::equal(auth, "rw") || String::equal(auth, "wr") ) &&
-        ( readOperation || writeOperation ) )
+    if ((String::equal(auth, "rw") || String::equal(auth, "wr")) &&
+        (readOperation || writeOperation))
     {
         authorized = true;
     }
-    else if ( String::equal(auth, "r") && readOperation )
+    else if (String::equal(auth, "r") && readOperation)
     {
         authorized = true;
     }
-    else if ( String::equal(auth, "w") && writeOperation )
+    else if (String::equal(auth, "w") && writeOperation)
     {
         authorized = true;
     }

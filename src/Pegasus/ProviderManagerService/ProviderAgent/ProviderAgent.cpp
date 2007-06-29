@@ -92,7 +92,7 @@ ProviderAgent::ProviderAgent(
     AnonymousPipe* pipeFromServer,
     AnonymousPipe* pipeToServer)
   : _providerManagerRouter(_indicationCallback, _responseChunkCallback,
-	DefaultProviderManager::createDefaultProviderManagerCallback),
+    DefaultProviderManager::createDefaultProviderManagerCallback),
     _threadPool(0, "ProviderAgent", 0, 0, deallocateWait)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");
@@ -347,11 +347,11 @@ Boolean ProviderAgent::_readAndProcessRequest()
         System::bindVerbose = ipaRequest->bindVerbose;
 
         //
-        //  Set _subscriptionInitComplete from value in 
+        //  Set _subscriptionInitComplete from value in
         //  InitializeProviderAgent request
         //
         _subscriptionInitComplete = ipaRequest->subscriptionInitComplete;
-        _providerManagerRouter.setSubscriptionInitComplete 
+        _providerManagerRouter.setSubscriptionInitComplete
             (_subscriptionInitComplete);
 
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
@@ -444,7 +444,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
         delete request;
     }
-    else if (request->getType () == 
+    else if (request->getType () ==
              CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
     {
         _subscriptionInitComplete = true;
@@ -481,7 +481,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
                 Logger::put(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                     "Not enough threads to process agent request.");
- 
+
                 PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                     "Could not allocate thread to process agent request.");
 
@@ -502,7 +502,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
                 break;
             }
-        } 
+        }
     }
 
     PEG_METHOD_EXIT();
@@ -664,7 +664,8 @@ void ProviderAgent::_unloadIdleProviders()
     _unloadIdleProvidersBusy++;
     if ((_unloadIdleProvidersBusy.get() == 1) &&
         ((rtn =_threadPool.allocate_and_awaken(
-             (void*)this, ProviderAgent::_unloadIdleProvidersHandler))==PEGASUS_THREAD_OK))
+             (void*)this,
+             ProviderAgent::_unloadIdleProvidersHandler)) == PEGASUS_THREAD_OK))
     {
         // _unloadIdleProvidersBusy is decremented in
         // _unloadIdleProvidersHandler
@@ -674,12 +675,12 @@ void ProviderAgent::_unloadIdleProviders()
         // If we fail to allocate a thread, don't retry now.
         _unloadIdleProvidersBusy--;
     }
-    if (rtn != PEGASUS_THREAD_OK) 
+    if (rtn != PEGASUS_THREAD_OK)
     {
 
          Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
              "Not enough threads to unload idle providers.");
- 
+
          PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
              "Could not allocate thread to unload idle providers.");
     }

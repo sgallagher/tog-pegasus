@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef X_h
@@ -53,39 +49,39 @@ public:
 
     static char* _clone(const char* str)
     {
-	return strcpy(new char[strlen(str) + 1], str);
+        return strcpy(new char[strlen(str) + 1], str);
     }
 
-    Str() 
-    { 
-	_constructions++; 
-	_str = _clone(""); 
-    }
-
-    Str(const Str& x) 
-    { 
-	_constructions++; 
-	_str = _clone(x._str); 
-    }
-
-    Str(const char* str) 
-    { 
-	_constructions++; 
-	_str = _clone(str); 
-    }
-
-    Str& operator=(const Str& x) 
-    { 
-	_constructions++; 
-	delete [] _str; 
-	_str = _clone(x._str); 
-	return *this; 
-    }
-
-    ~Str() 
+    Str()
     {
-	_destructions++;
-	delete [] _str; 
+        _constructions++;
+        _str = _clone("");
+    }
+
+    Str(const Str& x)
+    {
+        _constructions++;
+        _str = _clone(x._str);
+    }
+
+    Str(const char* str)
+    {
+        _constructions++;
+        _str = _clone(str);
+    }
+
+    Str& operator=(const Str& x)
+    {
+        _constructions++;
+        delete [] _str;
+        _str = _clone(x._str);
+        return *this;
+    }
+
+    ~Str()
+    {
+        _destructions++;
+        delete [] _str;
     }
 
     const char* getStr() const { return _str; }

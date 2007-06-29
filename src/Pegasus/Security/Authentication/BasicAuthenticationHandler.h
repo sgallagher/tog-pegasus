@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_BasicAuthenticationHandler_h
@@ -50,17 +45,19 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** 
+/**
     Implements the AuthenticationHandler for Basic authentication
 */
 
-static const char BASIC_AUTHENTICATION_FAILED_KEY [] = 
-    "Security.Authentication.BasicAuthenticationHandler.BASIC_AUTHENTICATION_FAILED";
+static const char BASIC_AUTHENTICATION_FAILED_KEY [] =
+    "Security.Authentication.BasicAuthenticationHandler."
+        "BASIC_AUTHENTICATION_FAILED";
 
-static const char BASIC_AUTHENTICATION_FAILED [] = 
-  "Authentication failed for user=$0.";
+static const char BASIC_AUTHENTICATION_FAILED [] =
+    "Authentication failed for user=$0.";
 
-class PEGASUS_SECURITY_LINKAGE BasicAuthenticationHandler : public Authenticator
+class PEGASUS_SECURITY_LINKAGE BasicAuthenticationHandler
+    : public Authenticator
 {
 public:
 
@@ -69,21 +66,23 @@ public:
 
     /** Destructor  */
     ~BasicAuthenticationHandler();
-    
-    /** Verify the authentication of the user passed in the authorization header.
+
+    /** Verify the authentication of the user passed in the authorization
+        header.
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object
         @return true on successful authentication, false otherwise
     */
     Boolean authenticate(
-        const String& authHeader, 
+        const String& authHeader,
         AuthenticationInfo* authInfo);
-    
+
     /** Construct and return the Basic authentication challenge header
-        @param authType An optional string containing the HTTP authentication type 
-        @param userName An optional string containing the user name 
-        (Parameters are not used to generate the Basic authentication challenge 
-         header, hence they are optional) 
+        @param authType An optional string containing the HTTP authentication
+        type
+        @param userName An optional string containing the user name
+        (Parameters are not used to generate the Basic authentication challenge
+         header, hence they are optional)
         @return A string containing the authentication challenge header.
     */
     String getAuthResponseHeader(

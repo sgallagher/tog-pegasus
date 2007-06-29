@@ -134,9 +134,11 @@ void testAuthenticationFailure_1()
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -167,9 +169,12 @@ void testAuthenticationFailure_2()
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (authenticated)
-        if (verbose) cout << "User " + invalidUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + invalidUser + " authenticated successfully."
+                 << endl;
     else
-        if (verbose) cout << "User " + invalidUser + " authentication failed." << endl;
+        if (verbose)
+            cout << "User " + invalidUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -177,7 +182,7 @@ void testAuthenticationFailure_2()
 }
 
 //
-// Test with invalid password 
+// Test with invalid password
 //
 void testAuthenticationFailure_3()
 {
@@ -197,9 +202,11 @@ void testAuthenticationFailure_3()
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -227,9 +234,11 @@ void testAuthenticationFailure_4()
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -237,7 +246,7 @@ void testAuthenticationFailure_4()
 }
 
 //
-// Test with valid user name and password 
+// Test with valid user name and password
 // (Assuming there is a valid CIM user 'guest' with password 'guest')
 //
 void testAuthenticationSuccess()
@@ -259,9 +268,12 @@ void testAuthenticationSuccess()
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
     if (authenticated)
-        if (verbose) cout << "User " + guestUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + guestUser + " authenticated successfully."
+                 << endl;
     else
-        if (verbose) cout << "User " + guestUser + " authentication failed." << endl;
+        if (verbose)
+            cout << "User " + guestUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -283,7 +295,7 @@ int main(int argc, char** argv)
         Tracer::setTraceFile("./Authentication.trc");
         Tracer::setTraceComponents("all");
         Tracer::setTraceLevel(Tracer::LEVEL4);
-	verbose = true;
+        verbose = true;
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
@@ -294,9 +306,11 @@ int main(int argc, char** argv)
         if(pegHome.size())
             ConfigManager::setPegasusHome(pegHome);
 
-        if (verbose) cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
+        if (verbose)
+            cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
 
-        if (verbose) cout << "Doing testAuthHeader()...." << endl;
+        if (verbose)
+            cout << "Doing testAuthHeader()...." << endl;
 
         // -- Create a test repository:
 
@@ -339,7 +353,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-      cout << argv[0] << " Exception: " << e.getMessage() << endl;
+        cout << argv[0] << " Exception: " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(0);
     }
 

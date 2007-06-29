@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//
-// Modified By: Warren Otsuka (warren_otsuka@hp.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_benchmarkTestCommand_h
@@ -152,11 +144,18 @@ private:
 
     void _getCSInfo(ostream& outPrintWriter, ostream& errPrintWriter);
 
-    void _getSystemConfiguration(ostream& outPrintWriter, ostream& errPrintWriter);
+    void _getSystemConfiguration(
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
 
-    void _getTestConfiguration(ostream& outPrintWriter, ostream& errPrintWriter);
+    void _getTestConfiguration(
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
 
-    void dobenchmarkTest1(Uint32 testID, ostream& outPrintWriter, ostream& errPrintWriter);
+    void dobenchmarkTest1(
+        Uint32 testID,
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
 
     void dobenchmarkTest2(Uint32 testID, const CIMName& className,
                            ostream& outPrintWriter, ostream& errPrintWriter);
@@ -213,7 +212,7 @@ private:
 
     /**
         A Boolean indicating whether a port number was specified on the
-	command line.
+        command line.
      */
     Boolean _portNumberSet;
 
@@ -324,7 +323,8 @@ private:
     static const char   _OPTION_ITERATIONS;
 
     /**
-        The option character used to specify the number of the test to be executed.
+        The option character used to specify the number of the test to be
+        executed.
      */
     static const char   _OPTION_TESTID;
 

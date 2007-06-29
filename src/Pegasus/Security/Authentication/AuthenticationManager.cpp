@@ -131,7 +131,7 @@ Boolean AuthenticationManager::performHttpAuthentication(
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "AuthenticationManager:: performHttpAuthentication - "
             "Authority Header: $0",
-        authHeader); 
+        authHeader);
 
     //
     // Parse the HTTP authentication header for authentication information
@@ -159,7 +159,7 @@ Boolean AuthenticationManager::performHttpAuthentication(
         authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
 #endif
-    // FUTURE: Add code to check for "Digest" when digest 
+    // FUTURE: Add code to check for "Digest" when digest
     // authentication is implemented.
 
     if ( authenticated )
@@ -191,7 +191,7 @@ Boolean AuthenticationManager::performPegasusAuthentication(
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "AuthenticationManager:: performPegasusAuthentication - "
             "Authority Header: $0",
-        authHeader); 
+        authHeader);
 
     //
     // Parse the pegasus authentication header authentication information
@@ -206,7 +206,7 @@ Boolean AuthenticationManager::performPegasusAuthentication(
     // requests get here.
     PEGASUS_ASSERT(authType == "Local");
 
-    authenticated = 
+    authenticated =
         _localAuthHandler->authenticate(cookie, authInfo);
 
     if ( authenticated )
@@ -253,7 +253,7 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
     }
 
     //
-    // User name can not be empty 
+    // User name can not be empty
     //
     if (String::equal(userName, String::EMPTY))
     {
@@ -261,7 +261,7 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
         return respHeader;
     }
 
-    respHeader = 
+    respHeader =
         _localAuthHandler->getAuthResponseHeader(authType, userName, authInfo);
 
     PEG_METHOD_EXIT();
@@ -276,7 +276,7 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 String AuthenticationManager::getHttpAuthResponseHeader(
     AuthenticationInfo* authInfo)
-#else		
+#else
 String AuthenticationManager::getHttpAuthResponseHeader()
 #endif
 {
@@ -285,7 +285,7 @@ String AuthenticationManager::getHttpAuthResponseHeader()
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     String respHeader = _httpAuthHandler->getAuthResponseHeader(
-	String::EMPTY, String::EMPTY, authInfo);
+        String::EMPTY, String::EMPTY, authInfo);
 #else
     String respHeader = _httpAuthHandler->getAuthResponseHeader();
 #endif
@@ -299,7 +299,10 @@ String AuthenticationManager::getHttpAuthResponseHeader()
 // parse the local authentication header
 //
 Boolean AuthenticationManager::_parseLocalAuthHeader(
-    const String& authHeader, String& authType, String& userName, String& cookie)
+    const String& authHeader,
+    String& authType,
+    String& userName,
+    String& cookie)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationManager::_parseLocalAuthHeader()");
@@ -322,7 +325,7 @@ Boolean AuthenticationManager::_parseLocalAuthHeader(
     if ( startQuote == PEG_NOT_FOUND )
     {
         PEG_METHOD_EXIT();
-        return false; 
+        return false;
     }
 
     Uint32 endQuote = authHeader.find(startQuote + 1, '"');
@@ -399,7 +402,7 @@ Authenticator* AuthenticationManager::_getLocalAuthHandler()
     //
     // create and return a local authentication handler.
     //
-    return (new LocalAuthenticationHandler());
+    return new LocalAuthenticationHandler();
 }
 
 
@@ -429,8 +432,9 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if ( String::equalNoCase(_httpAuthType, "Kerberos") )
     {
-        handler.reset((Authenticator* ) new KerberosAuthenticationHandler( ));
-        AutoPtr<KerberosAuthenticationHandler> kerberosHandler((KerberosAuthenticationHandler *)handler.get());
+        handler.reset((Authenticator*) new KerberosAuthenticationHandler());
+        AutoPtr<KerberosAuthenticationHandler> kerberosHandler(
+            (KerberosAuthenticationHandler *)handler.get());
         int itFailed = kerberosHandler->initialize();
         kerberosHandler.release();
         if (itFailed)
@@ -439,28 +443,28 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
             {
                 handler.reset(0);
             }
-            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, 
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                 "Security.Authentication.AuthenticationManager."
                     "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
                 "CIMOM server authentication handler for Kerberos failed to "
                     "initialize properly.");
             MessageLoaderParms parms(
-           	"Security.Authentication.AuthenticationManager."
+                "Security.Authentication.AuthenticationManager."
                     "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
                 "CIMOM server authentication handler for Kerberos failed to "
                     "initialize properly.");
-	    throw Exception(parms);
+            throw Exception(parms);
         }
     }
 #endif
-    // FUTURE: uncomment these line when Digest authentication 
+    // FUTURE: uncomment these line when Digest authentication
     // is implemented.
     //
     //else if (String::equalNoCase(_httpAuthType, "Digest"))
     //{
     //    handler = (Authenticator* ) new DigestAuthenticationHandler( );
     //}
-    else 
+    else
     {
         //
         // This should never happen. Gets here only if Security Config
@@ -468,11 +472,9 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
         //
         PEGASUS_ASSERT(0);
     }
-    
+
     PEG_METHOD_EXIT();
-    return ( handler.release() );
+    return handler.release();
 }
 
-
 PEGASUS_NAMESPACE_END
-

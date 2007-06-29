@@ -28,6 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,8 +41,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -123,7 +125,8 @@ void InteropProvider::createInstance(
         PEG_METHOD_EXIT();
         MessageLoaderParms mparms(
             "ControlProviders.InteropProvider.CREATE_INSTANCE_NOT_ALLOWED",
-            "Create instance operation not allowed by Interop Provider for class $0.",
+            "Create instance operation not allowed by Interop Provider for "
+                "class $0.",
             PEGASUS_CLASSNAME_PGNAMESPACE.getString());
         throw CIMNotSupportedException(mparms);
     }
@@ -172,7 +175,8 @@ void InteropProvider::deleteInstance(
 
     MessageLoaderParms mparms(
         "ControlProviders.InteropProvider.DELETE_INSTANCE_NOT_ALLOWED",
-        "Delete instance operation not allowed by Interop Provider for class $0.",
+        "Delete instance operation not allowed by Interop Provider for "
+            "class $0.",
         instClassName.getString());
     throw CIMNotSupportedException(mparms);
 }
@@ -211,7 +215,7 @@ void InteropProvider::getInstance(
         handler.deliver(myInstance);
     else
         throw CIMObjectNotFoundException(instanceName.toString());
-    
+
     handler.complete();
 
     PEG_METHOD_EXIT();
@@ -272,7 +276,8 @@ void InteropProvider::modifyInstance(
     AutoMutex autoMut(changeControlMutex);
 
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s modifyInstance. instanceReference= %s, includeQualifiers= %s, PropertyList= %s",
+        "%s modifyInstance. instanceReference= %s, includeQualifiers= %s, "
+            "PropertyList= %s",
         thisProvider,
         (const char *) (instanceReference.toString().getCString()),
         boolToString(includeQualifiers),
@@ -284,7 +289,7 @@ void InteropProvider::modifyInstance(
     // do the right thing and that's the only way requests get here.
 
     CIMName className =  instanceReference.getClassName();
-    
+
     // begin processing the request
     handler.processing();
 

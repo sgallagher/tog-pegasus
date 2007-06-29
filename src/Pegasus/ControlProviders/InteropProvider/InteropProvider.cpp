@@ -28,6 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -38,8 +40,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -92,7 +94,7 @@ InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
         // populated
     }
 #endif
-    
+
     PEG_METHOD_EXIT();
 }
 
@@ -508,7 +510,7 @@ bool InteropProvider::validAssocClassForObject(
         PEG_METHOD_EXIT();
         return false;
     }
-    
+
     PEG_METHOD_EXIT();
     return true;
 }
@@ -711,7 +713,7 @@ void InteropProvider::initProvider()
                 {
                     Boolean gatherData;
                     gatherDataVal.get(gatherData);
-                    if (gatherData == true) 
+                    if (gatherData == true)
                     {
                         StatisticalData* sd = StatisticalData::current();
                         sd->setCopyGSD(true);
@@ -735,13 +737,14 @@ void InteropProvider::initProvider()
         // the cross-namespace ElementConformsToProfile association in both
         // directions.
         //
-        Array<CIMNamespaceName> namespaceNames = 
+        Array<CIMNamespaceName> namespaceNames =
             repository->enumerateNameSpaces();
-        //get the PG_ElementConformstoProfile class without the qualifiers
-        //and then add just the required ASSOCIATION qualifier, so that resolveclass
-        //doesn't fail for the test/EmbeddedInstance/Dynamic namespace, which uses 
-        //the CIM25 schema that doesn't include any of the new qualifiers added to this class
-        //in later versions of the CIMSchema.
+        // get the PG_ElementConformstoProfile class without the qualifiers
+        // and then add just the required ASSOCIATION qualifier, so that
+        // resolveclass doesn't fail for the test/EmbeddedInstance/Dynamic
+        // namespace, which uses the CIM25 schema that doesn't include any
+        // of the new qualifiers added to this class in later versions of
+        // the CIMSchema.
         CIMClass conformsClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE, true, false);

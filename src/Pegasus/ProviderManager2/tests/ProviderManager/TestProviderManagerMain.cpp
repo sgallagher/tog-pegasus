@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,12 +38,13 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(const String & providerManagerName)
+extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
+    const String & providerManagerName)
 {
-    if(String::equalNoCase(providerManagerName, "TEST"))
+    if (String::equalNoCase(providerManagerName, "TEST"))
     {
-        return(new TestProviderManager());
+        return new TestProviderManager();
     }
 
-    return(0);
+    return 0;
 }

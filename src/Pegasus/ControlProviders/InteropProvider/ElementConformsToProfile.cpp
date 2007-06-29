@@ -28,6 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,29 +102,29 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
     verifyCachedInfo();
     // Loop through the cached profile Id's and related info about its
     // conforming elements.
-    for(Uint32 i = 0, n = profileIds.size(); i < n; ++i)
+    for (Uint32 i = 0, n = profileIds.size(); i < n; ++i)
     {
         String & profileId = profileIds[i];
         Array<CIMName> & elementList = conformingElements[i];
         Array<CIMNamespaceName> & namespaceList = elementNamespaces[i];
         Array<CIMObjectPath> conformingElementPaths;
-        for(Uint32 j = 0, m = elementList.size(); j < m; ++j)
+        for (Uint32 j = 0, m = elementList.size(); j < m; ++j)
         {
             CIMName & currentElement = elementList[j];
             CIMNamespaceName & currentNamespace = namespaceList[j];
 
-            if(opNamespace == PEGASUS_NAMESPACENAME_INTEROP ||
+            if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP ||
                 opNamespace == currentNamespace)
             {
                 String currentElementStr(currentElement.getString());
-                if(currentElementStr.find(PEGASUS_DYNAMIC) == 0)
+                if (currentElementStr.find(PEGASUS_DYNAMIC) == 0)
                 {
                     // If the provider profile registration did not provide a
                     // list of conforming elements (presumably because there is
                     // no such definite list), then the provider is required
                     // to provide instances of ElementConformsToProfile in the
                     // vendor namespace, so we do not generate instances.
-                    if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP)
+                    if (opNamespace != PEGASUS_NAMESPACENAME_INTEROP)
                     {
                         continue;
                     }
@@ -134,28 +136,32 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
                         true, CIMPropertyList());
 
                     // Retrieve the Conforming Element
-                    for(Uint32 k = 0, x = elementConformsInstances.size();
+                    for (Uint32 k = 0, x = elementConformsInstances.size();
                         k < x; ++k)
                     {
                         CIMInstance & currentInstance =
                             elementConformsInstances[k];
 
+                        // NOCHKSRC
                         // Make sure that the current instance points to the
                         // current profile ID.
                         CIMObjectPath profilePath =
                             getRequiredValue<CIMObjectPath>(
                                 elementConformsInstances[k],
                                 ELEMENTCONFORMSTOPROFILE_PROPERTY_CONFORMANTSTANDARD);
+                        // DOCHKSRC
                         const Array<CIMKeyBinding> & keys =
                             profilePath.getKeyBindings();
-                        if(keys.size() != 1)
+                        if (keys.size() != 1)
                             continue;
-                        if(keys.size() == 1 && keys[0].getValue() == profileId)
+                        if (keys.size() == 1 && keys[0].getValue() == profileId)
                         {
+                            // NOCHKSRC
                             conformingElementPaths.append(
                                 getRequiredValue<CIMObjectPath>(
                                 currentInstance,
                                 ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT));
+                            // DOCHKSRC
                         }
                     }
                 }
@@ -167,7 +173,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
                         cimomHandle.enumerateInstanceNames(opContext,
                             currentNamespace, currentElement);
                     // Set the namespace in the paths just in case
-                    for(Uint32 k = 0, x = paths.size();
+                    for (Uint32 k = 0, x = paths.size();
                         k < x; ++k)
                     {
                         CIMObjectPath & curPath = paths[k];
@@ -186,7 +192,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
 
         // Build all of the ElementConformsToProfile instances for the current
         // profile.
-        for(Uint32 k = 0, x = conformingElementPaths.size(); k < x; ++k)
+        for (Uint32 k = 0, x = conformingElementPaths.size(); k < x; ++k)
         {
             instances.append(buildElementConformsToProfile(profilePath,
                 conformingElementPaths[k], elementConformsClass));
@@ -195,7 +201,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
 
     // Now add the default instance: the association between the Server Profile
     // and the ObjectManager (if we're in the Interop namespace)
-    if(opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
+    if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
     {
         // Build up the Object Path for the server profile
         CIMObjectPath serverProfile = buildDependencyReference(hostName,
@@ -236,7 +242,7 @@ Array<String> findProviderNamespacesForElement(
     Array<CIMInstance> & providerCapabilitiesInstances)
 {
     Array<CIMInstance> capabilities;
-    if(providerCapabilitiesInstances.size() == 0)
+    if (providerCapabilitiesInstances.size() == 0)
     {
         Array<CIMName> propList;
         propList.append(PROVIDERCAPABILITIES_PROPERTY_PROVIDERMODULENAME);
@@ -252,7 +258,7 @@ Array<String> findProviderNamespacesForElement(
         capabilities = providerCapabilitiesInstances;
     }
 
-    for(Uint32 i = 0, n = capabilities.size(); i < n; ++i)
+    for (Uint32 i = 0, n = capabilities.size(); i < n; ++i)
     {
         CIMInstance & currentCapabilities = capabilities[i];
         Uint32 propIndex = currentCapabilities.findProperty(
@@ -261,21 +267,21 @@ Array<String> findProviderNamespacesForElement(
         String currentName;
         currentCapabilities.getProperty(propIndex).getValue().get(
             currentName);
-        if(currentName == moduleName)
+        if (currentName == moduleName)
         {
             propIndex = currentCapabilities.findProperty(
                 PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME);
             PEGASUS_ASSERT(propIndex != PEG_NOT_FOUND);
             currentCapabilities.getProperty(propIndex).getValue().get(
                 currentName);
-            if(currentName == providerName)
+            if (currentName == providerName)
             {
                 propIndex = currentCapabilities.findProperty(
                     PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
                 PEGASUS_ASSERT(propIndex != PEG_NOT_FOUND);
                 currentCapabilities.getProperty(propIndex).getValue().get(
                     currentName);
-                if(elementClass.equal(CIMName(currentName)))
+                if (elementClass.equal(CIMName(currentName)))
                 {
                     propIndex = currentCapabilities.findProperty(
                       PROVIDERCAPABILITIES_PROPERTY_NAMESPACES);
@@ -330,7 +336,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
     // Loop through the provider profile info to determine what profiles are
     // supported by what providers, and to build the ElementConformsToProfile
     // associations.
-    for(Uint32 i = 0, n = providerProfileInstances.size(); i < n; ++i)
+    for (Uint32 i = 0, n = providerProfileInstances.size(); i < n; ++i)
     {
         CIMInstance & currentProfileInstance = providerProfileInstances[i];
         String moduleName = getRequiredValue<String>(currentProfileInstance,
@@ -373,8 +379,8 @@ void InteropProvider::cacheProfileRegistrationInfo()
         Array<String> elementClasses;
         currentProfileInstance.getProperty(propIndex).getValue().get(
             elementClasses);
-        //if(propIndex == PEG_NOT_FOUND)
-        if(elementClasses.size() == 0)
+        //if (propIndex == PEG_NOT_FOUND)
+        if (elementClasses.size() == 0)
         {
             // Get the namespaces in which this provider operates and trim down
             // the list of capabilities instaces to just those that are related
@@ -385,7 +391,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
             String providerName = getRequiredValue<String>(
                 currentProfileInstance,
                 CAPABILITIES_PROPERTY_PROVIDERNAME);
-            if(capabilities.size() == 0)
+            if (capabilities.size() == 0)
             {
                 Array<CIMName> propList;
                 propList.append(
@@ -401,14 +407,14 @@ void InteropProvider::cacheProfileRegistrationInfo()
             Array<CIMInstance> capabilitiesForProvider;
             Array<CIMNamespaceName> namespacesForProvider;
             Array<CIMNameArray> subclassesForNamespace;
-            for(Uint32 j = 0, m = capabilities.size(); j < m; ++j)
+            for (Uint32 j = 0, m = capabilities.size(); j < m; ++j)
             {
                 CIMInstance & currentInstance = capabilities[j];
                 String curModuleName = getRequiredValue<String>(
                     currentInstance, CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
                 String curProviderName = getRequiredValue<String>(
                     currentInstance, CAPABILITIES_PROPERTY_PROVIDERNAME);
-                if(curModuleName == moduleName &&
+                if (curModuleName == moduleName &&
                     curProviderName == providerName)
                 {
                     CIMName currentClass(getRequiredValue<String>(
@@ -423,34 +429,34 @@ void InteropProvider::cacheProfileRegistrationInfo()
 
                     // If one of the namespaces is Interop, then continue
                     bool interopNamespaceFound = false;
-                    for(; z < y; ++z)
+                    for (; z < y; ++z)
                     {
-                        if(CIMNamespaceName(curNamespaces[z]) ==
+                        if (CIMNamespaceName(curNamespaces[z]) ==
                             PEGASUS_NAMESPACENAME_INTEROP)
                         {
                             interopNamespaceFound = true;
                             break;
                         }
                     }
-                    if(interopNamespaceFound)
+                    if (interopNamespaceFound)
                         continue;
 
                     // See if the current namespaces are already listed
-                    for(Sint32 z = 0, y = curNamespaces.size(); z < y; ++z)
+                    for (Sint32 z = 0, y = curNamespaces.size(); z < y; ++z)
                     {
                         Sint32 foundIndex = -1;
                         CIMNamespaceName curNamespace = curNamespaces[z];
                         Uint32 k = 0;
                         Uint32 x = namespacesForProvider.size();
-                        for(; k < x; ++k)
+                        for (; k < x; ++k)
                         {
-                            if(curNamespace == namespacesForProvider[k])
+                            if (curNamespace == namespacesForProvider[k])
                             {
                                 foundIndex = (Sint32)k;
                                 break;
                             }
                         }
-                        if(foundIndex == -1)
+                        if (foundIndex == -1)
                         {
                             // Get all the subclasses of
                             // ElementConformsToProfile in the namespace and
@@ -472,9 +478,9 @@ void InteropProvider::cacheProfileRegistrationInfo()
                         // add it to the list
                         Array<CIMName> & subClasses =
                             subclassesForNamespace[foundIndex];
-                        for(k = 0, x = subClasses.size(); k < x; ++k)
+                        for (k = 0, x = subClasses.size(); k < x; ++k)
                         {
-                            if(subClasses[k] == currentClass)
+                            if (subClasses[k] == currentClass)
                             {
                                 String dynamicElement = PEGASUS_DYNAMIC +
                                     currentClass.getString();
@@ -493,7 +499,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
             //Array<String> elementClasses;
             //currentProfileInstance.getProperty(propIndex).getValue().get(
             //    elementClasses);
-            for(Uint32 j = 0, m = elementClasses.size(); j < m; ++j)
+            for (Uint32 j = 0, m = elementClasses.size(); j < m; ++j)
             {
                 CIMName elementClass(elementClasses[j]);
                 Array<String> searchNamespaces =
@@ -504,7 +510,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
                         providerCapabilitiesInstances);
                 Uint32 k = 0;
                 Uint32 x = searchNamespaces.size();
-                for(; k < x; ++k)
+                for (; k < x; ++k)
                 {
                     conformingElementsForProfile.append(elementClass);
                     elementNamespacesForProfile.append(searchNamespaces[k]);
@@ -513,16 +519,16 @@ void InteropProvider::cacheProfileRegistrationInfo()
         }
 
         Sint32 foundIndex = -1;
-        for(Sint32 j = 0, m = profileIds.size(); j < m; ++j)
+        for (Sint32 j = 0, m = profileIds.size(); j < m; ++j)
         {
-            if(profileIds[j] == profileId)
+            if (profileIds[j] == profileId)
             {
                 foundIndex = j;
                 break;
             }
         }
 
-        if(foundIndex >= 0)
+        if (foundIndex >= 0)
         {
             // Append the results to already existing entries
             conformingElements[foundIndex].appendArray(

@@ -125,7 +125,8 @@ void testLocalAuthHeader_1()
     AuthenticationInfo* authInfo = new AuthenticationInfo(true);
 
     // Test invalid header
-    String respHeader = authManager.getPegasusAuthResponseHeader(testUser, authInfo);
+    String respHeader =
+        authManager.getPegasusAuthResponseHeader(testUser, authInfo);
 
     if (verbose) cout << "RespHeader: " << respHeader << endl;
 
@@ -149,7 +150,8 @@ void testLocalAuthHeader_2()
     // Test invalid header
     authHeader.append(localHeader);
 
-    String respHeader = authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
+    String respHeader =
+        authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
 
     if (verbose) cout << "RespHeader: " << respHeader << endl;
 
@@ -174,7 +176,8 @@ void testLocalAuthHeader_3()
     authHeader.append(localHeader);
     authHeader.append("\"\"");
 
-    String respHeader = authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
+    String respHeader =
+        authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
 
     if (verbose) cout << "RespHeader: " << respHeader << endl;
 
@@ -201,7 +204,8 @@ void testLocalAuthSuccess()
     authHeader.append(testUser);
     authHeader.append("\"");
 
-    String respHeader = authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
+    String respHeader =
+        authManager.getPegasusAuthResponseHeader(authHeader, authInfo);
 
     if (verbose) cout << "RespHeader: " << respHeader << endl;
 
@@ -241,9 +245,13 @@ void testLocalAuthSuccess()
     }
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " local authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " local authenticated successfully."
+                 << endl;
     else
-        if (verbose) cout << "User " + testUser + " local authentication failed." << endl;
+        if (verbose)
+            cout << "User " + testUser + " local authentication failed."
+                 << endl;
 
     delete authInfo;
 
@@ -252,7 +260,7 @@ void testLocalAuthSuccess()
 
 
 //
-// Test HTTP Basic with valid user name and password 
+// Test HTTP Basic with valid user name and password
 //
 void testBasicAuthSuccess()
 {
@@ -271,13 +279,16 @@ void testBasicAuthSuccess()
 
     Boolean authenticated;
 
-    authenticated = 
+    authenticated =
         authManager.performHttpAuthentication(authHeader, authInfo);
 
     if (authenticated)
-        if (verbose) cout << "User " + guestUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + guestUser + " authenticated successfully."
+                 << endl;
     else
-        if (verbose) cout << "User " + guestUser + " authentication failed." << endl;
+        if (verbose)
+            cout << "User " + guestUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -289,8 +300,9 @@ void testBasicAuthSuccess()
 int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    if (verbose) cout << argv[0] << ": started" << endl;
-  
+    if (verbose)
+        cout << argv[0] << ": started" << endl;
+
 #if defined(PEGASUS_OS_TYPE_UNIX)
 
     try
@@ -298,7 +310,7 @@ int main(int argc, char** argv)
 #ifdef DEBUG
         Tracer::setTraceFile("/tmp/trace");
         Tracer::setTraceComponents("all");
-	verbose = true;
+        verbose = true;
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
@@ -309,7 +321,8 @@ int main(int argc, char** argv)
         if(pegHome.size())
             ConfigManager::setPegasusHome(pegHome);
 
-        if (verbose)cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
+        if (verbose)
+            cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
 
         if (verbose) cout << "Doing testHttpAuthHeader()...." << endl;
 
@@ -332,8 +345,7 @@ int main(int argc, char** argv)
 
         // -- Create a UserManager object:
 
-        UserManager* userManager = UserManager::getInstance(repository
-);
+        UserManager* userManager = UserManager::getInstance(repository);
 
         testHttpAuthHeader();
 
@@ -354,7 +366,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-      cout << argv[0] << " Exception: " << e.getMessage() << endl;
+        cout << argv[0] << " Exception: " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(0);
     }
 

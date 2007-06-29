@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_benchmarkTestException_h
@@ -45,12 +39,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /** 
-  
-    benchmarkTestException signals that an exception has occurred in executing the 
-    benchmarkTest command.  
-  
-    @author  Hewlett-Packard Company
-  
+    benchmarkTestException signals that an exception has occurred in executing
+    the benchmarkTest command.  
  */
 class benchmarkTestException : public CommandException 
 {

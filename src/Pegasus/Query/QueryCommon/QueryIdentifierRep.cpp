@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -45,29 +38,30 @@
 #include <cstdlib>
 PEGASUS_NAMESPACE_BEGIN
 
-QueryIdentifierRep::QueryIdentifierRep(): _isWildcard(false), _isSymbolicConstant(false)
+QueryIdentifierRep::QueryIdentifierRep()
+    : _isWildcard(false),
+      _isSymbolicConstant(false)
 {
-	_name = CIMName();
+    _name = CIMName();
 }
 
 QueryIdentifierRep::QueryIdentifierRep(const QueryIdentifierRep* rep)
 {
-  _symbolicConstant = rep->_symbolicConstant;
-  _scope = rep->_scope;
-  _indices = rep->_indices;
-  _name = rep->_name;
-  _isWildcard = rep->_isWildcard;
-  _isSymbolicConstant = rep->_isSymbolicConstant;
+    _symbolicConstant = rep->_symbolicConstant;
+    _scope = rep->_scope;
+    _indices = rep->_indices;
+    _name = rep->_name;
+    _isWildcard = rep->_isWildcard;
+    _isSymbolicConstant = rep->_isSymbolicConstant;
 }
 
 QueryIdentifierRep::~QueryIdentifierRep()
 {
-
 }
 
-const CIMName& QueryIdentifierRep::getName()const
+const CIMName& QueryIdentifierRep::getName() const
 {
-	return _name;
+    return _name;
 }
 
 void QueryIdentifierRep::setName(const CIMName& inName)
@@ -76,122 +70,131 @@ void QueryIdentifierRep::setName(const CIMName& inName)
 }
 
 
-const String& QueryIdentifierRep::getSymbolicConstantName()const
+const String& QueryIdentifierRep::getSymbolicConstantName() const
 {
-	return _symbolicConstant;
+    return _symbolicConstant;
 }
 
-const  Array<SubRange>& QueryIdentifierRep::getSubRanges()const
+const Array<SubRange>& QueryIdentifierRep::getSubRanges() const
 {
-	return _indices;
+    return _indices;
 }
 
-Boolean QueryIdentifierRep::isArray()const
+Boolean QueryIdentifierRep::isArray() const
 {
-	return(_indices.size() > 0);
+    return(_indices.size() > 0);
 }
 
-Boolean QueryIdentifierRep::isSymbolicConstant()const
+Boolean QueryIdentifierRep::isSymbolicConstant() const
 {
-	return _isSymbolicConstant;
+    return _isSymbolicConstant;
 }
 
-Boolean QueryIdentifierRep::isWildcard()const
+Boolean QueryIdentifierRep::isWildcard() const
 {
-	return _isWildcard;
+    return _isWildcard;
 }
 
-const String& QueryIdentifierRep::getScope()const
+const String& QueryIdentifierRep::getScope() const
 {
-	return _scope;
+    return _scope;
 }
 
-Boolean QueryIdentifierRep::isScoped()const
+Boolean QueryIdentifierRep::isScoped() const
 {
-	return (_scope != String::EMPTY);
+    return (_scope != String::EMPTY);
 }
 
 void QueryIdentifierRep::applyScope(String scope)
 {
-  _scope = scope;
+    _scope = scope;
 }
 
-QueryIdentifierRep& QueryIdentifierRep::operator=(const QueryIdentifierRep& rhs){
-
-	if(&rhs != this)
-   {
-     _symbolicConstant = rhs._symbolicConstant;
-     _scope = rhs._scope;
-     _indices = rhs._indices;
-     _name = rhs._name;
-     _isWildcard = rhs._isWildcard;
-     _isSymbolicConstant = rhs._isSymbolicConstant;
-   }
-	return *this;
-}
-
-Boolean QueryIdentifierRep::operator==(const CIMName &rhs)const{
-	if(_name == rhs) return true;
-	return false;
-}
-
-Boolean QueryIdentifierRep::operator!=(const CIMName &rhs)const{
-	return(!operator==(rhs));
-}
-
-Boolean QueryIdentifierRep::operator==(const QueryIdentifierRep &rhs)const
+QueryIdentifierRep& QueryIdentifierRep::operator=(const QueryIdentifierRep& rhs)
 {
-	if(_isWildcard && rhs.isWildcard()) return true;
-	if(getName() == rhs.getName())
-   {
-	   if(String::equalNoCase(getScope(), rhs.getScope()))
-      {
-        if(String::equalNoCase(getSymbolicConstantName(), rhs.getSymbolicConstantName()))
+    if (&rhs != this)
+    {
+        _symbolicConstant = rhs._symbolicConstant;
+        _scope = rhs._scope;
+        _indices = rhs._indices;
+        _name = rhs._name;
+        _isWildcard = rhs._isWildcard;
+        _isSymbolicConstant = rhs._isSymbolicConstant;
+    }
+    return *this;
+}
+
+Boolean QueryIdentifierRep::operator==(const CIMName &rhs) const
+{
+    if (_name == rhs)
+        return true;
+    return false;
+}
+
+Boolean QueryIdentifierRep::operator!=(const CIMName &rhs) const
+{
+    return !operator==(rhs);
+}
+
+Boolean QueryIdentifierRep::operator==(const QueryIdentifierRep &rhs) const
+{
+    if (_isWildcard && rhs.isWildcard())
+        return true;
+    if (getName() == rhs.getName())
+    {
+        if (String::equalNoCase(getScope(), rhs.getScope()))
         {
-          // compare _indices arrays
-          Uint32 size = rhs.getSubRanges().size();
-          if(_indices.size() == size)
-          {
-            Array<SubRange> rhs_SubRanges = rhs.getSubRanges();
-            for(Uint32 i = 0; i < size; i++)
+            if (String::equalNoCase(
+                    getSymbolicConstantName(), rhs.getSymbolicConstantName()))
             {
-              if(_indices[i] != rhs_SubRanges[i])
-                return false;
+                // compare _indices arrays
+                Uint32 size = rhs.getSubRanges().size();
+                if (_indices.size() == size)
+                {
+                    Array<SubRange> rhs_SubRanges = rhs.getSubRanges();
+                    for (Uint32 i = 0; i < size; i++)
+                    {
+                        if (_indices[i] != rhs_SubRanges[i])
+                            return false;
+                    }
+                    return true;
+                }
             }
-            return true;
-          }
         }
-      }
-	}
-	return false;
+    }
+    return false;
 }
 
-Boolean QueryIdentifierRep::operator!=(const QueryIdentifierRep &rhs)const{
-        return(!operator==(rhs));
-}
-
-String QueryIdentifierRep::toString()const
+Boolean QueryIdentifierRep::operator!=(const QueryIdentifierRep &rhs) const
 {
-	if(_isWildcard)
-		return "*";
-	String s = getScope();
-	if(s != String::EMPTY)
-		s.append("::");
-	s.append(_name.getString());
-	if(_isSymbolicConstant){
-		s.append("#").append(_symbolicConstant);
-		return s;
-	}
-	if(isArray()){
-		s.append("[");
-		for(Uint32 i = 0; i < _indices.size(); i++){
-			s.append(_indices[i].toString());
-			if(i < _indices.size()-1)
-				s.append(",");
-		}
-		s.append("]");
-	}
-	return s;
+    return !operator==(rhs);
+}
+
+String QueryIdentifierRep::toString() const
+{
+    if (_isWildcard)
+        return "*";
+    String s = getScope();
+    if (s != String::EMPTY)
+        s.append("::");
+    s.append(_name.getString());
+    if (_isSymbolicConstant)
+    {
+        s.append("#").append(_symbolicConstant);
+        return s;
+    }
+    if (isArray())
+    {
+        s.append("[");
+        for (Uint32 i = 0; i < _indices.size(); i++)
+        {
+            s.append(_indices[i].toString());
+            if (i < _indices.size()-1)
+                s.append(",");
+        }
+        s.append("]");
+    }
+    return s;
 }
 
 PEGASUS_NAMESPACE_END

@@ -117,7 +117,8 @@ struct  CMD_STRUCT
 // ******** CIM Client Commands
 static CMD_STRUCT CommandTable[] =
 {
-    // Command ID                CommandName        Min Num Args, ShortCut Name, Usage              
+    // Command ID                CommandName        Min Num Args, ShortCut Name
+    //   Usage              
     {ID_EnumerateInstanceNames,  "enumerateInstanceNames", 2 ,"ni",
         "Enumerate instancenames of <instancename>  " },
     {ID_EnumerateAllInstanceNames,"enumallInstanceNames", 2 , "niall",
@@ -174,7 +175,8 @@ static CMD_STRUCT CommandTable[] =
         " Show List of Commands "  },
 };
 
-static const Uint32 NUM_COMMANDS = sizeof(CommandTable) / sizeof(CommandTable[0]);
+static const Uint32 NUM_COMMANDS =
+    sizeof(CommandTable) / sizeof(CommandTable[0]);
 
 // ************* Options Functions
 // The input options used by the individual commands. Note that

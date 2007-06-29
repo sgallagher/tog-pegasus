@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QueryChainedIdentifierRep_h
@@ -48,16 +41,16 @@
 #include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_QUERYCOMMON_LINKAGE QueryChainedIdentifierRep
 {
-  public:
+public:
 
     QueryChainedIdentifierRep();
 
     QueryChainedIdentifierRep(const QueryIdentifier &id);
- 
+
     QueryChainedIdentifierRep(const QueryChainedIdentifierRep* rep);
 
     ~QueryChainedIdentifierRep();
@@ -81,8 +74,8 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryChainedIdentifierRep
     QueryIdentifier getLastIdentifier()const;
 
     void applyContext(QueryContext& inContext);
-	
-  protected:
+
+protected:
 
     Array<QueryIdentifier> _subIdentifiers;
 

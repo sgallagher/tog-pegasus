@@ -42,7 +42,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
- 
+
 static Boolean verbose;
 
 // Local function to compare created buffer and a result char array
@@ -53,7 +53,7 @@ bool resultTest(const Buffer& buffer, const char * result)
     {
         return true;
     }
- 
+
    else
     {
         int maxLen = (int)strlen(result);
@@ -62,7 +62,7 @@ bool resultTest(const Buffer& buffer, const char * result)
             cout << "Size diff error. str1 len = " << strlen(buffer.getData())
                  << " str2 len = " << strlen(result) << endl;
         }
-        cout << "Created Buffer\n<" << buffer.getData() 
+        cout << "Created Buffer\n<" << buffer.getData()
             << ">\nTest Result\n<" << result << ">" << endl;
         return(false);
     }
@@ -104,7 +104,7 @@ void test03()
         MofWriter::appendPropertyElement(true, tmp, p1);
         const char * declCompare = "\nstring message = \"Hi There\";";
         if (verbose)
-            cout << "Property MOF = " << tmp.getData() 
+            cout << "Property MOF = " << tmp.getData()
                 << "\n out \n" << declCompare << endl;
 
         PEGASUS_TEST_ASSERT(resultTest(tmp,declCompare));
@@ -181,17 +181,17 @@ void test04()
     try
     {
         CIMQualifierDecl qual1(
-            CIMName ("CIMTYPE"), 
+            CIMName ("CIMTYPE"),
             String(),
             CIMScope::PROPERTY,
             CIMFlavor::TOINSTANCE);
 
-        //Qualifier Abstract : boolean = false, Scope(class, association, 
+        //Qualifier Abstract : boolean = false, Scope(class, association,
         //indication), Flavor(DisableOverride, Restricted);
 
         CIMQualifierDecl q2(
             CIMName ("Abstract"),
-            true, 
+            true,
             CIMScope::CLASS,
             CIMFlavor::OVERRIDABLE);
         ;
@@ -241,7 +241,7 @@ void test05()
         .addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
         .addProperty(CIMProperty(p))
         .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
-            .addParameter(CIMParameter(CIMName ("hostname"), 
+            .addParameter(CIMParameter(CIMName ("hostname"),
                     CIMTYPE_STRING))
             .addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
     if (verbose)
@@ -250,7 +250,7 @@ void test05()
     MofWriter::appendClassElement(tmp, class1);
 
     // compare with the following result.
-        char classCompare[] = 
+        char classCompare[] =
             "\n//    Class MyClass\n\n"
             "[q1 (55) : DisableOverride, Restricted, \n"
             "q2 (\"Hello\") : DisableOverride, Restricted]\n"
@@ -265,15 +265,16 @@ void test05()
             "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmp, classCompare));
 
-        CIMInstance instance1 = class1.buildInstance(false, false,
-                                                     CIMPropertyList());
+        CIMInstance instance1 =
+            class1.buildInstance(false, false, CIMPropertyList());
         Uint32 idx = instance1.findProperty(CIMName("errorType"));
         instance1.removeProperty(idx);
-        instance1.addProperty(CIMProperty(CIMName ("errorType"), String("Abend")));
+        instance1.addProperty(
+            CIMProperty(CIMName("errorType"), String("Abend")));
         Buffer tmpInstance;
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
-        char instanceCompare[] = 
+        char instanceCompare[] =
             "\n//Instance of MyClass\n"
             "instance of MyClass\n"
             "{\n"
@@ -283,15 +284,15 @@ void test05()
             "};\n";
         PEGASUS_TEST_ASSERT(resultTest(tmpInstance, instanceCompare));
     }
-    
-    
+
+
     // Test CimClass This is not really an association class. We
-    // simply used the 
+    // simply used the
     {
         if (verbose)
             cout << "Class test\n";
         CIMClass class1(CIMName ("MyClass"), CIMName ("YourClass"));
-    
+
         Array<String> arr;
         arr.append("One");
         arr.append("Two");
@@ -310,7 +311,7 @@ void test05()
                                      CIMValue(CIMTYPE_BOOLEAN, false)))
             .addProperty(CIMProperty(CIMName ("arraytest"), v))
             .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
-                .addParameter(CIMParameter(CIMName ("hostname"), 
+                .addParameter(CIMParameter(CIMName ("hostname"),
                         CIMTYPE_STRING))
                 .addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
         if (verbose)
@@ -319,7 +320,7 @@ void test05()
         MofWriter::appendClassElement(tmp, class1);
 
     // compare with the following result.
-        char classCompare[] = 
+        char classCompare[] =
             "\n//    Class MyClass\n\n"
             "[association : DisableOverride, Restricted, \n"
             "q1 (55) : DisableOverride, Restricted, \n"
@@ -339,7 +340,7 @@ void test05()
         Buffer tmpInstance;
         MofWriter::appendInstanceElement(tmpInstance, instance1);
 
-        char instanceCompare[] = 
+        char instanceCompare[] =
             "\n//Instance of MyClass\n"
             "instance of MyClass\n"
             "{\n"
@@ -351,7 +352,7 @@ void test05()
         PEGASUS_TEST_ASSERT(resultTest(tmpInstance, instanceCompare));
     }
     // Test CimClass This is not really an association class.
-    /* 
+    /*
     [abstract]
         class class1
         {
@@ -367,51 +368,51 @@ void test05()
         }; */
     {
         CIMClass class1(CIMName ("SubClass"), CIMName ("SuperClass"));
-    
+
         class1
             .addQualifier(CIMQualifier(CIMName ("abstract"), true))
-                    .addQualifier(CIMQualifier(CIMName ("description"), 
+                    .addQualifier(CIMQualifier(CIMName ("description"),
                String("This is a Description of my class. "
                "This is part 2 of the string to make it longer. "
                "This is part 3 of the same string for nothing.")))
-    
+
             .addProperty(CIMProperty(CIMName ("DriveLetter"), String("A"))
                 .addQualifier(CIMQualifier(CIMName ("read"), true)))
-    
+
             .addProperty(CIMProperty(CIMName ("RawCapacity"),Sint32(99))
                 .addQualifier(CIMQualifier(CIMName ("read"), true))
-                .addQualifier(CIMQualifier(CIMName ("Units"), 
+                .addQualifier(CIMQualifier(CIMName ("Units"),
                         String("KiloBytes"))))
-    
+
             .addProperty(CIMProperty(CIMName ("VolumeLabel"), String(" ")))
-        
+
                 .addMethod(CIMMethod(CIMName ("NoParmsMethod"),
                                                 CIMTYPE_BOOLEAN))
-            
+
             .addMethod(CIMMethod(CIMName ("OneParmmethod"), CIMTYPE_BOOLEAN)
-                .addParameter(CIMParameter(CIMName ("FastFormat"), 
+                .addParameter(CIMParameter(CIMName ("FastFormat"),
                         CIMTYPE_BOOLEAN)
-                           .addQualifier(CIMQualifier(CIMName ("Dangerous"), 
+                           .addQualifier(CIMQualifier(CIMName ("Dangerous"),
                                    true))
                              )
                       )
-    
+
             .addMethod(CIMMethod(CIMName ("TwoParmMethod"),
                                         CIMTYPE_BOOLEAN)
-                .addParameter(CIMParameter(CIMName ("FirstParam"), 
+                .addParameter(CIMParameter(CIMName ("FirstParam"),
                         CIMTYPE_BOOLEAN)
                            .addQualifier(CIMQualifier(
                                CIMName ("Dangerous"), true))
                            .addQualifier(CIMQualifier(
-                               CIMName ("in"),true))          
+                               CIMName ("in"),true))
                             )
-                .addParameter(CIMParameter(CIMName ("SecondParam"), 
+                .addParameter(CIMParameter(CIMName ("SecondParam"),
                         CIMTYPE_BOOLEAN)
                             .addQualifier(CIMQualifier(
-                                CIMName ("Dangerous"), 
+                                CIMName ("Dangerous"),
                                     true))
                             .addQualifier(CIMQualifier(
-                                CIMName ("in"),true))         
+                                CIMName ("in"),true))
                             )
                      )
                      ;
@@ -420,7 +421,7 @@ void test05()
         Buffer tmp;
         MofWriter::appendClassElement(tmp, class1);
 
-        char classCompare[] = 
+        char classCompare[] =
             "\n//    Class SubClass\n\n"
             "[abstract : DisableOverride, Restricted, \n"
             "description (\"This is a Description of my class. This is part 2 "

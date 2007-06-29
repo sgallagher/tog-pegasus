@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "QueryChainedIdentifier.h"
@@ -44,70 +37,76 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/*
-#define PEGASUS_ARRAY_T QueryChainedIdentifier
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-*/
-
-QueryChainedIdentifier::QueryChainedIdentifier(){
-	_rep = new QueryChainedIdentifierRep();
+QueryChainedIdentifier::QueryChainedIdentifier()
+{
+    _rep = new QueryChainedIdentifierRep();
 }
 
 QueryChainedIdentifier::QueryChainedIdentifier(const QueryIdentifier &id)
 {
-  _rep = new QueryChainedIdentifierRep(id);
+    _rep = new QueryChainedIdentifierRep(id);
 }
 
-QueryChainedIdentifier::QueryChainedIdentifier(const QueryChainedIdentifier& cid){
-	_rep = new QueryChainedIdentifierRep(*(cid._rep));
+QueryChainedIdentifier::QueryChainedIdentifier(
+    const QueryChainedIdentifier& cid)
+{
+    _rep = new QueryChainedIdentifierRep(*(cid._rep));
 }
 
-QueryChainedIdentifier::~QueryChainedIdentifier(){
+QueryChainedIdentifier::~QueryChainedIdentifier()
+{
     delete _rep;
 }
 
-const Array<QueryIdentifier>& QueryChainedIdentifier::getSubIdentifiers()const
+const Array<QueryIdentifier>& QueryChainedIdentifier::getSubIdentifiers() const
 {
-	return _rep->getSubIdentifiers();
+    return _rep->getSubIdentifiers();
 }
 
-QueryIdentifier QueryChainedIdentifier::getLastIdentifier()const{
-	return _rep->getLastIdentifier();
-}
-
-String QueryChainedIdentifier::toString()const{
-	return _rep->toString();
-}
-
-void QueryChainedIdentifier::append(const QueryIdentifier & id){
-	_rep->append(id);
-}
-
-QueryIdentifier QueryChainedIdentifier::operator[](Uint32 index)const
+QueryIdentifier QueryChainedIdentifier::getLastIdentifier() const
 {
-	return _rep->operator[](index);
+    return _rep->getLastIdentifier();
 }
 
-QueryChainedIdentifier& QueryChainedIdentifier::operator=(const QueryChainedIdentifier& rhs){
-	if(&rhs != this){
-		delete _rep;
-        	_rep = new QueryChainedIdentifierRep(rhs._rep);
-	}
-	return *this;
+String QueryChainedIdentifier::toString() const
+{
+    return _rep->toString();
 }
 
-Uint32 QueryChainedIdentifier::size()const{
-	return _rep->size();
+void QueryChainedIdentifier::append(const QueryIdentifier & id)
+{
+    _rep->append(id);
 }
 
-Boolean QueryChainedIdentifier::prepend(const QueryIdentifier & id){
-	return _rep->prepend(id);
+QueryIdentifier QueryChainedIdentifier::operator[](Uint32 index) const
+{
+    return _rep->operator[](index);
+}
+
+QueryChainedIdentifier& QueryChainedIdentifier::operator=(
+    const QueryChainedIdentifier& rhs)
+{
+    if (&rhs != this)
+    {
+        delete _rep;
+        _rep = new QueryChainedIdentifierRep(rhs._rep);
+    }
+    return *this;
+}
+
+Uint32 QueryChainedIdentifier::size() const
+{
+    return _rep->size();
+}
+
+Boolean QueryChainedIdentifier::prepend(const QueryIdentifier & id)
+{
+    return _rep->prepend(id);
 }
 
 void QueryChainedIdentifier::applyContext(QueryContext& inContext)
 {
-  _rep->applyContext(inContext);
+    _rep->applyContext(inContext);
 }
 
 PEGASUS_NAMESPACE_END

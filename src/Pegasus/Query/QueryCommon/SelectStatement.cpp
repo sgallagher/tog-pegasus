@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "SelectStatement.h"
@@ -44,34 +37,35 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-SelectStatement::SelectStatement( )
+SelectStatement::SelectStatement()
 {
 }
 
 SelectStatement::~SelectStatement()
 {
-  // No need to delete the _rep.
-  // This memory owned by the sub classes.
+    // No need to delete the _rep.
+    // This memory owned by the sub classes.
 }
 
 String SelectStatement::getQueryLanguage() const
 {
-  // Should be set by the concrete sub-classes
-  PEGASUS_ASSERT(_rep != NULL);
+    // Should be set by the concrete sub-classes
+    PEGASUS_ASSERT(_rep != NULL);
 
-  return _rep->getQueryLanguage();
+    return _rep->getQueryLanguage();
 }
 
 String SelectStatement::getQuery() const
 {
-  // Should be set by the concrete sub-classes
-  PEGASUS_ASSERT(_rep != NULL);
+    // Should be set by the concrete sub-classes
+    PEGASUS_ASSERT(_rep != NULL);
 
-  return _rep->getQuery();
+    return _rep->getQuery();
 }
 
-void SelectStatement::setQueryContext(QueryContext& inCtx){
-	_rep->setQueryContext(inCtx);
+void SelectStatement::setQueryContext(QueryContext& inCtx)
+{
+    _rep->setQueryContext(inCtx);
 }
 
 PEGASUS_NAMESPACE_END

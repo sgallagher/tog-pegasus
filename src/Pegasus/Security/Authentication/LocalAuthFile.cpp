@@ -34,14 +34,12 @@
 #include "LocalAuthFile.h"
 
 #include <fstream>
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-#include <unistd.h>
-#endif
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #ifndef PEGASUS_OS_TYPE_WINDOWS
-#include <sys/time.h>
+# include <sys/time.h>
+# include <unistd.h>
 #endif
 
 #include <Pegasus/Common/System.h>
@@ -53,9 +51,9 @@
 #include "LocalAuthFile.h"
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-// srandom( ) and random( ) are srand( ) and rand( ) on OS/400 and windows
-#define srandom(x) srand(x)
-#define random() rand()
+// srandom() and random() are srand() and rand() on OS/400 and windows
+# define srandom(x) srand(x)
+# define random() rand()
 #endif
 
 
@@ -84,9 +82,10 @@ const Uint32 INT_BUFFER_SIZE = 16;
 const char DEV_URANDOM []    =  "/dev/urandom";
 
 //
-// Constant representing the size of random entropy needed
+// Constant representing the size of random entropy needed.
+// Require minimum 160 bits = 20 bytes of randomness.
 //
-const Uint32 RANDOM_BYTES_NEEDED = 20;  // require minimum 160 bits = 20 bytes of randomness
+const Uint32 RANDOM_BYTES_NEEDED = 20;
 
 //
 // A unique sequence number used in random file name creation.
@@ -116,8 +115,8 @@ LocalAuthFile::LocalAuthFile(const String& userName)
     PEG_METHOD_EXIT();
 }
 
-LocalAuthFile::~LocalAuthFile() 
-{ 
+LocalAuthFile::~LocalAuthFile()
+{
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::~LocalAuthFile()");
 
     PEG_METHOD_EXIT();
@@ -140,8 +139,8 @@ String LocalAuthFile::create()
     // extension size is username plus the sequence count
     //
     {
-      AutoMutex autoMut(sequenceCountLock);
-      mySequenceNumber = sequenceCount++;
+        AutoMutex autoMut(sequenceCountLock);
+        mySequenceNumber = sequenceCount++;
     } // mutex unlocks here
 
     char extension[2*INT_BUFFER_SIZE];
@@ -150,24 +149,24 @@ String LocalAuthFile::create()
 
     String filePath;
 
-	//Check to see whether a domain was specified. If so, strip the domain from the
-	//local auth file name, since the backslash and '@' are invalid filename characters.
-	//Store this in another variable, since we need to keep the domain around for 
-	//the rest of the operations. Bug 3076
-	String fileUserName = _userName;
-	Uint32 index = _userName.find('\\');
-	if (index != PEG_NOT_FOUND) 
-	{
-		fileUserName = _userName.subString(index + 1);
-
-	} else
-	{
-		index = _userName.find('@');
-		if (index != PEG_NOT_FOUND) 
-		{
-			fileUserName = _userName.subString(0, index);
-		}
-	}
+    // Check to see whether a domain was specified. If so, strip the domain
+    // from the local auth file name, since the backslash and '@' are invalid
+    // filename characters.  Store this in another variable, since we need to
+    // keep the domain around for the rest of the operations.
+    String fileUserName = _userName;
+    Uint32 index = _userName.find('\\');
+    if (index != PEG_NOT_FOUND)
+    {
+        fileUserName = _userName.subString(index + 1);
+    }
+    else
+    {
+        index = _userName.find('@');
+        if (index != PEG_NOT_FOUND)
+        {
+            fileUserName = _userName.subString(0, index);
+        }
+    }
 
     filePath.append(_authFilePath);
     filePath.append(fileUserName);//_userName);
@@ -183,7 +182,7 @@ String LocalAuthFile::create()
     {
         // unable to create file
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to create local auth file: " + 
+            "Failed to create local auth file: " +
              filePath + ", " + strerror(errno));
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CREATE",
@@ -197,24 +196,24 @@ String LocalAuthFile::create()
     //
     // 2. Set file permission to read/write by the owner only.
     //
-    
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-      Boolean success = 
-          FileSystem::changeFilePermissions(filePath, _S_IREAD | _S_IWRITE);
-    #else
-      Boolean success = 
-          FileSystem::changeFilePermissions(filePath, S_IRUSR | S_IWUSR);
-    #endif
 
-    if ( !success )
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    Boolean success =
+        FileSystem::changeFilePermissions(filePath, _S_IREAD | _S_IWRITE);
+#else
+    Boolean success =
+        FileSystem::changeFilePermissions(filePath, S_IRUSR | S_IWUSR);
+#endif
+
+    if (!success)
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to change mode on file: " + filePath 
+            "Failed to change mode on file: " + filePath
             + ", err is: " + errorMsg);
         PEG_METHOD_EXIT();
-        
-        // Unable to change the local auth file permissions, remove the file 
+
+        // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CHMOD",
@@ -243,7 +242,7 @@ String LocalAuthFile::create()
     if (outfs.fail())
     {
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to write security token to file: " 
+            "Failed to write security token to file: "
             + filePath );
 
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -263,29 +262,27 @@ String LocalAuthFile::create()
         throw CannotOpenFile (filePath);
 
     }
-    
+
     outfs.close();
 
     //
     // 4. Set file permission to read only by the owner.
     //
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-      success = 
-          FileSystem::changeFilePermissions(filePath, _S_IREAD);
-    #else
-      success = 
-          FileSystem::changeFilePermissions(filePath, S_IRUSR);
-    #endif
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    success = FileSystem::changeFilePermissions(filePath, _S_IREAD);
+#else
+    success = FileSystem::changeFilePermissions(filePath, S_IRUSR);
+#endif
 
-    if ( !success )
+    if (!success)
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to change mode on file: " + filePath 
-            + ", err is: " + errorMsg);
+            "Failed to change mode on file: " + filePath +
+                ", err is: " + errorMsg);
         PEG_METHOD_EXIT();
-        
-        // Unable to change the local auth file permissions, remove the file 
+
+        // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CHMOD",
@@ -311,7 +308,7 @@ String LocalAuthFile::create()
     if (!FileSystem::changeFileOwner(filePath,_userName))
     {
         String errorMsg = strerror(errno);
-        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4, 
+        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
             "Failed to change owner of file '" + filePath + "' to '" +
             _userName + "', err is: " + errorMsg);
         PEG_METHOD_EXIT();
@@ -343,7 +340,7 @@ String LocalAuthFile::create()
 
     PEG_METHOD_EXIT();
 
-    return(_filePathName);
+    return _filePathName;
 }
 
 //
@@ -360,17 +357,18 @@ Boolean LocalAuthFile::remove()
     //
     if (FileSystem::exists(_filePathName))
     {
-    
+
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
         // change ownership back to the CIMOM
-        int rc = chown((const char *)_filePathName.getCString(), geteuid(), getegid());
-        
-        if(rc == -1 )
-        {  
+        int rc = chown(
+            (const char *)_filePathName.getCString(), geteuid(), getegid());
+
+        if (rc == -1)
+        {
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
                 "Security.Authentication.LocalAuthFile.NO_CHOWN",
-                "Changing ownership of the local authentication"
-                " security file back to the CIMServer UserId failed.");
+                "Changing ownership of the local authentication "
+                    "security file back to the CIMServer UserId failed.");
         }
 #endif
 
@@ -379,7 +377,7 @@ Boolean LocalAuthFile::remove()
 
     PEG_METHOD_EXIT();
 
-    return(retVal);
+    return retVal;
 }
 
 //
@@ -391,7 +389,7 @@ String LocalAuthFile::getSecretString()
 
     PEG_METHOD_EXIT();
 
-    return(_secret);
+    return _secret;
 }
 
 
@@ -400,7 +398,7 @@ String LocalAuthFile::getSecretString()
 //
 String LocalAuthFile::_generateRandomTokenString()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "LocalAuthFile::_generateRandomTokenString()");
 
     String randomToken;
@@ -411,7 +409,7 @@ String LocalAuthFile::_generateRandomTokenString()
     //
     // If /dev/urandom exists then read random token from /dev/urandom
     //
-    if ( ( fh = fopen( (const char *)randFile.getCString(), "r") ) != NULL )
+    if ((fh = fopen( (const char *)randFile.getCString(), "r")) != NULL)
     {
         char token[RANDOM_BYTES_NEEDED+1];
 
@@ -451,7 +449,7 @@ String LocalAuthFile::_generateRandomTokenString()
 
     PEG_METHOD_EXIT();
 
-    return (randomToken);
+    return randomToken;
 }
 
 PEGASUS_NAMESPACE_END

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By:
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SecureBasicAuthenticator_h
@@ -50,14 +45,15 @@ PEGASUS_NAMESPACE_BEGIN
 /** This class provides Secure basic authentication implementation by extending
     the BasicAuthenticator.
 */
-class PEGASUS_SECURITY_LINKAGE SecureBasicAuthenticator : public BasicAuthenticator
+class PEGASUS_SECURITY_LINKAGE SecureBasicAuthenticator
+    : public BasicAuthenticator
 {
 public:
 
-    /** constructor. */ 
+    /** constructor. */
     SecureBasicAuthenticator();
 
-    /** destructor. */ 
+    /** destructor. */
     ~SecureBasicAuthenticator();
 
     /** Verify the authentication of the requesting user.
@@ -66,7 +62,7 @@ public:
         @return true on successful authentication, false otherwise
     */
     Boolean authenticate(
-        const String& userName, 
+        const String& userName,
         const String& password);
 
     /**
@@ -86,7 +82,6 @@ private:
     String        _realm;
     UserManager*  _userManager;
 };
-
 
 PEGASUS_NAMESPACE_END
 

@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "SelectStatement.h"
@@ -45,83 +37,89 @@
 PEGASUS_NAMESPACE_BEGIN
 
 SelectStatementRep::SelectStatementRep()
-  :_ctx(NULL)
+    : _ctx(NULL)
 {
 }
 
 SelectStatementRep::SelectStatementRep(const SelectStatementRep& ssr)
-  :_qlang(ssr._qlang),
-   _query(ssr._query)
+    : _qlang(ssr._qlang),
+      _query(ssr._query)
 {
-  _ctx = NULL;
-  if (ssr._ctx != NULL)
-  {
-    _ctx = ssr._ctx->clone();
-  }
+    _ctx = NULL;
+    if (ssr._ctx != NULL)
+    {
+        _ctx = ssr._ctx->clone();
+    }
 }
 
-SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery, QueryContext& inCtx)
-  :_qlang(inQlang),
-   _query(inQuery)
+SelectStatementRep::SelectStatementRep(
+    String& inQlang,
+    String& inQuery,
+    QueryContext& inCtx)
+    : _qlang(inQlang),
+      _query(inQuery)
 {
-  _ctx = inCtx.clone();
+    _ctx = inCtx.clone();
 }
 
-SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery)
-  :_qlang(inQlang),
-   _query(inQuery),
-   _ctx(NULL)
+SelectStatementRep::SelectStatementRep(
+    String& inQlang,
+    String& inQuery)
+    : _qlang(inQlang),
+      _query(inQuery),
+      _ctx(NULL)
 {
 }
 
 SelectStatementRep::~SelectStatementRep()
 {
-  delete _ctx;
+    delete _ctx;
 }
 
 SelectStatementRep& SelectStatementRep::operator=(const SelectStatementRep& rhs)
 {
-  if (this == &rhs)
+    if (this == &rhs)
+        return *this;
+
+    _qlang = rhs._qlang;
+    _query = rhs._query;
+
+    delete _ctx;
+
+    if (rhs._ctx != NULL)
+    {
+        _ctx = rhs._ctx->clone();
+    }
+    else
+    {
+        _ctx = NULL;
+    }
+
     return *this;
-
-  _qlang = rhs._qlang;
-  _query = rhs._query;
-
-  delete _ctx;
-
-  if (rhs._ctx != NULL)
-  {
-    _ctx = rhs._ctx->clone();
-  }
-  else
-  {
-    _ctx = NULL;
-  }
-
-  return *this;
 }
 
 String SelectStatementRep::getQueryLanguage() const
 {
-   return _qlang;
+    return _qlang;
 }
 
 String SelectStatementRep::getQuery() const
 {
-   return _query;
+    return _query;
 }
 
 void SelectStatementRep::setQueryContext(QueryContext& inCtx)
 {
-  if (_ctx == NULL)
-  {
-    _ctx = inCtx.clone();
-  }
-  else
-  {
-    throw QueryException(MessageLoaderParms("QueryCommon.SelectStatementRep.QUERY_CTX_ALREADY_SET",
-                        "The QueryContext can only be set once on a SelectStatement."));
-  }
+    if (_ctx == NULL)
+    {
+        _ctx = inCtx.clone();
+    }
+    else
+    {
+        throw QueryException(MessageLoaderParms(
+            "QueryCommon.SelectStatementRep.QUERY_CTX_ALREADY_SET",
+            "The QueryContext can only be set once on a SelectStatement."));
+    }
 }
 
 PEGASUS_NAMESPACE_END

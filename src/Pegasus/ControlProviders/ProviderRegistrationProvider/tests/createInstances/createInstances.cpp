@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -41,7 +36,9 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Constants.h>
+// NOCHKSRC
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+// DOCHKSRC
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -61,15 +58,15 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty(CIMName ("Name"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("Name"),
         String("providersModule1")));
     cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
     cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"),
         String("C++Default")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"),
         String("2.1.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("Location"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("Location"),
         String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
@@ -79,7 +76,8 @@ void TestCreateInstances(CIMClient& client)
 
     try
     {
-        returnRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
+        returnRef =
+            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
     }
     catch(const CIMException&)
     {
@@ -94,9 +92,9 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
         String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty(CIMName ("Name"), 
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
         String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
@@ -106,7 +104,8 @@ void TestCreateInstances(CIMClient& client)
 
     try
     {
-        returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+        returnRef2 =
+            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
     }
     catch(const CIMException&)
     {
@@ -124,7 +123,7 @@ void TestCreateInstances(CIMClient& client)
 
     namespaces.append("root/cimv2");
     namespaces.append("root/cimv3");
-    
+
     providerType.append(4);
     providerType.append(5);
 
@@ -140,20 +139,20 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
         String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"),
         String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"),
         String("capability1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"),
         String("TestSoftwarePkg")));
     cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"),
         providerType));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"),
         supportedMethods));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"),
         supportedProperties));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
@@ -163,14 +162,15 @@ void TestCreateInstances(CIMClient& client)
 
     try
     {
-        returnRef3 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
+        returnRef3 =
+            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
     }
     catch(const CIMException&)
     {
         throw;
     }
 
-    CIMKeyBinding kb1(CIMName ("Name"), "providersModule1", 
+    CIMKeyBinding kb1(CIMName ("Name"), "providersModule1",
         CIMKeyBinding::STRING);
     Array<CIMKeyBinding> keys;
     keys.append(kb1);
@@ -180,7 +180,7 @@ void TestCreateInstances(CIMClient& client)
     // test getInstance
     try
     {
-    	client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
+        client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
     }
     catch(const CIMException&)
     {
@@ -190,7 +190,8 @@ void TestCreateInstances(CIMClient& client)
     // test enumerateInstances
     try
     {
-    	client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+        client.enumerateInstances(
+            PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
     }
     catch(const CIMException&)
     {
@@ -200,13 +201,13 @@ void TestCreateInstances(CIMClient& client)
     // test enumerateInstanceNames
     try
     {
-    	client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
+        client.enumerateInstanceNames(
+            PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
     }
     catch(const CIMException&)
     {
         throw;
     }
-
 
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 }
@@ -217,21 +218,21 @@ int main(int argc, char** argv)
 
     try
     {
-	CIMClient client;
-	
-	client.connectLocal();
-	TestCreateInstances(client);
+        CIMClient client;
+
+        client.connectLocal();
+        TestCreateInstances(client);
     }
 
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << "+++++ create instances failed"
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD (cout) << "+++++ create instances failed"
                            << PEGASUS_STD (endl);
-	exit(-1);
+        exit(-1);
     }
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
-    
+
     return 0;
 }

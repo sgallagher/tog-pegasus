@@ -28,14 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
-//
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,63 +36,57 @@
 
 #include <Pegasus/Query/QueryCommon/Linkage.h>
 #include <Pegasus/Common/Config.h>
-//#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
+
 class QueryChainedIdentifierRep;
 class QueryContext;
 
 class PEGASUS_QUERYCOMMON_LINKAGE QueryChainedIdentifier
 {
-  public:
+public:
 
     QueryChainedIdentifier();
 
     QueryChainedIdentifier(const QueryIdentifier & id);
- 
+
     QueryChainedIdentifier(const QueryChainedIdentifier& cid);
 
     ~QueryChainedIdentifier();
 
-    const Array<QueryIdentifier>& getSubIdentifiers()const;
+    const Array<QueryIdentifier>& getSubIdentifiers() const;
 
-    String toString()const;
+    String toString() const;
 
     void append(const QueryIdentifier & id);
 
-    Uint32 size()const;
+    Uint32 size() const;
 
     Boolean prepend(const QueryIdentifier & id);
 
-    QueryIdentifier operator[](Uint32 index)const;
+    QueryIdentifier operator[](Uint32 index) const;
 
     QueryChainedIdentifier& operator=(const QueryChainedIdentifier& rhs);
 
-    Boolean isSubChain(const QueryChainedIdentifier & chain)const;
+    Boolean isSubChain(const QueryChainedIdentifier & chain) const;
 
-    QueryIdentifier getLastIdentifier()const;
+    QueryIdentifier getLastIdentifier() const;
 
     void applyContext(QueryContext& inContext);
-	
+
   protected:
 
     QueryChainedIdentifierRep* _rep;
 
 };
 
-/*
-#ifndef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T QueryChainedIdentifier
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-#endif
-*/
-
 PEGASUS_NAMESPACE_END
+
 #endif
+
 #endif /* Pegasus_QueryChainedIdentifier_h */

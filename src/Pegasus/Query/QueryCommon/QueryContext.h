@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-// 
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QueryContext_h
@@ -58,76 +49,84 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef HashTable<String, QueryIdentifier, EqualNoCaseFunc, HashLowerCaseFunc> HT_Alias_Class;
+typedef HashTable<String, QueryIdentifier, EqualNoCaseFunc, HashLowerCaseFunc>
+    HT_Alias_Class;
 
 class PEGASUS_QUERYCOMMON_LINKAGE QueryContext
 {
-   public:
-  
-        enum ClassRelation
-        {
-          SAMECLASS,
-          SUBCLASS,
-          SUPERCLASS,
-          NOTRELATED
-        };
+public:
 
-        virtual ~QueryContext();
-        
-        virtual QueryContext* clone() = 0;
+    enum ClassRelation
+    {
+        SAMECLASS,
+        SUBCLASS,
+        SUPERCLASS,
+        NOTRELATED
+    };
 
-        String getHost(Boolean fullyQualified = true);
+    virtual ~QueryContext();
 
-        CIMNamespaceName getNamespace() const;
+    virtual QueryContext* clone() = 0;
 
-        void insertClassPath(const QueryIdentifier& inIdentifier, String inAlias = String::EMPTY);
+    String getHost(Boolean fullyQualified = true);
 
-        void addWhereIdentifier(const QueryChainedIdentifier& inIdentifier);
+    CIMNamespaceName getNamespace() const;
 
-        Array<QueryChainedIdentifier> getWhereList() const;
+    void insertClassPath(
+        const QueryIdentifier& inIdentifier,
+        String inAlias = String::EMPTY);
 
-        QueryIdentifier findClass(const String& inAlias) const;
+    void addWhereIdentifier(const QueryChainedIdentifier& inIdentifier);
 
-        Array<QueryIdentifier> getFromList() const;
-	
-        String getFromString() const;
+    Array<QueryChainedIdentifier> getWhereList() const;
 
-        virtual CIMClass getClass(const CIMName& inClassName)const = 0;
+    QueryIdentifier findClass(const String& inAlias) const;
 
-        virtual Array<CIMName> enumerateClassNames(const CIMName& inClassName)const = 0;
+    Array<QueryIdentifier> getFromList() const;
 
-        // Returns true if the derived class is a subclass of the base class.
-        // Note: this will return false if the classes are the same.
-        // Note: the default namespace of the query is used.
-        virtual Boolean isSubClass(const CIMName& baseClass,
-                                   const CIMName& derivedClass)const = 0;
+    String getFromString() const;
 
-        // Returns the relationship between the anchor class and the related
-        // class in the class schema of the query's default name space.
-        virtual ClassRelation getClassRelation(const CIMName& anchorClass,
-                                               const CIMName& relatedClass)const = 0;
+    virtual CIMClass getClass(const CIMName& inClassName)const = 0;
 
-        void clear();
+    virtual Array<CIMName> enumerateClassNames(
+        const CIMName& inClassName) const = 0;
 
-   protected:
+    // Returns true if the derived class is a subclass of the base class.
+    // Note: this will return false if the classes are the same.
+    // Note: the default namespace of the query is used.
+    virtual Boolean isSubClass(
+        const CIMName& baseClass,
+        const CIMName& derivedClass) const = 0;
 
-        QueryContext(const QueryContext& ctx);
+    // Returns the relationship between the anchor class and the related
+    // class in the class schema of the query's default name space.
+    virtual ClassRelation getClassRelation(
+        const CIMName& anchorClass,
+        const CIMName& relatedClass) const = 0;
 
-        QueryContext(const CIMNamespaceName& inNS);
+    void clear();
 
-        QueryContext& operator=(const QueryContext& rhs);
-          
-   private: 
+protected:
 
-        QueryContext();
+    QueryContext(const QueryContext& ctx);
 
-        // members
-        CIMNamespaceName _NS;
-        HT_Alias_Class _AliasClassTable;
-        Array<QueryIdentifier> _fromList;
-        Array<QueryChainedIdentifier> _whereList;
+    QueryContext(const CIMNamespaceName& inNS);
+
+    QueryContext& operator=(const QueryContext& rhs);
+
+private:
+
+    QueryContext();
+
+    // members
+    CIMNamespaceName _NS;
+    HT_Alias_Class _AliasClassTable;
+    Array<QueryIdentifier> _fromList;
+    Array<QueryChainedIdentifier> _whereList;
 };
 
 PEGASUS_NAMESPACE_END
+
 #endif
+
 #endif

@@ -42,7 +42,10 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-Uint16 _validateGetClass(CIMClient& cli, CIMNamespaceName& nameSpace, CIMName& className)
+Uint16 _validateGetClass(
+    CIMClient& cli,
+    CIMNamespaceName& nameSpace,
+    CIMName& className)
 {
    try
    {
@@ -58,15 +61,17 @@ Uint16 _validateGetClass(CIMClient& cli, CIMNamespaceName& nameSpace, CIMName& c
    catch (Exception& e)
    {
       cerr << "Exception getClass : " << e.getMessage() << endl;
-      cerr << "Exception occured in the Pegasus/ControlProviders/Statictic/test file" << endl;
-      return(5);
+      cerr << "Exception occured in the "
+          "Pegasus/ControlProviders/Statictic/test file" << endl;
+      return 5;
    }
-   return(0);
+   return 0;
 }
 
-
-
-Uint16 _validateGetInst(CIMClient& cli, CIMNamespaceName& nameSpace, CIMInstance& instName)
+Uint16 _validateGetInst(
+    CIMClient& cli,
+    CIMNamespaceName& nameSpace,
+    CIMInstance& instName)
 {
    //cout << "we are in the function _validateGetInst" << endl;
 
@@ -83,15 +88,18 @@ Uint16 _validateGetInst(CIMClient& cli, CIMNamespaceName& nameSpace, CIMInstance
    catch (Exception& e)
    {
       cerr << "Exception getInstances : " << e.getMessage() << endl;
-      cerr << "Exception occured in the Pegasus/ControlProviders/Statictic/test file" << endl;
-      return(4);
+      cerr << "Exception occured in the "
+          "Pegasus/ControlProviders/Statictic/test file" << endl;
+      return 4;
    }
 
-   return(0);
+   return 0;
 }
 
-Uint16 _validateEumInstNames(CIMClient& cli, CIMNamespaceName& nameSpace, CIMName&
-                             className)
+Uint16 _validateEumInstNames(
+    CIMClient& cli,
+    CIMNamespaceName& nameSpace,
+    CIMName& className)
 {
    //cout <<"we are in the _validateEumInstNames func" << endl;
 
@@ -102,17 +110,18 @@ Uint16 _validateEumInstNames(CIMClient& cli, CIMNamespaceName& nameSpace, CIMNam
    catch (Exception& e)
    {
       cerr << "Exception enumerateInstances : " << e.getMessage() << endl;
-      cerr << "Exception occured in the Pegasus/ControlProviders/Statictic/test file" << endl;
-      return(3);
+      cerr << "Exception occured in the "
+          "Pegasus/ControlProviders/Statictic/test file" << endl;
+      return 3;
    }
 
-   return(0);
+   return 0;
 }
 
-
-			
-
-Uint16 _validateInstOperations(CIMClient& cli, CIMNamespaceName& nameSpace, CIMName& className)
+Uint16 _validateInstOperations(
+    CIMClient& cli,
+    CIMNamespaceName& nameSpace,
+    CIMName& className)
 {
    //cout << "we are in the function _validateEumInst" <<endl;
 
@@ -129,20 +138,20 @@ Uint16 _validateInstOperations(CIMClient& cli, CIMNamespaceName& nameSpace, CIMN
    catch (Exception& e)
    {
       cerr << "Exception enumerateInstances : " << e.getMessage() << endl;
-      cerr << "Exception occured in the Pegasus/ControlProviders/Statictic/test file" << endl;
-      return(2);
+      cerr << "Exception occured in the "
+          "Pegasus/ControlProviders/Statictic/test file" << endl;
+      return 2;
    }
-   
 
    Uint16 ret = _validateGetInst(cli, nameSpace, instances[3]);
    if (ret != 0)
-      return(ret);
+      return ret;
 
    ret = _validateEumInstNames(cli, nameSpace, className);
    if (ret != 0)
-      return(ret);
-   
-   return(0);
+      return ret;
+
+   return 0;
 }
 
 

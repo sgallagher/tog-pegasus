@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
-//
-// Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Authenticator_h
@@ -63,13 +57,14 @@ public:
     /** Destructor  */
     virtual ~Authenticator() { };
 
-    /** Verify the authentication of the user passed in the HTTP authorization header.
+    /** Verify the authentication of the user passed in the HTTP authorization
+        header.
         @param authHeader String containing the Authorization header
         @param authInfo Reference to AuthenticationInfo object
         @return true on successful authentication, false otherwise
     */
     virtual Boolean authenticate(
-        const String& authHeader, 
+        const String& authHeader,
         AuthenticationInfo* authInfo) = 0;
 
     /** Construct and return the Basic authentication challenge header

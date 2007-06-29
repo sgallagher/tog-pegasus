@@ -28,6 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,8 +41,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -75,7 +77,9 @@ void InteropProvider::associators(
             "InteropProvider::associators()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s associators. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        "%s associators. objectName= %s, assocClass= %s resultClass= %s "
+            "role= %s resultRole %s, includeQualifiers= %s, "
+            "includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),
@@ -131,7 +135,8 @@ void InteropProvider::associatorNames(
         "InteropProvider::associatorNames()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s associatorNames.objectName= %s , assocClass= %s resultClass= %s role= %s resultRole = %s",
+        "%s associatorNames.objectName= %s, assocClass= %s resultClass= %s "
+            "role= %s resultRole = %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),
@@ -181,7 +186,8 @@ void InteropProvider::references(
         "InteropProvider::references()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        "%s references. objectName= %s, resultClass= %s role= %s "
+            "includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)resultClass.getString().getCString(),

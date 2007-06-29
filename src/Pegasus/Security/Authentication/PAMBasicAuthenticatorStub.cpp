@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//
-// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
@@ -47,12 +42,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 /**
     Constant representing the Basic authentication challenge header.
 */
 static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
-
 
 /* constructor. */
 PAMBasicAuthenticator::PAMBasicAuthenticator() 
@@ -97,14 +90,15 @@ Boolean PAMBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
 
-    //FUTURE: PAM authentication is not implemented on non Unix platforms,
-    //hence this function return false as default indicating authentication failure.
+    // FUTURE: PAM authentication is not implemented on non Unix platforms,
+    // hence this function return false as default indicating authentication
+    // failure.
 
     Boolean authenticated = false;
 
     PEG_METHOD_EXIT();
 
-    return (authenticated);
+    return authenticated;
 }
 
 Boolean PAMBasicAuthenticator::validateUser(
@@ -113,14 +107,15 @@ Boolean PAMBasicAuthenticator::validateUser(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::validateUser()");
 
-    //FUTURE: PAM authentication is not implemented on non Unix platforms,
-    //hence this function return false as default indicating validation failure.
+    // FUTURE: PAM authentication is not implemented on non Unix platforms,
+    // hence this function return false as default indicating validation
+    // failure.
 
     Boolean authenticated = false;
 
     PEG_METHOD_EXIT();
 
-    return (authenticated);
+    return authenticated;
 }
 
 //
@@ -140,7 +135,7 @@ String PAMBasicAuthenticator::getAuthResponseHeader()
 
     PEG_METHOD_EXIT();
 
-    return (responseHeader);
+    return responseHeader;
 }
 
 PEGASUS_NAMESPACE_END

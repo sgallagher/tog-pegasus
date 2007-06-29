@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QueryExpression_h
@@ -49,77 +44,84 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class gives access to the particulars of a query expression.*/
-
-
 class SelectStatement;
 
-class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
-    public:
+/** This class gives access to the particulars of a query expression.*/
+class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression
+{
+public:
 
-  /**
-     Constructor
-     Note: this object will throw exceptions when it is used after
-     default construction.
-   */
-  QueryExpression();
+    /**
+        Constructor
+        Note: this object will throw exceptions when it is used after
+        default construction.
+    */
+    QueryExpression();
 
-   /**
-    Constructor.
-    At the moment the constructor only accepts WQL style Select statements.
-    The constructor is normally called by the Provider Manager.
+    /**
+        Constructor.
+        At the moment the constructor only accepts WQL style Select statements.
+        The constructor is normally called by the Provider Manager.
 
-    @param language contains the query language type, "WQL" is supported.
-    @param query contains a WQL style select statement
-  */
+        @param language contains the query language type, "WQL" is supported.
+        @param query contains a WQL style select statement
+    */
+    QueryExpression(
+        String queryLang,
+        String query,
+        QueryContext& ctx);
 
-    QueryExpression(String queryLang, String query, QueryContext& ctx);
-
-    QueryExpression(String queryLang, String query);
+    QueryExpression(
+        String queryLang,
+        String query);
 
     QueryExpression(const QueryExpression& expr);
 
     /**
-    Destructor.
-    The destructor normally only called by the Provider Manager.
+        Destructor.
+        The destructor normally only called by the Provider Manager.
     */
     ~QueryExpression();
 
     /**
-    Operator =
+        Operator =
     */
     QueryExpression operator=(const QueryExpression& rhs);
 
    /**
-    \Label{getQueryLanguage}
-    Returns the query language identifier.
-    @return A String instance containing the query language identifier.
+       \Label{getQueryLanguage}
+       Returns the query language identifier.
+       @return A String instance containing the query language identifier.
     */
     String getQueryLanguage() const;
 
     /**
-    \Label{getQuery}
-    Returns the query select statement.
-    @return A String instance containing the query select statement.
+        \Label{getQuery}
+        Returns the query select statement.
+        @return A String instance containing the query select statement.
     */
     String getQuery() const;
 
     /**
-    \Label{evaluate}
-    Returns true if the instance passes where clause evaluation successfully.
+        \Label{evaluate}
+        Returns true if the instance passes where clause evaluation
+        successfully.
 
-    @param inst the instance to be evaluated.
-    @return A Boolean indicating result of evaluation.
+        @param inst the instance to be evaluated.
+        @return A Boolean indicating result of evaluation.
     */
     Boolean evaluate(const CIMInstance& inst) const;
 
     /**
-    \Label{getPropertyList}
-    Returns the select clause projection specification as CIMPropertyList
-    A NULL CIMPropertyList is returned when all properties are to be returned.
-    @return A CIMPropertylist instance containing the select clause projection specification.
+        \Label{getPropertyList}
+        Returns the select clause projection specification as CIMPropertyList
+        A NULL CIMPropertyList is returned when all properties are to be
+        returned.
+        @return A CIMPropertylist instance containing the select clause
+        projection specification.
     */
-    CIMPropertyList getPropertyList(const CIMObjectPath& objectPath = CIMObjectPath()) const;
+    CIMPropertyList getPropertyList(
+        const CIMObjectPath& objectPath = CIMObjectPath()) const;
 
     /**
         Returns the required properties from the SELECT clause for the specified
@@ -133,8 +135,8 @@ class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getSelectPropertyList
-        (const CIMObjectPath& objectPath = CIMObjectPath ()) const;
+    CIMPropertyList getSelectPropertyList(
+        const CIMObjectPath& objectPath = CIMObjectPath()) const;
 
     /**
         Returns the required properties from the WHERE clause for the specified
@@ -148,21 +150,22 @@ class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getWherePropertyList
-        (const CIMObjectPath& objectPath = CIMObjectPath ()) const;
+    CIMPropertyList getWherePropertyList(
+        const CIMObjectPath& objectPath = CIMObjectPath()) const;
 
-    void applyProjection(CIMInstance instance,
+    void applyProjection(
+        CIMInstance instance,
         Boolean allowMissing);
 
     void validate();
 
-    Array<CIMObjectPath> getClassPathList()const;
+    Array<CIMObjectPath> getClassPathList() const;
 
     SelectStatement* getSelectStatement();
 
     void setQueryContext(QueryContext& inCtx);
 
-  private:
+private:
     SelectStatement *_ss;
     String _queryLang;
 };

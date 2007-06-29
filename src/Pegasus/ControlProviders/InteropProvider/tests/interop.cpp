@@ -158,7 +158,7 @@ String _showPropertyList(const CIMPropertyList& pl)
     @param Array of CIMObjectPaths to be searched
     @return true if the path is in the list otherwise false.
 */
-Boolean _containsObjectPath(const CIMObjectPath& path, 
+Boolean _containsObjectPath(const CIMObjectPath& path,
     const Array<CIMObjectPath>& pathList)
 {
     for (Uint32 p = 0; p < pathList.size(); p++)
@@ -302,16 +302,16 @@ public:
 
     // Methods associated with general instance testing
     Boolean matchPathsAndInstancePaths(
-        Array<CIMObjectPath>& paths, 
+        Array<CIMObjectPath>& paths,
         const Array<CIMInstance> instances);
 
     // Methods associated with general instance testing
     Boolean matchPathsAndObjectPaths(
-        Array<CIMObjectPath>& paths, 
+        Array<CIMObjectPath>& paths,
         const Array<CIMObject> instanceObjectss);
 
     Boolean testGetInstancesForEnum(
-        const Array<CIMObjectPath>& paths, 
+        const Array<CIMObjectPath>& paths,
         const Array<CIMInstance>& instances,
         const Boolean localOnly,
         const Boolean includeQualifiers,
@@ -334,7 +334,7 @@ private:
 static const CIMName PROPERTY_NAME  = CIMName ("PropertyName");
 
 String InteropTest::getCurrentConfigProperty(
-    const CIMName& propertyName) 
+    const CIMName& propertyName)
 {
     // The following assumes localconnect.
     String _hostName;
@@ -385,7 +385,7 @@ String InteropTest::getCurrentConfigProperty(
                 << " Requested Name: " <<  propertyName.getString()
                 << " Returned Name: " <<  propertyNameValue
                 //<< " Default: " << defaultValue
-                //<< " planned: " << plannedValue 
+                //<< " planned: " << plannedValue
                 << " current: " << currentValue << endl;
         }
     }
@@ -399,13 +399,13 @@ String InteropTest::getCurrentConfigProperty(
 }
 
 Boolean InteropTest::getCurrentBoolConfigProperty(
-    const CIMName& propName) 
+    const CIMName& propName)
 {
     return ConfigManager::parseBooleanValue(getCurrentConfigProperty(propName));
 }
 
 Uint32 InteropTest::getCurrentValueConfigProperty(
-    const CIMName& propName) 
+    const CIMName& propName)
 {
     String strValue = getCurrentConfigProperty(propName);
 
@@ -422,7 +422,7 @@ Uint32 InteropTest::getCurrentValueConfigProperty(
     @parm - namespace - Namespace for this test.
     @param - className CIMName of class to test.
     @return returns true if tests pass. False if there is
-    a difference.  
+    a difference.
     @any exceptions caught are displayed and the error
     return executed.
 */
@@ -435,7 +435,7 @@ Boolean InteropTest::testEnumAgainstEnumNames(
         Array<CIMObjectPath> paths;
         Array<CIMInstance> instances;
         paths = _client.enumerateInstanceNames(nameSpace, className);
-    
+
         instances = _client.enumerateInstances(nameSpace,
                                 className,
                                 true,           // deepinheritance
@@ -443,7 +443,7 @@ Boolean InteropTest::testEnumAgainstEnumNames(
                                 true,           //includeQualifiers
                                 true,           //includeClassOrigin
                                 CIMPropertyList());
-    
+
         if(!(paths.size() == instances.size()))
         {
             cout << "Error: Class " << className.getString() <<
@@ -451,7 +451,7 @@ Boolean InteropTest::testEnumAgainstEnumNames(
                 " instanceCount: " << instances.size() << endl;
             return(false);
         }
-    
+
         if( !matchPathsAndInstancePaths(paths, instances))
         {
             /* Assumes that the match function will flag errors
@@ -460,10 +460,10 @@ Boolean InteropTest::testEnumAgainstEnumNames(
             */
             return(false);
         }
-    
+
         for (Uint32 i = 0 ; i < instances.size() ; i++ )
         {
-            CIMInstance instance = _client.getInstance(nameSpace, 
+            CIMInstance instance = _client.getInstance(nameSpace,
                             instances[i].getPath(),
                             false,                  //lo
                             true,                   //includeQualifiers
@@ -473,18 +473,16 @@ Boolean InteropTest::testEnumAgainstEnumNames(
             instance.setPath(instances[i].getPath());
             if (!(instances[i].getPath() == instance.getPath()))
             {
-                
                 cout << "Error: Class " << className.getString() <<
                     " Instance path does not match enumerate for instance.\n\n"
                     << instances[i].getPath().toString() <<
                     "\n\n" << instance.getPath().toString() << endl << endl;
-                return(false);
+                return false;
             }
-            
+
             // TODO DELETE CIMObjectPath temp = instances[i].getPath();
             if (!instance.identical(instances[i]))
             {
-                
                 cout << "Error: Class " << className.getString() <<
                     " Instance identical test faild for instance " <<
                     instances[i].getPath().toString() << endl;
@@ -494,12 +492,12 @@ Boolean InteropTest::testEnumAgainstEnumNames(
     }
     catch(CIMException& e)
     {
-        cerr << "testEnumAgainstEnumNames CIMException: " << e.getMessage() 
+        cerr << "testEnumAgainstEnumNames CIMException: " << e.getMessage()
              << endl;
     }
     catch(Exception& e)
     {
-        cerr << "testEnumAgainstEnumNames Pegasus Exception: " 
+        cerr << "testEnumAgainstEnumNames Pegasus Exception: "
              << e.getMessage()  << endl;
     }
     catch(...)
@@ -515,12 +513,12 @@ Boolean InteropTest::testEnumAgainstEnumNames(
    Note: Since this tests the instance for equality with the instance from
    the enumerate, the enumerate must have matching attributes AND must be
    deepInheritance to assure that all properties are returned.
-   
+
    @param paths Array of CIMObjectPaths representing the enumerateinstanceNames
    result
    @param instances Array of CIMInstances representing the enumerateInstances
    result
-   @return True if passes test. False if any of the tests fail  
+   @return True if passes test. False if any of the tests fail
    @Exceptions Any number of uncaught exceptions from the calls.
 */
 Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
@@ -533,7 +531,7 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
     // Get every instance to confirm that it is gettable
     for (Uint32 i = 0 ; i < paths.size() ; i++)
     {
-        CIMInstance instance = 
+        CIMInstance instance =
             _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
                                           paths[i],
                                           localOnly,
@@ -546,7 +544,7 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
             {
                 if (!instances[j].identical(instance))
                 {
-                    cout << " Instances not equal " 
+                    cout << " Instances not equal "
                         << instances[j].getPath().toString() << endl;
                     return (false);
                 }
@@ -567,7 +565,7 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
    @param instances Array of CIMInstance from enumerateInstanceN.
 */
 
-Boolean InteropTest::matchPathsAndInstancePaths(Array<CIMObjectPath>& paths, 
+Boolean InteropTest::matchPathsAndInstancePaths(Array<CIMObjectPath>& paths,
         const Array<CIMInstance> instances)
 {
     PEGASUS_TEST_ASSERT(instances.size() == paths.size());
@@ -615,7 +613,7 @@ Boolean InteropTest::matchPathsAndInstancePaths(Array<CIMObjectPath>& paths,
     return (true);
 }
 
-Boolean InteropTest::matchPathsAndObjectPaths(Array<CIMObjectPath>& paths, 
+Boolean InteropTest::matchPathsAndObjectPaths(Array<CIMObjectPath>& paths,
         const Array<CIMObject> ObjectInstances)
 {
     PEGASUS_TEST_ASSERT(ObjectInstances.size() == paths.size());
@@ -684,12 +682,12 @@ Boolean InteropTest::testEnumerateOptions(
     CIMInstance instance = instancesObjMgr[0];
     CIMPropertyList rtnd;
     Array<CIMName> nameList;
-    CDEBUG("testEnumerations 1" << " prpertycount= " 
+    CDEBUG("testEnumerations 1" << " prpertycount= "
             << instance.getPropertyCount());
     for (Uint32 i = 0 ; i < instance.getPropertyCount() ; i++)
     {
 
-        CDEBUG("testEnumerations 1a" << " propertycount= " 
+        CDEBUG("testEnumerations 1a" << " propertycount= "
                 << instance.getProperty(i).getName().getString());
         nameList.append(instance.getProperty(i).getName());
     }
@@ -768,7 +766,7 @@ Array<CIMNamespaceName> InteropTest::_getNamespacesOld()
             {
                 next = namespaceNames[range];
             }
-            Array<CIMInstance> instances = 
+            Array<CIMInstance> instances =
                 _client.enumerateInstances(next, className);
             for (Uint32 i = 0 ; i < instances.size(); i++)
             {
@@ -821,7 +819,9 @@ Array<CIMNamespaceName> InteropTest::_getNamespacesOld()
     return(returnNamespaceNames);
 }
 
-Boolean InteropTest::_deleteOneLevelOfNamespace(const CIMNamespaceName& parent, const String & child)
+Boolean InteropTest::_deleteOneLevelOfNamespace(
+    const CIMNamespaceName& parent,
+    const String & child)
 {
     try
     {
@@ -833,9 +833,9 @@ Boolean InteropTest::_deleteOneLevelOfNamespace(const CIMNamespaceName& parent, 
         PEGASUS_STD(cerr) << "Exception NameSpace Deletion: "
            << e.getMessage() << " Deleting " << child << " from " << parent
                << PEGASUS_STD(endl);
-        return(false);
+        return false;
    }
-   return(true);
+   return true;
 }
 
 /* Delete the namespace defined by the input. This function uses
@@ -843,20 +843,21 @@ Boolean InteropTest::_deleteOneLevelOfNamespace(const CIMNamespaceName& parent, 
 */
 Boolean InteropTest::_deleteNamespaceOld(const String & name)
 {
-
     Uint32 pos;
-    while((pos = name.reverseFind('/')) != PEG_NOT_FOUND)
+    while ((pos = name.reverseFind('/')) != PEG_NOT_FOUND)
     {
         String parent = name.subString(0, pos);
         String child = name.subString (pos + 1);
-        Boolean rtn = _deleteOneLevelOfNamespace(CIMNamespaceName(parent), child);
-        if(!rtn)
-            return(false);
+        Boolean rtn =
+            _deleteOneLevelOfNamespace(CIMNamespaceName(parent), child);
+        if (!rtn)
+            return false;
     }
-    return(true);
+    return true;
 }
 
-Boolean InteropTest::_validateNamespaces(Array<CIMNamespaceName>& namespaceNames)
+Boolean InteropTest::_validateNamespaces(
+    Array<CIMNamespaceName>& namespaceNames)
 {
     // Validate that these are all namespaces.  This is not a certain
     // Test but we simply check to see if there is an association
@@ -885,17 +886,15 @@ Boolean InteropTest::_validateNamespaces(Array<CIMNamespaceName>& namespaceNames
     {
         cout << returnNamespaces.size() << " namespaces " << " returned."
              << endl;
-        for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
+        for (Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
         {
             cout << returnNamespaces[cnt] << endl;;
         }
     }
-    if (returnNamespaces.size() == namespaceNames.size())
-        return(true);
-    else
-        return(false);
 
+    return (returnNamespaces.size() == namespaceNames.size());
 }
+
 /* Deleted for now
 Boolean _existsOld(CIMNamespaceName& name)
 {
@@ -1153,7 +1152,7 @@ void InteropTest::_showNamespaceInfo(const String& title)
         String name;
 
         // get the namespace name from the name property.
-        if ((instances[i].findProperty(NAMESPACE_PROPERTYNAME)) == 
+        if ((instances[i].findProperty(NAMESPACE_PROPERTYNAME)) ==
                 PEG_NOT_FOUND)
             isSharable = "ERROR: Name Property Not Found";
         else
@@ -1206,7 +1205,10 @@ void InteropTest::_showNamespaceInfo(const String& title)
                                (const char *)parent.getCString());
     }
 }
-void _showNamespaceList(const Array<CIMNamespaceName> names, const String& title)
+
+void _showNamespaceList(
+    const Array<CIMNamespaceName> names,
+    const String& title)
 {
     cout << title << " size = " << names.size() << endl;
     for (Uint32 i = 0; i < names.size(); i++)
@@ -1236,7 +1238,7 @@ Boolean InteropTest::_existsNew(const CIMNamespaceName& name)
 /* Create a single namespace with __Namespace Class.
    @param parent CIMNameSpaceName defining the parent namespace for
    this operation.
-   @param childname. 
+   @param childname.
 */
 Boolean InteropTest::_namespaceCreate__Namespace(const CIMNamespaceName& parent,
                                                  const String& child)
@@ -1256,7 +1258,7 @@ Boolean InteropTest::_namespaceCreate__Namespace(const CIMNamespaceName& parent,
          if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
          {
                PEGASUS_STD(cerr) << "CIMException: NameSpace Creation: "
-                   << e.getMessage() << ". " << parent << "/" << child << 
+                   << e.getMessage() << ". " << parent << "/" << child <<
                    " Already Exists. Cannot create."
                    << PEGASUS_STD(endl);
          }
@@ -1280,7 +1282,7 @@ Boolean InteropTest::_namespaceCreate__Namespace(const CIMNamespaceName& parent,
 /** Create a single namespace using PG_Namespace. Creates the namespace with
     the name defined in the call by creating a new instance of PG_Namespace.
     @param name - CIMNamespaceName of namespace to create.
-    @param CIMNamespaceName ns is optional parameter that defines the name 
+    @param CIMNamespaceName ns is optional parameter that defines the name
     of the CIMServer namespace to be used as the target for the instance
     create.  This option is only used to test for ability to create namespaces
     in other than the defined interop namespace.
@@ -1363,7 +1365,7 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
     // Does this namespace exist.
     if (_existsNew(name))
     {
-        cout << "Namespace " << name.getString() << 
+        cout << "Namespace " << name.getString() <<
             " already Exists in _namespacCreateCIM_Namespace function." << endl;
         return(false);
     }
@@ -1450,7 +1452,7 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
     }
     catch(Exception& e)
     {
-        cerr << "Exception during Creation of " << name.getString() 
+        cerr << "Exception during Creation of " << name.getString()
             << ": " << e.getMessage()
             << " CIM_Namespace Instance Creation error" << endl;
         return(false);
@@ -1479,7 +1481,7 @@ Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
         if (testString.find(name.getString()) != 0)
         {
             // get this instance.
-            instance = _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, 
+            instance = _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
                             paths[i],
                             false,                  //lo
                             true,                   //includeQualifiers
@@ -1491,7 +1493,7 @@ Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
         //
         String errorMsg ("NamespaceInstance: ");
         errorMsg.append(paths[i].toString());
-    
+
         if ((instance.findProperty("IsShareable")) == PEG_NOT_FOUND)
         {
             cerr << errorMsg << ". Property IsShareable not found" << endl;
@@ -1506,7 +1508,7 @@ Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
                 cout << errorMsg << ". Error in sharing" << endl;
                 return(false);
             }
-    
+
         }
         // test for shared property
         if ((instance.findProperty("SchemaUpdatesAllowed")) == PEG_NOT_FOUND)
@@ -1551,7 +1553,7 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     // Does this namespace exist.
     if (_existsNew(name))
     {
-        cout << "Namespace " << name.getString() << 
+        cout << "Namespace " << name.getString() <<
             " already Exists in _namespacCreatePG_Namespace function." << endl;
         return(false);
     }
@@ -1640,7 +1642,7 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     }
     catch(Exception& e)
     {
-        cerr << "Error during Creation of " << name.getString() 
+        cerr << "Error during Creation of " << name.getString()
             << ": " << e.getMessage()
             << " Instance Creation error" << endl;
         return(false);
@@ -1705,7 +1707,7 @@ Boolean InteropTest::testClassExists(const CIMName & className)
 
     catch(Exception& e)
     {
-        cerr << "Error: " << e.getMessage() << " Class " 
+        cerr << "Error: " << e.getMessage() << " Class "
             << className.getString()
             << " does not exist in Namespace "
             << PEGASUS_NAMESPACENAME_INTEROP.getString() << endl;
@@ -1759,7 +1761,7 @@ void InteropTest::testNameSpacesManagement()
     PEGASUS_TEST_ASSERT(nameListNew.size() == nameListOld.size());
 
     // Add assertion that they have the same items in the list
-    for (Uint32 i = 0 ; i < nameListNew.size() ; i++) 
+    for (Uint32 i = 0 ; i < nameListNew.size() ; i++)
     {
         PEGASUS_TEST_ASSERT(nameListNew[i] == nameListOld[i]);
     }
@@ -1824,9 +1826,11 @@ void InteropTest::testNameSpacesManagement()
 
     PEGASUS_TEST_ASSERT( ! _existsNew(testNameNew));
 
-    CDEBUG("Now Create New Namespace with CIM_Namespace. Namespace name = " << testNameNew.getString() << ".");
+    CDEBUG("Now Create New Namespace with CIM_Namespace. Namespace name = " <<
+        testNameNew.getString() << ".");
 
-    PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), PEGASUS_NAMESPACENAME_INTEROP));
+    PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(
+        CIMNamespaceName(testNameNew), PEGASUS_NAMESPACENAME_INTEROP));
 
     if (verbose)
         _showNamespaceList(nameListNew,
@@ -1893,16 +1897,16 @@ void InteropTest::testNameSpacesManagement()
     Array<CIMNamespaceName> namespaceList = _getNamespacesNew();
     for (Uint32 i = 0 ; i < namespaceList.size() ; i++)
     {
-        // The get class test is here simply as a means to assure that no 
+        // The get class test is here simply as a means to assure that no
         // instances exist in the any namespace except the interop namespace
-        if (!(namespaceList[i] == PEGASUS_NAMESPACENAME_INTEROP)) 
+        if (!(namespaceList[i] == PEGASUS_NAMESPACENAME_INTEROP))
         {
             // Error if we can successfully create namespace.
             if (_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew),
                         namespaceList[i]))
             {
-                cout << "Error, Created new CIM_Namespace " 
-                    << testNameNew.getString() 
+                cout << "Error, Created new CIM_Namespace "
+                    << testNameNew.getString()
                     << " instance in " << namespaceList[i].getString() << endl;
                 TERMINATE("Failed test by creating new namespace "
                         "outside of Interop namespace");
@@ -1985,7 +1989,7 @@ void InteropTest::testSharedNameSpacesManagement()
         Array<CIMNamespaceName> nameListAfter = _getNamespacesNew();
         if (nameListBefore.size() != nameListAfter.size())
         {
-            cout << "SharedNamespace sizes " << nameListBefore.size() 
+            cout << "SharedNamespace sizes " << nameListBefore.size()
                 << " " << nameListAfter.size() << endl;
             BubbleSort(nameListBefore);
             BubbleSort(nameListAfter);
@@ -2076,7 +2080,7 @@ void InteropTest::testObjectManagerClass()
             XmlWriter::printInstanceElement(instanceObjectManager);
         }
         // Rebuild the path from the instance
-        CIMObjectPath rebuiltObjectManagerPath = 
+        CIMObjectPath rebuiltObjectManagerPath =
             instanceObjectManager.buildPath(objectManagerClass);
 
         // test to confirm that both names and instances return same thing.
@@ -2144,7 +2148,7 @@ void InteropTest::testObjectManagerClass()
         // ID at this point.
 
         // test get instance.
-        CIMInstance instance = 
+        CIMInstance instance =
             _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
             rcvdObjectManagerPath);
 
@@ -2167,8 +2171,8 @@ void InteropTest::testObjectManagerClass()
         TERMINATE(" CIM_ObjectManager Caught General Exception:");
     }
 
-    // 
-    //  Test to be sure we cannot get instances of this class from another 
+    //
+    //  Test to be sure we cannot get instances of this class from another
     //  namespace
     //
     Boolean errFound = false;
@@ -2180,7 +2184,7 @@ void InteropTest::testObjectManagerClass()
         {
             // for all namespaces except interop, try to enumerate
             // instances of cimobjectmanager.
-            if (namespaceList[i] != PEGASUS_NAMESPACENAME_INTEROP) 
+            if (namespaceList[i] != PEGASUS_NAMESPACENAME_INTEROP)
             {
                 try
                 {
@@ -2193,7 +2197,7 @@ void InteropTest::testObjectManagerClass()
                 catch(CIMException& e)
                 {
                     if ((e.getCode() != CIM_ERR_INVALID_CLASS) &&
-                            (e.getCode() != CIM_ERR_NOT_SUPPORTED)) 
+                            (e.getCode() != CIM_ERR_NOT_SUPPORTED))
                     {
                         cout << " CIMException " << e.getMessage()
                             << "namespace " << namespaceList[i].getString()
@@ -2205,7 +2209,7 @@ void InteropTest::testObjectManagerClass()
                 catch(Exception& e)
                 {
                     errFound= true;
-                    cout << 
+                    cout <<
                         "Exception in look for cimobject manager"
                         " in strange places "
                         << e.getMessage() << endl;
@@ -2316,7 +2320,7 @@ Boolean InteropTest::testStatisticsSetOperationError(
                     const CIMInstance & modifiedIns,
                     const CIMPropertyList& list,
                     Boolean shouldRespondGood,
-                    Boolean includeQualifiers, 
+                    Boolean includeQualifiers,
                     const CIMStatusCode expectedCode)
 {
     try
@@ -2351,7 +2355,7 @@ Boolean InteropTest::testStatisticsSetOperationError(
     }
 }
 /** test of the function to enable and disable the boolean statistics
-    property in CIMObjectManager using modify instance.  
+    property in CIMObjectManager using modify instance.
     This tests both correct modification and error cases.
 */
 void InteropTest::testStatisticsEnable()
@@ -2437,7 +2441,7 @@ void InteropTest::testStatisticsEnable()
         plA2.append(CIMName("RequestStateChange"));
         CIMPropertyList myPropertyList2(plA2);
         CIMInstance sendInstance2 = sendInstance.clone();
-        sendInstance2.filter(false, false, myPropertyList2); 
+        sendInstance2.filter(false, false, myPropertyList2);
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     false, false, CIM_ERR_NOT_SUPPORTED))
         TERMINATE("Set Should fail. Bad Property in modifiedInstance");
@@ -2448,7 +2452,7 @@ void InteropTest::testStatisticsEnable()
         Array<CIMName> plA3;
         myPropertyList2.set(plA3);
         sendInstance2 = sendInstance.clone();
-        sendInstance2.filter(false, false, myPropertyList); 
+        sendInstance2.filter(false, false, myPropertyList);
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     true, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Set with propertylist empty should pass");
@@ -2538,7 +2542,7 @@ void InteropTest::testCommunicationClass()
         #endif
 
         // Test enumerate instances.
-        // Note that we do this both with deep inheritance and not 
+        // Note that we do this both with deep inheritance and not
         for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
         {
             PEGASUS_TEST_ASSERT (
@@ -2581,7 +2585,7 @@ void InteropTest::testCommunicationClass()
 
         // Repeat with deepInheritance = true.
         deepInheritance = true;
-        instancesCommMech = 
+        instancesCommMech =
              _client.enumerateInstances(
                               PEGASUS_NAMESPACENAME_INTEROP,
                               CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
@@ -2653,7 +2657,7 @@ void InteropTest::testCommunicationClass()
                 if (getCurrentBoolConfigProperty("enableAssociationTraversal"))
                     testFunctionalProfile.append(6);
 
-                // ExecQuery capability is a compile option. 
+                // ExecQuery capability is a compile option.
 #ifndef PEGASUS_DISABLE_EXECQUERY
                 testFunctionalProfile.append(7);
 #endif
@@ -2690,7 +2694,7 @@ void InteropTest::testCommunicationClass()
                 // NOTE: We do not test for correct strings.
                 if (verbose)
                     for (Uint32 i = 0 ; i < functionalProfile.size() ; i++)
-                        cout << functionalProfile[i] << " " << 
+                        cout << functionalProfile[i] << " " <<
                             functionalProfileDescription[i] << endl;
             }
 
@@ -2702,7 +2706,7 @@ void InteropTest::testCommunicationClass()
                         "AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
 
             // The following tests are only for PG_CIMXML... Instances
-            if (instancesCommMech[i].getClassName() == 
+            if (instancesCommMech[i].getClassName() ==
                     PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME)
             {
                 Uint32 pos;
@@ -2780,7 +2784,7 @@ void InteropTest::testCommunicationClass()
                     catch(CIMException& e)
                     {
                         TERMINATE(
-                                " Cim Exception Error Comm class IP Address: " 
+                                " Cim Exception Error Comm class IP Address: "
                                 << IPAddress << " " << e.getMessage());
                     }
                     catch(Exception& e)
@@ -2807,7 +2811,7 @@ void InteropTest::testCommunicationClass()
     }
     catch(...)
     {
-        cerr << pgmName 
+        cerr << pgmName
             << " testCommunicationClass Test Caught General Exception:"
             << endl;
     }
@@ -2824,7 +2828,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
     {
         // get all namespace instances to test against
         Array<CIMInstance> namespaceInstances = _getCIMNamespaceInstances();
-    
+
         Boolean deepInheritance = false;
         Boolean localOnly = false;
         Boolean includeQualifiers = true;
@@ -2847,9 +2851,9 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                 instancesNamespaceInManager.size());
         PEGASUS_TEST_ASSERT(_getNamespacesNew().size() ==
                 namespaceInstances.size());
-    
+
         // Test getting reference names.  Should match number of instances
-    
+
         String role;
         CIMObjectPath objectManagerPath = getObjMgrPath();
 
@@ -2868,13 +2872,13 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
         // should return same number of objects as number of namespaces.
         PEGASUS_TEST_ASSERT(referenceNames.size() ==
                 instancesNamespaceInManager.size());
-    
+
         // test to see that all of the names match
         PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(referenceNames,
                     instancesNamespaceInManager));
 
         // Test getting references.  Compare to list of namespaces.
-        Array<CIMObject> references = 
+        Array<CIMObject> references =
             _client.references(
                 PEGASUS_NAMESPACENAME_INTEROP,       // namespace
                 objectManagerPath,                   // object manager instance
@@ -2883,7 +2887,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                 true,                                // includeQualifiers
                 true,                                // includeClassOrigin
                 CIMPropertyList());                  // propertyList
-    
+
         // test if references and referencenames return same size
         PEGASUS_TEST_ASSERT(references.size() == referenceNames.size());
         PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(referenceNames,
@@ -2907,7 +2911,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
 
         // get the reference names for namespaceinmanager for target
         // objectmanager.
-        referenceNames = 
+        referenceNames =
             _client.referenceNames(
                     PEGASUS_NAMESPACENAME_INTEROP,    // namespace
                     objectManagerPath,                // object manager instance
@@ -3000,7 +3004,7 @@ void InteropTest::testCommMechinManagerAssocClass()
     CIMObjectPath objectManagerPath = getObjMgrPath();
     try
     {
-        Array<CIMObjectPath> referenceNames = 
+        Array<CIMObjectPath> referenceNames =
             _client.referenceNames(
                     PEGASUS_NAMESPACENAME_INTEROP,    // namespace
                     objectManagerPath,                // object manager instance

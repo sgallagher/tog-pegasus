@@ -42,16 +42,17 @@ class SimpleDisplayConsumer : public CIMIndicationConsumerProvider
 {
 public:
 
-    SimpleDisplayConsumer(void);
-    virtual ~SimpleDisplayConsumer(void);
+    SimpleDisplayConsumer();
+    virtual ~SimpleDisplayConsumer();
 
     void initialize(CIMOMHandle& handle);
-    void terminate(void);
+    void terminate();
 
     void consumeIndication(
-	const OperationContext & context,
-	const String& url,
-	const CIMInstance& indicationInstance);
+        const OperationContext & context,
+        const String& url,
+        const CIMInstance& indicationInstance);
+
 protected:
     Mutex _displayFile;
 };

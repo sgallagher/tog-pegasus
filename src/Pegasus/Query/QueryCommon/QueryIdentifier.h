@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QueryIdentifier_h
@@ -44,7 +37,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Query/QueryCommon/Linkage.h>
 #include <Pegasus/Common/String.h>
-//#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Query/QueryCommon/SubRange.h>
@@ -58,7 +50,7 @@ class QueryIdentifierRep;
 
 class PEGASUS_QUERYCOMMON_LINKAGE QueryIdentifier
 {
-  public:
+public:
     QueryIdentifier();
 
     QueryIdentifier(const QueryIdentifier& id);
@@ -67,49 +59,43 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryIdentifier
 
     QueryIdentifier& operator=(const QueryIdentifier& rhs);
 
-    const CIMName& getName()const;
-    
+    const CIMName& getName() const;
+
     void setName(const CIMName& name);
 
-    const String& getSymbolicConstantName()const;
+    const String& getSymbolicConstantName() const;
 
-    const  Array<SubRange>& getSubRanges()const;
+    const  Array<SubRange>& getSubRanges() const;
 
-    Boolean isArray()const;
+    Boolean isArray() const;
 
-    Boolean isSymbolicConstant()const;
+    Boolean isSymbolicConstant() const;
 
-    Boolean isWildcard()const;
+    Boolean isWildcard() const;
 
-    const String& getScope()const;
+    const String& getScope() const;
 
-    Boolean isScoped()const;
+    Boolean isScoped() const;
 
     void applyScope(String scope);
 
-    Boolean operator==(const CIMName &rhs)const;
+    Boolean operator==(const CIMName &rhs) const;
 
-    Boolean operator!=(const CIMName &rhs)const;
+    Boolean operator!=(const CIMName &rhs) const;
 
-    Boolean operator==(const QueryIdentifier &rhs)const;
+    Boolean operator==(const QueryIdentifier &rhs) const;
 
-    Boolean operator!=(const QueryIdentifier &rhs)const;
+    Boolean operator!=(const QueryIdentifier &rhs) const;
 
-    String toString()const;
+    String toString() const;
 
-  protected:
-	QueryIdentifierRep* _rep;
+protected:
+    QueryIdentifierRep* _rep;
 
 };
 
-/*
-#ifndef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T QueryIdentifier
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-*/
-
 PEGASUS_NAMESPACE_END
-//#endif
+
 #endif
+
 #endif /* Pegasus_QueryIdentifier_h */

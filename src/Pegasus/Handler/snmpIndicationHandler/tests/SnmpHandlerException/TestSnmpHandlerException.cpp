@@ -91,14 +91,14 @@ static void TestException(
     catch (CIMException& e)
     {
         exceptionCaught = true;
-        testException = e; 
+        testException = e;
     }
 
-    PEGASUS_TEST_ASSERT(exceptionCaught && 
+    PEGASUS_TEST_ASSERT(exceptionCaught &&
         testException.getCode() == statusCode);
 }
 
-// Snmp traps are sent, but, only partial data are in the trap since 
+// Snmp traps are sent, but, only partial data are in the trap since
 // there are errors in some data
 static void TestError(
     CIMHandler* handler,
@@ -132,12 +132,12 @@ static void CreateRepository(CIMRepository & repository)
     Array<String> qualifierValue;
     qualifierValue.append("");
 
-    CIMQualifierDecl q1(CIMName ("MappingStrings"), qualifierValue, 
+    CIMQualifierDecl q1(CIMName ("MappingStrings"), qualifierValue,
         CIMScope::PROPERTY + CIMScope::CLASS);
 
     // Qualifier name must be "MappingStrings", test the qualifier
     // name is not "MappingStrings"
-    CIMQualifierDecl q2(CIMName ("NotMappingStrings"), qualifierValue, 
+    CIMQualifierDecl q2(CIMName ("NotMappingStrings"), qualifierValue,
         CIMScope::CLASS);
 
     repository.setQualifier(NS, q1);
@@ -147,17 +147,18 @@ static void CreateRepository(CIMRepository & repository)
     classMappingStr.append("OID.IETF | SNMP.1.3.6.1.4.1.892.2.3.9000.8600");
 
     CIMClass class1(testClass1);
-    class1.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+    class1.addQualifier(CIMQualifier(CIMName ("MappingStrings"),
         CIMValue(classMappingStr)));
-    
+
     Array<String> invalidFormatStr;
     invalidFormatStr.append(
         "Wrong format OID.IETF | SNMP.1.3.6.1.4.1.2.3.9000.8600");
     invalidFormatStr.append("DataType.IETF | OctetString ");
 
     // create wrong format property mappingStrings value
-    class1.addProperty(CIMProperty(CIMName ("OidDataType"), String("OctetString"))
-        .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+    class1.addProperty(
+        CIMProperty(CIMName("OidDataType"), String("OctetString"))
+        .addQualifier(CIMQualifier(CIMName ("MappingStrings"),
             CIMValue(invalidFormatStr))));
 
     repository.createClass(NS, class1);
@@ -172,19 +173,19 @@ static void CreateRepository(CIMRepository & repository)
     mappingStr2.append("DataType.IETF OctetString ");
 
     CIMClass class2(testClass2);
-    class2.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+    class2.addQualifier(CIMQualifier(CIMName ("MappingStrings"),
         CIMValue(class2MappingStr)));
-    
+
     class2.addProperty(CIMProperty(CIMName ("OidDataType"), String())
-        .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+        .addQualifier(CIMQualifier(CIMName ("MappingStrings"),
             CIMValue(mappingStr2))));
     repository.createClass(NS, class2);
 
     // create non MappingStrings qualifier
     CIMClass class3(testClass3);
-    class3.addQualifier(CIMQualifier(CIMName ("NotMappingStrings"), 
+    class3.addQualifier(CIMQualifier(CIMName ("NotMappingStrings"),
         CIMValue(classMappingStr)));
-    
+
     repository.createClass(NS, class3);
 
     // error building ASN.1 representation
@@ -192,9 +193,9 @@ static void CreateRepository(CIMRepository & repository)
     class4MappingStr.append("OID.IETF | SNMP.1.204.6.1.6.3.1.330.5.1.0 ");
 
     CIMClass class4(testClass4);
-    class4.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+    class4.addQualifier(CIMQualifier(CIMName ("MappingStrings"),
         CIMValue(class4MappingStr)));
-    
+
     repository.createClass(NS, class4);
 
     // create incorrect class mappingStrings value
@@ -202,15 +203,15 @@ static void CreateRepository(CIMRepository & repository)
     class5MappingStr.append("OID.IETF | SNMP.1.3.6.1.6.test.1.1.5.1.3 ");
 
     CIMClass class5(testClass5);
-    class5.addQualifier(CIMQualifier(CIMName 
+    class5.addQualifier(CIMQualifier(CIMName
         ("MappingStrings"), CIMValue(class5MappingStr)));
 
     // create incorrect property name
     class5.addProperty(
         CIMProperty(CIMName ("WrongPropertyName"), String("OctetString"))
-            .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+            .addQualifier(CIMQualifier(CIMName ("MappingStrings"),
                 CIMValue(class5MappingStr))));
-    
+
     repository.createClass(NS, class5);
 
     // create incorrect property mappingStrings value
@@ -222,13 +223,13 @@ static void CreateRepository(CIMRepository & repository)
     mappingStr6.append("DataType.IETF | OctetString");
 
     CIMClass class6(testClass6);
-    class6.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+    class6.addQualifier(CIMQualifier(CIMName ("MappingStrings"),
         CIMValue(class6MappingStr)));
     class6.addProperty(
         CIMProperty(CIMName ("OidDataType"), String("OctetString"))
-            .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+            .addQualifier(CIMQualifier(CIMName ("MappingStrings"),
                 CIMValue(mappingStr6))));
-    
+
     repository.createClass(NS, class6);
 
     // create unsupportted SNMP Data Type for the CIM property
@@ -240,13 +241,13 @@ static void CreateRepository(CIMRepository & repository)
     mappingStr7.append("DataType.IETF | test ");
 
     CIMClass class7(testClass7);
-    class7.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+    class7.addQualifier(CIMQualifier(CIMName ("MappingStrings"),
         CIMValue(class7MappingStr)));
     class7.addProperty(
         CIMProperty(CIMName ("OidDataType"), String("test"))
-            .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+            .addQualifier(CIMQualifier(CIMName ("MappingStrings"),
                 CIMValue(mappingStr7))));
-    
+
     repository.createClass(NS, class7);
 
     // create invalid syntax for MappingStrings qualifier
@@ -259,11 +260,11 @@ static void CreateRepository(CIMRepository & repository)
     mappingStr8.append("DataType.IETF | OctetString ");
 
     CIMClass class8(testClass8);
-    class8.addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+    class8.addQualifier(CIMQualifier(CIMName ("MappingStrings"),
         CIMValue(class8MappingStr)));
-    
+
     class8.addProperty(CIMProperty(CIMName ("OidDataType"), String())
-        .addQualifier(CIMQualifier(CIMName ("MappingStrings"), 
+        .addQualifier(CIMQualifier(CIMName ("MappingStrings"),
             CIMValue(mappingStr8))));
     repository.createClass(NS, class8);
 }
@@ -384,9 +385,9 @@ static void TestExceptionHandling(CIMHandler* handler)
     TestException(handler, indicationHandlerInstance, indicationInstance,
         CIM_ERR_FAILED);
 
-    // Test "failed to add snmp variables to PDU", 
+    // Test "failed to add snmp variables to PDU",
     // Both a DiscardedData message and an error message
-    // are logged to log file 
+    // are logged to log file
     indicationInstance = CIMInstance(testClass5);
     indicationInstance.addProperty(CIMProperty(
         CIMName ("OidDataType"), String("OctetString")));
@@ -406,7 +407,7 @@ static void TestExceptionHandling(CIMHandler* handler)
     // Test "convert enterprise OID from numeric form to a list of"
     // "subidentifiers failed".
     // Both a DiscardedData message and an error message
-    // are logged to log file 
+    // are logged to log file
     indicationInstance = CIMInstance(testClass5);
     indicationInstance.addProperty(CIMProperty(
         CIMName ("OidDataType"), String("OctetString")));
@@ -426,7 +427,7 @@ static void TestExceptionHandling(CIMHandler* handler)
     // Test "convert property OID from numeric form to a list of"
     // "subidentifiers failed".
     // Both a DiscardedData message and an error message
-    // are logged to log file 
+    // are logged to log file
     indicationInstance = CIMInstance(testClass6);
     indicationInstance.addProperty(CIMProperty(
         CIMName ("OidDataType"), String("OctetString")));
@@ -443,7 +444,7 @@ static void TestExceptionHandling(CIMHandler* handler)
 
     // Test "unsupported SNMP data type for the CIM property"
     // Both a DiscardedData message and an error message
-    // are logged to log file 
+    // are logged to log file
     indicationInstance = CIMInstance(testClass7);
     indicationInstance.addProperty(CIMProperty(
         CIMName ("OidDataType"), String("test")));
@@ -485,7 +486,7 @@ int main(int argc, char** argv)
         HandlerTable handlerTable;
         String handlerId = "snmpIndicationHandler";
         CIMHandler* handler = handlerTable.getHandler(handlerId, repository);
-	PEGASUS_TEST_ASSERT(handler != 0);
+        PEGASUS_TEST_ASSERT(handler != 0);
 
         TestExceptionHandling(handler);
 
@@ -511,8 +512,8 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
     }
 
     delete repository;

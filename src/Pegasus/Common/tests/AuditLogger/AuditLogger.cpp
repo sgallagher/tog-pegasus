@@ -93,7 +93,7 @@ static void writeAuditLogToFile(
     Uint32 logLevel, MessageLoaderParms & msgParms)
 {
     const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
-    
+
     if (pegasusHomeDir == NULL)
     {
         pegasusHomeDir = "./";
@@ -115,8 +115,8 @@ void testLogCurrentRegProvider()
 {
     Array<CIMInstance> instances;
 
-    Array<Uint16> status0, status1, status2, status3, status4, status5; 
-    Array<Uint16> status6, status7, status8, status9, status10, status11; 
+    Array<Uint16> status0, status1, status2, status3, status4, status5;
+    Array<Uint16> status6, status7, status8, status9, status10, status11;
     Array<Uint16> status12, status13, status14;
 
     status0.append(0);
@@ -133,35 +133,35 @@ void testLogCurrentRegProvider()
     status11.append(11);
     status12.append(12);
     status13.append(13);
- 
-    instances.append(_createModuleInstance("AuditLogProviderModule0", 
-        "AuditLogProvider0", status0)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule1", 
-        "AuditLogProvider1", status1)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule2", 
-        "AuditLogProvider2", status2)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule3", 
-        "AuditLogProvider3", status3)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule4", 
-        "AuditLogProvider4", status4)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule5", 
-        "AuditLogProvider5", status5)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule6", 
-        "AuditLogProvider6", status6)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule7", 
-        "AuditLogProvider7", status7)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule8", 
-        "AuditLogProvider8", status8)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule9", 
-        "AuditLogProvider9", status9)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule10", 
-        "AuditLogProvider10", status10)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule11", 
-        "AuditLogProvider11", status11)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule12", 
-        "AuditLogProvider12", status12)); 
-    instances.append(_createModuleInstance("AuditLogProviderModule13", 
-        "AuditLogProvider13", status13)); 
+
+    instances.append(_createModuleInstance("AuditLogProviderModule0",
+        "AuditLogProvider0", status0));
+    instances.append(_createModuleInstance("AuditLogProviderModule1",
+        "AuditLogProvider1", status1));
+    instances.append(_createModuleInstance("AuditLogProviderModule2",
+        "AuditLogProvider2", status2));
+    instances.append(_createModuleInstance("AuditLogProviderModule3",
+        "AuditLogProvider3", status3));
+    instances.append(_createModuleInstance("AuditLogProviderModule4",
+        "AuditLogProvider4", status4));
+    instances.append(_createModuleInstance("AuditLogProviderModule5",
+        "AuditLogProvider5", status5));
+    instances.append(_createModuleInstance("AuditLogProviderModule6",
+        "AuditLogProvider6", status6));
+    instances.append(_createModuleInstance("AuditLogProviderModule7",
+        "AuditLogProvider7", status7));
+    instances.append(_createModuleInstance("AuditLogProviderModule8",
+        "AuditLogProvider8", status8));
+    instances.append(_createModuleInstance("AuditLogProviderModule9",
+        "AuditLogProvider9", status9));
+    instances.append(_createModuleInstance("AuditLogProviderModule10",
+        "AuditLogProvider10", status10));
+    instances.append(_createModuleInstance("AuditLogProviderModule11",
+        "AuditLogProvider11", status11));
+    instances.append(_createModuleInstance("AuditLogProviderModule12",
+        "AuditLogProvider12", status12));
+    instances.append(_createModuleInstance("AuditLogProviderModule13",
+        "AuditLogProvider13", status13));
 
     AuditLogger::logCurrentRegProvider(instances);
 
@@ -169,11 +169,11 @@ void testLogCurrentRegProvider()
 
 void testLogSetConfigProperty()
 {
-    // log setting planned value of config property 
-    AuditLogger::logSetConfigProperty("guest", "logdir", "./logs", 
+    // log setting planned value of config property
+    AuditLogger::logSetConfigProperty("guest", "logdir", "./logs",
         "/tmp", true);
 
-    // log setting current value of config property 
+    // log setting current value of config property
     AuditLogger::logSetConfigProperty("guest", "logdir",
         "./logs", "/tmp", false);
 }
@@ -299,11 +299,13 @@ void testLogBasicAuthentication()
 }
 
 void testLogCertBasedAuthentication()
-{   
-    const String TEST_ISSUER = 
-       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun";
-    const String TEST_SUBJECT = 
-       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1-Jun";
+{
+    const String TEST_ISSUER =
+       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/"
+           "CN=TestSelfSigned1-Jun";
+    const String TEST_SUBJECT =
+       "/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/"
+           "CN=TestSelfSigned1-Jun";
     const String TEST_SERIAL_NUM = "9000a46a9c7e78118567699555108792";
 
     // log success message
@@ -395,7 +397,7 @@ int main(int argc, char** argv)
     const char * masterDir = getenv("PEGASUS_ROOT");
 
     String masterFile (masterDir);
-    masterFile.append("/src/Pegasus/Common/tests/AuditLogger/masterOutput"); 
+    masterFile.append("/src/Pegasus/Common/tests/AuditLogger/masterOutput");
 
     try
     {

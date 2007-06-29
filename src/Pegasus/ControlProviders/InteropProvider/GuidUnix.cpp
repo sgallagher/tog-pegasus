@@ -29,8 +29,8 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #define _XOPEN_SOURCE_EXTENDED 1
 #endif
@@ -59,7 +59,8 @@ String Guid::getGuid(const String &prefix)
         ipAddress[i] = Char16('-');
     }
 
-  return (secondsValue.toString() + milliSecondsValue.toString() + "-" + ipAddress);
+  return secondsValue.toString() + milliSecondsValue.toString() + "-" +
+      ipAddress;
 }
 
 PEGASUS_NAMESPACE_END

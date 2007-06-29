@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "QueryContext.h"
@@ -44,19 +37,18 @@
 #include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
-                
+
 QueryContext::QueryContext(const CIMNamespaceName& inNS)
-  :_NS(inNS)
+    : _NS(inNS)
 {
 }
 
 QueryContext::QueryContext(const QueryContext& ctx)
-  :_NS(ctx._NS),
-   _AliasClassTable(ctx._AliasClassTable),
-   _fromList(ctx._fromList),
-   _whereList(ctx._whereList)
+    : _NS(ctx._NS),
+      _AliasClassTable(ctx._AliasClassTable),
+      _fromList(ctx._fromList),
+      _whereList(ctx._whereList)
 {
-
 }
 
 QueryContext::~QueryContext()
@@ -65,192 +57,205 @@ QueryContext::~QueryContext()
 
 QueryContext& QueryContext::operator=(const QueryContext& rhs)
 {
-  if (this == &rhs)
+    if (this == &rhs)
+        return *this;
+
+    _NS = rhs._NS;
+    _fromList = rhs._fromList;
+    _AliasClassTable = rhs._AliasClassTable;
+    _whereList = rhs._whereList;
+
     return *this;
-
-  _NS = rhs._NS;
-  _fromList = rhs._fromList;
-  _AliasClassTable = rhs._AliasClassTable;
-  _whereList = rhs._whereList;
-
-  return *this;
 }
 
 String QueryContext::getHost(Boolean fullyQualified)
 {
-	if(fullyQualified) return System::getFullyQualifiedHostName();
-	return System::getHostName();
+    if (fullyQualified)
+        return System::getFullyQualifiedHostName();
+    return System::getHostName();
 }
 
 CIMNamespaceName QueryContext::getNamespace() const
 {
-	return _NS;
+    return _NS;
 }
 
-void QueryContext::insertClassPath(const QueryIdentifier& inIdentifier, String inAlias)
+void QueryContext::insertClassPath(
+    const QueryIdentifier& inIdentifier,
+    String inAlias)
 {
-  QueryIdentifier _class;  
+    QueryIdentifier _class;
 
-  if (inIdentifier.getName().getString() == String::EMPTY)
-  {
-    MessageLoaderParms parms("QueryCommon.QueryContext.EMPTY_CLASSNAME",
-                             "Empty classname is not allowed");
-    throw QueryParseException(parms);
-  }
-
-  if ((inAlias != String::EMPTY) &&
-      (String::equalNoCase(inAlias,inIdentifier.getName().getString())))
-  {
-    inAlias = String::EMPTY;
-  }
- 
-  if (_AliasClassTable.contains(inIdentifier.getName().getString()))
-  {
-    MessageLoaderParms parms("QueryCommon.QueryContext.CLASS_ALREADY_ALIAS",
-                             "A class name in the FROM list is already used as an alias.");
-    throw QueryParseException(parms);
-  }
-
-  Boolean found = false;
-  for (Uint32 i = 0; i < _fromList.size(); i++)
-  {
-    if ((inAlias != String::EMPTY) && 
-	(String::equalNoCase(inAlias, _fromList[i].getName().getString())))
+    if (inIdentifier.getName().getString() == String::EMPTY)
     {
-      MessageLoaderParms parms("QueryCommon.QueryContext.ALIAS_ALREADY_CLASS",
-                             "An alias name in the FROM list is already used as a class name.");
-      throw QueryParseException(parms);
+        MessageLoaderParms parms(
+            "QueryCommon.QueryContext.EMPTY_CLASSNAME",
+            "Empty classname is not allowed");
+        throw QueryParseException(parms);
     }
 
-    if (_fromList[i].getName() == inIdentifier.getName())
+    if ((inAlias != String::EMPTY) &&
+        (String::equalNoCase(inAlias, inIdentifier.getName().getString())))
     {
-      found = true;
+        inAlias = String::EMPTY;
     }
-  }
 
-  if(inAlias != String::EMPTY)
-  {
-    if (!_AliasClassTable.insert(inAlias, inIdentifier))
-    {  
-      // Alias already exists
-      if (_AliasClassTable.lookup(inAlias, _class))
-      {	
-        if (!_class.getName().equal(inIdentifier.getName()))
+    if (_AliasClassTable.contains(inIdentifier.getName().getString()))
+    {
+        MessageLoaderParms parms(
+            "QueryCommon.QueryContext.CLASS_ALREADY_ALIAS",
+            "A class name in the FROM list is already used as an alias.");
+        throw QueryParseException(parms);
+    }
+
+    Boolean found = false;
+    for (Uint32 i = 0; i < _fromList.size(); i++)
+    {
+        if ((inAlias != String::EMPTY) &&
+            (String::equalNoCase(inAlias, _fromList[i].getName().getString())))
         {
-          MessageLoaderParms parms("QueryCommon.QueryContext.ALIAS_CONFLICT",
-                             "An alias is being used for different class names.");
-          throw QueryParseException(parms);
+            MessageLoaderParms parms(
+                "QueryCommon.QueryContext.ALIAS_ALREADY_CLASS",
+                "An alias name in the FROM list is already used as a class "
+                    "name.");
+            throw QueryParseException(parms);
         }
-      }
-    }
-  }
 
-  if (!found)
-  {  
-    _fromList.append(inIdentifier);
-  }
+        if (_fromList[i].getName() == inIdentifier.getName())
+        {
+            found = true;
+        }
+    }
+
+    if (inAlias != String::EMPTY)
+    {
+        if (!_AliasClassTable.insert(inAlias, inIdentifier))
+        {
+            // Alias already exists
+            if (_AliasClassTable.lookup(inAlias, _class))
+            {
+                if (!_class.getName().equal(inIdentifier.getName()))
+                {
+                    MessageLoaderParms parms(
+                        "QueryCommon.QueryContext.ALIAS_CONFLICT",
+                        "An alias is being used for different class names.");
+                    throw QueryParseException(parms);
+                }
+            }
+        }
+    }
+
+    if (!found)
+    {
+        _fromList.append(inIdentifier);
+    }
 }
 
-void QueryContext::addWhereIdentifier(const QueryChainedIdentifier& inIdentifier)
+void QueryContext::addWhereIdentifier(
+    const QueryChainedIdentifier& inIdentifier)
 {
-  // If the identifier is already in the list then don't append.
-  for (Uint32 i = 0; i < _whereList.size(); i++)
-  {
-    if (inIdentifier.size() == _whereList[i].size())
+    // If the identifier is already in the list then don't append.
+    for (Uint32 i = 0; i < _whereList.size(); i++)
     {
-      Array<QueryIdentifier> subsWhere = _whereList[i].getSubIdentifiers();
-      Array<QueryIdentifier> subsIn = inIdentifier.getSubIdentifiers();
-      Boolean match = true;
-      for (Uint32 j = 0; j < subsWhere.size(); j++)
-      {
-        if (subsIn[j] != subsWhere[j])
+        if (inIdentifier.size() == _whereList[i].size())
         {
-          match = false;
+            Array<QueryIdentifier> subsWhere =
+                _whereList[i].getSubIdentifiers();
+            Array<QueryIdentifier> subsIn = inIdentifier.getSubIdentifiers();
+            Boolean match = true;
+            for (Uint32 j = 0; j < subsWhere.size(); j++)
+            {
+                if (subsIn[j] != subsWhere[j])
+                {
+                    match = false;
+                }
+            }
+
+            if (match)
+                return;
         }
-      }
-
-      if (match)
-        return;
     }
-  }
 
-  _whereList.append(inIdentifier);
+    _whereList.append(inIdentifier);
 }
 
 Array<QueryChainedIdentifier> QueryContext::getWhereList() const
 {
-  return _whereList;
+    return _whereList;
 }
 
 QueryIdentifier QueryContext::findClass(const String& inAlias) const
 {
-	// look for alias match
-	QueryIdentifier _class;
-	if(_AliasClassTable.lookup(inAlias, _class)) return _class;
+    // look for alias match
+    QueryIdentifier _class;
+    if (_AliasClassTable.lookup(inAlias, _class)) return _class;
 
-	// look if inAlias is really a class name
-	CIMName _aliasName(inAlias);
-	Array<QueryIdentifier> _identifiers = getFromList();
-	for(Uint32 i = 0; i < _identifiers.size(); i++){
-		if(_aliasName == _identifiers[i].getName()) return _identifiers[i];
-	}	
+    // look if inAlias is really a class name
+    CIMName _aliasName(inAlias);
+    Array<QueryIdentifier> _identifiers = getFromList();
+    for (Uint32 i = 0; i < _identifiers.size(); i++)
+    {
+        if (_aliasName == _identifiers[i].getName())
+            return _identifiers[i];
+    }
 
-	// could not find inAlias
-	return QueryIdentifier();
+    // could not find inAlias
+    return QueryIdentifier();
 }
 
-Array<QueryIdentifier> QueryContext::getFromList() const 
+Array<QueryIdentifier> QueryContext::getFromList() const
 {
-	return _fromList;
+    return _fromList;
 }
 
 String QueryContext::getFromString() const
 {
-  Array<QueryIdentifier> aliasedClasses;
-  Array<String> aliases;
-  for (HT_Alias_Class::Iterator i = _AliasClassTable.start(); i; i++)
-  {  
-    aliases.append(i.key());
-    aliasedClasses.append(i.value());
-  }
-
-  String result("FROM ");
-  for (Uint32 i = 0; i < _fromList.size(); i++)
-  {
-    Boolean hasAlias = false;
-    for (Uint32 j = 0; j < aliasedClasses.size(); j++)
+    Array<QueryIdentifier> aliasedClasses;
+    Array<String> aliases;
+    for (HT_Alias_Class::Iterator i = _AliasClassTable.start(); i; i++)
     {
-      if (_fromList[i].getName() == aliasedClasses[j].getName())
-      {
-        result.append(_fromList[i].getName().getString());
-        result.append(" AS ");
-        result.append(aliases[j]);     
-        hasAlias = true;
-      }
+        aliases.append(i.key());
+        aliasedClasses.append(i.value());
     }
 
-    if (!hasAlias)
+    String result("FROM ");
+    for (Uint32 i = 0; i < _fromList.size(); i++)
     {
-      result.append(_fromList[i].getName().getString());      
+        Boolean hasAlias = false;
+        for (Uint32 j = 0; j < aliasedClasses.size(); j++)
+        {
+            if (_fromList[i].getName() == aliasedClasses[j].getName())
+            {
+                result.append(_fromList[i].getName().getString());
+                result.append(" AS ");
+                result.append(aliases[j]);
+                hasAlias = true;
+            }
+        }
+
+        if (!hasAlias)
+        {
+            result.append(_fromList[i].getName().getString());
+        }
+
+        if (i < _fromList.size() - 1)
+        {
+            result.append(" , ");
+        }
+        else
+        {
+            result.append(" ");
+        }
     }
 
-    if (i < _fromList.size() - 1)
-    {
-      result.append(" , ");
-    }
-    else
-    {
-      result.append(" ");
-    }
-  }
-
-  return result;
+    return result;
 }
 
-void QueryContext::clear(){
-  _fromList.clear();
-  _whereList.clear();
-   _AliasClassTable.clear();
+void QueryContext::clear()
+{
+    _fromList.clear();
+    _whereList.clear();
+    _AliasClassTable.clear();
 }
 
 PEGASUS_NAMESPACE_END

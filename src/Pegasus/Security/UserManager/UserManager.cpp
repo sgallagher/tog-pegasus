@@ -33,7 +33,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // User Manager
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-Initialize UserManager instance
+    Initialize UserManager instance
 */
 UserManager* UserManager::_instance = 0;
 Mutex UserManager::_userManagerMutex;
@@ -62,12 +62,12 @@ Mutex UserManager::_userManagerMutex;
 UserManager::UserManager(CIMRepository* repository)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::UserManager");
-          
+
 #ifndef PEGASUS_NO_PASSWORDFILE
     _userFileHandler.reset(new UserFileHandler());
 #endif
     _authHandler.reset(new AuthorizationHandler(repository));
-    
+
     PEG_METHOD_EXIT();
 }
 
@@ -84,12 +84,12 @@ UserManager::~UserManager()
 //
 // Terminates the usermanager;
 //
-void
-UserManager::destroy(void)
+void UserManager::destroy()
 {
     delete _instance;
     _instance = 0;
 }
+
 //
 // Construct the singleton instance of the UserManager and return a
 // pointer to that instance.
@@ -118,10 +118,12 @@ UserManager* UserManager::getInstance(CIMRepository* repository)
     return _instance;
 }
 
-// 
+//
 // Add a user
 //
-void UserManager::addUser(const String& userName, const String& password)
+void UserManager::addUser(
+    const String& userName,
+    const String& password)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::addUser");
 
@@ -129,18 +131,18 @@ void UserManager::addUser(const String& userName, const String& password)
     //
     // Check if the user is a valid system user
     //
-    if ( !System::isSystemUser( userName.getCString() ) )
+    if (!System::isSystemUser(userName.getCString()))
     {
         PEG_METHOD_EXIT();
-	throw InvalidSystemUser(userName); 
+        throw InvalidSystemUser(userName);
     }
 
-    // 
+    //
     // Add the user to the password file
     //
     try
     {
-        _userFileHandler->addUserEntry(userName,password);
+        _userFileHandler->addUserEntry(userName, password);
     }
     catch (const Exception&)
     {
@@ -156,9 +158,9 @@ void UserManager::addUser(const String& userName, const String& password)
 // Modify user's password
 //
 void UserManager::modifyUser(
-               const String& userName,
-	       const String& password,
-	       const String& newPassword )
+    const String& userName,
+    const String& password,
+    const String& newPassword)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::modifyUser");
 
@@ -177,7 +179,7 @@ void UserManager::modifyUser(
     PEG_METHOD_EXIT();
 }
 
-// 
+//
 // Remove a user
 //
 void UserManager::removeUser(const String& userName)
@@ -210,7 +212,7 @@ void UserManager::getAllUserNames(Array<String>& userNames)
 #ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
-        _userFileHandler->getAllUserNames( userNames );
+        _userFileHandler->getAllUserNames(userNames);
         PEG_METHOD_EXIT();
     }
     catch (const Exception&)
@@ -225,22 +227,22 @@ void UserManager::getAllUserNames(Array<String>& userNames)
 //
 // Verify whether the specified CIM user is valid
 //
-Boolean UserManager::verifyCIMUser (const String& userName)
+Boolean UserManager::verifyCIMUser(const String& userName)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUser");
 
 #ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
-        if ( _userFileHandler->verifyCIMUser( userName ))
-	{
+        if (_userFileHandler->verifyCIMUser(userName))
+        {
             PEG_METHOD_EXIT();
-	    return true;
+            return true;
         }
-	else
-	{
+        else
+        {
             PEG_METHOD_EXIT();
-	    return false;
+            return false;
         }
     }
     catch (const InvalidUser&)
@@ -262,24 +264,24 @@ Boolean UserManager::verifyCIMUser (const String& userName)
 //
 // Verify whether the specified user's password is valid
 //
-Boolean UserManager::verifyCIMUserPassword (
-			   const String& userName, 
-			   const String& password)
+Boolean UserManager::verifyCIMUserPassword(
+    const String& userName,
+    const String& password)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUserPassword");
 
 #ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
-        if ( _userFileHandler->verifyCIMUserPassword( userName, password ))
-	{
+        if (_userFileHandler->verifyCIMUserPassword(userName, password))
+        {
             PEG_METHOD_EXIT();
-	    return true;
+            return true;
         }
-	else
-	{
+        else
+        {
             PEG_METHOD_EXIT();
-	    return false;
+            return false;
         }
     }
     catch (const InvalidUser&)
@@ -301,13 +303,13 @@ Boolean UserManager::verifyCIMUserPassword (
 //
 // Verify whether the specified namespace is valid
 //
-Boolean UserManager::verifyNamespace( const CIMNamespaceName& myNamespace )
+Boolean UserManager::verifyNamespace(const CIMNamespaceName& myNamespace)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyNamespace");
 
     try
     {
-        if ( _authHandler->verifyNamespace( myNamespace ))
+        if (_authHandler->verifyNamespace(myNamespace))
         {
             PEG_METHOD_EXIT();
             return true;
@@ -330,16 +332,16 @@ Boolean UserManager::verifyNamespace( const CIMNamespaceName& myNamespace )
 // to be performed by the specified user.
 //
 Boolean UserManager::verifyAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& nameSpace,
-                            const CIMName& cimMethodName)
+    const String& userName,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& cimMethodName)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyAuthorization");
 
     try
     {
-        if ( _authHandler->verifyAuthorization(
-            userName, nameSpace, cimMethodName ) )
+        if (_authHandler->verifyAuthorization(
+                userName, nameSpace, cimMethodName))
         {
             PEG_METHOD_EXIT();
             return true;
@@ -361,15 +363,15 @@ Boolean UserManager::verifyAuthorization(
 // Set the authorizations
 //
 void UserManager::setAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& myNamespace,
-                            const String& auth)
+    const String& userName,
+    const CIMNamespaceName& myNamespace,
+    const String& auth)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::setAuthorization");
 
     try
     {
-        _authHandler->setAuthorization( userName, myNamespace, auth );
+        _authHandler->setAuthorization(userName, myNamespace, auth);
     }
     catch (const Exception&)
     {
@@ -384,8 +386,8 @@ void UserManager::setAuthorization(
 // Remove the authorizations for the specified user and namespace
 //
 void UserManager::removeAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& myNamespace)
+    const String& userName,
+    const CIMNamespaceName& myNamespace)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::removeAuthorization");
 
@@ -407,8 +409,8 @@ void UserManager::removeAuthorization(
 // Get the authorizations for the specified user and namespace
 //
 String UserManager::getAuthorization(
-                            const String& userName,
-                            const CIMNamespaceName& myNamespace)
+    const String& userName,
+    const CIMNamespaceName& myNamespace)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::getAuthorization");
 
@@ -416,7 +418,7 @@ String UserManager::getAuthorization(
 
     try
     {
-        auth = _authHandler->getAuthorization( userName, myNamespace);
+        auth = _authHandler->getAuthorization(userName, myNamespace);
     }
     catch (const Exception&)
     {
@@ -430,5 +432,3 @@ String UserManager::getAuthorization(
 }
 
 PEGASUS_NAMESPACE_END
-
-

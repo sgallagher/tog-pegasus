@@ -66,13 +66,14 @@ void testAuthHeader()
 {
     LocalAuthenticationHandler  localAuthHandler;
 
-    String respHeader = 
+    String respHeader =
         localAuthHandler.getAuthResponseHeader(authType, testUser, authInfo);
 
 #ifdef DEBUG
-    if (verbose) cout << "respHeader= " << respHeader << endl;
+    if (verbose)
+        cout << "respHeader= " << respHeader << endl;
 #endif
-    
+
     secret = authInfo->getLocalAuthSecret();
 
     PEGASUS_TEST_ASSERT(respHeader.size() != 0);
@@ -83,7 +84,8 @@ void testAuthHeader()
     Uint32 endQuote = respHeader.find(startQuote + 1, '"');
     PEGASUS_TEST_ASSERT(startQuote != PEG_NOT_FOUND);
 
-    filePath = respHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
+    filePath =
+        respHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
 
     PEGASUS_TEST_ASSERT(filePath.size() != 0);
 }
@@ -107,12 +109,15 @@ void testAuthenticationFailure_1()
 
     authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose) cout << "authHeader: " << authHeader << endl;
+    if (verbose)
+        cout << "authHeader: " << authHeader << endl;
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(!authenticated);
 }
@@ -135,18 +140,21 @@ void testAuthenticationFailure_2()
 
     authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose) cout << "authHeader: " << authHeader << endl;
+    if (verbose)
+        cout << "authHeader: " << authHeader << endl;
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
-// Test with invalid password 
+// Test with invalid password
 //
 void testAuthenticationFailure_3()
 {
@@ -162,12 +170,15 @@ void testAuthenticationFailure_3()
 
     authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose) cout << "authHeader: " << authHeader << endl;
+    if (verbose)
+        cout << "authHeader: " << authHeader << endl;
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(!authenticated);
 }
@@ -190,18 +201,21 @@ void testAuthenticationFailure_4()
 
     authenticated = localAuthHandler.authenticate(authHeader, authInfo);
 
-    if (verbose) cout << "authHeader: " << authHeader << endl;
+    if (verbose)
+        cout << "authHeader: " << authHeader << endl;
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
-// Test with valid user name and password 
+// Test with valid user name and password
 //
 void testAuthenticationSuccess()
 {
@@ -220,12 +234,15 @@ void testAuthenticationSuccess()
         localAuthHandler.authenticate(authHeader, authInfo);
     authInfo->setLocalAuthFilePath(String::EMPTY);
 
-    if (verbose) cout << "authHeader: " << authHeader << endl;
+    if (verbose)
+        cout << "authHeader: " << authHeader << endl;
 
     if (authenticated)
-        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
+        if (verbose)
+            cout << "User " + testUser + " authentication failed.." << endl;
 
     PEGASUS_TEST_ASSERT(authenticated);
 }
@@ -244,7 +261,7 @@ int main(int argc, char** argv)
 #ifdef DEBUG
         Tracer::setTraceFile("/tmp/trace");
         Tracer::setTraceComponents("all");
-	verbose = true;
+        verbose = true;
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
@@ -252,10 +269,11 @@ int main(int argc, char** argv)
         const char* path = getenv("PEGASUS_HOME");
         String pegHome = path;
 
-        if(pegHome.size())
+        if (pegHome.size())
             ConfigManager::setPegasusHome(pegHome);
 
-        if (verbose) cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
+        if (verbose)
+            cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
         authInfo = new AuthenticationInfo(true);
 
         if (verbose) cout << "Doing testAuthHeader()...." << endl;
@@ -279,7 +297,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-      cout << argv[0] << "Exception: " << e.getMessage() << endl;
+        cout << argv[0] << "Exception: " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(0);
     }
 

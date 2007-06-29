@@ -204,10 +204,10 @@ static const char PROVIDER_NAME_NOT_FOUND[] =
     "Missing ProviderName which is key in"
         " PG_ProviderCapabilities class.";
 
-static const char UNSUPPORTED_PROVIDER_TYPE_KEY[] = 
+static const char UNSUPPORTED_PROVIDER_TYPE_KEY[] =
     "Server.ProviderRegistrationManager.ProviderRegistrationManager."
         "UNSUPPORTED_PROVIDER_TYPE";
-static const char UNSUPPORTED_PROVIDER_TYPE[] = 
+static const char UNSUPPORTED_PROVIDER_TYPE[] =
     "Unsupported ProviderType \"$0\" in ProviderModule \"$1\".";
 
 ProviderRegistrationManager::ProviderRegistrationManager(
@@ -281,7 +281,7 @@ void ProviderRegistrationManager::initializeProviders(void)
                                                         .get(module);
 
                             // Use provider module name to generate a key
-                            String _moduleKey = 
+                            String _moduleKey =
                                 _generateKey(module, MODULE_KEY);
                             // get provider module instance from the table
                             ProviderRegistrationTable* _providerModule = 0;
@@ -431,7 +431,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     // create the key by using nameSpace, className, and providerType
     //
 
-    const CIMNamespaceName & nameSpaceKey = 
+    const CIMNamespaceName & nameSpaceKey =
         CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
 
     String capabilityKey;
@@ -539,7 +539,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
             return false;
         }
 
-        Array<CIMInstance> providerModuleInstances = 
+        Array<CIMInstance> providerModuleInstances =
             _providerModule->getInstances();
         providerModule = providerModuleInstances[0];
 
@@ -578,7 +578,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 
   try
   {
-    const CIMNamespaceName & nameSpaceKey = 
+    const CIMNamespaceName & nameSpaceKey =
         CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
     //
     // check if the provider was registered to support all methods
@@ -818,7 +818,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
   try
   {
-    const CIMNamespaceName & nameSpaceKey = 
+    const CIMNamespaceName & nameSpaceKey =
         CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
     //
     // create the key by using nameSpace, className, and providerType
@@ -978,7 +978,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
                     //
                     // get provider instance from the table by using
                     // _providerKey to be key
-                    
+
                     if (!_registrationTable->table.lookup(_providerKey,
                                 _provider))
                     {
@@ -1153,7 +1153,7 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
 
-        Array<CIMInstance> providerModuleInstances = 
+        Array<CIMInstance> providerModuleInstances =
             _providerModule->getInstances();
         providerModule = providerModuleInstances[0];
 
@@ -2239,7 +2239,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                                         WildCardNamespaceNames::add(
                                             namespaces[k]),
                                     className, INS_PROVIDER);
-                            else 
+                            else
                                 capabilityKey = _generateKey(namespaces[k],
                                     className, INS_PROVIDER);
 
@@ -2819,7 +2819,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // create a key by using namespace, className
                                 // and providerType
                                 //
-                                if (supportWildCardNamespaceNames) 
+                                if (supportWildCardNamespaceNames)
                                     _capabilityKey =
                                         _generateKey(
                                             WildCardNamespaceNames::add(
@@ -2851,14 +2851,14 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // and providerType, store the instance to
                                 // the table
                                 //
-                                if (supportWildCardNamespaceNames) 
+                                if (supportWildCardNamespaceNames)
                                     _capabilityKey =
                                         _generateKey(
                                             WildCardNamespaceNames::add(
                                                 _namespaces[j]),
                                         _className, IND_PROVIDER);
                                 else
-                                    _capabilityKey = 
+                                    _capabilityKey =
                                         _generateKey(_namespaces[j],
                                         _className, IND_PROVIDER);
 
@@ -2929,7 +2929,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
                                 if (_service != NULL)
                                 {
-                    // The following lines are shoved left just to 
+                    // The following lines are shoved left just to
                     // get them inside the 80 col limits.
                     CIMNotifyProviderRegistrationRequestMessage * notify_req =
                         new CIMNotifyProviderRegistrationRequestMessage(
@@ -3000,7 +3000,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                                 _namespaces[j]),
                                         _className, "{}", MET_PROVIDER);
 
-                                    else _capabilityKey = 
+                                    else _capabilityKey =
                                         _generateKey(_namespaces[j],
                                             _className, "{}", MET_PROVIDER);
 
@@ -3021,17 +3021,20 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
                                         if (supportWildCardNamespaceNames)
                                             _capabilityKey =
-                                            _generateKey(
-                                                WildCardNamespaceNames::add(
-                                                    _namespaces[j]),
-                                                _className, _supportedMethods[k],
-                                                     MET_PROVIDER);
+                                                _generateKey(
+                                                    WildCardNamespaceNames::add(
+                                                        _namespaces[j]),
+                                                    _className,
+                                                    _supportedMethods[k],
+                                                    MET_PROVIDER);
 
                                         else
                                             _capabilityKey =
-                                                _generateKey(_namespaces[j],
-                                                _className, _supportedMethods[k],
-                                                MET_PROVIDER);
+                                                _generateKey(
+                                                    _namespaces[j],
+                                                    _className,
+                                                    _supportedMethods[k],
+                                                    MET_PROVIDER);
 
                                         // add the instance to the table, will
                                         // throw
@@ -4171,7 +4174,7 @@ void ProviderRegistrationManager::_setStatus(
 
     if (pos == PEG_NOT_FOUND)
     {
-        instance.addProperty (CIMProperty (_PROPERTY_OPERATIONALSTATUS, status));
+        instance.addProperty(CIMProperty(_PROPERTY_OPERATIONALSTATUS, status));
     }
     else
     {

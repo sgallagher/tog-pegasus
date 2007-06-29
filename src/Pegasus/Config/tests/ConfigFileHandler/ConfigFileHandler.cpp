@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna(nagaraja_boranna@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
-//              (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
@@ -43,13 +38,12 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-
 int main()
 {
     try
     {
-	Array<CIMName> all;
-	Array<String> values;
+        Array<CIMName> all;
+        Array<String> values;
         String value;
 
         String currentFile;
@@ -68,42 +62,42 @@ int main()
         currentFile.append("/cimserver_current.conf");
         plannedFile.append("/cimserver_planned.conf");
 
-	ConfigFileHandler _config (currentFile, plannedFile, true);
+        ConfigFileHandler _config (currentFile, plannedFile, true);
 
-	_config.loadAllConfigProperties();
-	
-	_config.getAllCurrentPropertyNames(all);
+        _config.loadAllConfigProperties();
 
-	for (Uint32 i = 0; i < all.size(); i++)
-	{
+        _config.getAllCurrentPropertyNames(all);
+
+        for (Uint32 i = 0; i < all.size(); i++)
+        {
             _config.getCurrentValue(all[i], value);
             _config.getPlannedValue(all[i], value);
-	}
+        }
 
         all.clear();
 
-	_config.getAllPlannedProperties(all, values);
+        _config.getAllPlannedProperties(all, values);
 
-	for (Uint32 i = 0; i < all.size(); i++)
-	{
+        for (Uint32 i = 0; i < all.size(); i++)
+        {
             _config.getPlannedValue(all[i], value);
-	}
+        }
 
         all.clear();
         values.clear();
 
-	_config.getAllCurrentProperties(all, values);
+        _config.getAllCurrentProperties(all, values);
 
-	for (Uint32 i = 0; i < all.size(); i++)
-	{
+        for (Uint32 i = 0; i < all.size(); i++)
+        {
             _config.getCurrentValue(all[i], value);
-	}
+        }
 
     }
     catch (Exception& e)
     {
-		cerr << "Exception: " << e.getMessage() << endl;
-		exit(1);
+        cerr << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << "+++++ passed all tests" << endl;

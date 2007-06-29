@@ -45,234 +45,252 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-QueryExpression::QueryExpression():
-  _ss(NULL)
+QueryExpression::QueryExpression()
+    : _ss(NULL)
 {
 }
 
-QueryExpression::QueryExpression(String queryLang, String query, QueryContext& ctx):
-  _queryLang(queryLang)
+QueryExpression::QueryExpression(
+    String queryLang,
+    String query,
+    QueryContext& ctx)
+    : _queryLang(queryLang)
 {
-   String cimCQL("CIM:CQL");
-   String dmtfCQL("DMTF:CQL");
-   String wql("WQL");
-
-#ifndef PEGASUS_DISABLE_CQL
-   if (queryLang == cimCQL ||
-     queryLang == dmtfCQL)
-   {
-     AutoPtr<CQLSelectStatement> cqlss(
-         new CQLSelectStatement(queryLang, query, ctx));
-
-     // Compile the statement
-     CQLParser::parse(query, *cqlss.get());
-
-     // Finish checking the statement for CQL by applying the class contexts to
-     // the chained identifiers.
-     cqlss->applyContext();
-
-     _ss = cqlss.release();
-   }
-   else 
-#endif
-   if (queryLang == wql)
-   {
-     AutoPtr<WQLSelectStatement> wqlss(
-         new WQLSelectStatement(queryLang, query, ctx));
-
-     // Compile the statement
-     WQLParser::parse(query, *wqlss.get());
-
-     _ss = wqlss.release();
-   }
-   else
-   {
-     throw QueryLanguageInvalidException(
-				MessageLoaderParms(String("Query.QueryExpression.INVALID_QUERY_LANGUAGE"),
-						   String("The query language specified is invalid: $0."),
-						   queryLang));
-   }
-}
-
-QueryExpression::QueryExpression(String queryLang, String query):
-  _queryLang(queryLang)
-{
-   String cimCQL("CIM:CQL");
-   String dmtfCQL("DMTF:CQL");
-   String wql("WQL");
-
-#ifndef PEGASUS_DISABLE_CQL
-   if (queryLang == cimCQL ||
-     queryLang == dmtfCQL)
-   {
-     CQLSelectStatement* cqlss = new CQLSelectStatement(queryLang, query);
-
-     // Note: cannot call parse the CQLSelectStatement
-     // because there is no QueryContext.
-     // The parse will happen when setQueryContext is called.
-
-     _ss = cqlss;
-   }
-   else 
-#endif
-   if (queryLang == wql)
-   {
-     WQLSelectStatement* wqlss = new WQLSelectStatement(queryLang, query);
-
-     // Compile the statement
-     WQLParser::parse(query, *wqlss);
-
-     _ss = wqlss;
-   }
-   else
-   {
-     throw QueryLanguageInvalidException(
-            MessageLoaderParms(String("Query.QueryExpression.INVALID_QUERY_LANGUAGE"),
-            String("The query language specified is invalid: $0."),
-            queryLang));
-   }
-}
-
-QueryExpression::QueryExpression(const QueryExpression& expr):
-  _queryLang(expr._queryLang)
-{
-  if (expr._ss == NULL)
-  {
-    _ss = NULL;
-  }
-  else
-  {
-    _ss = NULL;
-
     String cimCQL("CIM:CQL");
     String dmtfCQL("DMTF:CQL");
     String wql("WQL");
 
 #ifndef PEGASUS_DISABLE_CQL
-    if (expr._queryLang == cimCQL ||
-        expr._queryLang == dmtfCQL)
+    if (queryLang == cimCQL ||
+        queryLang == dmtfCQL)
     {
-      CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(expr._ss);
-      if (tempSS != NULL)
-        _ss = new CQLSelectStatement(*tempSS);
+        AutoPtr<CQLSelectStatement> cqlss(
+            new CQLSelectStatement(queryLang, query, ctx));
+
+        // Compile the statement
+        CQLParser::parse(query, *cqlss.get());
+
+        // Finish checking the statement for CQL by applying the class
+        // contexts to the chained identifiers.
+        cqlss->applyContext();
+
+        _ss = cqlss.release();
     }
-    else 
+    else
 #endif
-    if (expr._queryLang == wql)
+    if (queryLang == wql)
     {
-      WQLSelectStatement* tempSS = dynamic_cast<WQLSelectStatement*>(expr._ss);
-      if (tempSS != NULL)
-        _ss = new WQLSelectStatement(*tempSS);
+        AutoPtr<WQLSelectStatement> wqlss(
+            new WQLSelectStatement(queryLang, query, ctx));
+
+        // Compile the statement
+        WQLParser::parse(query, *wqlss.get());
+
+        _ss = wqlss.release();
     }
-  }
+    else
+    {
+        throw QueryLanguageInvalidException(MessageLoaderParms(
+            "Query.QueryExpression.INVALID_QUERY_LANGUAGE",
+            "The query language specified is invalid: $0.",
+            queryLang));
+    }
+}
+
+QueryExpression::QueryExpression(
+    String queryLang,
+    String query)
+    : _queryLang(queryLang)
+{
+    String cimCQL("CIM:CQL");
+    String dmtfCQL("DMTF:CQL");
+    String wql("WQL");
+
+#ifndef PEGASUS_DISABLE_CQL
+    if (queryLang == cimCQL ||
+        queryLang == dmtfCQL)
+    {
+        CQLSelectStatement* cqlss = new CQLSelectStatement(queryLang, query);
+
+        // Note: cannot call parse the CQLSelectStatement
+        // because there is no QueryContext.
+        // The parse will happen when setQueryContext is called.
+
+        _ss = cqlss;
+    }
+    else
+#endif
+    if (queryLang == wql)
+    {
+        WQLSelectStatement* wqlss = new WQLSelectStatement(queryLang, query);
+
+        // Compile the statement
+        WQLParser::parse(query, *wqlss);
+
+        _ss = wqlss;
+    }
+    else
+    {
+        throw QueryLanguageInvalidException(MessageLoaderParms(
+            "Query.QueryExpression.INVALID_QUERY_LANGUAGE",
+            "The query language specified is invalid: $0.",
+            queryLang));
+    }
+}
+
+QueryExpression::QueryExpression(const QueryExpression& expr)
+    : _queryLang(expr._queryLang)
+{
+    if (expr._ss == NULL)
+    {
+        _ss = NULL;
+    }
+    else
+    {
+        _ss = NULL;
+
+        String cimCQL("CIM:CQL");
+        String dmtfCQL("DMTF:CQL");
+        String wql("WQL");
+
+#ifndef PEGASUS_DISABLE_CQL
+        if (expr._queryLang == cimCQL ||
+            expr._queryLang == dmtfCQL)
+        {
+            CQLSelectStatement* tempSS =
+                dynamic_cast<CQLSelectStatement*>(expr._ss);
+            if (tempSS != NULL)
+                _ss = new CQLSelectStatement(*tempSS);
+        }
+        else
+#endif
+        if (expr._queryLang == wql)
+        {
+            WQLSelectStatement* tempSS =
+                dynamic_cast<WQLSelectStatement*>(expr._ss);
+            if (tempSS != NULL)
+                _ss = new WQLSelectStatement(*tempSS);
+        }
+    }
 }
 
 QueryExpression::~QueryExpression()
 {
-  delete _ss;
+    delete _ss;
 }
 
 QueryExpression QueryExpression::operator=(const QueryExpression& rhs)
 {
-  if (this == &rhs)
-    return *this;
+    if (this == &rhs)
+        return *this;
 
-  delete _ss;
-  _ss = NULL;
+    delete _ss;
+    _ss = NULL;
 
-  if (rhs._ss != NULL)
-  {
-    String cimCQL("CIM:CQL");
-    String dmtfCQL("DMTF:CQL");
-    String wql("WQL");
+    if (rhs._ss != NULL)
+    {
+        String cimCQL("CIM:CQL");
+        String dmtfCQL("DMTF:CQL");
+        String wql("WQL");
 
 #ifndef PEGASUS_DISABLE_CQL
-    if (rhs._queryLang == cimCQL ||
-        rhs._queryLang == dmtfCQL)
-    {
-      CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(rhs._ss);
-      if (tempSS != NULL)
-        _ss = new CQLSelectStatement(*tempSS);
-    }
-    else 
+        if (rhs._queryLang == cimCQL ||
+            rhs._queryLang == dmtfCQL)
+        {
+            CQLSelectStatement* tempSS =
+                dynamic_cast<CQLSelectStatement*>(rhs._ss);
+            if (tempSS != NULL)
+                _ss = new CQLSelectStatement(*tempSS);
+        }
+        else
 #endif
-    if (rhs._queryLang == wql)
-    {
-      WQLSelectStatement* tempSS = dynamic_cast<WQLSelectStatement*>(rhs._ss);
-      if (tempSS != NULL)
-        _ss = new WQLSelectStatement(*tempSS);
+        if (rhs._queryLang == wql)
+        {
+            WQLSelectStatement* tempSS =
+                dynamic_cast<WQLSelectStatement*>(rhs._ss);
+            if (tempSS != NULL)
+                _ss = new WQLSelectStatement(*tempSS);
+          }
     }
-  }
 
-  _queryLang = rhs._queryLang;
+    _queryLang = rhs._queryLang;
 
-  return *this;
+    return *this;
 }
 
 String QueryExpression::getQueryLanguage() const
 {
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-   return _ss->getQueryLanguage();
+    return _ss->getQueryLanguage();
 }
 
 String QueryExpression::getQuery() const
 {
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-  return _ss->getQuery();
+    return _ss->getQuery();
 }
 
 Boolean QueryExpression::evaluate(const CIMInstance & inst) const
 {
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+    if(_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-  try
-  {
-    return _ss->evaluate(inst);
-  }
-  catch (QueryException&)
-  {
-    throw;
-  }
-  catch (Exception& e)
-  {
-    throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
-  }
+    try
+    {
+        return _ss->evaluate(inst);
+    }
+    catch (QueryException&)
+    {
+        throw;
+    }
+    catch (Exception& e)
+    {
+        throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
+    }
 }
 
-CIMPropertyList QueryExpression::getPropertyList(const CIMObjectPath& objectPath) const
+CIMPropertyList QueryExpression::getPropertyList(
+    const CIMObjectPath& objectPath) const
 {
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-  try
-  {
-    return _ss->getPropertyList(objectPath);
-  }
-  catch (QueryException&)
-  {
-    throw;
-  }
-  catch (Exception& e)
-  {
-    throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
-  }
+    try
+    {
+        return _ss->getPropertyList(objectPath);
+    }
+    catch (QueryException&)
+    {
+        throw;
+    }
+    catch (Exception& e)
+    {
+        throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
+    }
 }
 
 CIMPropertyList QueryExpression::getSelectPropertyList
@@ -295,8 +313,7 @@ CIMPropertyList QueryExpression::getSelectPropertyList
     }
     catch (Exception& e)
     {
-        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (),
-            e.getMessage ());
+        throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
     }
 }
 
@@ -320,107 +337,117 @@ CIMPropertyList QueryExpression::getWherePropertyList
     }
     catch (Exception& e)
     {
-        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (),
-            e.getMessage ());
+        throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
     }
 }
 
 void QueryExpression::applyProjection(CIMInstance instance,
     Boolean allowMissing)
 {
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-  try
-  {
-    _ss->applyProjection(instance, allowMissing);
-  }
-  catch (QueryException&)
-  {
-    throw;
-  }
-  catch (Exception& e)
-  {
-    throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
-  }
+    try
+    {
+        _ss->applyProjection(instance, allowMissing);
+    }
+    catch (QueryException&)
+    {
+        throw;
+    }
+    catch (Exception& e)
+    {
+        throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
+    }
 }
 
-void QueryExpression::validate(){
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+void QueryExpression::validate()
+{
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-  try
-  {
-    _ss->validate();
-  }
-  catch (QueryException&)
-  {
-    throw;
-  }
-  catch (Exception& e)
-  {
-    throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
-  }
+    try
+    {
+        _ss->validate();
+    }
+    catch (QueryException&)
+    {
+        throw;
+    }
+    catch (Exception& e)
+    {
+        throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
+    }
 }
 
-Array<CIMObjectPath> QueryExpression::getClassPathList() const{
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+Array<CIMObjectPath> QueryExpression::getClassPathList() const
+{
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-  try
-  {
-   return _ss->getClassPathList();
-  }
-  catch (QueryException&)
-  {
-    throw;
-  }
-  catch (Exception& e)
-  {
-    throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
-  }
+    try
+    {
+        return _ss->getClassPathList();
+    }
+    catch (QueryException&)
+    {
+        throw;
+    }
+    catch (Exception& e)
+    {
+        throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
+    }
 }
 
-SelectStatement* QueryExpression::getSelectStatement(){
-   return _ss;
+SelectStatement* QueryExpression::getSelectStatement()
+{
+    return _ss;
 }
 
 void QueryExpression::setQueryContext(QueryContext& inCtx)
 {
-  if(_ss == NULL){
-    MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
-                             "Trying to process a query with a NULL SelectStatement.");
-    throw QueryException(parms);
-  }
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms(
+            "Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException(parms);
+    }
 
-  // SelectStatement only allows this to be called once.
-  _ss->setQueryContext(inCtx);
+    // SelectStatement only allows this to be called once.
+    _ss->setQueryContext(inCtx);
 
 #ifndef PEGASUS_DISABLE_CQL
-  String cimCQL("CIM:CQL");
-  String dmtfCQL("DMTF:CQL");
+    String cimCQL("CIM:CQL");
+    String dmtfCQL("DMTF:CQL");
 
-  if (_queryLang == cimCQL ||
-      _queryLang == dmtfCQL)
-  {
-    // Now that we have a QueryContext, we can finish compiling
-    // the CQL statement.
-    CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(_ss);
-    if (tempSS != NULL)
+    if (_queryLang == cimCQL ||
+        _queryLang == dmtfCQL)
     {
-      CQLParser::parse(getQuery(), *tempSS);
-      tempSS->applyContext();
+        // Now that we have a QueryContext, we can finish compiling
+        // the CQL statement.
+        CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(_ss);
+        if (tempSS != NULL)
+        {
+            CQLParser::parse(getQuery(), *tempSS);
+            tempSS->applyContext();
+        }
     }
-  }
 #endif
 }
 

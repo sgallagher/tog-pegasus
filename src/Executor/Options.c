@@ -63,7 +63,7 @@ static int _TestFlagOption(
         {
             if (remove)
             {
-                memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
+                memmove(&argv[i], &argv[i + 1], (argc-i-1) * sizeof(char*));
                 argc--;
             }
 

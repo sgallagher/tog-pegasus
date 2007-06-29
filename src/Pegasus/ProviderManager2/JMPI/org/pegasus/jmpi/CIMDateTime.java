@@ -38,6 +38,7 @@
 package org.pegasus.jmpi;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -47,13 +48,15 @@ public class CIMDateTime
 {
    private long cInst;
 
-   private native long    _datetime      (String n);
-   private native long    _datetimeempty ();
-   private native boolean _after         (long   c,
-                                          long   d);
-   private native boolean _before        (long   c,
-                                          long   d);
-   private native void    _finalize      (long   cInst);
+   private native long    _datetime        (String n);
+   private native long    _datetimeempty   ();
+   private native boolean _after           (long   c,
+                                            long   d);
+   private native boolean _before          (long   c,
+                                            long   d);
+   private native void    _finalize        (long   cInst);
+   private native String  _getCIMString    (long   cInst);
+   private native long    _getMicroseconds (long   cInst);
 
    private static String  GMT            = "GMT";
    private static int     UTC_MULTIPLIER = 60000;
@@ -96,7 +99,7 @@ public class CIMDateTime
     *
     * @param inDate The date to initialize the CIMDateType from
     */
-   public CIMDateTime (java.util.Date inDate)
+   public CIMDateTime (Date inDate)
    {
       String dateTime = getDateString (inDate);
 
@@ -127,7 +130,32 @@ public class CIMDateTime
       }
    }
 
-   private String getDateString (java.util.Date d)
+   public String getCIMDateString ()
+   {
+      if (cInst != 0)
+      {
+         return _getCIMString (cInst);
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public Date getJavaDate ()
+   {
+      if (cInst == 0)
+      {
+         return null;
+      }
+
+      long timeMicros = _getMicroseconds (cInst);
+      long timeMillis = timeMicros / 1000;
+
+      return new Date (timeMillis);
+   }
+
+   private String getDateString (Date d)
    {
       Calendar cal = Calendar.getInstance (TimeZone.getTimeZone (GMT));
 

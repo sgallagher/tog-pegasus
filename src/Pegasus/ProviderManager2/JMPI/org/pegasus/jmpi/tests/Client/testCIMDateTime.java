@@ -33,6 +33,7 @@ package Client;
 import org.pegasus.jmpi.CIMClient;
 import org.pegasus.jmpi.CIMDateTime;
 import org.pegasus.jmpi.CIMException;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -112,6 +113,57 @@ public class testCIMDateTime
       if (DEBUG)
       {
          System.out.println ("testCIMDateTime: cdt = " + cdt);
+      }
+
+      // -----
+
+      String pszDateTimeRet = null;
+
+      pszDateTimeRet = cdt.getCIMDateString ();
+
+      if (pszDateTimeRet == null)
+      {
+         System.out.println ("FAILURE: testCIMDateTime: pszDateTimeRet == null");
+
+         return false;
+      }
+
+      if (DEBUG)
+      {
+         System.out.println ("testCIMDateTime: pszDateTimeRet = " + pszDateTimeRet);
+      }
+
+      if (!pszDateTimeRet.equals (pszDateTime))
+      {
+         System.out.println ("FAILURE: testCIMDateTime: pszDateTimeRet.equals (pszDateTime)");
+
+         return false;
+      }
+
+      // -----
+
+      Date date = null;
+
+      date = cdt.getJavaDate ();
+
+      if (date == null)
+      {
+         System.out.println ("FAILURE: testCIMDateTime: date == null");
+
+         return false;
+      }
+
+      if (DEBUG)
+      {
+         System.out.println ("testCIMDateTime: date = " + date.getTime ());
+      }
+
+      // FYI: Time here is in MILLIseconds
+      if (date.getTime () != 1153263776123L)
+      {
+         System.out.println ("FAILURE: testCIMDateTime: date.getTime () != 1153263776123L");
+
+         return false;
       }
 
       // -----

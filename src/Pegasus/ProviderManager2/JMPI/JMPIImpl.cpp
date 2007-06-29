@@ -2988,6 +2988,40 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMDateTime__1finalize
    DEBUG_ConvertCleanup (jlong, jDT);
 }
 
+JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMDateTime__1getCIMString
+      (JNIEnv *jEnv, jobject jThs, jlong jDT)
+{
+   CIMDateTime *cdt  = DEBUG_ConvertJavaToC (jlong, CIMDateTime*, jDT);
+   jstring      jRet = 0;
+
+   if (cdt)
+   {
+      String dateString = cdt->toString ();
+
+      if (dateString.size () > 0)
+      {
+         jRet = jEnv->NewStringUTF (dateString.getCString ());
+      }
+   }
+
+   return jRet;
+}
+
+JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMDateTime__1getMicroseconds
+      (JNIEnv *jEnv, jobject jThs, jlong jDT)
+{
+   CIMDateTime *cdt  = DEBUG_ConvertJavaToC (jlong, CIMDateTime*, jDT);
+   jlong        jRet = 0;
+
+   if (cdt)
+   {
+      // Convert from 1 BCE epoch to POSIX 1970 microseconds
+      jRet = cdt->toMicroSeconds () - PEGASUS_UINT64_LITERAL(62167219200000000);
+   }
+
+   return jRet;
+}
+
 
 // -------------------------------------
 // ---
@@ -5056,7 +5090,7 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMParameter__1getName
    return rv;
 }
 
-JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMParameter__1setName 
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMParameter__1setName
    (JNIEnv *jEnv, jobject jThs, jlong jCp, jstring jName)
 {
    CIMParameter *cp  = DEBUG_ConvertJavaToC (jlong, CIMParameter*, jCp);

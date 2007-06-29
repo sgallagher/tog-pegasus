@@ -3621,7 +3621,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMMethod__1getParameter
    return rv;
 }
 
-JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMMethod__1getParameterCount
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMMethod__1getParameterCount
       (JNIEnv *jEnv, jobject jThs, jlong jM)
 {
    CIMMethod *cm  = DEBUG_ConvertJavaToC (jlong, CIMMethod*, jM);

@@ -252,6 +252,9 @@
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  \
     "/opt/freeware/cimom/pegasus/bin/cimservera"
+#  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  \
+    "/opt/freeware/cimom/pegasus/bin/cimprovagt"
 # elif defined(PEGASUS_OS_LINUX)
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/run/tog-pegasus/cimserver.pid"

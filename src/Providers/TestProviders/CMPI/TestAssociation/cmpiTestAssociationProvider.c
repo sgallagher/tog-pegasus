@@ -119,8 +119,6 @@ TestCMPIAssociationProviderAssociationCleanup (CMPIAssociationMI * mi,
                                                CMPIBoolean  term)
 {
 
-    PROV_LOG("\n\n********************* %s CMPI Cleanup() called",_ClassName);
-    PROV_LOG("\n\n********************* %s CMPI Cleanup() exited",_ClassName);
     CMReturn (CMPI_RC_OK);
 }
 

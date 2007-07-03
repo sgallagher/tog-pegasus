@@ -4033,15 +4033,15 @@ Message *CIMDirectAccessRep::forwardRequestToProvider_(
             }
 		else if (controlProviderName == 
 						"ControlService::CIMQueryCapabilitiesProvider") {
-/*            CIMException cimException = PEGASUS_CIM_EXCEPTION(
-					 CIM_ERR_FAILED, ">> qry capab not ready yet");  // fix
-*/
             response =
                 odiniter_((CIMQueryCapabilitiesProvider*)NULL)->processMessage(request);
 
-//			response = request->buildResponse();
-//            response->cimException = cimException;
-		    }	
+		    }
+                else if (controlProviderName ==
+                                                "ControlService::CIMOMStatDataProvider")
+                {
+                   response = odiniter_((CIMOMStatDataProvider*)NULL)->processMessage(request);
+                }
 		else {
             CIMException cimException = PEGASUS_CIM_EXCEPTION(
 							 CIM_ERR_FAILED, ">> unk serviceName");  // fix

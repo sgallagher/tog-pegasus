@@ -105,8 +105,8 @@ public:
         if (runTimeDacim && strcmp(runTimeDacim,"true") != 0)
         {
 #endif
-        if ((_connected) && (_httpConnection != 0))
-           _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+            if ((_connected) && (_httpConnection != 0))
+               _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
         }
 #endif
@@ -346,11 +346,14 @@ private:
     AutoPtr<SSLContext> _connectSSLContext;
     ClientPerfDataStore perfDataStore;
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     Boolean                _directaccesslocalproviders, 
                            _allowdirectaccesslocalproviders,
                            _directaccess_redirect; 
     Boolean                _isLocalHost();
     CIMDirectAccessRep    *_localizer;
+#endif
+
     AcceptLanguageList requestAcceptLanguages;
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;

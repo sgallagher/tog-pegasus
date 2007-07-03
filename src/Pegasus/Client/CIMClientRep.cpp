@@ -51,8 +51,9 @@ int numdacim=0, numnondacim=0,numconnect=0,numredirok=0,numredirnok=0;
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 static Stopwatch temptimer;  // ebbfix
+#endif
 
 
 
@@ -85,23 +86,20 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
-    _doReconnect(false),
+    _doReconnect(false)
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+    ,
     _allowdirectaccesslocalproviders(true),
     _directaccess_redirect(false),	
     _localizer(  //new CIMDirectAccessRep() ) 
                  CIMDirectAccessRep::get() )
-#else
-    _allowdirectaccesslocalproviders(false),
-    _directaccess_redirect(false),	
-    _localizer(NULL)
 #endif
 {
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-#endif
-temptimer.start();    
+    temptimer.start();    
 
-gid_t groupid = getegid();
+    gid_t groupid = getegid();
+#endif
     //
     // Create Monitor and HTTPConnector
     //
@@ -118,9 +116,8 @@ CIMClientRep::~CIMClientRep()
    disconnect();
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
    _localizer->release();
-   //delete _localizer;
+   temptimer.stop();   
 #endif
-temptimer.stop();   
 }
 
 void CIMClientRep::handleEnqueue()
@@ -178,6 +175,8 @@ void CIMClientRep::_connect()
         showInput = _getShowType(io);
     }
 #endif
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     char *ckdacim = getenv("PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT");
     if (ckdacim) 
     {
@@ -199,7 +198,7 @@ void CIMClientRep::_connect()
 
 
         _allowdirectaccesslocalproviders = true; // reset each connect
-
+#endif
     //
     // Create response decoder:
     //
@@ -243,7 +242,9 @@ void CIMClientRep::_connect()
     _doReconnect = false;
     _connected = true;
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     }
+#endif
 }
 
 //------------------------------------------
@@ -251,7 +252,10 @@ void CIMClientRep::_disconnect()
 {
     if (_connected)
     {
-        if (!_directaccesslocalproviders) {
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+        if (!_directaccesslocalproviders) 
+        {
+#endif
         //
         // destroy response decoder
         //
@@ -276,10 +280,8 @@ void CIMClientRep::_disconnect()
         _connected = false;
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
         _allowdirectaccesslocalproviders = true;
-#else
-        _allowdirectaccesslocalproviders = false;
-#endif
     }
+#endif
 
     // Reconnect no longer applies
     _doReconnect = false;
@@ -288,6 +290,7 @@ void CIMClientRep::_disconnect()
     _authenticator.setRequestMessage(0);
 }
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 //-----------------------------------------------
 Boolean CIMClientRep::_isLocalHost() 
 {
@@ -295,6 +298,8 @@ Boolean CIMClientRep::_isLocalHost()
          String::equalNoCase(_connectHost,"localhost") ) return true;
     return System::sameHost( _connectHost );
 }
+#endif
+
 //-------------------------------------------
 void CIMClientRep::connect(
     const String& host,
@@ -394,12 +399,14 @@ void CIMClientRep::connectLocal()
     //
     if (_connected)
         throw AlreadyConnectedException();
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (_allowdirectaccesslocalproviders && !_directaccess_redirect) {
 		// set up direct access CIM	
         _connectHost = String::EMPTY;
         _connect();
         return;                    // <--- note
         }
+#endif
 
     //
     // Set authentication type
@@ -579,9 +586,15 @@ void CIMClientRep::deleteClass(
         nameSpace,
         className,
         QueueIdStack()));
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 	ck_dacim_redirect()
+#endif
+
     Message* message = _doRequest(request, CIM_DELETE_CLASS_RESPONSE_MESSAGE);
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
     CIMDeleteClassResponseMessage* response =
         (CIMDeleteClassResponseMessage*)message;
 
@@ -597,10 +610,19 @@ void CIMClientRep::deleteInstance(
         nameSpace,
         instanceName,
         QueueIdStack()));
-	if (nameSpace == "root/PG_InterOp") { ck_dacim_redirect() }
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+	if (nameSpace == "root/PG_InterOp") 
+        { 
+            ck_dacim_redirect() 
+        }
+#endif
     Message* message =
         _doRequest(request, CIM_DELETE_INSTANCE_RESPONSE_MESSAGE);
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
+
     CIMDeleteInstanceResponseMessage* response =
         (CIMDeleteInstanceResponseMessage*)message;
 
@@ -617,9 +639,14 @@ void CIMClientRep::createClass(
         newClass,
         QueueIdStack()));
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     ck_dacim_redirect()
+#endif
     Message* message = _doRequest(request, CIM_CREATE_CLASS_RESPONSE_MESSAGE);
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
     CIMCreateClassResponseMessage* response =
         (CIMCreateClassResponseMessage*)message;
 
@@ -635,11 +662,19 @@ CIMObjectPath CIMClientRep::createInstance(
         nameSpace,
         newInstance,
         QueueIdStack()));
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+	if (nameSpace == "root/PG_InterOp") 
+        { 
+            ck_dacim_redirect() 
+        }
+#endif
 
-	if (nameSpace == "root/PG_InterOp") { ck_dacim_redirect() }
     Message* message =
         _doRequest(request, CIM_CREATE_INSTANCE_RESPONSE_MESSAGE);
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
 
     CIMCreateInstanceResponseMessage* response =
         (CIMCreateInstanceResponseMessage*)message;
@@ -659,9 +694,15 @@ void CIMClientRep::modifyClass(
         modifiedClass,
         QueueIdStack()));
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 	ck_dacim_redirect()
+#endif
     Message* message = _doRequest(request, CIM_MODIFY_CLASS_RESPONSE_MESSAGE);
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
+
     CIMModifyClassResponseMessage* response =
         (CIMModifyClassResponseMessage*)message;
 
@@ -681,11 +722,19 @@ void CIMClientRep::modifyInstance(
         includeQualifiers,
         propertyList,
         QueueIdStack()));
-
-	if (nameSpace == "root/PG_InterOp") { ck_dacim_redirect() }
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+	if (nameSpace == "root/PG_InterOp") 
+        { 
+            ck_dacim_redirect() 
+        }
+#endif
     Message* message =
         _doRequest(request, CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE);
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
+
     CIMModifyInstanceResponseMessage* response =
         (CIMModifyInstanceResponseMessage*)message;
 
@@ -1019,9 +1068,17 @@ void CIMClientRep::setQualifier(
         nameSpace,
         qualifierDeclaration,
         QueueIdStack()));
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 	ck_dacim_redirect()
+#endif
+
     Message* message = _doRequest(request, CIM_SET_QUALIFIER_RESPONSE_MESSAGE);
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
+
     CIMSetQualifierResponseMessage* response =
         (CIMSetQualifierResponseMessage*)message;
 
@@ -1038,10 +1095,17 @@ void CIMClientRep::deleteQualifier(
         qualifierName,
         QueueIdStack()));
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 	ck_dacim_redirect()
+#endif
+
     Message* message =
         _doRequest(request, CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE);
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     _directaccess_redirect = false;
+#endif
+
     CIMDeleteQualifierResponseMessage* response =
         (CIMDeleteQualifierResponseMessage*)message;
 

@@ -43,6 +43,14 @@ static void _testContentType()
 {
 
     String contentType;
+    contentType = "application/xml    ;  charset =     utf-8  ";
+    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+
+    contentType = "text/xml    ;  CHARSET = utf-8";
+    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+
+    contentType = "   application/xml;charset=UTF-8   ";
+    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
 
     contentType = "application/xml    ;  charset =     \"utf-8\"  ";
     PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
@@ -57,6 +65,12 @@ static void _testContentType()
     PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
 
     contentType = "TexT/XmL";
+    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+
+    contentType = "APPLICATION/XML;charset=utf-8";
+    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+
+    contentType = "TEXT/XML;CHARSET=UTF-8";
     PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
 
     contentType = "APPLICATION/XML;charset=\"utf-8\"";
@@ -82,6 +96,12 @@ static void _testContentType()
     PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
 
     contentType = "application/xml    ;   = \"utf-8\"";
+    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+
+    contentType = "text/xml; charset  = ututf-8 ";
+    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+
+    contentType = "text/xml;  charset = \"ututf-8";
     PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
 }
 

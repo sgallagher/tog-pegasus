@@ -496,11 +496,22 @@ Boolean HTTPMessage::isSupportedContentType(const String& cimContentType)
         return true; //We assume "utf-8".
     }
 
-    // charset is present, should be "utf-8", case insensitive.
     if (!expectHeaderToken(str, ";") || !expectHeaderToken(str, "charset") ||
-        !expectHeaderToken (str, "=") || !expectHeaderToken(str, "\"utf-8\""))
+        !expectHeaderToken (str, "="))
     {
         return false;
+    }
+
+    
+    // charset is present, should be "utf-8" or utf-8, case insensitive.
+    const char* strReset = str;
+    if (!expectHeaderToken(str, "\"utf-8\""))//check for string "utf-8"
+    {
+        str = strReset;
+        if(!expectHeaderToken(str, "utf-8"))//check for string utf-8
+        {
+            return false;  //If charset is neither "utf-8" nor utf-8
+        }
     }
 
     // Check for any extra characters

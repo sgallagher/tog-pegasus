@@ -36,17 +36,14 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_HAS_SSL
-
-#include "Network.h"
-
-#define OPENSSL_NO_KRB5 1
-#include <openssl/err.h>
-#include <openssl/ssl.h>
-#include <openssl/rand.h>
+# include "Network.h"
+# define OPENSSL_NO_KRB5 1
+# include <openssl/err.h>
+# include <openssl/ssl.h>
+# include <openssl/rand.h>
 #else
-#define SSL_CTX void
-#define X509_STORE void
-
+# define SSL_CTX void
+# define X509_STORE void
 #endif // end of PEGASUS_HAS_SSL
 
 #include <Pegasus/Common/Tracer.h>
@@ -138,6 +135,87 @@ void SSLContextManager::createSSLContext(
 //
 #ifdef PEGASUS_HAS_SSL
 
+/**
+    Create a new store object and load the specified store and return
+    a pointer to the new store object.
+*/
+static X509_STORE* _getNewX509Store(const String& storePath)
+{
+    PEG_METHOD_ENTER(TRC_SSL, "_getNewX509Store()");
+
+    //
+    // reload certificates from the specified store
+    //
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+        "Reloading certificates from the store: " + storePath);
+
+    X509_STORE* newStore = X509_STORE_new();
+
+    //
+    // Check if there is a CA certificate file or directory specified.
+    // If specified, load the certificates from the specified store path.
+    //
+    if (FileSystem::isDirectory(storePath))
+    {
+        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(newStore,
+                                              X509_LOOKUP_hash_dir());
+        if (storeLookup == NULL)
+        {
+            X509_STORE_free(newStore);
+
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "Could not reload the trust or crl store.");
+
+            MessageLoaderParms parms(
+                "Pegasus.Common.SSLContextManager."
+                    "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
+                "Could not reload the trust or crl store.");
+            PEG_METHOD_EXIT();
+            throw SSLException(parms);
+        }
+        X509_LOOKUP_add_dir(storeLookup,
+            storePath.getCString(), X509_FILETYPE_PEM);
+    }
+    else if (FileSystem::exists(storePath))
+    {
+        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(
+            newStore, X509_LOOKUP_file());
+        if (storeLookup == NULL)
+        {
+            X509_STORE_free(newStore);
+
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "Could not reload the trust or crl store.");
+
+            MessageLoaderParms parms(
+                "Pegasus.Common.SSLContextManager."
+                    "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
+                "Could not reload the trust or crl store.");
+            PEG_METHOD_EXIT();
+            throw SSLException(parms);
+        }
+        X509_LOOKUP_load_file(storeLookup,
+            storePath.getCString(), X509_FILETYPE_PEM);
+    }
+    else
+    {
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+            "Could not reload the trust or crl store, configured store "
+                "not found.");
+
+        MessageLoaderParms parms(
+            "Pegasus.Common.SSLContextManager."
+                "CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND",
+            "Could not reload the trust or crl store, configured store "
+                "not found.");
+        PEG_METHOD_EXIT();
+        throw SSLException(parms);
+    }
+
+    PEG_METHOD_EXIT();
+    return newStore;
+}
+
 void SSLContextManager::reloadTrustStore()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::reloadTrustStore()");
@@ -226,7 +304,6 @@ void SSLContextManager::reloadCRLStore()
 
     // update the CRL store for both the server and the export server since
     // they share the same CRL store
-    X509_STORE* crlStore;
 
     {
         WriteLock contextLock(_sslContextObjectLock);
@@ -239,95 +316,11 @@ void SSLContextManager::reloadCRLStore()
     PEG_METHOD_EXIT();
 }
 
-
-X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
-{
-    PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::_getNewX509Store()");
-
-    //
-    // reload certificates from the specified store
-    //
-    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
-        "Reloading certificates from the store: " + storePath);
-
-    X509_STORE* newStore = X509_STORE_new();
-
-    //
-    // Check if there is a CA certificate file or directory specified.
-    // If specified, load the certificates from the specified store path.
-    //
-    if (FileSystem::isDirectory(storePath))
-    {
-        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(newStore,
-                                              X509_LOOKUP_hash_dir());
-        if (storeLookup == NULL)
-        {
-            X509_STORE_free(newStore);
-
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "Could not reload the trust or crl store.");
-
-            MessageLoaderParms parms(
-                "Pegasus.Common.SSLContextManager."
-                    "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
-                "Could not reload the trust or crl store.");
-            PEG_METHOD_EXIT();
-            throw SSLException(parms);
-        }
-        X509_LOOKUP_add_dir(storeLookup,
-            storePath.getCString(), X509_FILETYPE_PEM);
-    }
-    else if (FileSystem::exists(storePath))
-    {
-        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(
-            newStore, X509_LOOKUP_file());
-        if (storeLookup == NULL)
-        {
-            X509_STORE_free(newStore);
-
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "Could not reload the trust or crl store.");
-
-            MessageLoaderParms parms(
-                "Pegasus.Common.SSLContextManager."
-                    "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
-                "Could not reload the trust or crl store.");
-            PEG_METHOD_EXIT();
-            throw SSLException(parms);
-        }
-        X509_LOOKUP_load_file(storeLookup,
-            storePath.getCString(), X509_FILETYPE_PEM);
-    }
-    else
-    {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-            "Could not reload the trust or crl store, configured store "
-                "not found.");
-
-        MessageLoaderParms parms(
-            "Pegasus.Common.SSLContextManager."
-                "CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND",
-            "Could not reload the trust or crl store, configured store "
-                "not found.");
-        PEG_METHOD_EXIT();
-        throw SSLException(parms);
-    }
-
-    PEG_METHOD_EXIT();
-    return newStore;
-}
-
 #else    //#ifdef PEGASUS_HAS_SSL
 
 void SSLContextManager::reloadTrustStore() { }
 
 void SSLContextManager::reloadCRLStore() { }
-
-X509_STORE* SSLContextManager::_getNewX509Store(
-    const String& storePath)
-{
-    return NULL;
-}
 
 #endif   //#ifdef PEGASUS_HAS_SSL
 

@@ -34,17 +34,6 @@
 #ifndef Pegasus_TLS_h
 #define Pegasus_TLS_h
 
-#ifdef PEGASUS_HAS_SSL
-#define OPENSSL_NO_KRB5 1
-#include <openssl/err.h>
-#include <openssl/ssl.h>
-#include <openssl/rand.h>
-#else
-#define SSL_CTX void
-typedef void SSL_Context;
-
-#endif // end of PEGASUS_HAS_SSL
-
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/String.h>
@@ -54,11 +43,7 @@ typedef void SSL_Context;
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ReadWriteSem.h>
 
-// REVIEW: Figure out how this works (note to myself)?
-
-
 PEGASUS_NAMESPACE_BEGIN
-
 
 #ifdef PEGASUS_HAS_SSL
 class PEGASUS_COMMON_LINKAGE SSLSocket
@@ -118,7 +103,12 @@ public:
 
 private:
 
-    SSL * _SSLConnection;
+    /**
+        This member is of type SSL*, but we don't want to expose a dependency
+        on the SSL include files in a header file.
+    */
+    void* _SSLConnection;
+
     SocketHandle _socket;
     SSLContext * _SSLContext;
     ReadWriteSem * _sslContextObjectLock;

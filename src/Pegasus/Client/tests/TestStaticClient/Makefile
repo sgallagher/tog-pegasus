@@ -34,11 +34,6 @@ DIR = Pegasus/Client/tests/TestStaticClient
 
 include $(ROOT)/mak/config.mak
 
-ifdef PEGASUS_HAS_SSL
-  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
-  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
-endif
-
 POSTSTARTTESTS =
 ifeq ($(OS),HPUX)
   POSTSTARTTESTS = $(PROGRAM)

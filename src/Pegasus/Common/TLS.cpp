@@ -41,6 +41,16 @@
 
 #include "TLS.h"
 
+#ifdef PEGASUS_HAS_SSL
+# define OPENSSL_NO_KRB5 1
+# include <openssl/err.h>
+# include <openssl/ssl.h>
+# include <openssl/rand.h>
+#else
+# define SSL_CTX void
+typedef void SSL_Context;
+#endif // end of PEGASUS_HAS_SSL
+
 #ifdef PEGASUS_OS_ZOS
 #include "SocketzOS_inline.h"
 #endif
@@ -71,12 +81,14 @@ SSLSocket::SSLSocket(
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
+    SSL* sslConnection;
+
     _sslReadErrno = 0;
 
     //
     // create the SSLConnection area
     //
-    if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
+    if (!(sslConnection = SSL_new(_SSLContext->_rep->getContext())))
     {
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
@@ -111,7 +123,7 @@ SSLSocket::SSLSocket(
             ipAddress ));
 
         if (SSL_set_ex_data(
-                _SSLConnection,
+                sslConnection,
                 SSLCallbackInfo::SSL_CALLBACK_INDEX,
                 _SSLCallbackInfo.get()))
         {
@@ -127,7 +139,7 @@ SSLSocket::SSLSocket(
         //
         // and connect the active socket with the ssl operation
         //
-        if (!(SSL_set_fd(_SSLConnection, _socket) ))
+        if (!(SSL_set_fd(sslConnection, _socket) ))
         {
             PEG_METHOD_EXIT();
             MessageLoaderParms parms(
@@ -138,9 +150,11 @@ SSLSocket::SSLSocket(
     }
     catch (...)
     {
-        SSL_free(_SSLConnection);
+        SSL_free(sslConnection);
         throw;
     }
+
+    _SSLConnection = sslConnection;
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");
 
@@ -151,7 +165,7 @@ SSLSocket::~SSLSocket()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::~SSLSocket()");
 
-    SSL_free(_SSLConnection);
+    SSL_free(static_cast<SSL*>(_SSLConnection));
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Deleted SSL socket");
 
@@ -161,7 +175,7 @@ SSLSocket::~SSLSocket()
 
 Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
 {
-    Sint32 err = SSL_get_error(_SSLConnection, retCode);
+    Sint32 err = SSL_get_error(static_cast<SSL*>(_SSLConnection), retCode);
     if (Tracer::isTraceOn())
     {
         unsigned long rc = ERR_get_error ();
@@ -186,8 +200,8 @@ Sint32 SSLSocket::read(void* ptr, Uint32 size)
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-        SSL_state_string_long(_SSLConnection));
-    rc = SSL_read(_SSLConnection, (char *)ptr, size);
+        SSL_state_string_long(static_cast<SSL*>(_SSLConnection)));
+    rc = SSL_read(static_cast<SSL*>(_SSLConnection), (char *)ptr, size);
 
     _sslReadErrno = errno;
 
@@ -209,8 +223,9 @@ Sint32 SSLSocket::timedWrite( const void* ptr,
   {
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (w) ");
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                     SSL_state_string_long(_SSLConnection) );
-    bytesWritten = SSL_write(_SSLConnection, (char *)ptr, size);
+        SSL_state_string_long(static_cast<SSL*>(_SSLConnection)));
+    bytesWritten =
+        SSL_write(static_cast<SSL*>(_SSLConnection), (char *)ptr, size);
 
     // Some data written this cycle ?
     // Add it to the total amount of written data.
@@ -282,7 +297,7 @@ void SSLSocket::close()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::close()");
 
-    SSL_shutdown(_SSLConnection);
+    SSL_shutdown(static_cast<SSL*>(_SSLConnection));
     Socket::close(_socket);
 
     PEG_METHOD_EXIT();
@@ -313,20 +328,21 @@ Sint32 SSLSocket::accept()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::accept()");
 
+    SSL* sslConnection = static_cast<SSL*>(_SSLConnection);
     Sint32 ssl_rc,ssl_rsn;
 
     //ATTN: these methods get implicitly done with the SSL_accept call
-    //SSL_do_handshake(_SSLConnection);
-    //SSL_set_accept_state(_SSLConnection);
+    //SSL_do_handshake(sslConnection);
+    //SSL_set_accept_state(sslConnection);
 
     // Make sure the SSLContext object is not updated during this operation.
     ReadLock rlock(*_sslContextObjectLock);
 
-    ssl_rc = SSL_accept(_SSLConnection);
+    ssl_rc = SSL_accept(sslConnection);
 
     if (ssl_rc < 0)
     {
-        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+        ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
         if (Tracer::isTraceOn())
         {
             unsigned long rc = ERR_get_error ();
@@ -352,7 +368,7 @@ Sint32 SSLSocket::accept()
     }
     else if (ssl_rc == 0)
     {
-       ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+       ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "Shutdown SSL_accept()");
        PEG_TRACE((TRC_SSL, Tracer::LEVEL4, "Error Code:  %d", ssl_rsn ));
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
@@ -376,13 +392,13 @@ Sint32 SSLSocket::accept()
         //
         // get client's certificate
         //
-        X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
+        X509 * client_cert = SSL_get_peer_certificate(sslConnection);
         if (client_cert != NULL)
         {
             //
             // get certificate verification result
             //
-            int verifyResult = SSL_get_verify_result(_SSLConnection);
+            int verifyResult = SSL_get_verify_result(sslConnection);
             PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
                 "Verification Result:  %d", verifyResult ));
 
@@ -424,17 +440,18 @@ Sint32 SSLSocket::connect()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::connect()");
 
+    SSL* sslConnection = static_cast<SSL*>(_SSLConnection);
     Sint32 ssl_rc,ssl_rsn;
 
-    SSL_set_connect_state(_SSLConnection);
+    SSL_set_connect_state(sslConnection);
 
 redo_connect:
 
-    ssl_rc = SSL_connect(_SSLConnection);
+    ssl_rc = SSL_connect(sslConnection);
 
     if (ssl_rc < 0)
     {
-        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
+        ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
         if (Tracer::isTraceOn())
         {
             unsigned long rc = ERR_get_error ();
@@ -473,7 +490,7 @@ redo_connect:
         PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
            "Attempting to verify server certificate.");
 
-        X509* server_cert = SSL_get_peer_certificate(_SSLConnection);
+        X509* server_cert = SSL_get_peer_certificate(sslConnection);
         if (server_cert != NULL)
         {
             //
@@ -486,7 +503,7 @@ redo_connect:
             // transaction.  Otherwise, the handshake was already terminated.
             //
 
-            if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+            if (SSL_get_verify_result(sslConnection) == X509_V_OK)
             {
                  PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
                      "--->SSL: Server Certificate verified.");

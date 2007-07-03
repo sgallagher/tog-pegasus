@@ -532,37 +532,39 @@ ifdef PEGASUS_USE_NET_SNMP
 endif
 
 ifdef PEGASUS_HAS_SSL
- ifndef OPENSSL_BIN
-    OPENSSL_BIN = $(OPENSSL_HOME)/bin
- endif
- ifndef OPENSSL_COMMAND
-    OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
- endif
- ifndef OPENSSL_SET_SERIAL_SUPPORTED
-    ifneq (, $(findstring 0.9.6, $(shell $(OPENSSL_COMMAND) version)))
-        OPENSSL_SET_SERIAL_SUPPORTED = false
-    else
-        OPENSSL_SET_SERIAL_SUPPORTED = true
+    DEFINES += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+
+    ifndef OPENSSL_BIN
+        OPENSSL_BIN = $(OPENSSL_HOME)/bin
     endif
- endif
-
-# Enable CRL verification
-ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    PEGASUS_ENABLE_SSL_CRL_VERIFICATION = true
-endif
-
-# Check for Enable SSL CRL verification
-ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
-        DEFINES += -DPEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    else
-        ifneq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), false)
-            $(error PEGASUS_ENABLE_SSL_CRL_VERIFICATION\
-                 ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION)) invalid, \
-                  must be true or false)
+    ifndef OPENSSL_COMMAND
+        OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
+    endif
+    ifndef OPENSSL_SET_SERIAL_SUPPORTED
+        ifneq (, $(findstring 0.9.6, $(shell $(OPENSSL_COMMAND) version)))
+            OPENSSL_SET_SERIAL_SUPPORTED = false
+        else
+            OPENSSL_SET_SERIAL_SUPPORTED = true
         endif
     endif
-endif
+
+    # Enable CRL verification
+    ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+        PEGASUS_ENABLE_SSL_CRL_VERIFICATION = true
+    endif
+
+    # Check for Enable SSL CRL verification
+    ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+        ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), true)
+            DEFINES += -DPEGASUS_ENABLE_SSL_CRL_VERIFICATION
+        else
+            ifneq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION), false)
+                $(error PEGASUS_ENABLE_SSL_CRL_VERIFICATION\
+                     ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION)) invalid, \
+                      must be true or false)
+            endif
+        endif
+    endif
 endif
 
 #

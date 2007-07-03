@@ -34,14 +34,6 @@
 #ifndef Pegasus_SSLContextManager_h
 #define Pegasus_SSLContextManager_h
 
-#ifdef PEGASUS_HAS_SSL
-#define OPENSSL_NO_KRB5 1
-#include <openssl/ssl.h>
-#else
-#define SSL_CTX void
-#define X509_STORE void
-#endif
-
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/SSLContext.h>
@@ -49,9 +41,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ReadWriteSem.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
-
 
 /**
     This class provides the functionality necessary to manage SSLContext
@@ -96,12 +86,6 @@ public:
     ReadWriteSem*  getSSLContextObjectLock();
 
 private:
-    /**
-        Create a new store object and load the specified store and return
-        a pointer to the new store object.
-    */
-    X509_STORE* _getNewX509Store(const String& store);
-
     /**
         A lock to control access to the _sslContext object.
         Before read accessing the _sslContext object, one must first

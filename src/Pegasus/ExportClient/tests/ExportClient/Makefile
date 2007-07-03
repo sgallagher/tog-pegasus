@@ -33,11 +33,6 @@ DIR = Pegasus/ExportClient/tests/ExportClient
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-ifdef PEGASUS_HAS_SSL
-  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
-  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
-endif
-
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestExportClient

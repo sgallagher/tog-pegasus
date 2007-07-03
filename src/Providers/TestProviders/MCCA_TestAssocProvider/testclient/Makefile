@@ -47,12 +47,8 @@ LIBRARIES = \
 PROGRAM = TestMCCATestClient
 SOURCES = MCCATestClient.cpp
 
-ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-  ifneq ($(OS),HPUX)
-    ifeq ($(PEGASUS_ENABLE_SLP),true)
-       LIBRARIES += pegslp_client
-    endif
-  endif
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+     LIBRARIES += pegslp_client
 endif
 
 include $(ROOT)/mak/program.mak

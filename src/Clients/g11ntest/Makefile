@@ -48,12 +48,8 @@ PROGRAM = TestG11n
 
 SOURCES = g11ntest.cpp
 
-ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-  ifneq ($(OS),HPUX)
-    ifeq ($(PEGASUS_ENABLE_SLP),true)
-       LIBRARIES += pegslp
-    endif
-  endif
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+     LIBRARIES += pegslp
 endif
 
 include $(ROOT)/mak/program.mak

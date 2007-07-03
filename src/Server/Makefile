@@ -82,12 +82,8 @@ LIBRARIES += \
     CertificateProvider
 endif
 
-ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-  ifneq ($(OS),HPUX)
-    ifeq ($(PEGASUS_ENABLE_SLP),true)
-      LIBRARIES += pegslp
-    endif
-  endif
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+    LIBRARIES += pegslp
 endif
 
 LIBRARIES += \

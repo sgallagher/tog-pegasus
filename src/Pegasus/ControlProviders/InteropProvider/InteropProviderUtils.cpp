@@ -68,12 +68,14 @@
 
 #include <stdlib.h>
 
-//The following include is needed for gethostbyname
+//The following includes are needed for gethostbyname and AF_INET6
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <objbase.h>
+#include <winsock2.h>
 #else
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #endif
 
 PEGASUS_USING_STD;

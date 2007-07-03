@@ -179,12 +179,15 @@ void CIMClientRep::_connect()
     }
 #endif
     char *ckdacim = getenv("PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT");
-    if (ckdacim) {
+    if (ckdacim) 
+    {
         _allowdirectaccesslocalproviders = (strcmp(ckdacim,"false") != 0);
-        }
-    else { 
-        // do nothing; use the default compile time value 
-        }
+    }
+    else 
+    {
+        //If the runtime environment is not set, use cimserver
+        _allowdirectaccesslocalproviders = 0; 
+    }
     if (_directaccesslocalproviders =     // (assign is intentional)
              _allowdirectaccesslocalproviders 
 			 && !_directaccess_redirect && _isLocalHost() ) {
@@ -1152,7 +1155,7 @@ Message* CIMClientRep::_doRequest(
             CIMResponseMessage *crm = (CIMResponseMessage*)response;
             if (crm->cimException.getCode() != CIM_ERR_SUCCESS) {
                 CIMException cimexcep( crm->cimException.getCode(),
-                                       crm->cimException.getMessage() );
+                              (crm->cimException.getMessage().size() > 0)?TraceableCIMException(crm->cimException).getDescription():cimStatusCodeToString(crm->cimException.getCode()));
                 delete response;
                 throw cimexcep;
                 }

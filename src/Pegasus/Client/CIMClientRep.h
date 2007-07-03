@@ -102,7 +102,7 @@ public:
         _timeoutMilliseconds = timeoutMilliseconds;
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
         char * runTimeDacim = getenv("PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT");
-        if (strcmp(runTimeDacim,"true") != 0)
+        if (runTimeDacim && strcmp(runTimeDacim,"true") != 0)
         {
 #endif
         if ((_connected) && (_httpConnection != 0))

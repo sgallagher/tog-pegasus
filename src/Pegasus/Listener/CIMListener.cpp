@@ -118,7 +118,12 @@ private:
     SSLContext *_sslContext;
     Monitor *_monitor;
     Mutex _monitorMutex;
-    HTTPAcceptor *_acceptor;
+#ifdef PEGASUS_ENABLE_IPV6
+    HTTPAcceptor *_ip6Acceptor;
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    HTTPAcceptor *_ip4Acceptor;
+#endif
     Boolean _dieNow;
     CIMListenerIndicationDispatcher *_dispatcher;
     CIMExportResponseEncoder *_responseEncoder;
@@ -132,7 +137,12 @@ CIMListenerService::CIMListenerService(
     _portNumber(portNumber), 
     _sslContext(sslContext), 
     _monitor(NULL),
-    _acceptor(NULL), 
+#ifdef PEGASUS_ENABLE_IPV6
+    _ip6Acceptor(NULL),
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    _ip4Acceptor(NULL),
+#endif
     _dieNow(false), 
     _dispatcher(NULL), 
     _responseEncoder(NULL),
@@ -144,7 +154,12 @@ CIMListenerService::CIMListenerService(CIMListenerService & svc) :
     _portNumber(svc._portNumber), 
     _sslContext(svc._sslContext), 
     _monitor(NULL),
-    _acceptor(NULL), 
+#ifdef PEGASUS_ENABLE_IPV6
+    _ip6Acceptor(NULL),
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    _ip4Acceptor(NULL),
+#endif
     _dieNow(svc._dieNow), 
     _dispatcher(NULL),
     _responseEncoder(NULL), 
@@ -156,7 +171,12 @@ CIMListenerService::~CIMListenerService()
 {
     delete _responseEncoder;
     delete _requestDecoder;
-    delete _acceptor;
+#ifdef PEGASUS_ENABLE_IPV6
+    delete _ip6Acceptor;
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    delete _ip4Acceptor;
+#endif
     delete _monitor;
 }
 
@@ -177,13 +197,22 @@ void CIMListenerService::init()
         _requestDecoder = new CIMExportRequestDecoder(
             _dispatcher, _responseEncoder->getQueueId());
     }
-
-    if (NULL == _acceptor)
+#ifdef PEGASUS_ENABLE_IPV6
+    if (NULL == _ip6Acceptor)
     {
-        _acceptor = new HTTPAcceptor(
-            _monitor, _requestDecoder, false, _portNumber, _sslContext, false);
+        _ip6Acceptor = new HTTPAcceptor(
+            _monitor, _requestDecoder, HTTPAcceptor::IPV6_CONNECTION,
+            _portNumber, _sslContext, false);
     }
-
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    if (NULL == _ip4Acceptor)
+    {
+        _ip4Acceptor = new HTTPAcceptor(
+            _monitor, _requestDecoder, HTTPAcceptor::IPV4_CONNECTION,
+            _portNumber, _sslContext, false);
+    }
+#endif
     bind();
 
     PEG_METHOD_EXIT();
@@ -191,17 +220,32 @@ void CIMListenerService::init()
 
 void CIMListenerService::bind()
 {
-    if (_acceptor != NULL)
+#ifdef PEGASUS_ENABLE_IPV6
+    if (_ip6Acceptor != NULL)
     {
-        _acceptor->bind();
+        _ip6Acceptor->bind();
+
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMLISTENER,
+            Logger::INFORMATION,
+            "IPV6, Listening on HTTP port $0.",
+            _portNumber);
+    }
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    if (_ip4Acceptor != NULL)
+    {
+        _ip4Acceptor->bind();
 
         Logger::put(
             Logger::STANDARD_LOG, 
             System::CIMLISTENER,
             Logger::INFORMATION, 
-            "Listening on HTTP port $0.",
+            "IPV4, Listening on HTTP for port $0.",
             _portNumber);
     }
+#endif
 }
 
 void CIMListenerService::runForever()
@@ -247,10 +291,18 @@ void CIMListenerService::shutdown()
 void CIMListenerService::resume()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::resume()");
-
-    if (_acceptor != NULL)
-        _acceptor->reopenConnectionSocket();
-
+#ifdef PEGASUS_ENABLE_IPV6
+    if (_ip6Acceptor != NULL)
+    {
+        _ip6Acceptor->reopenConnectionSocket();
+    }
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    if (_ip4Acceptor != NULL)
+    {
+        _ip4Acceptor->reopenConnectionSocket();
+    }
+#endif
     PEG_METHOD_EXIT();
 }
 
@@ -262,16 +314,32 @@ void CIMListenerService::stopClientConnection()
 
     // tell Monitor to stop listening for client connections
     _monitor->stopListeningForConnections(true);
-
-    if (_acceptor != NULL)
-        _acceptor->closeConnectionSocket();
-
+#ifdef PEGASUS_ENABLE_IPV6
+    if (_ip6Acceptor != NULL)
+    {
+        _ip6Acceptor->closeConnectionSocket();
+    }
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    if (_ip4Acceptor != NULL)
+    {
+        _ip4Acceptor->closeConnectionSocket();
+    }
+#endif
     PEG_METHOD_EXIT();
 }
 
 Uint32 CIMListenerService::getOutstandingRequestCount()
 {
-    return _acceptor->getOutstandingRequestCount();
+    Uint32 cnt = 0;
+#ifdef PEGASUS_ENABLE_IPV6
+    cnt = _ip6Acceptor->getOutstandingRequestCount();
+#endif
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    cnt += _ip4Acceptor->getOutstandingRequestCount();
+#endif
+
+    return cnt;
 }
 
 CIMListenerIndicationDispatcher* 
@@ -290,10 +358,19 @@ Uint32 CIMListenerService::getPortNumber() const
 {
     Uint32 portNumber = _portNumber;
 
-    if ((portNumber == 0) && (_acceptor != 0))
+#ifdef PEGASUS_ENABLE_IPV6
+    if ((portNumber == 0) && (_ip6Acceptor != 0))
     {
-        portNumber = _acceptor->getPortNumber();
+        portNumber = _ip6Acceptor->getPortNumber();
     }
+#endif
+
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+    if ((portNumber == 0) && (_ip4Acceptor != 0))
+    {
+        portNumber = _ip4Acceptor->getPortNumber();
+    }
+#endif
 
     return (portNumber);
 }

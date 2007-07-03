@@ -41,6 +41,7 @@
 #include "TLS.h"
 #include "HTTPConnector.h"
 #include "HTTPConnection.h"
+#include "HostAddress.h"
 
 #ifdef PEGASUS_OS_OS400
 # include "EBCDIC_OS400.h"
@@ -65,11 +66,49 @@ class bsd_socket_rep;
 static Boolean _MakeAddress(
     const char* hostname,
     int port,
-    sockaddr_in& address)
+    sockaddr_in& address,
+    void **addr_info)
 {
     if (!hostname)
         return false;
 
+#ifdef PEGASUS_ENABLE_IPV6
+    struct sockaddr_in6 serveraddr;
+    struct addrinfo  hints;
+    struct addrinfo *result;
+    int rc = 0;
+
+    memset(&hints, 0x00, sizeof(hints));
+    hints.ai_family   = AF_UNSPEC ;
+    hints.ai_socktype = SOCK_STREAM;
+
+    // Giving hint as AI_NUMERICHOST to the getaddrinfo function avoids
+    // name resolution done by getaddrinfo at DNS. This will improve
+    // performance.
+
+    // Check for valid IPv4 address.
+    if (1 == HostAddress::convertTextToBinary(AF_INET, hostname, &serveraddr))
+    {
+        hints.ai_family = AF_INET;
+        hints.ai_flags |= AI_NUMERICHOST;
+    } // check for valid IPv6 address
+    else if (1 == HostAddress::convertTextToBinary(AF_INET6, hostname,
+        &serveraddr))
+    {
+        hints.ai_family = AF_INET6;
+        hints.ai_flags |= AI_NUMERICHOST;
+    }
+
+    char portStr[20];
+    sprintf(portStr,"%d",port);
+    while ((rc = getaddrinfo(hostname, portStr, &hints, &result)) == EAI_AGAIN)
+        ;
+    if (rc)
+    {
+        return false;
+    }
+    *addr_info = result;
+#else
 #ifdef PEGASUS_OS_OS400
     char ebcdicHost[256];
     if (strlen(hostname) < 256)
@@ -162,6 +201,7 @@ static Boolean _MakeAddress(
         address.sin_addr.s_addr = tmp_addr;
         address.sin_port = htons(port);
     }
+#endif // PEGASUS_ENABLE_IPV6
 
     return true;
 }
@@ -300,10 +340,17 @@ HTTPConnection* HTTPConnector::connect(
 #endif
 
         // Make the internet address:
-
+#ifdef PEGASUS_ENABLE_IPV6
+        struct addrinfo *addr_info;
+#endif
         sockaddr_in address;
-
-        if (!_MakeAddress((const char*)host.getCString(), portNumber, address))
+        if (!_MakeAddress((const char*)host.getCString(), portNumber, address,
+#ifdef PEGASUS_ENABLE_IPV6
+             (void**)&addr_info
+#else
+             0
+#endif
+             ))        
         {
             char portStr [32];
             sprintf (portStr, "%u", portNumber);
@@ -311,9 +358,15 @@ HTTPConnection* HTTPConnector::connect(
             throw InvalidLocatorException(host + ":" + portStr);
         }
 
-
+#ifdef PEGASUS_ENABLE_IPV6
+        while (addr_info)
+        {   
         // Create the socket:
+            socket = Socket::createSocket(addr_info->ai_family, 
+                addr_info->ai_socktype, addr_info->ai_protocol);
+#else
         socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
         if (socket == PEGASUS_INVALID_SOCKET)
         {
             PEG_METHOD_EXIT();
@@ -322,10 +375,24 @@ HTTPConnection* HTTPConnector::connect(
             
 
         // Conect the socket to the address:
+#ifdef PEGASUS_ENABLE_IPV6
+            if (::connect(socket,
+                reinterpret_cast<sockaddr*>(addr_info->ai_addr),
+                addr_info->ai_addrlen) < 0)
+#else
         if (::connect(socket,
                 reinterpret_cast<sockaddr*>(&address),
                 sizeof(address)) < 0)
+#endif
+            {
+#ifdef PEGASUS_ENABLE_IPV6
+                addr_info = addr_info->ai_next;
+                if (addr_info)
         {
+                    Socket::close(socket);
+                    continue;
+                }
+#endif
             char portStr[32];
             sprintf(portStr, "%u", portNumber);
             MessageLoaderParms parms(
@@ -337,6 +404,11 @@ HTTPConnection* HTTPConnector::connect(
             PEG_METHOD_EXIT();
             throw CannotConnectException(parms);
         }
+#ifdef PEGASUS_ENABLE_IPV6
+            break;
+        }
+        freeaddrinfo(addr_info);
+#endif
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     }

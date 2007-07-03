@@ -29,17 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//     Mike Day (mdday@us.ibm.com)
-//	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//     Dan Gorey (djgorey@us.ibm.com)
-//     Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//     Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Server_h
@@ -97,8 +86,10 @@ public:
     ~CIMServer();
 
     /** Adds a connection acceptor for the specified listen socket.
-        @param localConnection Boolean specifying whether the acceptor should
-               listen on a local-system-only connection.
+        @param connectionType Uint16 specifying whether the acceptor should
+               listen on a LOCAL_CONNECTION or IPV4_CONNECTION or
+               IPV6_CONNECTION socket. portNumer is ignored if
+               connectionType is LOCAL_CONNECTION.
         @param portNumber Port number that should be used by the listener.
                This parameter is ignored if localConnection=true.
         @param useSSL Boolean specifying whether SSL should be used for
@@ -109,7 +100,7 @@ public:
                this acceptor. Ignored when useSSL is false. 
     */
     void addAcceptor(
-        Boolean localConnection,
+        Uint16 connectionType,
         Uint32 portNumber,
         Boolean useSSL);
 

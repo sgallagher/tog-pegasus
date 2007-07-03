@@ -47,6 +47,7 @@
 #include <Clients/CLITestClients/CLIClientLib/CLIClientLib.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -379,18 +380,23 @@ int main(int argc, char** argv)
     {
         if (CommandTable[cmdIndex].ID_Command != ID_ShowOptions)
         {
-            // Take off port number if it is on host name
-            Uint32 index = opts.location.find (':');
-            String host = opts.location.subString (0, index);
+            String host;
+            HostLocator addr;
+            if (opts.location != String::EMPTY)
+            { 
+                addr.setHostLocator(opts.location);
+                if (!addr.isValid())
+                {
+                    throw InvalidLocatorException(opts.location);
+                }
+                host = addr.getHost();
+            } 
 
             Uint32 portNumber = WBEM_DEFAULT_HTTP_PORT;
-            if (index != PEG_NOT_FOUND)
+            if (host != String::EMPTY && addr.isPortSpecified())
             {
-                String portStr = opts.location.subString (index + 1,
-                    opts.location.size ());
-                sscanf (portStr.getCString (), "%u", &portNumber);
+                portNumber = addr.getPort();
             }
-
             //check whether we should use connect() or connectLocal()
             //an empty location option indicates to use connectLocal()
             if (String::equal(host, String::EMPTY))

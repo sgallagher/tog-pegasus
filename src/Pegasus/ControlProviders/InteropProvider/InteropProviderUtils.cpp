@@ -68,12 +68,14 @@
 
 #include <stdlib.h>
 
-//The following include is needed for gethostbyname
+//The following includes are needed for gethostbyname and AF_INET6
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <objbase.h>
+#include <winsock2.h>
 #else
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -270,10 +272,11 @@ String getHostAddress(const String & hostName, Uint32 namespaceType,
     const String & port, Uint32 defaultPortNumber)
 {
   String ipAddress;
+  int af;
   if(hostName == String::EMPTY)
-      ipAddress = System::getHostIP(System::getHostName());
+      System::getHostIP(System::getHostName(), &af, ipAddress);
   else
-      ipAddress = System::getHostIP(hostName);
+      System::getHostIP(hostName, &af, ipAddress);
 
   if(ipAddress == String::EMPTY)
   {
@@ -287,6 +290,12 @@ String getHostAddress(const String & hostName, Uint32 namespaceType,
 
   // If port is valid port number, we use it.  Else use the default port
   // number provided. One or the other MUST not be zero.
+#ifdef PEGASUS_ENABLE_IPV6
+  if (af == AF_INET6)
+  {
+      ipAddress = "[" + ipAddress + "]";
+  }
+#endif
   ipAddress.append(":");
   if(port == String::EMPTY)
   {

@@ -40,6 +40,7 @@
 #include "TLS.h"
 #include "HTTPAcceptor.h"
 #include "HTTPConnection.h"
+#include "HostAddress.h"
 #include "Tracer.h"
 #include <Pegasus/Common/MessageLoader.h>
 
@@ -64,9 +65,9 @@ static int MAX_CONNECTION_QUEUE_LENGTH = -1;
 class HTTPAcceptorRep
 {
 public:
-    HTTPAcceptorRep(Boolean local)
+    HTTPAcceptorRep(Uint16 connectionType)
     {
-        if (local)
+        if (connectionType == HTTPAcceptor::LOCAL_CONNECTION)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             address =
@@ -76,13 +77,26 @@ public:
             PEGASUS_ASSERT(false);
 #endif
         }
-        else
+#ifdef PEGASUS_ENABLE_IPV6
+        else if (connectionType == HTTPAcceptor::IPV6_CONNECTION)
+        {
+            address =
+                reinterpret_cast<struct sockaddr*>(new struct sockaddr_in6);
+            address_size = sizeof(struct sockaddr_in6);
+        }
+#endif
+        else if (connectionType == HTTPAcceptor::IPV4_CONNECTION)
         {
             address =
                 reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
             address_size = sizeof(struct sockaddr_in);
         }
+        else
+        {
+            PEGASUS_ASSERT(false);
     }
+    }
+
     ~HTTPAcceptorRep()
     {
         delete address;
@@ -105,7 +119,7 @@ public:
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
                            MessageQueue* outputMessageQueue,
-                           Boolean localConnection,
+                           Uint16 connectionType,
                            Uint32 portNumber,
                            SSLContext * sslcontext,
                            ReadWriteSem* sslContextObjectLock)
@@ -114,7 +128,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _outputMessageQueue(outputMessageQueue),
      _rep(0),
      _entry_index(-1),
-     _localConnection(localConnection),
+     _connectionType(connectionType),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
      _sslContextObjectLock(sslContextObjectLock)
@@ -264,7 +278,7 @@ void HTTPAcceptor::bind()
         throw BindFailedException(parms);
     }
 
-    _rep = new HTTPAcceptorRep(_localConnection);
+    _rep = new HTTPAcceptorRep(_connectionType);
 
     // bind address
     _bind();
@@ -279,10 +293,9 @@ void HTTPAcceptor::_bind()
 {
     PEGASUS_ASSERT(_rep != 0);
     // Create address:
+    memset(_rep->address, 0, _rep->address_size);
 
-    memset(_rep->address, 0, sizeof(*_rep->address));
-
-    if (_localConnection)
+    if (_connectionType == LOCAL_CONNECTION)
     {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
         reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
@@ -298,7 +311,18 @@ void HTTPAcceptor::_bind()
         PEGASUS_ASSERT(false);
 #endif
     }
-    else
+#ifdef PEGASUS_ENABLE_IPV6
+    else if (_connectionType == IPV6_CONNECTION)
+    {
+        reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_addr =
+            in6addr_any;
+        reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_family =
+            AF_INET6;
+        reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_port =
+            htons(_portNumber);
+    }
+#endif
+    else if(_connectionType == IPV4_CONNECTION)
     {
         reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_addr.s_addr =
             INADDR_ANY;
@@ -307,16 +331,30 @@ void HTTPAcceptor::_bind()
         reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_port =
             htons(_portNumber);
     }
+    else
+    {
+        PEGASUS_ASSERT(false);
+    }
 
     // Create socket:
 
-    if (_localConnection)
+    if (_connectionType == LOCAL_CONNECTION)
     {
         _rep->socket = Socket::createSocket(AF_UNIX, SOCK_STREAM, 0);
     }
-    else
+#ifdef PEGASUS_ENABLE_IPV6
+    else if (_connectionType == IPV6_CONNECTION)
+    {
+        _rep->socket = Socket::createSocket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
+    }
+#endif
+    else if (_connectionType == IPV4_CONNECTION)
     {
         _rep->socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    }
+    else
+    {
+        PEGASUS_ASSERT(false);
     }
 
     if (_rep->socket < 0)
@@ -411,7 +449,7 @@ void HTTPAcceptor::_bind()
 #if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && \
      (defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
       defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM))
-    if (_localConnection)
+    if (_connectionType == LOCAL_CONNECTION)
     {
         if (::chmod(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
                 S_IRUSR | S_IWUSR | S_IXUSR |
@@ -483,7 +521,7 @@ void HTTPAcceptor::closeConnectionSocket()
         // close the socket
         Socket::close(_rep->socket);
         // Unlink Local Domain Socket Bug# 3312
-        if (_localConnection)
+        if (_connectionType == LOCAL_CONNECTION)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
@@ -532,7 +570,7 @@ void HTTPAcceptor::reconnectConnectionSocket()
         // close the socket
         Socket::close(_rep->socket);
         // Unlink Local Domain Socket Bug# 3312
-        if (_localConnection)
+        if (_connectionType == LOCAL_CONNECTION)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
@@ -593,7 +631,7 @@ void HTTPAcceptor::unbind()
         _portNumber = 0;
         Socket::close(_rep->socket);
 
-        if (_localConnection)
+        if (_connectionType == LOCAL_CONNECTION)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             ::unlink(
@@ -650,7 +688,7 @@ void HTTPAcceptor::_acceptConnection()
     struct sockaddr* accept_address;
     SocketLength address_size;
 
-    if (_localConnection)
+    if (_connectionType == LOCAL_CONNECTION)
     {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
         accept_address =
@@ -662,9 +700,16 @@ void HTTPAcceptor::_acceptConnection()
     }
     else
     {
+#ifdef PEGASUS_ENABLE_IPV6
+        accept_address =
+           reinterpret_cast<struct sockaddr*>
+           (new struct sockaddr_storage);
+        address_size = sizeof(struct sockaddr_storage);
+#else
         accept_address =
             reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
         address_size = sizeof(struct sockaddr_in);
+#endif
     }
 
     SocketHandle socket = accept(_rep->socket, accept_address, &address_size);
@@ -695,18 +740,38 @@ void HTTPAcceptor::_acceptConnection()
 
     String ipAddress;
 
-    if (_localConnection)
+    if (_connectionType == LOCAL_CONNECTION)
     {
         ipAddress = "localhost";
     }
     else
     {
+#ifdef PEGASUS_ENABLE_IPV6
+        char ipBuffer[PEGASUS_INET6_ADDRSTR_LEN];
+        int rc;
+        while ((rc = getnameinfo(accept_address, address_size, ipBuffer,
+            PEGASUS_INET6_ADDRSTR_LEN, 0, 0, NI_NUMERICHOST)) == EAI_AGAIN)
+            ;
+        if (rc)
+        {
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "HTTPAcceptor - getnameinfo() failure.  rc: $0", rc);
+
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "HTTPAcceptor: getnameinfo() failed");
+            delete accept_address;
+            Socket::close(socket);
+            return;
+        }
+        ipAddress = ipBuffer;
+#else
         unsigned char* sa = reinterpret_cast<unsigned char*>(
             &reinterpret_cast<struct sockaddr_in*>(
                 accept_address)->sin_addr.s_addr);
         char ipBuffer[32];
         sprintf(ipBuffer, "%u.%u.%u.%u", sa[0], sa[1], sa[2], sa[3]);
         ipAddress = ipBuffer;
+#endif
     }
 
     delete accept_address;

@@ -29,51 +29,38 @@
 //
 //==============================================================================
 //
-// Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) PEP#101
+// Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
-#ifndef Pegasus_CIMClientConnection_h
-#define Pegasus_CIMClientConnection_h
-
-#include <Pegasus/Client/CIMClientRep.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Client/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/HostAddress.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _XOPEN_SOURCE_EXTENDED 1
+#endif
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CLIENT_LINKAGE CIMClientConnection
+String Guid::getGuid(const String &prefix)
 {
+  Uint32 seconds(0), milliSeconds(0);
+  System::getCurrentTime(seconds, milliSeconds);
+  CIMValue secondsValue(seconds);
+  CIMValue milliSecondsValue(milliSeconds);
+  String ipAddress;
+  int af;
+  String hostName(System::getHostName());
+  if (!System::getHostIP(hostName, &af, ipAddress))
+  {
+      // set default address if everything else failed
+      ipAddress = String("127.0.0.1");
+  }
+  // change the dots to dashes
+  for (Uint32 i=0; i<ipAddress.size(); i++)
+    {
+      if (ipAddress[i] == Char16('.'))
+        ipAddress[i] = Char16('-');
+    }
 
-public:
-
-	// class constructor
-	CIMClientConnection();
-	
-	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd);
-	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd, const SSLContext& sslcontext);
-
-	Boolean equals(void *binIPAddress, int af, const String& port);
-
-	CIMClientRep *  getConnectionHandle(void);
-
-	String getUser(void);
-	String getPass(void);
-	SSLContext* getSSLContext(void);
-
-private:
-    AutoPtr<CIMClientRep> _connectionHandle;
-	String	_hostname;
-	String	_port;
-	String  _userid;
-	String  _passwd;
-    AutoPtr<SSLContext> _sslcontext;
-	
-	char  _resolvedIP[PEGASUS_INET6_ADDRSTR_LEN];
-};
+  return (secondsValue.toString() + milliSecondsValue.toString() + "-" + ipAddress);
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif  // Pegasus_CIMClientConnection_h
+// END_OF_FILE

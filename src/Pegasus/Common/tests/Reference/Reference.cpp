@@ -1,31 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//                   (carolann_graves@hp.com)
+//               Karl Schopmeyer - Add reference object tests.
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
+//               Vijay Eli, IBM (vijayeli@in.ibm.com), bug#2556.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,475 +44,362 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/InternalException.h>
-
-#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+static char * verbose;
 
 void test01()
 {
     {
-        String on1;
-        on1 = "//atp:77/root/cimv25:"
-              "TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
+    String on1;
+    on1 = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
 
-        String on2;
-        on2 = "//atp:77/root/cimv25:"
-              "TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
+    String on2;
+    on2 = "//atp:77/root/cimv25:TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
 
-        CIMObjectPath r = on1;
-        PEGASUS_TEST_ASSERT(r.toString() != on1);
-        PEGASUS_TEST_ASSERT(r.toString() == on2);
+    CIMObjectPath r = on1;
+    PEGASUS_TEST_ASSERT(r.toString() != on1);
+    PEGASUS_TEST_ASSERT(r.toString() == on2);
 
-        CIMObjectPath r2 = r;
-        CIMObjectPath r3 = CIMObjectPath
-            ("//atp:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    CIMObjectPath r2 = r;
+    CIMObjectPath r3 = CIMObjectPath
+        ("//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
-        if (verbose)
-        {
-            XmlWriter::printValueReferenceElement(r, false);
-            cout << r.toString() << endl;
-        }
+    if (verbose)
+    {
+        XmlWriter::printValueReferenceElement(r);
+        cout << r.toString() << endl;
+    }
 
-        Buffer mofOut;
-        MofWriter::appendValueReferenceElement(mofOut, r);
-        r.clear();
+    Buffer mofOut;
+    MofWriter::appendValueReferenceElement(mofOut, r);
+    r.clear();
     }
 
     {
-        CIMObjectPath r1 = CIMObjectPath
-            ("MyClass.z=true,y=1234,x=\"Hello World\"");
-        CIMObjectPath r2 = CIMObjectPath
-            ("myclass.X=\"Hello World\",Z=true,Y=1234");
-        CIMObjectPath r3 = CIMObjectPath ("myclass.X=\"Hello\",Z=true,Y=1234");
-        // cout << r1.toString() << endl;
-        // cout << r2.toString() << endl;
-        PEGASUS_TEST_ASSERT(r1 == r2);
-        PEGASUS_TEST_ASSERT(r1 != r3);
+    CIMObjectPath r1 = CIMObjectPath
+        ("MyClass.z=true,y=1234,x=\"Hello World\"");
+    CIMObjectPath r2 = CIMObjectPath
+        ("myclass.X=\"Hello World\",Z=true,Y=1234");
+    CIMObjectPath r3 = CIMObjectPath ("myclass.X=\"Hello\",Z=true,Y=1234");
+    // cout << r1.toString() << endl;
+    // cout << r2.toString() << endl;
+    PEGASUS_TEST_ASSERT(r1 == r2);
+    PEGASUS_TEST_ASSERT(r1 != r3);
     }
 
-    // Test case independence and order independence of parameters.
+     // Test case independence and order independence of parameters.
     {
-        CIMObjectPath r1 = CIMObjectPath ("X.a=123,b=true");
-        CIMObjectPath r2 = CIMObjectPath ("x.B=TRUE,A=123");
-        PEGASUS_TEST_ASSERT(r1 == r2);
-        PEGASUS_TEST_ASSERT(r1.makeHashCode() == r2.makeHashCode());
+	CIMObjectPath r1 = CIMObjectPath ("X.a=123,b=true");
+	CIMObjectPath r2 = CIMObjectPath ("x.B=TRUE,A=123");
+	PEGASUS_TEST_ASSERT(r1 == r2);
+	PEGASUS_TEST_ASSERT(r1.makeHashCode() == r2.makeHashCode());
 
-        CIMObjectPath r3 = CIMObjectPath ("x.B=TRUE,A=123,c=FALSE");
-        PEGASUS_TEST_ASSERT(r1 != r3);
-        String keyValue;
+	CIMObjectPath r3 = CIMObjectPath ("x.B=TRUE,A=123,c=FALSE");
+	PEGASUS_TEST_ASSERT(r1 != r3);
+        String            keyValue;
 
         Array<CIMKeyBinding> kbArray;
-        {
-            Boolean found = false;
-            kbArray = r3.getKeyBindings();
-            for (Uint32 i = 0; i < kbArray.size(); i++)
+	{
+	    Boolean found = false;
+	    kbArray = r3.getKeyBindings();
+	    for (Uint32 i = 0; i < kbArray.size(); i++)
+	    {
+			if (verbose)
             {
-                if (verbose)
-                {
-                    cout << "keyName= " <<  kbArray[i].getName().getString()
-                         << " Value= " << kbArray[i].getValue() << endl;
-                }
-                if ( kbArray[i].getName() == CIMName ("B") )
-                {
-                    keyValue = kbArray[i].getValue();
-                    if(keyValue == "TRUE")
-                    found = true;
-                }
+                cout << "keyName= " <<  kbArray[i].getName() << " Value= "
+    				 << kbArray[i].getValue() << endl;
             }
-            if(!found)
-            {
-                cerr << "Key Binding Test error " << endl;
-                exit(1);
-            }
-            //ATTN: KS 12 May 2002 P3 DEFER - keybinding manipulation. too
-            // simplistic.
-            // This code demonstrates that it is not easy to manipulate and
-            // test keybindings.  Needs better tool both in CIMObjectPath and
-            // separate.
-        }
+		if ( kbArray[i].getName() == CIMName ("B") )
+		{
+		    keyValue = kbArray[i].getValue();
+		    if(keyValue == "TRUE")
+			found = true;
+		}
+	    }
+	    if(!found)
+	    {
+			cerr << "Key Binding Test error " << endl;
+				exit(1);
+	    }
+		//ATTN: KS 12 May 2002 P3 DEFER - keybinding manipulation. too simplistic
+		// This code demonstrates that it is not easy to manipulate and
+		// test keybindings.  Needs better tool both in CIMObjectPath and
+		// separate.
+	}
     }
 
 
     // Test building from component parts of CIM Reference.
     {
-        CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"),
+	CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"),
             CIMName ("TennisPlayer"));
-        CIMObjectPath r2 ("//atp:77/root/cimv25:TennisPlayer.");
-        //cout << "r1 " << r1.toString() << endl;
-        //cout << "r2 " << r2.toString() << endl;
+	CIMObjectPath r2 ("//atp:77/root/cimv25:TennisPlayer.");
+	//cout << "r1 " << r1.toString() << endl;
+	//cout << "r2 " << r2.toString() << endl;
 
-        PEGASUS_TEST_ASSERT(r1 == r2);
-        PEGASUS_TEST_ASSERT(r1.toString() == r2.toString());
+	PEGASUS_TEST_ASSERT(r1 == r2);
+	PEGASUS_TEST_ASSERT(r1.toString() == r2.toString());
 
     }
 
 
     {
-        String hostName = "atp:77";
-        String nameSpace = "root/cimv2";
-        String className = "tennisplayer";
+	String hostName = "atp:77";
+	String nameSpace = "root/cimv2";
+	String className = "tennisplayer";
 
-        CIMObjectPath r1;
-        r1.setHost(hostName);
-        r1.setNameSpace(nameSpace);
-        r1.setClassName(className);
-        PEGASUS_TEST_ASSERT(r1.getClassName().equal(CIMName ("TENNISPLAYER")));
-        PEGASUS_TEST_ASSERT(!r1.getClassName().equal(CIMName ("blob")));
-
-
-        String newHostName = r1.getHost();
-        //cout << "HostName = " << newHostName << endl;
-
-        CIMObjectPath r2 (hostName, nameSpace, className);
-        PEGASUS_TEST_ASSERT(r1 == r2);
-    }
-
-    // Test cases for the Hostname.  CIMObjectPaths allows the
-    // host to include the domain. Eg. xyz.company.com
-
-    // First, try a good hostname
-    CIMObjectPath h0("//usoPen-9.ustA-1-a.org:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h1("//usoPen-9:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h2("//usoPen-9/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h3("//usoPen-9.ustA-1-a.org:0/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h4("//usoPen-9.ustA-1-a.org:9876/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h5("//usoPen-9.ustA-1-a.org:65535/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h6("//usopen-9.usta-1-a.1org:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h7("//192.168.1.com:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h8("//192.168.0.org/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h9("//192.168.1.80.com:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h10("//192.168.0.80.org/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h11("//192.168.1.80.255.com:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h12("//192.168.0.80.254.org/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h13("//192.168.257.80.com:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h14("//192.256.0.80.org/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-
-    CIMObjectPath h15("//localhost/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h16("//ou812/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h17("//u812/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-
-    // Hostname with '_' character support checks, see bug#2556.
-    CIMObjectPath h18("//_atp:9999/_root/_cimv25:_TennisPlayer");
-    CIMObjectPath h19("//a_tp/_root/_cimv25:_TennisPlayer");
-    CIMObjectPath h20("//atp_:9999/_root/_cimv25:_TennisPlayer");
-    CIMObjectPath h21("//atp_-9:9999/_root/_cimv25:_TennisPlayer");
-    CIMObjectPath h22(
-        "//_a_t_p_-9.ustA-1-a.org:9999/_root/_cimv25:_TennisPlayer");
-    CIMObjectPath h23("//_/root/cimv25:_TennisPlayer");
-    CIMObjectPath h24("//_______/root/cimv25:_TennisPlayer");
-
-    // try IPAddress as hostname which should be good
-    CIMObjectPath h_ip0("//192.168.1.80:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    CIMObjectPath h_ip1("//192.168.0.255/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-
-    // Try IPv6 Addresses.
-    CIMObjectPath ip6_1("//[::1]:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-
-    CIMObjectPath ip6_2("//[::ffff:192.1.2.3]:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-
-    CIMObjectPath ip6_3("//[fffe:233:321:234d:e45:fad4:78:12]:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-
-    CIMObjectPath ip6_4("//[fffe::]:77/root/cimv25:"
-        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+	CIMObjectPath r1;
+	r1.setHost(hostName);
+	r1.setNameSpace(nameSpace);
+	r1.setClassName(className);
+	PEGASUS_TEST_ASSERT(r1.getClassName().equal(CIMName ("TENNISPLAYER")));
+	PEGASUS_TEST_ASSERT(!r1.getClassName().equal(CIMName ("blob")));
 
 
-    Boolean errorDetected = false;
+	String newHostName = r1.getHost();
+	//cout << "HostName = " << newHostName << endl;
 
-    // Invalid IPV6 Addresses
-    try
-    { // IPv6 addresses must be enclosed in brackets
-        CIMObjectPath ip6_mb("//fffe::12ef:127/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-       errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+	CIMObjectPath r2 (hostName, nameSpace, className);
+	PEGASUS_TEST_ASSERT(r1 == r2);
+     }
 
-    errorDetected = false;
-    try
-    { // IPv6 address invalid
-        CIMObjectPath ip6_invalid("//[fffe::sd:77]/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-       errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     // Test cases for the Hostname.  CIMObjectPaths allows the
+     // host to include the domain. Eg. xyz.company.com
 
-    errorDetected = false;
-    try
-    {
-       //Port number out of range.
-       CIMObjectPath h_Port("//usoPen-9.ustA-1-a.org:9876543210/root/cimv25:"
-           "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-       errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     // First, try a good hostname
+     CIMObjectPath h0("//usoPen-9.ustA-1-a.org:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h1("//usoPen-9:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h2("//usoPen-9/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h3("//usoPen-9.ustA-1-a.org:0/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h4("//usoPen-9.ustA-1-a.org:9876/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h6("//usopen-9.usta-1-a.1org:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h7("//192.168.1.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h8("//192.168.0.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h9("//192.168.1.80.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h10("//192.168.0.80.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h11("//192.168.1.80.255.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h12("//192.168.0.80.254.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h13("//192.168.257.80.com:77/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h14("//192.256.0.80.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
-    errorDetected = false;
-    try
-    {
-       //Port number out of range.
-       CIMObjectPath h_Port("//usoPen-9.ustA-1-a.org:65536/root/cimv25:"
-           "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-       errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     CIMObjectPath h15("//localhost/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h16("//ou812/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h17("//u812/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     
+     // Hostname with '_' character support checks, see bug#2556.
+     CIMObjectPath h18("//_atp:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h19("//a_tp/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h20("//atp_:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h21("//atp_-9:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h22(
+         "//_a_t_p_-9.ustA-1-a.org:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h23("//_/root/cimv25:_TennisPlayer");
+     CIMObjectPath h24("//_______/root/cimv25:_TennisPlayer");
 
-    errorDetected = false;
-    try
-    {
-       //Port number out of range.
-       CIMObjectPath h_Port("//usoPen-9.ustA-1-a.org:100000/root/cimv25:"
-           "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-       errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     // try IPAddress as hostname which should be good
+     CIMObjectPath h_ip0("//192.168.1.80:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h_ip1("//192.168.0.255/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
-    errorDetected = false;
-    try
-    {
-        //more than three digits in an octect
-        CIMObjectPath h_ErrIp0("//192.1600008.1.80:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-        errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
-
-    errorDetected = false;
-    try
-    {
+     Boolean errorDetected = false;
+     errorDetected = false;
+     try
+     {
         // Octet out of range
-        CIMObjectPath op("//192.168.256.80:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
+        CIMObjectPath h5("//192.168.256.80:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
-        // Missing port is okay, needs be ignored
-        CIMObjectPath op("//192.168.1.80:/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
+     errorDetected = false;
+     try
+     {
+        // Missing port
+        CIMObjectPath h5("//192.168.1.80:/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(!errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Too many octets
-        CIMObjectPath op("//192.168.1.80.12/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
+        CIMObjectPath h5("//192.168.1.80.12/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Too few octets
-        CIMObjectPath op("//192.168.80:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
+        CIMObjectPath h5("//192.168.80:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
-        // Missing port is okay, needs be ignored
-        CIMObjectPath op("//usopen-9.usta-1-a.org:/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (Exception&)
-    {
+     errorDetected = false;
+     try
+     {
+        // Missing port
+        CIMObjectPath h1("//usopen-9.usta-1-a.org:/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(!errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Hostname (IP) without trailing '/' (with port)
-        CIMObjectPath op("//192.168.256.80:77");
-    }
-    catch (const Exception&)
-    {
+        CIMObjectPath h5("//192.168.256.80:77");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Hostname (IP) without trailing '/' (without port)
-        CIMObjectPath op("//192.168.256.80");
-    }
-    catch (const Exception&)
-    {
+        CIMObjectPath h5("//192.168.256.80");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Hostname without trailing '/' (with port)
-        CIMObjectPath op("//usopen-9.usta-1-a.org:77");
-    }
-    catch (const Exception&)
-    {
+        CIMObjectPath h5("//usopen-9.usta-1-a.org:77");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Hostname without trailing '/' (without port)
-        CIMObjectPath op("//usopen-9.usta-1-a.org");
-    }
-    catch (const Exception&)
-    {
+        CIMObjectPath h5("//usopen-9.usta-1-a.org");
+     } catch (const Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Invalid first character
-        CIMObjectPath op("//+usopen-9.usta-1-a.1org:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (Exception&)
-    {
+        CIMObjectPath h1("//+usopen-9.usta-1-a.1org:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Non-alphanum char (?)
-        CIMObjectPath op("//usopen-9.usta?-1-a.org:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (Exception&)
-    {
+        CIMObjectPath h1("//usopen-9.usta?-1-a.org:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Leading dot
-        CIMObjectPath op("//.usopen-9.usta-1-a.org:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (Exception&)
-    {
+        CIMObjectPath h2("//.usopen-9.usta-1-a.org:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Dot in the wrong spot (before a -)
-        CIMObjectPath op("//usopen.-9.usta-1-a.org:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (Exception&)
-    {
+        CIMObjectPath h3("//usopen.-9.usta-1-a.org:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Two dots in a row
-        CIMObjectPath op("//usopen-9.usta-1-a..org:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (Exception&)
-    {
+        CIMObjectPath h4("//usopen-9.usta-1-a..org:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 
-    errorDetected = false;
-    try
-    {
+     errorDetected = false;
+     try
+     {
         // Trailing dot
-        CIMObjectPath op("//usopen-9.usta-1-a.org.:77/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (Exception&)
-    {
+        CIMObjectPath h5("//usopen-9.usta-1-a.org.:77/root/cimv25:"
+                         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception&)
+     {
         errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(errorDetected);
+     }
+     PEGASUS_TEST_ASSERT(errorDetected);
 }
 
 void test02()
@@ -520,8 +416,7 @@ void test02()
         ("MyClass.z=true,y=1234,x=\"Hello,,World\"");
 
     CIMObjectPath testr4 = CIMObjectPath
-        ("//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones"
-         " long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"");
+        ("//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"");
 
     // test cases with colon inside keybinding string value
 
@@ -545,7 +440,7 @@ void test02()
     Boolean errorDetected = false;
     try
     {
-        CIMObjectPath testerr1 = CIMObjectPath
+       CIMObjectPath testerr1 = CIMObjectPath
            ("myclass.X=\"Hello World\"Z=trueY=1234");
     }
     catch (Exception&)
@@ -557,7 +452,7 @@ void test02()
     errorDetected = false;
     try
     {
-        CIMObjectPath testerr2 = CIMObjectPath ("myclass.XYZ");
+       CIMObjectPath testerr2 = CIMObjectPath ("myclass.XYZ");
     }
     catch (Exception&)
     {
@@ -568,8 +463,8 @@ void test02()
     errorDetected = false;
     try
     {
-        CIMObjectPath testerr3 = CIMObjectPath
-            ("MyClass.z=true,y=1234abc,x=\"Hello World\"");
+       CIMObjectPath testerr3 = CIMObjectPath
+           ("MyClass.z=true,y=1234abc,x=\"Hello World\"");
     }
     catch (Exception&)
     {
@@ -580,8 +475,8 @@ void test02()
     errorDetected = false;
     try
     {
-        CIMObjectPath testerr4 = CIMObjectPath
-            ("MyClass.z=nottrue,y=1234,x=\"Hello World\"");
+       CIMObjectPath testerr4 = CIMObjectPath
+           ("MyClass.z=nottrue,y=1234,x=\"Hello World\"");
     }
     catch (Exception&)
     {
@@ -630,18 +525,11 @@ void test03()
     kb6.setValue("true1");
     PEGASUS_TEST_ASSERT(!kb6.equal(Boolean(true)));
 
-    CIMKeyBinding kb7("test7",
-        CIMObjectPath("//atp:77/root/cimv25:TennisPlayer."
-            "last=\"Rafter\",first=\"Patrick\""));
-
-    String path = "//atp:77/root/cimv25:TennisPlayer."
-                  "last=\"Rafter\",first=\"Patrick\"";
+    CIMKeyBinding kb7("test7", CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\""));
+    String path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
     PEGASUS_TEST_ASSERT(kb7.equal(CIMObjectPath(path)));
-
-    path = "//atp:77/root/cimv25:TennisPlayer."
-           "FIRST=\"Patrick\",LAST=\"Rafter\"";
+    path = "//atp:77/root/cimv25:TennisPlayer.FIRST=\"Patrick\",LAST=\"Rafter\"";
     PEGASUS_TEST_ASSERT(kb7.equal(CIMObjectPath(path)));
-
     path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"";
     PEGASUS_TEST_ASSERT(!kb7.equal(CIMObjectPath(path)));
 
@@ -671,8 +559,7 @@ void test03()
     PEGASUS_TEST_ASSERT(!kb10.equal(String("100")));
 
     CIMKeyBinding kb11("test11", String("+100"), CIMKeyBinding::NUMERIC);
-    // Unsigned ints may not start with "+"
-    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));  // Unsigned ints may not start with "+"
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint32(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint16(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint8(100)));
@@ -733,8 +620,7 @@ void test04()
     PEGASUS_TEST_ASSERT (aPath.identical (aPath2));
 
     CIMInstance instanceB (CIMName ("B"));
-    instanceB.addProperty (CIMProperty (CIMName ("q"),
-        String ("pelargonium")));
+    instanceB.addProperty (CIMProperty (CIMName ("q"), String ("pelargonium")));
     instanceB.addProperty (CIMProperty (CIMName ("r"), String ("thyme")));
     instanceB.addProperty (CIMProperty (CIMName ("s"), String ("sage")));
 
@@ -763,26 +649,22 @@ void test04()
     CIMObjectPath cPath2 ("", CIMNamespaceName (),
         cPath.getClassName (), keyBindings);
 
-    // Assert that the CIMObjectPaths for C from build path and direct
-    // from keybindings are equal.
+    // Assert that the CIMObjectPaths for C from build path and direct from keybindings are equal.
     PEGASUS_TEST_ASSERT (cPath.identical (cPath2));
 
-    // ATTN: KS 25 Feb 2003 P3 - Think we can extend these tests
-    // since this is creation of classes and
+    // ATTN: KS 25 Feb 2003 P3 - Think we can extend these tests since this is creation of classes and
     // instnaces for associations and referenced classes.
 }
 
 // Test handling of escape characters
 void test05()
 {
-    {
-        // Test '\' and '"' characters in a key value
-        // This represents MyClass.key1="\\\"\"\\",key2="\"\"\"\"\\\\\\\\"
-        String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
+    // Test '\' and '"' characters in a key value
+    // This represents MyClass.key1="\\\"\"\\",key2="\"\"\"\"\\\\\\\\"
+    String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
                 "key2=\"\\\"\\\"\\\"\\\"\\\\\\\\\\\\\\\\\"";
-        CIMObjectPath r1 = s1;
-        PEGASUS_TEST_ASSERT(r1.toString() == s1);
-    }
+    CIMObjectPath r1 = s1;
+    PEGASUS_TEST_ASSERT(r1.toString() == s1);
 
     // Catch invalid escape sequences in a key value
     Boolean errorDetected;
@@ -792,8 +674,7 @@ void test05()
     try
     {
         CIMObjectPath r1("MyClass.key1=\"\\\"");
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
        errorDetected = true;
     }
@@ -804,8 +685,7 @@ void test05()
     try
     {
         CIMObjectPath r1("MyClass.key1=\"\\n\"");
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
        errorDetected = true;
     }
@@ -816,8 +696,7 @@ void test05()
     try
     {
         CIMObjectPath r1("MyClass.key1=\"\\x000A\"");
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
        errorDetected = true;
     }
@@ -1113,8 +992,7 @@ void test08()
         String hostname = "123.123.123.123";
         hostname[0] = 0x131;
         op.setHost(hostname);
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
         errorDetected = true;
     }
@@ -1127,8 +1005,7 @@ void test08()
         String hostname = "123.123.123.123";
         hostname[1] = 0x132;
         op.setHost(hostname);
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
         errorDetected = true;
     }
@@ -1141,8 +1018,7 @@ void test08()
         String hostname = "123.123.123.123";
         hostname[4] = 0x131;
         op.setHost(hostname);
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
         errorDetected = true;
     }
@@ -1155,8 +1031,7 @@ void test08()
         String hostname = "myhost.123.com";
         hostname[7] = 0x131;
         op.setHost(hostname);
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
         errorDetected = true;
     }
@@ -1169,8 +1044,7 @@ void test08()
         String hostname = "myhost.123.com";
         hostname[8] = 0x132;
         op.setHost(hostname);
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
         errorDetected = true;
     }
@@ -1183,8 +1057,7 @@ void test08()
         String hostname = "myhost.123.com:1234";
         hostname[15] = 0x131;
         op.setHost(hostname);
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
         errorDetected = true;
     }
@@ -1197,17 +1070,16 @@ void test08()
         String hostname = "myhost.123.com:1234";
         hostname[18] = 0x134;
         op.setHost(hostname);
-    }
-    catch (const MalformedObjectNameException&)
+    } catch (const MalformedObjectNameException&)
     {
         errorDetected = true;
     }
     PEGASUS_TEST_ASSERT(errorDetected);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     try
     {

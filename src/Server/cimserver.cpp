@@ -1306,7 +1306,15 @@ MessageLoader::_useProcessLocale = false;
 
         if (enableHttpConnection)
         {
-            _cimServer->addAcceptor(false, portNumberHttp, false);
+#ifdef PEGASUS_ENABLE_IPV6
+            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                portNumberHttp, false);
+#endif
+
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                portNumberHttp, false);
+#endif
             //l10n
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTP port $0.", portNumberHttp);
@@ -1317,7 +1325,15 @@ MessageLoader::_useProcessLocale = false;
         }
         if (enableHttpsConnection)
         {
-            _cimServer->addAcceptor(false, portNumberHttps, true);
+#ifdef PEGASUS_ENABLE_IPV6
+            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                portNumberHttps, true);
+#endif
+
+#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
+            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                portNumberHttps, true);
+#endif
             //l10n
             //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         //"Listening on HTTPS port $0.", portNumberHttps);
@@ -1327,7 +1343,7 @@ MessageLoader::_useProcessLocale = false;
         }
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-        _cimServer->addAcceptor(true, 0, false);
+        _cimServer->addAcceptor(HTTPAcceptor::LOCAL_CONNECTION, 0, false);
         //l10n
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     //"Listening on local connection socket.");

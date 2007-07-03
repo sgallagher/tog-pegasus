@@ -43,6 +43,8 @@
 #include "Network.h"
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/HostAddress.h>
+#include <Pegasus/Common/Array.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "SystemWindows.cpp"
@@ -185,8 +187,47 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
     return dirname;
 }
 
-String System::getHostIP(const String &hostName)
+Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
 {
+#ifdef PEGASUS_ENABLE_IPV6
+    struct addrinfo *info, hints;
+    memset (&hints, 0, sizeof(struct addrinfo));
+
+    // Check for valid IPV4 address, if found return ipv4 address
+    *af = AF_INET;
+    hints.ai_family = *af;
+    hints.ai_protocol = IPPROTO_TCP;   
+    hints.ai_socktype = SOCK_STREAM;
+    if (!getaddrinfo(hostName.getCString(), 0, &hints, &info))
+    {
+        char ipAddress[PEGASUS_INET_ADDRSTR_LEN];
+        HostAddress::convertBinaryToText(info->ai_family, 
+            &((struct sockaddr_in*)(info->ai_addr))->sin_addr, ipAddress,
+            PEGASUS_INET_ADDRSTR_LEN);
+        hostIP = ipAddress;
+        freeaddrinfo(info);
+        return true;
+    }
+
+    // Check for valid IPV6 Address. 
+    *af = AF_INET6;
+    hints.ai_family = *af;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_socktype = SOCK_STREAM;
+    if (!getaddrinfo(hostName.getCString(), 0, &hints, &info))
+    {
+        char ipAddress[PEGASUS_INET6_ADDRSTR_LEN];
+        HostAddress::convertBinaryToText(info->ai_family,
+            &((struct sockaddr_in6*)(info->ai_addr))->sin6_addr, ipAddress,
+            PEGASUS_INET6_ADDRSTR_LEN);
+        hostIP = ipAddress;
+        freeaddrinfo(info);
+        return true;
+    }
+
+    return false;
+#else
+    *af = AF_INET;
     struct hostent* hostEntry;
     struct in_addr inaddr;
     String ipAddress;
@@ -244,14 +285,26 @@ String System::getHostIP(const String &hostName)
         ipAddress = ::inet_ntoa( inaddr );
 #endif
     }
-    return ipAddress;
+    hostIP = ipAddress;
+    return true;
+#endif
 }
 
 // ------------------------------------------------------------------------
 // Convert a hostname into a a single host unique integer representation
 // ------------------------------------------------------------------------
-Uint32 System::_acquireIP(const char* hostname)
+Boolean System::_acquireIP(const char* hostname, int *af, void *dst)
 {
+#ifdef PEGASUS_ENABLE_IPV6
+    String ipAddress;
+    if(getHostIP(hostname, af, ipAddress))
+{
+        HostAddress::convertTextToBinary(*af, ipAddress.getCString(), dst);
+        return true;
+    }
+    return false;
+#else
+    *af = AF_INET;
     Uint32 ip = 0xFFFFFFFF;
     if (!hostname) return 0xFFFFFFFF;
 
@@ -332,7 +385,9 @@ Uint32 System::_acquireIP(const char* hostname)
 #endif
         if (!hostEntry)
         {
-            return 0xFFFFFFFF;
+            // error, couldn't resolve the ip
+            memcpy(dst, &ip, sizeof (Uint32));
+            return false;
         }
         unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
 
@@ -387,7 +442,8 @@ Uint32 System::_acquireIP(const char* hostname)
         if (hostEntry == 0)
         {
             // error, couldn't resolve the ip
-            return 0xFFFFFFFF;
+            memcpy(dst, &ip, sizeof (Uint32));
+            return false;
         }
         else
         {
@@ -403,68 +459,10 @@ Uint32 System::_acquireIP(const char* hostname)
             ip = (ip << 8) + ip_part4;
         }
     }
-
-    return ip;
-}
-
-Boolean System::sameHost (const String & hostName)
-{
-    //
-    //  If a port is included, return false
-    //
-    if (hostName.find (":") != PEG_NOT_FOUND)
-    {
-        return false;
-    }
-
-    //
-    //  Retrieve IP addresses for both hostnames
-    //
-    Uint32 hostNameIP, systemHostIP = 0xFFFFFFFF;
-    hostNameIP = System::_acquireIP ((const char *) hostName.getCString ());
-    if (hostNameIP == 0x7F000001)
-    {
-        //
-        //  localhost or IP address of 127.0.0.1
-        //  real IP address needed for compare
-        //
-        hostNameIP = System::_acquireIP
-            ((const char *) System::getHostName ().getCString ());
-    }
-    if (hostNameIP == 0xFFFFFFFF)
-    {
-        //
-        //  Malformed IP address or not resolveable
-        //
-        return false;
-    }
-
-    systemHostIP = System::_acquireIP
-        ((const char *) System::getFullyQualifiedHostName ().getCString ());
-
-    if (systemHostIP == 0x7F000001)
-    {
-        //
-        //  localhost or IP address of 127.0.0.1
-        //  real IP address needed for compare
-        //
-        systemHostIP = System::_acquireIP
-            ((const char *) System::getHostName ().getCString ());
-    }
-    if (systemHostIP == 0xFFFFFFFF)
-    {
-        //
-        //  Malformed IP address or not resolveable
-        //
-        return false;
-    }
-
-    if (hostNameIP != systemHostIP)
-    {
-        return false;
-    }
+    memcpy(dst, &ip, sizeof (Uint32));
 
     return true;
+#endif
 }
 
 Boolean System::resolveHostNameAtDNS(
@@ -552,8 +550,107 @@ Boolean System::resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP)
 }
 
 
+Boolean System::isLoopBack(int af, void *binIPAddress)
+{
+#ifdef PEGASUS_ENABLE_IPV6
+    struct in6_addr ip6 = PEGASUS_IPV6_LOOPBACK_INIT;
+#endif
+    Uint32 ip4 = PEGASUS_IPV4_LOOPBACK_INIT;
+    switch (af)
+    {
+#ifdef PEGASUS_ENABLE_IPV6
+        case AF_INET6:
+            return !memcmp(&ip6, binIPAddress, sizeof (ip6));
+#endif
+        case AF_INET:
+            Uint32 n = ntohl( *(Uint32*)binIPAddress);
+            return !memcmp(&ip4, &n, sizeof (ip4));       
+    }
+
+    return false;
+}
+
 Boolean System::isLocalHost(const String &hostName)
 {
+// Get all ip addresses on the node and compare them with the given hostname.
+#ifdef PEGASUS_ENABLE_IPV6
+    CString csName = hostName.getCString();
+    struct addrinfo hints, *res1, *res2;
+    char localHostName[PEGASUS_MAXHOSTNAMELEN];
+    gethostname(localHostName, PEGASUS_MAXHOSTNAMELEN);
+    Boolean isLocal = false;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    res1 = res2 = 0;
+    getaddrinfo(csName, 0, &hints, &res1);
+    getaddrinfo(localHostName, 0, &hints, &res2);
+
+    while (res1 && !isLocal)
+    {
+        if (isLoopBack(AF_INET,
+            &((struct sockaddr_in*)res1->ai_addr)->sin_addr))
+        {
+            isLocal = true;
+            break;
+        }
+
+        struct addrinfo *tmp = res2;
+        while (tmp) 
+        {
+            if (!memcmp(&((struct sockaddr_in*)res1->ai_addr)->sin_addr,
+                &((struct sockaddr_in*)res2->ai_addr)->sin_addr,
+                sizeof (struct in_addr)))
+            {
+                isLocal = true;
+                break;
+            }
+            tmp = tmp->ai_next;
+        }
+        res1 = res1->ai_next;
+    }   
+    freeaddrinfo(res1);
+    freeaddrinfo(res2);
+    if (isLocal)
+    {
+        return true;
+    } 
+
+    hints.ai_family = AF_INET6;
+    res1 = res2 = 0;
+    getaddrinfo(csName, 0, &hints, &res1);
+    getaddrinfo(localHostName, 0, &hints, &res2);
+    while (res1 && !isLocal)
+    {
+        if (isLoopBack(AF_INET6,
+            &((struct sockaddr_in6*)res1->ai_addr)->sin6_addr))
+        {
+            isLocal = true;
+            break;
+        }
+
+        struct addrinfo *tmp = res2;
+        while (tmp)
+        {
+            if (!memcmp(&((struct sockaddr_in6*)res1->ai_addr)->sin6_addr,
+                &((struct sockaddr_in6*)res2->ai_addr)->sin6_addr,
+                sizeof (struct in6_addr)))
+            {
+                isLocal = true;
+                break;
+            }
+            tmp = tmp->ai_next;
+        }
+        res1 = res1->ai_next;
+    }
+    freeaddrinfo(res1);
+    freeaddrinfo(res2);
+
+    return isLocal;
+#else
+
     // differentiate between a dotted IP address given
     // and a real hostname given
     CString csName = hostName.getCString();
@@ -636,6 +733,7 @@ Boolean System::isLocalHost(const String &hostName)
         if (hostIP == localHostIP) return true;
     }
     return false;
+#endif
 }
 
 // System ID constants for Logger::put and Logger::trace

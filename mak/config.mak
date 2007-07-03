@@ -584,6 +584,24 @@ ifdef PEGASUS_DISABLE_AUDIT_LOGGER
   endif 
 endif
 
+
+#
+# PEP 291
+# Enable IPv6 support
+#
+
+# Check for Enable IPv6 support
+ifdef PEGASUS_ENABLE_IPV6
+  ifeq ($(PEGASUS_ENABLE_IPV6),true)
+    DEFINES += -DPEGASUS_ENABLE_IPV6
+  else
+    ifneq ($(PEGASUS_ENABLE_IPV6),false)
+      $(error PEGASUS_ENABLE_IPV6 ($(PEGASUS_ENABLE_IPV6)) \
+       invalid, must be true or false)
+    endif
+  endif
+endif
+
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
 #

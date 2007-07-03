@@ -512,6 +512,9 @@ PEGASUS_COMMON_LINKAGE
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  \
     "/opt/freeware/cimom/pegasus/bin/cimservera"
+#  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  \
+    "/opt/freeware/cimom/pegasus/bin/cimprovagt"
 # elif defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_LSB)
 #  undef CIMSERVER_LOCK_FILE
 #  define CIMSERVER_LOCK_FILE               \

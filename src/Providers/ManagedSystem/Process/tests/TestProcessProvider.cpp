@@ -316,6 +316,9 @@ int testClass(const String& className)
       // change by as much as 24 between the times it is retrieved by the
       // provider and by the test client.
       if (abs((int)i32a - (int)i32b) > 24)
+#elif defined (PEGASUS_OS_LINUX)
+      // On RHEL4 U2 systems, priority may change by 1.
+      if (abs((int)i32a - (int)i32b) > 1)
 #else
       if (i32a != i32b)
 #endif

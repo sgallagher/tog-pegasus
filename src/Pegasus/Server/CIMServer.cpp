@@ -314,6 +314,11 @@ void CIMServer::_init()
 
     _handlerService = new IndicationHandlerService(_repository);
 
+    _cimOperationRequestDispatcher = new CIMOperationRequestDispatcher(
+        _repository, _providerRegistrationManager);
+    _binaryMessageHandler =
+        new BinaryMessageHandler(_cimOperationRequestDispatcher);
+
     // Create the control service
     _controlService = new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
@@ -444,11 +449,6 @@ void CIMServer::_init()
         controlProviderReceiveMessageCallback,
         0);
 #endif
-
-    _cimOperationRequestDispatcher = new CIMOperationRequestDispatcher(
-        _repository, _providerRegistrationManager);
-    _binaryMessageHandler =
-        new BinaryMessageHandler(_cimOperationRequestDispatcher);
 
     _cimOperationResponseEncoder = new CIMOperationResponseEncoder;
 

@@ -801,6 +801,25 @@ void test12 (CIMClient &client)
     _checkUint32Value (retValue, 1);
 }
 
+void test13 (CIMClient &client)
+{
+    CIMObjectPath instanceName;
+    CIMValue output;
+    instanceName.setNameSpace (providerNamespace);
+    instanceName.setClassName (CLASSNAME);
+
+    Array < CIMParamValue > inParams;
+    Array < CIMParamValue > outParams;
+
+    CIMValue retValue = client.invokeMethod (providerNamespace,
+        instanceName,
+        "testArrayClone",
+        inParams,
+        outParams);
+
+    _checkUint32Value (retValue, 1);
+}
+
 void _test (CIMClient & client)
 {
   try
@@ -816,6 +835,7 @@ void _test (CIMClient & client)
     test10 (client);
     test11 (client);
     test12 (client);
+    test13 (client);
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     // Don't run against the remote-namespace, not yet suppoted. 
     if (providerNamespace == "test/TestProvider")

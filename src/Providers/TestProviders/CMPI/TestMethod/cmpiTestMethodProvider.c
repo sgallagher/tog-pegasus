@@ -441,6 +441,402 @@ _createInstance()
   return inst;  
 }
 
+//This function is to test CMPIArray Clone function
+static int _testArrayClone(const CMPIContext* ctx)
+{
+    struct array_types
+    {
+        //Type of the element in the array
+        CMPIType element_type;
+        // Name of the Array type in string format
+        char* typeAName;
+    }types_arr[] = {
+        {CMPI_string,
+        "CMPI_string"},
+
+        {CMPI_dateTime,
+        "CMPI_dateTime"},
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        {CMPI_instance,
+        "CMPI_instance"},
+#endif
+
+        {CMPI_args,
+        "CMPI_args"},
+
+        {CMPI_charsptr,
+        "CMPI_charsptr"},
+
+        {CMPI_enumeration,
+        "CMPI_enumeration"},
+
+        {CMPI_ref,
+        "CMPI_ref"}};
+
+
+
+    int i ,flag, size;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIStatus rc1 = { CMPI_RC_OK, NULL };
+    CMPIArray *arr = NULL;
+    CMPIArray *arrClone = NULL;
+    CMPIArray *arr_ptr = NULL;
+    CMPIArray *arrClone_ptr = NULL;
+    CMPIArray *projection = NULL;
+    CMPIString* retNamespace = NULL;
+    CMPIString* retClassname = NULL;
+    CMPIValue value, value1;
+    CMPIData arr_data;
+    CMPIData arrClone_data;
+    CMPIType arr_type;
+    CMPIType arrClone_type;
+    CMPICount arr_size;
+    CMPICount arrClone_size;
+    CMPIData data, dataClone;
+    CMPIObjectPath* objPath = make_ObjectPath(_broker,
+        _Namespace,
+        _ClassName);
+    CMPIUint64 datetime1, datetime2;
+    const char* str1;
+    const char* str2;
+
+//Size of the array_types array set at the time of preprocessing
+    size = 7;
+#ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    size = 6;
+#endif
+
+    PROV_LOG("++++  Entering testArrayClone");
+
+    for ( i = 0 ; i < size; i++)
+    {
+//Initializing the elements that will constitute the array
+        switch(types_arr[i].element_type)
+        {
+            case CMPI_string:
+                value.string = CMNewString(_broker, "string", &rc);
+                break;
+
+            case CMPI_dateTime:
+                value.dateTime = CMNewDateTime(_broker, &rc);
+                break;
+
+            case CMPI_ref:
+                value.ref = CMNewObjectPath (_broker,
+                    "root/cimv2",
+                    "TestCMPI_Instance",
+                    &rc);
+                break;
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CMPI_instance:
+                value.inst = make_Instance(objPath);
+                value1.uint32 = 20;
+                rc = CMSetProperty(value.inst,
+                    "Property1",
+                    &value1,
+                    CMPI_uint32);
+                break;
+#endif
+
+            case CMPI_args:
+                value.args = CMNewArgs(_broker, &rc);
+                value1.uint8 = 32;
+                CMAddArg(value.args, "Argument", &value1, CMPI_uint8);
+                break;
+
+            case CMPI_enumeration:
+                objPath = make_ObjectPath(_broker, _Namespace, _PersonClass);
+                value.Enum = CBEnumInstances(_broker, ctx, objPath, NULL, &rc);
+                break;
+
+            case CMPI_charsptr:
+                value.dataPtr.ptr = "String";
+                value.dataPtr.length = (CMPICount)(strlen((value.dataPtr.ptr)) + 1);
+                break;
+
+        }
+        PROV_LOG("++++  Testing for %s type", types_arr[i].typeAName);
+//Allocating the space for the array and adding the initialized element to it
+        arr = CMNewArray (_broker, 1, types_arr[i].element_type, &rc);
+        PROV_LOG("++++ Status of creation of CMPIArray : (%s) of type (%s)",
+            strCMPIStatus (rc),
+            types_arr[i].typeAName);
+
+        rc = CMSetArrayElementAt(arr, 0, &value, types_arr[i].element_type);
+        PROV_LOG("++++ Status of CMSetArrayElementAt : (%s)",
+            strCMPIStatus (rc));
+
+        arrClone = CMClone(arr, &rc);
+        PROV_LOG("++++ Status of Cloning CMPIArray : (%s) of type (%s)",
+            strCMPIStatus (rc),
+            types_arr[i].typeAName);
+
+        flag = 1;
+
+        arr_size = CMGetArrayCount(arr, &rc);
+        PROV_LOG("++++ Status of CMGetArrayCount of Array: (%s)",
+            strCMPIStatus (rc));
+
+        arrClone_size = CMGetArrayCount(arrClone, &rc);
+        PROV_LOG("++++ Status of CMGetArrayCount of Cloned Array: (%s)",
+            strCMPIStatus (rc));
+
+        arr_data = CMGetArrayElementAt(arr, 0, &rc);
+        PROV_LOG("++++ Status of CMGetArrayElementAt of Array: (%s)",
+            strCMPIStatus (rc));
+
+        arrClone_data = CMGetArrayElementAt(arrClone, 0, &rc);
+        PROV_LOG("++++ Status of CMGetArrayElementAt of Cloned Array: (%s)",
+            strCMPIStatus (rc));
+
+        arr_type = CMGetArrayType(arr, &rc);
+        PROV_LOG("++++ Status of CMGetArrayType of Array: (%s)",
+            strCMPIStatus (rc));
+
+        arrClone_type = CMGetArrayType(arrClone, &rc);
+        PROV_LOG("++++ Status of CMGetArrayType of Array: (%s)",
+            strCMPIStatus (rc));
+
+        switch(types_arr[i].element_type)
+        {
+            case CMPI_string:
+                str1 = CMGetCharsPtr(arr_data.value.string, &rc);
+                PROV_LOG("**** Value of string in original array is : %s ",
+                    str1);
+                str2 = CMGetCharsPtr(arrClone_data.value.string, &rc1);
+                PROV_LOG("**** Value of string in cloned array is : %s ",
+                    str2);
+                if ((rc.rc != CMPI_RC_OK) ||
+                    (rc1.rc != CMPI_RC_OK) ||
+                    strcmp(str1, str2) ||
+                    (arr_type != arrClone_type) ||
+                    (arr_size != arrClone_size))
+                {
+                    flag = 0;
+                    PROV_LOG("++++  Cloning of array of type %s is UnSuccessful",
+                        types_arr[i].typeAName);
+                }
+                break;
+
+            case CMPI_dateTime:
+                datetime1 = CMGetBinaryFormat(arr_data.value.dateTime,
+                    &rc);
+                datetime2 = CMGetBinaryFormat(arrClone_data.value.dateTime,
+                    &rc1);
+                if ((rc.rc != CMPI_RC_OK) ||
+                    (rc1.rc != CMPI_RC_OK) ||
+                    (datetime1 != datetime2) ||
+                    (arr_type != arrClone_type) ||
+                    (arr_size != arrClone_size))
+                {
+                    flag = 0;
+                    PROV_LOG("++++  Cloning of array of type %s"
+                        " is UnSuccessful",
+                        types_arr[i].typeAName);
+                }
+                rc = CMRelease(value.dateTime);
+                PROV_LOG("++++ Status of CMRelease(value.dateTime) : (%s)",
+                    strCMPIStatus(rc));
+                break;
+
+            case CMPI_ref:
+                retNamespace = CMGetNameSpace(arrClone_data.value.ref, &rc);
+                retClassname = CMGetClassName(arrClone_data.value.ref, &rc1);
+                if ((rc.rc == CMPI_RC_OK) &&
+                    (rc1.rc == CMPI_RC_OK) &&
+                    (arr_type == arrClone_type) &&
+                    (arr_size == arrClone_size) )
+                {
+                    str1 = CMGetCharsPtr(retNamespace, &rc);
+                    str2 = CMGetCharsPtr(retClassname, &rc1);
+                    if ((rc.rc == CMPI_RC_OK) &&
+                        (rc1.rc == CMPI_RC_OK))
+                    {
+                        if ((strcmp(str1, "root/cimv2")) ||
+                            (strcmp(str2, "TestCMPI_Instance")))
+                        {
+                            flag = 0;
+                            PROV_LOG("++++  Cloning of array of type %s"
+                                " is UnSuccessful",
+                                types_arr[i].typeAName);
+                        }
+                    }
+                    else
+                    {
+                        flag = 0;
+                        PROV_LOG("++++  Cloning of array of type %s is "
+                            "UnSuccessful",
+                            types_arr[i].typeAName);
+                    }
+                }
+                else
+                {
+                    flag = 0;
+                    PROV_LOG("++++  Cloning of array of type %s is UnSuccessful",
+                        types_arr[i].typeAName);
+                }
+                rc = CMRelease(value.ref);
+                PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)",
+                    strCMPIStatus(rc));
+                break;
+
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CMPI_instance:
+                data = CMGetProperty(arr_data.value.inst,
+                    "Property1", &rc);
+                dataClone = CMGetProperty(arrClone_data.value.inst,
+                    "Property1",
+                    &rc1);
+                if ((rc.rc != CMPI_RC_OK) ||
+                    (rc1.rc != CMPI_RC_OK) ||
+                    (data.value.uint32 != dataClone.value.uint32) ||
+                    (arr_type != arrClone_type) ||
+                    (arr_size != arrClone_size))
+                {
+                    flag = 0;
+                    PROV_LOG("++++  Cloning of array of type %s"
+                        " is UnSuccessful",
+                        types_arr[i].typeAName);
+                }
+                rc = CMRelease(value.inst);
+                PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)",
+                    strCMPIStatus(rc));
+                break;
+#endif
+
+            case CMPI_args:
+                data = CMGetArg(arr_data.value.args, "Argument", &rc);
+                dataClone = CMGetArg(arrClone_data.value.args, "Argument",
+                    &rc1);
+                 if ((rc.rc != CMPI_RC_OK) ||
+                    (rc1.rc != CMPI_RC_OK) ||
+                    (data.value.uint32 != dataClone.value.uint32) ||
+                    (arr_type != arrClone_type) ||
+                    (arr_size != arrClone_size))
+                {
+                    flag = 0;
+                    PROV_LOG("++++  Cloning of array of type %s is UnSuccessful",
+                        types_arr[i].typeAName);
+                }
+                rc = CMRelease(value.args);
+                PROV_LOG("++++ Status of CMRelease(value.args) : (%s)",
+                    strCMPIStatus(rc));
+                break;
+
+            case CMPI_charsptr:
+                if (strcmp(arr_data.value.dataPtr.ptr,
+                        arrClone_data.value.dataPtr.ptr) ||
+                    (arr_type != arrClone_type) ||
+                    (arr_size != arrClone_size) ||
+                    (arr_data.value.dataPtr.length !=
+                        arrClone_data.value.dataPtr.length))
+                {
+                    flag = 0;
+                    PROV_LOG("++++  Cloning of array of type %s "
+                        "is UnSuccessful",
+                        types_arr[i].typeAName);
+                }
+                PROV_LOG("**** Value of charsptr in original array is : %s ",
+                    arr_data.value.dataPtr.ptr);
+                PROV_LOG("**** Value of charsptr in cloned array is : %s ",
+                    arrClone_data.value.dataPtr.ptr);
+                break;
+
+            case CMPI_enumeration:
+                arr_ptr = CMToArray(arr_data.value.Enum, &rc);
+                arrClone_ptr = CMToArray(arrClone_data.value.Enum, &rc1);
+                if (arr_ptr != NULL &&
+                    arrClone_ptr != NULL &&
+                    (rc.rc == CMPI_RC_OK) &&
+                    (rc1.rc == CMPI_RC_OK))
+                {
+                    if (CMGetArrayCount(arr_ptr, &rc) ==
+                        CMGetArrayCount(arrClone_ptr, &rc1))
+                    {
+                        PROV_LOG("**** Status of CMGetArrayCount for CMPI_enum"
+                            " in original array (%s) ",
+                            strCMPIStatus(rc));
+                        PROV_LOG("**** Count returned for CMPI_enum"
+                            "in original array (%d) ",
+                            CMGetArrayCount(arr_ptr, &rc));
+                        PROV_LOG("**** Status of CMGetArrayCount for CMPI_enum"
+                            " in cloned array (%s) ",
+                            strCMPIStatus(rc1));
+                        PROV_LOG("**** Count returned for CMPI_enum"
+                            "in cloned array (%d) ",
+                            CMGetArrayCount(arrClone_ptr, &rc));
+
+                        while(CMHasNext(arr_data.value.Enum,&rc))
+                        {
+                            data = CMGetNext(arr_data.value.Enum, &rc);
+                            dataClone = CMGetNext(arrClone_data.value.Enum, &rc1);
+                            if((rc.rc != CMPI_RC_OK) ||
+                                (rc1.rc != CMPI_RC_OK) ||
+                                (data.type != dataClone.type))
+                            {
+                                flag = 0;
+                                PROV_LOG("++++  Cloning of array of type %s "
+                                    "is UnSuccessful",
+                                    types_arr[i].typeAName);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        flag = 0;
+                        PROV_LOG("++++  Cloning of array of type %s "
+                            "is UnSuccessful",
+                            types_arr[i].typeAName);
+                    }
+                }
+                else
+                {
+                    flag = 0;
+                    PROV_LOG("++++  Cloning of array of type %s "
+                        "is UnSuccessful",
+                        types_arr[i].typeAName);
+                }
+                rc = CMRelease(value.Enum);
+                PROV_LOG("++++ Status of CMRelease(value.Enum) : (%s)",
+                    strCMPIStatus(rc));
+                break;
+
+        }
+        if (flag)
+        {
+            PROV_LOG("++++  Cloning of array of type %s is Successful",
+                types_arr[i].typeAName);
+        }
+
+        rc = CMRelease(arr);
+        PROV_LOG("++++ Status of CMRelease(arr) : (%s)", strCMPIStatus(rc));
+        rc = CMRelease(arrClone);
+        PROV_LOG("++++ Status of CMRelease(arrClone) : (%s)", strCMPIStatus(rc));
+
+    }
+    //Test Error Paths
+    arr = CMNewArray (_broker, 1, CMPI_charsptr, &rc);
+    PROV_LOG("++++ Status of creation of CMPIArray : (%s) of type"
+        " CMPI_uint32",
+        strCMPIStatus (rc));
+
+    rc = CMSetArrayElementAt(arr, 0, NULL, CMPI_charsptr);
+    PROV_LOG("++++ Error Status of CMSetArrayElementAt with NULL value: (%s)",
+        strCMPIStatus (rc));
+
+    value.dataPtr.ptr = "String";
+    value.dataPtr.length = (CMPICount)(strlen((value.dataPtr.ptr)) + 1);
+
+    rc = CMSetArrayElementAt(arr, 1, &value, CMPI_charsptr);
+    PROV_LOG("++++ Error Status of CMSetArrayElementAt with wrong"
+        " position: (%s)",
+        strCMPIStatus (rc));
+
+    return flag;
+}
+
 //Testing CMPIArrays with elements of different CMPITypes
 //In this test case CMPIArrays of different CMPITypes are created.
 //Then these arrays are added to CMPIArgs object as a new argument.
@@ -636,7 +1032,7 @@ static int _testArrayTypes()
                 break;
 
             case CMPI_real32:
-                value.real32 = -32.78;
+                value.real32 = (CMPIReal32)-32.78;
                 break;
 
             case CMPI_real64:
@@ -1382,7 +1778,7 @@ static int _testCMPIcontext (const CMPIContext* ctx)
     rc = CMAddContextEntry(ctx, "name1", &value, CMPI_uint32);
     PROV_LOG ("++++ CMAddContextEntry : (%s)", strCMPIStatus (rc));
 
-    value.real32 = 40.123;
+    value.real32 = (CMPIReal32)40.123;
     PROV_LOG ("++++ CMAddContextEntry");
     rc = CMAddContextEntry(ctx, "name2", &value, CMPI_real32);
     PROV_LOG ("++++ CMAddContextEntry : (%s)", strCMPIStatus (rc));
@@ -2909,6 +3305,13 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
         CMReturnDone (rslt);
     }
+    else if (strncmp("testArrayClone", methodName, strlen ("testArrayClone"))== 0)
+    {
+        oper_rc = _testArrayClone(ctx);
+        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        CMReturnDone (rslt);
+    }
+
 
 
       else

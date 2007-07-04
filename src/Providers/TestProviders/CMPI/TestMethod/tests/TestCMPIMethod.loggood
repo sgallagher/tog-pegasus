@@ -830,3 +830,107 @@
  ++++ Status of CMGetArg : (CMPI_RC_OK)
  ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
  --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [testArrayClone]: 
+ ++++  make_ObjectPath: CMNewObjectPath
+ ++++  CMNewObjectPath : (CMPI_RC_OK)
+ ++++  Entering testArrayClone
+ ++++  Testing for CMPI_string type
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_string)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of Cloning CMPIArray : (CMPI_RC_OK) of type (CMPI_string)
+ ++++ Status of CMGetArrayCount of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayCount of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ **** Value of string in original array is : string 
+ **** Value of string in cloned array is : string 
+ ++++  Cloning of array of type CMPI_string is Successful
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
+ ++++  Testing for CMPI_dateTime type
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_dateTime)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of Cloning CMPIArray : (CMPI_RC_OK) of type (CMPI_dateTime)
+ ++++ Status of CMGetArrayCount of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayCount of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.dateTime) : (CMPI_RC_OK)
+ ++++  Cloning of array of type CMPI_dateTime is Successful
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
+ ++++  Testing for CMPI_args type
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_args)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of Cloning CMPIArray : (CMPI_RC_OK) of type (CMPI_args)
+ ++++ Status of CMGetArrayCount of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayCount of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.args) : (CMPI_RC_OK)
+ ++++  Cloning of array of type CMPI_args is Successful
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
+ ++++  Testing for CMPI_charsptr type
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_charsptr)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of Cloning CMPIArray : (CMPI_RC_OK) of type (CMPI_charsptr)
+ ++++ Status of CMGetArrayCount of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayCount of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ **** Value of charsptr in original array is : String 
+ **** Value of charsptr in cloned array is : String 
+ ++++  Cloning of array of type CMPI_charsptr is Successful
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
+ ++++  make_ObjectPath: CMNewObjectPath
+ ++++  CMNewObjectPath : (CMPI_RC_OK)
+ ++++  Testing for CMPI_enumeration type
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_enumeration)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of Cloning CMPIArray : (CMPI_RC_OK) of type (CMPI_enumeration)
+ ++++ Status of CMGetArrayCount of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayCount of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ **** Status of CMGetArrayCount for CMPI_enum in original array (CMPI_RC_OK) 
+ **** Count returned for CMPI_enumin original array (2) 
+ **** Status of CMGetArrayCount for CMPI_enum in cloned array (CMPI_RC_OK) 
+ **** Count returned for CMPI_enumin cloned array (2) 
+ ++++ Status of CMRelease(value.Enum) : (CMPI_RC_OK)
+ ++++  Cloning of array of type CMPI_enumeration is Successful
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
+ ++++  Testing for CMPI_ref type
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_ref)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of Cloning CMPIArray : (CMPI_RC_OK) of type (CMPI_ref)
+ ++++ Status of CMGetArrayCount of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayCount of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.ref) : (CMPI_RC_OK)
+ ++++  Cloning of array of type CMPI_ref is Successful
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type CMPI_uint32
+ ++++ Error Status of CMSetArrayElementAt with NULL value: (CMPI_RC_ERR_INVALID_PARAMETER)
+ ++++ Error Status of CMSetArrayElementAt with wrong position: (CMPI_RC_ERR_NO_SUCH_PROPERTY)
+ --- TestCMPI_Method CMPI InvokeMethod() exited

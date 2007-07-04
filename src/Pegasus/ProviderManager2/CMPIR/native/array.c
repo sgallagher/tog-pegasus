@@ -220,8 +220,14 @@ static CMPIStatus __aft_setElementAt ( CMPIArray * array,
                        CONST CMPIValue * val,
                        CMPIType type )
 {
+
     struct native_array * a = (struct native_array *) array;
     CMPIStatus rc = checkArgsReturnStatus(array);
+
+    if (!val)
+    {
+        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+    }
 
     if (rc.rc != CMPI_RC_OK)
     {

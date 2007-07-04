@@ -84,6 +84,10 @@ void native_release_CMPIValue ( CMPIType type, CMPIValue * val )
         CMRelease ( val->dateTime );
         break;
 
+    case CMPI_charsptr:
+        free (val->dataPtr.ptr);
+        break;
+
     default:
         if ( type & CMPI_ARRAY ) {
             CMRelease ( val->array );
@@ -133,6 +137,12 @@ CMPIValue native_clone_CMPIValue ( CMPIType type,
 
         case CMPI_dateTime:
             v.dateTime = CMClone ( val->dateTime, rc );
+            break;
+
+        case CMPI_charsptr:
+            v.dataPtr.length = val->dataPtr.length;
+            v.dataPtr.ptr = malloc (val->dataPtr.length);
+            strcpy(v.dataPtr.ptr, val->dataPtr.ptr);
             break;
         }
 

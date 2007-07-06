@@ -1961,13 +1961,13 @@ not be valid."}
         /**
         * @version 2.4
         * @note  PGS04850:
-    *        "Name space" is an area that contains names of classes.
-        *        "Name space" itself has a name.
+        *        "Namespace" is an area that contains names of classes.
+        *        "Namespace" itself has a name.
         *        Substitution {0} is the name of the class (a string).
         *        Substitution {1} is the name of the name space (a string).
         *        Substitution {2} is the detailed error message (a string).
         */
-        Compiler.cimmofMessages.GET_CLASS_ERROR:string {"PGS04850: Error getting class {0} from name space {1}: {2}"}
+        Compiler.cimmofMessages.GET_CLASS_ERROR:string {"PGS04850: Error getting class {0} from namespace {1}: {2}"}
 
         /**
         * @version 2.4

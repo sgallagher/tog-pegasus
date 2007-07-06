@@ -1273,7 +1273,6 @@ CIMProperty * cimmofParser::PropertyFromInstance(CIMInstance &instance,
     const CIMName &propertyName) const
 {
     cimmofMessages::arglist arglist;
-    arglist.append(propertyName.getString());
     CIMName className;
     String message;
     try
@@ -1290,6 +1289,7 @@ CIMProperty * cimmofParser::PropertyFromInstance(CIMInstance &instance,
     }
     catch (Exception &e)
     {
+        arglist.append(propertyName.getString());
         arglist.append(e.getMessage());
         cimmofMessages::getMessage(message,
                 cimmofMessages::GET_INSTANCE_PROPERTY_ERROR,
@@ -1303,7 +1303,7 @@ CIMProperty * cimmofParser::PropertyFromInstance(CIMInstance &instance,
     }
     catch (Exception &e)
     {
-        arglist.append(className.getString());
+        arglist.append(propertyName.getString());
         arglist.append(e.getMessage());
         cimmofMessages::getMessage(message,
                 cimmofMessages::FIND_CLASS_OF_INSTANCE_ERROR,

@@ -97,7 +97,7 @@ static String _cimmofMessages[] =
     "Error applying property $0 to an instance of class $1: $2",
     // GET_INSTANCE_PROPERTY_ERROR
     "Error getting property $0 from an instance: $1",
-    "Error getting class $0 from name space $1: $2", //GET_CLASS_ERROR
+    "Error getting class $0 from namespace $1: $2", //GET_CLASS_ERROR
     "Error getting value of property $0: $1", //GET_PROPERTY_VALUE_ERROR
     "Error creating new instance of class $0: $1", // NEW_INSTANCE_ERROR
     // INSTANCE_PROPERTY_EXISTS_WARNING

@@ -196,7 +196,6 @@ endif
 SOURCES = $(SOURCES1) $(SOURCES2)
 
 ifeq ($(OS),linux)
-  EXTRA_LIBRARIES += -lcrypt
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1811
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,35 +51,35 @@ public:
      */
     virtual ~Iterator() {};
 
-	/**
+    /**
    * Returns <tt>true</tt> if the iteration has more elements. (In other
    * words, returns <tt>true</tt> if <tt>next</tt> would return an element
    * rather than throwing an exception.)
    *
    * @return <tt>true</tt> if the iterator has more elements.
-	 */
-	virtual Boolean hasNext() = 0;
-	
-	/**
-	 * Returns the next element in the interation.
-	 *
-	 * @returns the next element in the interation.
-	 * @exception NoSuchElementException iteration has no more elements.
-	 */
-	virtual void* next() = 0;
-	
-	/**
-	 * 
-	 * Removes from the underlying collection the last element returned by the
-	 * iterator (optional operation).  This method can be called only once per
-	 * call to <tt>next</tt>.  The behavior of an iterator is unspecified if
-	 * the underlying collection is modified while the iteration is in
-	 * progress in any way other than by calling this method.
-	 *
-	 * @exception UnsupportedOperationException if the <tt>remove</tt>
-	 *		  operation is not supported by this Iterator.
-	 */
-	virtual void remove() = 0;
+     */
+    virtual Boolean hasNext() = 0;
+
+    /**
+     * Returns the next element in the interation.
+     *
+     * @returns the next element in the interation.
+     * @exception NoSuchElementException iteration has no more elements.
+     */
+    virtual void* next() = 0;
+
+    /**
+     *
+     * Removes from the underlying collection the last element returned by the
+     * iterator (optional operation).  This method can be called only once per
+     * call to <tt>next</tt>.  The behavior of an iterator is unspecified if
+     * the underlying collection is modified while the iteration is in
+     * progress in any way other than by calling this method.
+     *
+     * @exception UnsupportedOperationException if the <tt>remove</tt>
+     *        operation is not supported by this Iterator.
+     */
+    virtual void remove() = 0;
 };
 
 /**
@@ -92,41 +88,41 @@ public:
 class PtrList
 {
 public:
-	/**
-	 * Constructs a PtrList object.
-	 * 
-	 * @param portNumber	the specified socket port the listener will listen to
-   * @param sslContext	the specifed SSL context 
-	 */
-	PtrList();
-	/**
-	 * Destructor of a PtrList object.
-	 */
+    /**
+     * Constructs a PtrList object.
+     *
+     * @param portNumber  the specified socket port the listener will listen to
+   * @param sslContext  the specifed SSL context
+     */
+    PtrList();
+    /**
+     * Destructor of a PtrList object.
+     */
   ~PtrList();
 
-	/**
-	 * Adds an element into the list
-	 *
-	 * @param the element to add.
-	 */
-	void add(void* element);
+    /**
+     * Adds an element into the list
+     *
+     * @param the element to add.
+     */
+    void add(void* element);
 
-	/**
-	 * Removes an element from the list
-	 *
-	 * @param the element to remove.
-	 */
-	void remove(void* element);
+    /**
+     * Removes an element from the list
+     *
+     * @param the element to remove.
+     */
+    void remove(void* element);
 
-	/**
+    /**
    * Returns an iterator over the elements in this list in proper sequence.
    *
    * @return an iterator over the elements in this list in proper sequence.
    */
-	Iterator* iterator();
+    Iterator* iterator();
 
 private:
-	void* _rep;
+    void* _rep;
 };
 
 PEGASUS_NAMESPACE_END

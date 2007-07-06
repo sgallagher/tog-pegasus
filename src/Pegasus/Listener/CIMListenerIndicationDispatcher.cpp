@@ -52,29 +52,30 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMListenerIndicationDispatchEvent
 {
 public:
-	CIMListenerIndicationDispatchEvent(CIMIndicationConsumer* consumer,
+    CIMListenerIndicationDispatchEvent(CIMIndicationConsumer* consumer,
                                            String url,
                                            CIMInstance instance,
                                            ContentLanguageList contentLangs);
-	~CIMListenerIndicationDispatchEvent();
+    ~CIMListenerIndicationDispatchEvent();
 
-	CIMIndicationConsumer* getConsumer() const;
+    CIMIndicationConsumer* getConsumer() const;
 
-	String getURL() const;
-	CIMInstance getIndicationInstance() const;
+    String getURL() const;
+    CIMInstance getIndicationInstance() const;
         ContentLanguageList getContentLanguages() const;
 
 private:
-	CIMIndicationConsumer*	_consumer;
-	String									_url;
-	CIMInstance							_instance;
-        ContentLanguageList                    _contentLangs;
+    CIMIndicationConsumer*  _consumer;
+    String                  _url;
+    CIMInstance             _instance;
+    ContentLanguageList     _contentLangs;
 };
 
-CIMListenerIndicationDispatchEvent::CIMListenerIndicationDispatchEvent(CIMIndicationConsumer* consumer,
-                                                                       String url,
-                                                                       CIMInstance instance,
-                                                                       ContentLanguageList contentLangs)
+CIMListenerIndicationDispatchEvent::CIMListenerIndicationDispatchEvent(
+    CIMIndicationConsumer* consumer,
+    String url,
+    CIMInstance instance,
+    ContentLanguageList contentLangs)
 :_consumer(consumer),_url(url),_instance(instance), _contentLangs(contentLangs)
 {
 }
@@ -83,19 +84,20 @@ CIMListenerIndicationDispatchEvent::~CIMListenerIndicationDispatchEvent()
 }
 CIMIndicationConsumer* CIMListenerIndicationDispatchEvent::getConsumer() const
 {
-	return _consumer;
+    return _consumer;
 }
 String CIMListenerIndicationDispatchEvent::getURL() const
 {
-	return _url;
+    return _url;
 }
 CIMInstance CIMListenerIndicationDispatchEvent::getIndicationInstance() const
 {
-	return _instance;
+    return _instance;
 }
-ContentLanguageList CIMListenerIndicationDispatchEvent::getContentLanguages() const
+ContentLanguageList
+    CIMListenerIndicationDispatchEvent::getContentLanguages() const
 {
-	return _contentLangs;
+    return _contentLangs;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -104,125 +106,145 @@ ContentLanguageList CIMListenerIndicationDispatchEvent::getContentLanguages() co
 class CIMListenerIndicationDispatcherRep
 {
 public:
-	CIMListenerIndicationDispatcherRep();
-	virtual ~CIMListenerIndicationDispatcherRep();
+    CIMListenerIndicationDispatcherRep();
+    virtual ~CIMListenerIndicationDispatcherRep();
 
-	Boolean addConsumer(CIMIndicationConsumer* consumer);
-	Boolean removeConsumer(CIMIndicationConsumer* consumer);
+    Boolean addConsumer(CIMIndicationConsumer* consumer);
+    Boolean removeConsumer(CIMIndicationConsumer* consumer);
 
-	CIMExportIndicationResponseMessage* handleIndicationRequest(CIMExportIndicationRequestMessage* request);
+    CIMExportIndicationResponseMessage* handleIndicationRequest(
+        CIMExportIndicationRequestMessage* request);
 
 
-	static ThreadReturnType PEGASUS_THREAD_CDECL deliver_routine(void *param);
+    static ThreadReturnType PEGASUS_THREAD_CDECL deliver_routine(void *param);
 
 private:
-	void	deliverIndication(String url, CIMInstance instance, ContentLanguageList contentLangs);
+    void    deliverIndication(String url,
+                              CIMInstance instance,
+                              ContentLanguageList contentLangs);
 
-	ThreadPool* _thread_pool;
-	PtrList*		_consumers;
+    ThreadPool* _thread_pool;
+    PtrList*        _consumers;
 };
 
 static struct timeval deallocateWait = {15, 0};
 
 
 CIMListenerIndicationDispatcherRep::CIMListenerIndicationDispatcherRep()
-:_thread_pool(new ThreadPool(0, "ListenerIndicationDispatcher", 0, 0,
-	deallocateWait))
-,_consumers(new PtrList())
+    : _thread_pool(new ThreadPool(0, "ListenerIndicationDispatcher", 0, 0,
+    deallocateWait)), _consumers(new PtrList())
 {
 
 }
 CIMListenerIndicationDispatcherRep::~CIMListenerIndicationDispatcherRep()
 {
-	delete _thread_pool;
-	delete _consumers;
+    delete _thread_pool;
+    delete _consumers;
 }
 
-Boolean CIMListenerIndicationDispatcherRep::addConsumer(CIMIndicationConsumer* consumer)
+Boolean CIMListenerIndicationDispatcherRep::addConsumer(
+    CIMIndicationConsumer* consumer)
 {
-	_consumers->add(consumer);
-	return true;
+    _consumers->add(consumer);
+    return true;
 }
-Boolean CIMListenerIndicationDispatcherRep::removeConsumer(CIMIndicationConsumer* consumer)
+Boolean CIMListenerIndicationDispatcherRep::removeConsumer(
+    CIMIndicationConsumer* consumer)
 {
-	_consumers->remove(consumer);
-	return true;
+    _consumers->remove(consumer);
+    return true;
 }
-CIMExportIndicationResponseMessage* CIMListenerIndicationDispatcherRep::handleIndicationRequest(CIMExportIndicationRequestMessage* request)
+CIMExportIndicationResponseMessage*
+CIMListenerIndicationDispatcherRep::handleIndicationRequest(
+    CIMExportIndicationRequestMessage* request)
 {
-	PEG_METHOD_ENTER(TRC_SERVER,
-		"CIMListenerIndicationDispatcherRep::handleIndicationRequest");
+    PEG_METHOD_ENTER(TRC_SERVER,
+        "CIMListenerIndicationDispatcherRep::handleIndicationRequest");
 
-	CIMInstance instance = request->indicationInstance;
-	String			url = request->destinationPath;
-    ContentLanguageList contentLangs =((ContentLanguageListContainer)request->operationContext.
-			                                    get(ContentLanguageListContainer::NAME)).getLanguages();
+    CIMInstance instance = request->indicationInstance;
+    String          url = request->destinationPath;
+    ContentLanguageList contentLangs =
+        ((ContentLanguageListContainer)request->operationContext.
+            get(ContentLanguageListContainer::NAME)).getLanguages();
 
-	deliverIndication(url,instance,contentLangs);
+    deliverIndication(url,instance,contentLangs);
 
-	// compose a response message
-	CIMException cimException;
+    // compose a response message
+    CIMException cimException;
 
-	CIMExportIndicationResponseMessage* response = new CIMExportIndicationResponseMessage(
-		request->messageId,
-		cimException,
-		request->queueIds.copyAndPop());
+    CIMExportIndicationResponseMessage* response =
+        new CIMExportIndicationResponseMessage(request->messageId,
+                                               cimException,
+                                               request->queueIds.copyAndPop());
 
-	response->dest = request->queueIds.top();
+    response->dest = request->queueIds.top();
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return response;
+    return response;
 }
 
 void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
-                                                           CIMInstance instance,
-                                                           ContentLanguageList contentLangs)
+    CIMInstance instance,
+    ContentLanguageList contentLangs)
 {
-	// go thru all consumers and broadcast the result; should be run in seperate thread
+    // go thru all consumers and broadcast the result;
+    // should be run in seperate thread
         AutoPtr<Iterator> it( _consumers->iterator() );
 
-	while(it->hasNext()==true)
-	{
-		CIMIndicationConsumer* consumer = static_cast<CIMIndicationConsumer*>(it->next());
-		CIMListenerIndicationDispatchEvent* event = new CIMListenerIndicationDispatchEvent(
-                                                                                     consumer,
-                                                                                     url,
-                                                                                     instance,
-                                                                                     contentLangs);
-		ThreadStatus rtn = _thread_pool->allocate_and_awaken(event,deliver_routine);
+    while(it->hasNext()==true)
+    {
+        CIMIndicationConsumer* consumer =
+            static_cast<CIMIndicationConsumer*>(it->next());
+        CIMListenerIndicationDispatchEvent* event =
+            new CIMListenerIndicationDispatchEvent(consumer,
+                                                   url,
+                                                   instance,
+                                                   contentLangs);
+        ThreadStatus rtn = _thread_pool->allocate_and_awaken(
+                                event,deliver_routine);
 
-    		if (rtn != PEGASUS_THREAD_OK)
-    		{
-	    	    Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::TRACE,
-				"Not enough threads to allocate a worker to deliver the event. ");
+            if (rtn != PEGASUS_THREAD_OK)
+            {
+                Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER,
+                    Logger::TRACE,
+                    "Not enough threads to allocate a worker to deliver"
+                        " the event. ");
 
-	    	    PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
-				"Could not allocate thread to deliver event. Instead using current thread.");
-		    delete event;
-		    throw Exception(MessageLoaderParms("Listener.CIMListenerIndicationDispatcher.CANNOT_ALLOCATE_THREAD",
-					"Not enough threads to allocate a worker to deliver the event."));
-    		}
-	}
+                    PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+                    "Could not allocate thread to deliver event."
+                        " Instead using current thread.");
+            delete event;
+            throw Exception(MessageLoaderParms(
+                "Listener.CIMListenerIndicationDispatcher."
+                    "CANNOT_ALLOCATE_THREAD",
+                "Not enough threads to allocate a worker to deliver the"
+                    " event."));
+            }
+    }
 }
-ThreadReturnType PEGASUS_THREAD_CDECL CIMListenerIndicationDispatcherRep::deliver_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL
+CIMListenerIndicationDispatcherRep::deliver_routine(void *param)
 {
-	CIMListenerIndicationDispatchEvent* event = static_cast<CIMListenerIndicationDispatchEvent*>(param);
+    CIMListenerIndicationDispatchEvent* event =
+        static_cast<CIMListenerIndicationDispatchEvent*>(param);
 
-	if(event!=NULL)
-	{
-		CIMIndicationConsumer* consumer = event->getConsumer();
-		OperationContext context;
-	        context.insert(ContentLanguageListContainer(event->getContentLanguages()));
-		if(consumer)
-		{
-			consumer->consumeIndication(context,event->getURL(),event->getIndicationInstance());
-		}
+    if(event!=NULL)
+    {
+        CIMIndicationConsumer* consumer = event->getConsumer();
+        OperationContext context;
+            context.insert(ContentLanguageListContainer(
+                        event->getContentLanguages()));
+        if(consumer)
+        {
+            consumer->consumeIndication(context,
+                event->getURL(),event->getIndicationInstance());
+        }
 
-		delete event;
-	}
+        delete event;
+    }
 
-	return (0);
+    return (0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -235,56 +257,64 @@ CIMListenerIndicationDispatcher::CIMListenerIndicationDispatcher()
 }
 CIMListenerIndicationDispatcher::~CIMListenerIndicationDispatcher()
 {
-	if(_rep!=NULL)
-		delete static_cast<CIMListenerIndicationDispatcherRep*>(_rep);
+    if(_rep!=NULL)
+        delete static_cast<CIMListenerIndicationDispatcherRep*>(_rep);
 
-	_rep=NULL;
+    _rep=NULL;
 }
 
 void CIMListenerIndicationDispatcher::handleEnqueue()
 {
-	PEG_METHOD_ENTER(TRC_SERVER, "CIMListenerIndicationDispatcher::handleEnqueue");
+    PEG_METHOD_ENTER(TRC_SERVER,
+        "CIMListenerIndicationDispatcher::handleEnqueue");
 
-	Message *message = dequeue();
-	if(message)
-		handleEnqueue(message);
+    Message *message = dequeue();
+    if(message)
+        handleEnqueue(message);
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 void CIMListenerIndicationDispatcher::handleEnqueue(Message* message)
 {
-	PEG_METHOD_ENTER(TRC_SERVER, "CIMListenerIndicationDispatcher::handleEnqueue");
+    PEG_METHOD_ENTER(TRC_SERVER,
+        "CIMListenerIndicationDispatcher::handleEnqueue");
 
-	if(message!=NULL)
-	{
-		switch (message->getType())
+    if(message!=NULL)
     {
-			case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-				{
-					CIMExportIndicationRequestMessage* request = (CIMExportIndicationRequestMessage*)message;
+        switch (message->getType())
+        {
+            case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+                {
+                    CIMExportIndicationRequestMessage* request =
+                        (CIMExportIndicationRequestMessage*)message;
 
-					CIMExportIndicationResponseMessage* response =
-						static_cast<CIMListenerIndicationDispatcherRep*>(_rep)->handleIndicationRequest(request);
+                    CIMExportIndicationResponseMessage* response =
+                        static_cast<CIMListenerIndicationDispatcherRep*>(_rep)->
+                            handleIndicationRequest(request);
 
-					_enqueueResponse(request, response);
-				}
-				break;
-		default:
-			break;
-    }
+                    _enqueueResponse(request, response);
+                }
+                break;
+            default:
+                break;
+        }
     delete message;
-	}
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
-Boolean CIMListenerIndicationDispatcher::addConsumer(CIMIndicationConsumer* consumer)
+Boolean CIMListenerIndicationDispatcher::addConsumer(
+    CIMIndicationConsumer* consumer)
 {
-	return static_cast<CIMListenerIndicationDispatcherRep*>(_rep)->addConsumer(consumer);
+    return static_cast<CIMListenerIndicationDispatcherRep*>(_rep)->addConsumer(
+            consumer);
 }
-Boolean CIMListenerIndicationDispatcher::removeConsumer(CIMIndicationConsumer* consumer)
+Boolean CIMListenerIndicationDispatcher::removeConsumer(
+        CIMIndicationConsumer* consumer)
 {
-	return static_cast<CIMListenerIndicationDispatcherRep*>(_rep)->removeConsumer(consumer);
+    return static_cast<CIMListenerIndicationDispatcherRep*>
+        (_rep)->removeConsumer(consumer);
 }
 
 PEGASUS_NAMESPACE_END

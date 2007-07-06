@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -110,7 +110,7 @@ public:
     */
     Uint32 getPortNumber() const;
 
-    static ThreadReturnType PEGASUS_THREAD_CDECL 
+    static ThreadReturnType PEGASUS_THREAD_CDECL
     _listener_routine(void *param);
 
 private:
@@ -131,11 +131,11 @@ private:
 };
 
 CIMListenerService::CIMListenerService(
-    Uint32 portNumber, 
+    Uint32 portNumber,
     SSLContext * sslContext)
     :
-    _portNumber(portNumber), 
-    _sslContext(sslContext), 
+    _portNumber(portNumber),
+    _sslContext(sslContext),
     _monitor(NULL),
 #ifdef PEGASUS_ENABLE_IPV6
     _ip6Acceptor(NULL),
@@ -143,16 +143,16 @@ CIMListenerService::CIMListenerService(
 #if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
     _ip4Acceptor(NULL),
 #endif
-    _dieNow(false), 
-    _dispatcher(NULL), 
+    _dieNow(false),
+    _dispatcher(NULL),
     _responseEncoder(NULL),
     _requestDecoder(NULL)
 {
 }
 
 CIMListenerService::CIMListenerService(CIMListenerService & svc) :
-    _portNumber(svc._portNumber), 
-    _sslContext(svc._sslContext), 
+    _portNumber(svc._portNumber),
+    _sslContext(svc._sslContext),
     _monitor(NULL),
 #ifdef PEGASUS_ENABLE_IPV6
     _ip6Acceptor(NULL),
@@ -160,9 +160,9 @@ CIMListenerService::CIMListenerService(CIMListenerService & svc) :
 #if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
     _ip4Acceptor(NULL),
 #endif
-    _dieNow(svc._dieNow), 
+    _dieNow(svc._dieNow),
     _dispatcher(NULL),
-    _responseEncoder(NULL), 
+    _responseEncoder(NULL),
     _requestDecoder(NULL)
 {
 }
@@ -239,9 +239,9 @@ void CIMListenerService::bind()
         _ip4Acceptor->bind();
 
         Logger::put(
-            Logger::STANDARD_LOG, 
+            Logger::STANDARD_LOG,
             System::CIMLISTENER,
-            Logger::INFORMATION, 
+            Logger::INFORMATION,
             "IPV4, Listening on HTTP for port $0.",
             _portNumber);
     }
@@ -276,8 +276,8 @@ void CIMListenerService::shutdown()
     PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::shutdown()");
 
     // This logic signals the thread currently executing _listener_routine()
-    // to exit. That function deletes this instance of CIMListenerService, 
-    // which deletes the _monitor member. We use a mutex to keep it from 
+    // to exit. That function deletes this instance of CIMListenerService,
+    // which deletes the _monitor member. We use a mutex to keep it from
     // deleting the monitor until after tickle has been called.
     {
         AutoMutex am(_monitorMutex);
@@ -342,7 +342,7 @@ Uint32 CIMListenerService::getOutstandingRequestCount()
     return cnt;
 }
 
-CIMListenerIndicationDispatcher* 
+CIMListenerIndicationDispatcher*
 CIMListenerService::getIndicationDispatcher() const
 {
     return _dispatcher;
@@ -375,7 +375,7 @@ Uint32 CIMListenerService::getPortNumber() const
     return (portNumber);
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL 
+ThreadReturnType PEGASUS_THREAD_CDECL
 CIMListenerService::_listener_routine(void *param)
 {
     CIMListenerService *svc = reinterpret_cast < CIMListenerService * >(param);
@@ -448,14 +448,14 @@ private:
 };
 
 CIMListenerRep::CIMListenerRep(
-    Uint32 portNumber, 
+    Uint32 portNumber,
     SSLContext * sslContext)
     :
-    _portNumber(portNumber), 
+    _portNumber(portNumber),
     _sslContext(sslContext),
-    _dispatcher(new CIMListenerIndicationDispatcher()), 
+    _dispatcher(new CIMListenerIndicationDispatcher()),
     _thread_pool(NULL),
-    _svc(NULL), 
+    _svc(NULL),
     _listener_sem(NULL)
 {
 }
@@ -523,7 +523,7 @@ void CIMListenerRep::start()
         AutoPtr < Semaphore > sem(new Semaphore(0));
 
         if (threadPool->allocate_and_awaken(
-            svc.get(), CIMListenerService::_listener_routine, sem.get()) 
+            svc.get(), CIMListenerService::_listener_routine, sem.get())
             != PEGASUS_THREAD_OK)
         {
             Logger::put(
@@ -532,7 +532,7 @@ void CIMListenerRep::start()
                 "Not enough threads to start CIMListernerService.");
 
             PEG_TRACE_CSTRING(
-                TRC_SERVER, 
+                TRC_SERVER,
                 Tracer::LEVEL2,
                 "Could not allocate thread for "
                 "CIMListenerService::_listener_routine.");
@@ -543,9 +543,9 @@ void CIMListenerRep::start()
         }
 
         Logger::put(
-            Logger::STANDARD_LOG, 
+            Logger::STANDARD_LOG,
             System::CIMLISTENER,
-            Logger::INFORMATION, 
+            Logger::INFORMATION,
             "CIMListener started");
 
         _svc = svc.release();
@@ -558,9 +558,9 @@ void CIMListenerRep::stop()
 {
     if (_thread_pool != NULL)
     {
-        // 
+        //
         // Graceful shutdown of the listener service
-        // 
+        //
 
         // Block incoming export requests and unbind the port
         _svc->stopClientConnection();
@@ -588,7 +588,7 @@ void CIMListenerRep::stop()
         delete _listener_sem;
         _listener_sem = NULL;
 
-        // Delete the thread pool.  This cancels the listener thread if it is 
+        // Delete the thread pool.  This cancels the listener thread if it is
         // still
         // running.
         delete _thread_pool;
@@ -640,8 +640,8 @@ Boolean CIMListenerRep::waitForPendingRequests(Uint32 shutdownTimeout)
 /////////////////////////////////////////////////////////////////////////////
 
 CIMListener::CIMListener(
-    Uint32 portNumber, 
-    SSLContext * sslContext) 
+    Uint32 portNumber,
+    SSLContext * sslContext)
     :
     _rep(new CIMListenerRep(portNumber, sslContext))
 {

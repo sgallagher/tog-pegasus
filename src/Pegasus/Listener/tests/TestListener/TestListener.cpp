@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,36 +51,36 @@ PEGASUS_USING_STD;
 class MyIndicationConsumer : public CIMIndicationConsumer
 {
 public:
-	MyIndicationConsumer(String name);
-	~MyIndicationConsumer();
-	
-	void consumeIndication(const OperationContext& context,
-		const String & url, 
-		const CIMInstance& indicationInstance);
+    MyIndicationConsumer(String name);
+    ~MyIndicationConsumer();
+
+    void consumeIndication(const OperationContext& context,
+        const String & url,
+        const CIMInstance& indicationInstance);
 
 private:
-	String name;
+    String name;
 
 };
 MyIndicationConsumer::MyIndicationConsumer(String name)
 {
-	this->name = name;
+    this->name = name;
 }
 MyIndicationConsumer::~MyIndicationConsumer()
     {
 }
 
 void MyIndicationConsumer::consumeIndication(
-		const OperationContext & context,
-		const String & url,
-	  const CIMInstance& indicationInstance)
-	{
-	String msg = "Consumer <" + name + "> received " +
-		indicationInstance.getPath().toString();
+        const OperationContext & context,
+        const String & url,
+      const CIMInstance& indicationInstance)
+    {
+    String msg = "Consumer <" + name + "> received " +
+        indicationInstance.getPath().toString();
 
-	PEG_TRACE_STRING(TRC_LISTENER,Tracer::LEVEL4,msg);
-	PEGASUS_STD(cerr) << msg << PEGASUS_STD(endl);
-	}
+    PEG_TRACE_STRING(TRC_LISTENER,Tracer::LEVEL4,msg);
+    PEGASUS_STD(cerr) << msg << PEGASUS_STD(endl);
+    }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -94,50 +90,50 @@ void MyIndicationConsumer::consumeIndication(
 class MyTraceSettings
 {
 public:
-	static void setTraceComponents(String traceComponents);
+    static void setTraceComponents(String traceComponents);
 
-	static String _traceFileName;
+    static String _traceFileName;
 };
 
 String MyTraceSettings::_traceFileName = "cimlistener.trc";
 
 void MyTraceSettings::setTraceComponents(String traceComponents)
 {
-	// set trace path
-	const char* tmp = getenv("PEGASUS_HOME");
-	String pegasusHome = tmp;
+    // set trace path
+    const char* tmp = getenv("PEGASUS_HOME");
+    String pegasusHome = tmp;
 
-	// set logger directory
-	String logsDirectory = pegasusHome + String("/logs");
-	Logger::setHomeDirectory(logsDirectory);
-	Logger::setlogLevelMask("TRACE");
+    // set logger directory
+    String logsDirectory = pegasusHome + String("/logs");
+    Logger::setHomeDirectory(logsDirectory);
+    Logger::setlogLevelMask("TRACE");
 
-	// Set the file path to  $PEGASUS_HOME directory 
+    // Set the file path to  $PEGASUS_HOME directory
   String traceFilePath = pegasusHome + String("/") + _traceFileName;
 
 
-	CString fileName = traceFilePath.getCString();
-	if (Tracer::isValidFileName(fileName))
-	{ 
-		cout << "setTraceFile: " << (const char*)fileName << endl;
+    CString fileName = traceFilePath.getCString();
+    if (Tracer::isValidFileName(fileName))
+    {
+        cout << "setTraceFile: " << (const char*)fileName << endl;
 
-		Uint32 retCode = Tracer::setTraceFile(fileName);
-	  // Check whether the filepath was set
-	  if(retCode == 1)
-	  {
-			cout << "Unable to write to trace file: " << fileName << endl;
+        Uint32 retCode = Tracer::setTraceFile(fileName);
+      // Check whether the filepath was set
+      if(retCode == 1)
+      {
+            cout << "Unable to write to trace file: " << fileName << endl;
 
-			Logger::put(Logger::DEBUG_LOG,System::CIMLISTENER,
-	                Logger::WARNING,
-	                "Unable to write to trace file $0",
-	                (const char*)fileName);
+            Logger::put(Logger::DEBUG_LOG,System::CIMLISTENER,
+                    Logger::WARNING,
+                    "Unable to write to trace file $0",
+                    (const char*)fileName);
     }
-	}
-	// set trace level
+    }
+    // set trace level
   Tracer::setTraceLevel(Tracer::LEVEL4);
 
-	// set trace components
-	Tracer::setTraceComponents(traceComponents);
+    // set trace components
+    Tracer::setTraceComponents(traceComponents);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,45 +144,45 @@ void MyTraceSettings::setTraceComponents(String traceComponents)
 
 int main()
 {
-	//String traceComponents = "Http,XmlIO";
-	String traceComponents = "Listener";
-	MyTraceSettings::setTraceComponents(traceComponents);
+    //String traceComponents = "Http,XmlIO";
+    String traceComponents = "Listener";
+    MyTraceSettings::setTraceComponents(traceComponents);
 
-	try
-	{
+    try
+    {
 
-		int portNumber = 2003;
-		CIMListener listener(portNumber);
+        int portNumber = 2003;
+        CIMListener listener(portNumber);
 
-		// add cosumer
-		MyIndicationConsumer* consumer1 = new MyIndicationConsumer("1");
-		listener.addConsumer(consumer1);
+        // add cosumer
+        MyIndicationConsumer* consumer1 = new MyIndicationConsumer("1");
+        listener.addConsumer(consumer1);
 
-		MyIndicationConsumer* consumer2 = new MyIndicationConsumer("2");
-		listener.addConsumer(consumer2);
+        MyIndicationConsumer* consumer2 = new MyIndicationConsumer("2");
+        listener.addConsumer(consumer2);
 
-		// start listener
-		listener.start();		
+        // start listener
+        listener.start();
 
-		char buf[255]={0};
-		while(true)
-		{
-			cin.getline(buf,255);
-			
-			if(strlen(buf)>0 && strcmp(buf,"exit")==0)
-				break;
-		}
+        char buf[255]={0};
+        while(true)
+        {
+            cin.getline(buf,255);
 
-		delete consumer1;
-		delete consumer2;
+            if(strlen(buf)>0 && strcmp(buf,"exit")==0)
+                break;
+        }
 
-		listener.stop();
+        delete consumer1;
+        delete consumer2;
+
+        listener.stop();
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
+    cerr << e.getMessage() << endl;
     }
 
-	
-	return 0;
+
+    return 0;
 }

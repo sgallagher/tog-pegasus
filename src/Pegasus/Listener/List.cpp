@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -48,21 +48,21 @@ PEGASUS_NAMESPACE_BEGIN
 class ListNode
 {
 public:
-	ListNode(void* element);
-	~ListNode();
+    ListNode(void* element);
+    ~ListNode();
 
-	ListNode* getNext() const;
-	void setNext(ListNode* next);
+    ListNode* getNext() const;
+    void setNext(ListNode* next);
 
-	ListNode* getPrevious() const;
-	void setPrevious(ListNode* previous);
+    ListNode* getPrevious() const;
+    void setPrevious(ListNode* previous);
 
-	void* getElement() const;
+    void* getElement() const;
 
 private:
-	void*			_element;
-	ListNode*	_next;
-	ListNode* _previous;
+    void*           _element;
+    ListNode*   _next;
+    ListNode* _previous;
 };
 
 ListNode::ListNode(void* element)
@@ -75,25 +75,25 @@ ListNode::~ListNode()
 
 ListNode* ListNode::getNext() const
 {
-	return _next;
+    return _next;
 }
 void ListNode::setNext(ListNode* next)
 {
-	_next = next;
+    _next = next;
 }
 
 ListNode* ListNode::getPrevious() const
 {
-	return _previous;
+    return _previous;
 }
 void ListNode::setPrevious(ListNode* previous)
 {
-	_previous = previous;
+    _previous = previous;
 }
 
 void* ListNode::getElement() const
 {
-	return _element;
+    return _element;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -102,15 +102,15 @@ void* ListNode::getElement() const
 class PtrListIterator : public Iterator
 {
 public:
-	PtrListIterator(ListNode* first);
+    PtrListIterator(ListNode* first);
   ~PtrListIterator();
 
-	Boolean hasNext();
-	void*		next();
-	void		remove();
+    Boolean hasNext();
+    void*       next();
+    void        remove();
 
 private:
-	ListNode* _lead;
+    ListNode* _lead;
 };
 
 PtrListIterator::PtrListIterator(ListNode* lead)
@@ -122,21 +122,21 @@ PtrListIterator::~PtrListIterator()
 }
 Boolean PtrListIterator::hasNext()
 {
-	return (_lead!=NULL)?true:false;
+    return (_lead!=NULL)?true:false;
 }
 void* PtrListIterator::next()
 {
-	if(_lead==NULL)
-		throw IndexOutOfBoundsException();
+    if(_lead==NULL)
+        throw IndexOutOfBoundsException();
 
-	void* element = _lead->getElement();
-	_lead = _lead->getNext();
+    void* element = _lead->getElement();
+    _lead = _lead->getNext();
 
-	return element;
+    return element;
 }
 void PtrListIterator::remove()
 {
-	throw Exception("Not Supported feature");
+    throw Exception("Not Supported feature");
 }
 
 
@@ -146,17 +146,17 @@ void PtrListIterator::remove()
 class PtrListRep
 {
 public:
-	PtrListRep();
+    PtrListRep();
   ~PtrListRep();
-	
-	void add(void* element);
-	void remove(void* element);
 
-	Iterator* iterator();
+    void add(void* element);
+    void remove(void* element);
+
+    Iterator* iterator();
 
 private:
-	ListNode* _first;
-	ListNode* _last;
+    ListNode* _first;
+    ListNode* _last;
 };
 
 PtrListRep::PtrListRep()
@@ -165,59 +165,59 @@ PtrListRep::PtrListRep()
 }
 PtrListRep::~PtrListRep()
 {
-	// reemove all the nodes
-	while(_last!=NULL)
-	{
-		ListNode* n = _last->getPrevious();
-		delete _last;
-		_last = n;
-	}
+    // reemove all the nodes
+    while(_last!=NULL)
+    {
+        ListNode* n = _last->getPrevious();
+        delete _last;
+        _last = n;
+    }
 }
 void PtrListRep::add(void* element)
 {
-	ListNode* n = new ListNode(element);
-	
-	if(_last==NULL)
-	{ // this is the very first one
-		_first = _last = n;
-	}
-	else { // append to the end
-		_last->setNext(n);
-		n->setPrevious(_last);
-		_last = n;
-	}
+    ListNode* n = new ListNode(element);
+
+    if(_last==NULL)
+    { // this is the very first one
+        _first = _last = n;
+    }
+    else { // append to the end
+        _last->setNext(n);
+        n->setPrevious(_last);
+        _last = n;
+    }
 }
 void PtrListRep::remove(void* element)
 {
-	if(element!=NULL && _first!=NULL)
-	{
-		for(ListNode* n=_first; n!=NULL; n=n->getNext())
-		{
-			void* el = n->getElement();
-			if(el==element)
-			{ // remove the node
-				ListNode* prev = n->getPrevious();
-				ListNode* next = n->getNext();
+    if(element!=NULL && _first!=NULL)
+    {
+        for(ListNode* n=_first; n!=NULL; n=n->getNext())
+        {
+            void* el = n->getElement();
+            if(el==element)
+            { // remove the node
+                ListNode* prev = n->getPrevious();
+                ListNode* next = n->getNext();
 
-				if(prev!=NULL)
-					prev->setNext(next);
-				else // the node is the very first
-					_first = next;
+                if(prev!=NULL)
+                    prev->setNext(next);
+                else // the node is the very first
+                    _first = next;
 
-				if(next!=NULL)
-					next->setPrevious(prev);
-				else // the node is the last
-					_last = prev;
+                if(next!=NULL)
+                    next->setPrevious(prev);
+                else // the node is the last
+                    _last = prev;
 
-				delete n;
-				break;
-			}
-		}
-	}
+                delete n;
+                break;
+            }
+        }
+    }
 }
 Iterator* PtrListRep::iterator()
 {
-	return new PtrListIterator(_first);
+    return new PtrListIterator(_first);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -229,24 +229,24 @@ PtrList::PtrList()
 }
 PtrList::~PtrList()
 {
-	if(_rep!=NULL)
-		delete static_cast<PtrListRep*>(_rep);
-	_rep=NULL;
+    if(_rep!=NULL)
+        delete static_cast<PtrListRep*>(_rep);
+    _rep=NULL;
 }
-	
+
 void PtrList::add(void* element)
 {
-	static_cast<PtrListRep*>(_rep)->add(element);
+    static_cast<PtrListRep*>(_rep)->add(element);
 }
 
 void PtrList::remove(void* element)
 {
-	static_cast<PtrListRep*>(_rep)->remove(element);
+    static_cast<PtrListRep*>(_rep)->remove(element);
 }
 
 Iterator* PtrList::iterator()
 {
-	return static_cast<PtrListRep*>(_rep)->iterator();
+    return static_cast<PtrListRep*>(_rep)->iterator();
 }
 
 

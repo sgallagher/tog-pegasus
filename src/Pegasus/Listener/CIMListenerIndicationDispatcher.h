@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -51,25 +51,26 @@ class PEGASUS_LISTENER_LINKAGE CIMListenerIndicationDispatcher
    : public MessageQueueService
 {
 public:
-	typedef MessageQueueService Base;
+    typedef MessageQueueService Base;
 
 public:
-	CIMListenerIndicationDispatcher();
-	virtual ~CIMListenerIndicationDispatcher();
-	
+    CIMListenerIndicationDispatcher();
+    virtual ~CIMListenerIndicationDispatcher();
+
 protected:
-	virtual void handleEnqueue(Message *);
+    virtual void handleEnqueue(Message *);
   virtual void handleEnqueue();
-		
+
 public:
-	Boolean addConsumer(CIMIndicationConsumer* consumer);
-	Boolean removeConsumer(CIMIndicationConsumer* consumer);
+    Boolean addConsumer(CIMIndicationConsumer* consumer);
+    Boolean removeConsumer(CIMIndicationConsumer* consumer);
 
 private:
-	void* _rep;
+    void* _rep;
 };
 
-#define PEGASUS_QUEUENAME_LISTENERINDICATIONDISPACTCHER "CIMListenerIndicationDispacther"
+#define PEGASUS_QUEUENAME_LISTENERINDICATIONDISPACTCHER \
+    "CIMListenerIndicationDispacther"
 
 PEGASUS_NAMESPACE_END
 

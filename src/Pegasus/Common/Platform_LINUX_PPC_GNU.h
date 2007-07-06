@@ -83,4 +83,6 @@
 
 #define PEGASUS_HAVE_NANOSLEEP
 
+#define PEGASUS_HAS_SIGNALS
+
 #endif /* Pegasus_Platform_LINUX_PPC_GNU_h */

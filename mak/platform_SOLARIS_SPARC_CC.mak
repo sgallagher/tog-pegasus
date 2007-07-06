@@ -78,8 +78,6 @@ ifdef PEGASUS_SNIA_INTEROP_TEST
 DEFINES += -DPEGASUS_SNIA_INTEROP_TEST
 endif
 
-DEFINES += -DPEGASUS_HAS_SIGNALS
-
 #
 # This is needed for SPARC.  It shouldn't be needed for x86
 # or x86-64 if a port is ever done for Solaris on those

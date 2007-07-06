@@ -64,4 +64,6 @@
 
 #define PEGASUS_HAVE_NANOSLEEP
 
+#define PEGASUS_HAS_SIGNALS
+
 #endif /* Pegasus_Platform_HPUX_IA64_ACC_h */

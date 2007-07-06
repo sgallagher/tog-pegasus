@@ -68,4 +68,6 @@
 
 #define PEGASUS_HAVE_NANOSLEEP
 
+#define PEGASUS_HAS_SIGNALS
+
 #endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */

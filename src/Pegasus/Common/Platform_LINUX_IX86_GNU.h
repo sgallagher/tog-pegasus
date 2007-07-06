@@ -84,4 +84,6 @@
 
 #define PEGASUS_HAVE_NANOSLEEP
 
+#define PEGASUS_HAS_SIGNALS
+
 #endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

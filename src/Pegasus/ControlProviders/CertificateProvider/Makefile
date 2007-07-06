@@ -36,7 +36,9 @@ DIR = Pegasus/ControlProviders/CertificateProvider
 include $(ROOT)/mak/config.mak
 
 ifdef PEGASUS_HAS_SSL
-  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+  ifdef OPENSSL_HOME
+    SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+   endif
 else
   $(error PEGASUS_HAS_SSL not defined)
 endif
@@ -53,53 +55,30 @@ LIBRARIES = \
 SOURCES = CertificateProvider.cpp
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider
+  NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider
+endif
+
+ifdef PEGASUS_HAS_SSL
+  ifeq ($(OS_TYPE),windows)
+    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.l
+  else
+    ifdef OPENSSL_HOME
+      EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
+    endif
+    EXTRA_LIBRARIES += -lssl -lcrypto
+  endif
 endif
 
 ifeq ($(OS),linux)
   EXTRA_LIBRARIES += -lcrypt
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
 endif
-
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
   AIX_LIB_PRIORITY=-20
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(OS),HPUX)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
 endif
 
 ifeq ($(OS_TYPE),windows)
   SYS_LIBS = ws2_32.lib advapi32.lib netapi32.lib
-  ifdef PEGASUS_HAS_SSL
-    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
-  endif
 endif
 
 include $(ROOT)/mak/library.mak

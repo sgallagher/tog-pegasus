@@ -534,11 +534,12 @@ endif
 ifdef PEGASUS_HAS_SSL
     DEFINES += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
 
-    ifndef OPENSSL_BIN
-        OPENSSL_BIN = $(OPENSSL_HOME)/bin
-    endif
     ifndef OPENSSL_COMMAND
-        OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
+        ifdef OPENSSL_BIN
+            OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
+        else
+            OPENSSL_COMMAND = openssl
+        endif
     endif
     ifndef OPENSSL_SET_SERIAL_SUPPORTED
         ifneq (, $(findstring 0.9.6, $(shell $(OPENSSL_COMMAND) version)))

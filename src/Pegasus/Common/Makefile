@@ -35,9 +35,10 @@ DIR = Pegasus/Common
 include $(ROOT)/mak/config.mak
 
 ifdef PEGASUS_HAS_SSL
-    SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+    ifdef OPENSSL_HOME
+        SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+     endif
 endif
-
 LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegcommon
@@ -195,53 +196,30 @@ endif
 
 SOURCES = $(SOURCES1) $(SOURCES2)
 
-ifeq ($(OS),linux)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+ifdef PEGASUS_HAS_SSL
+  ifeq ($(OS_TYPE),windows)
+    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
+  else
+    ifdef OPENSSL_HOME
+      EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
+    endif
+    EXTRA_LIBRARIES += -lssl -lcrypto
   endif
 endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
   ifdef PEGASUS_ZOS_SECURITY
     SOURCES += $(SOURCES_SECURITY_ZOS)
   endif
 endif
 
-
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
-AIX_LIB_PRIORITY=-20
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(OS),HPUX)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-  ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-  endif
+  AIX_LIB_PRIORITY=-20
 endif
 
 # Note that PEGASUS_WINDOWS_SDK_HOME only needs to be specified if using VC6.
 ifeq ($(OS_TYPE),windows)
   SYS_LIBS = ws2_32.lib advapi32.lib netapi32.lib
-  ifdef PEGASUS_HAS_SSL
-    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
-  endif
   ifdef PEGASUS_WINDOWS_SDK_HOME
     FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
     SYS_LIBS += /libpath:$(PEGASUS_WINDOWS_SDK_HOME)/lib secur32.lib

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,11 +72,11 @@ void test(Uint32 mode)
 
     try
     {
-	q2 = r.getQualifier(NAMESPACE, ABSTRACT);
+    q2 = r.getQualifier(NAMESPACE, ABSTRACT);
     }
     catch (CIMException& e)
     {
-	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
     }
 
     // Create two qualifiers:
@@ -99,8 +94,9 @@ void test(Uint32 mode)
 
     for (Uint32 i = 0, n = qualifiers.size(); i < n; i++)
     {
-	// qualifiers[i].print();
-	PEGASUS_TEST_ASSERT(qualifiers[i].identical(q3) || qualifiers[i].identical(q4));
+    // qualifiers[i].print();
+    PEGASUS_TEST_ASSERT(
+        qualifiers[i].identical(q3) || qualifiers[i].identical(q4));
     }
 }
 
@@ -118,31 +114,31 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    try 
+    try
     {
       Uint32 mode;
       if (!strcmp(argv[1],"XML") )
-	{
-	  mode = CIMRepository::MODE_XML;
-	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_XML;
+      if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+    }
       else if (!strcmp(argv[1],"BIN") )
-	{
-	  mode = CIMRepository::MODE_BIN;
-	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_BIN;
+      if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+    }
       else
-	{
-	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-	  return 0;
-	}
+    {
+      cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+      return 0;
+    }
 
       test(mode);
     }
     catch (Exception& e)
     {
-	cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
-	exit(1);
+    cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

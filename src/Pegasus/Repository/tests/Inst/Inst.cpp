@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//               David Dillard, VERITAS Software Corp.
-//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -129,24 +122,24 @@ void _Test01()
     //
 
     {
-	Array<Uint32> freeFlags;
-	Array<Uint32> indices;
-	Array<Uint32> sizes;
-	Array<CIMObjectPath> instanceNames;
+    Array<Uint32> freeFlags;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+    Array<CIMObjectPath> instanceNames;
 
-	Boolean flag = InstanceIndexFile::enumerateEntries(
-	    PATH, freeFlags, indices, sizes, instanceNames, true);
+    Boolean flag = InstanceIndexFile::enumerateEntries(
+        PATH, freeFlags, indices, sizes, instanceNames, true);
 
-	PEGASUS_TEST_ASSERT(flag);
+    PEGASUS_TEST_ASSERT(flag);
 
-	PEGASUS_TEST_ASSERT(freeFlags.size() == indices.size());
-	PEGASUS_TEST_ASSERT(indices.size() == sizes.size());
-	PEGASUS_TEST_ASSERT(sizes.size() == instanceNames.size());
+    PEGASUS_TEST_ASSERT(freeFlags.size() == indices.size());
+    PEGASUS_TEST_ASSERT(indices.size() == sizes.size());
+    PEGASUS_TEST_ASSERT(sizes.size() == instanceNames.size());
 
         PEGASUS_TEST_ASSERT( freeFlags[0] == 1 &&
                 freeFlags[2] == 1 &&
                 freeFlags[4] == 1 &&
-                freeFlags[5] == 1); 
+                freeFlags[5] == 1);
     }
 
     //
@@ -159,10 +152,10 @@ void _Test01()
     //   There should be 3 entries and no 'free' entries
     //
     {
-	Array<Uint32> freeFlags;
-	Array<Uint32> indices;
-	Array<Uint32> sizes;
-	Array<CIMObjectPath> instanceNames;
+    Array<Uint32> freeFlags;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+    Array<CIMObjectPath> instanceNames;
 
         Boolean flag = InstanceIndexFile::enumerateEntries(
             PATH, freeFlags, indices, sizes, instanceNames, true);
@@ -228,7 +221,8 @@ void _Test02()
     //
 
     InstanceDataFile::loadAllInstances(PATH, data);
-    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCC", 24) == 0);
+    PEGASUS_TEST_ASSERT(
+        memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCC", 24) == 0);
     PEGASUS_TEST_ASSERT(data.size() == 3 * 8);
     data.clear();
 
@@ -261,7 +255,8 @@ void _Test02()
     //
 
     InstanceDataFile::loadAllInstances(PATH, data);
-    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD", 32) == 0);
+    PEGASUS_TEST_ASSERT(
+        memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD", 32) == 0);
     PEGASUS_TEST_ASSERT(data.size() == 4 * 8);
     data.clear();
 
@@ -281,7 +276,8 @@ void _Test02()
     indices.append(16);
     sizes.append(8);
 
-    PEGASUS_TEST_ASSERT(InstanceDataFile::compact(PATH, freeFlags, indices, sizes));
+    PEGASUS_TEST_ASSERT(
+        InstanceDataFile::compact(PATH, freeFlags, indices, sizes));
 
     //
     // Verify the result:
@@ -303,16 +299,16 @@ int main(int argc, char** argv)
 
     try
     {
-	_Test01();
-	_Test02();
+    _Test01();
+    _Test02();
         free(tmpDir);
     }
 
     catch (Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
+    cerr << "Error: " << e.getMessage() << endl;
         free(tmpDir);
-	exit(1);
+    exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

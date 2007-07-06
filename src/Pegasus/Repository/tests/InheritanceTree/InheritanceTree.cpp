@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,7 +47,7 @@ void TestGetSubClassNames(
 
 #if 0
     for (Uint32 i = 0; i < subClassNames.size(); i++)
-	cout << subClassNames[i] << endl;
+    cout << subClassNames[i] << endl;
 #endif
 
     Array<CIMName> expected = subClassNames;
@@ -63,97 +63,97 @@ int main(int argc, char** argv)
 
     try
     {
-	InheritanceTree it;
+    InheritanceTree it;
 
-	/*
-	//----------------------------------------------------------------------
-	//
-	//        A
-	//      /   \
-	//     B     C
-	//   /   \     \
-	//  D     E     F
-	//
-	//----------------------------------------------------------------------
+    /*
+    //----------------------------------------------------------------------
+    //
+    //        A
+    //      /   \
+    //     B     C
+    //   /   \     \
+    //  D     E     F
+    //
+    //----------------------------------------------------------------------
         */
 
-	it.insert("D", "B");
-	it.insert("E", "B");
-	it.insert("B", "A");
-	it.insert("C", "A");
-	it.insert("F", "C");
-	it.insert("A", "");
-	it.check();
+    it.insert("D", "B");
+    it.insert("E", "B");
+    it.insert("B", "A");
+    it.insert("C", "A");
+    it.insert("F", "C");
+    it.insert("A", "");
+    it.check();
 
         if (verbose)
-	    it.print(cout);
+        it.print(cout);
 
-	{
-	    Array<CIMName> expected;
-	    expected.append("B");
-	    expected.append("C");
-	    expected.append("D");
-	    expected.append("E");
-	    expected.append("F");
-	    TestGetSubClassNames(it, "A", true, expected);
-	}
-	{
-	    Array<CIMName> expected;
-	    expected.append("B");
-	    expected.append("C");
-	    TestGetSubClassNames(it, "A", false, expected);
-	}
-	{
-	    Array<CIMName> expected;
-	    expected.append("A");
-	    TestGetSubClassNames(it, CIMName(), false, expected);
-	}
-	{
-	    Array<CIMName> expected;
-	    expected.append("A");
-	    expected.append("B");
-	    expected.append("C");
-	    expected.append("D");
-	    expected.append("E");
-	    expected.append("F");
-	    TestGetSubClassNames(it, "A", true, expected);
-	}
-	{
-	    Array<CIMName> expected;
+    {
+        Array<CIMName> expected;
+        expected.append("B");
+        expected.append("C");
+        expected.append("D");
+        expected.append("E");
+        expected.append("F");
+        TestGetSubClassNames(it, "A", true, expected);
+    }
+    {
+        Array<CIMName> expected;
+        expected.append("B");
+        expected.append("C");
+        TestGetSubClassNames(it, "A", false, expected);
+    }
+    {
+        Array<CIMName> expected;
+        expected.append("A");
+        TestGetSubClassNames(it, CIMName(), false, expected);
+    }
+    {
+        Array<CIMName> expected;
+        expected.append("A");
+        expected.append("B");
+        expected.append("C");
+        expected.append("D");
+        expected.append("E");
+        expected.append("F");
+        TestGetSubClassNames(it, "A", true, expected);
+    }
+    {
+        Array<CIMName> expected;
 
-	    expected.append("F");
-	    TestGetSubClassNames(it, "C", true, expected);
-	}
-	{
-	    Array<CIMName> expected;
-	    expected.append("F");
-	    TestGetSubClassNames(it, "C", false, expected);
-	}
+        expected.append("F");
+        TestGetSubClassNames(it, "C", true, expected);
+    }
+    {
+        Array<CIMName> expected;
+        expected.append("F");
+        TestGetSubClassNames(it, "C", false, expected);
+    }
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
-	exit(1);
+    cerr << e.getMessage() << endl;
+    exit(1);
     }
 
     try
     {
-	InheritanceTree it;
-	it.insertFromPath("./classes");
-	it.check();
+    InheritanceTree it;
+    it.insertFromPath("./classes");
+    it.check();
         if (verbose)
-	    it.print(cout);
+        it.print(cout);
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
-	exit(1);
+    cerr << e.getMessage() << endl;
+    exit(1);
     }
 
     try
     {
         // build an invalid inheritance tree
-	InheritanceTree it;
+    InheritanceTree it;
         it.insert("D", "B");
         it.insert("E", "B");
         it.insert("C", "A");
@@ -164,12 +164,12 @@ int main(int argc, char** argv)
     catch (InvalidInheritanceTree& e)
     {
         if (verbose)
-	    cout << argv[0] << " " << e.getMessage() << endl;
+        cout << argv[0] << " " << e.getMessage() << endl;
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
-	exit(1);
+    cerr << e.getMessage() << endl;
+    exit(1);
     }
 
 #if 0

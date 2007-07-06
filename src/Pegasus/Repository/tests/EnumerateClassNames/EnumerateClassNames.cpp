@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//              Abhijeet Bhattacharya, IBM(abhbhatt@in.ibm.com) for Bug#4543
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,18 +37,18 @@
 //
 // The inheritance structure for this test is:
 //
-//	Class1
-//	Class2
-//	A
-//	  X
-//	    M
-//	      Q
-//	      R
-//	    N
-//	      S
-//	      T
-//	  Y
-//	  Z
+//  Class1
+//  Class2
+//  A
+//    X
+//      M
+//        Q
+//        R
+//      N
+//        S
+//        T
+//    Y
+//    Z
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -72,32 +66,32 @@ String repositoryRoot;
 void print(const Array<CIMName>& array)
 {
     if (verbose)
-	{
-		for (Uint32 i = 0, n = array.size(); i < n; i++)
-		cout << "array[" << i << "]: " << array[i].getString() << endl;
-	}
+    {
+        for (Uint32 i = 0, n = array.size(); i < n; i++)
+        cout << "array[" << i << "]: " << array[i].getString() << endl;
+    }
 }
 
 void TestCase1()
 {
-	if (verbose)
-	{
-		cout << "TestCase1" << endl;
-	}
+    if (verbose)
+    {
+        cout << "TestCase1" << endl;
+    }
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
     Array<CIMName> classNames = r.enumerateClassNames(
-			NAMESPACE, CIMName(), false);
+            NAMESPACE, CIMName(), false);
 
     print(classNames);
-    
-	Array<CIMName> tmp;
+
+    Array<CIMName> tmp;
     tmp.append(CIMName ("TST_A"));
     tmp.append(CIMName ("TST_Class1"));
     tmp.append(CIMName ("TST_Class2"));
-	
+
     BubbleSort(tmp);
     BubbleSort(classNames);
     PEGASUS_TEST_ASSERT(tmp.size() == 3);
@@ -108,10 +102,10 @@ void TestCase1()
 
 void TestCase2()
 {
-	if (verbose)
-	{
-		cout << "TestCase2" << endl;
-	}
+    if (verbose)
+    {
+        cout << "TestCase2" << endl;
+    }
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
@@ -119,7 +113,7 @@ void TestCase2()
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 
     Array<CIMName> classNames = r.enumerateClassNames(
-	NAMESPACE, CIMName(), true);
+    NAMESPACE, CIMName(), true);
 
     print(classNames);
 
@@ -144,10 +138,10 @@ void TestCase2()
 
 void TestCase3()
 {
-	if (verbose)
-	{
-		cout << "TestCase3" << endl;
-	}
+    if (verbose)
+    {
+        cout << "TestCase3" << endl;
+    }
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
@@ -155,7 +149,7 @@ void TestCase3()
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 
     Array<CIMName> classNames = r.enumerateClassNames(
-	NAMESPACE, CIMName ("TST_X"), false);
+    NAMESPACE, CIMName ("TST_X"), false);
 
     print(classNames);
 
@@ -170,10 +164,10 @@ void TestCase3()
 
 void TestCase4()
 {
-	if (verbose)
-	{
-		cout << "TestCase4" << endl;
-	}
+    if (verbose)
+    {
+        cout << "TestCase4" << endl;
+    }
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
@@ -181,7 +175,7 @@ void TestCase4()
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 
     Array<CIMName> classNames = r.enumerateClassNames(
-	NAMESPACE, CIMName ("TST_X"), true);
+    NAMESPACE, CIMName ("TST_X"), true);
 
     print(classNames);
 
@@ -200,7 +194,7 @@ void TestCase4()
 
 static void CreateClass(
     CIMRepository& r,
-    const CIMName& className, 
+    const CIMName& className,
     const CIMName superClassName = CIMName())
 {
     CIMClass c(className, superClassName);
@@ -210,8 +204,8 @@ static void CreateClass(
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    
-	const char* tmpDir;
+
+    const char* tmpDir;
     tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
@@ -226,11 +220,11 @@ int main(int argc, char** argv)
     Uint32 mode;
     if(argc==1)
     {
-	  cout << argv[0] << ": No argument provided: " << endl;
+      cout << argv[0] << ": No argument provided: " << endl;
           cout <<"Usage: EnumerateClassNames [XML | BIN]" << endl;
-	  return 1;	
+      return 1;
     }
-    
+
     if (!strcmp(argv[1], "XML"))
     {
         mode = CIMRepository::MODE_XML;
@@ -250,30 +244,30 @@ int main(int argc, char** argv)
 
     CIMRepository r (repositoryRoot, mode);
 
-    try 
+    try
     {
-		r.createNameSpace(NAMESPACE);
-		CreateClass(r, CIMName ("TST_Class1"));
-		CreateClass(r, CIMName ("TST_Class2"));
-		CreateClass(r, CIMName ("TST_A"));
-		CreateClass(r, CIMName ("TST_X"), CIMName ("TST_A"));
-		CreateClass(r, CIMName ("TST_Y"), CIMName ("TST_A"));
-		CreateClass(r, CIMName ("TST_Z"), CIMName ("TST_A"));
-		CreateClass(r, CIMName ("TST_M"), CIMName ("TST_X"));
-		CreateClass(r, CIMName ("TST_N"), CIMName ("TST_X"));
-		CreateClass(r, CIMName ("TST_Q"), CIMName ("TST_M"));
-		CreateClass(r, CIMName ("TST_R"), CIMName ("TST_M"));
-		CreateClass(r, CIMName ("TST_S"), CIMName ("TST_N"));
-		CreateClass(r, CIMName ("TST_T"), CIMName ("TST_N"));
-		TestCase1();
-		TestCase2();
-		TestCase3();
-		TestCase4();
+        r.createNameSpace(NAMESPACE);
+        CreateClass(r, CIMName ("TST_Class1"));
+        CreateClass(r, CIMName ("TST_Class2"));
+        CreateClass(r, CIMName ("TST_A"));
+        CreateClass(r, CIMName ("TST_X"), CIMName ("TST_A"));
+        CreateClass(r, CIMName ("TST_Y"), CIMName ("TST_A"));
+        CreateClass(r, CIMName ("TST_Z"), CIMName ("TST_A"));
+        CreateClass(r, CIMName ("TST_M"), CIMName ("TST_X"));
+        CreateClass(r, CIMName ("TST_N"), CIMName ("TST_X"));
+        CreateClass(r, CIMName ("TST_Q"), CIMName ("TST_M"));
+        CreateClass(r, CIMName ("TST_R"), CIMName ("TST_M"));
+        CreateClass(r, CIMName ("TST_S"), CIMName ("TST_N"));
+        CreateClass(r, CIMName ("TST_T"), CIMName ("TST_N"));
+        TestCase1();
+        TestCase2();
+        TestCase3();
+        TestCase4();
     }
     catch (Exception& e)
     {
-		cout << "Exception " << e.getMessage() << endl;
-		PEGASUS_TEST_ASSERT(false);
+        cout << "Exception " << e.getMessage() << endl;
+        PEGASUS_TEST_ASSERT(false);
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

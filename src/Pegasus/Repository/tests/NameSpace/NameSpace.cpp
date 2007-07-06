@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,12 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,53 +60,53 @@ void test(Uint32 mode)
 
     try
     {
-	// Create an array of names
-	Array<CIMNamespaceName> arr1;
-	arr1.append(CIMNamespaceName ("/zzz"));
-	arr1.append(CIMNamespaceName ("/xxx/yyy"));
-	arr1.append(CIMNamespaceName ("/a/b/c"));
+    // Create an array of names
+    Array<CIMNamespaceName> arr1;
+    arr1.append(CIMNamespaceName ("/zzz"));
+    arr1.append(CIMNamespaceName ("/xxx/yyy"));
+    arr1.append(CIMNamespaceName ("/a/b/c"));
 
-	BubbleSort(arr1);
+    BubbleSort(arr1);
 
-	// create the namespaces
-	for (Uint32 i = 0; i < arr1.size(); i++)
-	    r.createNameSpace(CIMNamespaceName(arr1[i]));
+    // create the namespaces
+    for (Uint32 i = 0; i < arr1.size(); i++)
+        r.createNameSpace(CIMNamespaceName(arr1[i]));
 
-	//retrieve the namespaces from rep. as array
-	Array<CIMNamespaceName> arr2 = r.enumerateNameSpaces();
+    //retrieve the namespaces from rep. as array
+    Array<CIMNamespaceName> arr2 = r.enumerateNameSpaces();
 
-	BubbleSort(arr2);
+    BubbleSort(arr2);
 
 #if 0
-	for (Uint32 i = 0; i < arr2.size(); i++)
-	    cout << "===>" << arr2[i] << endl;
+    for (Uint32 i = 0; i < arr2.size(); i++)
+        cout << "===>" << arr2[i] << endl;
 #endif
 
-	//confirm that the input and return are equal
-	PEGASUS_TEST_ASSERT(arr1.size() == 3);
-	PEGASUS_TEST_ASSERT(arr2.size() == 4);
+    //confirm that the input and return are equal
+    PEGASUS_TEST_ASSERT(arr1.size() == 3);
+    PEGASUS_TEST_ASSERT(arr2.size() == 4);
 
-	arr1.append(CIMNamespaceName ("root"));
-	BubbleSort(arr1);
-	PEGASUS_TEST_ASSERT(arr1 == arr2);
+    arr1.append(CIMNamespaceName ("root"));
+    BubbleSort(arr1);
+    PEGASUS_TEST_ASSERT(arr1 == arr2);
 
         NameSpaceManager nsm (repositoryRoot);
-   
+
         if (verbose)
             nsm.print(cout);
 
-	// Delete the namespaces test. Put in when delete installed
-	for (Uint32 i = 0; i < arr1.size(); i++)
-	    r.deleteNameSpace(arr1[i]);
+    // Delete the namespaces test. Put in when delete installed
+    for (Uint32 i = 0; i < arr1.size(); i++)
+        r.deleteNameSpace(arr1[i]);
 
-	//enumerate the namespaces
-	Array<CIMNamespaceName> arr3 = r.enumerateNameSpaces();
-	PEGASUS_TEST_ASSERT(arr3.size() == 0);
+    //enumerate the namespaces
+    Array<CIMNamespaceName> arr3 = r.enumerateNameSpaces();
+    PEGASUS_TEST_ASSERT(arr3.size() == 0);
 
     }
     catch (AlreadyExistsException&)
     {
-	cout << "ignored already exists exception" << endl;
+    cout << "ignored already exists exception" << endl;
     }
 }
 
@@ -131,32 +125,32 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    try 
+    try
     {
       Uint32 mode;
       if (!strcmp(argv[1],"XML") )
-	{
-	  mode = CIMRepository::MODE_XML;
-	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_XML;
+      if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+    }
       else if (!strcmp(argv[1],"BIN") )
-	{
-	  mode = CIMRepository::MODE_BIN;
-	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_BIN;
+      if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+    }
       else
-	{
-	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-	  return 0;
-	}
-     
-	test(mode);
+    {
+      cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+      return 0;
+    }
+
+    test(mode);
     }
     catch (Exception& e)
     {
-	cout << "Exception" << endl;
-	cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
-	return 1;
+    cout << "Exception" << endl;
+    cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
+    return 1;
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

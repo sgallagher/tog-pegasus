@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:  Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,41 +73,41 @@ void CompareClasses(
 
     for (Uint32 i = 0; i < classNames1.size(); i++)
     {
-	CIMClass class1 = r1.getClass(namespaceName, classNames1[i]);
-	CIMClass class2 = r2.getClass(namespaceName, classNames2[i]);
+    CIMClass class1 = r1.getClass(namespaceName, classNames1[i]);
+    CIMClass class2 = r2.getClass(namespaceName, classNames2[i]);
 
-	if (verbose)
-	{
-	    cout << "testing class " << namespaceName.getString() << "/";
-	    cout << classNames1[i].getString() << "..." << endl;
-	}
+    if (verbose)
+    {
+        cout << "testing class " << namespaceName.getString() << "/";
+        cout << classNames1[i].getString() << "..." << endl;
+    }
 
-	if (!class1.identical(class2))
-	{
-	    PutClass("file1", class1);
-	    PutClass("file2", class2);
+    if (!class1.identical(class2))
+    {
+        PutClass("file1", class1);
+        PutClass("file2", class2);
 
-	    cout << "========================================================="; 
-	    cout << "========================================================="; 
-	    cout << endl;
-	    cout << "ERROR: not identical! - ";
+        cout << "=========================================================";
+        cout << "=========================================================";
+        cout << endl;
+        cout << "ERROR: not identical! - ";
 
 
-	    cout << "ERROR FOUND testing class: " << namespaceName.getString();
-	    cout << "/";
-	    cout << classNames1[i].getString();
+        cout << "ERROR FOUND testing class: " << namespaceName.getString();
+        cout << "/";
+        cout << classNames1[i].getString();
 
-	    cout << " .... differences follow:" << endl << endl;
+        cout << " .... differences follow:" << endl << endl;
 
-	    system("diff file1 file2");
+        system("diff file1 file2");
 
-	    if (verbose) 
-	      {
-		XmlWriter::printClassElement(class1, cout);
-		XmlWriter::printClassElement(class2, cout);
-	      }
-	    failures++;
-	}
+        if (verbose)
+          {
+        XmlWriter::printClassElement(class1, cout);
+        XmlWriter::printClassElement(class2, cout);
+          }
+        failures++;
+    }
     }
 }
 
@@ -128,27 +124,27 @@ void CompareInstances(
 
     for (Uint32 i = 0; i < classNames1.size(); i++)
     {
-	Array<CIMObjectPath> objectPaths1 = r1.enumerateInstanceNamesForClass(
-	    namespaceName, classNames1[i]);
-	Array<CIMObjectPath> objectPaths2 = r2.enumerateInstanceNamesForClass(
-	    namespaceName, classNames2[i]);
-	// BubbleSort(objectPaths1);
-	// BubbleSort(objectPaths2);
-	PEGASUS_TEST_ASSERT(objectPaths1 == objectPaths2);
+    Array<CIMObjectPath> objectPaths1 = r1.enumerateInstanceNamesForClass(
+        namespaceName, classNames1[i]);
+    Array<CIMObjectPath> objectPaths2 = r2.enumerateInstanceNamesForClass(
+        namespaceName, classNames2[i]);
+    // BubbleSort(objectPaths1);
+    // BubbleSort(objectPaths2);
+    PEGASUS_TEST_ASSERT(objectPaths1 == objectPaths2);
 
-	for (Uint32 i = 0; i < objectPaths2.size(); i++)
-	{
-	    CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[i]);
-	    CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[i]);
+    for (Uint32 i = 0; i < objectPaths2.size(); i++)
+    {
+        CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[i]);
+        CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[i]);
 
-	    if (verbose)
-	    {
-		cout << "testing instance " << namespaceName.getString() << "/";
-		cout << objectPaths1[i].toString() << "..." << endl;
-	    }
+        if (verbose)
+        {
+        cout << "testing instance " << namespaceName.getString() << "/";
+        cout << objectPaths1[i].toString() << "..." << endl;
+        }
 
-	    PEGASUS_TEST_ASSERT(inst1.identical(inst2));
-	}
+        PEGASUS_TEST_ASSERT(inst1.identical(inst2));
+    }
     }
 }
 
@@ -163,13 +159,13 @@ void CompareQualifiers(
 
     for (Uint32 i = 0; i < quals2.size(); i++)
     {
-	if (verbose)
-	{
-	    cout << "testing qualifier " << namespaceName.getString() << "/";
-	    cout << quals2[i].getName().getString() << "..." << endl;
-	}
+    if (verbose)
+    {
+        cout << "testing qualifier " << namespaceName.getString() << "/";
+        cout << quals2[i].getName().getString() << "..." << endl;
+    }
 
-	PEGASUS_TEST_ASSERT(quals1[i].identical(quals2[i]));
+    PEGASUS_TEST_ASSERT(quals1[i].identical(quals2[i]));
     }
 }
 
@@ -200,9 +196,9 @@ void Compare(
 
     for (Uint32 i = 0; i < nameSpaces1.size(); i++)
     {
-	CompareQualifiers(r1, r2, nameSpaces1[i]);
-	CompareClasses(r1, r2, nameSpaces1[i]);
-	CompareInstances(r1, r2, nameSpaces1[i]);
+    CompareQualifiers(r1, r2, nameSpaces1[i]);
+    CompareClasses(r1, r2, nameSpaces1[i]);
+    CompareInstances(r1, r2, nameSpaces1[i]);
     }
 }
 
@@ -219,23 +215,23 @@ int main(int argc, char** argv)
 
     if (argc != 3)
     {
-	fprintf(stderr, 
-	    "Usage: %s repository-root-1 repository-root-2\n", __FILE__);
-	exit(1);
+    fprintf(stderr,
+        "Usage: %s repository-root-1 repository-root-2\n", __FILE__);
+    exit(1);
     }
 
     //
     // Extract repository roots:
     //
 
-    try 
+    try
     {
-	Compare(argv[1], argv[2]);
+    Compare(argv[1], argv[2]);
     }
     catch (Exception& e)
     {
         cout << argv[0] << " " << e.getMessage() << endl;
-	exit(1);
+    exit(1);
     }
 
     if (!failures)
@@ -245,7 +241,8 @@ int main(int argc, char** argv)
     }
     else
     {
-        cerr << argv[0] << ": +++++ There were " << failures << " failures" << endl;
+        cerr << argv[0] << ": +++++ There were " << failures << " failures"
+            << endl;
         return 1;
     }
 }

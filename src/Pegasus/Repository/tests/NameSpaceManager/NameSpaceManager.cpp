@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,17 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1502
-//
 //%/////////////////////////////////////////////////////////////////////////////
 /*
-    This test exercies the methods in NameSapcemanager.h.  It defines a repository
+    This test exercies the methods in NameSapcemanager.h.
+    It defines a repository
     puts namespaces in the repository manipulates them and then deletes the
-    namespaces through the namespacemanager interface.  The method it tests includes:
+    namespaces through the namespacemanager interface.
+    The method it tests includes:
     constructor
     NamespaceAttributes - Incomplete testing at this point
     createNamespace
@@ -106,7 +102,8 @@ void test01()
         {
             String dir (repositoryRoot);
             dir.append("/");
-            dir.append((const char*)_nameSpaceNames [j].getString().getCString());
+            dir.append(
+                (const char*)_nameSpaceNames[j].getString().getCString());
 
             FileSystem::removeDirectoryHier (dir);
             if (verbose)
@@ -126,8 +123,8 @@ void test01()
 
     for (Uint32 i = 0; i < NUM_NAMSPACE_NAMES; i++)
     {
-	PEGASUS_TEST_ASSERT(_nameSpaceNames[i] == nameSpaceNames[i]);
-	PEGASUS_TEST_ASSERT(nsm.nameSpaceExists(nameSpaceNames[i]));
+    PEGASUS_TEST_ASSERT(_nameSpaceNames[i] == nameSpaceNames[i]);
+    PEGASUS_TEST_ASSERT(nsm.nameSpaceExists(nameSpaceNames[i]));
     }
 
     nsm.deleteNameSpace(CIMNamespaceName("lmnop/qrstuv"));
@@ -177,9 +174,9 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    try 
+    try
     {
-	test01();
+    test01();
     }
     catch (Exception& e)
     {

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:  Jenny Yu (jenny_yu@hp.com)
-//               Carol Ann Krug Graves, Hewlett-Packard Company
-//                 (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 /*
     Test basic CIMRepository class functions including:
@@ -43,7 +37,7 @@
     failure of delete of non-existant namespaced
     delete non-empty namespace (should fail)
     putting classes into namespace
-    
+
 */
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
@@ -63,28 +57,29 @@ void test01(Uint32 mode)
 
     try
     {
-	r.createNameSpace(NAMESPACE);
+    r.createNameSpace(NAMESPACE);
     }
     catch (AlreadyExistsException&)
     {
-	// Ignore this!
+    // Ignore this!
     }
 
     CIMClass c(CIMName ("MyClass"));
 
     r.setQualifier(
-	NAMESPACE, CIMQualifierDecl(CIMName ("key"), true, CIMScope::PROPERTY));
+    NAMESPACE, CIMQualifierDecl(CIMName ("key"), true, CIMScope::PROPERTY));
 
     c.addProperty(
-	CIMProperty(CIMName ("key"), Uint32(0))
-	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
-	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
-	.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
+    CIMProperty(CIMName ("key"), Uint32(0))
+        .addQualifier(CIMQualifier(CIMName ("key"), true)))
+    .addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
+    .addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
     r.createClass(NAMESPACE, c);
 
     CIMConstClass cc;
-    cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"), false,true, true);
+    cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"),
+        false,true, true);
 
     PEGASUS_TEST_ASSERT(c.identical(cc));
     PEGASUS_TEST_ASSERT(cc.identical(c));
@@ -105,12 +100,12 @@ void test02(Uint32 mode)
 
     try
     {
-	r.createNameSpace(NAMESPACE);
+    r.createNameSpace(NAMESPACE);
     }
     catch (CIMException& e)
     {
-	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
-	// Ignore this!
+    PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+    // Ignore this!
     }
 
     //--------------------------------------------------------------------------
@@ -120,12 +115,12 @@ void test02(Uint32 mode)
     CIMClass superClass(SUPERCLASS);
 
     superClass
-	.addProperty(CIMProperty(CIMName ("Last"), String())
-	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
-	.addProperty(CIMProperty(CIMName ("First"), String())
-	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
-	.addProperty(CIMProperty(CIMName ("Age"), Uint8(0))
-	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
+    .addProperty(CIMProperty(CIMName ("Last"), String())
+        .addQualifier(CIMQualifier(CIMName ("key"), true)))
+    .addProperty(CIMProperty(CIMName ("First"), String())
+        .addQualifier(CIMQualifier(CIMName ("key"), true)))
+    .addProperty(CIMProperty(CIMName ("Age"), Uint8(0))
+        .addQualifier(CIMQualifier(CIMName ("key"), true)));
 
     r.createClass(NAMESPACE, superClass);
 
@@ -142,10 +137,13 @@ void test02(Uint32 mode)
     //--------------------------------------------------------------------------
 
     CIMInstance subClassInstance(SUBCLASS);
-    subClassInstance.addProperty(CIMProperty(CIMName ("Last"), String("Smith")));
-    subClassInstance.addProperty(CIMProperty(CIMName ("First"), String("John")));
+    subClassInstance.addProperty(CIMProperty(CIMName ("Last"),
+        String("Smith")));
+    subClassInstance.addProperty(CIMProperty(CIMName ("First"),
+        String("John")));
     subClassInstance.addProperty(CIMProperty(CIMName ("Age"), Uint8(101)));
-    subClassInstance.addProperty(CIMProperty(CIMName ("Role"), String("Taylor")));
+    subClassInstance.addProperty(CIMProperty(CIMName ("Role"),
+        String("Taylor")));
     r.createInstance(NAMESPACE, subClassInstance);
 
     //--------------------------------------------------------------------------
@@ -161,15 +159,15 @@ void test02(Uint32 mode)
     //--------------------------------------------------------------------------
     // Miscellaneous tests
     //--------------------------------------------------------------------------
-    
+
     try
     {
-	r.execQuery("WQL", "myquery");
+    r.execQuery("WQL", "myquery");
     }
     catch (CIMException& e)
     {
         // execQuery operation is not supported yet
-		PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
     }
 
     // Test to assure that delete of non-existant namespace
@@ -178,11 +176,11 @@ void test02(Uint32 mode)
     try
     {
         // delete a non-empty namespace
-		r.deleteNameSpace(NAMESPACE);
+        r.deleteNameSpace(NAMESPACE);
     }
     catch (NonEmptyNameSpace&)
     {
-        testFailed=true; 
+        testFailed=true;
     }
     PEGASUS_TEST_ASSERT(testFailed);
 
@@ -207,8 +205,8 @@ void test03(Uint32 mode)
 
     if (!home)
     {
-	cerr << "PEGASUS_HOME environment variable not set" << endl;
-	exit(1);
+    cerr << "PEGASUS_HOME environment variable not set" << endl;
+    exit(1);
     }
 
     String repositoryRoot = home;
@@ -216,24 +214,24 @@ void test03(Uint32 mode)
     CIMRepository r(repositoryRoot, mode);
 
     Array<CIMObjectPath> names = r.associatorNames(
-	CIMNamespaceName ("root/cimv2"),
-	CIMObjectPath ("X.key=\"John Smith\""));
+    CIMNamespaceName ("root/cimv2"),
+    CIMObjectPath ("X.key=\"John Smith\""));
 
-	if (verbose)
-	{
-		for (Uint32 i = 0; i < names.size(); i++)
-		{
-		cout << "names[i]=[" << names[i].toString() << "]" << endl;
-		}
-	}
+    if (verbose)
+    {
+        for (Uint32 i = 0; i < names.size(); i++)
+        {
+        cout << "names[i]=[" << names[i].toString() << "]" << endl;
+        }
+    }
 }
 
 
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    
-	const char* tmpDir = getenv ("PEGASUS_TMP");
+
+    const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
         repositoryRoot = ".";
@@ -244,39 +242,39 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    try 
+    try
     {
       Uint32 mode;
       if (!strcmp(argv[1],"XML") )
-	{
-	  mode = CIMRepository::MODE_XML;
-	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_XML;
+      if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+    }
       else if (!strcmp(argv[1],"BIN") )
-	{
-	  mode = CIMRepository::MODE_BIN;
-	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_BIN;
+      if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+    }
       else
-	{
-	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-	  return 0;
-	}
+    {
+      cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+      return 0;
+    }
 
       test01(mode);
       test02(mode);
 
       // bug 4206 - test03 removed because it usees the repository
-      // in PEGASUS_HOME which should not be done in unit tests. 
-      // Additionally: There is are unit test under the Pegasus/Compiler 
+      // in PEGASUS_HOME which should not be done in unit tests.
+      // Additionally: There is are unit test under the Pegasus/Compiler
       // CompAssoc.cpp and InstAlias.cpp that test associations.
 
       // test03(mode);
     }
     catch (Exception& e)
     {
-	cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
-	exit(1);
+    cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

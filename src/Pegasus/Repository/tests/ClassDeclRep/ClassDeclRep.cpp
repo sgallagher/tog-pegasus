@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -86,8 +81,8 @@ void Test01(Uint32 mode)
     r.createClass(NAMESPACE, class2);
 
     // Enumerate the class names:
-    Array<CIMName> classNames = 
-	r.enumerateClassNames(NAMESPACE, CIMName (), true);
+    Array<CIMName> classNames =
+    r.enumerateClassNames(NAMESPACE, CIMName (), true);
 
     BubbleSort(classNames);
 
@@ -96,27 +91,27 @@ void Test01(Uint32 mode)
     PEGASUS_TEST_ASSERT(CIMName(classNames[0]).equal(CIMName ("Class1")));
     PEGASUS_TEST_ASSERT(CIMName(classNames[1]).equal(CIMName ("Class2")));
 
-	// Get the classes and determine if they are identical with input
+    // Get the classes and determine if they are identical with input
 
-	CIMClass c1 =  r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
-	CIMClass c2 =  r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
+    CIMClass c1 =  r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
+    CIMClass c2 =  r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
 
-	PEGASUS_TEST_ASSERT(c1.identical(class1));
-	PEGASUS_TEST_ASSERT(c1.identical(class1));
+    PEGASUS_TEST_ASSERT(c1.identical(class1));
+    PEGASUS_TEST_ASSERT(c1.identical(class1));
 
-    Array<CIMClass> classes = 
-	r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
+    Array<CIMClass> classes =
+    r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
 
     // Attempt to delete Class1. It should fail since the class has
     // children.
 
     try
     {
-	r.deleteClass(NAMESPACE, CIMName ("Class1"));
+    r.deleteClass(NAMESPACE, CIMName ("Class1"));
     }
     catch (CIMException& e)
     {
-	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
+    PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
     }
 
     // Delete all classes created here:
@@ -136,31 +131,31 @@ void Test01(Uint32 mode)
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    try 
+    try
     {
       Uint32 mode;
       if (!strcmp(argv[1],"XML") )
-	{
-	  mode = CIMRepository::MODE_XML;
-	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_XML;
+      if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+    }
       else if (!strcmp(argv[1],"BIN") )
-	{
-	  mode = CIMRepository::MODE_BIN;
-	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_BIN;
+      if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+    }
       else
-	{
-	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-	  return 0;
-	}
+    {
+      cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+      return 0;
+    }
 
-	Test01(mode);
+    Test01(mode);
     }
     catch (Exception& e)
     {
-	cout << e.getMessage() << endl;
-	exit(1);
+    cout << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

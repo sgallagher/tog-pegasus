@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,12 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Jenny Yu (jenny_yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,21 +56,21 @@ int main(int argc, char** argv)
     //
     AssocClassTable::append(
         assocTablePath,
-	CIMName ("Lineage"),
-	CIMName ("Person"),
-	CIMName ("parent"),
-	CIMName ("Person"),
-	CIMName ("child"));
+    CIMName ("Lineage"),
+    CIMName ("Person"),
+    CIMName ("parent"),
+    CIMName ("Person"),
+    CIMName ("child"));
 
     //
-    // delete class association 
+    // delete class association
     //
     AssocClassTable::deleteAssociation(
         assocTablePath,
         CIMName ("Lineage"));
 
     //
-    // create instance association 
+    // create instance association
     //
     AssocInstTable::append(
         assocTablePath,
@@ -90,11 +84,11 @@ int main(int argc, char** argv)
         CIMName ("right"));
 
     //
-    // delete instance association 
+    // delete instance association
     //
     AssocInstTable::deleteAssociation(
         assocTablePath,
-        CIMObjectPath 
+        CIMObjectPath
             ("A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\""));
 
     cout << argv[0] << " +++++ passed all tests" << endl;

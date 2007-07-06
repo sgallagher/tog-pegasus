@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,11 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +71,7 @@ void TestOpenRepo(Uint32 mode)
 void TestCloseRepo()
 {
   if (verbose) cout << ProgName << "-TestCloseRepo()" << endl;
-  // -- close  repository 
+  // -- close  repository
 
   delete  r;
 
@@ -88,21 +83,21 @@ void TestInitRepo()
 
     try
     {
-	r->createNameSpace(NS);
+    r->createNameSpace(NS);
     }
     catch (AlreadyExistsException&)
     {
-	// Ignore this!
+    // Ignore this!
     }
 
     // -- Declare the key qualifier:
 
-    r->setQualifier(NS, CIMQualifierDecl(CIMName ("key"),true,CIMScope::PROPERTY));
-    r->setQualifier(NS, CIMQualifierDecl(CIMName ("description"),String(),(CIMScope::PROPERTY + CIMScope::CLASS)));
-    r->setQualifier(NS, CIMQualifierDecl(CIMName ("junk"),String(),(CIMScope::PROPERTY + CIMScope::CLASS)));
-
-
-
+    r->setQualifier(NS, CIMQualifierDecl(CIMName ("key"),true,
+            CIMScope::PROPERTY));
+    r->setQualifier(NS, CIMQualifierDecl(CIMName ("description"),String(),
+            (CIMScope::PROPERTY + CIMScope::CLASS)));
+    r->setQualifier(NS, CIMQualifierDecl(CIMName ("junk"),String(),
+            (CIMScope::PROPERTY + CIMScope::CLASS)));
 }
 
 
@@ -114,8 +109,8 @@ void TestCreateClass()
     CIMClass c1(CIMName ("SuperClass"));
     c1.addQualifier(d);
     c1.addProperty(
-		   CIMProperty(CIMName ("key"), Uint32(0))
-		   .addQualifier(CIMQualifier(CIMName ("key"), true)));
+           CIMProperty(CIMName ("key"), Uint32(0))
+           .addQualifier(CIMQualifier(CIMName ("key"), true)));
 
     c1.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
     c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
@@ -128,21 +123,21 @@ void TestCreateClass()
     PEGASUS_TEST_ASSERT(cc1.identical(c1));
 
     // -- Now create a sub class (get it back and compare):
-	// c22 has one additional property than c1 (junk)
+    // c22 has one additional property than c1 (junk)
 
     CIMClass c2(CIMName ("SubClass"), CIMName ("SuperClass"));
-	// Add new qualifier that will be local
-	CIMQualifier j(CIMName("junk"), String("TestQualifier"));
-	c2.addQualifier(j);
+    // Add new qualifier that will be local
+    CIMQualifier j(CIMName("junk"), String("TestQualifier"));
+    c2.addQualifier(j);
 
     c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
     r->createClass(NS, c2);
     CIMConstClass cc2;
     cc2 = r->getClass(NS, CIMName ("SubClass"), false, true, true);
-	//XmlWriter::printClassElement(c2);
-	//XmlWriter::printClassElement(cc2);
-    
-	PEGASUS_TEST_ASSERT(c2.identical(cc2));
+    //XmlWriter::printClassElement(c2);
+    //XmlWriter::printClassElement(cc2);
+
+    PEGASUS_TEST_ASSERT(c2.identical(cc2));
     PEGASUS_TEST_ASSERT(cc2.identical(c2));
 
     // -- Modify "SubClass" (add new property)
@@ -162,15 +157,15 @@ void TestEnumerateClass()
     // -- Enumerate the class names: expect "SuperClass", "SubClass"
 
     Array<CIMName> classNames = r->enumerateClassNames(NS, CIMName (), true);
-	if (verbose)
-	{
-	  cout << ProgName << "-Enumerated class names: ";
-		for (Uint32 i = 0 ; i < classNames.size(); i++)
-		{
-		  cout << classNames[i].getString() << ", ";
-		}
-	  cout << endl;
-	}
+    if (verbose)
+    {
+      cout << ProgName << "-Enumerated class names: ";
+        for (Uint32 i = 0 ; i < classNames.size(); i++)
+        {
+          cout << classNames[i].getString() << ", ";
+        }
+      cout << endl;
+    }
 
     BubbleSort(classNames);
     PEGASUS_TEST_ASSERT(classNames.size() == 2);
@@ -257,18 +252,18 @@ void TestEnumerateInstance(Uint32 num)
   if (verbose) cout << ProgName << "-TestEnumerateInstance()" << endl;
 
     // -- Enumerate instances names:
-    Array<CIMObjectPath> instanceNames = 
-	r->enumerateInstanceNamesForSubtree(NS, CIMName ("SuperClass"));
+    Array<CIMObjectPath> instanceNames =
+    r->enumerateInstanceNamesForSubtree(NS, CIMName ("SuperClass"));
 
-	if (verbose)
-	{
-	  cout << ProgName << "-Enumerated instance names: ";
-		for (Uint32 i = 0 ; i < instanceNames.size(); i++)
-		{
-		  cout << instanceNames[i].toString() << ", ";
-		}
-	  cout << endl;
-	}
+    if (verbose)
+    {
+      cout << ProgName << "-Enumerated instance names: ";
+        for (Uint32 i = 0 ; i < instanceNames.size(); i++)
+        {
+          cout << instanceNames[i].toString() << ", ";
+        }
+      cout << endl;
+    }
 
     PEGASUS_TEST_ASSERT(instanceNames.size() == num*2);
 
@@ -284,15 +279,15 @@ void TestEnumerateInstances(Uint32 num)
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose
-	if (verbose)
-	{
-	  cout << ProgName << "-Enumerated instance names: ";
-		for (Uint32 i = 0 ; i < namedInstances.size(); i++)
-		{
-		  cout << ((CIMObject )namedInstances[i]).toString() << ", ";
-		}
-	  cout << endl;
-	}
+    if (verbose)
+    {
+      cout << ProgName << "-Enumerated instance names: ";
+        for (Uint32 i = 0 ; i < namedInstances.size(); i++)
+        {
+          cout << ((CIMObject )namedInstances[i]).toString() << ", ";
+        }
+      cout << endl;
+    }
 #endif
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == num*2);
@@ -306,38 +301,38 @@ void TestEnumerateInstancesForClass(Uint32 num)
 
     // test the enumerateInstancesForClass function
 
-    Array<CIMInstance>  namedInstances = r->enumerateInstancesForClass(NS, 
+    Array<CIMInstance>  namedInstances = r->enumerateInstancesForClass(NS,
         CIMName("SuperClass"), false, true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose
-	if (verbose)
-	{
-	  cout << ProgName << "-Enumerated instancs for Class-SuperClass: ";
-		for (Uint32 i = 0 ; i < namedInstances.size(); i++)
-		{
-		  cout << ((CIMObject )namedInstances[i]).toString() << ", ";
-		}
-	  cout << endl;
-	}
+    if (verbose)
+    {
+      cout << ProgName << "-Enumerated instancs for Class-SuperClass: ";
+        for (Uint32 i = 0 ; i < namedInstances.size(); i++)
+        {
+          cout << ((CIMObject )namedInstances[i]).toString() << ", ";
+        }
+      cout << endl;
+    }
 #endif
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == num);
 
-    namedInstances = r->enumerateInstancesForClass(NS, 
+    namedInstances = r->enumerateInstancesForClass(NS,
         CIMName("SubClass"), false, true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose
-	if (verbose)
-	{
-	  cout << ProgName << "-Enumerated instancs for Class-SubClass: ";
-		for (Uint32 i = 0 ; i < namedInstances.size(); i++)
-		{
-		  cout << ((CIMObject )namedInstances[i]).toString() << ", ";
-		}
-	  cout << endl;
-	}
+    if (verbose)
+    {
+      cout << ProgName << "-Enumerated instancs for Class-SubClass: ";
+        for (Uint32 i = 0 ; i < namedInstances.size(); i++)
+        {
+          cout << ((CIMObject )namedInstances[i]).toString() << ", ";
+        }
+      cout << endl;
+    }
 #endif
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == num);
@@ -352,11 +347,11 @@ void TestQualifiers()
 
     try
     {
-	r->createNameSpace(NS);
+    r->createNameSpace(NS);
     }
     catch (AlreadyExistsException&)
     {
-	// Ignore this!
+    // Ignore this!
     }
 
     // -- Construct a qualifier declaration:
@@ -394,91 +389,97 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    try 
+    try
     {
       Uint32 mode;
       Uint32 modeother;
       int mixed_mode;
 
       if (!strcmp(argv[1],"XML") )
-	{
-	  mode = CIMRepository::MODE_XML;
-	  modeother = CIMRepository::MODE_BIN;
-	  mixed_mode = 0;
-	  if (verbose) cout << ProgName<< ": Single test using XML mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_XML;
+      modeother = CIMRepository::MODE_BIN;
+      mixed_mode = 0;
+      if (verbose) cout << ProgName<< ": Single test using XML mode repository"
+                        << endl;
+    }
       else if (!strcmp(argv[1],"BIN") )
-	{
-	  mode = CIMRepository::MODE_BIN;
-	  modeother = CIMRepository::MODE_XML;
-	  mixed_mode = 0;
-	  if (verbose) cout << ProgName<< ": Single test using BIN mode repository" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_BIN;
+      modeother = CIMRepository::MODE_XML;
+      mixed_mode = 0;
+      if (verbose) cout << ProgName<< ": Single test using BIN mode repository"
+                        << endl;
+    }
       else if (!strcmp(argv[1],"XMLMIX") )
-	{
-	  mode = CIMRepository::MODE_XML;
-	  modeother = CIMRepository::MODE_BIN;
-	  mixed_mode = 1;
-	  if (verbose) cout << ProgName<< ": Mixed test using XML mode repository first" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_XML;
+      modeother = CIMRepository::MODE_BIN;
+      mixed_mode = 1;
+      if (verbose) cout << ProgName
+                        << ": Mixed test using XML mode repository first"
+                        << endl;
+    }
       else if (!strcmp(argv[1],"BINMIX") )
-	{
-	  mode = CIMRepository::MODE_BIN;
-	  modeother = CIMRepository::MODE_XML;
-	  mixed_mode = 1;
-	  if (verbose) cout << ProgName<< ": Mixed test using BIN mode repository first" << endl;
-	}
+    {
+      mode = CIMRepository::MODE_BIN;
+      modeother = CIMRepository::MODE_XML;
+      mixed_mode = 1;
+      if (verbose) cout << ProgName
+                        << ": Mixed test using BIN mode repository first"
+                        << endl;
+    }
       else
-	{
-	  cout << ProgName<< ": invalid argument: " << argv[1] << endl;
-	  return 0;
-	}
+    {
+      cout << ProgName<< ": invalid argument: " << argv[1] << endl;
+      return 0;
+    }
 
       TestOpenRepo(mode);
       TestInitRepo();
       TestCreateClass();
       TestEnumerateClass();
       TestCreateInstance1();
-      if (mixed_mode) 
-	{
-	  TestCloseRepo();
-	  TestOpenRepo(modeother);
-	}
+      if (mixed_mode)
+    {
+      TestCloseRepo();
+      TestOpenRepo(modeother);
+    }
 
       TestCreateInstance2();
 
-      if (mixed_mode) 
-	{
-	  TestCloseRepo();
-	  TestOpenRepo(mode);
-	}
+      if (mixed_mode)
+    {
+      TestCloseRepo();
+      TestOpenRepo(mode);
+    }
 
       TestCreateInstance3();
 
-      if (mixed_mode) 
-	{
-	  TestCloseRepo();
-	  TestOpenRepo(modeother);
-	}
+      if (mixed_mode)
+    {
+      TestCloseRepo();
+      TestOpenRepo(modeother);
+    }
       TestCreateInstance4();
 
-      if (mixed_mode) 
-	{
-	  TestCloseRepo();
-	  TestOpenRepo(mode);
-	}
+      if (mixed_mode)
+    {
+      TestCloseRepo();
+      TestOpenRepo(mode);
+    }
 
       TestCreateInstance5();
       TestEnumerateInstance(5);
-      TestEnumerateInstances(5);      
-      TestEnumerateInstancesForClass(5);      
+      TestEnumerateInstances(5);
+      TestEnumerateInstancesForClass(5);
       TestQualifiers();
 
     }
     catch (const Exception& e)
     {
-	cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
-	exit(1);
+    cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << ProgName << " " << argv[1] << " +++++ passed all tests" << endl;

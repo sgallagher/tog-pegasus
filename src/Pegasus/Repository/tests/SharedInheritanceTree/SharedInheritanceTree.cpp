@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Adrian Schuur (schuur@de.ibm.com)
-//
-// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/PegasusAssert.h>
@@ -155,15 +151,18 @@ void test01(NameSpaceManager& nsm)
      Srw1Ns1SubClasses.append("Sub2Class1Sns1");
      Class1Sns1SubClasses.append("Sub2Class1Sns1");
 
-    nsm.createClass (arr1[1], "Sub3Sub1Class2Ns1", CIMName("Sub1Class2Ns1"), outPath); //
+    nsm.createClass (arr1[1], "Sub3Sub1Class2Ns1",
+            CIMName("Sub1Class2Ns1"), outPath); //
      Srw1Ns1SubClasses.append("Sub3Sub1Class2Ns1");
      Class2Ns1SubClasses.append("Sub3Sub1Class2Ns1");
 
-    nsm.createClass (arr1[1], "Sub4Sub1Class2Ns1", CIMName("Sub1Class2Ns1"), outPath); //
+    nsm.createClass (arr1[1], "Sub4Sub1Class2Ns1", CIMName("Sub1Class2Ns1"),
+        outPath); //
      Srw1Ns1SubClasses.append("Sub4Sub1Class2Ns1");
      Class2Ns1SubClasses.append("Sub4Sub1Class2Ns1");
 
-    nsm.createClass (arr1[1], "Sub1Sub4Sub1Class2Ns1", CIMName("Sub4Sub1Class2Ns1"), outPath);
+    nsm.createClass (arr1[1], "Sub1Sub4Sub1Class2Ns1",
+        CIMName("Sub4Sub1Class2Ns1"), outPath);
      Srw1Ns1SubClasses.append("Sub1Sub4Sub1Class2Ns1");
      Class2Ns1SubClasses.append("Sub1Sub4Sub1Class2Ns1");
      Sub1Sub4Sub1Class2Ns1SuperClasses.append("Sub4Sub1Class2Ns1");
@@ -177,7 +176,8 @@ void test02(NameSpaceManager& nsm) {
     nsm.getSubClassNames(arr1[0],CIMName(),true,classNames);
 
     BubbleSort(classNames);
-    if (verbose) cout<<"------- SubClassNames deepInheritance "<<arr1[0].getString()<<endl;
+    if (verbose) cout<<"------- SubClassNames deepInheritance "
+        <<arr1[0].getString()<<endl;
     if (verbose) for (int i=0, m=classNames.size(); i<m; i++) {
        cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
@@ -187,7 +187,8 @@ void test02(NameSpaceManager& nsm) {
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName(),false,classNames);
     BubbleSort(classNames);
-    if (verbose) cout<<"------- SubClassNames No-deepInheritance "<<arr1[1].getString()<<endl;
+    if (verbose) cout<<"------- SubClassNames No-deepInheritance "
+        <<arr1[1].getString()<<endl;
     for (int i=0, m=classNames.size(); i<m; i++) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
@@ -197,7 +198,8 @@ void test02(NameSpaceManager& nsm) {
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName(),true,classNames);
     BubbleSort(classNames);
-    if (verbose) cout<<"------- SubClassNames deepInheritance "<<arr1[1].getString()<<endl;
+    if (verbose) cout<<"------- SubClassNames deepInheritance "
+        <<arr1[1].getString()<<endl;
     for (int i=0, m=classNames.size(); i<m; i++) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
@@ -207,7 +209,8 @@ void test02(NameSpaceManager& nsm) {
     classNames.clear();
     nsm.getSubClassNames(arr1[2],CIMName(),true,classNames);
     BubbleSort(classNames);
-    if (verbose) cout<<"------- SubClassNames deepInheritance "<<arr1[2].getString()<<endl;
+    if (verbose) cout<<"------- SubClassNames deepInheritance "
+        <<arr1[2].getString()<<endl;
     for (int i=0, m=classNames.size(); i<m; i++) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
@@ -217,7 +220,8 @@ void test02(NameSpaceManager& nsm) {
     classNames.clear();
     nsm.getSubClassNames(arr1[3],CIMName(),true,classNames);
     BubbleSort(classNames);
-    if (verbose) cout<<"------- SubClassNames deepInheritance "<<arr1[3].getString()<<endl;
+    if (verbose) cout<<"------- SubClassNames deepInheritance "
+        <<arr1[3].getString()<<endl;
     for (int i=0, m=classNames.size(); i<m; i++) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
@@ -227,7 +231,8 @@ void test02(NameSpaceManager& nsm) {
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName("Class2Ns1"),true,classNames);
     BubbleSort(classNames);
-    if (verbose) cout<<"------- SubClassNames deepInheritance Class2Ns1 "<<arr1[1].getString()<<endl;
+    if (verbose) cout<<"------- SubClassNames deepInheritance Class2Ns1 "
+        <<arr1[1].getString()<<endl;
     for (int i=0, m=classNames.size(); i<m; i++) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
@@ -237,7 +242,8 @@ void test02(NameSpaceManager& nsm) {
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName("Class1Sns1"),true,classNames);
     BubbleSort(classNames);
-    if (verbose) cout<<"------- SubClassNames deepInheritance Class1Sns11 "<<arr1[1].getString()<<endl;
+    if (verbose) cout<<"------- SubClassNames deepInheritance Class1Sns11 "
+        <<arr1[1].getString()<<endl;
     for (int i=0, m=classNames.size(); i<m; i++) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
@@ -271,12 +277,12 @@ int main(int argc, char** argv)
     NameSpaceManager nsm (repositoryRoot);
 
     try {
-	createNameSpaces(nsm);
+    createNameSpaces(nsm);
         test01(nsm);
         test02(nsm);
     }
     catch (Exception& e) {
-	cout << argv[0] << " " << e.getMessage() << endl;
+    cout << argv[0] << " " << e.getMessage() << endl;
         exit (1);
     }
 

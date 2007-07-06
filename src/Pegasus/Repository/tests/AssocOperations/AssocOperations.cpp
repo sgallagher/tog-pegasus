@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,12 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author: Karl Schopmeyer(k.schopmeyer@inovadevelopment.com)
-//
-// Modified By:  
-//               
-//
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /*
@@ -68,21 +62,21 @@ void test01BuildClasses(CIMRepository& repository)
 {
     repository.createNameSpace(NAMESPACE);
     repository.setQualifier(
-	NAMESPACE, CIMQualifierDecl(CIMName ("key"), true, 
-                                    (CIMScope::PROPERTY + CIMScope::REFERENCE)));
+    NAMESPACE, CIMQualifierDecl(CIMName ("key"), true,
+        (CIMScope::PROPERTY + CIMScope::REFERENCE)));
 
     repository.setQualifier(
-	NAMESPACE, CIMQualifierDecl(CIMName ("association"), true,
-                                    (CIMScope::ASSOCIATION  + CIMScope::CLASS)));
+    NAMESPACE, CIMQualifierDecl(CIMName ("association"), true,
+        (CIMScope::ASSOCIATION  + CIMScope::CLASS)));
 
     // create the target Class
     CIMClass ct(targetClass);
 
     ct.addProperty(
-	CIMProperty(CIMName ("key"), Uint32(0))
-	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
-	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
-	.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
+    CIMProperty(CIMName ("key"), Uint32(0))
+        .addQualifier(CIMQualifier(CIMName ("key"), true)))
+    .addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
+    .addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
     repository.createClass(NAMESPACE, ct);
 
@@ -90,10 +84,10 @@ void test01BuildClasses(CIMRepository& repository)
     CIMClass ce(associatedClass);
 
     ce.addProperty(
-	CIMProperty(CIMName ("key"), Uint32(0))
-	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
-	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
-	.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
+    CIMProperty(CIMName ("key"), Uint32(0))
+        .addQualifier(CIMQualifier(CIMName ("key"), true)))
+    .addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
+    .addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
     repository.createClass(NAMESPACE, ce);
 
@@ -104,58 +98,61 @@ void test01BuildClasses(CIMRepository& repository)
         .addQualifier(CIMQualifier(CIMName ("Association"), Boolean(true)))
 
         .addProperty(
-            CIMProperty(CIMName ("ref1"), 
-                CIMObjectPath("targetClass"),0, 
+            CIMProperty(CIMName ("ref1"),
+                CIMObjectPath("targetClass"),0,
                 CIMName (targetClass))
                     .addQualifier(CIMQualifier(CIMName ("key"), true)))
-        
+
         .addProperty(
-            CIMProperty(CIMName ("ref2"), 
-                CIMObjectPath("associatedClass"), 0, 
+            CIMProperty(CIMName ("ref2"),
+                CIMObjectPath("associatedClass"), 0,
                 CIMName (associatedClass))
                     .addQualifier(CIMQualifier(CIMName ("key"), true)))
                 ;
 
     repository.createClass(NAMESPACE, ca);
-}   
+}
 
 // test all 4 of the associator operations against the classes
 void test02TestClassOperations(CIMRepository& repository)
 {
     Array<CIMObjectPath> paths = repository.referenceNames(NAMESPACE,
-                                                  CIMObjectPath(String(),
-                                                                CIMNamespaceName(),
-                                                                targetClass));
+        CIMObjectPath(String(),
+        CIMNamespaceName(),
+        targetClass));
 
     PEGASUS_TEST_ASSERT(paths.size() == 1);
     if (verbose)
     {
-        cout << paths[0].toString() << " " << associationClass 
+        cout << paths[0].toString() << " " << associationClass
             << " " << paths[0].getClassName().getString() << endl;
     }
 
     // Test if the string value of the class name is the same.  This insures
     // that the case is also the same.
-    PEGASUS_TEST_ASSERT(paths[0].getClassName().getString() == associationClass);
+    PEGASUS_TEST_ASSERT(
+        paths[0].getClassName().getString() == associationClass);
 
     Array<CIMObject> objects = repository.references(NAMESPACE,
-                                CIMObjectPath(String(),CIMNamespaceName(), targetClass));
+        CIMObjectPath(String(),CIMNamespaceName(), targetClass));
 
     PEGASUS_TEST_ASSERT(objects.size() == 1);
     PEGASUS_TEST_ASSERT(objects[0].getClassName() == associationClass);
 
     Array<CIMObjectPath> paths2 = repository.associatorNames(NAMESPACE,
-                                CIMObjectPath(String(),CIMNamespaceName(), targetClass));
+        CIMObjectPath(String(),CIMNamespaceName(), targetClass));
 
     PEGASUS_TEST_ASSERT(paths2.size() == 1);
-    PEGASUS_TEST_ASSERT(paths2[0].getClassName().getString() == associatedClass);
+    PEGASUS_TEST_ASSERT(
+        paths2[0].getClassName().getString() == associatedClass);
 
 
     Array<CIMObject> objects2 = repository.associators(NAMESPACE,
-                                CIMObjectPath(String(),CIMNamespaceName(), targetClass));
+        CIMObjectPath(String(),CIMNamespaceName(), targetClass));
 
     PEGASUS_TEST_ASSERT(objects2.size() == 1);
-    PEGASUS_TEST_ASSERT(objects2[0].getClassName().getString() == associatedClass);
+    PEGASUS_TEST_ASSERT(
+            objects2[0].getClassName().getString() == associatedClass);
 }
 
 // test all 4 of the associator operations against the classes
@@ -167,7 +164,7 @@ void test03AddInstances(CIMRepository& repository)
     CIMClass ce = repository.getClass(NAMESPACE,associatedClass);
 
     // Create an instance for each class
-    // 
+    //
     CIMInstance it = ct.buildInstance(true,true, CIMPropertyList());
     CIMInstance ia = ca.buildInstance(true,true, CIMPropertyList());
     CIMInstance ie = ce.buildInstance(true,true, CIMPropertyList());
@@ -213,7 +210,7 @@ void test03AddInstances(CIMRepository& repository)
 void test04TestAssociationInstances(CIMRepository& repository)
 {
 
-    // Test referenceNames 
+    // Test referenceNames
     CIMObjectPath targetInstancePath(saveCTPath);
     Array<CIMObjectPath> paths = repository.referenceNames(NAMESPACE,
                                                   targetInstancePath);
@@ -227,11 +224,13 @@ void test04TestAssociationInstances(CIMRepository& repository)
 
     // Test references.
 
-    Array<CIMObject> objects = repository.references(NAMESPACE,targetInstancePath);
+    Array<CIMObject> objects =
+        repository.references(NAMESPACE,targetInstancePath);
 
     PEGASUS_TEST_ASSERT(objects.size() == 1);
 
-    PEGASUS_TEST_ASSERT(objects[0].getClassName().getString() == associationClass);
+    PEGASUS_TEST_ASSERT(
+        objects[0].getClassName().getString() == associationClass);
 
     // Test Associator Names
 
@@ -244,12 +243,13 @@ void test04TestAssociationInstances(CIMRepository& repository)
     objects = repository.associators(NAMESPACE, targetInstancePath);
 
     PEGASUS_TEST_ASSERT(objects.size() == 1);
-    PEGASUS_TEST_ASSERT(objects[0].getClassName().getString() == associatedClass);
+    PEGASUS_TEST_ASSERT(
+        objects[0].getClassName().getString() == associatedClass);
 }
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    
+
     String repositoryRoot;
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
@@ -263,17 +263,19 @@ int main(int argc, char** argv)
     repositoryRoot.append("/repository");
 
     Uint32 mode;
-    try 
+    try
     {
         if (!strcmp(argv[1],"XML") )
         {
             mode = CIMRepository::MODE_XML;
-            if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+            if (verbose) cout << argv[0]<< ": using XML mode repository"
+                << endl;
         }
         else if (!strcmp(argv[1],"BIN") )
         {
             mode = CIMRepository::MODE_BIN;
-            if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+            if (verbose) cout << argv[0]<< ": using BIN mode repository"
+                << endl;
         }
         else
         {
@@ -281,7 +283,7 @@ int main(int argc, char** argv)
             return 0;
         }
         CIMRepository r (repositoryRoot, mode);
-        
+
         test01BuildClasses(r);
 
         test02TestClassOperations(r);
@@ -290,8 +292,8 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-	cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
-	exit(1);
+    cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

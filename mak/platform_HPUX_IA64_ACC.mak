@@ -46,7 +46,7 @@ endif
 FLAGS += +Z +DD64 -AA -mt -Wl,+rpathfirst
 
 ifdef PEGASUS_PAM_AUTHENTICATION
-  SYS_LIBS += -L$(PAMLIB_HOME) -lpam
+    SYS_LIBS += -lpam
 endif
 
 ##

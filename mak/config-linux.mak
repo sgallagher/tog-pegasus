@@ -99,18 +99,13 @@ SYS_LIBS = -ldl -lpthread -lcrypt
 
 # PAM support
 ifdef PEGASUS_PAM_AUTHENTICATION
-   ifeq ($(HPUX_IA64_VERSION), yes)
-      SYS_LIBS += -L$(PAMLIB_HOME) -lpam
-   else
-      SYS_LIBS += -lpam
-   endif
+    SYS_LIBS += -lpam
 
-## The following flags need to be set or unset
-## to compile-in the code required for PAM authentication
-## and compile-out the code that uses the password file.
+    ## The following flags need to be set or unset
+    ## to compile-in the code required for PAM authentication
+    ## and compile-out the code that uses the password file.
 
- DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
-
+    DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
 endif
 
 FLAGS += -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT

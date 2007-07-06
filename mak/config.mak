@@ -939,16 +939,3 @@ else
 	PEGASUS_JAVA_JAR		= jar
 	PEGASUS_JAVA_INTERPRETER	= java
 endif
-
-##==============================================================================
-##
-## Pegasus WMI-Mapper
-##
-##==============================================================================
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
-    ifndef MSSdk
-      $(error MSSdk environment variable undefined)
-    endif
-  endif
-endif

@@ -230,3 +230,26 @@ endif
 endif
 
 PEGASUS_JAVA_CLASSPATH_DELIMITER = ;
+
+
+##################################
+##
+## Pegasus WMIMapper
+## 
+##################################
+
+ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
+  FLAGS += -DPEGASUS_WMIMAPPER
+else 
+  ifdef PEGASUS_WMIMAPPER
+    FLAGS += -DPEGASUS_WMIMAPPER
+  endif   
+endif
+
+ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
+  ifndef MSSdk
+    $(error MSSdk environment variable undefined)
+  endif
+endif
+
+

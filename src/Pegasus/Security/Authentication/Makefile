@@ -34,10 +34,6 @@ DIR = Pegasus/Security/Authentication
 
 include $(ROOT)/mak/config.mak
 
-ifdef PEGASUS_WMIMAPPER
-  FLAGS += -DPEGASUS_WMIMAPPER
-endif
-
 LOCAL_DEFINES = -DPEGASUS_SECURITY_INTERNAL -DPEGASUS_INTERNALONLY
 
 STATIC=1

@@ -30,6 +30,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+// NOCHKSRC
 
 #include "JMPIProviderManager.h"
 
@@ -6252,9 +6253,18 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                                                                             *pr._cimom_handle);
            srec->qContext = qContext;
 
-           CIMObjectPath sPath (request->subscriptionInstance.getPath ().getClassName ().getString ());
+           CIMObjectPath        sPath = request->subscriptionInstance.getPath ();
+           Array<CIMKeyBinding> kb;
 
-           sPath.setNameSpace (request->subscriptionInstance.getPath ().getNameSpace ());
+           // Technically we only need Name and Handler for uniqueness
+           kb = sPath.getKeyBindings ();
+
+           // Add an entry for every provider.
+           kb.append (CIMKeyBinding ("Provider",
+                                     pr.getName (),
+                                     CIMKeyBinding::STRING));
+
+           sPath.setKeyBindings (kb);
 
            AutoMutex lock (mutexSelxTab);
 
@@ -6518,9 +6528,18 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         }
 
         {
-           CIMObjectPath sPath (request->subscriptionInstance.getPath ().getClassName ().getString ());
+           CIMObjectPath        sPath = request->subscriptionInstance.getPath ();
+           Array<CIMKeyBinding> kb;
 
-           sPath.setNameSpace (request->subscriptionInstance.getPath ().getNameSpace ());
+           // Technically we only need Name and Handler for uniqueness
+           kb = sPath.getKeyBindings ();
+
+           // Add an entry for every provider.
+           kb.append (CIMKeyBinding ("Provider",
+                                     pr.getName (),
+                                     CIMKeyBinding::STRING));
+
+           sPath.setKeyBindings (kb);
 
            String sPathString = sPath.toString ();
 
@@ -6528,7 +6547,10 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
            DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: Removing selxTab "<<sPathString<<PEGASUS_STD(endl));
 
-           selxTab.lookup (sPathString, srec);
+           if (!selxTab.lookup (sPathString, srec))
+           {
+               PEGASUS_ASSERT(0);
+           }
 
            DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteSubscriptionRequest: For selxTab "<<sPathString<<", srec = "<<PEGASUS_STD(hex)<<(long)srec<<PEGASUS_STD(dec)<<", qContext = "<<PEGASUS_STD(hex)<<(long)srec->qContext<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
 

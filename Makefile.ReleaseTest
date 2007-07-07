@@ -115,9 +115,9 @@ POSTSTARTTEST_CMDS = \
    $(PEGASUS_TEST_DIR)/bin/TestClient@@-local \
    $(PEGASUS_TEST_DIR)/bin/TestOSTestClient \
    $(PEGASUS_TEST_DIR)/bin/TestPegClientInvokeMethod2 \
-   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@setup@@WQL \
-   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@run@@100@@1 \
-   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@cleanup
+   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@setup@@WQL \
+   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@run@@100@@1 \
+   $(PEGASUS_TEST_DIR)/bin/TestIndicationStressTest@@IndicationStressTestClass@@test/TestProvider@@cleanup
 
 TESTSUITE_CMDS_1 = \
    $(MAKE)@@poststarttests

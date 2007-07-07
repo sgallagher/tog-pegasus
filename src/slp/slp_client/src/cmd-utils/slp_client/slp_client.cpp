@@ -28,6 +28,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+// NOCHKSRC
 /*****************************************************************************
  *  Description:
  *
@@ -160,6 +161,13 @@ static void _debug_print(int dc, const char* format, ...)
 /*********************************************************************/
 /*********************************************************************/
 
+// Bug 6545 added the LSLP_REUSEADDR macro because SO_REUSEADDR behaves
+// differently on AIX versus other POSIX platforms.
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#define LSLP_REUSEADDR SO_REUSEPORT
+#else
+#define LSLP_REUSEADDR SO_REUSEADDR
+#endif
 
 #ifdef _WIN32
  int _winsock_count = 0;
@@ -800,7 +808,7 @@ SOCKETD slp_open_listen_sock( void )       //jeb
   DEBUG_PRINT((DEBUG_ENTER, "slp_open_listen_sock "));
 
 #ifndef NUCLEUS    //jeb not supported
-  _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err));
+  _LSLP_SETSOCKOPT(sock, SOL_SOCKET, LSLP_REUSEADDR, (const char *)&err, sizeof(err));
 #endif
   local.sin_family = AF_INET;
   local.sin_port = htons(427);
@@ -861,7 +869,7 @@ void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, char response,
       SOCKADDR_IN local;
       int err = 1;
 #ifndef NUCLEUS
-      _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
+      _LSLP_SETSOCKOPT(sock, SOL_SOCKET, LSLP_REUSEADDR, (const char *)&err, sizeof(err) );
 #endif
       local.sin_family = AF_INET;
       local.sin_port = client->_target_port ;
@@ -2216,7 +2224,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	SOCKADDR_IN local;
 	int err = 1;
 #ifndef NUCLEUS
-	_LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
+	_LSLP_SETSOCKOPT(sock, SOL_SOCKET, LSLP_REUSEADDR, (const char *)&err, sizeof(err) );
 #endif	
 	local.sin_family = AF_INET;
 	local.sin_port = client->_target_port ;
@@ -2385,7 +2393,7 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
   if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
     int err = 1;
 #ifndef NUCLEUS    //jeb
-    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
+    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, LSLP_REUSEADDR, (const char *)&err, sizeof(err) );
     local.sin_port = 0;
 #else
       local.sin_port = 427;  for loopback to work the first time client inits
@@ -3310,7 +3318,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		    SOCKADDR_IN local;
 		    int err = 1;
 #ifndef NUCLEUS
-		    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
+		    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, LSLP_REUSEADDR, (const char *)&err, sizeof(err) );
 #endif		
 		    local.sin_family = AF_INET;
 		    local.sin_port = client->_target_port ;

@@ -360,7 +360,7 @@ Boolean SLPAttrib::fillData(String protocol)
             }
         }
 
-        if (instances.size() > 0)
+        if (registeredProfiles.size() > 0)
         {
             len = registeredProfiles.size();
             registeredProfiles.remove( len-1,1);

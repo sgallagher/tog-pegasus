@@ -319,7 +319,6 @@ String System::getFullyQualifiedHostName ()
         fqName.assign(hostName);
     }
     freeaddrinfo(resolv);
-    delete resolv;
 
     return fqName;
 

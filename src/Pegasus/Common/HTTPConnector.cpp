@@ -63,7 +63,7 @@ static Boolean _MakeAddress(
     const char* hostname,
     int port,
     sockaddr_in& address,
-    void **addr_info)
+    void **addrInfoRoot)
 {
     if (!hostname)
         return false;
@@ -103,7 +103,7 @@ static Boolean _MakeAddress(
     {
         return false;
     }
-    *addr_info = result;
+    *addrInfoRoot = result;
 #else
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,12 +320,12 @@ HTTPConnection* HTTPConnector::connect(
 
         // Make the internet address:
 #ifdef PEGASUS_ENABLE_IPV6
-        struct addrinfo *addr_info;
+        struct addrinfo *addrInfo, *addrInfoRoot;
 #endif
         sockaddr_in address;
         if (!_MakeAddress((const char*)host.getCString(), portNumber, address,
 #ifdef PEGASUS_ENABLE_IPV6
-             (void**)&addr_info
+             (void**)&addrInfoRoot
 #else
              0
 #endif
@@ -338,16 +338,20 @@ HTTPConnection* HTTPConnector::connect(
         }
 
 #ifdef PEGASUS_ENABLE_IPV6
-        while (addr_info)
+        addrInfo = addrInfoRoot;
+        while (addrInfo)
         {   
             // Create the socket:
-            socket = Socket::createSocket(addr_info->ai_family, 
-                addr_info->ai_socktype, addr_info->ai_protocol);
+            socket = Socket::createSocket(addrInfo->ai_family, 
+                addrInfo->ai_socktype, addrInfo->ai_protocol);
 #else
             socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
             if (socket == PEGASUS_INVALID_SOCKET)
             {
+#ifdef PEGASUS_ENABLE_IPV6
+                freeaddrinfo(addrInfoRoot);
+#endif
                 PEG_METHOD_EXIT();
                 throw CannotCreateSocketException();
             }
@@ -356,8 +360,8 @@ HTTPConnection* HTTPConnector::connect(
         // Conect the socket to the address:
 #ifdef PEGASUS_ENABLE_IPV6
             if (::connect(socket,
-                reinterpret_cast<sockaddr*>(addr_info->ai_addr),
-                addr_info->ai_addrlen) < 0)
+                reinterpret_cast<sockaddr*>(addrInfo->ai_addr),
+                addrInfo->ai_addrlen) < 0)
 #else
             if (::connect(socket,
                 reinterpret_cast<sockaddr*>(&address),
@@ -365,8 +369,8 @@ HTTPConnection* HTTPConnector::connect(
 #endif
             {
 #ifdef PEGASUS_ENABLE_IPV6
-                addr_info = addr_info->ai_next;
-                if (addr_info)
+                addrInfo = addrInfo->ai_next;
+                if (addrInfo)
                 {
                     Socket::close(socket);
                     continue;
@@ -380,13 +384,16 @@ HTTPConnection* HTTPConnector::connect(
                 host,
                 portStr);
             Socket::close(socket);
+#ifdef PEGASUS_ENABLE_IPV6
+            freeaddrinfo(addrInfoRoot);
+#endif
             PEG_METHOD_EXIT();
             throw CannotConnectException(parms);
         }
 #ifdef PEGASUS_ENABLE_IPV6
             break;
         }
-        freeaddrinfo(addr_info);
+        freeaddrinfo(addrInfoRoot);
 #endif
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET

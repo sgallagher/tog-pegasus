@@ -53,8 +53,8 @@ PEGASUS_NAMESPACE_BEGIN
 // set current operations to 1 to prevent an unload
 // until the provider has had a chance to initialize
 CMPIProvider::CMPIProvider(const String & name,
-		   CMPIProviderModule *module,
-		   ProviderVector *mv)
+    CMPIProviderModule *module,
+    ProviderVector *mv)
    : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
      _no_unload(0), _rm(0), _threadWatchList(), _cleanedThreads()
 
@@ -106,7 +106,7 @@ String CMPIProvider::getName(void) const
 }
 void setError(ProviderVector &miVector,
                 String &error,
-		const String &realProviderName,
+        const String &realProviderName,
                   const char *generic,
                   const char *spec)
 {
@@ -131,11 +131,8 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
     broker.eft=CMPI_BrokerEnc_Ftab;
     broker.xft=CMPI_BrokerExt_Ftab;
     broker.mft=NULL;    // CMPI memory services not supported
-    {
-        WriteLock writeLock (broker.rwsemClassCache);
 
-        broker.clsCache=new ClassCache();
-    }
+    broker.clsCache=new ClassCache();
     broker.name=name;
 
     const OperationContext opc;
@@ -151,15 +148,30 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
             CString mName=realProviderName.getCString();
 
             if (miVector.miTypes & CMPI_MIType_Instance)
-                miVector.instMI=miVector.createGenInstMI(&broker,&eCtx,mName, &rc);
+            {
+                miVector.instMI =
+                    miVector.createGenInstMI(&broker,&eCtx,mName, &rc);
+            }
             if (miVector.miTypes & CMPI_MIType_Association)
-                miVector.assocMI=miVector.createGenAssocMI(&broker,&eCtx,mName, &rc);
+            {
+                miVector.assocMI = 
+                    miVector.createGenAssocMI(&broker,&eCtx,mName, &rc);
+            }
             if (miVector.miTypes & CMPI_MIType_Method)
-                miVector.methMI=miVector.createGenMethMI(&broker,&eCtx,mName, &rc);
+            {
+                miVector.methMI = 
+                    miVector.createGenMethMI(&broker,&eCtx,mName, &rc);
+            }
             if (miVector.miTypes & CMPI_MIType_Property)
-                miVector.propMI=miVector.createGenPropMI(&broker,&eCtx,mName, &rc);
+            {   
+                miVector.propMI = 
+                    miVector.createGenPropMI(&broker,&eCtx,mName, &rc);
+            }
             if (miVector.miTypes & CMPI_MIType_Indication)
-                miVector.indMI=miVector.createGenIndMI(&broker,&eCtx,mName, &rc);
+            {
+                miVector.indMI = 
+                    miVector.createGenIndMI(&broker,&eCtx,mName, &rc);
+            }
         }
         else {
             if (miVector.miTypes & CMPI_MIType_Instance)
@@ -196,27 +208,43 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
     }
 
     if (miVector.miTypes & CMPI_MIType_Instance)
+    {
         if (miVector.instMI == NULL || rc.rc != CMPI_RC_OK)
-            setError(miVector, error, realProviderName, _Generic_Create_InstanceMI, _Create_InstanceMI);
+            setError(miVector, error, realProviderName,
+                _Generic_Create_InstanceMI, _Create_InstanceMI);
+    }
     if (miVector.miTypes & CMPI_MIType_Association)
+    {
         if (miVector.assocMI == NULL || rc.rc != CMPI_RC_OK)
-            setError(miVector, error, realProviderName, _Generic_Create_AssociationMI, _Create_AssociationMI);
+            setError(miVector, error, realProviderName,
+                _Generic_Create_AssociationMI, _Create_AssociationMI);
+    }
     if (miVector.miTypes & CMPI_MIType_Method)
+    {
         if (miVector.methMI == NULL || rc.rc != CMPI_RC_OK)
-            setError(miVector, error, realProviderName, _Generic_Create_MethodMI, _Create_MethodMI);
+            setError(miVector, error, realProviderName,
+                _Generic_Create_MethodMI, _Create_MethodMI);
+    }
     if (miVector.miTypes & CMPI_MIType_Property)
+    {
         if (miVector.propMI == NULL || rc.rc != CMPI_RC_OK)
-            setError(miVector, error, realProviderName, _Generic_Create_PropertyMI, _Create_PropertyMI);
+            setError(miVector, error, realProviderName,
+                _Generic_Create_PropertyMI, _Create_PropertyMI);
+    }
     if (miVector.miTypes & CMPI_MIType_Indication)
+    {
         if (miVector.indMI == NULL || rc.rc != CMPI_RC_OK)
-            setError(miVector, error, realProviderName, _Generic_Create_IndicationMI, _Create_IndicationMI);
+            setError(miVector, error, realProviderName,
+                _Generic_Create_IndicationMI, _Create_IndicationMI);
+    } 
 
     if (error.size() != 0)
     {
-        throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
-                            "ProviderInitFailure: Error initializing $0 the following API(s): $1",
-                            realProviderName,
-                            error.subString(0, error.size()-2)));
+        throw Exception(MessageLoaderParms(
+        "ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
+        "ProviderInitFailure: Error initializing $0 the following API(s): $1",
+        realProviderName,
+        error.subString(0, error.size()-2)));
     }
 }
 
@@ -228,18 +256,18 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
   {
       String compoundName;
       if (_location.size() == 0)
-			compoundName= providername;
+            compoundName= providername;
       else
-			compoundName=_location+":"+providername;
+            compoundName=_location+":"+providername;
       try {
-	 CMPIProvider::initialize(cimom,miVector,compoundName,broker);
-	      if (miVector.miTypes & CMPI_MIType_Method) {
-	        if (miVector.methMI->ft->miName==NULL) noUnload=true;
-	      }
+     CMPIProvider::initialize(cimom,miVector,compoundName,broker);
+          if (miVector.miTypes & CMPI_MIType_Method) {
+            if (miVector.methMI->ft->miName==NULL) noUnload=true;
+          }
       }
       catch(...) {
         _current_operations = 0;
-	      throw;
+          throw;
       }
       _status = INITIALIZED;
       _current_operations = 0;
@@ -261,22 +289,22 @@ Boolean CMPIProvider::tryTerminate(void)
 
       try
       {
-	if (noUnload==false) {
-		// False means that the CIMServer is not shutting down.
-	   _terminate(false);
-	   if (noUnload==true) {
-	      _status=savedStatus;
-	      return false;
-	   }
-	   terminated=true;
-	 }
+    if (noUnload==false) {
+        // False means that the CIMServer is not shutting down.
+       _terminate(false);
+       if (noUnload==true) {
+          _status=savedStatus;
+          return false;
+       }
+       terminated=true;
+     }
       }
       catch(...)
       {
-	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-			  "Exception caught in CMPIProviderFacade::tryTerminate() for " +
-			  getName());
-	 terminated = false;
+     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+              "Exception caught in CMPIProviderFacade::tryTerminate() for " +
+              getName());
+     terminated = false;
 
       }
    if(terminated == true)
@@ -292,7 +320,7 @@ Boolean CMPIProvider::tryTerminate(void)
  calling its cleanup funtions.
 
  @argument terminating When set to false, the provider may resist terminating.
-  	If true, provider MUST clean up.
+      If true, provider MUST clean up.
 */
 void CMPIProvider::_terminate(Boolean terminating)
 {
@@ -301,11 +329,13 @@ void CMPIProvider::_terminate(Boolean terminating)
     CMPI_ContextOnStack eCtx(opc);
     CMPI_ThreadContext thr(&broker,&eCtx);
 /*
- @param terminating When true, the terminating argument indicates that the MB is in the process of
-     terminating and that cleanup must be done. When set to false, the MI may respond with
-     CMPI_IRC_DO_NOT_UNLOAD, or CMPI_IRC_NEVER_UNLOAD, indicating that unload will
-     interfere with current MI processing.
-     @return Function return status. The following CMPIrc codes shall be recognized:
+ @param terminating When true, the terminating argument indicates that the MB
+     is in the process of terminating and that cleanup must be done. When
+     set to false, the MI may respond with
+     CMPI_IRC_DO_NOT_UNLOAD, or CMPI_IRC_NEVER_UNLOAD,
+     indicating that unload will interfere with current MI processing.
+     @return Function return status. The following CMPIrc codes shall
+     be recognized:
         CMPI_RC_OK Operation successful.
         CMPI_RC_ERR_FAILED Unspecific error occurred.
         CMPI_RC_DO_NOT_UNLOAD Operation successful - do not unload now.
@@ -314,27 +344,42 @@ void CMPIProvider::_terminate(Boolean terminating)
     if (miVector.miTypes & CMPI_MIType_Instance) {
        rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+       {
+           noUnload =true;
+       }
     }
     if (miVector.miTypes & CMPI_MIType_Association) {
        rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+       {
+           noUnload =true;
+       }
     }
     if (miVector.miTypes & CMPI_MIType_Method) {
        rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+       {
+           noUnload =true;
+       }
     }
     if (miVector.miTypes & CMPI_MIType_Property) {
        rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+       {
+           noUnload =true;
+       }
     }
     if (miVector.miTypes & CMPI_MIType_Indication) {
        rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+       {
+           noUnload =true;
+       }
     }
 
     if (noUnload == false)
@@ -353,58 +398,62 @@ void CMPIProvider::_terminate(Boolean terminating)
            }
         }
 
-	  // Check the thread list to make sure the thread has been de-allocated
-	  if (_threadWatchList.size() != 0)
-	  {
-	 	PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-			  "There are %d provider threads in %s that have to be cleaned up.",
-			_threadWatchList.size(), (const char *)getName().getCString()));
+      // Check the thread list to make sure the thread has been de-allocated
+      if (_threadWatchList.size() != 0)
+      {
+         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+              "There are %d provider threads in %s that have to be cleaned up.",
+            _threadWatchList.size(), (const char *)getName().getCString()));
 
-		// Walk through the list and terminate the threads. After they are
-		// terminated, put them back on the watch list, call the cleanup function
-		// and wait until the cleanup is completed.
-		while (_threadWatchList.size() > 0) {
-				// Remove the thread from the watch list and kill it.
+        // Walk through the list and terminate the threads. After they are
+        // terminated, put them back on the watch list, call the cleanup
+       //  function and wait until the cleanup is completed.
+        while (_threadWatchList.size() > 0) {
+                // Remove the thread from the watch list and kill it.
                 Thread *t = _threadWatchList.remove_front();
 
-		// If this a non-production build, DO NOT do the cancellation. This is
-		// done so that the provider developer will notice incorrect behaviour
-		// when unloading his/her provider and hopefully fix that.
+        // If this a non-production build, DO NOT do the cancellation. This is
+        // done so that the provider developer will notice incorrect behaviour
+        // when unloading his/her provider and hopefully fix that.
 #if !defined(PEGASUS_DEBUG)
-	#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-	 			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-							Logger::WARNING,
-							"Provider thread in $0 did not exit after cleanup function. Attempting to terminate it.",
-					 		(const char *)getName().getCString());
-				t->cancel();
-	#else
-	// Every other OS that we do not want to do cancellation for.
-	 			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-							Logger::WARNING,
-			  				"Provider thread in $0 did not exit after cleanup function. Ignoring it.",
-					 		(const char *)getName().getCString());
-	#endif
+    #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+               Logger::WARNING,
+               "Provider thread in $0 did not exit after cleanup function."
+               " Attempting to terminate it.",
+               (const char *)getName().getCString());
+                t->cancel();
+    #else
+    // Every other OS that we do not want to do cancellation for.
+                 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                     Logger::WARNING,
+                     "Provider thread in $0 did not exit after cleanup"
+                     " function. Ignoring it.",
+                     (const char *)getName().getCString());
+    #endif
 #else
-	// For the non-release
-	 			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-							Logger::WARNING,
-			  				"Provider thread in $0 did not exit after cleanup function. Ignoring it.",
-					 		(const char *)getName().getCString());
-				// The cancellation is disabled so that when the join happends
-				// the CIMServer will hang. This should help the provider writer to fix
-				// his/her providers.
-				//t->cancel();
+    // For the non-release
+                 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                     Logger::WARNING,
+                     "Provider thread in $0 did not exit after cleanup"
+                     " function. Ignoring it.",
+                     (const char *)getName().getCString());
+                // The cancellation is disabled so that when the join happends
+                // the CIMServer will hang. This should help the provider
+                //   writer to fix his/her providers.
+                //t->cancel();
 #endif
-				//  and perform the normal  cleanup procedure
-				_threadWatchList.insert_back(t);
-				removeThreadFromWatch(t);
-		}
-	  }
-          // threadWatchList size ZERO doesn't mean that all threads have been cleaned-up.
-          // While unloading communication libraries, Threads waiting for MB UP calls might have
-          // just got removed from watchlist and not cleaned.
+                //  and perform the normal  cleanup procedure
+                _threadWatchList.insert_back(t);
+                removeThreadFromWatch(t);
+        }
+      }
+          // threadWatchList size ZERO doesn't mean that all threads have
+         //  been cleaned-up. While unloading communication libraries,
+         //  Threads waiting for MB UP calls might have
+         // just got removed from watchlist and not cleaned.
 
-          // Wait until all of the threads have been cleaned.
+         // Wait until all of the threads have been cleaned.
           waitUntilThreadsDone();
     }
 }
@@ -415,20 +464,20 @@ void CMPIProvider::terminate()
   Status savedStatus=_status;
   if(_status == INITIALIZED)
   {
-	  try
+      try
     {
 
         _terminate(true);
-	      if (noUnload==true) {
+          if (noUnload==true) {
             _status=savedStatus;
-	          return;
-	      }
+              return;
+          }
     }
         catch(...)
     {
-	      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-			       "Exception caught in CMPIProviderFacade::Terminate for " +
-			       getName());
+          PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                   "Exception caught in CMPIProviderFacade::Terminate for " +
+                   getName());
       throw;
     }
   }
@@ -437,17 +486,18 @@ void CMPIProvider::terminate()
 
 /*
  * Wait until all finished provider threads have been cleaned and deleted.
- * Note: This should NEVER be called from the thread that IS the Thread object that was
- * is finished and called 'removeThreadFromWatch()' . If you do it, you will
+ * Note: This should NEVER be called from the thread that 
+ * IS the Thread object that was is finished and called 
+ * 'removeThreadFromWatch()' . If you do it, you will
  * wait forever.
  */
 void
 CMPIProvider::waitUntilThreadsDone()
 {
-	while (_cleanedThreads.size() > 0)
-	{
-		Threads::yield();
-	}
+    while (_cleanedThreads.size() > 0)
+    {
+        Threads::yield();
+    }
 }
 /*
  * Check if the Thread is owner by this CMPIProvider object.
@@ -457,60 +507,64 @@ CMPIProvider::waitUntilThreadsDone()
 Boolean
 CMPIProvider::isThreadOwner(Thread *t)
 {
-	PEGASUS_ASSERT ( t != NULL );
-	if  ( _cleanedThreads.contains(t) )
-		return true;
-	if  ( !_threadWatchList.contains(t) )
-		return true;
+    PEGASUS_ASSERT ( t != NULL );
+    if  ( _cleanedThreads.contains(t) )
+        return true;
+    if  ( !_threadWatchList.contains(t) )
+        return true;
 
-	return false;
+    return false;
 }
 /*
  * Remove the thread from the list of threads that are being deleted
  * by the CMPILocalProviderManager.
  *
- * @argument t Thread which has been previously provided to 'removeThreadFromWatch' function.
+ * @argument t Thread which has been previously provided
+ * to 'removeThreadFromWatch' function.
  */
 void
 CMPIProvider::threadDelete(Thread *t)
 {
-	PEGASUS_ASSERT ( _cleanedThreads.contains(t) );
-	PEGASUS_ASSERT ( !_threadWatchList.contains(t) );
-	_cleanedThreads.remove( t );
+    PEGASUS_ASSERT ( _cleanedThreads.contains(t) );
+    PEGASUS_ASSERT ( !_threadWatchList.contains(t) );
+    _cleanedThreads.remove( t );
 }
 
   /*
-  // Removes the thread from the watch list and schedule the CMPILocalProviderManager
-  // to delete the thread. The CMPILocalProviderManager after deleting the thread calls
-  // the CMPIProvider' "cleanupThread". The CMPILocalProviderManager notifies this
-  // CMPIProvider object when the thread is truly dead by calling "threadDeleted" function.
+  // Removes the thread from the watch list and schedule the
+  // CMPILocalProviderManager to delete the thread. The 
+  // CMPILocalProviderManager after deleting the thread calls
+  // the CMPIProvider' "cleanupThread". The CMPILocalProviderManager 
+  // notifies this CMPIProvider object when the thread
+  // is truly dead by calling "threadDeleted" function.
   //
   // Note that this function is called from the thread that finished with
-  // running the providers function, and returns immediately while scheduling the
-  // a cleanup procedure. If you want to wait until the thread is truly deleted,
-  // call 'waitUntilThreadsDone' - but DO NOT do it in the the thread that
-  // the Thread owns - you will wait forever.
+  // running the providers function, and returns immediately while scheduling
+  // the a cleanup procedure. If you want to wait until the thread is truly
+  //  deleted, call 'waitUntilThreadsDone' - but DO NOT do it in the the thread
+  // that the Thread owns - you will wait forever.
   //
-  // @argument t Thread that is not NULL and finished with running the provider function.
+  // @argument t Thread that is not NULL and finished with running
+  //  the provider function.
   */
 void
 CMPIProvider::removeThreadFromWatch(Thread *t)
 {
-	PEGASUS_ASSERT( t != 0 );
+    PEGASUS_ASSERT( t != 0 );
 
-	PEGASUS_ASSERT (_threadWatchList.contains (t));
-	PEGASUS_ASSERT (!_cleanedThreads.contains (t));
+    PEGASUS_ASSERT (_threadWatchList.contains (t));
+    PEGASUS_ASSERT (!_cleanedThreads.contains (t));
 
-	// and remove it from the watched list
-	_threadWatchList.remove(t);
+    // and remove it from the watched list
+    _threadWatchList.remove(t);
 
-	// Add the thread to the CMPIProvider's list.
-	// We use this list to keep track of threads that are
-	// being cleaned (this way 'waitUntilThreadsDone' can stall until the
-	// threads are truly deleted).
-	_cleanedThreads.insert_back(t);
+    // Add the thread to the CMPIProvider's list.
+    // We use this list to keep track of threads that are
+    // being cleaned (this way 'waitUntilThreadsDone' can stall until the
+    // threads are truly deleted).
+    _cleanedThreads.insert_back(t);
 
-	CMPILocalProviderManager::cleanupThread(t, this);
+    CMPILocalProviderManager::cleanupThread(t, this);
 }
 
 /*
@@ -523,7 +577,7 @@ CMPIProvider::removeThreadFromWatch(Thread *t)
 void
 CMPIProvider::addThreadToWatch(Thread *t)
 {
-	PEGASUS_ASSERT( t != 0 );
+    PEGASUS_ASSERT( t != 0 );
 
     _threadWatchList.insert_back(t);
 }

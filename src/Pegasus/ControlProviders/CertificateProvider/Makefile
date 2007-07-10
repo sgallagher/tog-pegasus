@@ -69,10 +69,6 @@ ifdef PEGASUS_HAS_SSL
   endif
 endif
 
-ifeq ($(OS),linux)
-  EXTRA_LIBRARIES += -lcrypt
-endif
-
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
   AIX_LIB_PRIORITY=-20
 endif

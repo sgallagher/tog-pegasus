@@ -29,20 +29,68 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/HostAddress.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static char * verbose;
+
+#ifdef PEGASUS_ENABLE_IPV6
+static void _testIPv6()
+{
+    String hostName;
+    String hostIP;
+    int af;
+    char binAddr[PEGASUS_IN6_ADDR_SIZE];
+    char binAddr2[PEGASUS_IN6_ADDR_SIZE];
+
+    hostName = System::getHostName();
+
+    // Node may not be in network or not configured.
+    if (hostName == String::EMPTY || !System::getHostIP(hostName, &af, hostIP))
+    {
+        return;
+    }
+
+    PEGASUS_TEST_ASSERT(System::isLocalHost(hostName));
+    PEGASUS_TEST_ASSERT(System::isLocalHost(
+        System::getFullyQualifiedHostName()));
+    PEGASUS_TEST_ASSERT(System::isLocalHost(hostIP));
+    PEGASUS_TEST_ASSERT(System::isLocalHost("127.0.0.1"));
+    PEGASUS_TEST_ASSERT(System::isLocalHost("::1"));
+
+
+    System::_acquireIP(hostName.getCString(), &af, binAddr);
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(af,
+        hostIP.getCString(), binAddr2) == 1);
+    PEGASUS_TEST_ASSERT(HostAddress::equal(af, binAddr, binAddr2));   
+
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV4,
+        "127.0.0.1", binAddr) == 1); 
+    PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV4, binAddr));
+
+
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV6,
+        "::1", binAddr) == 1);
+    PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV6, binAddr));
+
+
+    // Test fail cases
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV4,
+        "192.127.1.1", binAddr) == 1);
+    PEGASUS_TEST_ASSERT(!System::isLoopBack(HostAddress::AT_IPV4, binAddr));
+
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV6,
+        "fffe:1234:3455:cbcd:1123:345e:abcd:ef12", binAddr) == 1);
+    PEGASUS_TEST_ASSERT(!System::isLoopBack(HostAddress::AT_IPV6, binAddr));
+}
+#endif
 
 int main(int argc, char** argv)
 {
@@ -163,6 +211,10 @@ int main(int argc, char** argv)
 
     PEGASUS_TEST_ASSERT(System::isGroupMember(userFailure,userGroup)==false);
 
+#endif
+
+#ifdef PEGASUS_ENABLE_IPV6
+    _testIPv6 ();
 #endif
 
     cout << argv[0] << " +++++ passed all tests" << endl;

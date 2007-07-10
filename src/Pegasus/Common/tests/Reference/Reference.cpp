@@ -223,8 +223,47 @@ void test01()
     CIMObjectPath h_ip1("//192.168.0.255/root/cimv25:"
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
+    // Try IPv6 Addresses.
+    CIMObjectPath ip6_1("//[::1]:77/root/cimv25:"
+        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+
+    CIMObjectPath ip6_2("//[::ffff:192.1.2.3]:77/root/cimv25:"
+        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+
+    CIMObjectPath ip6_3("//[fffe:233:321:234d:e45:fad4:78:12]:77/root/cimv25:"
+        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+
+    CIMObjectPath ip6_4("//[fffe::]:77/root/cimv25:"
+        "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+
+
     Boolean errorDetected = false;
 
+    // Invalid IPV6 Addresses
+    try
+    { // IPv6 addresses must be enclosed in brackets
+        CIMObjectPath ip6_mb("//fffe::12ef:127/root/cimv25:"
+            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    }
+    catch (const Exception&)
+    {
+       errorDetected = true;
+    }
+    PEGASUS_TEST_ASSERT(errorDetected);
+
+    errorDetected = false;
+    try
+    { // IPv6 address invalid
+        CIMObjectPath ip6_invalid("//[fffe::sd:77]/root/cimv25:"
+            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    }
+    catch (const Exception&)
+    {
+       errorDetected = true;
+    }
+    PEGASUS_TEST_ASSERT(errorDetected);
+
+    errorDetected = false;
     try
     {
        //Port number out of range.

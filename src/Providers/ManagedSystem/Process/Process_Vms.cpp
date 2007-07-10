@@ -30,7 +30,22 @@
 //==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
-
+//
+//  PTR 73-51-95
+//                 Checking for NULL return from "exe_std$cvt_epid_to_pcb()"
+//                 A process might have terminated, before calling
+//                 exe_std$cvt_epid_to_pcb(). This would return a NULL value
+//                 and results in a system crash.
+//
+//  PTR 73-51-1
+//                 Taking an abs() on timezone in convertToCIMDateString()
+//                 as any timezone less than zero, would corrupt the Date string
+//                 by placing two minus signs.
+//
+//  PTR 73-51-26
+//                 Changes made to incorporate review suggestions in
+//                 PTR 73-51-26. Removed local definition of PCB structure
+//                 and using PCB structure defined in <pcbdef.h>
 //
 //  PTR 73-51-25
 //                 Changes made to Process::getProcessSessionID() to return
@@ -131,6 +146,7 @@ static int ii;
 static int procCount;
 
 proc_info_t proc_table = (proc_info_t) 0;
+
 
 Process::Process()
 {
@@ -378,7 +394,7 @@ int convertToCIMDateString (struct tm *t, char *time)
            t->tm_min,
            t->tm_sec,
            (timezone > 0) ? '-' : '+',
-           timezone / 60 - (t->tm_isdst ? 60 : 0));
+           abs(timezone / 60 - (t->tm_isdst ? 60 : 0)));
 
   return 1;
 }
@@ -541,26 +557,26 @@ int GetCPUTicks(
     long *pSuperTicks,
     long *pUserTicks)
 {
-   PCB *other;                           // Pointer to PCB structure
+  PCB *other;                           // Pointer to PCB structure
+  int  status = 0;
+
 
   // call to get the PCB address of each process from the process extended pid
-
   other = exe_std$cvt_epid_to_pcb(epid);
 
-
-  *pKernelTicks = other->pcb$l_kernel_counter;
-  *pExecTicks = other->pcb$l_exec_counter;
-  *pSuperTicks = other->pcb$l_super_counter;
-  *pUserTicks = other->pcb$l_user_counter;
-
-  if (other->pcb$l_kt_high <= 1)
+  // PTR 73-51-95. Checking for NULL PCB returned. in case
+  // the process has terminated.
+  if ((other) &&
+      (other->pcb$l_kt_high <= 1))
   {
-    return (SS$_NORMAL);        // single thread only
+    *pKernelTicks = other->pcb$l_kernel_counter;
+    *pExecTicks = other->pcb$l_exec_counter;
+    *pSuperTicks = other->pcb$l_super_counter;
+    *pUserTicks = other->pcb$l_user_counter;
+    status = SS$_NORMAL;        // single thread only
   }
-  else
-  {
-    return false;                // multithread not supported
-  }
+
+  return status;              // multithread not supported
 }
 
 //
@@ -585,17 +601,13 @@ Boolean Process::getKernelModeTime (Uint64& i64)
 
     struct k1_arglist
     {    // kernel call arguments
-
-
       long lCount;           // number of arguments
-
       long epid;
       long *pKernelTicks;
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
-    }
-    getcputickskargs = {5};  // init to 5 arguments
+    } getcputickskargs = {5};  // init to 5 arguments
 
     getcputickskargs.epid        = pInfo->pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
@@ -641,8 +653,7 @@ Boolean Process::getUserModeTime (Uint64& i64)
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
-    }
-    getcputickskargs = {5};     // init to 5 arguments
+    } getcputickskargs = {5};     // init to 5 arguments
 
     getcputickskargs.epid         = pInfo->pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
@@ -922,8 +933,7 @@ Boolean Process::getCPUTime (Uint32& i32)
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
-    }
-    getcputickskargs = {5};     // init to 5 arguments
+    } getcputickskargs = {5};     // init to 5 arguments
 
     typedef struct
     {

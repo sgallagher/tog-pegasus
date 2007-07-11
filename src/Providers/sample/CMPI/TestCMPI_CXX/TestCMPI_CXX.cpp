@@ -325,7 +325,7 @@ printData (const CmpiData& d)
    default:
    {
       cerr << "Error: printData: Unknown type " << type;
-      throw CmpiStatus (CMPI_RC_ERR_FAILED);
+      PEGASUS_TEST_ASSERT(0);
    }
    }
    cout << endl;
@@ -635,7 +635,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
               cerr << "Error: Set array out of bounds (#2) expecting "
                    << "CMPI_RC_ERR_NO_SUCH_PROPERTY"
                    << endl;
-              throw CmpiStatus (CMPI_RC_ERR_FAILED);
+              return CmpiStatus (CMPI_RC_ERR_FAILED);
            }
         }
         catch (...)
@@ -839,7 +839,8 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         L;CmpiDateTime dtData4 ("20070501152143.164592-300");
         // echo `date --date='2007-05-01 15:21:43' +%s`*1000000+164592 | bc
         // 1178050903164592LL
-        L;CmpiDateTime dtData5 (PEGASUS_UINT64_LITERAL(1178050903164592), false);
+        L;CmpiDateTime dtData5 
+            (PEGASUS_UINT64_LITERAL(1178050903164592), false);
         L;CmpiDateTime dtData6 ("00000011125959.123456:000");
         L;CmpiDateTime dtData7 (PEGASUS_UINT64_LITERAL(997199123456), true);
 
@@ -1016,7 +1017,8 @@ TestCMPI_CXX::enumInstances (const CmpiContext&     ctx,
                              const CmpiObjectPath&  cop,
                              const char*           *properties)
 {
-   return CmpiStatus (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot enumInstances");
+   return CmpiStatus 
+       (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot enumInstances");
 }
 
 CmpiStatus
@@ -1025,26 +1027,29 @@ TestCMPI_CXX::getInstance (const CmpiContext&     ctx,
                            const CmpiObjectPath&  cop,
                            const char*           *properties)
 {
-    return CmpiStatus (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot getInstance");
+    return CmpiStatus 
+        (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot getInstance");
 }
 
 CmpiStatus
 TestCMPI_CXX::setInstance (const CmpiContext&     ctx,
-				               CmpiResult&            rslt,
+                           CmpiResult&            rslt,
                            const CmpiObjectPath&  cop,
                            const CmpiInstance&    inst,
                            const char*           *properties)
 {
-    return CmpiStatus (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot setInstance");
+    return CmpiStatus 
+        (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot setInstance");
 }
 
 CmpiStatus
 TestCMPI_CXX::createInstance (const CmpiContext&    ctx,
                               CmpiResult&           rslt,
-					               const CmpiObjectPath& cop,
+                              const CmpiObjectPath& cop,
                               const CmpiInstance&   inst)
 {
-    return CmpiStatus (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot createInstance");
+    return CmpiStatus 
+        (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot createInstance");
 }
 
 CmpiStatus
@@ -1052,5 +1057,6 @@ TestCMPI_CXX::deleteInstance (const CmpiContext&    ctx,
                               CmpiResult&           rslt,
                               const CmpiObjectPath& cop)
 {
-    return CmpiStatus (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot deleteInstance");
+    return CmpiStatus 
+        (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot deleteInstance");
 }

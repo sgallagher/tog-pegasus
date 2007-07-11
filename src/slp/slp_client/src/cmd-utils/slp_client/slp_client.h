@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,15 +27,16 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 /*****************************************************************************
  *  Description:
  *
  *  Originated: December 20, 2001
- *	Original Author: Mike Day md@soft-hackle.net
+ *    Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.12 2007/01/11 16:22:08 a.dunfey Exp $
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/
+ *  slp_client/slp_client.h,v 1.12 2007/01/11 16:22:08 a.dunfey Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -96,7 +97,7 @@
 #define SLP_STORAGE_DECL PEGASUS_EXPORT
 #endif
 
-#ifdef	__cplusplus
+#ifdef    __cplusplus
 extern "C" {
 #endif
 
@@ -232,7 +233,7 @@ extern "C" {
     char *srvType;
     lslpScopeList *scopeList;
     lslpAttrList *attrList;
-    lslpAuthBlock *authList;	  /* signature(s) for attribute list  */
+    lslpAuthBlock *authList;      /* signature(s) for attribute list  */
     time_t directoryTime;
   }lslpSrvRegList;
 
@@ -240,7 +241,7 @@ extern "C" {
     struct lslp_srv_reg_instance *next;
     struct lslp_srv_reg_instance *prev;
     BOOL isHead;
-  }lslpSrvRegHead;			  /* holds the auth blocks for all attrs in the list */
+  }lslpSrvRegHead;   /* holds the auth blocks for all attrs in the list */
 
 
 
@@ -250,7 +251,7 @@ extern "C" {
 
   /* URL entry definitions */
 #define LSLP_URL_LIFE    1
-#define LSLP_URL_LEN	 3
+#define LSLP_URL_LEN     3
 #define _LSLP_GETURLLIFE(h) _LSLP_GETSHORT((h), LSLP_URL_LIFE)
 #define _LSLP_SETURLLIFE(h, i) _LSLP_SETSHORT((h), (i), LSLP_URL_LIFE)
 #define _LSLP_GETURLLEN(h) _LSLP_GETSHORT((h), LSLP_URL_LEN)
@@ -379,7 +380,7 @@ extern "C" {
 
   /* ----- service registration ------ */
   struct lslp_srv_reg {
-    lslpURL *url; 				/* includes url auth block */
+    lslpURL *url;                 /* includes url auth block */
     uint16 srvTypeLen;
     char *srvType;
     lslpScopeList *scopeList;
@@ -472,7 +473,7 @@ extern "C" {
   union lslp_msg_u{
     struct lslp_srv_req srvReq;
     struct lslp_srv_rply srvRply;
-    struct lslp_srv_reg	srvReg;
+    struct lslp_srv_reg    srvReg;
     struct lslp_srv_ack srvAck;
     struct lslp_da_advert daAdvert;
     struct lslp_sa_advert saAdvert;
@@ -631,111 +632,111 @@ extern "C" {
     lslpMsg replies;
     lslpSrvRegHead regs;
     lslpMsg *(*get_response) (struct slp_client *,
-				     lslpMsg *);
+                     lslpMsg *);
     int (*find_das)(struct slp_client *,
-		    const char *,
-		    const char *);
+            const char *,
+            const char *);
     void (*discovery_cycle) (struct slp_client *,
-			     const char *,
-			     const char *,
-			     const char *);
+                 const char *,
+                 const char *,
+                 const char *);
     void (*converge_srv_req)(struct slp_client *,
-			     const char *,
-			     const char *,
-			     const char *);
+                 const char *,
+                 const char *,
+                 const char *);
     void (*unicast_srv_req)(struct slp_client *,
-			    const char *,
-			    const char *,
-			    const char *,
-			    SOCKADDR_IN *);
+                const char *,
+                const char *,
+                const char *,
+                SOCKADDR_IN *);
     void (*local_srv_req)(struct slp_client *,
-			  const char *,
-			  const char *,
-			  const char *);
+              const char *,
+              const char *,
+              const char *);
     void (*srv_req)( struct slp_client *,
-		     const char *,
-		     const char *,
-		     const char *,
-		     BOOL);
+             const char *,
+             const char *,
+             const char *,
+             BOOL);
   /** <<< Sat Jul 24 14:56:59 2004 mdd >>> add attr request **/
 
     void (*converge_attr_req)( struct slp_client *,
-			  const char *,
-			  const char *,
-			  const char * );
+              const char *,
+              const char *,
+              const char * );
 
     void (*unicast_attr_req)( struct slp_client *,
-			      const char *,
-			      const char *,
-			      const char *,
-			      SOCKADDR_IN *);
+                  const char *,
+                  const char *,
+                  const char *,
+                  SOCKADDR_IN *);
 
     void (*local_attr_req)( struct slp_client *,
-		      const char *,
-		      const char *,
-		      const char * );
+              const char *,
+              const char *,
+              const char * );
 
     void (*attr_req)( struct slp_client *,
-		      const char *,
-		      const char *,
-		      const char *,
-		      BOOL);
+              const char *,
+              const char *,
+              const char *,
+              BOOL);
 
     void (*decode_attr_rply)( struct slp_client *, SOCKADDR_IN * );
   /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
 
     BOOL (*srv_reg)(struct slp_client *,
-		    const char *,
-		    const char *,
-		    const char *,
-		    const char *,
-		    int16 );
+            const char *,
+            const char *,
+            const char *,
+            const char *,
+            int16 );
     int (*srv_reg_all)(struct slp_client *,
-		       const char *,
-		       const char *,
-		       const char *,
-		       const char *,
-		       int16 lifetime );
+               const char *,
+               const char *,
+               const char *,
+               const char *,
+               int16 lifetime );
     int (*srv_reg_local) (struct slp_client *,
-			   const char *,
-			   const char *,
-			   const char *,
-			   const char *,
-			   uint16 lifetime ); //jeb int16 to uint16
+               const char *,
+               const char *,
+               const char *,
+               const char *,
+               uint16 lifetime ); //jeb int16 to uint16
 
     int32 (*service_listener)( struct slp_client *,
-			       SOCKETD, lslpMsg * ) ;   //jeb
+                   SOCKETD, lslpMsg * ) ;   //jeb
 
     void (*prepare_pr_buf)(struct slp_client *,
-			   const char *);
+               const char *);
     BOOL (*prepare_query)( struct slp_client *,
-			   uint16,
-			   const char *,
-			   const char *,
-			   const char *);
+               uint16,
+               const char *,
+               const char *,
+               const char *);
     void (*decode_msg)( struct slp_client *client,
-			SOCKADDR_IN *remote  );
+            SOCKADDR_IN *remote  );
     void (*decode_srvreq)(struct slp_client *,
-			  SOCKADDR_IN *);
+              SOCKADDR_IN *);
     void (*decode_srvrply)(struct slp_client *,
-			   SOCKADDR_IN *);
+               SOCKADDR_IN *);
     void (*decode_daadvert)( struct slp_client *,
-			     SOCKADDR_IN *);
+                 SOCKADDR_IN *);
     void (*decode_attrreq)(struct slp_client *, SOCKADDR_IN *);
 
     BOOL (*send_rcv_udp)(struct slp_client *, BOOL) ;
     int32 (*service_listener_wait)(struct slp_client *,
-				   time_t,
-				   SOCKETD extra,
-				   BOOL,
-				       lslpMsg *) ;
+                   time_t,
+                   SOCKETD extra,
+                   BOOL,
+                       lslpMsg *) ;
     BOOL (*slp_previous_responder)(struct slp_client *,
-				   char *);
+                   char *);
 
   };
 
 
-  /*----------------------------- prototypes -----------------------------------*/
+/*----------------------------- prototypes -----------------------------------*/
 
 #define LSLP_DESTRUCTOR_DYNAMIC 1
 #define LSLP_DESTRUCTOR_STATIC  0
@@ -763,74 +764,77 @@ char *slp_get_host_name( char *buf, int buf_size  );
 #if defined(PEGASUS_OS_TYPE_WINDOWS) || \
     defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( _NUCLEUS )
  int gethostbyname_r(const char *name,
-		      struct hostent *resultbuf,
-		      char *buf,
-		      size_t bufsize,
-		      struct hostent **result,
-		      int *errnop);
+              struct hostent *resultbuf,
+              char *buf,
+              size_t bufsize,
+              struct hostent **result,
+              int *errnop);
 #endif
- char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len) ;
- char *slp_get_host_string_from_url(const char *url, char *host, int host_len) ;
+ char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len);
+ char *slp_get_host_string_from_url(const char *url, char *host, int host_len);
  BOOL  get_addr_from_url(const char *url, SOCKADDR_IN *addr, char **host);
  int slp_get_local_interfaces(uint32 **list);
  BOOL  slp_join_multicast(SOCKETD sock, uint32 addr) ;  //jeb
  int slp_join_multicast_all(SOCKETD sock);              //jeb
  SOCKETD slp_open_listen_sock( void );                  //jeb
- void make_srv_ack(struct slp_client *client, SOCKADDR_IN *remote, char response, int16 code );
+ void make_srv_ack(struct slp_client *client,
+                   SOCKADDR_IN *remote,
+                   char response,
+                   int16 code );
  void prepare_pr_buf(struct slp_client *client, const char *address);
  BOOL  prepare_query( struct slp_client *client,
-		       uint16 xid,
-		       const char *service_type,
-		       const char *scopes,
-		       const char *predicate) ;
+               uint16 xid,
+               const char *service_type,
+               const char *scopes,
+               const char *predicate) ;
  lslpMsg *get_response( struct slp_client *client , lslpMsg *head);
  void discovery_cycle ( struct slp_client *client,
-			 const char *type,
-			 const char *predicate,
-			 const char *scopes) ;
+             const char *type,
+             const char *predicate,
+             const char *scopes) ;
 
  void converge_srv_req(struct slp_client *client,
-			const char *type,
-			const char *predicate,
-			const char *scopes);
+            const char *type,
+            const char *predicate,
+            const char *scopes);
  void unicast_srv_req( struct slp_client *client,
-			const char *type,
-			const char *predicate,
-			const char *scopes,
-			SOCKADDR_IN *addr );
+            const char *type,
+            const char *predicate,
+            const char *scopes,
+            SOCKADDR_IN *addr );
  void local_srv_req( struct slp_client *client,
-		      const char *type,
-		      const char *predicate,
-		      const char *scopes );
+              const char *type,
+              const char *predicate,
+              const char *scopes );
  void srv_req( struct slp_client *client,
-		const char *type,
-		const char *predicate,
-		const char *scopes,
-		BOOL retry );
+        const char *type,
+        const char *predicate,
+        const char *scopes,
+        BOOL retry );
 
 
   /** <<< Sat Jul 24 14:56:59 2004 mdd >>> add attr request **/
 
   void converge_attr_req( struct slp_client *client,
-			  const char *url,
-			  const char *scopes,
-			  const char *tags);
+              const char *url,
+              const char *scopes,
+              const char *tags);
 
   void unicast_attr_req( struct slp_client *client,
-			 const char *url,
-			 const char *scopes,
-			 const char *tags,
-			 SOCKADDR_IN *addr);
+             const char *url,
+             const char *scopes,
+             const char *tags,
+             SOCKADDR_IN *addr);
 
   void local_attr_req( struct slp_client *client,
-		      const char *url,
-		      const char *scopes,
-		      const char *tags );
+              const char *url,
+              const char *scopes,
+              const char *tags );
   void attr_req( struct slp_client *client,
-		 const char *url,
-		 const char *scopes,
-		 const char *tags,
-		 BOOL retry);
+         const char *url,
+         const char *scopes,
+         const char *tags,
+         BOOL retry);
 
   void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote);
   /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
@@ -838,74 +842,78 @@ char *slp_get_host_name( char *buf, int buf_size  );
  void decode_srvreg(struct slp_client *client, SOCKADDR_IN *remote);
 
  void decode_msg( struct slp_client *client,
-		   SOCKADDR_IN *remote );
+           SOCKADDR_IN *remote );
  void decode_srvrply( struct slp_client *client,
-		       SOCKADDR_IN *remote );
+               SOCKADDR_IN *remote );
  void decode_attrreq(struct slp_client *client,
            SOCKADDR_IN *remote);
  void decode_daadvert(struct slp_client *client,
-		       SOCKADDR_IN *remote);
+               SOCKADDR_IN *remote);
  void decode_srvreq(struct slp_client *client,
-		     SOCKADDR_IN *remote );
+             SOCKADDR_IN *remote );
  BOOL srv_reg(struct slp_client *client,
-		    const char *url,
-		    const char *attributes,
-		    const char *service_type,
-		    const char *scopes,
-		    int16 lifetime) ;
+            const char *url,
+            const char *attributes,
+            const char *service_type,
+            const char *scopes,
+            int16 lifetime) ;
   BOOL send_rcv_udp( struct slp_client *client , BOOL retry);
 
  int32 __service_listener_wait(struct slp_client *client,
-			      time_t wait,
-			      SOCKETD extra_sock,  //jeb
-			      BOOL one_only);
+                  time_t wait,
+                  SOCKETD extra_sock,  //jeb
+                  BOOL one_only);
 
 
  int32 service_listener_wait(struct slp_client *client,
-			      time_t wait,
-			      SOCKETD extra_sock,  //jeb
-			      BOOL one_only,
-			      lslpMsg *);
+                  time_t wait,
+                  SOCKETD extra_sock,  //jeb
+                  BOOL one_only,
+                  lslpMsg *);
 
  int32  __service_listener(struct slp_client *client,
-			 SOCKETD extra_sock );                //jeb
+             SOCKETD extra_sock );                //jeb
  int32 service_listener(struct slp_client *client,
-			 SOCKETD extra_sock,
-			 lslpMsg *);                //jeb
+             SOCKETD extra_sock,
+             lslpMsg *);                //jeb
 
  int srv_reg_all( struct slp_client *client,
-		   const char *url,
-		   const char *attributes,
-		   const char *service_type,
-		   const char *scopes,
-		   int16 lifetime);
+           const char *url,
+           const char *attributes,
+           const char *service_type,
+           const char *scopes,
+           int16 lifetime);
 
  int srv_reg_local ( struct slp_client *client,
-		       const char *url,
-		       const char *attributes,
-		       const char *service_type,
-		       const char *scopes,
-		       uint16 lifetime);   //jeb int16 to uint16
+               const char *url,
+               const char *attributes,
+               const char *service_type,
+               const char *scopes,
+               uint16 lifetime);   //jeb int16 to uint16
  void __srv_reg_local ( struct slp_client *client,
-		       const char *url,
-		       const char *attributes,
-		       const char *service_type,
-		       const char *scopes,
+               const char *url,
+               const char *attributes,
+               const char *service_type,
+               const char *scopes,
                uint16 lifetime);   //jeb int16 to uint16
 
  BOOL slp_previous_responder(struct slp_client *client,
-			      char *pr_list);
+                  char *pr_list);
 
 
 
   /* attribute and attribute parser */
  lslpAttrList *_lslpDecodeAttrString(char *s);
- lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 len);
+ lslpAttrList *lslpAllocAttr(const char *name,
+                             char type,
+                             const void *val,
+                             int16 len);
  lslpAttrList *lslpAllocAttrList(void);
  void lslpFreeAttr(lslpAttrList *attr);
  void lslpFreeAttrList(lslpAttrList *list, BOOL staticFlag);
 
- BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list, lslpAttrList *include);
+ BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list,
+         lslpAttrList *include);
  lslpAttrList *lslpUnstuffAttr(char **buf, int16 *len, int16 *err) ;
 
 
@@ -945,8 +953,10 @@ char *slp_get_host_name( char *buf, int buf_size  );
 
  lslpLDAPFilter *_lslpDecodeLDAPFilter(char *filter) ;
  BOOL lslpEvaluateOperation(int compare_result, int operation);
- BOOL lslpEvaluateAttributes(const lslpAttrList *a, const lslpAttrList *b, int op);
- BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs);
+ BOOL lslpEvaluateAttributes(const lslpAttrList *a,
+                             const lslpAttrList *b, int op);
+ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter,
+                             const lslpAttrList *attrs);
 
   /* scope lists */
  lslpScopeList *lslpAllocScope(void);
@@ -964,7 +974,7 @@ char *slp_get_host_name( char *buf, int buf_size  );
  BOOL lslpStuffSPIList(char **buf, int16 *len, lslpSPIList *list);
 
 
- lslpScopeList *lslpScopeStringToList(char *s, int16 len) ;
+ lslpScopeList *lslpScopeStringToList(const char *s, int16 len) ;
 
 
  char *lslp_foldString(char *s);
@@ -1009,9 +1019,10 @@ char *slp_get_host_name( char *buf, int buf_size  );
 
  BOOL check_duplicate_resp(struct slp_client *client, lslpMsg *msg);
    struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
-						      struct lslp_srv_req *msg,
-						      int16 errCode);
-  /* a is an attribute list, while b is a string representation of an ldap filter  */
+                              struct lslp_srv_req *msg,
+                              int16 errCode);
+  /* a is an attribute list, while b is a string representation
+     of an ldap filter  */
  BOOL lslp_predicate_match(lslpAttrList *a, char *b);
 
  char * lslp_get_next_ext(char *hdr_buf);
@@ -1020,16 +1031,17 @@ char *slp_get_host_name( char *buf, int buf_size  );
 /***** Functions Exported by the library *****/
 
 SLP_STORAGE_DECL int find_das(struct slp_client *client,
-	       const char *predicate,
-	       const char *scopes);
-SLP_STORAGE_DECL  BOOL  lslp_pattern_match(const char *s, const char *p, BOOL case_sensitive);
+           const char *predicate,
+           const char *scopes);
+SLP_STORAGE_DECL  BOOL  lslp_pattern_match(const char *s, const char *p,
+                                           BOOL case_sensitive);
 SLP_STORAGE_DECL struct slp_client *create_slp_client(const char *target_addr,
-							     const char *local_interface,
-							     uint16 target_port,
-							     const char *spi,
-							     const char *scopes,
-							     BOOL should_listen,
-							     BOOL use_das);
+                                 const char *local_interface,
+                                 uint16 target_port,
+                                 const char *spi,
+                                 const char *scopes,
+                                 BOOL should_listen,
+                                 BOOL use_das);
 
 SLP_STORAGE_DECL  void destroy_slp_client(struct slp_client *client);
 SLP_STORAGE_DECL  char *encode_opaque(void *buffer, int16 length);
@@ -1037,11 +1049,13 @@ SLP_STORAGE_DECL  void *decode_opaque(char *buffer);
 SLP_STORAGE_DECL  lslpMsg *alloc_slp_msg(BOOL head);
 SLP_STORAGE_DECL  void lslpDestroySLPMsg(lslpMsg *msg, char flag);
 SLP_STORAGE_DECL  void lslp_print_srv_rply(lslpMsg *srvrply);
-SLP_STORAGE_DECL  void lslp_print_srv_rply_parse(lslpMsg *srvrply, char fs, char rs);
+SLP_STORAGE_DECL  void lslp_print_srv_rply_parse(lslpMsg *srvrply,
+                                                 char fs, char rs);
 
 
 SLP_STORAGE_DECL  void lslp_print_attr_rply(lslpMsg *attrrply);
-SLP_STORAGE_DECL  void lslp_print_attr_rply_parse(lslpMsg *attrrply, char fs, char rs);
+SLP_STORAGE_DECL  void lslp_print_attr_rply_parse(lslpMsg *attrrply,
+                                                  char fs, char rs);
 
 /** test functions - use these to test the correctness of
     slp strings. They will use the actual parsers to
@@ -1069,9 +1083,9 @@ SLP_STORAGE_DECL BOOL test_predicate(char *predicate);
  *
  *****************************************************************/
 SLP_STORAGE_DECL uint32 test_srv_reg(char *type,
-				     char *url,
-				     char *attr,
-				     char *scopes);
+                     char *url,
+                     char *attr,
+                     char *scopes);
 
 /*****************************************************************
  * test_query
@@ -1086,10 +1100,10 @@ SLP_STORAGE_DECL uint32 test_srv_reg(char *type,
  *****************************************************************/
 
 SLP_STORAGE_DECL uint32 test_query(char *type,
-				   char *predicate,
-				   char *scopes);
+                   char *predicate,
+                   char *scopes);
 
-#ifdef	__cplusplus
+#ifdef    __cplusplus
 }
 #endif
 

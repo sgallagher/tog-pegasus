@@ -575,7 +575,7 @@ Boolean System::isLocalHost(const String &hostName)
 // Get all ip addresses on the node and compare them with the given hostname.
 #ifdef PEGASUS_ENABLE_IPV6
     CString csName = hostName.getCString();
-    struct addrinfo hints, *res1, *res2;
+    struct addrinfo hints, *res1, *res2, *res1root, *res2root;
     char localHostName[PEGASUS_MAXHOSTNAMELEN];
     gethostname(localHostName, PEGASUS_MAXHOSTNAMELEN);
     Boolean isLocal = false;
@@ -584,10 +584,11 @@ Boolean System::isLocalHost(const String &hostName)
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
-    res1 = res2 = 0;
-    getaddrinfo(csName, 0, &hints, &res1);
-    getaddrinfo(localHostName, 0, &hints, &res2);
+    res1root = res2root = 0;
+    getaddrinfo(csName, 0, &hints, &res1root);
+    getaddrinfo(localHostName, 0, &hints, &res2root);
 
+    res1 = res1root;
     while (res1 && !isLocal)
     {
         if (isLoopBack(AF_INET,
@@ -597,8 +598,8 @@ Boolean System::isLocalHost(const String &hostName)
             break;
         }
 
-        struct addrinfo *tmp = res2;
-        while (tmp) 
+        res2 = res2root;
+        while (res2) 
         {
             if (!memcmp(&((struct sockaddr_in*)res1->ai_addr)->sin_addr,
                 &((struct sockaddr_in*)res2->ai_addr)->sin_addr,
@@ -607,21 +608,23 @@ Boolean System::isLocalHost(const String &hostName)
                 isLocal = true;
                 break;
             }
-            tmp = tmp->ai_next;
+            res2 = res2->ai_next;
         }
         res1 = res1->ai_next;
     }   
-    freeaddrinfo(res1);
-    freeaddrinfo(res2);
+    freeaddrinfo(res1root);
+    freeaddrinfo(res2root);
     if (isLocal)
     {
         return true;
     } 
 
     hints.ai_family = AF_INET6;
-    res1 = res2 = 0;
-    getaddrinfo(csName, 0, &hints, &res1);
-    getaddrinfo(localHostName, 0, &hints, &res2);
+    res1root = res2root = 0;
+    getaddrinfo(csName, 0, &hints, &res1root);
+    getaddrinfo(localHostName, 0, &hints, &res2root);
+
+    res1 = res1root;
     while (res1 && !isLocal)
     {
         if (isLoopBack(AF_INET6,
@@ -631,8 +634,8 @@ Boolean System::isLocalHost(const String &hostName)
             break;
         }
 
-        struct addrinfo *tmp = res2;
-        while (tmp)
+        res2 = res2root;
+        while (res2)
         {
             if (!memcmp(&((struct sockaddr_in6*)res1->ai_addr)->sin6_addr,
                 &((struct sockaddr_in6*)res2->ai_addr)->sin6_addr,
@@ -641,12 +644,12 @@ Boolean System::isLocalHost(const String &hostName)
                 isLocal = true;
                 break;
             }
-            tmp = tmp->ai_next;
+            res2 = res2->ai_next;
         }
         res1 = res1->ai_next;
     }
-    freeaddrinfo(res1);
-    freeaddrinfo(res2);
+    freeaddrinfo(res1root);
+    freeaddrinfo(res2root);
 
     return isLocal;
 #else

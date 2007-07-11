@@ -60,7 +60,6 @@ endif
 LIBRARIES += \
     pegquerycommon \
     pegconfig \
-    cmpiCppImpl \
     pegcommon
 
 SOURCES = \

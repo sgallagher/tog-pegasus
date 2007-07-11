@@ -27,7 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//%=============================================================================
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _Dependency_h
 #define _Dependency_h
@@ -43,30 +45,16 @@ void ErrorExit(const char* programName, const string& message);
 //Print vector
 void PrintVector(const vector<string>& v);
 
-//Process Command "depend" and "srclist" Options
-void ProcessOptions(
-    int& argc,
-    char**& argv,
-    const char* programName,
-    vector<string>& includePath,
-    string& objectDir,
-    string& prependDir,
-    bool& warn);
-
 /*Define function Pointer PrintFunc, which take one string
- *objectFileName and one string fileName
+ *fileName
  */
-
 typedef void (*PrintFunc)(
-    const string& objectFileName,
     const string& fileName);
 
 /*Find the dependent files recursively and print the dependent
  *files
  */
-
 void ProcessFile(
-    const string& objectFileName,
     const string& fileName,
     const char* programName,
     FILE* fp,

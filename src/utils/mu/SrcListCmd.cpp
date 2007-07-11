@@ -27,16 +27,62 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//%=============================================================================
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
-#include <utils/mu/Dependency.h>
-#include <utils/mu/SrcListCmd.h>
+#include "Files.h"
+#include "Dependency.h"
+#include "SrcListCmd.h"
 #include <cstdio>
 #include <cstddef>
 
-void PrintSrcDependency(const string& objectFileName, const string& fileName)
+void PrintSrcDependency(const string& fileName)
 {
     printf("%s\n", fileName.c_str());
+}
+
+void ProcessSrcListOptions(
+    int& argc,
+    char**& argv,
+    const char* programName,
+    vector<string>& includePath,
+    bool& warn)
+{
+    int i;
+    for (i = 0; i < argc; i++)
+    {
+        const char* p = argv[i];
+
+        if (*p != '-')
+        {
+            break;
+        }
+        
+        p++;
+        if (*p == 'I')
+        {
+            if (*++p)
+            {
+                includePath.push_back(p);
+            }
+            else
+            {
+                ErrorExit(programName, "Missing argument for -I option");
+            }
+        }
+        else if (*p == 'W' && p[1] == '\0')
+        {
+            warn = true;
+        }
+        else
+        {
+            ErrorExit(programName, string("Unknown option: -") + *p);
+        }
+    }
+
+    argc -= i;
+    argv += i;
 }
 
 int SrcListCmdMain(int argc, char** argv)
@@ -46,11 +92,12 @@ int SrcListCmdMain(int argc, char** argv)
     if (argc == 1)
     {
         fprintf(stderr,
-            "Usage: %s [-W]? [-Iinclude_dir]* [-Dsource_dir]? source_files...\n"
+            "Usage: %s [-W]? [-Iinclude_dir]* source_files...\n"
             "Where: \n"
             "    -W - warn about include files which cannot be found\n"
-            "    -D - prepend this directory to source files\n"
-            "    -I - search this directory for header files\n",
+            "    -I - search this directory for header files\n"
+            "Example: \n"
+            "mu srclist -I/var/buildMAIN/pegasus/src mu.cpp\n",
             argv[0]);
         exit(1);
     }
@@ -64,12 +111,9 @@ int SrcListCmdMain(int argc, char** argv)
     // Process all options:
 
     vector<string> includePath;
-    string objectDir; // ignored
-    string prependDir;
     bool warn = false;
 
-    ProcessOptions(argc, argv, programName, includePath, objectDir, prependDir,
-        warn);
+    ProcessSrcListOptions(argc, argv, programName, includePath, warn);
 
     // There must be at least one source file; print error if not:
 
@@ -82,28 +126,23 @@ int SrcListCmdMain(int argc, char** argv)
 
     for (int i = 0; i < argc; i++)
     {
-        string fileName;
-
-        if (prependDir.size()){
-            fileName = prependDir;
-            fileName += '/';
-            fileName += argv[i];
-        }
-        else
-        {
-            fileName = argv[i];
-        }
-
+        string filePath = argv[i];
+        
         // Open the file:
-
         FILE* fp = fopen(argv[i], "rb");
-
+        
         if (fp == NULL)
         {
-            string message = "failed to open file: \"" + fileName + "\"";
+            string message = "failed to open file: \"" + filePath + "\"";
             ErrorExit(programName, message);
         }
 
+        string fileName;
+        string prependDir;
+        
+        // Get absolute directory (prependDir) for the source file 
+        GetSrcFileDir(filePath, fileName, prependDir);
+                
         const char* start = fileName.c_str();
         const char* dot = strrchr(start, '.');
 
@@ -123,7 +162,7 @@ int SrcListCmdMain(int argc, char** argv)
 
         set<string, less<string> > cache;
 
-        ProcessFile("", fileName, programName, fp, includePath, prependDir,
+        ProcessFile(fileName, programName, fp, includePath, prependDir,
             0, cache, PrintSrcDependency, warn);
     }
 

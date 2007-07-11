@@ -27,8 +27,11 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//%=============================================================================
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
+#include "Files.h"
 #include <utils/mu/Dependency.h>
 #include <cstdio>
 #include <cstddef>
@@ -43,75 +46,6 @@ void ErrorExit(const char* programName, const string& message)
 void Warning(const char* programName, string& message)
 {
     fprintf(stderr, "%s: Warning: %s\n", programName, message.c_str());
-}
-
-void ProcessOptions(
-    int& argc,
-    char**& argv,
-    const char* programName,
-    vector<string>& includePath,
-    string& objectDir,
-    string& prependDir,
-    bool& warn)
-{
-    int i;
-
-    for (i = 0; i < argc; i++)
-    {
-        const char* p = argv[i];
-
-        if (*p != '-')
-        {
-            break;
-        }
-
-        p++;
-
-        if (*p == 'I')
-        {
-            if (*++p)
-            {
-                includePath.push_back(p);
-            }
-            else
-            {
-                ErrorExit(programName, "Missing argument for -I option");
-            }
-        }
-        else if (*p == 'O')
-        {
-            if (*++p)
-            {
-                objectDir = p;
-            }
-            else
-            {
-                ErrorExit(programName, "Missing argument for -O option");
-            }
-        }
-        else if (*p == 'D')
-        {
-            if(*++p)
-            {
-                prependDir = p;
-            }
-            else
-            {
-                ErrorExit(programName, "Missing argument for -D option");
-            }
-        }
-        else if (*p == 'W' && p[1] == '\0')
-        {
-            warn = true;
-        }
-        else
-        {
-            ErrorExit(programName, string("Unknown option: -") + *p);
-        }
-    }
-
-    argc -= i;
-    argv += i;
 }
 
 void PrintVector(const vector<string>& v)
@@ -268,27 +202,24 @@ FILE* FindFile(
 {
     // If the opening delimiter was '"', then check the current
     // directory first:
-
     if (openDelim == '"')
     {
-        FILE* fp = fopen(path.c_str(), "rb");
+        if (prependDir.size())
+        {
+            GetFileFullPath(prependDir, path, fullPath);
+        }
+        else
+        {
+            fullPath = path;
+        }
 
+        FILE* fp = fopen(fullPath.c_str(), "rb");
         if (fp)
         {
-            if (prependDir.size())
-            {
-                fullPath = prependDir;
-                fullPath += '/';
-                fullPath += path;
-            }
-            else
-            {
-                fullPath = path;
-            }
             return fp;
         }
     }
-
+    
     // Search the include path for the file:
 
     vector<string>::const_iterator first = includePath.begin();
@@ -312,7 +243,6 @@ FILE* FindFile(
 }
 
 void ProcessFile(
-    const string& objectFileName,
     const string& fileName,
     const char* programName,
     FILE* fp,
@@ -323,7 +253,7 @@ void ProcessFile(
     PrintFunc printFunc,
     bool& warn)
 {
-    printFunc(objectFileName, fileName);
+    printFunc(fileName);
 
     if (nesting == 100)
     {
@@ -376,9 +306,8 @@ void ProcessFile(
             }
             else
             {
-                ProcessFile(objectFileName, fullPath,programName, fp,
-                    includePath, prependDir, nesting + 1, cache, printFunc,
-                    warn);
+                ProcessFile(fullPath,programName, fp, includePath, prependDir, 
+                        nesting + 1, cache, printFunc, warn);
             }
         }
     }

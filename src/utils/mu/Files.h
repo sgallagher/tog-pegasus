@@ -29,9 +29,7 @@
 //
 //==============================================================================
 //
-// Author: Michael E. Brasher
-//
-//%=============================================================================
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _Files_h
 #define _Files_h
@@ -62,8 +60,6 @@ bool GetDirEntries(const string& path, vector<string>& filenames);
 
 bool MatchString(const string& pattern, const string& str);
 
-void SplitPath(const string& path, string& dirname, string& basename);
-
 bool Glob(const string& pattern, vector<string>& filenames_out);
 
 bool TouchFile(const string& path);
@@ -86,6 +82,18 @@ bool Writable(const string& path);
 bool Readable(const string& path);
 
 bool IsDir(const string& path);
+
+bool IsPathRelativeToParentDir(const string& filePath);
+
+void GetFileFullPath(
+    const string& prependDir,  
+    const string& filePath,
+    string& fileFullpath);
+
+void GetSrcFileDir(
+    const string& filePath,
+    string& fileFullpath,
+    string& srcDir);
 
 #if defined (OS_VMS)
 bool parse_name(const string& name);

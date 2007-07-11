@@ -27,8 +27,11 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//%=============================================================================
+//==============================================================================
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
+#include "Files.h"
 #include "Dependency.h"
 #include "DependCmd.h"
 #include <cstdio>
@@ -40,11 +43,67 @@
 # define OBJ_EXT ".o"
 #endif
 
-void PrintDependency(
-    const string& objectFileName,
-    const string& fileName)
+static string objectFileName;
+
+void PrintDependency(const string& fileName)
 {
     printf("%s: %s\n\n", objectFileName.c_str(), fileName.c_str());
+}
+
+void ProcessDependCmdOptions(
+    int& argc,
+    char**& argv,
+    const char* programName,
+    vector<string>& includePath,
+    string& objectDir,
+    bool& warn)
+{
+    int i;
+    for (i = 0; i < argc; i++)
+    {
+        const char* p = argv[i];
+
+        if (*p != '-')
+        {
+            break;
+        }
+
+        p++;
+
+        if (*p == 'I')
+        {
+            if (*++p)
+            {
+                includePath.push_back(p);
+            }
+            else
+            {
+                ErrorExit(programName, "Missing argument for -I option");
+            }
+        }
+        else if (*p == 'O')
+        {
+            if (*++p)
+            {
+                objectDir = p;
+            }
+            else
+            {
+                ErrorExit(programName, "Missing argument for -O option");
+            }
+        }
+        else if (*p == 'W' && p[1] == '\0')
+        {
+            warn = true;
+        }
+        else
+        {
+            ErrorExit(programName, string("Unknown option: -") + *p);
+        }
+    }
+
+    argc -= i;
+    argv += i;
 }
 
 int DependCmdMain(int argc, char** argv)
@@ -73,10 +132,9 @@ int DependCmdMain(int argc, char** argv)
 
     vector<string> includePath;
     string objectDir;
-    string prependDir;
     bool warn = false;
 
-    ProcessOptions(argc, argv, programName, includePath, objectDir, prependDir,
+    ProcessDependCmdOptions(argc, argv, programName, includePath, objectDir,
         warn);
 
     // There must be at least one source file; print error if not:
@@ -90,18 +148,23 @@ int DependCmdMain(int argc, char** argv)
 
     for (int i = 0; i < argc; i++)
     {
-        string fileName = argv[i];
-
+        string filePath = argv[i];        
+        
         // Open the file:
-
         FILE* fp = fopen(argv[i], "rb");
 
         if (fp == NULL)
         {
-            string message = "failed to open file: \"" + fileName + "\"";
+            string message = "failed to open file: \"" + filePath + "\"";
             ErrorExit(programName, message);
         }
-
+        
+        string fileName;
+        string prependDir;
+        
+        // Get absolute directory (prependDir) and filename for the source file
+        GetSrcFileDir(filePath, fileName, prependDir);
+                
         const char* start = fileName.c_str();
         const char* dot = strrchr(start, '.');
 
@@ -119,8 +182,6 @@ int DependCmdMain(int argc, char** argv)
                 "or \".s\": " + fileName);
         }
 
-        string objectFileName;
-
         if (objectDir.size())
         {
             objectFileName = objectDir;
@@ -132,8 +193,8 @@ int DependCmdMain(int argc, char** argv)
 
         set<string, less<string> > cache;
 
-        ProcessFile(objectFileName, fileName, programName, fp, includePath,
-            prependDir, 0, cache, PrintDependency, warn);
+        ProcessFile(fileName, programName, fp, includePath, prependDir, 0, 
+            cache, PrintDependency, warn);
     }
 
     return 0;

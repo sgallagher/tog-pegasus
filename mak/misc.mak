@@ -33,7 +33,7 @@ misc:
 
 ifeq ($(OPTION),1)
 general:
-	@$(foreach i, $(SOURCES),  mu srclist -I$(PEGASUS_ROOT)/src -D$(PEGASUS_ROOT)/src/$(DIR) $(i) >> $(PEGASUS_HOME)/SourceList;)
+	@$(foreach i, $(SOURCES),  mu srclist -I$(PEGASUS_ROOT)/src  $(i) >> $(PEGASUS_HOME)/SourceList;)
 endif
 
 ifeq ($(OPTION),3)

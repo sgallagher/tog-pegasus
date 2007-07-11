@@ -30,6 +30,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+// NOCHKSRC
 
 #ifndef _CMPIMACS_H_
 #   define _CMPIMACS_H_
@@ -3033,12 +3034,25 @@ CMPIInstanceMI *CMInstanceMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-     CmpiStatus rc = provider->initialize(ctx); \
-     if (rc.rc ()) \
+     try \
      { \
-        delete provider; \
-        provider = 0; \
-        throw rc; \
+         CmpiStatus lrc = provider->initialize(ctx); \
+         if (lrc.rc ()) \
+         { \
+            delete provider; \
+            provider = 0; \
+            rc->rc = lrc.rc(); \
+            rc->msg = NULL; \
+            return NULL; \
+         } \
+     } \
+     catch (...) \
+     { \
+         delete provider; \
+         provider = 0; \
+         rc->rc = CMPI_RC_ERR_FAILED; \
+         rc->msg = NULL; \
+         return NULL; \
      } \
      base##pn.setBaseMI(provider); \
     } \
@@ -3083,12 +3097,25 @@ CMPIAssociationMI *CMAssociationMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-     CmpiStatus rc = provider->initialize(ctx); \
-     if (rc.rc ()) \
+     try \
      { \
-        delete provider; \
-        provider = 0; \
-        throw rc; \
+         CmpiStatus lrc = provider->initialize(ctx); \
+         if (lrc.rc ()) \
+         { \
+            delete provider; \
+            provider = 0; \
+            rc->rc = lrc.rc(); \
+            rc->msg = NULL; \
+            return NULL; \
+         } \
+     } \
+     catch (...) \
+     { \
+         delete provider; \
+         provider = 0; \
+         rc->rc = CMPI_RC_ERR_FAILED; \
+         rc->msg = NULL; \
+         return NULL; \
      } \
      base##pn.setBaseMI(provider); \
     } \
@@ -3130,12 +3157,25 @@ CMPIMethodMI *CMMethodMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-     CmpiStatus rc = provider->initialize(ctx); \
-     if (rc.rc ()) \
+     try \
      { \
-        delete provider; \
-        provider = 0; \
-        throw rc; \
+         CmpiStatus lrc = provider->initialize(ctx); \
+         if (lrc.rc ()) \
+         { \
+            delete provider; \
+            provider = 0; \
+            rc->rc = lrc.rc(); \
+            rc->msg = NULL; \
+            return NULL; \
+         } \
+     } \
+     catch (...) \
+     { \
+         delete provider; \
+         provider = 0; \
+         rc->rc = CMPI_RC_ERR_FAILED; \
+         rc->msg = NULL; \
+         return NULL; \
      } \
      base##pn.setBaseMI(provider); \
     } \
@@ -3178,12 +3218,25 @@ CMPropertyMIFactory (chars cn, chars pn):
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-     CmpiStatus rc = provider->initialize(ctx); \
-     if (rc.rc ()) \
+     try \
      { \
-        delete provider; \
-        provider = 0; \
-        throw rc; \
+         CmpiStatus lrc = provider->initialize(ctx); \
+         if (lrc.rc ()) \
+         { \
+            delete provider; \
+            provider = 0; \
+            rc->rc = lrc.rc(); \
+            rc->msg = NULL; \
+            return NULL; \
+         } \
+     } \
+     catch (...) \
+     { \
+         delete provider; \
+         provider = 0; \
+         rc->rc = CMPI_RC_ERR_FAILED; \
+         rc->msg = NULL; \
+         return NULL; \
      } \
      base##pn.setBaseMI(provider); \
     } \
@@ -3237,12 +3290,25 @@ CMPIIndicationMI *CMIndicationMIFactory (chars cn, chars pn);
    if (provider == 0) {\
      provider = new cn(CmpiBroker((CMPIBroker*)broker),ctx); \
      provider->setProviderBase(&base##pn); \
-     CmpiStatus rc = provider->initialize(ctx); \
-     if (rc.rc ()) \
+     try \
      { \
-        delete provider; \
-        provider = 0; \
-        throw rc; \
+         CmpiStatus lrc = provider->initialize(ctx); \
+         if (lrc.rc ()) \
+         { \
+            delete provider; \
+            provider = 0; \
+            rc->rc = lrc.rc(); \
+            rc->msg = NULL; \
+            return NULL; \
+         } \
+     } \
+     catch (...) \
+     { \
+         delete provider; \
+         provider = 0; \
+         rc->rc = CMPI_RC_ERR_FAILED; \
+         rc->msg = NULL; \
+         return NULL; \
      } \
      base##pn.setBaseMI(provider); \
     } \

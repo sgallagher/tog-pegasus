@@ -60,7 +60,7 @@ endif
 
 ifdef PEGASUS_HAS_SSL
   ifeq ($(OS_TYPE),windows)
-    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.l
+    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
   else
     ifdef OPENSSL_HOME
       EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
@@ -74,7 +74,7 @@ ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 endif
 
 ifeq ($(OS_TYPE),windows)
-  SYS_LIBS = ws2_32.lib advapi32.lib netapi32.lib
+  SYS_LIBS += ws2_32.lib advapi32.lib netapi32.lib
 endif
 
 include $(ROOT)/mak/library.mak

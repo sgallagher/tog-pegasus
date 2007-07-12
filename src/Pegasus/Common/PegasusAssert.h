@@ -33,23 +33,6 @@
 #ifndef Pegasus_Assert_h
 #define Pegasus_Assert_h
 
-#ifdef PEGASUS_OS_ZOS
-#include <ctest.h>
-# define PEGASUS_ASSERT_CTRACE(COND)                              \
-    do                                                            \
-    {                                                             \
-        if (!(COND))                                              \
-        {                                                         \
-            char buffer[200];                                     \
-            sprintf(buffer,                                       \
-                "PEGASUS_ASSERT failed in file %s at line %d\n",  \
-                __FILE__, __LINE__);                              \
-            ctrace(buffer);                                       \
-        }                                                         \
-    } while (0);
-#else
-# define PEGASUS_ASSERT_CTRACE(COND)
-#endif
 
 // NOTE:
 //
@@ -82,13 +65,8 @@
     defining the file, line and condition that was tested.
 */
 
-//#define PEGASUS_ASSERT(COND) assert(COND)
-#define PEGASUS_ASSERT(COND)          \
-    do                                \
-    {                                 \
-        PEGASUS_ASSERT_CTRACE(COND);  \
-        assert(COND);                 \
-    } while (0)
+#define PEGASUS_ASSERT(COND) assert(COND)
+
 
 /* define PEGASUS_DEBUG_ASSERT() assertion statement. This statement tests the
    condition defined by the parameters and if not True executes an assert.
@@ -102,8 +80,7 @@
 */
 
 #ifdef PEGASUS_DEBUG
-//# define PEGASUS_DEBUG_ASSERT(COND) assert(COND)
-# define PEGASUS_DEBUG_ASSERT(COND) PEGASUS_ASSERT(COND)
+# define PEGASUS_DEBUG_ASSERT(COND) assert(COND)
 #else
 # define PEGASUS_DEBUG_ASSERT(COND)
 #endif
@@ -114,7 +91,6 @@
     {                                                                     \
         if (!(COND))                                                      \
         {                                                                 \
-            PEGASUS_ASSERT_CTRACE(COND)                                   \
             printf("PEGASUS_TEST_ASSERT failed in file %s at line %d\n",  \
                 __FILE__, __LINE__);                                      \
             abort();                                                      \

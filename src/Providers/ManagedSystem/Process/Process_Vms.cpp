@@ -29,37 +29,51 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan <sean.keenan@hp.com>
-//
-// Modified By:
-//
 //%////////////////////////////////////////////////////////////////////////////
 //
+//  PTR 73-51-95
+//                 Checking for NULL return from "exe_std$cvt_epid_to_pcb()"
+//                 A process might have terminated, before calling
+//                 exe_std$cvt_epid_to_pcb(). This would return a NULL value
+//                 and results in a system crash.
+//
+//  PTR 73-51-1
+//                 Taking an abs() on timezone in convertToCIMDateString()
+//                 as any timezone less than zero, would corrupt the Date string
+//                 by placing two minus signs.
+//
+//  PTR 73-51-26
+//                 Changes made to incorporate review suggestions in
+//                 PTR 73-51-26. Removed local definition of PCB structure
+//                 and using PCB structure defined in <pcbdef.h>
+//
 //  PTR 73-51-25
-//                 Changes made to Process::getProcessSessionID() to return False as the
+//                 Changes made to Process::getProcessSessionID() to return
+//                 False as the
 //                 concept of process session id does not apply to OpenVMS
 //
 //  PTR 73-51-26 and PTR 73-51-15
 //                 Changes made to incorporate review comments in PTR 73-51-15.
 //                 Changed the getKernelModeTime(), getUserModeTime() and
-//                 getCPUTime() functions such that the pid of the current 
+//                 getCPUTime() functions such that the pid of the current
 //                 process is obtained from the pInfo->pid field and not by
 //                 passing the PID as a argument to the fucntions.
 //                 Removed the #include <pcbdef.h> and used local PCB structure
 //                 definition
 //  PTR 73-51-29
-//                 Changed the getCreationDate() fucntion to set the creation date to 
-//                 system uptime instead of 17--Nov-1858.
+//                 Changed the getCreationDate() fucntion to set the creation
+//                 date to system uptime instead of 17--Nov-1858.
 //
-//  PTR 73-51-26 
+//  PTR 73-51-26
 //                 Changed getCPUTicks function to take pid as first argument
-//                 and use exe_std$cvt_epid_to_pcb() call to get the PCB structure
-//                 pointer for each individual process. This would get the correct
-//                 kernel mode time, user mode time and CPU time for each process.
-//                 
-//                 Made changes to the getKernelModeTime(), getUserModeTime() and 
-//                 getCPUTime() functions to make call to getCPUTicks() by passing 
-//                 pid as first argument.
+//                 and use exe_std$cvt_epid_to_pcb() call to get the PCB
+//                 structure pointer for each individual process. This would
+//                 get the correct kernel mode time, user mode time and CPU
+//                 time for each process.
+//
+//                 Made changes to the getKernelModeTime(), getUserModeTime()
+//                 and getCPUTime() functions to make call to getCPUTicks() by
+//                 passing pid as first argument.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -133,23 +147,24 @@ static int procCount;
 
 proc_info_t proc_table = (proc_info_t) 0;
 
-Process::Process ()
+
+Process::Process()
 {
 }
 
-Process::~Process ()
+Process::~Process()
 {
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCaption
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getCaption (String & s)
@@ -160,14 +175,14 @@ Boolean Process::getCaption (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getDescription
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getDescription (String & s)
@@ -181,14 +196,14 @@ Boolean Process::getDescription (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getInstallDate
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getInstallDate (CIMDateTime & d)
@@ -200,14 +215,14 @@ Boolean Process::getInstallDate (CIMDateTime & d)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getStatus
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getStatus (String & s)
@@ -219,14 +234,14 @@ Boolean Process::getStatus (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getName
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getName (String & s)
@@ -237,14 +252,14 @@ Boolean Process::getName (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getPriority
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getPriority (Uint32 & i32)
@@ -255,14 +270,14 @@ Boolean Process::getPriority (Uint32 & i32)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getExecutionState
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getExecutionState (Uint16 & i16)
@@ -296,56 +311,56 @@ Boolean Process::getExecutionState (Uint16 & i16)
     switch (pInfo->state)
     {
       case 1:
-	i16 = Other;
-	break;
+        i16 = Other;
+        break;
       case 2:
       case 3:
       case 4:
       case 5:
-	i16 = Blocked;
+        i16 = Blocked;
         break;
       case 6:
-	i16 = Suspended_Blocked;
-	break;
+        i16 = Suspended_Blocked;
+        break;
       case 7:
-	i16 = Blocked;
-	break;
+        i16 = Blocked;
+        break;
       case 8:
-	i16 = Suspended_Blocked;
-	break;
+        i16 = Suspended_Blocked;
+        break;
       case 9:
-	i16 = Suspended_Ready;
-	break;
+        i16 = Suspended_Ready;
+        break;
       case 10:
-	i16 = Suspended_Blocked;
-	break;
+        i16 = Suspended_Blocked;
+        break;
       case 11:
-	i16 = Blocked;
-	break;
+        i16 = Blocked;
+        break;
       case 12:
-	i16 = Running;
-	break;
+        i16 = Running;
+        break;
       case 13:
-	i16 = Suspended_Ready;
-	break;
+        i16 = Suspended_Ready;
+        break;
       case 14:
-	i16 = Ready;
-	break;
+        i16 = Ready;
+        break;
       default:
-	i16 = Unknown;
+        i16 = Unknown;
     }
     return true;
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getOtherExecutionDescription
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getOtherExecutionDescription (String & s)
@@ -357,14 +372,14 @@ Boolean Process::getOtherExecutionDescription (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : convertToCIMDateString
 // DESCRIPTION       : Convert VMS date string to CIM format
-// ASSUMPTIONS       : 
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 int convertToCIMDateString (struct tm *t, char *time)
@@ -372,27 +387,27 @@ int convertToCIMDateString (struct tm *t, char *time)
   // Format the date.
 
   sprintf (time, "%04d%02d%02d%02d%02d%02d.000000%c%03d",
-	   t->tm_year + 1900,
-	   t->tm_mon + 1,
-	   t->tm_mday,
-	   t->tm_hour,
-	   t->tm_min,
-	   t->tm_sec,
-	   (timezone > 0) ? '-' : '+',
-	   timezone / 60 - (t->tm_isdst ? 60 : 0));
+           t->tm_year + 1900,
+           t->tm_mon + 1,
+           t->tm_mday,
+           t->tm_hour,
+           t->tm_min,
+           t->tm_sec,
+           (timezone > 0) ? '-' : '+',
+           abs(timezone / 60 - (t->tm_isdst ? 60 : 0)));
 
   return 1;
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCreationDate
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getCreationDate (CIMDateTime & d)
@@ -411,7 +426,7 @@ Boolean Process::getCreationDate (CIMDateTime & d)
     unsigned int retlen;
     struct tm timetm;
     struct tm *ptimetm = &timetm;
-   
+
     // Added to get system uptime for SWAPPER process - PTR 73-51-29
     long item = SYI$_BOOTTIME;
     char t_string[24] = "";
@@ -464,13 +479,13 @@ Boolean Process::getCreationDate (CIMDateTime & d)
       return false;
     }
 
-    //  Added to get sysuptime for SWAPPER process --- PTR 73-51-29 
+    //  Added to get sysuptime for SWAPPER process --- PTR 73-51-29
     if( bintime == 0 )
     {
       status = lib$getsyi(&item, 0, &sysinfo, &val, 0, 0);
       status = sys$bintim(&sysinfo, &bintime);
     }
- 
+
     status = sys$numtim (timbuf, &bintime);
     if (!$VMS_STATUS_SUCCESS (status))
     {
@@ -503,14 +518,14 @@ Boolean Process::getCreationDate (CIMDateTime & d)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getTerminationDate
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getTerminationDate (CIMDateTime & d)
@@ -522,52 +537,57 @@ Boolean Process::getTerminationDate (CIMDateTime & d)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : GetCPUTicks
 // DESCRIPTION       : Get the percentage of CPU time this process is taking.
-// ASSUMPTIONS       : 
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 // Kernel mode routine
 // Passing extended pid of each process as an argument -PTR 73-51-26
 
-int GetCPUTicks (long epid, long *pKernelTicks, long *pExecTicks, long *pSuperTicks, long *pUserTicks)
+int GetCPUTicks(
+    long epid,
+    long *pKernelTicks,
+    long *pExecTicks,
+    long *pSuperTicks,
+    long *pUserTicks)
 {
-   PCB *other;                           // Pointer to PCB structure
-  
+  PCB *other;                           // Pointer to PCB structure
+  int  status = 0;
+
+
   // call to get the PCB address of each process from the process extended pid
-
   other = exe_std$cvt_epid_to_pcb(epid);
-  
 
-  *pKernelTicks = other->pcb$l_kernel_counter;
-  *pExecTicks = other->pcb$l_exec_counter;
-  *pSuperTicks = other->pcb$l_super_counter;
-  *pUserTicks = other->pcb$l_user_counter;
+  // PTR 73-51-95. Checking for NULL PCB returned. in case
+  // the process has terminated.
+  if ((other) &&
+      (other->pcb$l_kt_high <= 1))
+  {
+    *pKernelTicks = other->pcb$l_kernel_counter;
+    *pExecTicks = other->pcb$l_exec_counter;
+    *pSuperTicks = other->pcb$l_super_counter;
+    *pUserTicks = other->pcb$l_user_counter;
+    status = SS$_NORMAL;        // single thread only
+  }
 
-  if (other->pcb$l_kt_high <= 1)
-  {
-    return (SS$_NORMAL);	// single thread only
-  }
-  else
-  {
-    return false;		// multithread not supported
-  }
+  return status;              // multithread not supported
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getKernelModeTime
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getKernelModeTime (Uint64& i64)
@@ -580,18 +600,14 @@ Boolean Process::getKernelModeTime (Uint64& i64)
       lUserTicks = 0;
 
     struct k1_arglist
-    {				// kernel call arguments
-
-
-      long lCount;		// number of arguments
-
+    {    // kernel call arguments
+      long lCount;           // number of arguments
       long epid;
       long *pKernelTicks;
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
-    }
-    getcputickskargs = {5};	// init to 5 arguments
+    } getcputickskargs = {5};  // init to 5 arguments
 
     getcputickskargs.epid        = pInfo->pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
@@ -605,19 +621,19 @@ Boolean Process::getKernelModeTime (Uint64& i64)
       return false;
     }
 
-    i64 = lKernelTicks / 10;	// milliseconds
+    i64 = lKernelTicks / 10;  // milliseconds
     return true;
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getUserModeTime
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// KERNELNOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// KERNELNOTES             :
+// =============================================================================
 //
 
 Boolean Process::getUserModeTime (Uint64& i64)
@@ -630,15 +646,14 @@ Boolean Process::getUserModeTime (Uint64& i64)
       lUserTicks = 0;
 
     struct k1_arglist
-    {				// kernel call arguments
-      long lCount;		// number of arguments
+    {                           // kernel call arguments
+      long lCount;              // number of arguments
       long epid;
       long *pKernelTicks;
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
-    }
-    getcputickskargs = {5};	// init to 5 arguments
+    } getcputickskargs = {5};     // init to 5 arguments
 
     getcputickskargs.epid         = pInfo->pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
@@ -652,19 +667,19 @@ Boolean Process::getUserModeTime (Uint64& i64)
       return false;
     }
 
-    i64 = lUserTicks / 10;	// milliseconds
+    i64 = lUserTicks / 10;      // milliseconds
     return true;
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getWorkingSetSize
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getWorkingSetSize (Uint64 & i64)
@@ -675,14 +690,14 @@ Boolean Process::getWorkingSetSize (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getRealUserID
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getRealUserID (Uint64 & i64)
@@ -693,14 +708,14 @@ Boolean Process::getRealUserID (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getProcessGroupID
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getProcessGroupID (Uint64 & i64)
@@ -711,33 +726,32 @@ Boolean Process::getProcessGroupID (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getProcessSessionID
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 // Changed to return false - PTR 73-51-25
-Boolean Process::getProcessSessionID (Uint64 & i64)
-  const
-  {             
+Boolean Process::getProcessSessionID (Uint64 & i64) const
+{
     // Not Supported
     return false;
-  }
+}
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getProcessTTY
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getProcessTTY (String & s)
@@ -748,14 +762,14 @@ Boolean Process::getProcessTTY (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getModulePath
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getModulePath (String & s)
@@ -767,14 +781,14 @@ Boolean Process::getModulePath (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getParameters
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getParameters (Array < String > &as)
@@ -786,14 +800,14 @@ Boolean Process::getParameters (Array < String > &as)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getProcessNiceValue
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getProcessNiceValue (Uint32 & i32)
@@ -817,14 +831,14 @@ Boolean Process::getProcessNiceValue (Uint32 & i32)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getProcessWaitingForEvent
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getProcessWaitingForEvent (String & s)
@@ -835,65 +849,65 @@ Boolean Process::getProcessWaitingForEvent (String & s)
     switch (pInfo->state)
     {
       case 1:
-	sprintf (buf, "Collided Page WAIT");
-	s = buf;
-	break;
+        sprintf (buf, "Collided Page WAIT");
+        s = buf;
+        break;
       case 2:
-	sprintf (buf, "Miscellaneous WAIT");
-	s = buf;
-	break;
+        sprintf (buf, "Miscellaneous WAIT");
+        s = buf;
+        break;
       case 3:
-	sprintf (buf, "Common Event Flag WAIT");
-	s = buf;
-	break;
+        sprintf (buf, "Common Event Flag WAIT");
+        s = buf;
+        break;
       case 4:
-	sprintf (buf, "Page Fault WAIT");
-	s = buf;
-	break;
+        sprintf (buf, "Page Fault WAIT");
+        s = buf;
+        break;
       case 5:
-	sprintf (buf, "Local Event Flag WAIT (resident)");
-	s = buf;
-	break;
+        sprintf (buf, "Local Event Flag WAIT (resident)");
+        s = buf;
+        break;
       case 6:
-	sprintf (buf, "Local Event Flag WAIT (outswapped)");
-	s = buf;
-	break;
+        sprintf (buf, "Local Event Flag WAIT (outswapped)");
+        s = buf;
+        break;
       case 7:
-	sprintf (buf, "Hibernate WAIT (resident)");
-	s = buf;
-	break;
+        sprintf (buf, "Hibernate WAIT (resident)");
+        s = buf;
+        break;
       case 8:
-	sprintf (buf, "Hibernate WAIT (outswapped)");
-	s = buf;
-	break;
+        sprintf (buf, "Hibernate WAIT (outswapped)");
+        s = buf;
+        break;
       case 9:
-	sprintf (buf, "Suspend WAIT (resident)");
-	s = buf;
-	break;
+        sprintf (buf, "Suspend WAIT (resident)");
+        s = buf;
+        break;
       case 10:
-	sprintf (buf, "Suspend WAIT (outswapped)");
-	s = buf;
-	break;
+        sprintf (buf, "Suspend WAIT (outswapped)");
+        s = buf;
+        break;
       case 11:
-	sprintf (buf, "Free Page WAIT");
-	s = buf;
-	break;
+        sprintf (buf, "Free Page WAIT");
+        s = buf;
+        break;
       default:
-	sprintf (buf, "Not Waiting!");
-	s = buf;
+        sprintf (buf, "Not Waiting!");
+        s = buf;
     }
     return true;
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCPUTime
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getCPUTime (Uint32& i32)
@@ -912,15 +926,14 @@ Boolean Process::getCPUTime (Uint32& i32)
       fpercntime;
 
     struct k1_arglist
-    {				// kernel call arguments
-      long lCount;		// number of arguments
+    {                           // kernel call arguments
+      long lCount;              // number of arguments
       long epid;
       long *pKernelTicks;
       long *pExecTicks;
       long *pSuperTicks;
       long *pUserTicks;
-    }
-    getcputickskargs = {5};	// init to 5 arguments
+    } getcputickskargs = {5};     // init to 5 arguments
 
     typedef struct
     {
@@ -946,10 +959,10 @@ Boolean Process::getCPUTime (Uint32& i32)
 
     lTotalTicks = lKernelTicks + lExecTicks + lSuperTicks + lUserTicks;
 
-    fTotalTicks = lTotalTicks;	// 10 millisec ticks
-    fTotalTicks = fTotalTicks * 10000000;	// 100 nanosec ticks
+    fTotalTicks = lTotalTicks;  // 10 millisec ticks
+    fTotalTicks = fTotalTicks * 10000000;  // 100 nanosec ticks
 
-    pstartime = pInfo->p_stime;	// 100 nanosec ticks
+    pstartime = pInfo->p_stime;  // 100 nanosec ticks
 
     itmlst3[0].wlength = 4;
     itmlst3[0].wcode = SYI$_AVAILCPU_CNT;
@@ -980,14 +993,14 @@ Boolean Process::getCPUTime (Uint32& i32)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getRealText
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getRealText (Uint64 & i64)
@@ -999,14 +1012,14 @@ Boolean Process::getRealText (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getRealData
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getRealData (Uint64 & i64)
@@ -1018,14 +1031,14 @@ Boolean Process::getRealData (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getRealStack
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getRealStack (Uint64 & i64)
@@ -1037,14 +1050,14 @@ Boolean Process::getRealStack (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getVirtualText
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getVirtualText (Uint64 & i64)
@@ -1056,14 +1069,14 @@ Boolean Process::getVirtualText (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getVirtualData
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getVirtualData (Uint64 & i64)
@@ -1075,14 +1088,14 @@ Boolean Process::getVirtualData (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getVirtualStack
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getVirtualStack (Uint64 & i64)
@@ -1094,14 +1107,14 @@ Boolean Process::getVirtualStack (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getVirtualMemoryMappedFileSize
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getVirtualMemoryMappedFileSize (Uint64 & i64)
@@ -1113,14 +1126,14 @@ Boolean Process::getVirtualMemoryMappedFileSize (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getVirtualSharedMemory
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getVirtualSharedMemory (Uint64 & i64)
@@ -1132,14 +1145,14 @@ Boolean Process::getVirtualSharedMemory (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCpuTimeDeadChildren
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getCpuTimeDeadChildren (Uint64 & i64)
@@ -1151,14 +1164,14 @@ Boolean Process::getCpuTimeDeadChildren (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getSystemTimeDeadChildren
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getSystemTimeDeadChildren (Uint64 & i64)
@@ -1170,14 +1183,14 @@ Boolean Process::getSystemTimeDeadChildren (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getParentProcessID
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getParentProcessID (String & s)
@@ -1192,15 +1205,15 @@ Boolean Process::getParentProcessID (String & s)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getRealSpace
-// DESCRIPTION       : 
-// ASSUMPTIONS       : 
+// DESCRIPTION       :
+// ASSUMPTIONS       :
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
+// POST-CONDITIONS   :
 // NOTES             : returns a modified pIndex that can be used in a
 // subsequent call to get next process structure
-// ================================================================================
+// =============================================================================
 //
 
 Boolean Process::getRealSpace (Uint64 & i64)
@@ -1212,17 +1225,17 @@ Boolean Process::getRealSpace (Uint64 & i64)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getHandle
 // DESCRIPTION       : Uses the process id (PID) for the handle value.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
-String Process::getHandle (void)
+String Process::getHandle()
   const
   {
     char buf[100];
@@ -1233,17 +1246,17 @@ String Process::getHandle (void)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCSName
 // DESCRIPTION       : Platform-specific method to get CSName
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
-String Process::getCSName (void)
+String Process::getCSName()
   const
   {
     struct hostent *he;
@@ -1266,17 +1279,17 @@ String Process::getCSName (void)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getOSName
 // DESCRIPTION       : Platform-specific method to get OSname.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
-String Process::getOSName (void)
+String Process::getOSName()
   const
   {
     struct utsname unameInfo;
@@ -1294,36 +1307,37 @@ String Process::getOSName (void)
   }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getCurrentTime
-// DESCRIPTION       : Platform-specific routine to get a timestamp stat Name key
+// DESCRIPTION       : Platform-specific routine to get a timestamp stat Name
+//                     key
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
-String Process::getCurrentTime (void)
-  const
-  {
+String Process::getCurrentTime() const
+{
     time_t t = time (0);
 
     return String (ctime (&t));
-  }
+}
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getmaxprocount
-// DESCRIPTION       : Get the maximum number of processes allowed on this system.
+// DESCRIPTION       : Get the maximum number of processes allowed on this
+//                     system.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
-int getmaxprocount ()
+int getmaxprocount()
 {
   int status;
   unsigned long maxprocount;
@@ -1357,15 +1371,16 @@ int getmaxprocount ()
     return 0;
   }
 }
+
 //
-// ================================================================================
+// =============================================================================
 // NAME              : loadProcessInfo
 // DESCRIPTION       : get process info from system into internal data struct
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::loadProcessInfo (int &pIndex)
@@ -1386,9 +1401,10 @@ Boolean Process::loadProcessInfo (int &pIndex)
   {
     if (proc_table != NULL)
     {
-      free (proc_table);
+      free(proc_table);
     }
-    proc_table = (proc_info_t) calloc (maxprocount + 1, sizeof (struct proc_info));
+    proc_table =
+      (proc_info_t) calloc (maxprocount + 1, sizeof (struct proc_info));
     pInfo = pData = proc_table;
 
     jpictx2 = 0;
@@ -1492,14 +1508,14 @@ Boolean Process::loadProcessInfo (int &pIndex)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : buildProcessTable
 // DESCRIPTION       : process table build loop
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::buildProcessTable ()
@@ -1605,14 +1621,14 @@ Boolean Process::buildProcessTable ()
   return true;
 }
 //
-// ================================================================================
+// =============================================================================
 // NAME              : getProcessInfo
 // DESCRIPTION       : reset process table pointer based on the index
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::getProcessInfo (int Index)
@@ -1628,14 +1644,14 @@ Boolean Process::getProcessInfo (int Index)
 }
 
 //
-// ================================================================================
+// =============================================================================
 // NAME              : findProcess
 // DESCRIPTION       : find the requested process and load its data
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
-// ================================================================================
+// POST-CONDITIONS   :
+// NOTES             :
+// =============================================================================
 //
 
 Boolean Process::findProcess (const String & handle)

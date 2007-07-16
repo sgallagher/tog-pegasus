@@ -65,8 +65,9 @@ CIMObjectPath referenceObjName;
 static const String NAMESPACE("test/TestProvider");
 static const String CLASSNAME("TST_ChunkingStressInstance");
 static const String ASSOC_CLASSNAME("TST_ChunkingStressAssoc");
-
+// NOCHKSRC
 //////////////////////////////////////////////////////////////////////////////////
+// DOCHKSRC
 // Thread Parameters Class
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +195,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((ThreadReturnType)uniqueID);
+    my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
 
@@ -257,7 +258,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((ThreadReturnType)uniqueID);
+    my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
 
@@ -320,7 +321,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((ThreadReturnType)uniqueID);
+    my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
 
@@ -383,7 +384,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((ThreadReturnType)uniqueID);
+    my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
 
@@ -446,7 +447,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((ThreadReturnType)uniqueID);
+    my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
 
@@ -509,7 +510,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
     {
         cout << e.getMessage() << endl;
     }
-    my_thread->exit_self((ThreadReturnType)uniqueID);
+    my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
 
@@ -677,7 +678,9 @@ int main(int argc, char** argv)
     }
     catch(const CIMException & e)
     {
+// NOCHKSRC
         cout << "CIMException: " << e.getCode() << " " << e.getMessage() << endl;
+// DOCHKSRC
         return(1);
     }
     catch(const Exception & e)

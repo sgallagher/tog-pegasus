@@ -99,7 +99,7 @@ printEnvironmentVariables ()
        "PEGASUS_ROOT",
        "PEGASUS_PLATFORM",
        "PEGASUS_DEBUG",
-       "PEGASUS_JMPI_TRACE",
+       "PEGASUS_TEST_VERBOSE",
        "PATH",
        "LD_LIBRARY_PATH",
        "CLASSPATH",
@@ -131,14 +131,10 @@ main (int argc, char *argv[])
 {
     int rc = 1;
 
-#ifdef PEGASUS_DEBUG
-    if (getenv ("PEGASUS_JMPI_TRACE"))
+    if (getenv ("PEGASUS_TEST_VERBOSE"))
         trace = 1;
     else
         trace = 0;
-#else
-    trace = 0;
-#endif
 
     printEnvironmentVariables ();
 

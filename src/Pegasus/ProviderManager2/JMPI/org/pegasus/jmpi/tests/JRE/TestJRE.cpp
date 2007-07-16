@@ -56,6 +56,7 @@ int trace = 0;
 #endif
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+// NOCHKSRC
 static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
 
 static bool _getRegInfo(const char *lpchKeyword, char *lpchRetValue)
@@ -100,7 +101,7 @@ printEnvironmentVariables ()
       "PEGASUS_ROOT",
       "PEGASUS_PLATFORM",
       "PEGASUS_DEBUG",
-      "PEGASUS_JMPI_TRACE",
+      "PEGASUS_TEST_VERBOSE",
       "PATH",
       "LD_LIBRARY_PATH",
       "CLASSPATH",
@@ -753,21 +754,17 @@ int testJVM ()
    jv->jvm->DestroyJavaVM ();
 
    PEGASUS_STD(cerr)<<"testJVM: SUCCESS"<<PEGASUS_STD(endl);
-
+// DOCHKSRC
    return 0;
 }
 
 int
 main (int argc, char *argv[])
 {
-#ifdef PEGASUS_DEBUG
-   if (getenv ("PEGASUS_JMPI_TRACE"))
+   if (getenv ("PEGASUS_TEST_VERBOSE"))
       trace = 1;
    else
       trace = 0;
-#else
-   trace = 0;
-#endif
 
    printEnvironmentVariables ();
 

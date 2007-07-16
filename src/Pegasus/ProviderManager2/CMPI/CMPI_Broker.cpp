@@ -30,7 +30,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
+//NOCHKSRC
 #include "CMPI_Version.h"
 
 #include "CMPI_Broker.h"
@@ -236,8 +236,8 @@ extern "C" {
          Array<CIMObject> const &en=CM_CIMOM(mb)->execQuery(
                      OperationContext(*CM_Context(ctx)),
          CM_ObjectPath(cop)->getNameSpace(),
-         String(query),
-         String(lang));
+         String(lang),
+         String(query));
          CMSetStatus(rc,CMPI_RC_OK);
 
          return  reinterpret_cast<CMPIEnumeration*> (new CMPI_Object(

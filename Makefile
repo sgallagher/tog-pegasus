@@ -251,6 +251,7 @@ clobber: FORCE
 	- $(RMDIRHIER) $(PEGASUS_HOME)/obj
 
 dacim: FORCE
+	@$(TOUCH) $(PEGASUS_ROOT)/src/Pegasus/Client/CIMClient.cpp
 	@$(TOUCH) $(PEGASUS_ROOT)/src/Pegasus/Client/CIMClientRep.cpp
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client -f Makefile2
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client/tests/DirectAccessCIM

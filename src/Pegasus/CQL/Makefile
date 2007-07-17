@@ -36,8 +36,11 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_CQL_INTERNAL -DPEGASUS_INTERNALONLY -DCQLINPUT  
 
-# Next line can be used to debug CQL.y
-#LOCAL_DEFINES = -DPEGASUS_CQL_INTERNAL -DPEGASUS_INTERNALONLY -DCQL_DEBUG_GRAMMAR -DCQLINPUT 
+# The next line can be uncommented to turn on debug output from CQL.l
+#LOCAL_DEFINES += -DCQL_DEBUG_LEXER
+
+# The next line can be uncommented to turn on debug output from CQL.y
+#LOCAL_DEFINES += -DCQL_DEBUG_GRAMMAR
 
 ifneq ($(OS), HPUX) 
 ifneq ($(OS), zos)

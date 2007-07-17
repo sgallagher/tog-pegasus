@@ -1,3 +1,4 @@
+/* NOCHKSRC */
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
@@ -166,7 +167,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 167 "CQL.y"
+#line 129 "CQL.y"
 {
     char * strValue;
     String * _string;
@@ -177,7 +178,7 @@ typedef union YYSTYPE
     ExpressionOpType _opType;
     void * _node;
 }
-/* Line 1489 of yacc.c.  */
+/* Line 1529 of yacc.c.  */
 #line 182 "CQLtemp.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

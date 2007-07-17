@@ -45,54 +45,16 @@
 #define CQLFUNCTION 3
 #define CQLCHAINEDIDENTIFIER 4
 
-//#define CQL_DEBUG_GRAMMAR
-
-#ifdef CQL_DEBUG_GRAMMAR
-#define DEBUG_GRAMMAR 1
-#else
-#define DEBUG_GRAMMAR 0
-#endif
-
 int yylex();
-static char msg[200];
-void printf_(const char * msg)
-{
-    if(DEBUG_GRAMMAR == 1)
-        printf("%s\n",msg);
-}
-
-
-#define CQL_DEBUG_GRAMMAR
-
 #ifdef CQL_DEBUG_GRAMMAR
-#define CQLTRACE(X){ \
-   CQL_globalParserState->currentRule = X; \
-   sprintf(msg,"BISON::%s", X ); \
-   printf_(msg); \
-}
+#define CQL_DEBUG_TRACE(X) \
+    printf(X);
+#define CQL_DEBUG_TRACE2(X,Y) \
+    printf(X,Y);
 #else
-#define CQLTRACE(X)
+#define CQL_DEBUG_TRACE(X)
+#define CQL_DEBUG_TRACE2(X,Y)
 #endif
-
-#ifdef CQL_DEBUG_GRAMMAR
-#define CQLTRACE2( X, Y ){ \
-   CQL_globalParserState->currentRule = X; \
-   sprintf(msg,msg,"BISON::%s = %s\n", X, Y ); \
-   printf_(msg); \
-}
-#else
-#define CQLTRACE2( X,Y )
-#endif
-
-#define CQLTRACEMSG(X, Y) { \
-   sprintf(msg,"BISON::%s-> %s\n", X, Y); \
-   printf_(msg); \
-}
-
-#define CQLTRACEDECIMAL(X, Y) { \
-CQL_globalParserState->currentRule = X; \
-sprintf(msg,"BISON::chain-> X : Y = %d\n",Y); \
-}
 
 
 extern char * yytext;
@@ -290,7 +252,8 @@ void CQL_Bison_Cleanup(){
 /* CQLIdentifier */
 identifier  : TOK_IDENTIFIER 
     { 
-        CQLTRACE("identifier");
+        CQL_globalParserState->currentRule = "identifier";
+        CQL_DEBUG_TRACE("BISON::identifier\n");
 
         if(isUTF8Str(CQL_lval.strValue))
         {  
@@ -301,9 +264,7 @@ identifier  : TOK_IDENTIFIER
         }
         else
         {
-            sprintf(msg,"BISON::identifier-> BAD UTF\n");
-            printf_(msg);
-            CQLTRACEMSG("identifier", "BAD UTF");
+            CQL_DEBUG_TRACE("BISON::identifier-> BAD UTF\n");
 
             throw CQLSyntaxErrorException(
                 MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
@@ -317,23 +278,24 @@ identifier  : TOK_IDENTIFIER
 
 class_name : identifier  
     {
-        CQLTRACE2("class_name",(const char *)($1->getName().getString()
-                                              .getCString()) );
+        CQL_globalParserState->currentRule = "class_name";
+        CQL_DEBUG_TRACE2("BISON::class_name = %s\n", 
+            (const char *)($1->getName().getString().getCString()));
         $$ = $1;
     }
 ;
 
 class_path : class_name 
     { 
-        CQLTRACE("class_path");
+        CQL_globalParserState->currentRule = "class_path";
+        CQL_DEBUG_TRACE("BISON::class_path\n");
         $$ = $1;
     }
 ;
 /**********************************
 property_scope : class_path TOK_SCOPE
     { 
-        sprintf(msg,"BISON::property_scope = %s\n",$1); 
-        printf_(msg);
+        CQL_DEBUG_TRACE2("BISON::property_scope = %s\n",$1); 
     }
 ***********************************/
 ;
@@ -348,7 +310,8 @@ scoped_property : TOK_SCOPED_PROPERTY
         - "A::class.prop#'OK'
         - "A::class.prop[4]"
         */
-        CQLTRACE2("scoped_property",CQL_lval.strValue );
+        CQL_globalParserState->currentRule = "scoped_property";
+        CQL_DEBUG_TRACE2("BISON::scoped_property = %s\n", CQL_lval.strValue);
         
         if(isUTF8Str(CQL_lval.strValue))
         {
@@ -360,8 +323,7 @@ scoped_property : TOK_SCOPED_PROPERTY
         }
         else
         {
-            sprintf(msg,"BISON::scoped_property-> BAD UTF\n");
-            printf_(msg);
+            CQL_DEBUG_TRACE("BISON::scoped_property-> BAD UTF\n");
             throw CQLSyntaxErrorException(
                MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
                   "Bad UTF8 encountered parsing rule $0 in position $1.",
@@ -377,7 +339,8 @@ literal_string : TOK_STRING_LITERAL
         /*
         Make sure the literal is valid UTF8, then make a String
         */
-        CQLTRACE2("literal_string",CQL_lval.strValue );
+        CQL_globalParserState->currentRule = "literal_string";
+        CQL_DEBUG_TRACE2("BISON::literal_string-> %s\n", CQL_lval.strValue);
         
         if(isUTF8Str(CQL_lval.strValue))
         {
@@ -388,9 +351,7 @@ literal_string : TOK_STRING_LITERAL
         }
         else
         {
-            sprintf(msg,"BISON::literal_string-> BAD UTF\n");
-            printf_(msg);
-            CQLTRACEMSG("literal_string", "BAD UTF");
+            CQL_DEBUG_TRACE("BISON::literal_string-> BAD UTF\n");
             
             throw CQLSyntaxErrorException(
                MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
@@ -404,30 +365,32 @@ literal_string : TOK_STRING_LITERAL
 /* CQLValue */
 binary_value : TOK_BINARY 
     { 
-         CQLTRACE2("binary_value->TOK_BINARY", CQL_lval.strValue);
+        CQL_globalParserState->currentRule = "binary_value->TOK_BINARY";
+        CQL_DEBUG_TRACE2("BISON::binary_value-> %s\n", CQL_lval.strValue);
          
-         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary); 
-         _ObjPtr._ptr = $$;
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
+        $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary); 
+        _ObjPtr._ptr = $$;
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
     }
 | TOK_NEGATIVE_BINARY 
     { 
-         printf_(msg);
+        CQL_globalParserState->currentRule = 
+            "binary_value->TOK_NEGATIVE_BINARY";
+        CQL_DEBUG_TRACE2("BISON::binary_value-> %s\n", CQL_lval.strValue);
         
-         CQLTRACE2("binary_value->TOK_NEGATIVE_BINARY", CQL_lval.strValue);
-        
-         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false); 
-         _ObjPtr._ptr = $$;
-         _ObjPtr.type = Val;
-         _ptrs.append(_ObjPtr);
+        $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false); 
+        _ObjPtr._ptr = $$;
+        _ObjPtr.type = Val;
+        _ptrs.append(_ObjPtr);
     }
 ;
 
 /* CQLValue */
 hex_value : TOK_HEXADECIMAL 
     { 
-        CQLTRACE2("hex_value->TOK_HEXADECIMAL", CQL_lval.strValue);
+        CQL_globalParserState->currentRule = "hex_value->TOK_HEXADECIMAL";
+        CQL_DEBUG_TRACE2("BISON::hex_value-> %s\n", CQL_lval.strValue);
         
         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Hex);
         _ObjPtr._ptr = $$;
@@ -436,7 +399,9 @@ hex_value : TOK_HEXADECIMAL
     }
 | TOK_NEGATIVE_HEXADECIMAL 
     { 
-        CQLTRACE2("hex_value->TOK_NEGATIVE_HEXADECIMAL", CQL_lval.strValue);
+        CQL_globalParserState->currentRule = 
+            "hex_value->TOK_NEGATIVE_HEXADECIMAL";
+        CQL_DEBUG_TRACE2("BISON::hex_value-> %s\n", CQL_lval.strValue);
         
         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Hex, false);
         _ObjPtr._ptr = $$;
@@ -448,7 +413,8 @@ hex_value : TOK_HEXADECIMAL
 /* CQLValue */
 decimal_value : TOK_INTEGER 
     { 
-        CQLTRACE2("decimal_value->TOK_INTEGER", CQL_lval.strValue);
+        CQL_globalParserState->currentRule = "decimal_value->TOK_INTEGER";
+        CQL_DEBUG_TRACE2("BISON::decimal_value-> %s\n", CQL_lval.strValue);
         
         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Decimal); 
         _ObjPtr._ptr = $$;
@@ -457,7 +423,9 @@ decimal_value : TOK_INTEGER
     }
   | TOK_NEGATIVE_INTEGER 
     { 
-        CQLTRACE2("decimal_value->TOK_NEGATIVE_INTEGER", CQL_lval.strValue);
+        CQL_globalParserState->currentRule = 
+            "decimal_value->TOK_NEGATIVE_INTEGER";
+        CQL_DEBUG_TRACE2("BISON::decimal_value-> %s\n", CQL_lval.strValue);
         
         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Decimal, false);
         _ObjPtr._ptr = $$;
@@ -469,7 +437,8 @@ decimal_value : TOK_INTEGER
 /* CQLValue */
 real_value : TOK_REAL 
     { 
-        CQLTRACE2("real_value->TOK_REAL", CQL_lval.strValue);
+        CQL_globalParserState->currentRule = "real_value->TOK_REAL";
+        CQL_DEBUG_TRACE2("BISON::real_value-> %s\n", CQL_lval.strValue);
         
         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real);
         _ObjPtr._ptr = $$;
@@ -478,7 +447,8 @@ real_value : TOK_REAL
     }
   | TOK_NEGATIVE_REAL 
     { 
-        CQLTRACE2("real_value->TOK_NEGATIVE_REAL", CQL_lval.strValue);
+        CQL_globalParserState->currentRule = "real_value->TOK_NEGATIVE_REAL";
+        CQL_DEBUG_TRACE2("BISON::real_value-> %s\n", CQL_lval.strValue);
         
         $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
         _ObjPtr._ptr = $$;
@@ -490,6 +460,8 @@ real_value : TOK_REAL
 /* CQLValue */
 literal : literal_string 
         {
+            CQL_globalParserState->currentRule = "literal->literal_string";
+            CQL_DEBUG_TRACE("BISON::literal->literal_string\n");
             $$ = new CQLValue(*$1);
             _ObjPtr._ptr = $$;
             _ObjPtr.type = Val;
@@ -497,23 +469,28 @@ literal : literal_string
         }
     | decimal_value
         {
-            CQLTRACE("literal->decimal_value");
+            CQL_globalParserState->currentRule = "literal->decimal_value";
+            CQL_DEBUG_TRACE("BISON::literal->decimal_value\n");
         }
     | binary_value
         {
-            CQLTRACE("literal->binary_value");
+            CQL_globalParserState->currentRule = "literal->binary_value";
+            CQL_DEBUG_TRACE("BISON::literal->binary_value\n");
         }
     | hex_value
         {
-            CQLTRACE("literal->hex_value");
+            CQL_globalParserState->currentRule = "literal->hex_value";
+            CQL_DEBUG_TRACE("BISON::literal->hex_value\n");
         }
     | real_value
         {
-            CQLTRACE("literal->real_value");
+            CQL_globalParserState->currentRule = "literal->real_value";
+            CQL_DEBUG_TRACE("BISON::literal->real_value\n");
         }
     | TOK_TRUE
         {
-            CQLTRACE("literal->TOK_TRUE");
+            CQL_globalParserState->currentRule = "literal->TOK_TRUE";
+            CQL_DEBUG_TRACE("BISON::literal->TOK_TRUE\n");
         
             $$ = new CQLValue(Boolean(true));
             _ObjPtr._ptr = $$;
@@ -522,19 +499,21 @@ literal : literal_string
         }
     | TOK_FALSE
         {
-             CQLTRACE("literal->TOK_FALSE");
+            CQL_globalParserState->currentRule = "literal->TOK_FALSE";
+            CQL_DEBUG_TRACE("BISON::literal->TOK_FALSE\n");
             
-             $$ = new CQLValue(Boolean(false));
-             _ObjPtr._ptr = $$;
-             _ObjPtr.type = Val;
-             _ptrs.append(_ObjPtr);
+            $$ = new CQLValue(Boolean(false));
+            _ObjPtr._ptr = $$;
+            _ObjPtr.type = Val;
+            _ptrs.append(_ObjPtr);
         }
 ;
 
 /* String */
 array_index : expr
     {
-        CQLTRACE("array_index->expr");
+        CQL_globalParserState->currentRule = "array_index->expr";
+        CQL_DEBUG_TRACE("BISON::array_index->expr\n");
         
         CQLValue* _val = (CQLValue*)_factory.getObject($1,Predicate,Value);
         $$ = new String(_val->toString());
@@ -547,7 +526,8 @@ array_index : expr
 /* String */
 array_index_list : array_index
     {
-        CQLTRACE("array_index_list->array_index");
+        CQL_globalParserState->currentRule = "array_index_list->array_index";
+        CQL_DEBUG_TRACE("BISON::array_index_list->array_index\n");
         
         $$ = $1;
     }
@@ -556,7 +536,8 @@ array_index_list : array_index
 /* void* */
 chain : literal
     {
-        CQLTRACE("chain->literal");
+        CQL_globalParserState->currentRule = "chain->literal";
+        CQL_DEBUG_TRACE("BISON::chain->literal\n");
         
         chain_state = CQLVALUE;
         $$ = _factory.makeObject($1,Predicate);  
@@ -564,7 +545,8 @@ chain : literal
 
   | TOK_LPAR expr TOK_RPAR
     {
-        CQLTRACE("chain-> ( expr )");
+        CQL_globalParserState->currentRule = "chain-> ( expr )";
+        CQL_DEBUG_TRACE("BISON::chain-> ( expr )\n");
 
         chain_state = CQLPREDICATE;
         $$ = $2;
@@ -572,7 +554,8 @@ chain : literal
 
   | identifier
     {
-        CQLTRACE("chain->identifier");
+        CQL_globalParserState->currentRule = "chain->identifier";
+        CQL_DEBUG_TRACE("BISON::chain->identifier\n");
         
         chain_state = CQLIDENTIFIER;
         $$ = _factory.makeObject($1,Predicate);
@@ -580,7 +563,9 @@ chain : literal
 
   | identifier TOK_HASH literal_string
     {
-        CQLTRACE("chain->identifier#literal_string");
+        CQL_globalParserState->currentRule = 
+            "chain->identifier#literal_string";
+        CQL_DEBUG_TRACE("BISON::chain->identifier#literal_string\n");
         
         String tmp = $1->getName().getString();
         tmp.append("#").append(*$3);
@@ -591,25 +576,30 @@ chain : literal
 
   | scoped_property
     {
-         CQLTRACE("chain->scoped_property");
+        CQL_globalParserState->currentRule = "chain->scoped_property";
+        CQL_DEBUG_TRACE("BISON::chain->scoped_property\n");
         
-         chain_state = CQLIDENTIFIER;
-         $$ = _factory.makeObject($1,Predicate);
+        chain_state = CQLIDENTIFIER;
+        $$ = _factory.makeObject($1,Predicate);
     }
 
   | identifier TOK_LPAR arg_list TOK_RPAR
     {
-         CQLTRACE("chain->identifier( arg_list )");
+        CQL_globalParserState->currentRule = "identifier( arg_list )";
+        CQL_DEBUG_TRACE("BISON::identifier( arg_list )\n");
         
-         chain_state = CQLFUNCTION;
-         CQLFunction _func(*$1,_arglist);
-         $$ = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
-         _arglist.clear();
+        chain_state = CQLFUNCTION;
+        CQLFunction _func(*$1,_arglist);
+        $$ = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
+        _arglist.clear();
     }
 
   | chain TOK_DOT scoped_property
     {
-        CQLTRACEDECIMAL("chain TOK_DOT scoped_property", chain_state);
+        CQL_globalParserState->currentRule = "chain->chain.scoped_property";
+        CQL_DEBUG_TRACE2(
+            "BISON::chain-> chain TOK_DOT scoped_property : chain_state = %d\n"
+            ,chain_state);
         
         CQLIdentifier *_id;
         if(chain_state == CQLIDENTIFIER)
@@ -648,7 +638,9 @@ chain : literal
 
   | chain TOK_DOT identifier
     {
-        CQLTRACEDECIMAL("chain->chain.identifier", chain_state);
+        CQL_globalParserState->currentRule = "chain->chain.identifier";
+        CQL_DEBUG_TRACE2("BISON::chain->chain.identifier : chain_state = %d\n"
+            ,chain_state);
         
         if(chain_state == CQLIDENTIFIER)
         {
@@ -684,7 +676,11 @@ chain : literal
 
   | chain TOK_DOT identifier TOK_HASH literal_string
     {
-        CQLTRACEDECIMAL("chain->chain.identifier#literal_string", chain_state);
+        CQL_globalParserState->currentRule = 
+            "chain->chain.identifier#literal_string";
+        CQL_DEBUG_TRACE2(
+            "BISON::chain->chain.identifier#literal_string : chain_state = %d\n"
+            ,chain_state);
         
         if(chain_state == CQLIDENTIFIER)
         {
@@ -726,7 +722,11 @@ chain : literal
 
   | chain TOK_LBRKT array_index_list TOK_RBRKT
     {
-        CQLTRACEDECIMAL("chain->chain[ array_index_list ]", chain_state);
+        CQL_globalParserState->currentRule = 
+            "chain->chain[ array_index_list ]";
+        CQL_DEBUG_TRACE2(
+            "BISON::chain->chain[ array_index_list ] : chain_state = %d\n"
+            ,chain_state);
         
         if(chain_state == CQLIDENTIFIER)
         {
@@ -781,14 +781,17 @@ chain : literal
 
 concat : chain
     {
-        CQLTRACE("concat->chain");
+        CQL_globalParserState->currentRule = "concat->chain";
+        CQL_DEBUG_TRACE("BISON::concat->chain\n");
         
         $$ = ((CQLPredicate*)$1);
     }
 
   | concat TOK_DBL_PIPE literal_string
     {
-        CQLTRACE("concat->concat || literal_string");
+        CQL_globalParserState->currentRule = 
+            "concat->concat || literal_string";
+        CQL_DEBUG_TRACE("BISON::concat->concat || literal_string\n");
         
         CQLValue* tmpval = new CQLValue(*$3);
         _ObjPtr._ptr = tmpval;
@@ -875,7 +878,8 @@ concat : chain
 
 factor : concat
     {
-        CQLTRACE("factor->concat");
+        CQL_globalParserState->currentRule = "factor->concat";
+        CQL_DEBUG_TRACE("BISON::factor->concat\n");
         
         $$ = $1;
     }         
@@ -905,7 +909,8 @@ factor : concat
 
 term : factor
     {
-        CQLTRACE("term->factor");
+        CQL_globalParserState->currentRule = "term->factor";
+        CQL_DEBUG_TRACE("BISON::term->factor\n");
         
         $$ = $1;
     }
@@ -932,13 +937,14 @@ term : factor
 ;
 
 arith : term
-   {
-      CQLTRACE("arith->term");
+    {
+        CQL_globalParserState->currentRule = "arith->term";
+        CQL_DEBUG_TRACE("BISON::arith->term\n");
       
-      //CQLPredicate* _pred = new CQLPredicate(*$1);
-      //      _factory._predicates.append(_pred);
-      $$ = $1;
-   }
+        //CQLPredicate* _pred = new CQLPredicate(*$1);
+        //      _factory._predicates.append(_pred);
+        $$ = $1;
+    }
 /***********************8
    | arith TOK_PLUS term
    {
@@ -963,7 +969,8 @@ arith : term
 
 value_symbol : TOK_HASH literal_string
     {
-        CQLTRACE("value_symbol->#literal_string");
+        CQL_globalParserState->currentRule = "value_symbol->#literal_string";
+        CQL_DEBUG_TRACE("BISON::value_symbol->#literal_string\n");
         
         String tmp("#");
         tmp.append(*$2);
@@ -977,14 +984,17 @@ value_symbol : TOK_HASH literal_string
 
 arith_or_value_symbol : arith
     {
-        CQLTRACE("arith_or_value_symbol->arith");
+        CQL_globalParserState->currentRule = "arith_or_value_symbol->arith";
+        CQL_DEBUG_TRACE("BISON::arith_or_value_symbol->arith\n");
         
         $$ = $1;
     }
   | value_symbol
     {
         /* make into predicate */
-        CQLTRACE("arith_or_value_symbol->value_symbol");
+        CQL_globalParserState->currentRule = 
+            "arith_or_value_symbol->value_symbol";
+        CQL_DEBUG_TRACE("BISON::arith_or_value_symbol->value_symbol\n");
         
         CQLFactor _fctr(*$1);
         $$ = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
@@ -993,67 +1003,79 @@ arith_or_value_symbol : arith
 
 comp_op : TOK_EQ 
     {
-         CQLTRACE("comp_op->TOK_EQ");
+        CQL_globalParserState->currentRule = "comp_op->TOK_EQ";
+        CQL_DEBUG_TRACE("BISON::comp_op->TOK_EQ\n");
         
-         $$ = EQ;
+        $$ = EQ;
     }
   | TOK_NE
     {
-         CQLTRACE("comp_op->TOK_NE");
-         $$ = NE;
+        CQL_globalParserState->currentRule = "comp_op->TOK_NE";
+        CQL_DEBUG_TRACE("BISON::comp_op->TOK_NE\n");
+        $$ = NE;
     }
   | TOK_GT 
     {
-         CQLTRACE("comp_op->TOK_GT");
+        CQL_globalParserState->currentRule = "comp_op->TOK_GT";
+        CQL_DEBUG_TRACE("BISON::comp_op->TOK_GT\n");
         
-         $$ = GT;
+        $$ = GT;
     }
   | TOK_LT
     {
-         CQLTRACE("comp_op->TOK_LT");
-         $$ = LT;
+        CQL_globalParserState->currentRule = "comp_op->TOK_LT";
+        CQL_DEBUG_TRACE("BISON::comp_op->TOK_LT\n");
+        $$ = LT;
     }
   | TOK_GE
     {
-         CQLTRACE("comp_op->TOK_GE");
-         $$ = GE;
+        CQL_globalParserState->currentRule = "comp_op->TOK_GE";
+        CQL_DEBUG_TRACE("BISON::comp_op->TOK_GE\n");
+        $$ = GE;
     }
   | TOK_LE
     {
-         CQLTRACE("comp_op->TOK_LE");
-         $$ = LE;
+        CQL_globalParserState->currentRule = "comp_op->TOK_LE";
+        CQL_DEBUG_TRACE("BISON::comp_op->TOK_LE\n");
+        $$ = LE;
     }
 ;
 
 comp : arith
     {
-        CQLTRACE("comp->arith");
+        CQL_globalParserState->currentRule = "comp->arith";
+        CQL_DEBUG_TRACE("BISON::comp->arith\n");
         
         $$ = $1;
     }
   | arith TOK_IS TOK_NOT TOK_NULL
     {
-        CQLTRACE("comp->arith TOK_IS TOK_NOT TOK_NULL");
+        CQL_globalParserState->currentRule = 
+            "comp->arith TOK_IS TOK_NOT TOK_NULL";
+        CQL_DEBUG_TRACE("BISON::comp->arith TOK_IS TOK_NOT TOK_NULL\n");
         
         CQLExpression *_expr =
-         (CQLExpression*)(_factory.getObject($1,Expression));
+            (CQLExpression*)(_factory.getObject($1,Expression));
         CQLSimplePredicate _sp(*_expr, IS_NOT_NULL);
         _factory.setObject($1,&_sp,SimplePredicate);
         $$ = $1;
     }
   | arith TOK_IS TOK_NULL
     {
-        CQLTRACE("comp->arith TOK_IS TOK_NULL");
+        CQL_globalParserState->currentRule = "comp->arith TOK_IS TOK_NULL";
+        CQL_DEBUG_TRACE("BISON::comp->arith TOK_IS TOK_NULL\n");
         
         CQLExpression *_expr =
-             (CQLExpression*)(_factory.getObject($1,Expression));
+            (CQLExpression*)(_factory.getObject($1,Expression));
         CQLSimplePredicate _sp(*_expr, IS_NULL);
         _factory.setObject($1,&_sp,SimplePredicate);
         $$ = $1;
     }
   | arith comp_op arith_or_value_symbol
     {
-        CQLTRACE("comp->arith comp_op arith_or_value_symbol");
+        CQL_globalParserState->currentRule = 
+            "comp->arith comp_op arith_or_value_symbol";
+        CQL_DEBUG_TRACE("BISON::comp->arith comp_op arith_or_value_symbol\n");
         
         if($1->isSimple() && $3->isSimple())
         {
@@ -1081,7 +1103,9 @@ comp : arith
     }
   | value_symbol comp_op arith
     {
-        CQLTRACE("comp->value_symbol comp_op arith");
+        CQL_globalParserState->currentRule = 
+            "comp->value_symbol comp_op arith";
+        CQL_DEBUG_TRACE("BISON::comp->value_symbol comp_op arith\n");
         
         if($3->isSimple())
         {
@@ -1112,7 +1136,8 @@ comp : arith
         /* make sure $1 isSimple(), get its expression, make 
            simplepred->predicate 
         */
-        CQLTRACE("comp->arith _TOK_ISA identifier");
+        CQL_globalParserState->currentRule = "comp->arith _TOK_ISA identifier";
+        CQL_DEBUG_TRACE("BISON::comp->arith _TOK_ISA identifier\n");
         
         CQLExpression *_expr1 = (CQLExpression*)
         (_factory.getObject($1,Predicate,Expression));
@@ -1125,27 +1150,31 @@ comp : arith
     }
   | arith TOK_LIKE literal_string
     {
-         CQLTRACE("comp->arith TOK_LIKE literal_string");
+        CQL_globalParserState->currentRule = 
+            "comp->arith TOK_LIKE literal_string";
+        CQL_DEBUG_TRACE("BISON::comp->arith TOK_LIKE literal_string\n");
         
-         CQLExpression *_expr1 = (CQLExpression*)
+        CQLExpression *_expr1 = (CQLExpression*)
             (_factory.getObject($1,Predicate,Expression));
-         CQLValue _val(*$3);
-         CQLExpression *_expr2 = (CQLExpression*)
+        CQLValue _val(*$3);
+        CQLExpression *_expr2 = (CQLExpression*)
             (_factory.makeObject(&_val,Expression));
-         CQLSimplePredicate _sp(*_expr1, *_expr2, LIKE);
-         _factory.setObject($1,&_sp,SimplePredicate);
-         $$ = $1;
+        CQLSimplePredicate _sp(*_expr1, *_expr2, LIKE);
+        _factory.setObject($1,&_sp,SimplePredicate);
+        $$ = $1;
     }
 ;
 expr_factor : comp
     {
-        CQLTRACE("expr_factor->comp");
+        CQL_globalParserState->currentRule = "expr_factor->comp";
+        CQL_DEBUG_TRACE("BISON::expr_factor->comp\n");
         
         $$ = $1;
     }
   | TOK_NOT comp
     {
-        CQLTRACE("expr_factor->TOK_NOT comp");
+        CQL_globalParserState->currentRule = "expr_factor->TOK_NOT comp";
+        CQL_DEBUG_TRACE("BISON::expr_factor->TOK_NOT comp\n");
         
         $2->setInverted(!($2->getInverted()));
         $$ = $2;
@@ -1154,13 +1183,16 @@ expr_factor : comp
 
 expr_term : expr_factor
     {
-        CQLTRACE("expr_term->expr_factor");
+        CQL_globalParserState->currentRule = "expr_term->expr_factor";
+        CQL_DEBUG_TRACE("BISON::expr_term->expr_factor\n");
         
         $$ = $1;
     }
 | expr_term TOK_AND expr_factor
     {
-        CQLTRACE("expr_term->expr_term AND expr_factor");
+        CQL_globalParserState->currentRule = 
+            "expr_term->expr_term AND expr_factor";
+        CQL_DEBUG_TRACE("BISON::expr_term->expr_term AND expr_factor\n");
         
         $$ = new CQLPredicate();
         $$->appendPredicate(*$1);
@@ -1173,13 +1205,15 @@ expr_term : expr_factor
 
 expr : expr_term 
     {
-        CQLTRACE("expr->expr_term");
+        CQL_globalParserState->currentRule = "expr->expr_term";
+        CQL_DEBUG_TRACE("BISON::expr->expr_term\n");
         
         $$ = $1;     
         }
 | expr TOK_OR expr_term
     {
-        CQLTRACE("expr->expr OR expr_term");
+        CQL_globalParserState->currentRule = "expr->expr OR expr_term";
+        CQL_DEBUG_TRACE("BISON::expr->expr OR expr_term\n");
         
         $$ = new CQLPredicate();
         $$->appendPredicate(*$1);
@@ -1194,7 +1228,8 @@ arg_list : {;}
 /****************
    | TOK_STAR
       {
-         CQLTRACE("arg_list->TOK_STAR");
+        CQL_globalParserState->currentRule = "arg_list->TOK_STAR";
+        CQL_DEBUG_TRACE("BISON::arg_list->TOK_STAR\n");
          
          CQLIdentifier _id("*");
          CQLPredicate* _pred = (CQLPredicate*)
@@ -1210,7 +1245,8 @@ arg_list : {;}
 *******************/
     | expr
     {
-        CQLTRACE("arg_list->arg_list_sub->expr");
+        CQL_globalParserState->currentRule = "arg_list->arg_list_sub->expr";
+        CQL_DEBUG_TRACE("BISON::arg_list->arg_list_sub->expr\n");
         
         _arglist.append(*$1);
         /*
@@ -1224,7 +1260,8 @@ arg_list : {;}
 /****************************
    | TOK_DISTINCT TOK_STAR
       {
-         CQLTRACE("arg_list->TOK_DISTINCT TOK_STAR");
+        CQL_globalParserState->currentRule = "arg_list->TOK_DISTINCT TOK_STAR";
+        CQL_DEBUG_TRACE("BISON::arg_list->TOK_DISTINCT TOK_STAR\n");
 
          CQLIdentifier _id("DISTINCTSTAR");
          CQLPredicate* _pred = (CQLPredicate*)
@@ -1233,22 +1270,19 @@ arg_list : {;}
       }
    | arg_list_sub arg_list_tail
       {
-         sprintf(msg,"BISON::arg_list->arg_list_sub arg_list_tail\n");
-         printf_(msg);
+         CQL_DEBUG_TRACE("BISON::arg_list->arg_list_sub arg_list_tail\n");
       }
 ;
 
 arg_list_sub : expr
       {
-         sprintf(msg,"BISON::arg_list_sub->expr\n");
-         printf_(msg);
+         CQL_DEBUG_TRACE("BISON::arg_list_sub->expr\n");
         
          _arlist.append(*$1);            
       }   
    | TOK_DISTINCT expr
       {
-         sprintf(msg,"BISON::arg_list_sub->TOK_DISTINCT expr\n");
-         printf_(msg);
+         CQL_DEBUG_TRACE("BISON::arg_list_sub->TOK_DISTINCT expr\n");
     
          String tmp1("TOK_DISTINCT");
          CQLIdentifier* _id = (CQLIdentifier*)
@@ -1262,22 +1296,25 @@ arg_list_sub : expr
 arg_list_tail : {;}
    | TOK_COMMA arg_list_sub arg_list_tail
       {
-         sprintf(msg,"BISON::arg_list_tail->TOK_COMMA arg_list_sub"
+         CQL_DEBUG_TRACE("BISON::arg_list_tail->TOK_COMMA arg_list_sub"
              " arg_list_tail\n");
-         printf_(msg);
       }
 ;
 *******************/
 
 from_specifier : class_path
     {
-        CQLTRACE("from_specifier->class_path");
+        CQL_globalParserState->currentRule = "from_specifier->class_path";
+        CQL_DEBUG_TRACE("BISON::from_specifier->class_path\n");
         
         CQL_globalParserState->statement->appendClassPath(*$1);
     } 
   | class_path TOK_AS identifier
     {
-        CQLTRACE("from_specifier->class_path TOK_AS identifier");
+        CQL_globalParserState->currentRule = 
+            "from_specifier->class_path TOK_AS identifier";
+        CQL_DEBUG_TRACE(
+            "BISON::from_specifier->class_path TOK_AS identifier\n");
         
         CQLIdentifier _class(*$1);
         String _alias($3->getName().getString());
@@ -1286,7 +1323,9 @@ from_specifier : class_path
     }
   | class_path identifier
     {
-        CQLTRACE("from_specifier->class_path identifier");
+        CQL_globalParserState->currentRule = 
+            "from_specifier->class_path identifier";
+        CQL_DEBUG_TRACE("BISON::from_specifier->class_path identifier\n");
         
         CQLIdentifier _class(*$1);
         String _alias($2->getName().getString());
@@ -1297,13 +1336,15 @@ from_specifier : class_path
 
 from_criteria : from_specifier
     {
-        CQLTRACE("from_criteria->from_specifier");
+        CQL_globalParserState->currentRule = "from_criteria->from_specifier";
+        CQL_DEBUG_TRACE("BISON::from_criteria->from_specifier\n");
     }
 ;
 
 star_expr : TOK_STAR
     {
-        CQLTRACE("star_expr->TOK_STAR");
+        CQL_globalParserState->currentRule = "star_expr->TOK_STAR";
+        CQL_DEBUG_TRACE("BISON::star_expr->TOK_STAR\n");
         
         CQLIdentifier _id("*");
         $$ = (CQLChainedIdentifier*)
@@ -1311,7 +1352,8 @@ star_expr : TOK_STAR
     }
   | chain TOK_DOT TOK_STAR
     {
-        CQLTRACE("star_expr->chain.*");
+        CQL_globalParserState->currentRule = "star_expr->chain.*";
+        CQL_DEBUG_TRACE("BISON::star_expr->chain.*\n");
         
         CQLChainedIdentifier* _tmp = (CQLChainedIdentifier*)
         (_factory.getObject($1,Predicate,ChainedIdentifier));
@@ -1327,7 +1369,8 @@ star_expr : TOK_STAR
 
 selected_entry : expr 
     {
-        CQLTRACE("selected_entry->expr");
+        CQL_globalParserState->currentRule = "selected_entry->expr";
+        CQL_DEBUG_TRACE("BISON::selected_entry->expr\n");
         
         if($1->isSimpleValue())
         {
@@ -1348,7 +1391,8 @@ selected_entry : expr
     }
 | star_expr
     {
-        CQLTRACE("selected_entry->star_expr");
+        CQL_globalParserState->currentRule = "selected_entry->star_expr";
+        CQL_DEBUG_TRACE("BISON::selected_entry->star_expr\n");
         
         CQL_globalParserState->statement->appendSelectIdentifier(*$1);
     }
@@ -1356,7 +1400,10 @@ selected_entry : expr
 
 select_list : selected_entry select_list_tail
     {
-         CQLTRACE("select_list->selected_entry select_list_tail");
+        CQL_globalParserState->currentRule = 
+            "select_list->selected_entry select_list_tail";
+        CQL_DEBUG_TRACE(
+            "BISON::select_list->selected_entry select_list_tail\n");
     }
 ;
 
@@ -1364,14 +1411,18 @@ select_list_tail : {;} /* empty */
 
   | TOK_COMMA selected_entry select_list_tail
     {
-        CQLTRACE("select_list_tail->TOK_COMMA selected_entry"
-                 " select_list_tail");
+        CQL_globalParserState->currentRule = 
+            "select_list_tail->TOK_COMMA selected_entry select_list_tail";
+        CQL_DEBUG_TRACE(
+           "BISON::select_list_tail->TOK_COMMA"
+           " selected_entry select_list_tail\n");
     }
 ;
 
 search_condition : expr
     {
-        CQLTRACE("search_condition->expr");
+        CQL_globalParserState->currentRule = "search_condition->expr";
+        CQL_DEBUG_TRACE("BISON::search_condition->expr\n");
         
         CQL_globalParserState->statement->setPredicate(*$1);
     }
@@ -1381,7 +1432,10 @@ optional_where : {}
 
   | TOK_WHERE search_condition
     {
-        CQLTRACE( "optional_where->TOK_WHERE search_condition");
+        CQL_globalParserState->currentRule = 
+            "optional_where->TOK_WHERE search_condition";
+        CQL_DEBUG_TRACE(
+            "BISON::optional_where->TOK_WHERE search_condition\n");
         
         CQL_globalParserState->statement->setHasWhereClause();
     }
@@ -1389,7 +1443,8 @@ optional_where : {}
 
 select_statement : TOK_SELECT select_list TOK_FROM from_criteria optional_where 
     {
-        CQLTRACE("select_statement");
+        CQL_globalParserState->currentRule = "select_statement";
+        CQL_DEBUG_TRACE("select_statement\n");
         
         CQL_Bison_Cleanup();
     }

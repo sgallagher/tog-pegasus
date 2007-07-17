@@ -198,7 +198,8 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     {
         char ipAddress[PEGASUS_INET_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family, 
-            &((struct sockaddr_in*)(info->ai_addr))->sin_addr, ipAddress,
+            &(reinterpret_cast<struct sockaddr_in*>(info->ai_addr))->sin_addr,
+            ipAddress,
             PEGASUS_INET_ADDRSTR_LEN);
         hostIP = ipAddress;
         freeaddrinfo(info);
@@ -214,7 +215,8 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     {
         char ipAddress[PEGASUS_INET6_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family,
-            &((struct sockaddr_in6*)(info->ai_addr))->sin6_addr, ipAddress,
+            &(reinterpret_cast<struct sockaddr_in6*>(info->ai_addr))->sin6_addr,
+            ipAddress,
             PEGASUS_INET6_ADDRSTR_LEN);
         hostIP = ipAddress;
         freeaddrinfo(info);
@@ -548,7 +550,7 @@ Boolean System::isLocalHost(const String &hostName)
     while (res1 && !isLocal)
     {
         if (isLoopBack(AF_INET,
-            &((struct sockaddr_in*)res1->ai_addr)->sin_addr))
+            &(reinterpret_cast<struct sockaddr_in*>(res1->ai_addr))->sin_addr))
         {
             isLocal = true;
             break;
@@ -557,9 +559,12 @@ Boolean System::isLocalHost(const String &hostName)
         res2 = res2root;
         while (res2) 
         {
-            if (!memcmp(&((struct sockaddr_in*)res1->ai_addr)->sin_addr,
-                &((struct sockaddr_in*)res2->ai_addr)->sin_addr,
-                sizeof (struct in_addr)))
+            if (!memcmp(
+                    &(reinterpret_cast<struct sockaddr_in*>(res1->ai_addr))->
+                        sin_addr,
+                    &(reinterpret_cast<struct sockaddr_in*>(res2->ai_addr))->
+                        sin_addr,
+                    sizeof (struct in_addr)))
             {
                 isLocal = true;
                 break;
@@ -583,8 +588,10 @@ Boolean System::isLocalHost(const String &hostName)
     res1 = res1root;
     while (res1 && !isLocal)
     {
-        if (isLoopBack(AF_INET6,
-            &((struct sockaddr_in6*)res1->ai_addr)->sin6_addr))
+        if (isLoopBack(
+                AF_INET6,
+                &(reinterpret_cast<struct sockaddr_in6*>(res1->ai_addr))->
+                    sin6_addr))
         {
             isLocal = true;
             break;
@@ -593,9 +600,12 @@ Boolean System::isLocalHost(const String &hostName)
         res2 = res2root;
         while (res2)
         {
-            if (!memcmp(&((struct sockaddr_in6*)res1->ai_addr)->sin6_addr,
-                &((struct sockaddr_in6*)res2->ai_addr)->sin6_addr,
-                sizeof (struct in6_addr)))
+            if (!memcmp(
+                    &(reinterpret_cast<struct sockaddr_in6*>(res1->ai_addr))->
+                        sin6_addr,
+                    &(reinterpret_cast<struct sockaddr_in6*>(res2->ai_addr))->
+                        sin6_addr,
+                    sizeof (struct in6_addr)))
             {
                 isLocal = true;
                 break;
@@ -621,7 +631,9 @@ Boolean System::isLocalHost(const String &hostName)
     // Note: Platforms already supporting the inet_aton()
     //       should define their platform here,
     //        as this is the superior way to work
-#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_OS_AIX) || \
+    defined(PEGASUS_OS_HPUX)
 
     struct in_addr inaddr;
     // if inet_aton failed(return=0),

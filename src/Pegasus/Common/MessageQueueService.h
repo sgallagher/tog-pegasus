@@ -95,7 +95,6 @@ public:
     Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
     Boolean update_service(Uint32 capabilities, Uint32 mask);
     Boolean deregister_service();
-    virtual void _shutdown_incoming_queue();
 
     void find_services(
         String name,
@@ -114,6 +113,7 @@ public:
     Uint32 getIncomingCount() {return _incoming.count(); }
 
 protected:
+    virtual void _shutdown_incoming_queue();
     virtual Boolean accept_async(AsyncOpNode* op);
     virtual Boolean messageOK(const Message* msg);
     virtual void handleEnqueue() = 0;

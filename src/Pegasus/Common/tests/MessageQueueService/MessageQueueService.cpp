@@ -549,13 +549,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     if (verbose)
     {
-        cout << "closing service queue" << endl;
-    }
-
-    q_client->_shutdown_incoming_queue();
-
-    if (verbose)
-    {
         cout << " deleting client " << endl ;
     }
 
@@ -588,14 +581,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm)
     }
 
     q_server->deregister_service();
-
-    if (verbose)
-    {
-        cout << "closing server queue" << endl;
-    }
-
-    q_server->_shutdown_incoming_queue();
-
 
     if (verbose)
     {

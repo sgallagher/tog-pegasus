@@ -403,7 +403,6 @@ client_func (void *parm)
     }
 
     client->deregister_service();
-    client->_shutdown_incoming_queue();
 
     delete client;
     myself->exit_self((ThreadReturnType) 1);
@@ -426,8 +425,6 @@ server_func (void *parm)
     cout << "server shutting down" << endl;
 
   server->deregister_service ();
-  server->_shutdown_incoming_queue ();
-
 
   delete server;
 

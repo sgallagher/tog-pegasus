@@ -91,8 +91,9 @@ extern "C" {
       }
    }
 
-   static CMPIData instGetPropertyAt(const CMPIInstance* eInst, CMPICount pos, CMPIString** name,
-                              CMPIStatus* rc) {
+   static CMPIData instGetPropertyAt(
+       const CMPIInstance* eInst, CMPICount pos, CMPIString** name,
+       CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
 
@@ -190,8 +191,29 @@ extern "C" {
       Uint32 pos;
       int count=0;
 
-      if ((pos=inst->findProperty(sName))!=PEG_NOT_FOUND) {
+      if ((pos=inst->findProperty(sName))!=PEG_NOT_FOUND) 
+      {
+
          CIMProperty cp=inst->getProperty(pos);
+
+
+         // The CMPI interface uses the type "CMPI_instance" to represent both
+         // embedded objects and embedded instances. CMPI has no "CMPI_object"
+         // type. So when converting a CMPIValue with type "CMPI_instance" to
+         // a CIMValue (see value2CIMValue) the type CIMTYPE_OBJECT is always
+         // used. If the property's type is CIMTYPE_INSTANCE, and the value's
+         // type is CIMTYPE_OBJECT, then we convert the value's type to match
+         // the property's type.
+
+         if (cp.getType() == CIMTYPE_INSTANCE && v.getType() == CIMTYPE_OBJECT)
+         {
+            CIMObject co;
+            v.get(co);
+            
+            if (co.isInstance())
+                v.set(CIMInstance(co));
+         }
+
          try {
             cp.setValue(v);
             if (origin)
@@ -201,23 +223,23 @@ extern "C" {
             }
          }
          catch (const TypeMismatchException &) {
-	     if (_cmpi_trace) {
+             if (_cmpi_trace) {
            cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
            if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL) {
                cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
                abort();
              }
-		    }
+                    }
             CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
          }
          catch (const InvalidNameException &) {
-	     if (_cmpi_trace) {
+             if (_cmpi_trace) {
            cerr<<"-+- InvalidName exception for: "<<origin<<endl;
-		    }
+                    }
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
          }
          catch (const Exception &e) {
-		    if (_cmpi_trace) {
+                    if (_cmpi_trace) {
               cerr<<"-+- "<<e.getMessage()<<" exception for: "<<name<<endl;
               if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL) {
                  cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
@@ -281,13 +303,14 @@ extern "C" {
       try {
             if (clsRef.getKeyBindings().size()==0) {
               CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
-              // It seems that when converting the CIMInstnace to XML form, we miss
-              // CIMObjectPath from it. When we don't have namespace we may not get
-              // class, so make ObjectPath with class-name only.
-              // TODO: This will create problems when passing the EmbeddedInstances
-              // as arguements to MethodProviders, where it needs to get ObjectPath
-              // from instance. Shall we need to include CIMObjectPath in CIMInstance
-              // while converting to XML form ??? ...  
+              // It seems that when converting the CIMInstnace to XML form, 
+              // we miss CIMObjectPath from it. When we don't have namespace 
+              // we may not get class, so make ObjectPath with class-name only.
+              // TODO: This will create problems when passing the 
+              // EmbeddedInstances as arguements to MethodProviders, where it 
+              // needs to get ObjectPath from instance. Shall we need to 
+              // include CIMObjectPath in CIMInstance while converting to XML 
+              // form ??? ...  
               if (!cc)
               {
                   objPath.reset(new CIMObjectPath(clsRef));
@@ -311,7 +334,9 @@ extern "C" {
       }
    }
 
-   static CMPIStatus instSetObjectPath(CMPIInstance* eInst, const CMPIObjectPath *obj)
+   static CMPIStatus instSetObjectPath(
+       CMPIInstance* eInst, 
+       const CMPIObjectPath *obj)
    {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       if (inst==NULL)
@@ -324,12 +349,12 @@ extern "C" {
       }
 
      CIMObjectPath &ref = *(CIMObjectPath*)(obj->hdl);
-	try {
-    	inst->setPath(ref); 
+        try {
+        inst->setPath(ref); 
      } catch (const TypeMismatchException &e) {
-	   CMReturnWithString(CMPI_RC_ERR_FAILED,
+           CMReturnWithString(CMPI_RC_ERR_FAILED,
             reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
-	}
+        }
     CMReturn ( CMPI_RC_OK);
    }
 

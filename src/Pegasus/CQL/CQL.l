@@ -1,45 +1,44 @@
-/*
-//%LICENSE////////////////////////////////////////////////////////////////
+/*//%2006///////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-*/
+//============================================================================*/
+/* NOCHKSRC */
 
-/*
-   This file describes the language tokens possible for CQL. When a token is
-   matched, the token postion is updated in the CQL_globalParserState, copying
-   from the lex buffer  to a shared buffer (shared with the lexer and parser)
-   may happen, then a token identifier is returned to the parser.
+/* 
+   This file describes the language tokens possible for CQL. When a token is matched,
+	the token postion is updated in the CQL_globalParserState, copying from the lex buffer
+	to a shared buffer (shared with the lexer and parser) may happen, then a token identifier
+	is returned to the parser.
 
-*/
+*/	
 
 %option never-interactive
-%option nounput
-%option noinput
 %{
 extern int CQLInput(char* buffer, int& numRead, int numRequested);
 extern int CQL_error(const char*);
@@ -58,17 +57,17 @@ extern int CQL_error(const char*);
 #include "CQLObjects.h"
 #include "CQLYACC.h"
 PEGASUS_NAMESPACE_BEGIN
-
+                                                                                
 extern CQLParserState* CQL_globalParserState;
-
+                                                                                
 PEGASUS_NAMESPACE_END
 
 
 #ifdef CQL_DEBUG_LEXER
 #define CQL_DEBUG_TRACE(X) \
-    printf(X);
+    printf(X "\n");
 #define CQL_DEBUG_TRACE2(X,Y) \
-    printf(X,Y);
+    printf(X "\n",Y);
 #else
 #define CQL_DEBUG_TRACE(X)
 #define CQL_DEBUG_TRACE2(X,Y)
@@ -120,228 +119,228 @@ Z [Zz]
 
 {S}{E}{L}{E}{C}{T} {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_SELECT] ", yytext);
-    CQL_globalParserState->currentTokenPos+=yyleng;
+    CQL_DEBUG_TRACE2("LEX: %s [SELECT] ", yytext);
+    CQL_globalParserState->currentTokenPos+=yyleng;    
     CQL_globalParserState->tokenCount++;
-    return TOK_SELECT;
+    return SELECT;
 }
 
 {F}{R}{O}{M} {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_FROM] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [FROM] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_FROM;
+    return FROM;
 }
 
 {W}{H}{E}{R}{E} {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_WHERE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [WHERE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_WHERE;
+    return WHERE;
 }
 
 {A}{N}{Y} {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_ANY] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [ANY] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_ANY;
+    return ANY;
 }
 
 {A}{S} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_AS] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [AS] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_AS;
+    return AS;
 }
 
 {A}{S}{C} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_ASC] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [ASC] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_ASC;
+    return ASC;
 }
 
 {B}{Y} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_BY] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [BY] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_BY;
+    return BY;
 }
 
 {D}{E}{S}{C} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_DESC] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [DESC] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_DESC;
+    return DESC;
 }
 
 
 {D}{I}{S}{T}{I}{N}{C}{T} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_DISTINCT] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [DISTINCT] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_DISTINCT;
+    return DISTINCT;
 }
 
 {E}{V}{E}{R}{Y} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_EVERY] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [EVERY] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_EVERY;
+    return EVERY;
 }
 
 {F}{I}{R}{S}{T} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_FIRST] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [FIRST] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_FIRST;
+    return FIRST;
 }
 
 {I}{N} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_IN] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [IN] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_IN;
+    return IN;
 }
 
 {I}{S} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_IS] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [IS] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_IS;
+    return IS;
 }
 
 {I}{S}{A} {
     CQL_DEBUG_TRACE2("LEX: %s [ISA] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_ISA;
+    return _ISA;
 }
 
 {L}{I}{K}{E} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOKE_LIKE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [LIKE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_LIKE;
+    return _LIKE;
 }
 
 {O}{R}{D}{E}{R} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_ORDER] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [ORDER] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_ORDER;
+    return ORDER;
 }
 
 {S}{A}{T}{I}{S}{F}{I}{E}{S} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_SATISFIES] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [SATISFIES] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_SATISFIES;
+    return SATISFIES;
 }
 
 {T}{R}{U}{E} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_TRUE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [_TRUE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_TRUE;
+    return _TRUE;
 }
 
 {F}{A}{L}{S}{E} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_FALSE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [_FALSE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_FALSE;
+    return _FALSE;
 }
 
 {N}{U}{L}{L} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_NULL] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [_NULL] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_NULL;
+    return _NULL;
 }
 
 {N}{O}{T} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_NOT] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [NOT] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_NOT;
+    return NOT;
 }
 
 {A}{N}{D} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_AND] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [AND] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_AND;
+    return _AND;
 }
 
 {O}{R} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_OR] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [OR] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_OR;
+    return _OR;
 }
-    /* NOCHKSRC */
+
 {IDENT_CHAR_NO_NUM}{IDENT_CHAR}*\:\:{IDENT_CHAR_NO_NUM}({IDENT_CHAR}*|{IDENT_CHAR}*\[.*\]|{IDENT_CHAR}*#\'.*\') {
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-     /* remove any single quotes surrounding embedded literals */
-     size_t n;
-     if(CQL_lval.strValue)
-             delete [] CQL_lval.strValue;
-     /* CHKSRC */
+	 /* remove any single quotes surrounding embedded literals */
+	 size_t n;
+	 if(CQL_lval.strValue)
+	         delete [] CQL_lval.strValue;
+
     // chuck
     if (!isUTF8Str(yytext))
-    {
+    {	
         CQL_DEBUG_TRACE("LEX: [STRING]-> BAD UTF\n");
         throw CQLSyntaxErrorException(
-            MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
-            "Bad UTF8 encountered parsing rule $0 in position $1.",
-            "identifier",
-            CQL_globalParserState->currentTokenPos));
+                                      MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+                                      String("Bad UTF8 encountered parsing rule $0 in position $1."),
+                                      String("identifier"),
+                                      CQL_globalParserState->currentTokenPos));
     }
-
-     String s(yytext);
-     Uint32 index = s.find("'");
-     if(index != PEG_NOT_FOUND){
-        s.remove(index,1);
-        s.remove(s.size()-1,1);
-        CString cstr = s.getCString();
-        const char* string = (const char*)cstr;
-        n = strlen(string);
-        CQL_lval.strValue = new char[n+1];
-        memcpy(CQL_lval.strValue, string, n);
-     }else{
-        n = strlen(yytext);
-        CQL_lval.strValue = new char[n+1];
+				
+	 String s(yytext);
+	 Uint32 index = s.find("'");
+	 if(index != PEG_NOT_FOUND){
+	 	s.remove(index,1);
+		s.remove(s.size()-1,1);
+		CString cstr = s.getCString();
+	 	const char* string = (const char*)cstr;
+		n = strlen(string);
+		CQL_lval.strValue = new char[n+1];
+		memcpy(CQL_lval.strValue, string, n);
+	 }else{
+	 	n = strlen(yytext);
+		CQL_lval.strValue = new char[n+1];
       memcpy(CQL_lval.strValue, yytext, n);
-     }
+	 }
     CQL_lval.strValue[n] = '\0';
     CQL_DEBUG_TRACE2("LEX: %s [SCOPED_PROPERTY] ", CQL_lval.strValue);
 
-    return TOK_SCOPED_PROPERTY;
+    return SCOPED_PROPERTY;
 }
 
 [-]{1}[0][Xx]{HEX_DIGIT}{HEX_DIGIT}* {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_HEXADECIMAL] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [NEGATIVE_HEXADECIMAL] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     /* copy the hex value */
     {
         size_t n = strlen(yytext);
-    if(CQL_lval.strValue)
-        delete [] CQL_lval.strValue;
+	if(CQL_lval.strValue)
+		delete [] CQL_lval.strValue;
         CQL_lval.strValue = new char[n + 1];
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return TOK_NEGATIVE_HEXADECIMAL;
+    return NEGATIVE_HEXADECIMAL;
 }
 
 [+]?[0][Xx]{HEX_DIGIT}{HEX_DIGIT}* {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_HEXADECIMAL] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [HEXADECIMAL] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     /* copy the hex value */
@@ -353,27 +352,27 @@ Z [Zz]
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return TOK_HEXADECIMAL;
+    return HEXADECIMAL;
 }
 
 [-]{1}{BINARY_DIGIT}{BINARY_DIGIT}*{B} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_BINARY] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [NEGATIVE_BINARY] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    /* copy the bin value */
+    /* copy the bin value */ 
     {
         size_t n = strlen(yytext);
-    if(CQL_lval.strValue)
+	if(CQL_lval.strValue)
                 delete [] CQL_lval.strValue;
         CQL_lval.strValue = new char[n + 1];
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return TOK_NEGATIVE_BINARY;
+    return NEGATIVE_BINARY;
 }
 
 [+]?{BINARY_DIGIT}{BINARY_DIGIT}*{B} {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_BINARY] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [BINARY] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     /* copy the bin value */
@@ -385,29 +384,29 @@ Z [Zz]
         memcpy(CQL_lval.strValue, yytext, n);
         CQL_lval.strValue[n] = '\0';
     }
-    return TOK_BINARY;
+    return BINARY;
 }
 
 
 [-]{1}{POSITIVE_DECIMAL_DIGIT}{DECIMAL_DIGIT}* {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_INTEGER] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [NEGATIVE_INTEGER] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
-        delete [] CQL_lval.strValue;
+	    delete [] CQL_lval.strValue;
     CQL_lval.strValue = new char[n + 1];
     memcpy(CQL_lval.strValue, yytext, n);
     CQL_lval.strValue[n] = '\0';
 
     /*CQL_lval.intValue = strtol(yytext, (char**)0, 10);*/
-    return TOK_NEGATIVE_INTEGER;
+    return NEGATIVE_INTEGER;
 }
 
 [+]?{DECIMAL_DIGIT}+ {
-
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_INTEGER] ", yytext);
+                                                                                                                                       
+    CQL_DEBUG_TRACE2("LEX: %s [INTEGER] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     size_t n = strlen(yytext);
@@ -416,14 +415,14 @@ Z [Zz]
     CQL_lval.strValue = new char[n + 1];
     memcpy(CQL_lval.strValue, yytext, n);
     CQL_lval.strValue[n] = '\0';
-
+                                                                                                                                       
     /*CQL_lval.intValue = strtol(yytext, (char**)0, 10);*/
-    return TOK_INTEGER;
+    return INTEGER;
 }
 
 [-]{1}{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_REAL] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [NEGATIVE_REAL] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     size_t n = strlen(yytext);
@@ -434,11 +433,12 @@ Z [Zz]
     CQL_lval.strValue[n] = '\0';
 
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
-    return TOK_NEGATIVE_REAL;
+    return NEGATIVE_REAL;
 }
-    /* NOCHKSRC */
+
 ([+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)?)|([+]?{DECIMAL_DIGIT}+\.{DECIMAL_DIGIT}*([eE][+-]?{DECIMAL_DIGIT}+)?) {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_REAL] ", yytext);
+                                                                                                                                       
+    CQL_DEBUG_TRACE2("LEX: %s [REAL] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     size_t n = strlen(yytext);
@@ -447,17 +447,17 @@ Z [Zz]
     CQL_lval.strValue = new char[n + 1];
     memcpy(CQL_lval.strValue, yytext, n);
     CQL_lval.strValue[n] = '\0';
-
+                                                                                                                                       
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
-    return TOK_REAL;
+    return REAL;
 }
-    /* CHKSRC */
+
 \'((\\')|(\\\\)|[^'(\\')])*\' {
-    /* \'[^\'\n]*\' */
+	/* \'[^\'\n]*\' */
     /* ATTN-B: handle long literals by using yyinput(). */
     /* ATTN-B: Handle expansion of special characters */
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_STRING_LITERAL] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [STRING] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     /* remove any escaped \ OR escaped ' */
@@ -465,26 +465,26 @@ Z [Zz]
     String _esc_doubleslash = "\\\\";
     String _esc_singlequote = "\\'";
 
+    // chuck
     if (!isUTF8Str(yytext))
-    {
+    {	
         CQL_DEBUG_TRACE("LEX: [STRING]-> BAD UTF\n");
         throw CQLSyntaxErrorException(
-            MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
-                "Bad UTF8 encountered parsing rule $0 in position $1.",
-                "literal_string",
-                CQL_globalParserState->currentTokenPos));
+                                      MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+                                      String("Bad UTF8 encountered parsing rule $0 in position $1."),
+                                      String("literal_string"),
+                                      CQL_globalParserState->currentTokenPos));
     }
 
     String s(yytext);
 
     Uint32 index = 1;
-    while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND ||
-           (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND)
-     {
-         // make sure we don't remove the slasy from say 'abc\'
-         if(index == s.size() - 2)
-                break;
-         s.remove(index,1);
+    while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND || 
+	       (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND)
+	 {
+				if(index == s.size() - 2) // make sure we dont remove the slash from say 'abc\'
+				break;
+				s.remove(index,1);
     }
     CString cstr = s.getCString();
     const char* string = (const char*)cstr;
@@ -492,14 +492,14 @@ Z [Zz]
     /* Copy the string (but remove the surrounding quotes */
 
     {
-    size_t n = strlen(string) - 2;
-    if(CQL_lval.strValue)
-        delete [] CQL_lval.strValue;
-    CQL_lval.strValue = new char[n + 1];
-    memcpy(CQL_lval.strValue, string + 1, n);
-    CQL_lval.strValue[n] = '\0';
+	size_t n = strlen(string) - 2;
+	if(CQL_lval.strValue)
+		delete [] CQL_lval.strValue;
+	CQL_lval.strValue = new char[n + 1];
+	memcpy(CQL_lval.strValue, string + 1, n);
+	CQL_lval.strValue[n] = '\0';
     }
-    return TOK_STRING_LITERAL;
+    return STRING_LITERAL;
 }
 
 \'[^\'\n]*$ {
@@ -510,167 +510,167 @@ Z [Zz]
 }
 
 \*{1} {
-   CQL_DEBUG_TRACE("LEX: [TOK_STAR] ");
+   CQL_DEBUG_TRACE("LEX: [STAR] ");
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return TOK_STAR;
+   return STAR;
 }
 
 \/{1} {
-   CQL_DEBUG_TRACE("LEX: [TOK_DIV] ");
+   CQL_DEBUG_TRACE("LEX: [DIV] ");
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return TOK_DIV;
+   return DIV;
 }
 
 \+{1} {
-   CQL_DEBUG_TRACE("LEX: [TOK_PLUS] ");
+   CQL_DEBUG_TRACE("LEX: [PLUS] ");
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return TOK_PLUS;
+   return PLUS;
 }
 
 \-{1} {
-   CQL_DEBUG_TRACE("LEX: [TOK_MINUS] ");
+   CQL_DEBUG_TRACE("LEX: [MINUS] ");
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return TOK_MINUS;
+   return MINUS;
 }
 
 \,{1} {
-   CQL_DEBUG_TRACE("LEX: [TOK_COMMA] ");
+   CQL_DEBUG_TRACE("LEX: [COMMA] ");
    CQL_globalParserState->currentTokenPos+=yyleng;
    CQL_globalParserState->tokenCount++;
-   return TOK_COMMA;
+   return COMMA;
 }
 
 \.{2} {
-    CQL_DEBUG_TRACE("LEX: [TOK_DOTDOT] ");
+    CQL_DEBUG_TRACE("LEX: [DOTDOT] ");
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_DOTDOT;
+    return DOTDOT;
 }
 
 \#{1} {
-    CQL_DEBUG_TRACE("LEX: [TOK_HASH] ");
-    CQL_globalParserState->currentTokenPos+=yyleng;
+    CQL_DEBUG_TRACE("LEX: [HASH] ");
+    CQL_globalParserState->currentTokenPos+=yyleng;                                                                   
     CQL_globalParserState->tokenCount++;
-    return TOK_HASH;
+    return HASH;
 }
 
 \.{1} {
-    CQL_DEBUG_TRACE("LEX: [TOK_DOT] ");
+    CQL_DEBUG_TRACE("LEX: [DOT] ");
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_DOT;
+    return DOT;
 }
 
 \[{1} {
-    CQL_DEBUG_TRACE("LEX: [TOK_LBRKT] ");
+    CQL_DEBUG_TRACE("LEX: [LBRKT] ");
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_LBRKT;
+    return LBRKT;
 }
 
 \]{1} {
-    CQL_DEBUG_TRACE("LEX: [TOK_RBRKT] ");
+    CQL_DEBUG_TRACE("LEX: [RBRKT] ");
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_RBRKT;
+    return RBRKT;
 }
 
 \({1} {
-    CQL_DEBUG_TRACE("LEX: [TOK_LPAR] ");
+    CQL_DEBUG_TRACE("LEX: [LPAR] ");
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_LPAR;
+    return LPAR;
 }
 
 \){1} {
-    CQL_DEBUG_TRACE("LEX: [TOK_RPAR] ");
+    CQL_DEBUG_TRACE("LEX: [RPAR] ");
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_RPAR;
+    return RPAR;
 }
 
 "||" {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_DBL_PIPE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [DBL_PIPE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_DBL_PIPE;
+    return DBL_PIPE;
 }
 
 "_" {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_UNDERSCORE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [UNDERSCORE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_UNDERSCORE;
+    return UNDERSCORE;
 }
 
-"=" {
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_EQ] ", yytext);
+"=" { 
+    CQL_DEBUG_TRACE2("LEX: %s [_EQ] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_EQ;
-}
-
-
-"<>" {
-
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_NE] ", yytext);
-    CQL_globalParserState->currentTokenPos+=yyleng;
-    CQL_globalParserState->tokenCount++;
-    return TOK_NE;
+    return _EQ; 
 }
 
 
-"<=" {
+"<>" { 
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_LE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [_NE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_LE;
+    return _NE; 
 }
 
-"<" {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_LT] ", yytext);
+"<=" { 
+
+    CQL_DEBUG_TRACE2("LEX: %s [_LE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_LT;
+    return _LE; 
 }
 
-">=" {
+"<" { 
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_GE] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [_LT] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_GE;
+    return _LT; 
 }
 
-">" {
+">=" { 
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_GT] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [_GE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_GT;
+    return _GE; 
+}
+
+">" { 
+
+    CQL_DEBUG_TRACE2("LEX: %s [_GT] ", yytext);
+    CQL_globalParserState->currentTokenPos+=yyleng;
+    CQL_globalParserState->tokenCount++;
+    return _GT; 
 }
 
 {IDENT_CHAR_NO_NUM}({IDENT_CHAR})*  {
 
-    CQL_DEBUG_TRACE2("LEX: %s [TOK_IDENTIFIER] ", yytext);
+    CQL_DEBUG_TRACE2("LEX: %s [IDENTIFIER] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     {
-        size_t n = strlen(yytext);
-        if(CQL_lval.strValue)
-            delete [] CQL_lval.strValue;
-        CQL_lval.strValue = new char[n + 1];
-        memcpy(CQL_lval.strValue, yytext, n);
-        CQL_lval.strValue[n] = '\0';
+	size_t n = strlen(yytext);
+	if(CQL_lval.strValue)
+		delete [] CQL_lval.strValue;
+	CQL_lval.strValue = new char[n + 1];
+	memcpy(CQL_lval.strValue, yytext, n);
+	CQL_lval.strValue[n] = '\0';
     }
 
-    return TOK_IDENTIFIER;
+    return IDENTIFIER;
 }
 
 {BLANK}+ {
@@ -680,8 +680,8 @@ Z [Zz]
 }
 
 \n {
-    CQL_globalParserState->currentTokenPos=0;
-    return 0;
+	CQL_globalParserState->currentTokenPos=0;
+	return 0;
    }
 
 <<EOF>> {
@@ -689,11 +689,10 @@ Z [Zz]
         }
 
 . {
-    delete [] CQL_lval.strValue;
     CQL_lval.strValue = 0;
-    CQL_DEBUG_TRACE("LEX::TOK_UNEXPECTED_CHAR\n");
+    CQL_DEBUG_TRACE("LEX::UNEXPECTED_CHAR\n");
 
-    return TOK_UNEXPECTED_CHAR;
+    return UNEXPECTED_CHAR;
 }
 
 %%

@@ -328,8 +328,11 @@ void Monitor::tickle()
     Socket::write(_tickle_client_socket,&_buffer, 2);
 }
 
-void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
+void Monitor::setState(
+    Uint32 index,
+    _MonitorEntry::entry_status status)
 {
+    AutoMutex autoEntryMutex(_entry_mut);
     // Set the state to requested state
     _entries[index]._status = status;
 }

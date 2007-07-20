@@ -29,19 +29,10 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <sys/types.h>
-#if !(defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC))
-# include <unistd.h>
-#endif
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -210,8 +201,6 @@ class MessageQueueClient : public MessageQueueService
 
 AtomicInt msg_count;
 AtomicInt client_count;
-
-Array<Uint32> services;
 
 
 Uint32 MessageQueueClient::get_qid()
@@ -458,6 +447,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     client_count++;
     while (client_count.get() < 3)
         Threads::yield();
+
+    Array<Uint32> services;
 
     while (services.size() == 0)
     {

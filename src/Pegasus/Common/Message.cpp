@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Message.h"
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/PegasusAssert.h>
 
@@ -67,6 +68,8 @@ void Message::print(ostream& os, Boolean printHeader) const
 
 static const char* _MESSAGE_TYPE_STRINGS[] =
 {
+    "HEARTBEAT/REPLY",
+
     "CIM_GET_CLASS_REQUEST_MESSAGE",
     "CIM_GET_INSTANCE_REQUEST_MESSAGE",
     "CIM_EXPORT_INDICATION_REQUEST_MESSAGE",
@@ -189,17 +192,16 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE"
 };
 
-char s[128];
-
 const char* MessageTypeToString(Uint32 messageType)
 {
-    if (messageType > DUMMY_MESSAGE && messageType < NUMBER_OF_MESSAGES )
-        return _MESSAGE_TYPE_STRINGS[messageType - 1];
-    if (messageType == 0)
-        return "HEARTBEAT/REPLY";
-    sprintf(s, "Unknown message type ( %d ) ( 0x%04X )",
-        messageType, messageType);
-    return s;
+    if (messageType >= DUMMY_MESSAGE && messageType < NUMBER_OF_MESSAGES)
+    {
+        return _MESSAGE_TYPE_STRINGS[messageType];
+    }
+
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+        "MessageTypeToString: Unknown message type 0x%04X", messageType));
+    return "UNKNOWN";
 }
 
 

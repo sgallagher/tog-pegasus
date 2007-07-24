@@ -1,46 +1,46 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/PegasusAssert.h>
 
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-const CIMNamespaceName interopNamespace = PEGASUS_NAMESPACENAME_INTEROP; 
+const CIMNamespaceName interopNamespace = CIMNamespaceName("root/PG_InterOp");
 
 void exitFailure(const String & msg)
 {
@@ -98,9 +98,6 @@ Array<CIMInstance> testAnyClass(CIMClient & client, const CIMName & className)
 
 void testInstanceClass(CIMClient & client, const CIMName & className)
 {
-    cout << "Testing Instance Class "
-        << (const char *)className.getString().getCString()
-        << "...";
     Array<CIMInstance> instances = testAnyClass(client, className);
 
     for(unsigned int i = 0, n = instances.size(); i < n; ++i)
@@ -114,10 +111,10 @@ void testInstanceClass(CIMClient & client, const CIMName & className)
         // Now test association traversal
         // Note that the "TestAssociationClass" method does a very good job
         // of testing association traversal between references contained in
-        // instances of the supplied association class. Therefore, all we
-        // really have to do here is make sure that the results of the
-        // associators, associatorNames, references, and referenceNames
-        // operations are consistent.
+        // instances of the supplied association class. Therefore, all we really
+        // have to do here is make sure that the results of the associators,
+        // associatorNames, references, and referenceNames operations are
+        // consistent.
         //
         Boolean failure = false;
         try
@@ -243,15 +240,10 @@ void testInstanceClass(CIMClient & client, const CIMName & className)
             currentPath.toString() + String(": ") + e.getMessage());
         }
     }
-
-    cout << "Test Complete" << endl;
 }
 
 void testAssociationClass(CIMClient & client, const CIMName & className)
 {
-    cout << "Testing Association Class "
-        << (const char *)className.getString().getCString()
-        << "...";
     Array<CIMInstance> instances = testAnyClass(client, className);
 
     for(unsigned int i = 0, n = instances.size(); i < n; ++i)
@@ -414,273 +406,43 @@ void testAssociationClass(CIMClient & client, const CIMName & className)
                 currentInstanceName.toString());
         }
     }
-
-    cout << "Test Complete" << endl;
 }
-
-void testDMTFProfileInstances(CIMClient &client)
-{
-    cout << "Testing DMTF Profiles instances...";
-
-    // Get All Registered profile names
-    Array<CIMObjectPath> regInstanceNames = client.enumerateInstanceNames(
-        interopNamespace,
-        CIMName("CIM_RegisteredProfile"));
-
-    // Find out DMTF autonomous and component profiles.
-    for(Uint32 i = 0, n = regInstanceNames.size() ; i < n ; ++i)
-    {
-        // Filter SNIA sub profile names.
-        if (regInstanceNames[i].getClassName().equal("PG_RegisteredSubProfile"))
-        {
-            continue;
-        }
-
-        Array<CIMObjectPath> result = client.associatorNames(
-            interopNamespace,
-            regInstanceNames[i],
-            CIMName("CIM_ReferencedProfile"));
-
-        Uint32 dmtfProfiles = 0;
-        for (Uint32 j = 0, k = result.size(); j < k ; ++j)
-        {
-            // Get only DMTF component profiles.
-            if (result[j].getClassName().equal("PG_RegisteredProfile"))
-            {
-                Array<CIMKeyBinding> keys = result[j].getKeyBindings();
-                String value = keys[0].getValue();
-                Uint32 index = value.find("DMTF");
-                if (index != PEG_NOT_FOUND)
-                {
-                    dmtfProfiles++;
-                }
-            }
-        }
-        if (dmtfProfiles && dmtfProfiles != result.size())
-        {
-            exitFailure(
-                String("Invalid component profiles for ")
-                    + regInstanceNames[i].toString());
-        }
-    }
-
-    cout << "Test Complete" << endl;
-}
-
-//
-// ATTN: The following indications profile tests will be removed once the
-// association opertaions are implemented for these classes. At present these
-// tests are pegasus specific.
-//
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-void _testHostedIndicationServiceInstance(CIMClient &client)
-{
-    cout << "Testing Association Class "
-        << (const char *)PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE.
-             getString().getCString()
-        << "...";
-    // Get PG_HostedIndicationService Instances
-    Array<CIMInstance> hostedInstances = client.enumerateInstances(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE);
-    PEGASUS_TEST_ASSERT(hostedInstances.size() == 1);
-
-    // Get PG_HostedIndicationService Instance names
-    Array<CIMObjectPath> hostedPaths = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE);
-    PEGASUS_TEST_ASSERT(hostedPaths.size() == 1);
-
-    // Get CIM_IndicationService instance names
-    Array<CIMObjectPath> servicePaths = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE);
-    PEGASUS_TEST_ASSERT(servicePaths.size() == 1);
-
-    // Test the CIM_IndicationService value.
-    CIMValue capValue = hostedInstances[0].getProperty(
-        hostedInstances[0].findProperty("Dependent")).getValue();
-    CIMObjectPath testPath;
-    capValue.get(testPath);
-    testPath.setNameSpace(CIMNamespaceName());
-    PEGASUS_TEST_ASSERT(testPath.identical(servicePaths[0]));
-
-    cout << "Test Complete" << endl;
-}
-
-void _testElementCapabilityInstance(CIMClient &client)
-{
-    cout << "Testing Association Class "
-        << (const char *)PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES.
-             getString().getCString()
-        << "...";
-
-    // Get CIM_IndicationServiceCapabilities instance names
-    Array<CIMObjectPath> capPaths = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES);
-    PEGASUS_TEST_ASSERT(capPaths.size() == 1);
-
-    // Get CIM_IndicationService instance names
-    Array<CIMObjectPath> servicePaths = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE);
-    PEGASUS_TEST_ASSERT(servicePaths.size() == 1);
-
-
-    // Get PG_ElementCapabilities instances
-    Array<CIMInstance> eleInstances = client.enumerateInstances(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES);
-    PEGASUS_TEST_ASSERT(eleInstances.size() == 1);
-
-    // Test PG_ElementCapabilities instance.
-    CIMValue capValue = eleInstances[0].getProperty(
-        eleInstances[0].findProperty("Capabilities")).getValue();
-
-    CIMValue meValue = eleInstances[0].getProperty(
-        eleInstances[0].findProperty("ManagedElement")).getValue();
-
-    // Now test the instance names of CIM_IndicationService instance and
-    // CIM_IndicationServiceCapabilities instance.
-    CIMObjectPath testPath;
-    capValue.get(testPath);
-    testPath.setNameSpace(CIMNamespaceName());
-    PEGASUS_TEST_ASSERT(testPath.identical(capPaths[0]));
-
-    meValue.get(testPath);
-    testPath.setNameSpace(CIMNamespaceName());
-    PEGASUS_TEST_ASSERT(testPath.identical(servicePaths[0]));
-
-    cout << "Test Complete" << endl;
-}
-
-void _testServiceAffectsElementInstances(CIMClient &client)
-{
-    cout << "Testing Association Class "
-        << (const char *)PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT.
-             getString().getCString()
-        << "...";
-
-    // Get PG_ServiceAffectsElement instances.
-    Array<CIMInstance> sfInstances = client.enumerateInstances(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT);
-
-    // Get PG_ServiceAffectsElement instance names
-    Array<CIMObjectPath> sfPaths = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT);
-
-    PEGASUS_TEST_ASSERT(sfInstances.size() == sfPaths.size());
-
-    // Get CIM_IndicationFilter instance names
-    Array<CIMObjectPath> filterPaths = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_INDFILTER);
-
-    // Get CIM_ListenerDestination instance names
-    Array<CIMObjectPath> handlerPaths = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_LSTNRDST);
-
-    // Count only handlers and filters from interop namespace
-    Uint32 elements = 0;
-    for (Uint32 i = 0; i < sfInstances.size() ; ++i)
-    {
-        CIMValue value = sfInstances[i].getProperty(
-            sfInstances[i].findProperty("AffectedElement")).getValue();
-        CIMObjectPath path;
-        value.get(path);
-        PEGASUS_TEST_ASSERT(path.getNameSpace() != CIMNamespaceName());
-        if (path.getNameSpace() == PEGASUS_NAMESPACENAME_INTEROP)
-        {
-             elements++;
-        }
-    }
-    PEGASUS_TEST_ASSERT(
-        elements == (filterPaths.size() + handlerPaths.size()));
-
-    cout << "Test Complete" << endl;
-}
-
-void testIndicationProfileInstances(CIMClient &client)
-{
-    _testHostedIndicationServiceInstance(client);
-    _testElementCapabilityInstance(client);
-    _testServiceAffectsElementInstances(client);
-}
-#endif
 
 ///////////////////////////////////////////////////////////////
 //    MAIN
 ///////////////////////////////////////////////////////////////
 
-int main()
+int main(int argc, char** argv)
 {
-    cout << "Starting Server Profile Tests" << endl << endl;
     // Create a locally-connected client
     CIMClient client;
 
     try
     {
         client.connectLocal();
-        client.setTimeout(60000); // Set the timeout to one minute
+        client.setTimeout(30000); // Extend the timeout to thirty seconds
     }
     catch(Exception &)
     {
         exitFailure(String("Could not connect to server"));
     }
 
-    CIMName currentClass;
-    try
-    {
-        currentClass = CIMName("CIM_ComputerSystem");
-        testInstanceClass(client, currentClass);
-        currentClass = CIMName("CIM_ObjectManager");
-        testInstanceClass(client, currentClass);
-        currentClass = CIMName("CIM_RegisteredSubProfile");
-        testInstanceClass(client, currentClass);
-        currentClass = CIMName("CIM_RegisteredProfile");
-        testInstanceClass(client, currentClass);
-        currentClass = CIMName("CIM_CIMXMLCommunicationMechanism");
-        testInstanceClass(client, currentClass);
-        currentClass = CIMName("CIM_Namespace");
-        testInstanceClass(client, currentClass);
-        currentClass = CIMName("CIM_SoftwareIdentity");
-        testInstanceClass(client, currentClass);
+    testInstanceClass(client, CIMName("CIM_ComputerSystem"));
+    testInstanceClass(client, CIMName("CIM_ObjectManager"));
+    testInstanceClass(client, CIMName("CIM_RegisteredSubProfile"));
+    testInstanceClass(client, CIMName("CIM_RegisteredProfile"));
+    testInstanceClass(client, CIMName("CIM_CIMXMLCommunicationMechanism"));
+    testInstanceClass(client, CIMName("CIM_Namespace"));
+    testInstanceClass(client, CIMName("CIM_SoftwareIdentity"));
 
-        currentClass = CIMName("CIM_HostedService");
-        testAssociationClass(client, currentClass);
-        currentClass = CIMName("CIM_ElementConformsToProfile");
-        testAssociationClass(client, currentClass);
-        currentClass = CIMName("CIM_SubprofileRequiresProfile");
-        testAssociationClass(client, currentClass);
-        currentClass = CIMName("CIM_ReferencedProfile");
-        testAssociationClass(client, currentClass);
-        currentClass = CIMName("CIM_ElementSoftwareIdentity");
-        testAssociationClass(client, currentClass);
-        currentClass = CIMName("CIM_CommMechanismForManager");
-        testAssociationClass(client, currentClass);
-    }
-    catch(Exception & e)
-    {
-        exitFailure(String("Caught exception while testing class ") +
-            currentClass.getString() + String(": ") + e.getMessage());
-    }
-    catch(...)
-    {
-        exitFailure(String("Caught unknown exception while testing class ") +
-            currentClass.getString());
-    }
+    testAssociationClass(client, CIMName("CIM_HostedService"));
+    testAssociationClass(client, CIMName("CIM_ElementConformsToProfile"));
+    testAssociationClass(client, CIMName("CIM_SubprofileRequiresProfile"));
+    testAssociationClass(client, CIMName("CIM_ReferencedProfile"));
+    testAssociationClass(client, CIMName("CIM_ElementSoftwareIdentity"));
+    testAssociationClass(client, CIMName("CIM_CommMechanismForManager"));
 
-    testDMTFProfileInstances(client);
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    testIndicationProfileInstances(client);
-#endif
     //testAssociationTraversal(client);
-
-    cout << endl << "Server Profile Tests complete" << endl;
     return 0;
 }
 

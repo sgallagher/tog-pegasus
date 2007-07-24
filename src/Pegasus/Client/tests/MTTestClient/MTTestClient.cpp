@@ -256,8 +256,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_client(void *parm)
     }
     catch(const Exception& e)
     {
-        myHandle->exit_self((ThreadReturnType)1);
         PEGASUS_STD(cout) << "Error: " << e.getMessage() << endl;
+        myHandle->exit_self((ThreadReturnType)1);
         return(0);
     }
 }

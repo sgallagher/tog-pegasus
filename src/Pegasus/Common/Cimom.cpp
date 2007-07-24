@@ -147,7 +147,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
         else
         {
             Uint32 capabilities = 0;
-            Uint32 code = 0;
 
 //          ATTN: optimization
 //          <<< Sun Feb 17 18:26:39 2002 mdd >>>
@@ -204,10 +203,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                        AsyncRequest *request =
                            static_cast<AsyncRequest *>(op->_request.get());
                        op->unlock();
-                       code = request->getType();
+                       MessageType messageType = request->getType();
 
-                       if (code != async_messages::CIMSERVICE_START  &&
-                           code != async_messages::CIMSERVICE_RESUME)
+                       if (messageType != ASYNC_CIMSERVICE_START  &&
+                           messageType != ASYNC_CIMSERVICE_RESUME)
                        {
                           if (dest_svc->get_capabilities() &
                                   module_capabilities::paused)
@@ -302,7 +301,7 @@ void cimom::_make_response(Message *req, Uint32 code)
             ASYNC_OPFLAGS_SIMPLE_STATUS))
     {
         reply.reset(new AsyncReply(
-            async_messages::REPLY,
+            ASYNC_REPLY,
             0,
             (static_cast<AsyncRequest *>(req))->op,
             code,
@@ -491,22 +490,22 @@ void cimom::_handle_cimom_op(
     {
         op->processing();
 
-        Uint32 type = msg->getType();
-        if (type == async_messages::REGISTER_CIM_SERVICE )
+        MessageType type = msg->getType();
+        if (type == ASYNC_REGISTER_CIM_SERVICE)
             register_module(static_cast<RegisterCimService *>(msg));
-        else if (type == async_messages::UPDATE_CIM_SERVICE)
-            update_module(static_cast<UpdateCimService *>(msg ));
-        else if (type == async_messages::IOCTL)
+        else if (type == ASYNC_UPDATE_CIM_SERVICE)
+            update_module(static_cast<UpdateCimService *>(msg));
+        else if (type == ASYNC_IOCTL)
             ioctl(static_cast<AsyncIoctl *>(msg));
-        else if (type == async_messages::FIND_SERVICE_Q)
+        else if (type == ASYNC_FIND_SERVICE_Q)
             find_service_q(static_cast<FindServiceQueue *>(msg));
-        else if (type == async_messages::ENUMERATE_SERVICE)
+        else if (type == ASYNC_ENUMERATE_SERVICE)
             enumerate_service(static_cast<EnumerateService *>(msg));
-        else if (type == async_messages::FIND_MODULE_IN_SERVICE)
+        else if (type == ASYNC_FIND_MODULE_IN_SERVICE)
             _find_module_in_service(static_cast<FindModuleInService *>(msg));
-        else if (type == async_messages::REGISTERED_MODULE)
+        else if (type == ASYNC_REGISTERED_MODULE)
             _registered_module_in_service(static_cast<RegisteredModule *>(msg));
-        else if (type == async_messages::DEREGISTERED_MODULE)
+        else if (type == ASYNC_DEREGISTERED_MODULE)
             _deregistered_module_in_service(
                 static_cast<DeRegisteredModule *>(msg));
         else
@@ -552,7 +551,7 @@ void cimom::register_module(RegisterCimService *msg)
     }
 
     AutoPtr<AsyncReply> reply(new AsyncReply(
-        async_messages::REPLY,
+        ASYNC_REPLY,
         0,
         msg->op,
         result,
@@ -608,7 +607,7 @@ void cimom::update_module(UpdateCimService* msg)
     _modules.unlock();
 
     AutoPtr<AsyncReply> reply(new AsyncReply(
-        async_messages::REPLY,
+        ASYNC_REPLY,
         0,
         msg->op,
         result,
@@ -635,7 +634,7 @@ void cimom::ioctl(AsyncIoctl* msg)
             cimom *service = static_cast<cimom *>(msg->op->_service_ptr);
 
             // respond to this message.
-            AutoPtr<AsyncReply> reply(new AsyncReply( async_messages::REPLY,
+            AutoPtr<AsyncReply> reply(new AsyncReply(ASYNC_REPLY,
                                              0,
                                              msg->op,
                                              async_results::OK,
@@ -686,7 +685,7 @@ void cimom::ioctl(AsyncIoctl* msg)
         {
             Uint32 result = _ioctl(msg->ctl, msg->intp, msg->voidp);
             AutoPtr<AsyncReply> reply(new AsyncReply(
-                async_messages::REPLY,
+                ASYNC_REPLY,
                 0,
                 msg->op,
                 result,

@@ -46,8 +46,6 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const Uint32 MY_CANCEL_TYPE=1000;
-
 Boolean verbose = false;
 
 // Fibonacci test parameter definition
@@ -112,7 +110,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     Thread* my_thread = (Thread *)parm;
   
     parmdef * Parm = (parmdef *)my_thread->get_parm();
-    Uint32 type;
+    MessageType type;
 
     int first = Parm->first;
     int second = Parm->second;
@@ -125,7 +123,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     Message * message;
     type = 0;
 
-    while (type != MY_CANCEL_TYPE)
+    while (type != CLOSE_CONNECTION_MESSAGE)
     {
         message = mq->dequeue();
         while (!message) {
@@ -199,11 +197,11 @@ int test01()
 
     // Tell one of the dequeueing tasks to finish
     Message * message;
-    message = new Message(MY_CANCEL_TYPE,0); 
+    message = new Message(CLOSE_CONNECTION_MESSAGE, 0); 
     mq->enqueue(message);
     
     // Tell the other dequeueing task to finish
-    message = new Message(MY_CANCEL_TYPE,0); 
+    message = new Message(CLOSE_CONNECTION_MESSAGE, 0); 
     mq->enqueue(message);
 
     // Finish the dequeueing tasks

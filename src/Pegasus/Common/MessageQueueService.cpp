@@ -418,21 +418,21 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode* op)
         Message *msg = op->removeRequest();
         if (msg && (msg->getMask() & MessageMask::ha_async))
         {
-            if (msg->getType() == async_messages::ASYNC_LEGACY_OP_START)
+            if (msg->getType() == ASYNC_ASYNC_LEGACY_OP_START)
             {
                 AsyncLegacyOperationStart *wrapper =
                     static_cast<AsyncLegacyOperationStart *>(msg);
                 msg = wrapper->get_action();
                 delete wrapper;
             }
-            else if (msg->getType() == async_messages::ASYNC_MODULE_OP_START)
+            else if (msg->getType() == ASYNC_ASYNC_MODULE_OP_START)
             {
                 AsyncModuleOperationStart *wrapper =
                     static_cast<AsyncModuleOperationStart *>(msg);
                 msg = wrapper->get_action();
                 delete wrapper;
             }
-            else if (msg->getType() == async_messages::ASYNC_OP_START)
+            else if (msg->getType() == ASYNC_ASYNC_OP_START)
             {
                 AsyncOperationStart *wrapper =
                     static_cast<AsyncOperationStart *>(msg);
@@ -445,14 +445,14 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode* op)
         msg = op->removeResponse();
         if (msg && (msg->getMask() & MessageMask::ha_async))
         {
-            if (msg->getType() == async_messages::ASYNC_LEGACY_OP_RESULT)
+            if (msg->getType() == ASYNC_ASYNC_LEGACY_OP_RESULT)
             {
                 AsyncLegacyOperationResult *wrapper =
                     static_cast<AsyncLegacyOperationResult *>(msg);
                 msg = wrapper->get_result();
                 delete wrapper;
             }
-            else if (msg->getType() == async_messages::ASYNC_MODULE_OP_RESULT)
+            else if (msg->getType() == ASYNC_ASYNC_MODULE_OP_RESULT)
             {
                 AsyncModuleOperationResult *wrapper =
                     static_cast<AsyncModuleOperationResult *>(msg);
@@ -529,20 +529,20 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
     {
         req->op->processing();
 
-        Uint32 type = req->getType();
-        if (type == async_messages::HEARTBEAT)
+        MessageType type = req->getType();
+        if (type == ASYNC_HEARTBEAT)
             handle_heartbeat_request(req);
-        else if (type == async_messages::IOCTL)
+        else if (type == ASYNC_IOCTL)
             handle_AsyncIoctl(static_cast<AsyncIoctl *>(req));
-        else if (type == async_messages::CIMSERVICE_START)
+        else if (type == ASYNC_CIMSERVICE_START)
             handle_CimServiceStart(static_cast<CimServiceStart *>(req));
-        else if (type == async_messages::CIMSERVICE_STOP)
+        else if (type == ASYNC_CIMSERVICE_STOP)
             handle_CimServiceStop(static_cast<CimServiceStop *>(req));
-        else if (type == async_messages::CIMSERVICE_PAUSE)
+        else if (type == ASYNC_CIMSERVICE_PAUSE)
             handle_CimServicePause(static_cast<CimServicePause *>(req));
-        else if (type == async_messages::CIMSERVICE_RESUME)
+        else if (type == ASYNC_CIMSERVICE_RESUME)
             handle_CimServiceResume(static_cast<CimServiceResume *>(req));
-        else if (type == async_messages::ASYNC_OP_START)
+        else if (type == ASYNC_ASYNC_OP_START)
             handle_AsyncOperationStart(static_cast<AsyncOperationStart *>(req));
         else
         {
@@ -686,7 +686,7 @@ void MessageQueueService::handle_heartbeat_request(AsyncRequest* req)
     // default action is to echo a heartbeat response
 
     AsyncReply *reply = new AsyncReply(
-        async_messages::HEARTBEAT,
+        ASYNC_HEARTBEAT,
         0,
         req->op,
         async_results::OK,
@@ -1127,7 +1127,7 @@ void MessageQueueService::find_services(
         {
             if (reply->getMask() & MessageMask::ha_reply)
             {
-                if (reply->getType() == async_messages::FIND_SERVICE_Q_RESULT)
+                if (reply->getType() == ASYNC_FIND_SERVICE_Q_RESULT)
                 {
                     if ((static_cast<FindServiceQueueResult*>(reply))->result ==
                             async_results::OK)
@@ -1166,8 +1166,7 @@ void MessageQueueService::enumerate_service(
         {
             if (reply->getMask() & MessageMask::ha_reply)
             {
-                if (reply->getType() ==
-                        async_messages::ENUMERATE_SERVICE_RESULT)
+                if (reply->getType() == ASYNC_ENUMERATE_SERVICE_RESULT)
                 {
                     if ((static_cast<EnumerateServiceResponse*>(reply))->
                             result == async_results::OK)

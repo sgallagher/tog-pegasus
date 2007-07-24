@@ -85,14 +85,14 @@ Boolean test_async_queue::messageOK (const Message * msg)
     {
       if (_role == CLIENT)
         {
-          if (msg->getType () == async_messages::ASYNC_OP_RESULT)
+          if (msg->getType () == ASYNC_ASYNC_OP_RESULT)
             return true;
         }
       else
         {
-          if (msg->getType () == async_messages::ASYNC_OP_START)
+          if (msg->getType () == ASYNC_ASYNC_OP_START)
             return true;
-          if (msg->getType () == async_messages::CIMSERVICE_STOP)
+          if (msg->getType () == ASYNC_CIMSERVICE_STOP)
             return true;
         }
     }
@@ -103,8 +103,8 @@ Boolean test_async_queue::messageOK (const Message * msg)
 void
 test_async_queue::_handle_async_request (AsyncRequest * rq)
 {
-  if ((rq->getType () == async_messages::ASYNC_OP_START) ||
-      (rq->getType () == async_messages::ASYNC_LEGACY_OP_START))
+  if ((rq->getType () == ASYNC_ASYNC_OP_START) ||
+      (rq->getType () == ASYNC_ASYNC_LEGACY_OP_START))
     {  
      try {
       PEGASUS_TEST_ASSERT (_role == SERVER);
@@ -120,7 +120,7 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
         cerr <<" Out of memory!" << endl;
     }
     }
-  else if (rq->getType () == async_messages::CIMSERVICE_STOP)
+  else if (rq->getType () == ASYNC_CIMSERVICE_STOP)
     {
       PEGASUS_TEST_ASSERT (_role == SERVER);
       _handle_stop ((CimServiceStop *) rq);
@@ -154,8 +154,8 @@ test_async_queue::async_handleEnqueue (AsyncOpNode * op,
   async_complete *rp = static_cast < async_complete * >(op->removeResponse());
   assert(rp != 0);
 
-  if ((rq->getType () == async_messages::ASYNC_OP_START) &&
-      (rp->getType () == async_messages::ASYNC_OP_RESULT))
+  if ((rq->getType () == ASYNC_ASYNC_OP_START) &&
+      (rp->getType () == ASYNC_ASYNC_OP_RESULT))
     {
       Message *cim_rq = rq->get_action ();
       Message *cim_rp = rp->get_result_data ();
@@ -187,7 +187,7 @@ void
 test_async_queue::_handle_stop (CimServiceStop * stop)
 {
   try { 
-  AsyncReply *resp = new AsyncReply (async_messages::REPLY,
+  AsyncReply *resp = new AsyncReply (ASYNC_REPLY,
                                      0,
                                      stop->op,
                                      async_results::CIM_SERVICE_STOPPED,

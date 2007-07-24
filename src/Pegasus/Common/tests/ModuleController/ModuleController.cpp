@@ -70,7 +70,7 @@ class test_request : public AsyncRequest
            Uint32 destination, 
            Uint32 response,
            const char *message)
-     : Base(0x04100000,
+     : Base(CIM_GET_CLASS_REQUEST_MESSAGE,
         0, 
         op, 
         destination, 
@@ -99,7 +99,7 @@ class test_response : public AsyncReply
             Uint32 result,
             Uint32 destination, 
             const char *message)
-     : Base(0x04200000,
+     : Base(CIM_GET_CLASS_RESPONSE_MESSAGE,
         0, 
         op, 
         result, 
@@ -171,7 +171,7 @@ test_module::~test_module()
 Message *test_module::receive_msg(Message *msg, void *parm)
 {
    test_module *myself = reinterpret_cast<test_module *>(parm);
-   if(msg && msg->getType() == 0x04100000 )
+   if (msg && msg->getType() == CIM_GET_CLASS_REQUEST_MESSAGE)
    {
       cout << "received msg from peer " << endl;
       
@@ -190,7 +190,9 @@ void test_module::async_callback(Uint32 id, Message *msg, void *parm)
 {
 
    test_module *myself = reinterpret_cast<test_module *>(parm);
-   if(msg && (msg->getType() == 0x04200000 || msg->getType() == 0x04100000))
+   if (msg &&
+       (msg->getType() == CIM_GET_CLASS_RESPONSE_MESSAGE ||
+        msg->getType() == CIM_GET_CLASS_REQUEST_MESSAGE))
    {
       cout << "module async callback " << endl;
       
@@ -324,31 +326,27 @@ Boolean test_service::messageOK(const Message *msg)
 
 void test_service::handle_test_request(AsyncRequest *msg)
 {
-
    cout << "service received test request" << endl;
    
-   if( msg->getType() == 0x04100000 )
+   if (msg->getType() == CIM_GET_CLASS_REQUEST_MESSAGE)
    {
-      test_response *resp = 
-     new test_response(
+       test_response *resp = 
+           new test_response(
                msg->op, 
                async_results::OK,  
                msg->dest, 
                "i am a test response");
-      _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
-
-
+       _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
    }
 }
 
 void test_service::_handle_async_request(AsyncRequest *req)
 {
-   if (req->getType() == 0x04100000 )
+   if (req->getType() == CIM_GET_CLASS_REQUEST_MESSAGE)
    {
       req->op->processing();
       handle_test_request(req);
    }
-   
    else
       Base::_handle_async_request(req);
 }
@@ -424,8 +422,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
                                 *(my_module->get_mod_handle()),
                                     svc_qid,
                                     req);
-   if(response && response->getType() == 0x04200000)
-      cout << " ModuleSendWait to service successfull " << endl;
+   if (response && response->getType() == CIM_GET_CLASS_RESPONSE_MESSAGE)
+       cout << " ModuleSendWait to service successful" << endl;
    
    delete req;
    delete response;

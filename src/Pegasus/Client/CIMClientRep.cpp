@@ -998,7 +998,7 @@ CIMValue CIMClientRep::invokeMethod(
 
 Message* CIMClientRep::_doRequest(
     AutoPtr<CIMRequestMessage>& request,
-    Uint32 expectedResponseMessageType)
+    MessageType expectedResponseMessageType)
 {
     if (!_connected && !_doReconnect)
     {

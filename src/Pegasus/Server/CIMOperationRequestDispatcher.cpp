@@ -80,7 +80,7 @@ Uint64 CIMOperationRequestDispatcher::cimOperationAggregationSN = 0;
 
 OperationAggregate::OperationAggregate(
     CIMRequestMessage* request,
-    Uint32 msgRequestType,
+    MessageType msgRequestType,
     String messageId,
     Uint32 dest,
     CIMName className,
@@ -165,7 +165,7 @@ void OperationAggregate::deleteResponse(const Uint32&pos)
     _responseList.remove(pos);
 }
 
-Uint32 OperationAggregate::getRequestType() const
+MessageType OperationAggregate::getRequestType() const
 {
     return _msgRequestType;
 }
@@ -800,7 +800,7 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest* req)
         "CIMOperationRequestDispatcher::_handle_async_request");
 
     // pass legacy operations to handleEnqueue
-    if (req->getType() == async_messages::ASYNC_LEGACY_OP_START)
+    if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         req->op->processing();
 
@@ -2140,15 +2140,15 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
     //CDEBUG("_ForwardForAggregationCallback ");
     CIMResponseMessage* response = 0;
 
-    Uint32 msgType = asyncReply->getType();
+    MessageType msgType = asyncReply->getType();
 
-    if (msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
+    if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
     {
         response = reinterpret_cast<CIMResponseMessage*>(
             (static_cast<AsyncLegacyOperationResult*>(asyncReply))->
                 get_result());
     }
-    else if (msgType == async_messages::ASYNC_MODULE_OP_RESULT)
+    else if (msgType == ASYNC_ASYNC_MODULE_OP_RESULT)
     {
         response = reinterpret_cast<CIMResponseMessage*>(
             (static_cast<AsyncModuleOperationResult*>(asyncReply))->
@@ -2228,15 +2228,15 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
 
     CIMResponseMessage* response = 0;
 
-    Uint32 msgType = asyncReply->getType();
+    MessageType msgType = asyncReply->getType();
 
-    if (msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
+    if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
     {
         response = reinterpret_cast<CIMResponseMessage*>(
             (static_cast<AsyncLegacyOperationResult*>(asyncReply))->
                 get_result());
     }
-    else if (msgType == async_messages::ASYNC_MODULE_OP_RESULT)
+    else if (msgType == ASYNC_ASYNC_MODULE_OP_RESULT)
     {
         response = reinterpret_cast<CIMResponseMessage*>(
             (static_cast<AsyncModuleOperationResult*>(asyncReply))->

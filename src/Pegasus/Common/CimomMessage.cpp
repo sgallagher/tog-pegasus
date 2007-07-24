@@ -63,52 +63,8 @@ const Uint32 async_results::CIM_PAUSED =                0x00000014;
 const Uint32 async_results::CIM_STOPPED =               0x00000015;
 
 
-const Uint32 async_messages::HEARTBEAT =                DUMMY_MESSAGE;
-const Uint32 async_messages::REPLY =                    DUMMY_MESSAGE;
-const Uint32 async_messages::REGISTER_CIM_SERVICE =
-    ASYNC_REGISTER_CIM_SERVICE;
-const Uint32 async_messages::DEREGISTER_CIM_SERVICE =
-    ASYNC_DEREGISTER_CIM_SERVICE;
-const Uint32 async_messages::UPDATE_CIM_SERVICE =
-    ASYNC_UPDATE_CIM_SERVICE;
-const Uint32 async_messages::IOCTL =                    ASYNC_IOCTL;
-const Uint32 async_messages::CIMSERVICE_START =         ASYNC_CIMSERVICE_START;
-const Uint32 async_messages::CIMSERVICE_STOP =          ASYNC_CIMSERVICE_STOP;
-const Uint32 async_messages::CIMSERVICE_PAUSE =         ASYNC_CIMSERVICE_PAUSE;
-const Uint32 async_messages::CIMSERVICE_RESUME =        ASYNC_CIMSERVICE_RESUME;
-
-const Uint32 async_messages::ASYNC_OP_START =           ASYNC_ASYNC_OP_START;
-const Uint32 async_messages::ASYNC_OP_RESULT =          ASYNC_ASYNC_OP_RESULT;
-const Uint32 async_messages::ASYNC_LEGACY_OP_START =
-    ASYNC_ASYNC_LEGACY_OP_START;
-const Uint32 async_messages::ASYNC_LEGACY_OP_RESULT =
-    ASYNC_ASYNC_LEGACY_OP_RESULT;
-
-const Uint32 async_messages::FIND_SERVICE_Q =
-    ASYNC_FIND_SERVICE_Q;
-const Uint32 async_messages::FIND_SERVICE_Q_RESULT =
-    ASYNC_FIND_SERVICE_Q_RESULT;
-const Uint32 async_messages::ENUMERATE_SERVICE =
-    ASYNC_ENUMERATE_SERVICE;
-const Uint32 async_messages::ENUMERATE_SERVICE_RESULT =
-    ASYNC_ENUMERATE_SERVICE_RESULT;
-
-const Uint32 async_messages::REGISTERED_MODULE =
-    ASYNC_REGISTERED_MODULE;
-const Uint32 async_messages::DEREGISTERED_MODULE =
-    ASYNC_DEREGISTERED_MODULE;
-const Uint32 async_messages::FIND_MODULE_IN_SERVICE =
-    ASYNC_FIND_MODULE_IN_SERVICE;
-const Uint32 async_messages::FIND_MODULE_IN_SERVICE_RESPONSE =
-    ASYNC_FIND_MODULE_IN_SERVICE_RESPONSE;
-const Uint32 async_messages::ASYNC_MODULE_OP_START =
-    ASYNC_ASYNC_MODULE_OP_START;
-const Uint32 async_messages::ASYNC_MODULE_OP_RESULT  =
-    ASYNC_ASYNC_MODULE_OP_RESULT;
-
-
 AsyncMessage::AsyncMessage(
-    Uint32 type,
+    MessageType type,
     Uint32 destination,
     Uint32 mask,
     AsyncOpNode* operation)
@@ -118,7 +74,7 @@ AsyncMessage::AsyncMessage(
 }
 
 AsyncRequest::AsyncRequest(
-    Uint32 type,
+    MessageType type,
     Uint32 mask,
     AsyncOpNode* operation,
     Uint32 destination,
@@ -134,7 +90,7 @@ AsyncRequest::AsyncRequest(
 }
 
 AsyncReply::AsyncReply(
-    Uint32 type,
+    MessageType type,
     Uint32 mask,
     AsyncOpNode* operation,
     Uint32 resultCode,
@@ -157,7 +113,7 @@ RegisterCimService::RegisterCimService(
     Uint32 serviceMask,
     Uint32 serviceQueue)
     : AsyncRequest(
-          async_messages::REGISTER_CIM_SERVICE,
+          ASYNC_REGISTER_CIM_SERVICE,
           0, operation, CIMOM_Q_ID,
           serviceQueue, blocking),
       name(serviceName),
@@ -173,7 +129,7 @@ DeRegisterCimService::DeRegisterCimService(
     Boolean blocking,
     Uint32 serviceQueue)
     : AsyncRequest(
-          async_messages::DEREGISTER_CIM_SERVICE,
+          ASYNC_DEREGISTER_CIM_SERVICE,
           0, operation, CIMOM_Q_ID,
           serviceQueue, blocking),
       queue(serviceQueue)
@@ -188,7 +144,7 @@ UpdateCimService::UpdateCimService(
     Uint32 serviceCapabilities,
     Uint32 serviceMask)
     : AsyncRequest(
-          async_messages::UPDATE_CIM_SERVICE,
+          ASYNC_UPDATE_CIM_SERVICE,
           0, operation, CIMOM_Q_ID,
           serviceQueue, blocking),
       queue(serviceQueue),
@@ -203,7 +159,7 @@ RegisteredModule::RegisteredModule(
     Uint32 serviceQueue,
     const String& newModule)
     : AsyncRequest(
-          async_messages::REGISTERED_MODULE,
+          ASYNC_REGISTERED_MODULE,
           0,
           operation,
           CIMOM_Q_ID,
@@ -219,7 +175,7 @@ DeRegisteredModule::DeRegisteredModule(
     Uint32 serviceQueue,
     const String& removedModule)
     : AsyncRequest(
-          async_messages::DEREGISTERED_MODULE,
+          ASYNC_DEREGISTERED_MODULE,
           0,
           operation,
           CIMOM_Q_ID,
@@ -236,7 +192,7 @@ FindModuleInService::FindModuleInService(
     Uint32 responseQueue,
     const String& module)
     : AsyncRequest(
-          async_messages::FIND_MODULE_IN_SERVICE,
+          ASYNC_FIND_MODULE_IN_SERVICE,
           0,
           operation,
           CIMOM_Q_ID,
@@ -253,7 +209,7 @@ FindModuleInServiceResponse::FindModuleInServiceResponse(
     Boolean blocking,
     Uint32 moduleServiceQueue)
     : AsyncReply(
-          async_messages::FIND_MODULE_IN_SERVICE_RESPONSE,
+          ASYNC_FIND_MODULE_IN_SERVICE_RESPONSE,
           0,
           operation,
           resultCode,
@@ -272,7 +228,7 @@ AsyncIoctl::AsyncIoctl(
     Uint32 intParam,
     void* pParam)
     : AsyncRequest(
-          async_messages::IOCTL,
+          ASYNC_IOCTL,
           0, operation,
           destination, response, blocking),
       ctl(code),
@@ -288,7 +244,7 @@ CimServiceStart::CimServiceStart(
     Uint32 response,
     Boolean blocking)
     : AsyncRequest(
-          async_messages::CIMSERVICE_START,
+          ASYNC_CIMSERVICE_START,
           0, operation, destination,
           response, blocking)
 {
@@ -301,7 +257,7 @@ CimServiceStop::CimServiceStop(
     Uint32 response,
     Boolean blocking)
     : AsyncRequest(
-          async_messages::CIMSERVICE_STOP,
+          ASYNC_CIMSERVICE_STOP,
           0, operation, destination,
           response, blocking)
 {
@@ -314,7 +270,7 @@ CimServicePause::CimServicePause(
     Uint32 response,
     Boolean blocking)
     : AsyncRequest(
-          async_messages::CIMSERVICE_PAUSE,
+          ASYNC_CIMSERVICE_PAUSE,
           0, operation, destination,
           response, blocking)
 {
@@ -327,7 +283,7 @@ CimServiceResume::CimServiceResume(
     Uint32 response,
     Boolean blocking)
     : AsyncRequest(
-          async_messages::CIMSERVICE_RESUME,
+          ASYNC_CIMSERVICE_RESUME,
           0, operation, destination,
           response, blocking)
 {
@@ -340,7 +296,7 @@ AsyncOperationStart::AsyncOperationStart(
     Boolean blocking,
     Message* action)
     : AsyncRequest(
-          async_messages::ASYNC_OP_START,
+          ASYNC_ASYNC_OP_START,
           0,
           operation,
           destination, response, blocking),
@@ -362,7 +318,7 @@ AsyncOperationResult::AsyncOperationResult(
     Uint32 destination,
     Boolean blocking)
     : AsyncReply(
-          async_messages::ASYNC_OP_RESULT,
+          ASYNC_ASYNC_OP_RESULT,
           0,
           operation,
           resultCode,
@@ -380,7 +336,7 @@ AsyncModuleOperationStart::AsyncModuleOperationStart(
     const String& targetModule,
     Message* action)
     : AsyncRequest(
-          async_messages::ASYNC_MODULE_OP_START,
+          ASYNC_ASYNC_MODULE_OP_START,
           0,
           operation,
           destination,
@@ -409,7 +365,7 @@ AsyncModuleOperationResult::AsyncModuleOperationResult(
     const String& targetModule,
     Message* result)
     : AsyncReply(
-          async_messages::ASYNC_MODULE_OP_RESULT,
+          ASYNC_ASYNC_MODULE_OP_RESULT,
           0,
           operation, resultCode, destination,
           blocking),
@@ -434,7 +390,7 @@ AsyncLegacyOperationStart::AsyncLegacyOperationStart(
     Message* action,
     Uint32 actionDestination)
     : AsyncRequest(
-          async_messages::ASYNC_LEGACY_OP_START,
+          ASYNC_ASYNC_LEGACY_OP_START,
           0,
           operation, destination, CIMOM_Q_ID, false),
       _act(action),
@@ -457,7 +413,7 @@ AsyncLegacyOperationResult::AsyncLegacyOperationResult(
     AsyncOpNode* operation,
     Message* result)
     : AsyncReply(
-          async_messages::ASYNC_LEGACY_OP_RESULT,
+          ASYNC_ASYNC_LEGACY_OP_RESULT,
           0, operation,
           0, CIMOM_Q_ID, false),
       _res(result)
@@ -481,7 +437,7 @@ FindServiceQueue::FindServiceQueue(
     Uint32 serviceCapabilities,
     Uint32 serviceMask)
     : AsyncRequest(
-          async_messages::FIND_SERVICE_Q,
+          ASYNC_FIND_SERVICE_Q,
           0, operation,
           CIMOM_Q_ID,
           response,
@@ -500,7 +456,7 @@ FindServiceQueueResult::FindServiceQueueResult(
     Boolean blocking,
     Array<Uint32> queueIds)
     : AsyncReply(
-          async_messages::FIND_SERVICE_Q_RESULT,
+          ASYNC_FIND_SERVICE_Q_RESULT,
           0, operation,
           resultCode, destination, blocking),
       qids(queueIds)
@@ -513,7 +469,7 @@ EnumerateService::EnumerateService(
     Boolean blocking,
     Uint32 queueId)
     : AsyncRequest(
-          async_messages::ENUMERATE_SERVICE,
+          ASYNC_ENUMERATE_SERVICE,
           0,
           operation,
           CIMOM_Q_ID,
@@ -533,7 +489,7 @@ EnumerateServiceResponse::EnumerateServiceResponse(
     Uint32 serviceMask,
     Uint32 serviceQid)
     : AsyncReply(
-          async_messages::ENUMERATE_SERVICE_RESULT,
+          ASYNC_ENUMERATE_SERVICE_RESULT,
           0,
           operation,
           resultCode,

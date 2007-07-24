@@ -525,7 +525,9 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse() const
     return response.release();
 }
 
-CIMMessage::CIMMessage(Uint32 type, const String& messageId_)
+CIMMessage::CIMMessage(
+    MessageType type,
+    const String& messageId_)
     : Message(type), messageId(messageId_)
 {
     operationContext.insert(
@@ -535,13 +537,15 @@ CIMMessage::CIMMessage(Uint32 type, const String& messageId_)
 }
 
 CIMRequestMessage::CIMRequestMessage(
-    Uint32 type_, const String& messageId_, const QueueIdStack& queueIds_)
+    MessageType type_,
+    const String& messageId_,
+    const QueueIdStack& queueIds_)
     : CIMMessage(type_, messageId_), queueIds(queueIds_)
 {
 }
 
 CIMResponseMessage::CIMResponseMessage(
-    Uint32 type_,
+    MessageType type_,
     const String& messageId_,
     const CIMException& cimException_,
     const QueueIdStack& queueIds_)
@@ -553,7 +557,7 @@ CIMResponseMessage::CIMResponseMessage(
 }
 
 CIMOperationRequestMessage::CIMOperationRequestMessage(
-    Uint32 type_,
+    MessageType type_,
     const String& messageId_,
     const QueueIdStack& queueIds_,
     const String& authType_,

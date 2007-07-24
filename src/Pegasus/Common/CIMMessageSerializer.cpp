@@ -51,7 +51,7 @@ void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
     XmlWriter::append(out, "<PGMESSAGE ID=\"");
     XmlWriter::append(out, cimMessage->messageId);
     XmlWriter::append(out, "\" TYPE=\"");
-    XmlWriter::append(out, cimMessage->getType());
+    XmlWriter::append(out, Uint32(cimMessage->getType()));
     XmlWriter::append(out, "\">");
 
 #ifndef PEGASUS_DISABLE_PERFINST

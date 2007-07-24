@@ -66,12 +66,12 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
 
     PEGASUS_ASSERT(req != 0 && req->op != 0);
 
-    if (req->getType() == async_messages::CIMSERVICE_STOP)
+    if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
         req->op->processing();
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
-    else if (req->getType() == async_messages::ASYNC_LEGACY_OP_START)
+    else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         req->op->processing();
         Message *legacy =
@@ -92,7 +92,8 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
         {
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMExportRequestDispatcher::_handle_async_request got "
-                    "unexpected legacy message type '%u'", legacy->getType()));
+                    "unexpected legacy message type '%s'",
+                MessageTypeToString(legacy->getType())));
             _make_response(req, async_results::CIM_NAK);
             delete legacy;
         }

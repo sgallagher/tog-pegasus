@@ -188,6 +188,11 @@ void CIMOperationRequestEncoder::handleEnqueue()
             _encodeInvokeMethodRequest(
                 (CIMInvokeMethodRequestMessage*)message);
             break;
+
+        default:
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
+            break;
     }
 
     //ATTN: Do not delete the message here.

@@ -142,6 +142,11 @@ void CIMOperationRequestDecoder::handleEnqueue(Message* message)
         case HTTP_MESSAGE:
              handleHTTPMessage((HTTPMessage*)message);
              break;
+
+        default:
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
+            break;
     }
 
     delete message;

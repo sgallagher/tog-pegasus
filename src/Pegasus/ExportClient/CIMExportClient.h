@@ -171,7 +171,7 @@ private:
 
     Message* _doRequest(
         CIMRequestMessage* request,
-        Uint32 expectedResponseMessageType);
+        MessageType expectedResponseMessageType);
 
     Monitor* _monitor;
     HTTPConnector* _httpConnector;

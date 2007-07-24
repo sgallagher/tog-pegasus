@@ -333,7 +333,7 @@ AsyncReply* ModuleController::_send_wait(
     AsyncReply *ret = 0;
 
     if (response.get() != NULL &&
-        response->getType() == async_messages::ASYNC_MODULE_OP_RESULT)
+        response->getType() == ASYNC_ASYNC_MODULE_OP_RESULT)
     {
         // clear the request out of the envelope so it can be deleted by the
         // module
@@ -377,7 +377,7 @@ void ModuleController::_async_handleEnqueue(
     myself->return_op(op);
 
     // get rid of the module wrapper
-    if (request && request->getType() == async_messages::ASYNC_MODULE_OP_START)
+    if (request && request->getType() == ASYNC_ASYNC_MODULE_OP_START)
     {
         (static_cast<AsyncMessage *>(request))->op = NULL;
         AsyncModuleOperationStart *rq =
@@ -388,7 +388,7 @@ void ModuleController::_async_handleEnqueue(
 
     // get rid of the module wrapper
     if (response &&
-        response->getType() == async_messages::ASYNC_MODULE_OP_RESULT)
+        response->getType() == ASYNC_ASYNC_MODULE_OP_RESULT)
     {
         (static_cast<AsyncMessage *>(response))->op = NULL;
         AsyncModuleOperationResult *rp =
@@ -521,7 +521,7 @@ Boolean ModuleController::ModuleSendForget(
 
 void ModuleController::_handle_async_request(AsyncRequest* rq)
 {
-    if (rq->getType() == async_messages::ASYNC_MODULE_OP_START)
+    if (rq->getType() == ASYNC_ASYNC_MODULE_OP_START)
     {
         // find the target module
         RegisteredModuleHandle* target;
@@ -557,7 +557,7 @@ void ModuleController::_handle_async_request(AsyncRequest* rq)
         if (module_result == NULL)
         {
             module_result = new AsyncReply(
-                async_messages::REPLY,
+                ASYNC_REPLY,
                 MessageMask::ha_async | MessageMask::ha_reply,
                 rq->op,
                 async_results::CIM_NAK,

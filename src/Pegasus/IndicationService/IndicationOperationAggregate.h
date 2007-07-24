@@ -92,7 +92,7 @@ public:
         @return  the request type, if there is a request
                  0, otherwise
     */
-    Uint32 getOrigType() const;
+    MessageType getOrigType() const;
 
     /**
         Determines if the original request requires a response, based on the

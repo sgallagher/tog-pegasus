@@ -81,46 +81,16 @@ public:
     static const Uint32 CIM_STOPPED;
 };
 
-class PEGASUS_COMMON_LINKAGE async_messages
-{
-public:
-    static const Uint32 HEARTBEAT;
-    static const Uint32 REPLY;
-    static const Uint32 REGISTER_CIM_SERVICE;
-    static const Uint32 DEREGISTER_CIM_SERVICE;
-    static const Uint32 UPDATE_CIM_SERVICE;
-    static const Uint32 IOCTL;
-    static const Uint32 CIMSERVICE_START;
-    static const Uint32 CIMSERVICE_STOP;
-    static const Uint32 CIMSERVICE_PAUSE;
-    static const Uint32 CIMSERVICE_RESUME;
-    static const Uint32 PROVIDERS_STOP;
-
-    static const Uint32 ASYNC_OP_START;
-    static const Uint32 ASYNC_OP_RESULT;
-    static const Uint32 ASYNC_LEGACY_OP_START;
-    static const Uint32 ASYNC_LEGACY_OP_RESULT;
-
-    static const Uint32 FIND_SERVICE_Q;
-    static const Uint32 FIND_SERVICE_Q_RESULT;
-    static const Uint32 ENUMERATE_SERVICE;
-    static const Uint32 ENUMERATE_SERVICE_RESULT;
-
-    static const Uint32 REGISTERED_MODULE;
-    static const Uint32 DEREGISTERED_MODULE;
-    static const Uint32 FIND_MODULE_IN_SERVICE;
-    static const Uint32 FIND_MODULE_IN_SERVICE_RESPONSE;
-
-    static const Uint32 ASYNC_MODULE_OP_START;
-    static const Uint32 ASYNC_MODULE_OP_RESULT;
-};
+// Overloaded message types
+#define ASYNC_HEARTBEAT DUMMY_MESSAGE
+#define ASYNC_REPLY DUMMY_MESSAGE
 
 
 class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
 {
 public:
     AsyncMessage(
-        Uint32 type,
+        MessageType type,
         Uint32 destination,
         Uint32 mask,
         AsyncOpNode* operation);
@@ -135,7 +105,7 @@ class PEGASUS_COMMON_LINKAGE AsyncRequest : public AsyncMessage
 {
 public:
     AsyncRequest(
-        Uint32 type,
+        MessageType type,
         Uint32 mask,
         AsyncOpNode* operation,
         Uint32 destination,
@@ -152,7 +122,7 @@ class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
 {
 public:
     AsyncReply(
-        Uint32 type,
+        MessageType type,
         Uint32 mask,
         AsyncOpNode* operation,
         Uint32 resultCode,

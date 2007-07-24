@@ -57,12 +57,12 @@ IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
 
 void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
 {
-    if (req->getType() == async_messages::CIMSERVICE_STOP)
+    if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
         req->op->processing();
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
-    else if (req->getType() == async_messages::ASYNC_LEGACY_OP_START)
+    else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         req->op->processing();
         AutoPtr<Message> legacy(

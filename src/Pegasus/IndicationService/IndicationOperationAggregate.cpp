@@ -70,11 +70,11 @@ CIMRequestMessage* IndicationOperationAggregate::getOrigRequest() const
     return _origRequest;
 }
 
-Uint32 IndicationOperationAggregate::getOrigType() const
+MessageType IndicationOperationAggregate::getOrigType() const
 {
     if (_origRequest == 0)
     {
-        return 0;
+        return DUMMY_MESSAGE;
     }
     else
     {

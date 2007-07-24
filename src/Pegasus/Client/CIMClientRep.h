@@ -302,7 +302,7 @@ private:
 
     Message* _doRequest(
         AutoPtr<CIMRequestMessage>& request,
-        Uint32 expectedResponseMessageType);
+        MessageType expectedResponseMessageType);
 
     AutoPtr<Monitor> _monitor;
     AutoPtr<HTTPConnector> _httpConnector;

@@ -53,7 +53,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     CIMMessage* message = 0;
     String messageID;
     String typeString;
-    Uint32 type;
+    MessageType type;
     CIMValue genericValue;
 #ifndef PEGASUS_DISABLE_PERFINST
     Uint64 serverStartTimeMicroseconds;
@@ -70,7 +70,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
 
     found = entry.getAttributeValue("TYPE", typeString);
     PEGASUS_ASSERT(found);
-    type = Uint32(atoi(typeString.getCString()));
+    type = MessageType(atoi(typeString.getCString()));
 
 #ifndef PEGASUS_DISABLE_PERFINST
     // Deserialize the performance statistics data
@@ -122,7 +122,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
 //
 CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
     XmlParser& parser,
-    Uint32 type)
+    MessageType type)
 {
     CIMRequestMessage* message = 0;
     XmlEntry entry;
@@ -219,6 +219,11 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
             cimOpReqMessage = _deserializeCIMInvokeMethodRequestMessage(parser);
             break;
+
+        default:
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
+            break;
         }
         PEGASUS_ASSERT(cimOpReqMessage != 0);
 
@@ -253,6 +258,10 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
             cimIndReqMessage =
                 _deserializeCIMDeleteSubscriptionRequestMessage(parser);
+            break;
+        default:
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
             break;
         }
         PEGASUS_ASSERT(cimIndReqMessage != 0);
@@ -323,6 +332,10 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
                 _deserializeCIMSubscriptionInitCompleteRequestMessage
                     (parser);
             break;
+        default:
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
+            break;
         }
         PEGASUS_ASSERT(message != 0);
 
@@ -339,7 +352,7 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
 //
 CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
     XmlParser& parser,
-    Uint32 type)
+    MessageType type)
 {
     CIMResponseMessage* message = 0;
     QueueIdStack queueIdStack;
@@ -490,6 +503,11 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             message =
                 _deserializeCIMSubscriptionInitCompleteResponseMessage
                     (parser);
+            break;
+
+        default:
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
             break;
     }
     PEGASUS_ASSERT(message != 0);

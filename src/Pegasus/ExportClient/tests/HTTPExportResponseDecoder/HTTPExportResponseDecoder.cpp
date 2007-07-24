@@ -49,7 +49,7 @@ void testParseHTTPHeaders(
     Buffer httpBuffer,
     Boolean expectedValid,
     Boolean expectedReconnect,
-    Uint32 expectedType)
+    MessageType expectedType)
 {
     ClientExceptionMessage* exceptionMessage;
     Array<HTTPHeader> headers;
@@ -78,7 +78,7 @@ void testValidateHTTPHeaders(
     Buffer httpBuffer,
     Boolean expectedValid,
     Boolean expectedReconnect,
-    Uint32 expectedType,
+    MessageType expectedType,
     CIMName expectedClass)
 {
     ClientExceptionMessage* exceptionMessage;
@@ -122,7 +122,7 @@ void testValidateHTTPHeaders(
 
 void testDecodeExportResponse(
     Buffer httpBuffer,
-    Uint32 expectedType,
+    MessageType expectedType,
     // expectedClass is used only if expectedType is ClientExceptionMessage
     // otherwise, it is ignored
     CIMName expectedClass)

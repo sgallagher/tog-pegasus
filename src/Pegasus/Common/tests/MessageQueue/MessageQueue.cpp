@@ -37,16 +37,15 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-enum MessageTypes
-{
-    MESSAGE_ALARM = 1
-};
-
 class Alarm : public Message
 {
 public:
 
-    Alarm(Uint32 key) : Message(MESSAGE_ALARM), _key(key) { }
+    Alarm(Uint32 key)
+        : Message(CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE),
+          _key(key)
+    {
+    }
 
     virtual ~Alarm();
 
@@ -70,7 +69,7 @@ void TestMessageQueue1()
 
     for (Uint32 i = 1; i <= 4; i++)
     {
-    q.enqueue(new Alarm(i));
+        q.enqueue(new Alarm(i));
     }
 
     // Test dequeue:
@@ -103,8 +102,8 @@ void TestMessageQueue2()
 
     for (Uint32 i = 1; i <= 5; i++)
     {
-    q.enqueue(new Alarm(i));
-    sum += i;
+        q.enqueue(new Alarm(i));
+        sum += i;
     }
     PEGASUS_TEST_ASSERT(sum == 15);
 
@@ -122,8 +121,8 @@ void TestMessageQueue3()
 
     for (Uint32 i = 1; i <= 5; i++)
     {
-    q.enqueue(new Alarm(i));
-    sum += i;
+        q.enqueue(new Alarm(i));
+        sum += i;
     }
     PEGASUS_TEST_ASSERT(sum == 15);
 

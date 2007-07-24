@@ -90,8 +90,8 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
 
     PEGASUS_ASSERT(request != 0 && request->op != 0 );
 
-    if (request->getType() == async_messages::ASYNC_LEGACY_OP_START ||
-        request->getType() == async_messages::ASYNC_LEGACY_OP_RESULT)
+    if (request->getType() == ASYNC_ASYNC_LEGACY_OP_START ||
+        request->getType() == ASYNC_ASYNC_LEGACY_OP_RESULT)
     {
         PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Processing ASYNC_LEGACY_OP_* Message.");
@@ -134,7 +134,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
                 _msg_q.count()));
         }
     }
-    else if (request->getType() == async_messages::CIMSERVICE_STOP)
+    else if (request->getType() == ASYNC_CIMSERVICE_STOP)
     {
         PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Handling CIMServer Stop Message");
@@ -147,7 +147,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
             "Passing message to parent.");
 #ifdef BINARYMESSAGEHANDLER_DEBUG
         PEGASUS_STD(cout) << "Unexpected Message: type " <<
-            request->getType() << PEGASUS_STD(endl);
+            MessageTypeToString(request->getType()) << PEGASUS_STD(endl);
 #endif
 
         Base::_handle_async_request(request);

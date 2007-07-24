@@ -191,7 +191,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 
     PEGASUS_ASSERT((request != 0) && (request->op != 0));
 
-    if (request->getType() == async_messages::ASYNC_LEGACY_OP_START)
+    if (request->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         request->op->processing();
 
@@ -263,7 +263,7 @@ ProviderManagerService::handleCimOperation(void* arg)
             static_cast<AsyncRequest*>(op->_request.get());
 
         if ((request == 0) ||
-            (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
+            (request->getType() != ASYNC_ASYNC_LEGACY_OP_START))
         {
             // reply with NAK
             PEG_METHOD_EXIT();

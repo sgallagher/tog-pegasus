@@ -328,7 +328,7 @@ void CIMExportClient::exportIndication(
 
 Message* CIMExportClient::_doRequest(
     CIMRequestMessage* pRequest,
-    Uint32 expectedResponseMessageType)
+    MessageType expectedResponseMessageType)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_doRequest()");
 

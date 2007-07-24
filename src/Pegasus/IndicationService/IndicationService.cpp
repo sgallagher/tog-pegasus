@@ -165,7 +165,7 @@ IndicationService::~IndicationService()
 
 void IndicationService::_handle_async_request(AsyncRequest *req)
 {
-    if (req->getType() == async_messages::CIMSERVICE_STOP)
+    if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
         req->op->processing();
 
@@ -176,13 +176,13 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
 
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
-    else if (req->getType() == async_messages::CIMSERVICE_START)
+    else if (req->getType() == ASYNC_CIMSERVICE_START)
     {
         req->op->processing();
 
         handle_CimServiceStart(static_cast<CimServiceStart *>(req));
     }
-    else if (req->getType() == async_messages::ASYNC_LEGACY_OP_START)
+    else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         try
         {
@@ -6701,17 +6701,17 @@ void IndicationService::_aggregationCallBack(
     PEGASUS_ASSERT(operationAggregate != 0);
 
     CIMResponseMessage * response = 0;
-    Uint32 msgType = asyncReply->getType();
-    PEGASUS_ASSERT((msgType == async_messages::ASYNC_LEGACY_OP_RESULT) ||
-                   (msgType == async_messages::ASYNC_MODULE_OP_RESULT));
+    MessageType msgType = asyncReply->getType();
+    PEGASUS_ASSERT((msgType == ASYNC_ASYNC_LEGACY_OP_RESULT) ||
+                   (msgType == ASYNC_ASYNC_MODULE_OP_RESULT));
 
-    if (msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
+    if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
     {
         response = reinterpret_cast<CIMResponseMessage *>(
             (static_cast<AsyncLegacyOperationResult *>(
                 asyncReply))->get_result());
     }
-    else if (msgType == async_messages::ASYNC_MODULE_OP_RESULT)
+    else if (msgType == ASYNC_ASYNC_MODULE_OP_RESULT)
     {
         response = reinterpret_cast<CIMResponseMessage *>(
             (static_cast<AsyncModuleOperationResult *>(

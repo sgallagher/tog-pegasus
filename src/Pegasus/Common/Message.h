@@ -62,183 +62,6 @@ enum HttpMethod
     HTTP_METHOD_M_POST
 };
 
-/** The Message class and derived classes are used to pass messages between
-    modules. Messages are passed between modules using the message queues
-    (see MessageQueue class). Derived classes may add their own fields.
-    This base class defines a common type field, which is the type of
-    the message.
-*/
-class PEGASUS_COMMON_LINKAGE Message : public Linkable
-{
-public:
-
-    Message(
-        Uint32 type,
-        Uint32 destination = 0,
-        Uint32 mask = 0)
-        :
-        _type(type),
-        _mask(mask),
-        _httpMethod (HTTP_METHOD__POST),
-#ifndef PEGASUS_DISABLE_PERFINST
-        _serverStartTimeMicroseconds(0),
-        _providerTimeMicroseconds(0),
-        _totalServerTimeMicroseconds(0),
-#endif
-        _close_connect(false),
-        _last_thread_id(Threads::self()),
-        _async(0),
-        dest(destination),
-        _isComplete(true),
-        _index(0)
-    {
-    }
-
-    virtual ~Message();
-
-    // NOTE: The compiler default implementation of the copy constructor
-    // is used for this class.
-
-    Boolean getCloseConnect() const { return _close_connect; }
-    void setCloseConnect(Boolean close_connect)
-    {
-        _close_connect = close_connect;
-    }
-
-    Uint32 getType() const { return _type; }
-
-    void setType(Uint32 type) { _type = type; }
-
-    Uint32 getMask() const { return _mask; }
-
-    void setMask(Uint32 mask) { _mask = mask; }
-
-    HttpMethod getHttpMethod() const { return _httpMethod; }
-
-    void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
-
-#ifndef PEGASUS_DISABLE_PERFINST
-    //
-    // Needed for performance measurement
-    //
-
-    Uint64 getServerStartTime() const
-    {
-        return _serverStartTimeMicroseconds;
-    }
-
-    void setServerStartTime(Uint64 serverStartTimeMicroseconds)
-    {
-         _serverStartTimeMicroseconds = serverStartTimeMicroseconds;
-    }
-
-    void endServer();
-
-    Uint64 getProviderTime() const
-    {
-        return _providerTimeMicroseconds;
-    }
-
-    void setProviderTime(Uint64 providerTimeMicroseconds)
-    {
-        _providerTimeMicroseconds = providerTimeMicroseconds;
-    }
-
-    Uint64 getTotalServerTime() const
-    {
-        return _totalServerTimeMicroseconds;
-    }
-
-    void setTotalServerTime(Uint64 totalServerTimeMicroseconds)
-    {
-        _totalServerTimeMicroseconds = totalServerTimeMicroseconds;
-    }
-
-#endif
-
-    static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
-
-#ifdef PEGASUS_DEBUG
-    virtual void print(
-        PEGASUS_STD(ostream)& os,
-        Boolean printHeader = true) const;
-#endif
-
-    Message* get_async()
-    {
-        Message *ret = _async;
-        _async = 0;
-        return ret;
-    }
-
-    void put_async(Message* msg)
-    {
-        _async = msg;
-    }
-
-    // << Tue Jul  1 11:02:49 2003 mdd >> pep_88 and helper for i18n and l10n
-    Boolean thread_changed()
-    {
-        if (!Threads::equal(_last_thread_id, Threads::self()))
-        {
-            _last_thread_id = Threads::self();
-            return true;
-        }
-
-        return false;
-    }
-
-    // set the message index indicating what piece (or sequence) this is
-    // message indexes start at zero
-    void setIndex(Uint32 index) { _index = index; }
-
-    // increment the message index
-    void incrementIndex() { _index++; }
-
-    // set the complete flag indicating if this message piece is the
-    // last or not
-    void setComplete(Boolean isComplete)
-    {
-        _isComplete = isComplete ? true:false;
-    }
-
-    // get the message index (or sequence number)
-    Uint32 getIndex() const { return _index; }
-
-    // is this the first piece of the message ?
-    Boolean isFirst() const { return _index == 0 ? true : false; }
-
-    // is this message complete? (i.e the last in a one or more sequence)
-    Boolean isComplete() const { return _isComplete; }
-
-private:
-    Uint32 _type;
-    Uint32 _mask;
-    HttpMethod _httpMethod;
-
-#ifndef PEGASUS_DISABLE_PERFINST
-    // Needed for performance measurement
-    Uint64 _serverStartTimeMicroseconds;
-    Uint64 _providerTimeMicroseconds;
-    Uint64 _totalServerTimeMicroseconds;
-#endif
-    Boolean _close_connect;
-
-    // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
-    ThreadType _last_thread_id;
-
-public:
-    Message *_async;
-    Uint32 dest;
-
-private:
-    Message& operator=(const Message& msg);
-
-    Boolean _isComplete;
-    Uint32 _index;
-};
-
-
 enum MessageType
 {
     DUMMY_MESSAGE,
@@ -382,7 +205,185 @@ enum MessageType
     NUMBER_OF_MESSAGES
 };
 
-PEGASUS_COMMON_LINKAGE const char* MessageTypeToString(Uint32 messageType);
+PEGASUS_COMMON_LINKAGE const char* MessageTypeToString(MessageType messageType);
+
+
+/** The Message class and derived classes are used to pass messages between
+    modules. Messages are passed between modules using the message queues
+    (see MessageQueue class). Derived classes may add their own fields.
+    This base class defines a common type field, which is the type of
+    the message.
+*/
+class PEGASUS_COMMON_LINKAGE Message : public Linkable
+{
+public:
+
+    Message(
+        MessageType type,
+        Uint32 destination = 0,
+        Uint32 mask = 0)
+        :
+        _type(type),
+        _mask(mask),
+        _httpMethod (HTTP_METHOD__POST),
+#ifndef PEGASUS_DISABLE_PERFINST
+        _serverStartTimeMicroseconds(0),
+        _providerTimeMicroseconds(0),
+        _totalServerTimeMicroseconds(0),
+#endif
+        _close_connect(false),
+        _last_thread_id(Threads::self()),
+        _async(0),
+        dest(destination),
+        _isComplete(true),
+        _index(0)
+    {
+    }
+
+    virtual ~Message();
+
+    // NOTE: The compiler default implementation of the copy constructor
+    // is used for this class.
+
+    Boolean getCloseConnect() const { return _close_connect; }
+    void setCloseConnect(Boolean close_connect)
+    {
+        _close_connect = close_connect;
+    }
+
+    MessageType getType() const { return _type; }
+
+    void setType(MessageType type) { _type = type; }
+
+    Uint32 getMask() const { return _mask; }
+
+    void setMask(Uint32 mask) { _mask = mask; }
+
+    HttpMethod getHttpMethod() const { return _httpMethod; }
+
+    void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
+
+#ifndef PEGASUS_DISABLE_PERFINST
+    //
+    // Needed for performance measurement
+    //
+
+    Uint64 getServerStartTime() const
+    {
+        return _serverStartTimeMicroseconds;
+    }
+
+    void setServerStartTime(Uint64 serverStartTimeMicroseconds)
+    {
+         _serverStartTimeMicroseconds = serverStartTimeMicroseconds;
+    }
+
+    void endServer();
+
+    Uint64 getProviderTime() const
+    {
+        return _providerTimeMicroseconds;
+    }
+
+    void setProviderTime(Uint64 providerTimeMicroseconds)
+    {
+        _providerTimeMicroseconds = providerTimeMicroseconds;
+    }
+
+    Uint64 getTotalServerTime() const
+    {
+        return _totalServerTimeMicroseconds;
+    }
+
+    void setTotalServerTime(Uint64 totalServerTimeMicroseconds)
+    {
+        _totalServerTimeMicroseconds = totalServerTimeMicroseconds;
+    }
+
+#endif
+
+    static CIMOperationType convertMessageTypetoCIMOpType(MessageType type);
+
+#ifdef PEGASUS_DEBUG
+    virtual void print(
+        PEGASUS_STD(ostream)& os,
+        Boolean printHeader = true) const;
+#endif
+
+    Message* get_async()
+    {
+        Message *ret = _async;
+        _async = 0;
+        return ret;
+    }
+
+    void put_async(Message* msg)
+    {
+        _async = msg;
+    }
+
+    // << Tue Jul  1 11:02:49 2003 mdd >> pep_88 and helper for i18n and l10n
+    Boolean thread_changed()
+    {
+        if (!Threads::equal(_last_thread_id, Threads::self()))
+        {
+            _last_thread_id = Threads::self();
+            return true;
+        }
+
+        return false;
+    }
+
+    // set the message index indicating what piece (or sequence) this is
+    // message indexes start at zero
+    void setIndex(Uint32 index) { _index = index; }
+
+    // increment the message index
+    void incrementIndex() { _index++; }
+
+    // set the complete flag indicating if this message piece is the
+    // last or not
+    void setComplete(Boolean isComplete)
+    {
+        _isComplete = isComplete ? true:false;
+    }
+
+    // get the message index (or sequence number)
+    Uint32 getIndex() const { return _index; }
+
+    // is this the first piece of the message ?
+    Boolean isFirst() const { return _index == 0 ? true : false; }
+
+    // is this message complete? (i.e the last in a one or more sequence)
+    Boolean isComplete() const { return _isComplete; }
+
+private:
+    MessageType _type;
+    Uint32 _mask;
+    HttpMethod _httpMethod;
+
+#ifndef PEGASUS_DISABLE_PERFINST
+    // Needed for performance measurement
+    Uint64 _serverStartTimeMicroseconds;
+    Uint64 _providerTimeMicroseconds;
+    Uint64 _totalServerTimeMicroseconds;
+#endif
+    Boolean _close_connect;
+
+    // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
+    ThreadType _last_thread_id;
+
+public:
+    Message *_async;
+    Uint32 dest;
+
+private:
+    Message& operator=(const Message& msg);
+
+    Boolean _isComplete;
+    Uint32 _index;
+};
+
 
 /** This class implements a stack of queue-ids. Many messages must keep a
     stack of queue-ids of queues which they must be returned to. This provides

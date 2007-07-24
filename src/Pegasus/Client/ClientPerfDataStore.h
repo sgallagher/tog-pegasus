@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Common/Message.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
 
@@ -72,7 +73,7 @@ public:
         @param type CIM message type of current message
         @return true if @param messageID equals currentMessageID data member
     */
-    Boolean checkMessageIDandType(const String& messageID, Uint32 type);
+    Boolean checkMessageIDandType(const String& messageID, MessageType type);
 
     /** Sets the server time data member
     */
@@ -103,7 +104,7 @@ public:
         _operationType data member and is returned.
         @param type integer repesenting the message type
     */
-    void setOperationType(Uint32 type);
+    void setOperationType(MessageType type);
 
     //void setErrorCondition(Boolean bol);
 

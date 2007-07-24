@@ -65,7 +65,7 @@ public:
         Uint32 response,
         const char *message)
     : Base(
-        0x04100000,
+        CIM_DELETE_CLASS_REQUEST_MESSAGE,
         0,
         op,
         destination,
@@ -94,7 +94,7 @@ public:
         Uint32 destination,
         const char *message)
     : Base(
-        0x04200000,
+        CIM_DELETE_CLASS_RESPONSE_MESSAGE,
         0,
         op,
         result,
@@ -221,7 +221,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
         }
         else
         {
-            if (rq->getType() == 0x11100011)
+            if (rq->getType() == CIM_CREATE_CLASS_REQUEST_MESSAGE)
             {
                 if (verbose)
                 {
@@ -237,17 +237,17 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
 
 void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 {
-    if (req->getType() == 0x04100000)
+    if (req->getType() == CIM_DELETE_CLASS_REQUEST_MESSAGE)
     {
         req->op->processing();
         handleTestRequestMessage(req);
     }
-    else if (req->getType() == async_messages::CIMSERVICE_STOP)
+    else if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
         req->op->processing();
         handleCimServiceStop(static_cast<CimServiceStop *>(req));
     }
-    else if (req->getType() == async_messages::ASYNC_LEGACY_OP_START)
+    else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         req->op->processing();
         handleLegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
@@ -260,12 +260,12 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 
 Boolean MessageQueueServer::messageOK(const Message *msg)
 {
-    if (msg->getType() == 0x04100000 ||
-        msg->getType() == async_messages::CIMSERVICE_STOP ||
-        msg->getType() == async_messages::CIMSERVICE_PAUSE ||
-        msg->getType() == async_messages::ASYNC_LEGACY_OP_START ||
-        msg->getType() == async_messages::CIMSERVICE_RESUME ||
-        msg->getType() == 0x11100011)
+    if (msg->getType() == CIM_DELETE_CLASS_REQUEST_MESSAGE ||
+        msg->getType() == ASYNC_CIMSERVICE_STOP ||
+        msg->getType() == ASYNC_CIMSERVICE_PAUSE ||
+        msg->getType() == ASYNC_ASYNC_LEGACY_OP_START ||
+        msg->getType() == ASYNC_CIMSERVICE_RESUME ||
+        msg->getType() == CIM_CREATE_CLASS_REQUEST_MESSAGE)
     {
         return true;
     }
@@ -284,7 +284,7 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
 
     AsyncReply *resp =
         new AsyncReply(
-            async_messages::REPLY,
+            ASYNC_REPLY,
             0,
             req->op,
             async_results::OK,
@@ -304,7 +304,7 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
 
 void MessageQueueServer::handleTestRequestMessage(AsyncRequest *msg)
 {
-    if (msg->getType() == 0x04100000)
+    if (msg->getType() == CIM_DELETE_CLASS_REQUEST_MESSAGE)
     {
         TestResponseMessage *resp = new TestResponseMessage(
             msg->op,
@@ -319,7 +319,7 @@ void MessageQueueServer::handleCimServiceStop(CimServiceStop *req)
 {
     AsyncReply *resp =
         new AsyncReply(
-            async_messages::REPLY,
+            ASYNC_REPLY,
             0,
             req->op,
             async_results::CIM_SERVICE_STOPPED,
@@ -346,10 +346,10 @@ Boolean MessageQueueClient::messageOK(const Message *msg)
 {
    if(msg->getMask() & MessageMask::ha_async)
    {
-      if (msg->getType() == 0x04200000 ||
-          msg->getType() == async_messages::CIMSERVICE_STOP ||
-          msg->getType() == async_messages::CIMSERVICE_PAUSE ||
-          msg->getType() == async_messages::CIMSERVICE_RESUME)
+      if (msg->getType() == CIM_DELETE_CLASS_RESPONSE_MESSAGE ||
+          msg->getType() == ASYNC_CIMSERVICE_STOP ||
+          msg->getType() == ASYNC_CIMSERVICE_PAUSE ||
+          msg->getType() == ASYNC_CIMSERVICE_RESUME)
       return true;
    }
    return false;
@@ -475,7 +475,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
         cout << " sending LEGACY to test server" << endl;
     }
 
-    Message *legacy = new Message(0x11100011);
+    Message *legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
 
     AsyncLegacyOperationStart *req = new AsyncLegacyOperationStart(
         0,
@@ -491,7 +491,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
         cout << "trying SendForget " << endl;
     }
 
-    legacy = new Message(0x11100011);
+    legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
 
     req = new AsyncLegacyOperationStart(
         0,
@@ -501,7 +501,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     q_client->SendForget(req);
 
-    legacy = new Message(0x11100011);
+    legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
     legacy->dest = services[0];
 
     q_client->SendForget(legacy);
@@ -510,7 +510,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
         static_cast<MessageQueueService *>(MessageQueue::lookup(services[0]));
 
 #if 0
-    legacy = new Message(0x11100011);
+    legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
 
     // ATTN: handleEnqueue() is not implemented
     server->enqueue(legacy);

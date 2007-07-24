@@ -73,7 +73,7 @@ class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {
 public:
 
-    CIMMessage(Uint32 type, const String& messageId_);
+    CIMMessage(MessageType type, const String& messageId_);
 
 #ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
@@ -106,7 +106,9 @@ class PEGASUS_COMMON_LINKAGE CIMRequestMessage : public CIMMessage
 {
 public:
     CIMRequestMessage(
-        Uint32 type_, const String& messageId_, const QueueIdStack& queueIds_);
+        MessageType type_,
+        const String& messageId_,
+        const QueueIdStack& queueIds_);
 
     virtual CIMResponseMessage* buildResponse() const = 0;
 
@@ -139,7 +141,7 @@ class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
 public:
 
     CIMResponseMessage(
-        Uint32 type_,
+        MessageType type_,
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_);
@@ -159,7 +161,7 @@ class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage
 public:
 
     CIMOperationRequestMessage(
-        Uint32 type_,
+        MessageType type_,
         const String& messageId_,
         const QueueIdStack& queueIds_,
         const String& authType_,
@@ -181,7 +183,7 @@ class PEGASUS_COMMON_LINKAGE CIMIndicationRequestMessage
 {
 public:
     CIMIndicationRequestMessage(
-        Uint32 type_,
+        MessageType type_,
         const String & messageId_,
         const QueueIdStack& queueIds_,
         const String& authType_,

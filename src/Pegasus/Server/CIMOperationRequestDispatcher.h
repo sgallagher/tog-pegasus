@@ -151,7 +151,7 @@ public:
         @param className
     */
     OperationAggregate(CIMRequestMessage* request,
-        Uint32 msgRequestType,
+        MessageType msgRequestType,
         String messageId,
         Uint32 dest,
         CIMName className,
@@ -188,12 +188,12 @@ public:
 
     void deleteResponse(const Uint32&pos);
 
-    Uint32 getRequestType() const;
+    MessageType getRequestType() const;
 
     void resequenceResponse(CIMResponseMessage& response);
 
     String _messageId;
-    Uint32 _msgRequestType;
+    MessageType _msgRequestType;
     Uint32 _dest;
     CIMNamespaceName _nameSpace;
     CIMName _className;

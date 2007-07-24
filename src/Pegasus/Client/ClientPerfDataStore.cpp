@@ -110,7 +110,7 @@ void ClientPerfDataStore::setMessageID(String messageID)
     _messID = messageID;
 }
 
-void ClientPerfDataStore::setOperationType(Uint32 type)
+void ClientPerfDataStore::setOperationType(MessageType type)
 {
     _operationType = Message::convertMessageTypetoCIMOpType(type);
 }
@@ -118,7 +118,7 @@ void ClientPerfDataStore::setOperationType(Uint32 type)
 
 Boolean ClientPerfDataStore::checkMessageIDandType(
     const String& messageID,
-    Uint32 type)
+    MessageType type)
 {
     if (_messID != messageID)
     {

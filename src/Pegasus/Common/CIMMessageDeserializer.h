@@ -57,12 +57,12 @@ private:
     PEGASUS_HIDDEN_LINKAGE
     static CIMRequestMessage* _deserializeCIMRequestMessage(
         XmlParser& parser,
-        Uint32 type);
+        MessageType type);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMResponseMessage* _deserializeCIMResponseMessage(
         XmlParser& parser,
-        Uint32 type);
+        MessageType type);
 
     //
     // Utility Methods

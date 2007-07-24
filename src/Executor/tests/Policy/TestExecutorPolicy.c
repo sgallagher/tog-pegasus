@@ -48,22 +48,26 @@ static struct Policy _testPolicyTable[] =
     {
         EXECUTOR_PING_MESSAGE,
         NULL,
-        NULL
+        NULL,
+        100, /* flags */
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${file1}",
-        "${file2}"
+        "${file2}",
+        0, /* flags */
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "file1",
-        "${file2}"
+        "${file2}",
+        0, /* flags */
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "file1",
-        "file2"
+        "file2",
+        0, /* flags */
     }
 };
 
@@ -72,21 +76,28 @@ static const size_t _testPolicyTableSize =
 
 void testCheckPolicy(void)
 {
+    unsigned long flags = 0;
+
     /* Test non-existent policy */
     assert(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
         EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE,
         NULL,
-        NULL) != 0);
+        NULL,
+        &flags) != 0);
+    assert(flags == 0);
 
-    /* Test policy with no arguments */
+    /* Test policy with no arguments, but with 'flags' attribute */
+    flags = 0;
     assert(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
         EXECUTOR_PING_MESSAGE,
         NULL,
-        NULL) == 0);
+        NULL,
+        &flags) == 0);
+    assert(flags == 100);
 
     /* Test policies with invalid macro expansion in first argument and
      * non-match in first argument
@@ -96,7 +107,8 @@ void testCheckPolicy(void)
         _testPolicyTableSize,
         EXECUTOR_RENAME_FILE_MESSAGE,
         "MyFile",
-        "file2") != 0);
+        "file2",
+        NULL) != 0);
 
     /* Test policies with invalid macro expansion in second argument and
      * non-match in second argument
@@ -106,7 +118,8 @@ void testCheckPolicy(void)
         _testPolicyTableSize,
         EXECUTOR_RENAME_FILE_MESSAGE,
         "file1",
-        "MyFile") != 0);
+        "MyFile",
+        NULL) != 0);
 
     /* Test policy with successful match in both arguments */
     assert(CheckPolicy(
@@ -114,7 +127,8 @@ void testCheckPolicy(void)
         _testPolicyTableSize,
         EXECUTOR_RENAME_FILE_MESSAGE,
         "file1",
-        "file2") == 0);
+        "file2",
+        NULL) == 0);
 }
 
 void testFilePolicies(void)
@@ -126,8 +140,8 @@ void testFilePolicies(void)
     /* Define a macro used in the static policy table */
     DefineMacro("currentConfigFilePath", currentConfigFile);
 
-    assert(CheckOpenFilePolicy(currentConfigFile, 'w') == 0);
-    assert(CheckOpenFilePolicy(noAccessFile, 'w') != 0);
+    assert(CheckOpenFilePolicy(currentConfigFile, 'w', NULL) == 0);
+    assert(CheckOpenFilePolicy(noAccessFile, 'w', NULL) != 0);
 
     assert(CheckRemoveFilePolicy(currentConfigFile) == 0);
     assert(CheckRemoveFilePolicy(noAccessFile) != 0);

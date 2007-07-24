@@ -309,20 +309,22 @@ void ConfigFile::save(ConfigTable* confTable)
 
     fclose(ofs);
 
-#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    // Note:  The Executor process sets the permissions to 0644 whenever it
-    // opens a file for writing.
-# if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    //
-    // Set permissions on the config file to 0644
-    //
-    if (!FileSystem::changeFilePermissions(_configFile,
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+    // Note:  The Executor process sets the permissions to 0644 when it
+    // opens the config file for writing.
+    if (Executor::detectExecutor() != 0)
     {
-        throw CannotOpenFile(_configFile);
+        //
+        // Set permissions on the config file to 0644
+        //
+        if (!FileSystem::changeFilePermissions(
+                _configFile,
+                (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
+        {
+            throw CannotOpenFile(_configFile);
+        }
     }
-# endif
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
+#endif
 }
 
 

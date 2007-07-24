@@ -85,96 +85,114 @@ static struct Policy _staticPolicyTable[] =
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${currentConfigFilePath}",
         "w",
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${currentConfigFilePath}",
         "${currentConfigFilePath}.bak",
+        0, /* flags */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${currentConfigFilePath}",
         NULL,
+        0, /* flags */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${currentConfigFilePath}.bak",
         NULL,
+        0, /* flags */
     },
     /* cimserver_planned.conf policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${plannedConfigFilePath}",
         "w",
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${plannedConfigFilePath}",
         "${plannedConfigFilePath}.bak",
+        0, /* flags */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${plannedConfigFilePath}",
         NULL,
+        0, /* flags */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${plannedConfigFilePath}.bak",
         NULL,
+        0, /* flags */
     },
     /* cimserver.passwd policies */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${passwordFilePath}",
         "w",
+        (S_IRUSR | S_IWUSR) /* 0600 */
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${passwordFilePath}.bak",
         "${passwordFilePath}",
+        0, /* flags */
     },
     {
         EXECUTOR_RENAME_FILE_MESSAGE,
         "${passwordFilePath}",
         "${passwordFilePath}.bak",
+        0, /* flags */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${passwordFilePath}.bak",
         NULL,
+        0, /* flags */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${passwordFilePath}",
         NULL,
+        0, /* flags */
     },
     /* SSL key file policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${sslKeyFilePath}",
         "r",
+        0, /* flags not used when opening a file for read access */
     },
     /* SSL trust store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${sslTrustStore}/*",
         "w",
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${sslTrustStore}/*",
         NULL,
+        0, /* flags */
     },
     /* CRL store policies. */
     {
         EXECUTOR_OPEN_FILE_MESSAGE,
         "${crlStore}/*",
         "w",
+        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) /* 0644 */
     },
     {
         EXECUTOR_REMOVE_FILE_MESSAGE,
         "${crlStore}/*",
         NULL,
+        0, /* flags */
     },
 };
 
@@ -194,9 +212,15 @@ int CheckPolicy(
     size_t policyTableSize,
     enum ExecutorMessageCode messageCode,
     const char* arg1,
-    const char* arg2)
+    const char* arg2,
+    unsigned long* flags)
 {
     size_t i;
+
+    /* Clear the flags. */
+
+    if (flags)
+        *flags = 0;
 
     for (i = 0; i < policyTableSize; i++)
     {
@@ -229,7 +253,13 @@ int CheckPolicy(
                 continue;
         }
 
+        /* Set the output flags argument. */
+
+        if (flags)
+            *flags = p->flags;
+
         /* Found a matching policy! */
+
         return 0;
     }
 
@@ -246,7 +276,7 @@ int CheckPolicy(
 **==============================================================================
 */
 
-int CheckOpenFilePolicy(const char* path, int mode)
+int CheckOpenFilePolicy(const char* path, int mode, unsigned long* flags)
 {
     char arg2[2];
 
@@ -254,7 +284,7 @@ int CheckOpenFilePolicy(const char* path, int mode)
     arg2[1] = '\0';
 
     if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
-        EXECUTOR_OPEN_FILE_MESSAGE, path, arg2) == 0)
+        EXECUTOR_OPEN_FILE_MESSAGE, path, arg2, flags) == 0)
     {
         Log(LL_TRACE, "CheckOpenFilePolicy(%s=\"%s\", %s='%c') passed",
             ARG(path), ARG(mode));
@@ -282,7 +312,7 @@ int CheckOpenFilePolicy(const char* path, int mode)
 int CheckRemoveFilePolicy(const char* path)
 {
     if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
-        EXECUTOR_REMOVE_FILE_MESSAGE, path, NULL) == 0)
+        EXECUTOR_REMOVE_FILE_MESSAGE, path, NULL, NULL) == 0)
     {
         Log(LL_TRACE, "CheckRemoveFilePolicy(%s=\"%s\") passed", ARG(path));
         return 0;
@@ -308,7 +338,7 @@ int CheckRemoveFilePolicy(const char* path)
 int CheckRenameFilePolicy(const char* oldPath, const char* newPath)
 {
     if (CheckPolicy(_staticPolicyTable, _staticPolicyTableSize,
-        EXECUTOR_RENAME_FILE_MESSAGE, oldPath, newPath) == 0)
+        EXECUTOR_RENAME_FILE_MESSAGE, oldPath, newPath, NULL) == 0)
     {
         Log(LL_TRACE, "CheckRenameFilePolicy(%s=\"%s\", %s=\"%s\") passed",
             ARG(oldPath), ARG(newPath));

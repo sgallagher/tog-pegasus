@@ -115,7 +115,9 @@ public:
     */
     static int ping();
 
-    /** Open the given file with the given mode.
+    /** Open the given file with the given mode.  The file permissions are
+        governed by Executor policy (if the Executor is called) or by the
+        process umask setting.
         @param path the path of the file.
         @param mode 'r'=read, 'w'=write, and 'a'=append.
         @return the file stream or NULL on failure.

@@ -172,7 +172,9 @@ static void HandleOpenFileRequest(int sock)
     {
         /* Check the policy. */
 
-        if (CheckOpenFilePolicy(request.path, request.mode) != 0)
+        unsigned long permissions = 0;
+
+        if (CheckOpenFilePolicy(request.path, request.mode, &permissions) != 0)
         {
             response.status = -1;
             break;
@@ -190,7 +192,7 @@ static void HandleOpenFileRequest(int sock)
                 fd = open(
                     request.path,
                     O_WRONLY | O_CREAT | O_TRUNC,
-                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); /* 0644 */
+                    permissions);
                 break;
 
             case 'a':
@@ -198,7 +200,7 @@ static void HandleOpenFileRequest(int sock)
                 fd = open(
                     request.path,
                     O_WRONLY | O_CREAT | O_APPEND,
-                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); /* 0644 */
+                    permissions);
                 break;
             }
         }

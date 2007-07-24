@@ -53,6 +53,7 @@ struct Policy
     enum ExecutorMessageCode messageCode;
     const char* arg1;
     const char* arg2;
+    unsigned long flags;
 };
 
 EXECUTOR_LINKAGE
@@ -61,10 +62,11 @@ int CheckPolicy(
     size_t policyTableSize,
     enum ExecutorMessageCode messageCode,
     const char* arg1,
-    const char* arg2);
+    const char* arg2,
+    unsigned long* flags);
 
 EXECUTOR_LINKAGE
-int CheckOpenFilePolicy(const char* path, int mode);
+int CheckOpenFilePolicy(const char* path, int mode, unsigned long* flags);
 
 EXECUTOR_LINKAGE
 int CheckRemoveFilePolicy(const char* path);

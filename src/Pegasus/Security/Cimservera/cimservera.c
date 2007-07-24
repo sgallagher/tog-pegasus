@@ -34,6 +34,7 @@
 */
 
 #include <Executor/PAMAuth.h>
+#include <Executor/Socket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
@@ -47,43 +48,18 @@ static void Exit(int status)
     exit(status);
 }
 
-static ssize_t Recv(int sock, void* buffer, size_t size)
-{
-    size_t r = size;
-    char* p = (char*)buffer;
-
-    if (size == 0)
-        return -1;
-
-    while (r)
-    {
-        ssize_t n;
-
-        EXECUTOR_RESTART(read(sock, p, r), n);
-
-        if (n == -1)
-            return -1;
-        else if (n == 0)
-            return size - r;
-
-        r -= n;
-        p += n;
-    }
-
-    return size - r;
-}
-
 int main(int argc, char* argv[])
 {
     int sock;
     CimserveraRequest request;
+    CimserveraResponse response;
 
     /* Open syslog: */
 
     openlog("cimservera", LOG_PID, LOG_AUTH);
     syslog(LOG_DEBUG, "started");
 
-    /* Check argumnents. */
+    /* Check arguments. */
 
     if (argc != 2)
     {
@@ -108,7 +84,7 @@ int main(int argc, char* argv[])
 
     /* Wait on request. */
 
-    if (Recv(sock, &request, sizeof(request)) != sizeof(request))
+    if (RecvBlock(sock, &request, sizeof(request)) != sizeof(request))
     {
         close(sock);
         Exit(1);
@@ -126,6 +102,15 @@ int main(int argc, char* argv[])
                 request.arg1);
         }
 
+        response.status = status;
+
+        if (SendBlock(sock, &response, sizeof(response)) != sizeof(response))
+        {
+            close(sock);
+            Exit(1);
+        }
+
+        close(sock);
         Exit(status == 0 ? 0 : 1);
     }
     else if (strcmp(request.arg0, "validateUser") == 0)
@@ -133,18 +118,24 @@ int main(int argc, char* argv[])
         int status = PAMValidateUserInProcess(request.arg1);
 
         if (status != 0)
+        {
             syslog(LOG_WARNING, "failed to validate user \"%s\"", request.arg1);
+        }
 
+        response.status = status;
+
+        if (SendBlock(sock, &response, sizeof(response)) != sizeof(response))
+        {
+            close(sock);
+            Exit(1);
+        }
+
+        close(sock);
         Exit(status == 0 ? 0 : 1);
     }
-    else
-    {
-        syslog(LOG_WARNING, "invalid request");
-        close(sock);
-        Exit(1);
-    }
 
+    syslog(LOG_WARNING, "invalid request");
     close(sock);
-    Exit(0);
-    return 0;
+    Exit(1);
+    return 1;
 }

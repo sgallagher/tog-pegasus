@@ -37,7 +37,11 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <string.h>
-#include "Defines.h"
+#include <errno.h>
+#include <unistd.h>
+#include <Executor/Defines.h>
+
+#ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 
 EXECUTOR_LINKAGE
 int SetNonBlocking(int sock);
@@ -157,6 +161,61 @@ static int RecvDescriptorArray(int sock, int descriptors[], size_t count)
 #endif /* defined(HAVE_MSG_CONTROL) */
 
     return 0;
+}
+
+#endif
+
+/*
+    These functions are used by the PAM cimservera implementation regardless
+    of whether privilege separation is enabled.
+*/
+
+static ssize_t RecvBlock(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    if (size == 0)
+        return -1;
+
+    while (r)
+    {
+        ssize_t n;
+
+        EXECUTOR_RESTART(read(sock, p, r), n);
+
+        if (n == -1)
+            return -1;
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
+}
+
+static ssize_t SendBlock(int sock, void* buffer, size_t size)
+{
+    size_t r = size;
+    char* p = (char*)buffer;
+
+    while (r)
+    {
+        ssize_t n;
+        EXECUTOR_RESTART(write(sock, p, r), n);
+
+        if (n == -1)
+            return -1;
+        else if (n == 0)
+            return size - r;
+
+        r -= n;
+        p += n;
+    }
+
+    return size - r;
 }
 
 #endif /* _Executor_Socket_h */

@@ -50,7 +50,8 @@
 #include <Executor/Strlcpy.h>
 #include <Executor/Strlcat.h>
 #include <security/pam_appl.h>
-#include "Defines.h"
+#include <Executor/Defines.h>
+#include <Executor/Socket.h>
 
 /*
 **==============================================================================
@@ -78,38 +79,6 @@
 **
 **==============================================================================
 */
-
-/*
-**==============================================================================
-**
-** CimserveraSend()
-**
-**     Sends *size* bytes on the given socket.
-**
-**==============================================================================
-*/
-
-static ssize_t CimserveraSend(int sock, void* buffer, size_t size)
-{
-    size_t r = size;
-    char* p = (char*)buffer;
-
-    while (r)
-    {
-        ssize_t n;
-        EXECUTOR_RESTART(write(sock, p, r), n);
-
-        if (n == -1)
-            return -1;
-        else if (n == 0)
-            return size - r;
-
-        r -= n;
-        p += n;
-    }
-
-    return size - r;
-}
 
 /*
 **==============================================================================
@@ -216,6 +185,21 @@ CimserveraRequest;
 /*
 **==============================================================================
 **
+** CimserveraResponse
+**
+**==============================================================================
+*/
+
+typedef struct CimserveraResponseStruct
+{
+    /* '0' means authentication successful. '-1' means authentication failed. */
+    int status;
+}
+CimserveraResponse;
+
+/*
+**==============================================================================
+**
 ** CimserveraAuthenticate()
 **
 **==============================================================================
@@ -241,6 +225,7 @@ static int CimserveraAuthenticate(const char* username, const char* password)
     do
     {
         CimserveraRequest request;
+        CimserveraResponse response;
         int childStatus;
 
         /* Send request to CIMSERVERA process. */
@@ -250,7 +235,23 @@ static int CimserveraAuthenticate(const char* username, const char* password)
         Strlcpy(request.arg1, username, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.arg2, password, EXECUTOR_BUFFER_SIZE);
 
-        if (CimserveraSend(sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(sock, &request, sizeof(request)) != sizeof(request))
+        {
+            status = -1;
+            break;
+        }
+
+        /* Receive response from CIMSERVERA process. */
+
+        if (RecvBlock(sock, &response, sizeof(response)) != sizeof(response))
+        {
+            status = -1;
+            break;
+        }
+
+        /* Check status. */
+
+        if (response.status != 0)
         {
             status = -1;
             break;
@@ -259,12 +260,6 @@ static int CimserveraAuthenticate(const char* username, const char* password)
         /* Get exit status from CIMSERVERA program. */
 
         waitpid(pid, &childStatus, 0);
-
-        if (!WIFEXITED(childStatus) || WEXITSTATUS(childStatus) != 0)
-        {
-            status = -1;
-            break;
-        }
     }
     while (0);
 
@@ -301,6 +296,7 @@ static int CimserveraValidateUser(const char* username)
     do
     {
         CimserveraRequest request;
+        CimserveraResponse response;
         int childStatus;
 
         /* Send request to CIMSERVERA process. */
@@ -309,7 +305,23 @@ static int CimserveraValidateUser(const char* username)
         Strlcpy(request.arg0, "validateUser", EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.arg1, username, EXECUTOR_BUFFER_SIZE);
 
-        if (CimserveraSend(sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(sock, &request, sizeof(request)) != sizeof(request))
+        {
+            status = -1;
+            break;
+        }
+
+        /* Receive response from CIMSERVERA process. */
+
+        if (RecvBlock(sock, &response, sizeof(response)) != sizeof(response))
+        {
+            status = -1;
+            break;
+        }
+
+        /* Check status. */
+
+        if (response.status != 0)
         {
             status = -1;
             break;
@@ -318,12 +330,6 @@ static int CimserveraValidateUser(const char* username)
         /* Get exit status from CIMSERVERA program. */
 
         waitpid(pid, &childStatus, 0);
-
-        if (!WIFEXITED(childStatus) || WEXITSTATUS(childStatus) != 0)
-        {
-            status = -1;
-            break;
-        }
     }
     while (0);
 

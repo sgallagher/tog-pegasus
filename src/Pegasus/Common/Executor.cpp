@@ -551,17 +551,17 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_PING_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
         ExecutorPingResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         if (response.magic == EXECUTOR_PING_MAGIC)
@@ -579,29 +579,29 @@ public:
         if (mode != 'r' && mode != 'w' && mode != 'a')
             return NULL;
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_OPEN_FILE_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return NULL;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorOpenFileRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
         request.mode = mode;
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return NULL;
 
         // Receive the response
 
         ExecutorOpenFileResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return NULL;
 
         // Receive descriptor (if response successful).
@@ -633,29 +633,29 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_RENAME_FILE_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorRenameFileRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.oldPath, oldPath, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.newPath, newPath, EXECUTOR_BUFFER_SIZE);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorRenameFileResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         return response.status;
@@ -666,28 +666,28 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_REMOVE_FILE_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorRemoveFileRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.path, path, EXECUTOR_BUFFER_SIZE);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorRemoveFileResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         return response.status;
@@ -719,29 +719,29 @@ public:
         if (userNameLength >= EXECUTOR_BUFFER_SIZE)
             return -1;
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_START_PROVIDER_AGENT_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorStartProviderAgentRequest request;
         memset(&request, 0, sizeof(request));
         memcpy(request.module, module, moduleNameLength);
         memcpy(request.userName, userNameCString, userNameLength);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorStartProviderAgentResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         // Check response status and pid.
@@ -782,19 +782,19 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
         // Receive the response
 
         ExecutorDaemonizeExecutorResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         return response.status;
@@ -805,28 +805,28 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body:
+        // Send request body:
 
         ExecutorReapProviderAgentRequest request;
         memset(&request, 0, sizeof(request));
         request.pid = pid;
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorReapProviderAgentResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         return response.status;
@@ -838,29 +838,29 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorAuthenticatePasswordRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.password, password, EXECUTOR_BUFFER_SIZE);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorAuthenticatePasswordResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         return response.status;
@@ -871,28 +871,28 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_VALIDATE_USER_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorValidateUserRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.username, username, EXECUTOR_BUFFER_SIZE);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorValidateUserResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         return response.status;
@@ -904,28 +904,28 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_CHALLENGE_LOCAL_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorChallengeLocalRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.user, username, EXECUTOR_BUFFER_SIZE);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorChallengeLocalResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         Strlcpy(challengeFilePath, response.challenge, EXECUTOR_BUFFER_SIZE);
@@ -939,30 +939,33 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body.
+        // Send request body.
 
         ExecutorAuthenticateLocalRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.challenge, challengeFilePath, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.response, response, EXECUTOR_BUFFER_SIZE);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorAuthenticateLocalResponse response_;
 
-        if (_recv(_sock, &response_, sizeof(response_)) != sizeof(response_))
+        if (RecvBlock(_sock, &response_, sizeof(response_)) !=
+                sizeof(response_))
+        {
             return -1;
+        }
 
         return response_.status;
     }
@@ -972,82 +975,34 @@ public:
     {
         AutoMutex autoMutex(_mutex);
 
-        // _send request header:
+        // Send request header:
 
         ExecutorRequestHeader header;
         header.code = EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE;
 
-        if (_send(_sock, &header, sizeof(header)) != sizeof(header))
+        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
             return -1;
 
-        // _send request body:
+        // Send request body:
 
         ExecutorUpdateLogLevelRequest request;
         memset(&request, 0, sizeof(request));
         Strlcpy(request.logLevel, logLevel, EXECUTOR_BUFFER_SIZE);
 
-        if (_send(_sock, &request, sizeof(request)) != sizeof(request))
+        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
 
         // Receive the response
 
         ExecutorUpdateLogLevelResponse response;
 
-        if (_recv(_sock, &response, sizeof(response)) != sizeof(response))
+        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
             return -1;
 
         return response.status;
     }
 
 private:
-
-    static ssize_t _recv(int sock, void* buffer, size_t size)
-    {
-        size_t r = size;
-        char* p = (char*)buffer;
-
-        if (size == 0)
-            return -1;
-
-        while (r)
-        {
-            ssize_t n;
-
-            EXECUTOR_RESTART(read(sock, p, r), n);
-
-            if (n == -1)
-                return -1;
-            else if (n == 0)
-                return size - r;
-
-            r -= n;
-            p += n;
-        }
-
-        return size - r;
-    }
-
-    static ssize_t _send(int sock, void* buffer, size_t size)
-    {
-        size_t r = size;
-        char* p = (char*)buffer;
-
-        while (r)
-        {
-            ssize_t n;
-            EXECUTOR_RESTART(write(sock, p, r), n);
-
-            if (n == -1)
-                return -1;
-            else if (n == 0)
-                return size - r;
-
-            r -= n;
-            p += n;
-        }
-
-        return size - r;
-    }
 
     int _sock;
     Mutex _mutex;

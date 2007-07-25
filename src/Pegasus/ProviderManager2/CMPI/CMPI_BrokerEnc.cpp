@@ -368,11 +368,6 @@ extern "C"
         return reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
     }
 
-    CMPIString* mbIntNewString(const char *s)
-    {
-        return mbEncNewString(NULL,s,NULL);
-    }
-
     CMPIArray* mbEncNewArray(
         const CMPIBroker* mb,
         CMPICount count,

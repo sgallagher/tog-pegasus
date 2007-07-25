@@ -2620,6 +2620,12 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             else
             {
                 prec=new indProvRecord();
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+                if (remote)
+                {
+                    prec->remoteInfo = pidc.getRemoteInfo();
+                }
+#endif
                 provTab.insert(ph.GetProvider().getName(),prec);
             }
         }
@@ -3277,23 +3283,33 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
             CIMInstance provider;
             provider = enableProviders [i]->getProviderInstance ();
 
+            CString info;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+            indProvRecord *provRec = 0;
+            if (provTab.lookup (enableProviders [i]->getName(), provRec))
+            {
+                if (provRec->remoteInfo != String::EMPTY)
+                {
+                    info = provRec->remoteInfo.getCString();
+                }
+            }
+#endif
             //
             //  Get cached or load new provider module
             //
-            CMPIProvider::OpProviderHolder ph = providerManager.getProvider
-                (enableProviders [i]->getModule ()->getFileName (),
-                enableProviders [i]->getName ());
-            // Add remote info
-            // ATTN: bug 5951
-            CString info;
-//          {
-//              ProviderIdContainer pidc = (ProviderIdContainer)
-//                request->operationContext.get(ProviderIdContainer::NAME);
-//              if (pidc.isRemoteNameSpace() )
-//              {
-//                  info = pidc.getRemoteInfo().getCString();
-//              }
-//          }
+            CMPIProvider::OpProviderHolder ph;
+            if ((const char*)info)
+            {
+                ph = providerManager.getRemoteProvider
+                    (enableProviders [i]->getModule ()->getFileName (),
+                    enableProviders [i]->getName ());
+            }
+            else
+            {
+                ph = providerManager.getProvider
+                    (enableProviders [i]->getModule ()->getFileName (),
+                    enableProviders [i]->getName ());
+            }
             _callEnableIndications(
                 provider, 
                 _indicationCallback, 

@@ -85,6 +85,9 @@ public:
         }
         Boolean enabled;
         int count;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+        String remoteInfo; 
+#endif
         EnableIndicationsResponseHandler* handler;
     };
 

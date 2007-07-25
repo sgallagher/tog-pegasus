@@ -3923,8 +3923,7 @@ void CMPIProviderManager::_callEnableIndications
 
             DDD(cerr<<"--- provider.enableIndications"<<endl);
 
-            CMPIProvider::pm_service_op_lock op_lock(&pr);
-            ph.GetProvider().protect();
+            pr.protect();
 
             // enableIndications() is defined by the CMPI standard as
             // returning a CMPIStatus return value. Unfortunately, Pegasus
@@ -4023,7 +4022,6 @@ void CMPIProviderManager::_callDisableIndications
 
             DDD(cerr<<"--- provider.disableIndications"<<endl);
 
-            CMPIProvider::pm_service_op_lock op_lock(&pr);
 
             // disableIndications() is defined by the CMPI standard as
             // returning a CMPIStatus return value. Unfortunately, Pegasus
@@ -4038,7 +4036,7 @@ void CMPIProviderManager::_callDisableIndications
                 pr.miVector.indMI, 
                 &eCtx);
 
-            ph.GetProvider().unprotect();
+            pr.unprotect();
         }
         else
         {

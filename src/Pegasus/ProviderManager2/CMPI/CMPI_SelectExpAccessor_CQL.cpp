@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -61,157 +57,168 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN 
 
-CMPI_SelectExpAccessor_CQL::CMPI_SelectExpAccessor_CQL (CMPIAccessor * acc,
-                                                        void *parm,
-                                                        CQLSelectStatement *
-                                                        stmt,
-                                                        CIMObjectPath &
-                                                        objPath):
-accessor (acc),
-accParm (parm),
-_stmt (stmt),
-_objPath (objPath)
+CMPI_SelectExpAccessor_CQL::CMPI_SelectExpAccessor_CQL (
+    CMPIAccessor * acc,
+    void *parm,
+    CQLSelectStatement *
+    stmt,
+    CIMObjectPath &
+    objPath):accessor (acc),accParm (parm),_stmt (stmt),_objPath (objPath)
 {
-  // Construct an _instance
-  _constructInstance ();
+    /**
+        Construct an _instance
+    */
+    _constructInstance ();
 }
 
-void
-CMPI_SelectExpAccessor_CQL::_constructInstance ()
+void CMPI_SelectExpAccessor_CQL::_constructInstance ()
 {
 
-  _instance = CIMInstance (_objPath.getClassName ().getString ());
+    _instance = CIMInstance (_objPath.getClassName ().getString ());
+     /**
+        Iterate throught the CQLPredicates
+     */
 
-  // Iterate throught the CQLPredicates
-
-  Array < CQLChainedIdentifier > where_Array =
+    Array < CQLChainedIdentifier > where_Array =
     _stmt->getWhereChainedIdentifiers ();
 
-  /* We will create an instance using the where_Array properties */
+    /**
+      We will create an instance using the where_Array properties 
+   */
 
-  for (Uint32 i = 0; i < where_Array.size (); i++)
+    for( Uint32 i = 0; i < where_Array.size (); i++ )
     {
-      CQLIdentifier identifier = where_Array[i].getLastIdentifier ();
-      String name = identifier.getName ().getString ();
+        CQLIdentifier identifier = where_Array[i].getLastIdentifier ();
+        String name = identifier.getName ().getString ();
 
-      //cerr << "Calling accessor function with property: " << name << endl;
+        /**
+           cerr << "Calling accessor function with property: " << name 
+                << endl;
+       */
 
-      CMPIAccessor *get = (CMPIAccessor *) accessor;
-      CMPIData data = get (name.getCString (), accParm);
+        CMPIAccessor *get = (CMPIAccessor *) accessor;
+        CMPIData data = get (name.getCString (), accParm);
 
-      // Only process good values.
-      if ((data.state == CMPI_goodValue) || (data.state == CMPI_keyValue))
+        /**
+          Only process good values.
+       */
+        if( (data.state == CMPI_goodValue) || (data.state == CMPI_keyValue) )
         {
 
-          if (data.type & CMPI_ARRAY)
+            if( data.type & CMPI_ARRAY )
             {
-              // Nothing yet
+            /**
+               Nothing yet
+            */
             }
-
-          else if ((data.type & (CMPI_UINT | CMPI_SINT)) == CMPI_SINT)
+            else
+            if( (data.type & (CMPI_UINT | CMPI_SINT)) == CMPI_SINT )
             {
-              switch (data.type)
+                switch( data.type )
                 {
-                case CMPI_sint32:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name),
-                                  Sint32 (data.value.sint32)));
-                  break;
-                case CMPI_sint16:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name),
-                                  Sint16 (data.value.sint16)));
-                  break;
-                case CMPI_sint8:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name),
-                                  Sint8 (data.value.sint8)));
-                  break;
-                case CMPI_sint64:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name),
-                                  Sint64 (data.value.sint64)));
-                  break;
-                default:
-                  break;
+                    case CMPI_sint32:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Sint32 (data.value.sint32)));
+                        break;
+                    case CMPI_sint16:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Sint16 (data.value.sint16)));
+                        break;
+                    case CMPI_sint8:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Sint8 (data.value.sint8)));
+                        break;
+                    case CMPI_sint64:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Sint64 (data.value.sint64)));
+                        break;
+                    default:
+                        break;
                 }
             }
-
-          else if (data.type == CMPI_chars)
-            _instance.
-              addProperty (CIMProperty
-                           (CIMName (name), String (data.value.chars)));
-          else if (data.type == CMPI_string)
+            else
+            if( data.type == CMPI_chars )
             {
-              CMPIStatus rc;
-              _instance.
+                _instance.
                 addProperty (CIMProperty
-                             (CIMName (name),
-                              String (CMGetCharsPtr
-                                      (data.value.string, &rc))));
+                (CIMName (name), String (data.value.chars)));
             }
-
-          else if ((data.type & (CMPI_UINT | CMPI_SINT)) == CMPI_UINT)
+            else
+            if( data.type == CMPI_string )
             {
-              switch (data.type)
+                CMPIStatus rc;
+                _instance.
+                addProperty (CIMProperty
+                (CIMName (name),
+                String (CMGetCharsPtr
+                (data.value.string, &rc))));
+            }
+            else
+            if( (data.type & (CMPI_UINT | CMPI_SINT)) == CMPI_UINT )
+            {
+                switch( data.type )
                 {
-                case CMPI_uint32:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name),
-                                  Uint32 (data.value.uint32)));
-                  break;
-                case CMPI_uint16:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name),
-                                  Uint16 (data.value.uint16)));
-                  break;
-                case CMPI_uint8:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name), Uint8 (data.value.uint8)));
-                  break;
-                case CMPI_uint64:
-                  _instance.
-                    addProperty (CIMProperty
-                                 (CIMName (name),
-                                  Uint64 (data.value.uint64)));
-                  break;
-                default:;
-                  break;
+                    case CMPI_uint32:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Uint32 (data.value.uint32)));
+                        break;
+                    case CMPI_uint16:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Uint16 (data.value.uint16)));
+                        break;
+                    case CMPI_uint8:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name), Uint8 (data.value.uint8)));
+                        break;
+                    case CMPI_uint64:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Uint64 (data.value.uint64)));
+                        break;
+                    default:;
+                        break;
                 }
             }
-
-          else
-            switch (data.type)
-              {
-              case CMPI_boolean:
-                _instance.
-                  addProperty (CIMProperty
-                               (CIMName (name),
-                                Boolean (data.value.boolean)));
-                break;
-              case CMPI_real32:
-                _instance.
-                  addProperty (CIMProperty
-                               (CIMName (name), data.value.real32));
-                break;
-              case CMPI_real64:
-                _instance.
-                  addProperty (CIMProperty
-                               (CIMName (name), data.value.real64));
-                break;
-              default:
-                break;
-              }
+            else
+                switch( data.type )
+                {
+                    case CMPI_boolean:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name),
+                        Boolean (data.value.boolean)));
+                        break;
+                    case CMPI_real32:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name), data.value.real32));
+                        break;
+                    case CMPI_real64:
+                        _instance.
+                        addProperty (CIMProperty
+                        (CIMName (name), data.value.real64));
+                        break;
+                    default:
+                        break;
+                }
         }
     }
 
 }
 
 PEGASUS_NAMESPACE_END
+

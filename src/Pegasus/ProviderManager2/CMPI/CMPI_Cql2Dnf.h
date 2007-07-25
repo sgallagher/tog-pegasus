@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,10 +28,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-// Author:       Konrad Rzeszutek <konradr@us.ibm.com>
-//
-// Modified By:  
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,27 +46,26 @@ PEGASUS_NAMESPACE_BEGIN
 class CMPI_Cql2Dnf
 {
 public:
-CMPI_Cql2Dnf (CMPI_Cql2Dnf * m):_tableau (m->_tableau), cqs (m->cqs)
-  {
-  }
+    CMPI_Cql2Dnf(CMPI_Cql2Dnf * m):_tableau(m->_tableau), cqs(m->cqs)
+    {
+    }
 
-  CMPI_Cql2Dnf (const CQLSelectStatement qs);
+    CMPI_Cql2Dnf(const CQLSelectStatement qs);
 
-  ~CMPI_Cql2Dnf ();
+    ~CMPI_Cql2Dnf();
 
-  CMPI_Tableau *getTableau ()
-  {
-    return &_tableau;
-  }
-
+    CMPI_Tableau *getTableau()
+    {
+        return &_tableau;
+    }
 
 protected:
 
-  void _populateTableau ();
+    void _populateTableau();
 
-  // Structure to contain the compiled DNF form
-  CMPI_Tableau _tableau;
-  CQLSelectStatement cqs;
+    // Structure to contain the compiled DNF form
+    CMPI_Tableau _tableau;
+    CQLSelectStatement cqs;
 };
 
 

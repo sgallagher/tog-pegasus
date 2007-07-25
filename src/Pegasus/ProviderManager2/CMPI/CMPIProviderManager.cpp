@@ -71,9 +71,11 @@ int _cmpi_trace=0;
 //Function to throw exception if provider has not been correctly created.
 void _throw_MINotInitializedException()
 {
-     MessageLoaderParms parms("ProviderManager.CMPI.CMPIProviderManager.PROVIDER_LOAD_FAILURE","ProviderLoadFailure: Cannot find _Create<mi-type>MI symbol.");  
- 
-     throw CIMException(CIM_ERR_FAILED,MessageLoader::getMessage(parms));
+    MessageLoaderParms parms(
+        "ProviderManager.CMPI.CMPIProviderManager.PROVIDER_LOAD_FAILURE",
+        "ProviderLoadFailure: Cannot find _Create<mi-type>MI symbol.");  
+
+    throw CIMException(CIM_ERR_FAILED,MessageLoader::getMessage(parms));
 }
 
 
@@ -85,197 +87,208 @@ CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
 CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
 CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
 
-class CMPIPropertyList {
-   char **props;
-   int pCount;
-  public:
-    CMPIPropertyList(CIMPropertyList &propertyList) : props(0), pCount(0) {
-      if (!propertyList.isNull()) {
-        Array<CIMName> p=propertyList.getPropertyNameArray();
-        pCount=p.size();
-        props = new char*[1+pCount];
-        for (int i=0; i<pCount; i++) {
-           props[i]=strdup(p[i].getString().getCString());
+class CMPIPropertyList
+{
+    char **props;
+    int pCount;
+public:
+    CMPIPropertyList(CIMPropertyList &propertyList) : props(0), pCount(0)
+    {
+        if (!propertyList.isNull())
+        {
+            Array<CIMName> p=propertyList.getPropertyNameArray();
+            pCount=p.size();
+            props = new char*[1+pCount];
+            for (int i=0; i<pCount; i++)
+            {
+                props[i]=strdup(p[i].getString().getCString());
+            }
+            props[pCount]=NULL;
         }
-        props[pCount]=NULL;
-      }
-      else props=NULL;
-   }
-   ~CMPIPropertyList() {
-      if (props) {
-         for (int i=0; i<pCount; i++)
-            free(props[i]);
-         delete [] props;
-      }
-   }
-    char  **getList()  {
-      return props;
-   }
+        else props=NULL;
+    }
+    ~CMPIPropertyList()
+    {
+        if (props)
+        {
+            for (int i=0; i<pCount; i++)
+                free(props[i]);
+            delete [] props;
+        }
+    }
+    char  **getList()
+    {
+        return props;
+    }
 };
 
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
-   mode=m;
+    mode=m;
    #ifdef PEGASUS_DEBUG
-   if (getenv("PEGASUS_CMPI_TRACE")) _cmpi_trace=1;
-   else _cmpi_trace=0;
+    if (getenv("PEGASUS_CMPI_TRACE")) _cmpi_trace=1;
+    else _cmpi_trace=0;
    #endif
-   _subscriptionInitComplete = false;
-   DDD(cerr << "-- CMPI Provider Manager activated" << endl);
+    _subscriptionInitComplete = false;
+    DDD(cerr << "-- CMPI Provider Manager activated" << endl);
 }
 
-CMPIProviderManager::~CMPIProviderManager(void)
+CMPIProviderManager::~CMPIProviderManager()
 {
-	/* Clean up the hash-tables */
+    /* Clean up the hash-tables */
     indProvRecord *prec=NULL;
     {
         WriteLock writeLock(rwSemProvTab);
-	for (IndProvTab::Iterator i = provTab.start(); i; i++)
-	{
-        provTab.lookup(i.key(),prec);
-		if (prec->handler)
-			delete prec->handler;
-		delete prec;
-        //Remove is not neccessary, since the hashtable destructor takes care
-        //of this already. But instead removing entries while iterating the
-        //hashtable sometimes causes a segmentation fault!!!
-        //provTab.remove(i.key());
-        prec=NULL;
-	}
+        for (IndProvTab::Iterator i = provTab.start(); i; i++)
+        {
+            provTab.lookup(i.key(),prec);
+            if (prec->handler)
+                delete prec->handler;
+            delete prec;
+            //Remove is not neccessary, since the hashtable destructor takes 
+            //care of this already. But instead removing entries while 
+            //iterating the hashtable sometimes causes a segmentation fault!!!
+            //provTab.remove(i.key());
+            prec=NULL;
+        }
     }
 
-	indSelectRecord *selx=NULL;
+    indSelectRecord *selx=NULL;
     {
         WriteLock writeLock(rwSemSelxTab);
-	for (IndSelectTab::Iterator i = selxTab.start(); i; i++)
-	{
-		selxTab.lookup(i.key(), selx);
-		if (selx->eSelx)
-			delete selx->eSelx;
-        if (selx->qContext)
-			delete selx->qContext;
-		delete selx;
-        //Same as above!
-        //selxTab.remove(i.key());
-		selx=NULL;
-	}
+        for (IndSelectTab::Iterator i = selxTab.start(); i; i++)
+        {
+            selxTab.lookup(i.key(), selx);
+            if (selx->eSelx)
+                delete selx->eSelx;
+            if (selx->qContext)
+                delete selx->qContext;
+            delete selx;
+            //Same as above!
+            //selxTab.remove(i.key());
+            selx=NULL;
+        }
     }
 }
 
-Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
-            const String &ns, const String &cn)
+Boolean CMPIProviderManager::insertProvider(
+    const ProviderName & name,
+    const String &ns, 
+    const String &cn)
 {
-    String key(ns+String("::")+cn+String("::")+CIMValue(name.getCapabilitiesMask()).toString());
+    String key(ns+String("::")+cn+String("::")+
+               CIMValue(name.getCapabilitiesMask()).toString());
     return provReg.insert(key,name);
 }
 
 
 Message * CMPIProviderManager::processMessage(Message * request)
 {
-      PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::processMessage()");
 
     Message * response = 0;
 
     // pass the request message to a handler method based on message type
-    switch(request->getType())
+    switch (request->getType())
     {
-    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        response = handleGetInstanceRequest(request);
+        case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+            response = handleGetInstanceRequest(request);
 
-        break;
-    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-        response = handleEnumerateInstancesRequest(request);
+            break;
+        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+            response = handleEnumerateInstancesRequest(request);
 
-        break;
-    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-        response = handleEnumerateInstanceNamesRequest(request);
+            break;
+        case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+            response = handleEnumerateInstanceNamesRequest(request);
 
-        break;
-    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-        response = handleCreateInstanceRequest(request);
+            break;
+        case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+            response = handleCreateInstanceRequest(request);
 
-        break;
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-        response = handleModifyInstanceRequest(request);
+            break;
+        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+            response = handleModifyInstanceRequest(request);
 
-        break;
-    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-        response = handleDeleteInstanceRequest(request);
+            break;
+        case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+            response = handleDeleteInstanceRequest(request);
 
-        break;
-    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecQueryRequest(request);
+            break;
+        case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+            response = handleExecQueryRequest(request);
 
-        break;
-    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-        response = handleAssociatorsRequest(request);
+            break;
+        case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+            response = handleAssociatorsRequest(request);
 
-        break;
-    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-        response = handleAssociatorNamesRequest(request);
+            break;
+        case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+            response = handleAssociatorNamesRequest(request);
 
-        break;
-    case CIM_REFERENCES_REQUEST_MESSAGE:
-        response = handleReferencesRequest(request);
+            break;
+        case CIM_REFERENCES_REQUEST_MESSAGE:
+            response = handleReferencesRequest(request);
 
-        break;
-    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-        response = handleReferenceNamesRequest(request);
+            break;
+        case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+            response = handleReferenceNamesRequest(request);
 
-        break;
-    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-        response = handleInvokeMethodRequest(request);
+            break;
+        case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+            response = handleInvokeMethodRequest(request);
 
-        break;
-    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleCreateSubscriptionRequest(request);
+            break;
+        case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+            response = handleCreateSubscriptionRequest(request);
 
-        break;
+            break;
 /*    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
         response = handleModifySubscriptionRequest(request);
 
         break;
-*/  case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-        response = handleDeleteSubscriptionRequest(request);
+*/
+        case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+            response = handleDeleteSubscriptionRequest(request);
 
-        break;
+            break;
 /*    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         response = handleExportIndicationRequest(request);
         break;
 */
-    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        response = handleDisableModuleRequest(request);
+        case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+            response = handleDisableModuleRequest(request);
 
-        break;
-    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        response = handleEnableModuleRequest(request);
+            break;
+        case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+            response = handleEnableModuleRequest(request);
 
-        break;
-    case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        response = handleStopAllProvidersRequest(request);
+            break;
+        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
+            response = handleStopAllProvidersRequest(request);
 
-        break;
-    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-	response = handleInitializeProviderRequest(request);
+            break;
+        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
+            response = handleInitializeProviderRequest(request);
 
-	break;
-    case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
-        response = handleSubscriptionInitCompleteRequest (request);
+            break;
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+            response = handleSubscriptionInitCompleteRequest (request);
 
-        break;
-    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-        response = handleGetPropertyRequest(request);
+            break;
+        case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+            response = handleGetPropertyRequest(request);
 
-        break;
-    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-        response = handleSetPropertyRequest(request);
+            break;
+        case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+            response = handleSetPropertyRequest(request);
 
-        break;
-    default:
-        response = handleUnsupportedRequest(request);
+            break;
+        default:
+            response = handleUnsupportedRequest(request);
 
-        break;
+            break;
     }
 
     PEG_METHOD_EXIT();
@@ -285,12 +298,12 @@ Message * CMPIProviderManager::processMessage(Message * request)
 
 Boolean CMPIProviderManager::hasActiveProviders()
 {
-     return providerManager.hasActiveProviders();
+    return providerManager.hasActiveProviders();
 }
 
 void CMPIProviderManager::unloadIdleProviders()
 {
-     providerManager.unloadIdleProviders();
+    providerManager.unloadIdleProviders();
 }
 
 
@@ -299,7 +312,8 @@ void CMPIProviderManager::unloadIdleProviders()
 
 #define HandlerIntroBase(type,type1,message,request,response,handler) \
     CIM##type##RequestMessage * request = \
-        dynamic_cast<CIM##type##RequestMessage *>(const_cast<Message *>(message)); \
+        dynamic_cast<CIM##type##RequestMessage *>(const_cast<Message *> \
+        (message)); \
     PEGASUS_ASSERT(request != 0); \
     CIM##type##ResponseMessage * response = \
         dynamic_cast<CIM##type##ResponseMessage*>(request->buildResponse()); \
@@ -324,7 +338,8 @@ void CMPIProviderManager::unloadIdleProviders()
     catch(const Exception & e) \
     { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
                 "Exception: " + e.getMessage()); \
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); \
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), \
+        e.getMessage()); \
     } \
     catch(...) \
     { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
@@ -332,18 +347,19 @@ void CMPIProviderManager::unloadIdleProviders()
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
 
-
-
-Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleGetInstanceRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetInstanceRequest");
 
     HandlerIntro(GetInstance,message,request,response,handler);
 
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CmpiProviderManager::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CmpiProviderManager::handleGetInstanceRequest - Host name: $0 "
+            "hi sure man Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString());
@@ -359,24 +375,31 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
-        
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
+
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
+        else
+        {
             // get cached or load new provider module
-            ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -387,7 +410,8 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        if (request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
         {
             request->operationContext.get(CachedClassDefinitionContainer::NAME);
         }
@@ -401,7 +425,8 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
                 new CIMOMHandleContext(*pr._cimom_handle));
             CIMClass classDef(tmpNormalizerContext->getClass(
                 request->nameSpace, request->className));
-            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                CachedClassDefinitionContainer(classDef));
             request->operationContext.insert(
                 NormalizerContextContainer(tmpNormalizerContext));
         }
@@ -423,29 +448,35 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
 
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
- 
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",(CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -461,7 +492,10 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.miVector.instMI->ft->getInstance(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef,
+                pr.miVector.instMI,
+                &eCtx,
+                &eRes,
+                &eRef,
                 (const char **)props.getList());
         }
 
@@ -469,33 +503,35 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -505,15 +541,18 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message)
+Message * CMPIProviderManager::handleEnumerateInstancesRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleEnumerateInstanceRequest");
 
     HandlerIntro(EnumerateInstances,message,request,response,handler);
-    try {
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
+    try
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "CMPIProviderManager::handleEnumerateInstancesRequest - Host name:"
+            " $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->className.getString());
@@ -528,23 +567,30 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
-	}
-	else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
+        }
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
 
         CIMPropertyList propertyList(request->propertyList);
 
@@ -558,9 +604,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        if (request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
         {
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
         }
         else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
@@ -572,7 +620,8 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                 new CIMOMHandleContext(*pr._cimom_handle));
             CIMClass classDef(tmpNormalizerContext->getClass(
                 request->nameSpace, request->className));
-            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                CachedClassDefinitionContainer(classDef));
             request->operationContext.insert(
                 NormalizerContextContainer(tmpNormalizerContext));
         }
@@ -594,28 +643,38 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME);
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -631,7 +690,10 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.miVector.instMI->ft->enumInstances(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef,
+                pr.miVector.instMI,
+                &eCtx,
+                &eRes,
+                &eRef,
                 (const char **)props.getList());
         }
 
@@ -639,33 +701,35 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry(&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
 
     }
@@ -676,19 +740,23 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
+Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
+    const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
     HandlerIntro(EnumerateInstanceNames,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleEnumerateInstanceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleEnumerateInstanceNamesRequest - Host "
+            "name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->className.getString());
 
-       // make target object path
+        // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
             request->nameSpace,
@@ -698,23 +766,30 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -729,34 +804,44 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME);
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-        
+
         if (pr.miVector.instMI==0)
         {
             _throw_MINotInitializedException();
@@ -773,33 +858,35 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -809,15 +896,18 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
     return(response);
 }
 
-Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleCreateInstanceRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleCreateInstanceRequest");
+        "CMPIProviderManager::handleCreateInstanceRequest");
 
     HandlerIntro(CreateInstance,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleCreateInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleCreateInstanceRequest - Host name: "
+            "$0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->newInstance.getPath().getClassName().getString());
@@ -828,29 +918,36 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             request->nameSpace,
             request->newInstance.getPath().getClassName(),
             request->newInstance.getPath().getKeyBindings());
-	request->newInstance.setPath(objectPath);
+        request->newInstance.setPath(objectPath);
 
         Boolean remote=false;
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
-	}
-	else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
+        }
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -867,28 +964,37 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            request->operationContext.get(IdentityContainer::NAME);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -898,7 +1004,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         if (pr.miVector.instMI==0)
         {
             _throw_MINotInitializedException();
-        } 
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -911,33 +1017,35 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -947,15 +1055,18 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleModifyInstanceRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleModifyInstanceRequest");
+        "CMPIProviderManager::handleModifyInstanceRequest");
 
     HandlerIntro(ModifyInstance,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleModifyInstanceRequest - Host name: $0"
+            "  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->modifiedInstance.getPath().getClassName().getString());
@@ -971,23 +1082,30 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -1007,28 +1125,37 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
- 
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1038,7 +1165,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         if (pr.miVector.instMI==0)
         {
             _throw_MINotInitializedException();
-        }  
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1052,33 +1179,35 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -1088,15 +1217,18 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message)
+Message * CMPIProviderManager::handleDeleteInstanceRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleDeleteInstanceRequest");
+        "CMPIProviderManager::handleDeleteInstanceRequest");
 
     HandlerIntro(DeleteInstance,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleDeleteInstanceRequest - Host name: $0"
+            "  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString());
@@ -1112,23 +1244,30 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -1142,28 +1281,37 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1173,7 +1321,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         if (pr.miVector.instMI==0)
         {
             _throw_MINotInitializedException();
-        } 
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1186,33 +1334,35 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -1225,13 +1375,15 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleExecQueryRequest");
+        "CMPIProviderManager::handleExecQueryRequest");
 
     HandlerIntro(ExecQuery,message,request,response,handler);
 
-    try {
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::ExecQueryRequest - Host name: $0  Name space: $1  Class name: $2",
+    try
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "CMPIProviderManager::ExecQueryRequest - Host name: $0  Name "
+            "space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->className.getString());
@@ -1247,23 +1399,30 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
@@ -1285,31 +1444,42 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         const CString query=request->query.getCString();
 
         CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
-		eCtx.ft->addEntry(&eCtx,
-						  CMPIInitNameSpace,
-						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
-						  CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInitNameSpace,
+            (CMPIValue*)(const char*)request->
+            nameSpace.getString().getCString(),
+            CMPI_chars);
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1333,33 +1503,35 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
 
     }
@@ -1373,12 +1545,14 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleAssociatorsRequest");
+        "CMPIProviderManager::handleAssociatorsRequest");
 
     HandlerIntro(Associators,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleAssociatorsRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleAssociatorsRequest - Host name: $0  "
+            "Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->objectName.getClassName().getString());
@@ -1401,23 +1575,30 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
-       // convert arguments
+        // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
@@ -1429,9 +1610,11 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        if (request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
         {
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
         }
         else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
@@ -1443,7 +1626,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
                 new CIMOMHandleContext(*pr._cimom_handle));
             CIMClass classDef(tmpNormalizerContext->getClass(
                 request->nameSpace, request->className));
-            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                CachedClassDefinitionContainer(classDef));
             request->operationContext.insert(
                 NormalizerContextContainer(tmpNormalizerContext));
         }
@@ -1452,8 +1636,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associators: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::associators"<<" role: >"<<request->role<<"< aCls "<<
-        request->assocClass<<endl);
+        DDD(cerr<<"--- CMPIProviderManager::associators"<<" role: >"
+            <<request->role<<"< aCls "<<request->assocClass<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1470,28 +1654,37 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
- 
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1516,33 +1709,37 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = eCtx.ft->getEntry (
+            &eCtx, 
+            CMPIContentLanguage, 
+            &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -1552,15 +1749,18 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message)
+Message * CMPIProviderManager::handleAssociatorNamesRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleAssociatorNamesRequest");
+        "CMPIProviderManager::handleAssociatorNamesRequest");
 
     HandlerIntro(AssociatorNames,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleAssociatorNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleAssociatorNamesRequest - Host name: $0"
+            "  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->objectName.getClassName().getString());
@@ -1582,23 +1782,30 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
@@ -1606,8 +1813,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associatorNames: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::associatorNames"<<" role: >"<<request->role<<"< aCls "<<
-           request->assocClass<<endl);
+        DDD(cerr<<"--- CMPIProviderManager::associatorNames"<<" role: >"
+            <<request->role<<"< aCls "<<request->assocClass<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1620,28 +1827,37 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         const CString resRole=request->resultRole.getCString();
 
         CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
- 
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1665,33 +1881,35 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -1704,12 +1922,14 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleReferencesRequest");
+        "CMPIProviderManager::handleReferencesRequest");
 
     HandlerIntro(References,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleReferencesRequest - Host name: $0  "
+            "Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->objectName.getClassName().getString());
@@ -1731,23 +1951,30 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -1758,9 +1985,11 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        if (request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
         {
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
         }
         else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
@@ -1772,7 +2001,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
                 new CIMOMHandleContext(*pr._cimom_handle));
             CIMClass classDef(tmpNormalizerContext->getClass(
                 request->nameSpace, request->className));
-            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                CachedClassDefinitionContainer(classDef));
             request->operationContext.insert(
                 NormalizerContextContainer(tmpNormalizerContext));
         }
@@ -1781,8 +2011,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::references"<<" role: >"<<request->role<<"< aCls "<<
-        request->resultClass<<endl);
+        DDD(cerr<<"--- CMPIProviderManager::references"<<" role: >"
+            <<request->role<<"< aCls "<<request->resultClass<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1797,28 +2027,37 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
- 
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1842,33 +2081,35 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -1878,15 +2119,18 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message)
+Message * CMPIProviderManager::handleReferenceNamesRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleReferenceNamesRequest");
 
     HandlerIntro(ReferenceNames,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleReferenceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleReferenceNamesRequest - Host name: $0"
+            "  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->objectName.getClassName().getString());
@@ -1908,30 +2152,37 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.referenceNames: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::referenceNames"<<" role: >"<<request->role<<"< aCls "<<
-           request->resultClass<<endl);
+        DDD(cerr<<"--- CMPIProviderManager::referenceNames"<<" role: >"
+            <<request->role<<"< aCls "<<request->resultClass<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1942,28 +2193,37 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         const CString rRole=request->role.getCString();
 
         CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1987,33 +2247,35 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+             eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -2023,15 +2285,18 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message)
+Message * CMPIProviderManager::handleInvokeMethodRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleInvokeMethodRequest");
 
     HandlerIntro(InvokeMethod,message,request,response,handler);
-    try {
+    try
+    {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleInvokeMethodRequest - Host name: $0  "
+            "Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString());
@@ -2047,23 +2312,30 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
 
         CIMObjectPath instanceReference(request->instanceName);
 
@@ -2081,9 +2353,11 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        if (request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
         {
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
             externalNormalizationEnabled = true;
         }
         else
@@ -2096,7 +2370,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 new CIMOMHandleContext(*pr._cimom_handle));
             CIMClass classDef(tmpNormalizerContext->getClass(
                 request->nameSpace, request->className));
-            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                CachedClassDefinitionContainer(classDef));
             request->operationContext.insert(
                 NormalizerContextContainer(tmpNormalizerContext));
         }
@@ -2116,38 +2391,47 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         CString mName=request->methodName.getString().getCString();
 
         CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-        
+
         if (pr.miVector.methMI==0)
         {
             _throw_MINotInitializedException();
-        }  
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -2161,56 +2445,58 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        if(!externalNormalizationEnabled)
+        if (!externalNormalizationEnabled)
         {
             // There is no try catch here because if there is no external
             // normalization, then these containers were added by this method.
             const CachedClassDefinitionContainer * classCont =
                 dynamic_cast<const CachedClassDefinitionContainer *>(
-                    &request->operationContext.get(
-                        CachedClassDefinitionContainer::NAME));
+                &request->operationContext.get(
+                CachedClassDefinitionContainer::NAME));
             PEGASUS_ASSERT(classCont != 0);
             const NormalizerContextContainer * contextCont =
                 dynamic_cast<const NormalizerContextContainer*>(
-                    &request->operationContext.get(
-                        NormalizerContextContainer::NAME));
+                &request->operationContext.get(
+                NormalizerContextContainer::NAME));
             PEGASUS_ASSERT(contextCont != 0);
 
             CIMClass classDef(classCont->getClass());
             Uint32 methodIndex = classDef.findMethod(request->methodName);
             PEGASUS_ASSERT(methodIndex != PEG_NOT_FOUND);
             CIMMethod methodDef(classDef.getMethod(methodIndex));
-            for(unsigned int i = 0, n = outArgs.size(); i < n; ++i)
+            for (unsigned int i = 0, n = outArgs.size(); i < n; ++i)
             {
                 CIMParamValue currentParam(outArgs[i]);
                 CIMValue paramValue(currentParam.getValue());
@@ -2220,7 +2506,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 // EmbeddedInstances, so if the parameter definition has a type
                 // of EmbeddedInstance, the type of the output parameter must
                 // be changed.
-                if(paramValue.getType() == CIMTYPE_OBJECT)
+                if (paramValue.getType() == CIMTYPE_OBJECT)
                 {
                     CIMObject paramObject;
                     paramValue.get(paramObject);
@@ -2229,7 +2515,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
                     String currentParamName(currentParam.getParameterName());
                     Uint32 paramIndex = methodDef.findParameter(
                         CIMName(currentParamName));
-                    if(paramIndex == PEG_NOT_FOUND)
+                    if (paramIndex == PEG_NOT_FOUND)
                     {
                         MessageLoaderParms msg("ProviderManager.CMPI."
                             "CMPIProviderManager.PARAMETER_NOT_FOUND",
@@ -2245,7 +2531,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
                     {
                         CIMConstParameter paramDef(
                             methodDef.getParameter(paramIndex));
-                        if(paramDef.findQualifier(CIMName("EmbeddedInstance"))
+                        if (paramDef.findQualifier(CIMName("EmbeddedInstance"))
                             != PEG_NOT_FOUND)
                         {
                             currentParam = CIMParamValue(currentParamName,
@@ -2272,7 +2558,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             handler.deliverParamValue(outArgs[i]);
         }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-       handler.complete();
+        handler.complete();
     }
     HandlerCatch(handler);
 
@@ -2281,8 +2567,11 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
     return(response);
 }
 
-int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
-                                  String& providerName, String& location)
+int LocateIndicationProviderNames(
+    const CIMInstance& pInstance,
+    const CIMInstance& pmInstance,
+    String& providerName, 
+    String& location)
 {
     Uint32 pos = pInstance.findProperty(CIMName ("Name"));
     pInstance.getProperty(pos).getValue().get(providerName);
@@ -2292,24 +2581,30 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
     return 0;
 }
 
-Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message)
+Message * CMPIProviderManager::handleCreateSubscriptionRequest(
+    const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleCreateSubscriptionRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "CMPIProviderManager::handleCreateSubscriptionRequest");
 
     HandlerIntroInd(CreateSubscription,message,request,response,
-                 handler);
-    try {
+        handler);
+    try
+    {
         CIMInstance req_provider, req_providerModule;
-        ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            (ProviderIdContainer)request->operationContext.get(
+            ProviderIdContainer::NAME);
         req_provider = pidc.getProvider();
         req_providerModule = pidc.getModule();
 
         String providerName,providerLocation;
         LocateIndicationProviderNames(req_provider, req_providerModule,
-        providerName,providerLocation);
+            providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+            "CMPIProviderManager::handleCreateSubscriptionRequest - Host name:"
+            " $0  Name space: $1  Provider name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
             providerName);
@@ -2317,23 +2612,28 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         Boolean remote=false;
         CMPIProvider::OpProviderHolder ph;
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-	  ph = providerManager.getRemoteProvider(providerLocation, providerName);
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                providerLocation, providerName);
         }
-        else {
-        // get cached or load new provider module
-	  ph = providerManager.getProvider(providerLocation, providerName);
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                providerLocation, providerName);
         }
 
         indProvRecord *prec=NULL;
         {
             WriteLock writeLock(rwSemProvTab);
-        provTab.lookup(ph.GetProvider().getName(),prec);
-        if (prec) prec->count++;
-        else {
-           prec=new indProvRecord();
-           provTab.insert(ph.GetProvider().getName(),prec);
-        }
+            provTab.lookup(ph.GetProvider().getName(),prec);
+            if (prec) prec->count++;
+            else
+            {
+                prec=new indProvRecord();
+                provTab.insert(ph.GetProvider().getName(),prec);
+            }
         }
 
         //
@@ -2349,39 +2649,51 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             WriteLock writeLock(rwSemSelxTab);
             selxTab.lookup(sPath,srec);
             if (srec) srec->count++;
-            else {
-               srec=new indSelectRecord();
-        selxTab.insert(sPath,srec);
+            else
+            {
+                srec=new indSelectRecord();
+                selxTab.insert(sPath,srec);
             }
         }
 
         // convert arguments
         OperationContext context;
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
-        context.insert(request->operationContext.get(SubscriptionFilterConditionContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(SubscriptionInstanceContainer::NAME));
+        context.insert(
+            request->operationContext.get(
+            SubscriptionFilterConditionContainer::NAME));
 
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
+        CIMObjectPath subscriptionName = 
+            request->subscriptionInstance.getPath();
 
         CMPIProvider & pr=ph.GetProvider();
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
-		SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
-								(SubscriptionFilterConditionContainer::NAME);
+        SubscriptionFilterConditionContainer sub_cntr =  
+            request->operationContext.get(
+            SubscriptionFilterConditionContainer::NAME);
 
-		CIMOMHandleQueryContext *_context= new CIMOMHandleQueryContext(CIMNamespaceName(request->nameSpace.getString()),
-										*pr._cimom_handle);
+        CIMOMHandleQueryContext *_context= 
+            new CIMOMHandleQueryContext(
+            CIMNamespaceName(
+            request->nameSpace.getString()),
+            *pr._cimom_handle);
 
-		CMPI_SelectExp *eSelx=new CMPI_SelectExp(context,
-						_context,
-        				request->query,
-        				sub_cntr.getQueryLanguage());
+        CMPI_SelectExp *eSelx=new CMPI_SelectExp(
+            context,
+            _context,
+            request->query,
+            sub_cntr.getQueryLanguage());
 
         srec->eSelx=eSelx;
-	    srec->qContext=_context;
+        srec->qContext=_context;
 
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
@@ -2390,7 +2702,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         DDD(cerr<<"--- CMPIProviderManager::createSubscriptionRequest"<<endl);
 
-        for(Uint32 i = 0, n = request->classNames.size(); i < n; i++) {
+        for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
+        {
             CIMObjectPath className(
                 System::getHostName(),
                 request->nameSpace,
@@ -2400,59 +2713,67 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
 
         CIMPropertyList propertyList = request->propertyList;
-        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           eSelx->props = new const char*[1+pCount];
-           for (int i=0; i<pCount; i++) {
-              eSelx->props[i]=strdup(p[i].getString().getCString());
-           }
-           eSelx->props[pCount]=NULL;
+        if (!propertyList.isNull())
+        {
+            Array<CIMName> p=propertyList.getPropertyNameArray();
+            int pCount=p.size();
+            eSelx->props = new const char*[1+pCount];
+            for (int i=0; i<pCount; i++)
+            {
+                eSelx->props[i]=strdup(p[i].getString().getCString());
+            }
+            eSelx->props[pCount]=NULL;
         }
 
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
-		eCtx.ft->addEntry(&eCtx,
-						  CMPIInitNameSpace,
-						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
-						  CMPI_chars);
+        eCtx.ft->addEntry(&eCtx,
+            CMPIInitNameSpace,
+            (CMPIValue*)(const char*)request->
+            nameSpace.getString().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
- 
+            request->operationContext.get(AcceptLanguageListContainer::NAME);
+
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
         CString info;
-        if (remote) {
-           info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-        
+
         if (pr.miVector.indMI==0)
         {
             _throw_MINotInitializedException();
-        } 
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            if (pr.miVector.indMI->ft->ftVersion >= 100) 
+            if (pr.miVector.indMI->ft->ftVersion >= 100)
             {
                 rc = pr.miVector.indMI->ft->activateFilter(
                     pr.miVector.indMI,&eCtx,eSelx,
@@ -2461,14 +2782,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             }
             else
             {
-            	// Older version of (pre 1.00) also pass in a CMPIResult
+                // Older version of (pre 1.00) also pass in a CMPIResult
 
                 rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
-            	    CMPIResult*, CMPISelectExp*,
-                	const char *, CMPIObjectPath*, CMPIBoolean))
+                    CMPIResult*, CMPISelectExp*,
+                    const char *, CMPIObjectPath*, CMPIBoolean))
                     pr.miVector.indMI->ft->activateFilter)
-                    (pr.miVector.indMI,&eCtx,NULL,eSelx,
-                        CHARS(eSelx->classNames[0].getClassName().getString().
+                (pr.miVector.indMI,&eCtx,NULL,eSelx,
+                    CHARS(eSelx->classNames[0].getClassName().getString().
                     getCString()),&eRef,false);
             }
         }
@@ -2477,14 +2798,15 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2498,8 +2820,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                 delete eSelx;
                 delete srec;
             }
-           throw CIMException((CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            throw CIMException((CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
         }
         else
         {
@@ -2528,25 +2850,31 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message)
+Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
+    const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDeleteSubscriptionRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "CMPIProviderManager::handleDeleteSubscriptionRequest");
 
     HandlerIntroInd(DeleteSubscription,message,request,response,
-                 handler);
-    try {
+        handler);
+    try
+    {
         String providerName,providerLocation;
 
         CIMInstance req_provider, req_providerModule;
-        ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            (ProviderIdContainer)request->operationContext.get(
+            ProviderIdContainer::NAME);
         req_provider = pidc.getProvider();
         req_providerModule = pidc.getModule();
 
         LocateIndicationProviderNames(req_provider, req_providerModule,
-           providerName,providerLocation);
+            providerName,providerLocation);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Provider name(s): $2",
+            "CMPIProviderManager::handleDeleteSubscriptionRequest - Host name:"
+            " $0  Name space: $1  Provider name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
             providerName);
@@ -2554,55 +2882,65 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         Boolean remote=false;
         CMPIProvider::OpProviderHolder ph;
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(providerLocation, providerName);
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                providerLocation, providerName);
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(providerLocation, providerName);
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                providerLocation, providerName);
         }
 
 
         indProvRecord *prec=NULL;
         {
             WriteLock writeLock(rwSemProvTab);
-        provTab.lookup(ph.GetProvider().getName(),prec);
-        if (--prec->count<=0) {
-		   if (prec->handler)
-				   delete prec->handler;
-		   delete prec;
-           provTab.remove(ph.GetProvider().getName());
-           prec=NULL;
-        }
+            provTab.lookup(ph.GetProvider().getName(),prec);
+            if (--prec->count<=0)
+            {
+                if (prec->handler)
+                    delete prec->handler;
+                delete prec;
+                provTab.remove(ph.GetProvider().getName());
+                prec=NULL;
+            }
         }
 
         indSelectRecord *srec=NULL;
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
         WriteLock writeLock(rwSemSelxTab);
-        if (!selxTab.lookup(sPath,srec)) {
-	  // failed to get select expression from hash table
-	  throw CIMException(CIM_ERR_FAILED,
-                         "CMPI Provider Manager Failed to locate subscription filter.");
-	};
+        if (!selxTab.lookup(sPath,srec))
+        {
+            // failed to get select expression from hash table
+            throw CIMException(CIM_ERR_FAILED,
+                "CMPI Provider Manager Failed to locate subscription filter.");
+        };
 
         CMPI_SelectExp *eSelx=srec->eSelx;
-	CIMOMHandleQueryContext *qContext=srec->qContext;
+        CIMOMHandleQueryContext *qContext=srec->qContext;
 
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
         if (--srec->count<=0)
         {
-        selxTab.remove(sPath);
+            selxTab.remove(sPath);
         }
 
         // convert arguments
         OperationContext context;
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(SubscriptionInstanceContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(SubscriptionInstanceContainer::NAME));
 
-        CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
+        CIMObjectPath subscriptionName = 
+            request->subscriptionInstance.getPath();
 
         CMPIProvider & pr=ph.GetProvider();
 
@@ -2616,36 +2954,43 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         DDD(cerr<<"--- CMPIProviderManager::deleteSubscriptionRequest"<<endl);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
-		eCtx.ft->addEntry(&eCtx,
-						  CMPIInitNameSpace,
-						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
-						  CMPI_chars);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInitNameSpace,
+            (CMPIValue*)(const char*)request->
+            nameSpace.getString().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME);
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
         CString info;
-        if (remote) {
-           info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        if (remote)
+        {
+            info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(context);
-        
+
         if (pr.miVector.indMI==0)
         {
             _throw_MINotInitializedException();
@@ -2654,7 +2999,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            if (pr.miVector.indMI->ft->ftVersion >= 100) 
+            if (pr.miVector.indMI->ft->ftVersion >= 100)
             {
                 rc = pr.miVector.indMI->ft->deActivateFilter(
                     pr.miVector.indMI,&eCtx,eSelx,
@@ -2667,39 +3012,40 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
                 rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
                     CMPIResult*, CMPISelectExp*,
-                        const char *, CMPIObjectPath*, CMPIBoolean))
+                    const char *, CMPIObjectPath*, CMPIBoolean))
                     pr.miVector.indMI->ft->deActivateFilter)
-                    (pr.miVector.indMI,&eCtx,NULL,eSelx,
-                        CHARS(eSelx->classNames[0].getClassName().getString().
+                (pr.miVector.indMI,&eCtx,NULL,eSelx,
+                    CHARS(eSelx->classNames[0].getClassName().getString().
                     getCString()),&eRef,prec==NULL);
             }
         }
 
         if (srec->count<=0)
         {
-        delete qContext;
-        delete eSelx;
-        delete srec;
+            delete qContext;
+            delete eSelx;
+            delete srec;
         }
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           throw CIMException((CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            throw CIMException((CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
         }
         else
         {
@@ -2727,12 +3073,15 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message)
+Message * CMPIProviderManager::handleDisableModuleRequest(
+    const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDisableModuleRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "CMPIProviderManager::handleDisableModuleRequest");
 
     CIMDisableModuleRequestMessage * request =
-        dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
+        dynamic_cast<CIMDisableModuleRequestMessage *>(
+        const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
@@ -2748,19 +3097,20 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     //
     Array<CIMInstance> _pInstances = request->providers;
     Array <Boolean> _indicationProviders = request->indicationProviders;
-	/* The CIMInstances on request->providers array is completly _different_ than
-	   the request->providerModule CIMInstance. Hence  */
+    /* The CIMInstances on request->providers array is completly _different_ 
+       than the request->providerModule CIMInstance. Hence  */
 
     String physicalName=(request->providerModule.getProperty(
-              request->providerModule.findProperty("Location")).getValue().toString());
+        request->
+        providerModule.findProperty("Location")).getValue().toString());
 
-    for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
         String providerName;
         _pInstances [i].getProperty (_pInstances [i].findProperty
             (CIMName ("Name"))).getValue ().get (providerName);
 
-		Uint32 pos = _pInstances[i].findProperty("Name");
+        Uint32 pos = _pInstances[i].findProperty("Name");
 
         //
         //  Reset the indication provider's count of current
@@ -2770,19 +3120,26 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
         {
             if (physicalName.size () > 0)
             {
-		try {
-                CMPIProvider::OpProviderHolder ph = providerManager.getProvider
-                    (physicalName, providerName);
-                ph.GetProvider ().resetSubscriptions ();
-		} catch (const Exception &e) { 
-        		PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            			 e.getMessage());
-		}
+                try
+                {
+                    CMPIProvider::OpProviderHolder ph = 
+                        providerManager.getProvider(
+                        physicalName, 
+                        providerName);
+                    ph.GetProvider ().resetSubscriptions ();
+                }
+                catch (const Exception &e)
+                {
+                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                        e.getMessage());
+                }
             }
         }
-        providerManager.unloadProvider(physicalName, _pInstances[i].getProperty(
-										_pInstances[i].findProperty("Name")
-										).getValue ().toString ());
+        providerManager.unloadProvider(
+            physicalName, 
+            _pInstances[i].getProperty(
+            _pInstances[i].findProperty("Name")
+            ).getValue ().toString ());
     }
 
     CIMDisableModuleResponseMessage * response =
@@ -2804,12 +3161,15 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message)
+Message * CMPIProviderManager::handleEnableModuleRequest(
+    const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnableModuleRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "CMPIProviderManager::handleEnableModuleRequest");
 
     CIMEnableModuleRequestMessage * request =
-        dynamic_cast<CIMEnableModuleRequestMessage *>(const_cast<Message *>(message));
+        dynamic_cast<CIMEnableModuleRequestMessage *>(
+        const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
@@ -2833,12 +3193,15 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
     return(response);
 }
 
-Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message)
+Message * CMPIProviderManager::handleStopAllProvidersRequest(
+    const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleStopAllProvidersRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "CMPIProviderManager::handleStopAllProvidersRequest");
 
     CIMStopAllProvidersRequestMessage * request =
-        dynamic_cast<CIMStopAllProvidersRequestMessage *>(const_cast<Message *>(message));
+        dynamic_cast<CIMStopAllProvidersRequestMessage *>(
+        const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
@@ -2861,21 +3224,24 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
     return(response);
 }
 
-Message * CMPIProviderManager::handleInitializeProviderRequest(const Message * message)
+Message * CMPIProviderManager::handleInitializeProviderRequest(
+    const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleInitializeProviderRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+        "CMPIProviderManager::handleInitializeProviderRequest");
 
     HandlerIntroInit(InitializeProvider,message,request,response,handler);
 
     try
     {
         // resolve provider name
-	ProviderName name = _resolveProviderName(
-	    request->operationContext.get(ProviderIdContainer::NAME));
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-           providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+            providerManager.getProvider(
+            name.getPhysicalName(), name.getLogicalName());
 
     }
     HandlerCatch(handler);
@@ -2885,21 +3251,21 @@ Message * CMPIProviderManager::handleInitializeProviderRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
-    (const Message * message)
+Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-     "CMPIProviderManager::handleSubscriptionInitCompleteRequest");
+        "CMPIProviderManager::handleSubscriptionInitCompleteRequest");
 
     CIMSubscriptionInitCompleteRequestMessage * request =
         dynamic_cast <CIMSubscriptionInitCompleteRequestMessage *>
-            (const_cast <Message *> (message));
+        (const_cast <Message *> (message));
 
     PEGASUS_ASSERT (request != 0);
 
     CIMSubscriptionInitCompleteResponseMessage * response =
         dynamic_cast <CIMSubscriptionInitCompleteResponseMessage *>
-            (request->buildResponse ());
+        (request->buildResponse ());
 
     PEGASUS_ASSERT (response != 0);
 
@@ -2928,7 +3294,7 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
             //
             CMPIProvider::OpProviderHolder ph = providerManager.getProvider
                 (enableProviders [i]->getModule ()->getFileName (),
-                 enableProviders [i]->getName ());
+                enableProviders [i]->getName ());
             // Add remote info
             // ATTN: bug 5951
             CString info;
@@ -2940,7 +3306,11 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
 //                  info = pidc.getRemoteInfo().getCString();
 //              }
 //          }
-            _callEnableIndications (provider, _indicationCallback, ph, (const char*)info);
+            _callEnableIndications(
+                provider, 
+                _indicationCallback, 
+                ph, 
+                (const char*)info);
         }
         catch (const CIMException & e)
         {
@@ -2952,7 +3322,7 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
             PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "Exception: " + e.getMessage ());
         }
-        catch(...)
+        catch (...)
         {
             PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "Unknown error in handleSubscriptionInitCompleteRequest");
@@ -2960,10 +3330,11 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
     }
 
     PEG_METHOD_EXIT ();
-    return (response);
+    return(response);
 }
 
-Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
+Message * CMPIProviderManager::handleGetPropertyRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetPropertyRequest");
@@ -2981,31 +3352,36 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
     // HandlerIntro macro)
     CIMGetInstanceRequestMessage * GI_request = 
         new CIMGetInstanceRequestMessage(
-            request->messageId, 
-            request->nameSpace,
-            request->instanceName,
-            false,
-            false,
-            false,
-            localPropertyList,
-            request->queueIds,
-            request->authType,
-            request->userName
-            );
+        request->messageId, 
+        request->nameSpace,
+        request->instanceName,
+        false,
+        false,
+        false,
+        localPropertyList,
+        request->queueIds,
+        request->authType,
+        request->userName
+        );
 
     PEGASUS_ASSERT(GI_request != 0); 
 
     CIMGetInstanceResponseMessage * GI_response = 
-        dynamic_cast<CIMGetInstanceResponseMessage*>(GI_request->buildResponse());
+        dynamic_cast<CIMGetInstanceResponseMessage*>
+        (GI_request->buildResponse());
 
     PEGASUS_ASSERT(GI_response != 0); 
 
-    GetInstanceResponseHandler GI_handler(GI_request, GI_response, _responseChunkCallback);
+    GetInstanceResponseHandler GI_handler(
+        GI_request, 
+        GI_response, 
+        _responseChunkCallback);
 
-    try 
+    try
     {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CmpiProviderManager::handleGetPropertyRequest - Host name: $0  Name space: $1  Class name: $2  Property name: $3",
+            "CmpiProviderManager::handleGetPropertyRequest - Host name: $0  "
+            "Name space: $1  Class name: $2  Property name: $3",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString(),
@@ -3022,23 +3398,30 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
@@ -3049,9 +3432,11 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
         // to add a NormalizerContextContainer. The presence of an
         // ObjectNormalizer is determined by the presence of the
         // CachedClassDefinitionContainer
-        if(request->operationContext.contains(CachedClassDefinitionContainer::NAME))
+        if (request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
         {
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
         }
         else
 #endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
@@ -3063,7 +3448,8 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
                 new CIMOMHandleContext(*pr._cimom_handle));
             CIMClass classDef(tmpNormalizerContext->getClass(
                 request->nameSpace, request->className));
-            request->operationContext.insert(CachedClassDefinitionContainer(classDef));
+            request->operationContext.insert(
+                CachedClassDefinitionContainer(classDef));
             request->operationContext.insert(
                 NormalizerContextContainer(tmpNormalizerContext));
         }
@@ -3072,7 +3458,8 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.getInstance via getProperty: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::getInstance via getProperty"<<endl);
+        DDD(cerr<<"--- CMPIProviderManager::getInstance via getProperty"
+            <<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -3085,30 +3472,40 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
         CMPIPropertyList props(localPropertyList);
 
         CMPIFlags flgs=0;
-        // Leave includeQualifiers and includeClassOrigin as false for this call to getInstance
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        // Leave includeQualifiers and includeClassOrigin as false for this 
+        // call to getInstance
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
 
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
- 
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -3132,43 +3529,47 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
 
         // Copy property value from instance to getProperty response
-        if(!(GI_response->cimInstance.isUninitialized()))
+        if (!(GI_response->cimInstance.isUninitialized()))
         {
-            Uint32 pos = GI_response->cimInstance.findProperty(request->propertyName);
+            Uint32 pos = 
+                GI_response->cimInstance.findProperty(request->propertyName);
 
-            if(pos != PEG_NOT_FOUND)
+            if (pos != PEG_NOT_FOUND)
             {
-                response->value = GI_response->cimInstance.getProperty(pos).getValue();
+                response->value = 
+                    GI_response->cimInstance.getProperty(pos).getValue();
             }
             // Else property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
             else
@@ -3190,50 +3591,59 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
+Message * CMPIProviderManager::handleSetPropertyRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleSetPropertyRequest");
+        "CMPIProviderManager::handleSetPropertyRequest");
 
     HandlerIntro(SetProperty,message,request,response,handler);
 
-    // We're only going to be interested in the specific property from this instance.
+    // We're only going to be interested in the specific property from this 
+    // instance.
     Array<CIMName> localPropertyListArray;
     localPropertyListArray.append(request->propertyName);
     CIMPropertyList localPropertyList(localPropertyListArray);
 
-    // Build a modified instance with just the specific property and its new value.
+    // Build a modified instance with just the specific property and its 
+    // new value.
     CIMInstance localModifiedInstance(request->instanceName.getClassName());
     localModifiedInstance.setPath(request->instanceName);
-    localModifiedInstance.addProperty(CIMProperty(request->propertyName, request->newValue));
+    localModifiedInstance.addProperty(
+        CIMProperty(request->propertyName, request->newValue));
 
-    // NOTE: SetProperty will use the CIMInstanceProvider interface, so we must manually
-    //       define a request, response, and handler.
+    // NOTE: SetProperty will use the CIMInstanceProvider interface, so we must
+    // manually define a request, response, and handler.
     CIMModifyInstanceRequestMessage * MI_request = 
         new CIMModifyInstanceRequestMessage(
-            request->messageId, 
-            request->nameSpace,
-            localModifiedInstance,
-            false,
-            localPropertyList,
-            request->queueIds,
-            request->authType,
-            request->userName
-            );
+        request->messageId, 
+        request->nameSpace,
+        localModifiedInstance,
+        false,
+        localPropertyList,
+        request->queueIds,
+        request->authType,
+        request->userName
+        );
 
     PEGASUS_ASSERT(MI_request != 0); 
 
     CIMModifyInstanceResponseMessage * MI_response = 
-        dynamic_cast<CIMModifyInstanceResponseMessage*>(MI_request->buildResponse());
+        dynamic_cast<CIMModifyInstanceResponseMessage*>(
+        MI_request->buildResponse());
 
     PEGASUS_ASSERT(MI_response != 0); 
 
-    ModifyInstanceResponseHandler MI_handler(MI_request, MI_response, _responseChunkCallback);
+    ModifyInstanceResponseHandler MI_handler(
+        MI_request, 
+        MI_response, 
+        _responseChunkCallback);
 
-    try 
+    try
     {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CmpiProviderManager::handleSetPropertyRequest - Host name: $0  Name space: $1  Class name: $2  Property name: $3",
+            "CmpiProviderManager::handleSetPropertyRequest - Host name: $0  "
+            "Name space: $1  Class name: $2  Property name: $3",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString(),
@@ -3250,30 +3660,38 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
         CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
-        ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
+        ProviderIdContainer pidc = 
+            request->operationContext.get(ProviderIdContainer::NAME);
         ProviderName name = _resolveProviderName(pidc);
 
-        if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        if ((remote=pidc.isRemoteNameSpace()))
+        {
+            ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        else
+        {
+            // get cached or load new provider module
+            ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
         }
 
         // convert arguments
         OperationContext context;
 
         context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(
+            request->operationContext.get(ContentLanguageListContainer::NAME));
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.modifyInstance via setProperty: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::modifyInstance via setProperty"<<endl);
+        DDD(cerr<<"--- CMPIProviderManager::modifyInstance via setProperty"
+            <<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -3286,28 +3704,37 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
         CMPIFlags flgs=0;
         // Leave includeQualifiers as false for this call to modifyInstance
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        eCtx.ft->addEntry(
+            &eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
 
         const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
+            request->operationContext.get(IdentityContainer::NAME);
         eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
+            CMPIPrincipal,
+            (CMPIValue*)(const char*)container.getUserName().getCString(),
+            CMPI_chars);
 
         const AcceptLanguageListContainer accept_language=            
-           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+            request->operationContext.get(AcceptLanguageListContainer::NAME); 
         const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             CMPIAcceptLanguage,
             (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-                acceptLangs).getCString(),
+            acceptLangs).getCString(),
             CMPI_chars);
- 
-        if (remote) {
-           CString info=pidc.getRemoteInfo().getCString();
-           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+
+        if (remote)
+        {
+            CString info=pidc.getRemoteInfo().getCString();
+            eCtx.ft->addEntry(
+                &eCtx,
+                "CMPIRRemoteInfo",
+                (CMPIValue*)(const char*)info,
+                CMPI_chars);
         }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -3317,7 +3744,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
         if (pr.miVector.instMI==0)
         {
             _throw_MINotInitializedException();
-        }  
+        }
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -3331,33 +3758,35 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
 //      Do this before checking rc from provider to throw exception in case 
 //      rc.msg is also localized.
         CMPIStatus tmprc={CMPI_RC_OK,NULL};
-        CMPIData cldata = eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
+        CMPIData cldata = 
+            eCtx.ft->getEntry (&eCtx, CMPIContentLanguage, &tmprc);
         if (tmprc.rc == CMPI_RC_OK)
         {
             response->operationContext.set(
                 ContentLanguageListContainer(
-                    ContentLanguageList(
-                        LanguageParser::parseContentLanguageHeader(
-                            CMGetCharPtr(cldata.value.string)))));
+                ContentLanguageList(
+                LanguageParser::parseContentLanguageHeader(
+                CMGetCharPtr(cldata.value.string)))));
             handler.setContext(response->operationContext);
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
-           CIMException cimException(
-               (CIMStatusCode)rc.rc,
-               rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+            CIMException cimException(
+                (CIMStatusCode)rc.rc,
+                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
 
-           if (eRes.resError)
-           {
-               for (CMPI_Error* currErr=eRes.resError; 
+            if (eRes.resError)
+            {
+                for (CMPI_Error* currErr=eRes.resError; 
                     currErr!=NULL; 
                     currErr=currErr->nextError)
-               {
-                   cimException.addError(((CIMError*)currErr->hdl)->getInstance());
-               }
-           }
-           throw cimException;
+                {
+                    cimException.addError(
+                        ((CIMError*)currErr->hdl)->getInstance());
+                }
+            }
+            throw cimException;
         }
     }
     HandlerCatch(handler);
@@ -3370,7 +3799,8 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
+Message * CMPIProviderManager::handleUnsupportedRequest(
+    const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleUnsupportedRequest");
@@ -3408,11 +3838,12 @@ ProviderName CMPIProviderManager::_resolveProviderName(
     // in the remote Name Space.
     if (fileName == String::EMPTY && (!providerId.isRemoteNameSpace()))
     {
-          genericValue.get(location);
-          String fullName = FileSystem::buildLibraryFileName(location);
-          Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-              "ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY",
-              "For provider $0 library $1 was not found.", providerName, fullName);
+        genericValue.get(location);
+        String fullName = FileSystem::buildLibraryFileName(location);
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            "ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY",
+            "For provider $0 library $1 was not found.", 
+            providerName, fullName);
 
     }
     ProviderName name(providerName, fileName, String::EMPTY, 0);
@@ -3423,9 +3854,9 @@ ProviderName CMPIProviderManager::_resolveProviderName(
 
 void CMPIProviderManager::_callEnableIndications
     (CIMInstance & req_provider,
-     PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-     CMPIProvider::OpProviderHolder & ph,
-     const char* remoteInfo)
+    PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
+    CMPIProvider::OpProviderHolder & ph,
+    const char* remoteInfo)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "CMPIProviderManager::_callEnableIndications");
@@ -3436,18 +3867,18 @@ void CMPIProviderManager::_callEnableIndications
         {
             WriteLock lock(rwSemProvTab);
 
-        if (provTab.lookup (ph.GetProvider ().getName (), provRec))
-        {
-            provRec->enabled = true;
-            CIMRequestMessage * request = 0;
-            CIMResponseMessage * response = 0;
-            provRec->handler=new EnableIndicationsResponseHandler(
-                request,
-                response,
-                req_provider,
-                _indicationCallback,
-                _responseChunkCallback);
-        }
+            if (provTab.lookup (ph.GetProvider ().getName (), provRec))
+            {
+                provRec->enabled = true;
+                CIMRequestMessage * request = 0;
+                CIMResponseMessage * response = 0;
+                provRec->handler=new EnableIndicationsResponseHandler(
+                    request,
+                    response,
+                    req_provider,
+                    _indicationCallback,
+                    _responseChunkCallback);
+            }
         }
 
         CMPIProvider & pr=ph.GetProvider();
@@ -3464,11 +3895,12 @@ void CMPIProviderManager::_callEnableIndications
         {
             OperationContext context;
             #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                // For the z/OS security model we always need an Identity container in
-                // the operation context. Since we don't have a client request ID here
-                // we have to use the cim servers identity for the time being.
-                IdentityContainer idContainer(System::getEffectiveUserName());
-                context.insert(idContainer);
+            // For the z/OS security model we always need an Identity container
+            // in the operation context. Since we don't have a client request 
+            // ID here we have to use the cim servers identity for the time 
+            // being.
+            IdentityContainer idContainer(System::getEffectiveUserName());
+            context.insert(idContainer);
             #endif
 
             CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -3479,7 +3911,7 @@ void CMPIProviderManager::_callEnableIndications
             if (remoteInfo)
             {
                 eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
-                                  (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
+                    (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
             }
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -3506,7 +3938,8 @@ void CMPIProviderManager::_callEnableIndications
         {
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Not calling provider.enableIndications: " + pr.getName() +
-                " routine as it is an earlier version that does not support this function");
+                " routine as it is an earlier version that does not support " \
+                "this function");
 
             DDD(cerr<<"--- provider.enableIndications " \
                 "cannot be called as the provider uses an earlier version " \
@@ -3520,18 +3953,18 @@ void CMPIProviderManager::_callEnableIndications
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
-                "ENABLE_INDICATIONS_FAILED",
+            "ENABLE_INDICATIONS_FAILED",
             "Failed to enable indications for provider $0: $1.",
             ph.GetProvider ().getName (), e.getMessage ());
     }
-    catch(...)
+    catch (...)
     {
         PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected error in _callEnableIndications");
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
-                "ENABLE_INDICATIONS_FAILED_UNKNOWN",
+            "ENABLE_INDICATIONS_FAILED_UNKNOWN",
             "Failed to enable indications for provider $0.",
             ph.GetProvider ().getName ());
     }
@@ -3550,12 +3983,12 @@ void CMPIProviderManager::_callDisableIndications
         indProvRecord * provRec = 0;
         {
             WriteLock writeLock(rwSemProvTab);
-        if (provTab.lookup (ph.GetProvider ().getName (), provRec))
-        {
-            provRec->enabled = false;
-            if (provRec->handler) delete provRec->handler;
-            provRec->handler = NULL;
-        }
+            if (provTab.lookup (ph.GetProvider ().getName (), provRec))
+            {
+                provRec->enabled = false;
+                if (provRec->handler) delete provRec->handler;
+                provRec->handler = NULL;
+            }
         }
 
         CMPIProvider & pr=ph.GetProvider();
@@ -3576,8 +4009,8 @@ void CMPIProviderManager::_callDisableIndications
 
             if (remoteInfo)
             {
-               eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
-                                 (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
+                eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
+                    (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
             }
             CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
@@ -3597,7 +4030,9 @@ void CMPIProviderManager::_callDisableIndications
             // here. This will prevent us from breaking existing CMPI 
             // Indication providers. This is ok since there really isn't a 
             // user to which the problem should be reported.
-            pr.miVector.indMI->ft->disableIndications(pr.miVector.indMI, &eCtx);
+            pr.miVector.indMI->ft->disableIndications(
+                pr.miVector.indMI, 
+                &eCtx);
 
             ph.GetProvider().unprotect();
         }
@@ -3606,7 +4041,8 @@ void CMPIProviderManager::_callDisableIndications
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Not calling provider.disableIndications: "
                 + pr.getName() +
-                " routine as it is an earlier version that does not support this function");
+                " routine as it is an earlier version that does not support" \
+                " this function");
 
             DDD(cerr<<"--- provider.disableIndications " \
                 "cannot be called as the provider uses an earlier version " \
@@ -3620,18 +4056,18 @@ void CMPIProviderManager::_callDisableIndications
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
-                "DISABLE_INDICATIONS_FAILED",
+            "DISABLE_INDICATIONS_FAILED",
             "Failed to disable indications for provider $0: $1.",
             ph.GetProvider ().getName (), e.getMessage ());
     }
-    catch(...)
+    catch (...)
     {
         PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected error in _callDisableIndications");
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
-                "DISABLE_INDICATIONS_FAILED_UNKNOWN",
+            "DISABLE_INDICATIONS_FAILED_UNKNOWN",
             "Failed to disable indications for provider $0.",
             ph.GetProvider ().getName ());
     }
@@ -3640,3 +4076,4 @@ void CMPIProviderManager::_callDisableIndications
 }
 
 PEGASUS_NAMESPACE_END
+    

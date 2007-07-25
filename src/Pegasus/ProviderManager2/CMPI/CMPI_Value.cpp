@@ -79,43 +79,49 @@ PEGASUS_NAMESPACE_BEGIN
         } \
     }
 
-//Function to convert CMPIValue to CIMValue
+/**
+  Function to convert CMPIValue to CIMValue
+*/
 CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
 {
-   CIMValue v;
-    if (rc)
+    CIMValue v;
+    if( rc )
     {
         *rc=CMPI_RC_OK;
     }
 
-   // check data for NULL if type is not CMPIArray.
-   if ( !(type & CMPI_ARRAY) && !data)
-   {
-       return CIMValue(type2CIMType(type), false);
-   }
-    //Case when type is CMPIArray
-    if (type & CMPI_ARRAY)
+/**
+   check data for NULL if type is not CMPIArray.
+*/
+    if( !(type & CMPI_ARRAY) && !data )
+    {
+        return CIMValue(type2CIMType(type), false);
+    }
+    /**
+       Case when type is CMPIArray
+   */
+    if( type & CMPI_ARRAY )
     {
         //Return if data itself is NULL or Array is NULL
-        if (data == NULL || data->array == NULL)
+        if( data == NULL || data->array == NULL )
         {
-         CMPIType aType=type&~CMPI_ARRAY;
-         return CIMValue(type2CIMType(aType),true);
-      }
+            CMPIType aType=type&~CMPI_ARRAY;
+            return CIMValue(type2CIMType(aType),true);
+        }
         // When data is not NULL and data->array is also set
-      CMPIArray *ar=data->array;
-      CMPIData *aData=(CMPIData*)ar->hdl;
+        CMPIArray *ar=data->array;
+        CMPIData *aData=(CMPIData*)ar->hdl;
 
         //Get the type of the elements in the array
-      CMPIType aType=aData->type&~CMPI_ARRAY;
+        CMPIType aType=aData->type&~CMPI_ARRAY;
 
-      int aSize=aData->value.sint32;
-      aData++;
+        int aSize=aData->value.sint32;
+        aData++;
 
         // Checks for Signed Integers
-        if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT)
+        if( (aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT )
         {
-            switch (aType)
+            switch( aType )
             {
                 case CMPI_sint32:
                     CopyToArray(Sint32,sint32);
@@ -133,27 +139,31 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                     CopyToArray(Sint64,sint64);
                     break;
 
-            default: ;
-         }
-      }
-        else if (aType == CMPI_chars)
+                default: ;
+            }
+        }
+        else
+        if( aType == CMPI_chars )
         {
             CopyToStringArray(String,chars)
         }
-        else if (aType == CMPI_charsptr)
+        else 
+        if( aType == CMPI_charsptr )
         {
             CopyCharsptrToStringArray(String,chars)
         }
-        else if (aType == CMPI_string)
+        else 
+        if( aType == CMPI_string )
         {
             CopyToStringArray(String,string->hdl)
         }
 
 
         // Checks for Unsigned Integers
-        else if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_UINT)
+        else
+        if( (aType & (CMPI_UINT|CMPI_SINT))==CMPI_UINT )
         {
-            switch (aType)
+            switch( aType )
             {
                 case CMPI_uint32:
                     CopyToArray(Uint32,uint32);
@@ -167,14 +177,14 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 case CMPI_uint64:
                     CopyToArray(Uint64,uint64);
                     break;
-            default: ;
-         }
+                default: ;
+            }
 
 
-      }
+        }
         else
         {
-            switch (aType)
+            switch( aType )
             {
                 case CMPI_ref:
                     CopyToEncArray(CIMObjectPath,ref);
@@ -204,37 +214,39 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                     CopyToArray(Real64,real64);
                     break;
 
-         default:
-                    if (rc)
+                default:
+                    if( rc )
                     {
                         *rc=CMPI_RC_ERR_NOT_SUPPORTED;
                     }
             }
-      }
-      return CIMValue(v);
-   } // end of array processing
-
+        }
+        return CIMValue(v);
+    } // end of array processing
     //Start of non - array types processing
-    else if (type == CMPI_chars) 
+    else
+    if( type == CMPI_chars )
     {
         v.set(String((char*)data));
-   }
-    else if (type == CMPI_charsptr) 
+    }
+    else
+    if( type == CMPI_charsptr )
     {
-        if (data && *(char**)data)
+        if( data && *(char**)data )
         {
             v.set(String(*(char**)data));
         }
         else
         {
             return CIMValue(CIMTYPE_STRING,false);
-   }
+        }
     }
 
     //Checks for Signed integers
-    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_SINT)
+    else
+    if( (type & (CMPI_UINT|CMPI_SINT))==CMPI_SINT )
     {
-        switch (type)
+        switch( type )
         {
             case CMPI_sint32:
                 v.set((Sint32)data->sint32);
@@ -251,12 +263,13 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             case CMPI_sint64:
                 v.set((Sint64)data->sint64);
                 break;
-         default: ;
-      }
-   }
-    else if (type == CMPI_string) 
+            default: ;
+        }
+    }
+    else
+    if( type == CMPI_string )
     {
-        if (data->string && data->string->hdl)
+        if( data->string && data->string->hdl )
         {
             v.set(String((char*)data->string->hdl));
         }
@@ -267,9 +280,10 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
     }
 
     //Checks for Unsigned Integers
-    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_UINT)
+    else
+    if( (type & (CMPI_UINT|CMPI_SINT))==CMPI_UINT )
     {
-        switch (type)
+        switch( type )
         {
             case CMPI_uint32:
                 v.set((Uint32)data->uint32);
@@ -287,68 +301,69 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 v.set((Uint64)data->uint64);
                 break;
 
-         default: ;
-      }
-   }
+            default: ;
+        }
+    }
 
     //Checks for remaining Encapsulated and non-encapsulated types
-    else switch (type)
-	{
-        case CMPI_instance:
-            if (data->inst && data->inst->hdl)
-            {
-		v.set(*((CIMObject*) data->inst->hdl));
-	}
-            else
-            {
-                return CIMValue(CIMTYPE_OBJECT, false);
-            }   
-            break;
+    else
+        switch( type )
+        {
+            case CMPI_instance:
+                if( data->inst && data->inst->hdl )
+                {
+                    v.set(*((CIMObject*) data->inst->hdl));
+                }
+                else
+                {
+                    return CIMValue(CIMTYPE_OBJECT, false);
+                }   
+                break;
 
-      case CMPI_ref:      
-          if (data->ref && data->ref->hdl)
-          {
-              v.set(*((CIMObjectPath*)data->ref->hdl));
-          }
-          else
-          {
-              return CIMValue(CIMTYPE_REFERENCE, false);
-          }
-          break;
-      case CMPI_dateTime: 
-          if (data->dateTime && data->dateTime->hdl)
-          {
-              v.set(*((CIMDateTime*)data->dateTime->hdl)); 
-          }
-          else
-          {
-              return CIMValue(CIMTYPE_DATETIME, false);
-          }
-          break;
+            case CMPI_ref:      
+                if( data->ref && data->ref->hdl )
+                {
+                    v.set(*((CIMObjectPath*)data->ref->hdl));
+                }
+                else
+                {
+                    return CIMValue(CIMTYPE_REFERENCE, false);
+                }
+                break;
+            case CMPI_dateTime: 
+                if( data->dateTime && data->dateTime->hdl )
+                {
+                    v.set(*((CIMDateTime*)data->dateTime->hdl)); 
+                }
+                else
+                {
+                    return CIMValue(CIMTYPE_DATETIME, false);
+                }
+                break;
 
-        case CMPI_boolean:
-            v.set((Boolean&)data->boolean);
-            break;
+            case CMPI_boolean:
+                v.set((Boolean&)data->boolean);
+                break;
 
-        case CMPI_char16:
-            v.set((Char16)data->char16);
-            break;
+            case CMPI_char16:
+                v.set((Char16)data->char16);
+                break;
 
-        case CMPI_real32:
-            v.set((Real32)data->real32);
-            break;
+            case CMPI_real32:
+                v.set((Real32)data->real32);
+                break;
 
-        case CMPI_real64:
-            v.set((Real64)data->real64);
-            break;
+            case CMPI_real64:
+                v.set((Real64)data->real64);
+                break;
 
-      default:
-            if (rc)
-            {
-                *rc=CMPI_RC_ERR_NOT_SUPPORTED;
-            }
-   }
-   return CIMValue(v);
+            default:
+                if( rc )
+                {
+                    *rc=CMPI_RC_ERR_NOT_SUPPORTED;
+                }
+        }
+    return CIMValue(v);
 }
 
 #define CopyFromArray(pt,ct) \
@@ -387,41 +402,41 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
 CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
 {
     //Initialize CMPIData object
-   data->type=t;
-   data->state=0;
-   data->value.uint64=0;
+    data->type=t;
+    data->state=0;
+    data->value.uint64=0;
 
     //Check for NULL CIMValue
-    if (v.isNull())
+    if( v.isNull() )
     {
-      data->state=CMPI_nullValue;
-      return CMPI_RC_OK;
-   }
+        data->state=CMPI_nullValue;
+        return CMPI_RC_OK;
+    }
 
     //Start of CMPIArray processing
-    if (t & CMPI_ARRAY)
+    if( t & CMPI_ARRAY )
     {
         //Get the size of the array
-      int aSize=v.getArraySize();
+        int aSize=v.getArraySize();
 
         //Get the type of the element of the CMPIArray
-      CMPIType aType=t&~CMPI_ARRAY;
-      CMPIData *aData=new CMPIData[aSize+1];
-      aData->type=aType;
-      aData->value.sint32=aSize;
+        CMPIType aType=t&~CMPI_ARRAY;
+        CMPIData *aData=new CMPIData[aSize+1];
+        aData->type=aType;
+        aData->value.sint32=aSize;
 
         //Set the type and state for all array elements
-        for (int i=1; i<aSize+1; i++)
+        for( int i=1; i<aSize+1; i++ )
         {
-         aData[i].type=aType;
-         aData[i].state=0;
-      }
-      aData++;
+            aData[i].type=aType;
+            aData[i].state=0;
+        }
+        aData++;
 
         //Check for Signed Integers
-        if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT)
+        if( (aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT )
         {
-            switch (aType)
+            switch( aType )
             {
                 case CMPI_sint32:
                     CopyFromArray(Sint32,sint32);
@@ -439,19 +454,21 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     CopyFromArray(Sint64,sint64);
                     break;
 
-            default: ;
-         }
-      }
+                default: ;
+            }
+        }
         //Check for CMPI_string data type
-        else if (aType == CMPI_string)
+        else
+        if( aType == CMPI_string )
         {
             CopyFromStringArray(String,string)
         }
 
         // Check for Unsigned Integers
-        else if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_UINT)
+        else
+        if( (aType & (CMPI_UINT|CMPI_SINT))==CMPI_UINT )
         {
-            switch (aType)
+            switch( aType )
             {
                 case CMPI_uint32:
                     CopyFromArray(Uint32,uint32);
@@ -469,53 +486,55 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     CopyFromArray(Uint64,uint64);
                     break;
 
-            default: ;
-         }
-      }
-        else switch (aType)
-        {
-            case CMPI_ref:
-                CopyFromEncArray(CIMObjectPath,CMPIObjectPath,ref);
-                break;
+                default: ;
+            }
+        }
+        else
+            switch( aType )
+            {
+                case CMPI_ref:
+                    CopyFromEncArray(CIMObjectPath,CMPIObjectPath,ref);
+                    break;
 
-            case CMPI_dateTime:
-                CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime);
-                break;
+                case CMPI_dateTime:
+                    CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime);
+                    break;
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-            case CMPI_instance:
-                CopyFromEncArray(CIMInstance,CMPIInstance,inst);
-                break;
+                case CMPI_instance:
+                    CopyFromEncArray(CIMInstance,CMPIInstance,inst);
+                    break;
 #endif
-            case CMPI_boolean:
-                CopyFromArray(Boolean,boolean);
-                break;
+                case CMPI_boolean:
+                    CopyFromArray(Boolean,boolean);
+                    break;
 
-            case CMPI_char16:
-                CopyFromArray(Char16,char16);
-                break;
+                case CMPI_char16:
+                    CopyFromArray(Char16,char16);
+                    break;
 
-            case CMPI_real32:
-                CopyFromArray(Real32,real32);
-                break;
+                case CMPI_real32:
+                    CopyFromArray(Real32,real32);
+                    break;
 
-            case CMPI_real64:
-                CopyFromArray(Real64,real64);
-                break;
+                case CMPI_real64:
+                    CopyFromArray(Real64,real64);
+                    break;
 
-         default:
-             // Not supported for this CMPItype
-             delete [] aData;
-             return CMPI_RC_ERR_NOT_SUPPORTED;
-      }
+                default:
+                    // Not supported for this CMPItype
+                    delete [] aData;
+                    return CMPI_RC_ERR_NOT_SUPPORTED;
+            }
         data->value.array = reinterpret_cast<CMPIArray*>(
-            new CMPI_Object(aData-1));
-   }  // end of array porocessing
+        new CMPI_Object(aData-1));
+    }  // end of array porocessing
 
     //Start of non-array processing
     //Ckecking for Signed integers
-    else if ((t & (CMPI_UINT|CMPI_SINT)) == CMPI_SINT)
+    else 
+    if( (t & (CMPI_UINT|CMPI_SINT)) == CMPI_SINT )
     {
-        switch (t)
+        switch( t )
         {
             case CMPI_sint32:
                 v.get((Sint32&)data->value.sint32);
@@ -533,22 +552,24 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 v.get((Sint64&)data->value.sint64);
                 break;
 
-         default: ;
-      }
-   }
+            default: ;
+        }
+    }
 
     //Check for CMPI_string data type
-    else if (t == CMPI_string)
+    else 
+    if( t == CMPI_string )
     {
-      String str;
-      v.get(str);
-      data->value.string=string2CMPIString(str);
-   }
+        String str;
+        v.get(str);
+        data->value.string=string2CMPIString(str);
+    }
 
     //Check for Unsigned Integers
-    else if ((t & (CMPI_UINT|CMPI_SINT)) == CMPI_UINT)
+    else
+    if( (t & (CMPI_UINT|CMPI_SINT)) == CMPI_UINT )
     {
-        switch (t)
+        switch( t )
         {
             case CMPI_uint32:
                 v.get((Uint32&)data->value.uint32);
@@ -566,74 +587,75 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 v.get((Uint64&)data->value.uint64);
                 break;
 
-         default: ;
-      }
-   }
+            default: ;
+        }
+    }
 
     //Checking for remaining encapulated and simple types
-    else switch (t)
-    {
-        case CMPI_ref:
+    else
+        switch( t )
         {
-         CIMObjectPath ref;
-         v.get(ref);
-            data->value.ref = reinterpret_cast<CMPIObjectPath*>(
-                new CMPI_Object(new CIMObjectPath(ref)));
-      }
-      break;
+            case CMPI_ref:
+                {
+                    CIMObjectPath ref;
+                    v.get(ref);
+                    data->value.ref = reinterpret_cast<CMPIObjectPath*>(
+                    new CMPI_Object(new CIMObjectPath(ref)));
+                }
+                break;
 
-        case CMPI_instance:
-        {
-         CIMInstance inst;
-         if(v.getType() == CIMTYPE_OBJECT)
-         {
-           CIMObject tmpObj;
-           v.get(tmpObj);
-           inst = CIMInstance(tmpObj);
-         }
-         else
-         {
+            case CMPI_instance:
+                {
+                    CIMInstance inst;
+                    if( v.getType() == CIMTYPE_OBJECT )
+                    {
+                        CIMObject tmpObj;
+                        v.get(tmpObj);
+                        inst = CIMInstance(tmpObj);
+                    }
+                    else
+                    {
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-             v.get(inst);
+                        v.get(inst);
 #else
-             return CMPI_RC_ERR_NOT_SUPPORTED;
+                        return CMPI_RC_ERR_NOT_SUPPORTED;
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-         }
+                    }
 
-            data->value.inst = reinterpret_cast<CMPIInstance*>(
-                new CMPI_Object(new CIMInstance(inst)));
-      }
-      break;
+                    data->value.inst = reinterpret_cast<CMPIInstance*>(
+                    new CMPI_Object(new CIMInstance(inst)));
+                }
+                break;
 
-        case CMPI_dateTime:
-        {
-         CIMDateTime dt;
-         v.get(dt);
-            data->value.dateTime = reinterpret_cast<CMPIDateTime*>(
-                new CMPI_Object(new CIMDateTime(dt)));
-      }
-      break;
+            case CMPI_dateTime:
+                {
+                    CIMDateTime dt;
+                    v.get(dt);
+                    data->value.dateTime = reinterpret_cast<CMPIDateTime*>(
+                    new CMPI_Object(new CIMDateTime(dt)));
+                }
+                break;
 
-        case CMPI_boolean:
-            v.get((Boolean&)data->value.boolean);
-            break;
+            case CMPI_boolean:
+                v.get((Boolean&)data->value.boolean);
+                break;
 
-        case CMPI_char16:
-            v.get((Char16&)data->value.char16);
-            break;
+            case CMPI_char16:
+                v.get((Char16&)data->value.char16);
+                break;
 
-        case CMPI_real32:
-            v.get((Real32&)data->value.real32);
-            break;
+            case CMPI_real32:
+                v.get((Real32&)data->value.real32);
+                break;
 
-        case CMPI_real64:
-            v.get((Real64&)data->value.real64);
-            break;
+            case CMPI_real64:
+                v.get((Real64&)data->value.real64);
+                break;
 
-   default:
-      return CMPI_RC_ERR_NOT_SUPPORTED;
-   }
-   return CMPI_RC_OK;
+            default:
+                return CMPI_RC_ERR_NOT_SUPPORTED;
+        }
+    return CMPI_RC_OK;
 }
 
 //Function to convert CIMType to CMPIType
@@ -662,20 +684,20 @@ CMPIType type2CMPIType(CIMType pt, int array)
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     };
     int t=types[pt];
-    if (array) 
+    if( array )
     {
         t|=CMPI_ARRAY;
     }
-    return (CMPIType)t;
+    return(CMPIType)t;
 }
 
 //Function to convert CMPIType to CIMType
 CIMType type2CIMType(CMPIType pt)
 {
-    switch (pt)
+    switch( pt )
     {
         case CMPI_null:
-            return (CIMType)0;
+            return(CIMType)0;
 
         case CMPI_boolean:
             return CIMTYPE_BOOLEAN;
@@ -732,62 +754,61 @@ CIMType type2CIMType(CMPIType pt)
             return CIMTYPE_INSTANCE;
 #endif
         default:
-            return (CIMType)0;
-   }
- }
+            return(CIMType)0;
+    }
+}
 
 //Function to convert CIMKeyBindings to CMPIData
 CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data)
 {
-   data->state=CMPI_keyValue;
-    switch (t)
+    data->state=CMPI_keyValue;
+    switch( t )
     {
         case CIMKeyBinding::NUMERIC:
-        {
-         CString vp=v.getCString();
+            {
+                CString vp=v.getCString();
 
-         data->value.sint64 = 0;
-         if (*((const char*)vp)=='-')
-         {
-             sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
-                     &data->value.sint64);
-             data->type=CMPI_sint64;
-         }
-         else
-         {
-             sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
-                     &data->value.uint64);
-             data->type=CMPI_uint64;
-         }
-      }
-      break;
+                data->value.sint64 = 0;
+                if( *((const char*)vp)=='-' )
+                {
+                    sscanf(
+                        (const char*)vp,
+                        "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                    &data->value.sint64);
+                    data->type=CMPI_sint64;
+                }
+                else
+                {
+                    sscanf(
+                        (const char*)vp,
+                        "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+                    &data->value.uint64);
+                    data->type=CMPI_uint64;
+                }
+            }
+            break;
 
-   case CIMKeyBinding::STRING:
-      data->value.string=string2CMPIString(v);
-      data->type=CMPI_string;
-      break;
+        case CIMKeyBinding::STRING:
+            data->value.string=string2CMPIString(v);
+            data->type=CMPI_string;
+            break;
 
-   case CIMKeyBinding::BOOLEAN:
-      data->value.boolean=(String::equalNoCase(v,"true"));
-      data->type=CMPI_boolean;
-      break;
+        case CIMKeyBinding::BOOLEAN:
+            data->value.boolean=(String::equalNoCase(v,"true"));
+            data->type=CMPI_boolean;
+            break;
 
-   case CIMKeyBinding::REFERENCE:
+        case CIMKeyBinding::REFERENCE:
             data->value.ref=reinterpret_cast<CMPIObjectPath*>(
-                new CMPI_Object(new CIMObjectPath(v)));
-      data->type=CMPI_ref;
-      break;
+            new CMPI_Object(new CIMObjectPath(v)));
+            data->type=CMPI_ref;
+            break;
 
-   default:
-      return CMPI_RC_ERR_NOT_SUPPORTED;
-   }
-   return CMPI_RC_OK;
+        default:
+            return CMPI_RC_ERR_NOT_SUPPORTED;
+    }
+    return CMPI_RC_OK;
 }
 
 PEGASUS_NAMESPACE_END
-
-
-
-
-
 

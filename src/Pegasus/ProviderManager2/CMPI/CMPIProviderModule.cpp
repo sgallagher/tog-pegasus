@@ -46,22 +46,22 @@ PEGASUS_NAMESPACE_BEGIN
 
 CMPIProviderModule::CMPIProviderModule(const String & fileName)
 {
-   genericProviderModule=0;
+    genericProviderModule=0;
 
-   String resolvedFileName;
+    String resolvedFileName;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-   if (fileName[1] != ':')
+    if (fileName[1] != ':')
 #else
-   if (fileName[0]!='/')
+    if (fileName[0]!='/')
 #endif
-      resolvedFileName=ProviderManager::_resolvePhysicalName(fileName);
-   else resolvedFileName=fileName;
+        resolvedFileName=ProviderManager::_resolvePhysicalName(fileName);
+    else resolvedFileName=fileName;
 
-   _library = DynamicLibrary(resolvedFileName);
+    _library = DynamicLibrary(resolvedFileName);
 }
 
-CMPIProviderModule::~CMPIProviderModule(void)
+CMPIProviderModule::~CMPIProviderModule()
 {
 }
 
@@ -73,7 +73,8 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     if (!_library.load())
     {
 
-        throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.CMPI.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
             "ProviderLoadFailure: ($0:$1):Cannot load library, error: $2",
             _library.getFileName(),
             realProviderName,
@@ -87,103 +88,119 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     int specificMode=0;
 
     if ((miVector.createGenInstMI=(CREATE_GEN_INST_MI)
-           _library.getSymbol(_Generic_Create_InstanceMI))) {
-       if (miVector.createGenInstMI)
-         miVector.miTypes|=CMPI_MIType_Instance;
-       miVector.genericMode=1;
+        _library.getSymbol(_Generic_Create_InstanceMI)))
+    {
+        if (miVector.createGenInstMI)
+            miVector.miTypes|=CMPI_MIType_Instance;
+        miVector.genericMode=1;
     }
 
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_InstanceMI);
     if ((miVector.createInstMI=(CREATE_INST_MI)
-          _library.getSymbol(symbolName))) {
-       if (miVector.createInstMI)
-          miVector.miTypes|=CMPI_MIType_Instance;
-       specificMode=1;
+        _library.getSymbol(symbolName)))
+    {
+        if (miVector.createInstMI)
+            miVector.miTypes|=CMPI_MIType_Instance;
+        specificMode=1;
     }
 
 
     if ((miVector.createGenAssocMI=(CREATE_GEN_ASSOC_MI)
-          _library.getSymbol(_Generic_Create_AssociationMI))) {
-       if (miVector.createGenAssocMI)
-          miVector.miTypes|=CMPI_MIType_Association;
-       miVector.genericMode=1;
+        _library.getSymbol(_Generic_Create_AssociationMI)))
+    {
+        if (miVector.createGenAssocMI)
+            miVector.miTypes|=CMPI_MIType_Association;
+        miVector.genericMode=1;
     }
 
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_AssociationMI);
     if ((miVector.createAssocMI=(CREATE_ASSOC_MI)
-          _library.getSymbol(symbolName))) {
-       if (miVector.createAssocMI)
-         miVector.miTypes|=CMPI_MIType_Association;
-       specificMode=1;
+        _library.getSymbol(symbolName)))
+    {
+        if (miVector.createAssocMI)
+            miVector.miTypes|=CMPI_MIType_Association;
+        specificMode=1;
     }
 
 
     if ((miVector.createGenMethMI=(CREATE_GEN_METH_MI)
-          _library.getSymbol(_Generic_Create_MethodMI))) {
-       if (miVector.createGenMethMI)
-          miVector.miTypes|=CMPI_MIType_Method;
-       miVector.genericMode=1;
+        _library.getSymbol(_Generic_Create_MethodMI)))
+    {
+        if (miVector.createGenMethMI)
+            miVector.miTypes|=CMPI_MIType_Method;
+        miVector.genericMode=1;
     }
 
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_MethodMI);
     if ((miVector.createMethMI=(CREATE_METH_MI)
-          _library.getSymbol(symbolName))) {
-       if (miVector.createMethMI)
-          miVector.miTypes|=CMPI_MIType_Method;
-       specificMode=1;
+        _library.getSymbol(symbolName)))
+    {
+        if (miVector.createMethMI)
+            miVector.miTypes|=CMPI_MIType_Method;
+        specificMode=1;
     }
 
 
     if ((miVector.createGenPropMI=(CREATE_GEN_PROP_MI)
-          _library.getSymbol(_Generic_Create_PropertyMI))) {
-       if (miVector.createGenPropMI)
-          miVector.miTypes|=CMPI_MIType_Property;
-       miVector.genericMode=1;
+        _library.getSymbol(_Generic_Create_PropertyMI)))
+    {
+        if (miVector.createGenPropMI)
+            miVector.miTypes|=CMPI_MIType_Property;
+        miVector.genericMode=1;
     }
 
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_PropertyMI);
     if ((miVector.createPropMI=(CREATE_PROP_MI)
-              _library.getSymbol(symbolName))) {
-       if (miVector.createPropMI)
-          miVector.miTypes|=CMPI_MIType_Property;
-       specificMode=1;
+        _library.getSymbol(symbolName)))
+    {
+        if (miVector.createPropMI)
+            miVector.miTypes|=CMPI_MIType_Property;
+        specificMode=1;
     }
 
 
     if ((miVector.createGenIndMI=(CREATE_GEN_IND_MI)
-          _library.getSymbol(_Generic_Create_IndicationMI))) {
-       if (miVector.createGenIndMI)
-          miVector.miTypes|=CMPI_MIType_Indication;
-       miVector.genericMode=1;
+        _library.getSymbol(_Generic_Create_IndicationMI)))
+    {
+        if (miVector.createGenIndMI)
+            miVector.miTypes|=CMPI_MIType_Indication;
+        miVector.genericMode=1;
     }
 
     strcpy(symbolName,(const char*)mName);
     strcat(symbolName,_Create_IndicationMI);
     if ((miVector.createIndMI=(CREATE_IND_MI)
-           _library.getSymbol(symbolName))) {
-       if (miVector.createIndMI)
-          miVector.miTypes|=CMPI_MIType_Indication;
-       specificMode=1;
+        _library.getSymbol(symbolName)))
+    {
+        if (miVector.createIndMI)
+            miVector.miTypes|=CMPI_MIType_Indication;
+        specificMode=1;
     }
 
-    if (miVector.miTypes==0) {
+    if (miVector.miTypes==0)
+    {
         _library.unload();
-	throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.WRONG_LIBRARY",
-            "ProviderLoadFailure: ($0) Provider is not a CMPI style provider. Cannot find $1_Create<mi-type>MI symbol.",
-	    _library.getFileName(),
-	    realProviderName));
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.CMPI.CMPIProviderModule.WRONG_LIBRARY",
+            "ProviderLoadFailure: ($0) Provider is not a CMPI style provider."
+            " Cannot find $1_Create<mi-type>MI symbol.",
+            _library.getFileName(),
+            realProviderName));
     }
 
-    if (miVector.genericMode && specificMode) {
+    if (miVector.genericMode && specificMode)
+    {
         _library.unload();
-        throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE",
-		"ProviderLoadFailure: ($0:$1) conflicting generic/specfic CMPI style provider.",
-		_library.getFileName(),
-		realProviderName));
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE",
+            "ProviderLoadFailure: ($0:$1) conflicting generic/specfic CMPI "
+            "style provider.",
+            _library.getFileName(),
+            realProviderName));
     }
 
     genericProviderModule=miVector.genericMode!=0;
@@ -191,9 +208,10 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     return miVector;
 }
 
-void CMPIProviderModule::unloadModule(void)
+void CMPIProviderModule::unloadModule()
 {
     _library.unload();
 }
 
 PEGASUS_NAMESPACE_END
+    

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:       Konrad Rzeszutek <konradr@us.ibm.com>
-//
-// Modified By:  
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef CMPI_Query2Dnf_h
@@ -55,93 +51,97 @@ PEGASUS_NAMESPACE_BEGIN
 class CMPI_QueryOperand
 {
 public:
-  /*
-   * When there are different types supported, please add them in here. Also 
-   * make sure to look at the implemention of CMPI_term_el::mapType.
-   */
-  enum Type
-  {
-    NULL_TYPE,
-    SINT64_TYPE,
-    UINT64_TYPE,
-    STRING_TYPE,
-    REAL_TYPE,
-    DATETIME_TYPE,
-    REFERENCE_TYPE,
-    PROPERTY_TYPE,
-    BOOLEAN_TYPE,
-    OBJECT_TYPE
-  };
-   ~CMPI_QueryOperand ();
+    /**
+       When there are different types supported, please add them in here. Also 
+       make sure to look at the implemention of CMPI_term_el::mapType.
+     */
+    enum Type
+    {
+        NULL_TYPE,
+        SINT64_TYPE,
+        UINT64_TYPE,
+        STRING_TYPE,
+        REAL_TYPE,
+        DATETIME_TYPE,
+        REFERENCE_TYPE,
+        PROPERTY_TYPE,
+        BOOLEAN_TYPE,
+        OBJECT_TYPE
+    };
+    ~CMPI_QueryOperand ();
 
     CMPI_QueryOperand ()
-  {
-    _type = NULL_TYPE;
-  }
-  CMPI_QueryOperand (const CMPI_QueryOperand & o):_type (o._type),
-    _stringValue (o._stringValue)
-  {
-  }
+    {
+        _type = NULL_TYPE;
+    }
+    CMPI_QueryOperand (const CMPI_QueryOperand & o):_type (o._type),
+        _stringValue (o._stringValue)
+    {
+    }
 
-  CMPI_QueryOperand (const String & x, Type type);
-  Type getType () const
-  {
-    return _type;
-  }
-  String getTypeValue () const
-  {
-    return _stringValue;
-  }
+    CMPI_QueryOperand (const String & x, Type type);
+    Type getType () const
+    {
+        return _type;
+    }
+    String getTypeValue () const
+    {
+        return _stringValue;
+    }
 
 private:
-  Type _type;
-  String _stringValue;
+    Type _type;
+    String _stringValue;
 };
 
 
-/*
- * This class is used contain the terminal elements for elements of WHERE query.
- * It contains vital information such as the type of operation, the value in string
- * of the left-hand and right hand side.
+/**
+ This class is used contain the terminal elements for elements of WHERE
+ query.It contains vital information such as the type of operation, the value
+ in string of the left-hand and right hand side.
  */
 
 class CMPI_term_el
 {
 public:
-  CMPI_term_el ()
-  {
-    mark = false;
-    op = (CMPIPredOp) 0;
-  }
-  CMPI_term_el (const CMPI_term_el & e)
-  {
-    mark = e.mark;
-    op = e.op;
-    opn1 = e.opn1;
-    opn2 = e.opn2;
-  }
+    CMPI_term_el ()
+    {
+        mark = false;
+        op = (CMPIPredOp) 0;
+    }
+    CMPI_term_el (const CMPI_term_el & e)
+    {
+        mark = e.mark;
+        op = e.op;
+        opn1 = e.opn1;
+        opn2 = e.opn2;
+    }
 
-CMPI_term_el (Boolean m, CMPIPredOp o, CMPI_QueryOperand & op1, CMPI_QueryOperand & op2):
-  mark (m), op (o), opn1 (op1), opn2 (op2)
-  {
-  }
-  ~CMPI_term_el ()
-  {
-  }
-  int toStrings (CMPIType & typ, CMPIPredOp & opr, String & o1,
-                 String & o2) const;
+    CMPI_term_el (
+        Boolean m,
+        CMPIPredOp o,
+        CMPI_QueryOperand & op1,
+        CMPI_QueryOperand & op2):
+    mark (m), op (o), opn1 (op1), opn2 (op2)
+    {
+    }
+    ~CMPI_term_el ()
+    {
+    }
+    int toStrings (CMPIType & typ, CMPIPredOp & opr, String & o1,
+        String & o2) const;
 protected:
-  Boolean mark;
-  CMPIPredOp op;
-  CMPI_QueryOperand opn1;
-  CMPI_QueryOperand opn2;
+    Boolean mark;
+    CMPIPredOp op;
+    CMPI_QueryOperand opn1;
+    CMPI_QueryOperand opn2;
 
-  Boolean isNegative ()
-  {
-    return mark;
-  }
+    Boolean isNegative ()
+    {
+        return mark;
+    }
 private:
-  CMPIType mapType (CMPI_QueryOperand::Type type) const;
+    CMPIType mapType (CMPI_QueryOperand::Type type) const;
 };
 
 
@@ -152,3 +152,4 @@ typedef Array < CMPI_TableauRow > CMPI_Tableau;
 
 PEGASUS_NAMESPACE_END
 #endif /* CMPI_Query2Dnf_h */
+

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPI_String_H_
@@ -45,8 +41,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_String : CMPIString {
-   CMPI_Object *next,*prev;
+struct CMPI_String : CMPIString
+{
+    CMPI_Object *next,*prev;
 };
 
 CMPI_String* string2CMPIString(const String &s);
@@ -54,4 +51,3 @@ CMPI_String* string2CMPIString(const String &s);
 PEGASUS_NAMESPACE_END
 
 #endif
-

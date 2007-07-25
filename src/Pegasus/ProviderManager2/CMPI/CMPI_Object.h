@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -50,34 +50,41 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CMPI_Object {
-   friend class CMPI_ThreadContext;
-   void *hdl;
-   void *ftab;
-   CMPI_Object *next,*prev;
- public:
-   void *priv;    // CMPI type specific usage
-   void *getHdl()  { return hdl; }
-   void *getFtab() { return ftab; }
-   CMPI_Object(CIMInstance*);
-   CMPI_Object(CIMObjectPath*);
-   CMPI_Object(CIMDateTime*);
-   CMPI_Object(CIMError*);
-   CMPI_Object(OperationContext*);
-   CMPI_Object(const String&);
-   CMPI_Object(const char*);
-   CMPI_Object(Array<CIMParamValue>*);
-   CMPI_Object(CMPIData*);
-   CMPI_Object(CMPI_Object*);
-   CMPI_Object(CMPISelectCond*);
-   CMPI_Object(CMPISubCond*);
-   CMPI_Object(CMPIPredicate*);
-   CMPI_Object(struct CMPI_InstEnumeration*);
-   CMPI_Object(struct CMPI_ObjEnumeration*);
-   CMPI_Object(struct CMPI_OpEnumeration*);
-   ~CMPI_Object();
-   void unlinkAndDelete();
-   void unlink();
+class CMPI_Object
+{
+    friend class CMPI_ThreadContext;
+    void *hdl;
+    void *ftab;
+    CMPI_Object *next,*prev;
+public:
+    void *priv;    // CMPI type specific usage
+    void *getHdl()
+    {
+        return hdl;
+    }
+    void *getFtab()
+    {
+        return ftab;
+    }
+    CMPI_Object(CIMInstance*);
+    CMPI_Object(CIMObjectPath*);
+    CMPI_Object(CIMDateTime*);
+    CMPI_Object(CIMError*);
+    CMPI_Object(OperationContext*);
+    CMPI_Object(const String&);
+    CMPI_Object(const char*);
+    CMPI_Object(Array<CIMParamValue>*);
+    CMPI_Object(CMPIData*);
+    CMPI_Object(CMPI_Object*);
+    CMPI_Object(CMPISelectCond*);
+    CMPI_Object(CMPISubCond*);
+    CMPI_Object(CMPIPredicate*);
+    CMPI_Object(struct CMPI_InstEnumeration*);
+    CMPI_Object(struct CMPI_ObjEnumeration*);
+    CMPI_Object(struct CMPI_OpEnumeration*);
+    ~CMPI_Object();
+    void unlinkAndDelete();
+    void unlink();
 };
 
 PEGASUS_NAMESPACE_END

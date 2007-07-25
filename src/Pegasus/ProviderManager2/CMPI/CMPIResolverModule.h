@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CMPIResolverModule_h
@@ -52,54 +46,62 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The CMPIResolverModule class represents the physical module, as defined by the
-// operation, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
+// The CMPIResolverModule class represents the physical module, as defined by 
+// the operation, that contains a provider. This class effectively 
+// encapsulates the "physical" portion of a provider.
 
 
 struct provider_address;
 
 typedef provider_address* (*RESOLVE_INSTANCE) ( const char * provider,
-				      CMPIObjectPath * cop,
-				      CMPIContext * ctx );
+    CMPIObjectPath * cop, CMPIContext * ctx );
 typedef provider_address* (*RESOLVE_CLASS) ( const char * provider,
-				      CMPIObjectPath * cop,
-				      CMPIContext * ctx );
+    CMPIObjectPath * cop, CMPIContext * ctx );
 
 class PEGASUS_CMPIPM_LINKAGE CMPIResolverModule
 {
 
     friend class CMPILocalProviderManager;
 
-
 public:
-    ~CMPIResolverModule(void) {}
-    void load() {
+    ~CMPIResolverModule() {}
+    void load() 
+    {
         _library = DynamicLibrary(_fileName);
         String s0 = "ResolverLoadFailure";
-        if (!_library.load()) {
-           throw Exception(MessageLoaderParms("ProviderManager.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
-               "$0 ($1):Cannot load library, error: $3",
-               s0,
-               _fileName,
-               _library.getLoadErrorMessage()));
-         }
-         resolveInstanceEntry=(RESOLVE_INSTANCE)
-	    _library.getSymbol("resolve_instance");
-         resolveClassEntry=(RESOLVE_CLASS)
-	    _library.getSymbol("resolve_class");
-	 if (!resolveInstanceEntry || !resolveClassEntry) {
-           throw Exception(s0+" "+_fileName+String(": not a remote location resolver"));
-	 }
-   }
-    void unloadModule(void) {}
+        if (!_library.load()) 
+        {
+            throw Exception(MessageLoaderParms(
+            "ProviderManager.CMPIProviderModule.CANNOT_LOAD_LIBRARY",
+            "$0 ($1):Cannot load library, error: $3",
+            s0,
+            _fileName,
+            _library.getLoadErrorMessage()));
+        }
+        resolveInstanceEntry=(RESOLVE_INSTANCE)
+            _library.getSymbol("resolve_instance");
+        resolveClassEntry=(RESOLVE_CLASS)
+            _library.getSymbol("resolve_class");
+        if (!resolveInstanceEntry || !resolveClassEntry) 
+        {
+            throw Exception(
+            s0+" "+_fileName+String(": not a remote location resolver"));
+        }
+    }
+    void unloadModule() {}
 
-    provider_address* resolveInstance(const char *provider,
-                              CMPIObjectPath *cop, CMPIContext *ctx) {
+    provider_address* resolveInstance(
+        const char *provider,
+        CMPIObjectPath *cop, 
+        CMPIContext *ctx) 
+    {
         return resolveInstanceEntry(provider,cop,ctx);
     }
-    provider_address* resolveClass(const char *provider,
-                              CMPIObjectPath *cop, CMPIContext *ctx) {
+    provider_address* resolveClass(
+        const char *provider,
+        CMPIObjectPath *cop, 
+        CMPIContext *ctx) 
+    {
         return resolveClassEntry(provider,cop,ctx);
     }
 
@@ -110,8 +112,9 @@ protected:
     RESOLVE_CLASS resolveClassEntry;
 
 private:
-    CMPIResolverModule(const String & fileName) {
-       _fileName=fileName;
+    CMPIResolverModule(const String & fileName) 
+    {
+        _fileName=fileName;
     }
 
 };

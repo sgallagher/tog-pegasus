@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Konrad Rzeszutek, konradr@us.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef CMPI_SelectExpAccessor_CQL_h
@@ -46,30 +42,35 @@
 PEGASUS_NAMESPACE_BEGIN class CMPI_SelectExpAccessor_CQL
 {
 private:
-  CMPIAccessor * accessor;
-  void *accParm;
+    CMPIAccessor * accessor;
+    void *accParm;
 
-  // Needed to build an instance 
-  CQLSelectStatement *_stmt;    // No need to de-allocate it.
-  CIMObjectPath _objPath;
-  CIMInstance _instance;
+    /** Needed to build an instance 
+       No need to de-allocate it.
+    */
+    CQLSelectStatement *_stmt;
+    CIMObjectPath _objPath;
+    CIMInstance _instance;
 
-  void _constructInstance ();
+    void _constructInstance ();
 
 public:
-  CMPI_SelectExpAccessor_CQL (CMPIAccessor * acc, void *parm,
-                              CQLSelectStatement * stmt,
-                              CIMObjectPath & objPath);
+    CMPI_SelectExpAccessor_CQL (
+        CMPIAccessor * acc,
+        void *parm,
+        CQLSelectStatement * stmt,
+        CIMObjectPath & objPath);
 
-  virtual ~ CMPI_SelectExpAccessor_CQL ()
-  {
-  }
+    virtual ~ CMPI_SelectExpAccessor_CQL ()
+    {
+    }
 
-  CIMInstance & getInstance ()
-  {
-    return _instance;
-  }
+    CIMInstance & getInstance ()
+    {
+        return _instance;
+    }
 };
 
 PEGASUS_NAMESPACE_END
 #endif
+

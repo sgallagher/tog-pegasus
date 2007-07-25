@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:       Markus Mueller (sedgewick_de@yahoo.de)
-//
-// Modified By:  Adrian Schuur, schuur@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef CMPI_Wql2Dnf_h
@@ -54,34 +50,53 @@ PEGASUS_NAMESPACE_BEGIN
 class term_el_WQL
 {
 public:
-    term_el_WQL() {}
+    term_el_WQL()
+    {
+    }
     term_el_WQL(Boolean m, WQLOperation o, WQLOperand op1, WQLOperand op2) :
-       mark(m), op(o), opn1(op1), opn2(op2) {}
+    mark(m), op(o), opn1(op1), opn2(op2)
+    {
+    }
     Boolean mark;
     WQLOperation op;
     WQLOperand opn1;
     WQLOperand opn2;
 
     void negate(void);
-    //int toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const;
+    // int toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2)
+    // const;
 };
 
 class CMPI_stack_el
 {
 public:
-   CMPI_stack_el() {}
-   CMPI_stack_el(int o, Boolean i) : opn(o), is_terminal(i) {}
-   int   opn;     // either to terminals or eval_heap
-   Boolean is_terminal;
+    CMPI_stack_el()
+    {
+    }
+    CMPI_stack_el(int o, Boolean i) : opn(o), is_terminal(i)
+    {
+    }
+    int   opn;
+
+    // either to terminals or eval_heap
+    Boolean is_terminal;
 };
 
 
 class CMPI_eval_el
 {
 public:
-    CMPI_eval_el() {}
-    CMPI_eval_el(Boolean m, WQLOperation o, int op1, Boolean i1, int op2, Boolean i2) :
-       mark(m), op(o), opn1(op1), is_terminal1(i1), opn2(op2), is_terminal2(i2) {}
+    CMPI_eval_el()
+    {
+    }
+    CMPI_eval_el(
+    Boolean m, WQLOperation o,
+    int op1, Boolean i1, int op2, Boolean i2) :
+    mark(m), op(o), opn1(op1),
+    is_terminal1(i1),opn2(op2), is_terminal2(i2)
+    {
+    }
+
     Boolean mark;
     WQLOperation op;
     int opn1;
@@ -121,12 +136,15 @@ public:
     CMPI_Wql2Dnf(const WQLSelectStatement * wqs);
 
     CMPI_Wql2Dnf(const String &condition, const String &pref); 
-    
+
     ~CMPI_Wql2Dnf();
 
     void compile (const WQLSelectStatement * wqs);
 
-    CMPI_Tableau *getTableau() {return &_CMPI_tableau;}
+    CMPI_Tableau *getTableau()
+    {
+        return &_CMPI_tableau;
+    }
 
     Boolean evaluate(WQLPropertySource * source) const;
 
@@ -136,8 +154,8 @@ public:
 
 
 protected:
-	void _populateTableau(void);
-	
+    void _populateTableau(void);
+
     void _buildEvalHeap(const WQLSelectStatement * wqs);
 
     void _pushNOTDown(void);
@@ -148,8 +166,8 @@ protected:
 
     void _gatherConj(Array<CMPI_stack_el>& stk, CMPI_stack_el sel);
 
-    void _gather(Array<CMPI_stack_el>& stk, CMPI_stack_el sel, Boolean or_flag);
-    
+    void _gather(Array<CMPI_stack_el>& stk, CMPI_stack_el sel,Boolean or_flag);
+
     static inline void _ResolveProperty(
         WQLOperand& op,
         const WQLPropertySource* source)
@@ -158,12 +176,14 @@ protected:
         // Resolve the operand: if it's a property name, look up its value:
         //
 
-        if (op.getType() == WQLOperand::PROPERTY_NAME)
+        if( op.getType() == WQLOperand::PROPERTY_NAME )
         {
             const String& propertyName = op.getPropertyName();
 
-            if (!source->getValue(propertyName, op))
+            if( !source->getValue(propertyName, op) )
+            {
                 throw NoSuchProperty(propertyName);
+            }
         }
     }
 
@@ -171,7 +191,7 @@ protected:
     // Structure to contain the compiled DNF form
 
     Tableau_WQL _tableau;
-	CMPI_Tableau _CMPI_tableau;
+    CMPI_Tableau _CMPI_tableau;
 
     //
     // The eval_heap structure contains an ordered tree of non-terminal

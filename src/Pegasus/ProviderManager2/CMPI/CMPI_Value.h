@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPI_Value_H_
@@ -45,7 +41,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc);
+CIMValue value2CIMValue(const CMPIValue* data,
+const CMPIType type, CMPIrc *rc);
 CMPIrc value2CMPIData(const CIMValue&,CMPIType,CMPIData *data);
 CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data);
 CMPIType type2CMPIType(CIMType pt, int array);
@@ -54,4 +51,3 @@ CIMType type2CIMType(CMPIType pt);
 PEGASUS_NAMESPACE_END
 
 #endif
-

@@ -55,28 +55,33 @@ PEGASUS_NAMESPACE_BEGIN
 #define CALL_SIGN_CQL_SIZE 8
 #endif
 
-struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp {
-   CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_);
-   CMPI_SelectExp(WQLSelectStatement*, Boolean persistent_ = false);
+struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp 
+{
+    CMPI_SelectExp(
+        const OperationContext& ct,
+        QueryContext *context,
+        String cond_,
+        String lang_);
+    CMPI_SelectExp(WQLSelectStatement*, Boolean persistent_ = false);
 #ifndef PEGASUS_DISABLE_CQL
-   CMPI_SelectExp(CQLSelectStatement*, Boolean persistent_ = false);
+    CMPI_SelectExp(CQLSelectStatement*, Boolean persistent_ = false);
 #endif
-   ~CMPI_SelectExp();
-   CMPI_Object *next,*prev;
-   const char **props;
-   Array<CIMObjectPath> classNames;
-   const OperationContext ctx;
-   SubscriptionFilterConditionContainer* fcc;
-   String cond,lang;
-   CMPI_Wql2Dnf *wql_dnf;
-   CMPI_Cql2Dnf *cql_dnf;
-   CMPI_Tableau *tableau;
-   WQLSelectStatement *wql_stmt;
+    ~CMPI_SelectExp();
+    CMPI_Object *next,*prev;
+    const char **props;
+    Array<CIMObjectPath> classNames;
+    const OperationContext ctx;
+    SubscriptionFilterConditionContainer* fcc;
+    String cond,lang;
+    CMPI_Wql2Dnf *wql_dnf;
+    CMPI_Cql2Dnf *cql_dnf;
+    CMPI_Tableau *tableau;
+    WQLSelectStatement *wql_stmt;
 #ifndef PEGASUS_DISABLE_CQL
-   CQLSelectStatement *cql_stmt;
+    CQLSelectStatement *cql_stmt;
 #endif
-   QueryContext *_context;
-   Boolean persistent;
+    QueryContext *_context;
+    Boolean persistent;
 };
 
 PEGASUS_NAMESPACE_END

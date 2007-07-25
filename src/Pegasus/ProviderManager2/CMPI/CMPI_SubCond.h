@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPI_SubCond_H_
@@ -47,10 +43,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_SubCond : CMPISubCond {
-   CMPI_Object *next,*prev;
-   void* priv;
-   CMPI_SubCond(const CMPI_TableauRow* tblor);
+struct CMPI_SubCond : CMPISubCond 
+{
+    CMPI_Object *next,*prev;
+    void* priv;
+    CMPI_SubCond(const CMPI_TableauRow* tblor);
 };
 
 PEGASUS_NAMESPACE_END

@@ -64,25 +64,27 @@ PEGASUS_NAMESPACE_BEGIN
 //typedef struct _CMPIResultMethFT : public CMPIResultFT {
 //} CMPIResultMethFT;
 
-struct CMPI_Result : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
-   CMPI_Error *resError;
+struct CMPI_Result : CMPIResult
+{
+    CMPI_Object *next,*prev;
+    long flags;
+    CMPI_Broker *xBroker;
+    CMPI_Error *resError;
 };
 
-struct CMPI_ResultOnStack : CMPIResult {
-   CMPI_Object *next,*prev;
-   long flags;
-   CMPI_Broker *xBroker;
-   CMPI_Error *resError;
-   CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ObjectResponseHandler&,CMPI_Broker*);
-   CMPI_ResultOnStack(const ResponseHandler&,CMPI_Broker*);
-   ~CMPI_ResultOnStack();
+struct CMPI_ResultOnStack : CMPIResult
+{
+    CMPI_Object *next,*prev;
+    long flags;
+    CMPI_Broker *xBroker;
+    CMPI_Error *resError;
+    CMPI_ResultOnStack(const ExecQueryResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const ObjectPathResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const InstanceResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const MethodResultResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const ObjectResponseHandler&,CMPI_Broker*);
+    CMPI_ResultOnStack(const ResponseHandler&,CMPI_Broker*);
+    ~CMPI_ResultOnStack();
 };
 
 CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
@@ -94,3 +96,4 @@ CMPIStatus resolveEmbeddedInstanceTypes(
 PEGASUS_NAMESPACE_END
 
 #endif
+

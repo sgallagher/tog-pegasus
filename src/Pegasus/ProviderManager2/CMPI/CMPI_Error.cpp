@@ -45,14 +45,17 @@ extern "C"
 {
 
     CMPIError *newCMPIError(
-        const char* owner, const char* msgID, const char * msg,
-        const CMPIErrorSeverity sev, const CMPIErrorProbableCause pc, 
+        const char* owner, const char* msgID, 
+        const char * msg,
+        const CMPIErrorSeverity sev, 
+        const CMPIErrorProbableCause pc, 
         const CMPIrc cimStatusCode)
     {
-        CIMError::PerceivedSeverityEnum pgSev = (CIMError::PerceivedSeverityEnum)sev;
+        CIMError::PerceivedSeverityEnum pgSev = 
+            (CIMError::PerceivedSeverityEnum)sev;
         CIMError::ProbableCauseEnum pgPc = (CIMError::ProbableCauseEnum)pc;
-        CIMError::CIMStatusCodeEnum pgSc = (CIMError::CIMStatusCodeEnum)cimStatusCode;
-
+        CIMError::CIMStatusCodeEnum pgSc = 
+            (CIMError::CIMStatusCodeEnum)cimStatusCode;
 
         CIMError *cer=new CIMError(owner, msgID, msg, pgSev, pgPc, pgSc);
         return reinterpret_cast<CMPIError*>(new CMPI_Object(cer));
@@ -113,10 +116,12 @@ extern "C"
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
-        return (CMPIErrorType)pgErrorType;
+        return(CMPIErrorType)pgErrorType;
     }
 
-    static CMPIString* errGetOtherErrorType(const CMPIError* eErr, CMPIStatus* rc)
+    static CMPIString* errGetOtherErrorType(
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -147,7 +152,9 @@ extern "C"
         return string2CMPIString(pgOtherErrorType);
     }
 
-    static CMPIString* errGetOwningEntity(const CMPIError* eErr, CMPIStatus* rc)
+    static CMPIString* errGetOwningEntity(
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -240,7 +247,9 @@ extern "C"
         return string2CMPIString(pgMessage);
     }
 
-    static CMPIErrorSeverity errGetPerceivedSeverity(const CMPIError* eErr, CMPIStatus* rc)
+    static CMPIErrorSeverity errGetPerceivedSeverity(
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -268,11 +277,12 @@ extern "C"
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
-        return (CMPIErrorSeverity)pgPerceivedSeverity;
+        return(CMPIErrorSeverity)pgPerceivedSeverity;
     }
 
     static CMPIErrorProbableCause errGetProbableCause(
-        const CMPIError* eErr, CMPIStatus* rc)
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -300,7 +310,7 @@ extern "C"
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
-        return (CMPIErrorProbableCause)pgProbableCause;
+        return(CMPIErrorProbableCause)pgProbableCause;
     }
 
     static CMPIString* errGetProbableCauseDescription(
@@ -368,11 +378,12 @@ extern "C"
         // first element reserved for type and size
         dta->type=CMPI_string;
         dta->value.uint32=arrSize;
-        for (unsigned int i=1; i<=arrSize; i++) {
-           dta[i].type=CMPI_string;
-           dta[i].state=CMPI_goodValue;
-           String s = pgRecommendedActions[i-1];
-           dta[i].value.string=string2CMPIString(s);
+        for (unsigned int i=1; i<=arrSize; i++)
+        {
+            dta[i].type=CMPI_string;
+            dta[i].state=CMPI_goodValue;
+            String s = pgRecommendedActions[i-1];
+            dta[i].value.string=string2CMPIString(s);
         }
         CMSetStatus(rc,CMPI_RC_OK);
         return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
@@ -410,7 +421,8 @@ extern "C"
     }
 
     static CMPIErrorSrcFormat errGetErrorSourceFormat(
-        const CMPIError* eErr, CMPIStatus* rc)
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -438,11 +450,12 @@ extern "C"
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
-        return (CMPIErrorSrcFormat)pgErrorSourceFormat;
+        return(CMPIErrorSrcFormat)pgErrorSourceFormat;
     }
 
     static CMPIString* errGetOtherErrorSourceFormat(
-        const CMPIError* eErr, CMPIStatus* rc)
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -501,11 +514,12 @@ extern "C"
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
-        return (CMPIrc)pgCIMStatusCode;
+        return(CMPIrc)pgCIMStatusCode;
     }
 
     static CMPIString* errGetCIMStatusCodeDescription(
-        const CMPIError* eErr, CMPIStatus* rc)
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -538,7 +552,8 @@ extern "C"
     }
 
     static CMPIArray* errGetMessageArguments(
-        const CMPIError* eErr, CMPIStatus* rc)
+        const CMPIError* eErr, 
+        CMPIStatus* rc)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -570,18 +585,20 @@ extern "C"
         // first element reserved for type and size
         dta->type=CMPI_string;
         dta->value.uint32=arrSize;
-        for (unsigned int i=1; i<=arrSize; i++) {
-           dta[i].type=CMPI_string;
-           dta[i].state=CMPI_goodValue;
-           String s = pgMessageArguments[i-1];
-           dta[i].value.string=string2CMPIString(s);
+        for (unsigned int i=1; i<=arrSize; i++)
+        {
+            dta[i].type=CMPI_string;
+            dta[i].state=CMPI_goodValue;
+            String s = pgMessageArguments[i-1];
+            dta[i].value.string=string2CMPIString(s);
         }
         CMSetStatus(rc,CMPI_RC_OK);
         return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
     }
 
     static CMPIStatus errSetErrorType(
-        CMPIError* eErr, const CMPIErrorType errorType)
+        CMPIError* eErr, 
+        const CMPIErrorType errorType)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -605,7 +622,8 @@ extern "C"
     }
 
     static CMPIStatus errSetOtherErrorType(
-        CMPIError* eErr, const char* otherErrorType)
+        CMPIError* eErr, 
+        const char* otherErrorType)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -628,7 +646,8 @@ extern "C"
     }
 
     static CMPIStatus errSetProbableCauseDescription(
-        CMPIError* eErr, const char* probableCauseDescription)
+        CMPIError* eErr, 
+        const char* probableCauseDescription)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -651,7 +670,8 @@ extern "C"
     }
 
     static CMPIStatus errSetRecommendedActions(
-        CMPIError* eErr, const CMPIArray* recommendedActions)
+        CMPIError* eErr, 
+        const CMPIArray* recommendedActions)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -662,14 +682,14 @@ extern "C"
         Array<String> pgRecommendedActions;
 
         CMPIData* dta=(CMPIData*)recommendedActions->hdl;
-        if (!dta) 
+        if (!dta)
         {
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
         try
         {
-            for (unsigned int i=0; i<dta->value.uint32; i++) 
+            for (unsigned int i=0; i<dta->value.uint32; i++)
             {
                 CMPIData arrEl;
                 const char * arrElStr;
@@ -710,7 +730,8 @@ extern "C"
     }
 
     static CMPIStatus errSetErrorSource(
-        CMPIError* eErr, const char* errorSource)
+        CMPIError* eErr, 
+        const char* errorSource)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -733,7 +754,8 @@ extern "C"
     }
 
     static CMPIStatus errSetErrorSourceFormat(
-        CMPIError* eErr, const CMPIErrorSrcFormat errorSrcFormat)
+        CMPIError* eErr, 
+        const CMPIErrorSrcFormat errorSrcFormat)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -757,7 +779,8 @@ extern "C"
     }
 
     static CMPIStatus errSetOtherErrorSourceFormat(
-        CMPIError* eErr, const char* otherErrorSourceFormat)
+        CMPIError* eErr, 
+        const char* otherErrorSourceFormat)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -780,7 +803,8 @@ extern "C"
     }
 
     static CMPIStatus errSetCIMStatusCodeDescription(
-        CMPIError* eErr, const char* cimStatusCodeDescription)
+        CMPIError* eErr, 
+        const char* cimStatusCodeDescription)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -803,7 +827,8 @@ extern "C"
     }
 
     static CMPIStatus errSetMessageArguments(
-        CMPIError* eErr, CMPIArray* messageArguments)
+        CMPIError* eErr, 
+        CMPIArray* messageArguments)
     {
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
@@ -814,14 +839,14 @@ extern "C"
         Array<String> pgMessageArguments;
 
         CMPIData* dta=(CMPIData*)messageArguments->hdl;
-        if (!dta) 
+        if (!dta)
         {
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
         try
         {
-            for (unsigned int i=0; i<dta->value.uint32; i++) 
+            for (unsigned int i=0; i<dta->value.uint32; i++)
             {
                 CMPIData arrEl;
                 const char * arrElStr;
@@ -863,7 +888,8 @@ extern "C"
 
 }
 
-static CMPIErrorFT error_FT={
+static CMPIErrorFT error_FT = 
+{
     CMPICurrentVersion,
     errRelease,
     errClone,
@@ -897,3 +923,4 @@ CMPIErrorFT *CMPI_Error_Ftab=&error_FT;
 
 PEGASUS_NAMESPACE_END
 
+    

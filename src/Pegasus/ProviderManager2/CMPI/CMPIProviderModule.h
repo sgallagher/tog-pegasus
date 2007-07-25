@@ -46,10 +46,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The CMPIProviderModule class represents the physical module, as defined by the
-// operation, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
-
+// The CMPIProviderModule class represents the physical module, as defined by 
+// the operation, that contains a provider. This class effectively 
+// encapsulates the "physical" portion of a provider.
 
 class PEGASUS_CMPIPM_LINKAGE CMPIProviderModule
 {
@@ -57,35 +56,35 @@ class PEGASUS_CMPIPM_LINKAGE CMPIProviderModule
     friend class CMPILocalProviderManager;
 
 public:
-    virtual ~CMPIProviderModule(void);
-    const String & getFileName(void) const;
+    virtual ~CMPIProviderModule();
+    const String & getFileName() const;
     ProviderVector load(const String & providerName);
-    void unloadModule(void);
+    void unloadModule();
 
 protected:
     DynamicLibrary _library;
 
 private:
     CMPIProviderModule(const String & fileName);
-    const String & getProviderName(void) const;
-    virtual CIMProvider * getProvider(void) const;
+    const String & getProviderName() const;
+    virtual CIMProvider * getProvider() const;
 
     String _providerName;
     CIMProvider * _provider;
     Boolean genericProviderModule;
 };
 
-inline const String & CMPIProviderModule::getFileName(void) const
+inline const String & CMPIProviderModule::getFileName() const
 {
     return _library.getFileName();
 }
 
-inline const String & CMPIProviderModule::getProviderName(void) const
+inline const String & CMPIProviderModule::getProviderName() const
 {
     return(_providerName);
 }
 
-inline CIMProvider * CMPIProviderModule::getProvider(void) const
+inline CIMProvider * CMPIProviderModule::getProvider() const
 {
     return(_provider);
 }
@@ -93,3 +92,4 @@ inline CIMProvider * CMPIProviderModule::getProvider(void) const
 PEGASUS_NAMESPACE_END
 
 #endif
+    

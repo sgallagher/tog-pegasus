@@ -29,19 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, IBM (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPIResolverModule.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 PEGASUS_NAMESPACE_END
 
 
+    

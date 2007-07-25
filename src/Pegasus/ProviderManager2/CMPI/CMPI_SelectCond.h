@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPI_SelectCond_H_
@@ -47,16 +43,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_SelectCondData {
-	CMPI_SelectCondData(CMPI_Tableau *tblo, int t);
-	CMPI_Tableau *tableau;
-	int type;
+struct CMPI_SelectCondData
+{
+    CMPI_SelectCondData(CMPI_Tableau *tblo, int t);
+    CMPI_Tableau *tableau;
+    int type;
 };
 
-struct CMPI_SelectCond : CMPISelectCond {
-   CMPI_Object *next,*prev;
-   void *priv;
-   CMPI_SelectCond(CMPI_Tableau* tblo, int t);
+struct CMPI_SelectCond : CMPISelectCond
+{
+    CMPI_Object *next,*prev;
+    void *priv;
+    CMPI_SelectCond(CMPI_Tableau* tblo, int t);
 };
 
 PEGASUS_NAMESPACE_END

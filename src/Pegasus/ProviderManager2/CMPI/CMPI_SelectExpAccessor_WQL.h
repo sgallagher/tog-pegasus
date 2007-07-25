@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef CMPI_SelectExpAccessor_WQL_h
@@ -43,18 +39,22 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CMPI_SelectExpAccessor_WQL : public WQLPropertySource {
- private:
-   CMPIAccessor* accessor;
-   void* accParm;
+class CMPI_SelectExpAccessor_WQL : public WQLPropertySource 
+{
+private:
+    CMPIAccessor* accessor;
+    void* accParm;
 public:
-   CMPI_SelectExpAccessor_WQL(CMPIAccessor *acc, void *parm);
-   virtual ~CMPI_SelectExpAccessor_WQL() {}
-   Boolean getValue(
-	const CIMName& propertyName,
-	WQLOperand& value) const;
+    CMPI_SelectExpAccessor_WQL(CMPIAccessor *acc, void *parm);
+    virtual ~CMPI_SelectExpAccessor_WQL()
+    {
+    }
+    Boolean getValue(
+        const CIMName& propertyName,
+        WQLOperand& value) const;
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
+

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -39,9 +39,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_Error : CMPIError {
-   CMPI_Object *next,*prev;
-   CMPI_Error *nextError;  // in case provider returns more than 1 CMPIError
+struct CMPI_Error : CMPIError
+{
+    CMPI_Object *next,*prev;
+    CMPI_Error *nextError;  // in case provider returns more than 1 CMPIError
 };
 
 PEGASUS_NAMESPACE_END

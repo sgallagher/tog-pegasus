@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -46,11 +42,11 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-   const String & providerManagerName)
+    const String & providerManagerName)
 {
-    if(String::equalNoCase(providerManagerName, "CMPI"))
+    if (String::equalNoCase(providerManagerName, "CMPI"))
     {
-       return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
+        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
     }
     return(0);
 }

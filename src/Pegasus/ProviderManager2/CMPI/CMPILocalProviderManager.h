@@ -50,17 +50,21 @@ class PEGASUS_CMPIPM_LINKAGE CMPILocalProviderManager
 {
 
 public:
-    CMPILocalProviderManager(void);
-    virtual ~CMPILocalProviderManager(void);
+    CMPILocalProviderManager();
+    virtual ~CMPILocalProviderManager();
 
 public:
-    CMPIProvider::OpProviderHolder getProvider(const String & fileName, const String & providerName);
-         
-    CMPIProvider::OpProviderHolder getRemoteProvider(const String & fileName, const String & providerName);
+    CMPIProvider::OpProviderHolder getProvider(
+        const String & fileName, 
+        const String & providerName);
+
+    CMPIProvider::OpProviderHolder getRemoteProvider(
+        const String & fileName, 
+        const String & providerName);
 
     void unloadProvider(const String & fileName, const String & providerName);
 
-    void shutdownAllProviders(void);
+    void shutdownAllProviders();
 
     Boolean hasActiveProviders();
     void unloadIdleProviders();
@@ -75,7 +79,7 @@ public:
                  called
      */
     Array <CMPIProvider *> getIndicationProvidersToEnable ();
-	static void cleanupThread(Thread *t, CMPIProvider *p);
+    static void cleanupThread(Thread *t, CMPIProvider *p);
 
 private:
     enum CTRL
@@ -113,7 +117,7 @@ private:
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     CMPIProvider* _initProvider(CMPIProvider * provider,
-                            const String & moduleFileName); 
+        const String & moduleFileName); 
 
     void _unloadProvider(CMPIProvider * provider);
 
@@ -121,30 +125,34 @@ private:
 
     CMPIProviderModule * _lookupModule(const String & moduleFileName);
     Mutex _providerTableMutex;
-	                                    
-   /*
-   *  The cleaning functions for provider threads.
-   */
 
-   static ThreadReturnType PEGASUS_THREAD_CDECL _reaper(void *);
+    /*
+    *  The cleaning functions for provider threads.
+    */
 
-  /*
-   * The data structures for holding the thread and the CMPIProvider
-   */
+    static ThreadReturnType PEGASUS_THREAD_CDECL _reaper(void *);
 
-   struct cleanupThreadRecord : public Linkable 
-   {
-		cleanupThreadRecord(): thread(0), provider(0) {}
-		cleanupThreadRecord(Thread *t, CMPIProvider *p): thread(t), provider(p) { }
-		Thread *thread;
-		CMPIProvider *provider;
-   };
+    /*
+     * The data structures for holding the thread and the CMPIProvider
+     */
 
-   static Thread* _reaperThread;
-   static Semaphore _pollingSem;
-   static AtomicInt _stopPolling;
-   static Mutex _reaperMutex;
-   static List<cleanupThreadRecord,Mutex> _finishedThreadList;
+    struct cleanupThreadRecord : public Linkable 
+    {
+        cleanupThreadRecord(): thread(0), provider(0)
+        {
+        }
+        cleanupThreadRecord(Thread *t, CMPIProvider *p): thread(t), provider(p)
+        {
+        }
+        Thread *thread;
+        CMPIProvider *provider;
+    };
+
+    static Thread* _reaperThread;
+    static Semaphore _pollingSem;
+    static AtomicInt _stopPolling;
+    static Mutex _reaperMutex;
+    static List<cleanupThreadRecord,Mutex> _finishedThreadList;
 
 protected:
 
@@ -154,3 +162,4 @@ PEGASUS_NAMESPACE_END
 
 #endif
 
+    

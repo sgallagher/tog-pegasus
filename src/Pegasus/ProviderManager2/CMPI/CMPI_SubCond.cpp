@@ -41,94 +41,109 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" {
+extern "C"
+{
 
-   CMPIStatus sbcRelease(CMPISubCond* sc)
-   {
-      CMPI_SubCond *sbc = (CMPI_SubCond*)sc->hdl;
-      if (sbc)
-      {
-         delete sbc;
-         reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
-         CMReturn(CMPI_RC_OK);
-      }
-      else
-      {
-          CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-      }
-   }
+    CMPIStatus sbcRelease(CMPISubCond* sc)
+    {
+        CMPI_SubCond *sbc = (CMPI_SubCond*)sc->hdl;
+        if( sbc )
+        {
+            delete sbc;
+            reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
+            CMReturn(CMPI_RC_OK);
+        }
+        else
+        {
+            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+        }
+    }
 
-   CMPISubCond* sbcClone(const CMPISubCond* eSc, CMPIStatus* rc)
-   {
-         CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-         return NULL;
-   }
+    CMPISubCond* sbcClone(const CMPISubCond* eSc, CMPIStatus* rc)
+    {
+        CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+        return NULL;
+    }
 
-   CMPICount sbcGetCount(const CMPISubCond* eSbc, CMPIStatus* rc)
-   {
-      
-       const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
-       if (!sbc)
-       {
-           CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
-           return 0;
-       }
-       CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
-       CMSetStatus(rc,CMPI_RC_OK);
-	  if (row)	  
-      	return row->size();
-	  return 0;
-   }
+    CMPICount sbcGetCount(const CMPISubCond* eSbc, CMPIStatus* rc)
+    {
+        const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
+        if( !sbc )
+        {
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            return 0;
+        }
+        CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
+        CMSetStatus(rc,CMPI_RC_OK);
+        if( row )
+        {
+            return row->size();
+        }
+        return 0;
+    }
 
-   CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc, 
-       unsigned int index, CMPIStatus* rc)
-   {
-       const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
-       if (!sbc)
-       {
-           CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
-           return 0;
-       }
-       CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
+    CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc, 
+    unsigned int index, CMPIStatus* rc)
+    {
+        const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
+        if( !sbc )
+        {
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            return 0;
+        }
+        CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
 
-	  if (row)
-      	if (index<=row->size()) {
-         const CMPI_term_el *term=(row->getData())+index;
+        if( row )
+        {
+            if( index<=row->size() )
+            {
+                const CMPI_term_el *term=(row->getData())+index;
 
-         CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
-		 /* CMPI_Object puts in the hdl the pointer to the CMPI_Predicate. 
-			The sbcRelease will use that pointer to de-allocate the CMPI_Predicate
-			structure.  */
-		 CMPI_Object *obj = new CMPI_Object(prd);
+                CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
+                /**
+                   CMPI_Object puts in the hdl the pointer to the 
+                   CMPI_Predicate The sbcRelease will use that pointer to 
+                   de-allocate the CMPI_Predicate
+                   structure.  
+                 */
+                CMPI_Object *obj = new CMPI_Object(prd);
 
-         CMSetStatus(rc,CMPI_RC_OK);
-         return reinterpret_cast<CMPIPredicate*>(obj);
-      }   
-      CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
-      return NULL; 
-   }
+                CMSetStatus(rc,CMPI_RC_OK);
+                return reinterpret_cast<CMPIPredicate*>(obj);
+            }
+        }
+        CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
+        return NULL; 
+    }
 
-   CMPIPredicate* sbcGetPredicate(const CMPISubCond* eSbc, const char *name, CMPIStatus* rc) {
-      //CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
-      return NULL;
-   }
+    CMPIPredicate* sbcGetPredicate(
+    const CMPISubCond* eSbc,
+    const char *name, CMPIStatus* rc)
+    {
+        /**
+           CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
+       */
+        return NULL;
+    }
 
 }
 
-static CMPISubCondFT scnd_FT={
-     CMPICurrentVersion,
-     sbcRelease,
-     sbcClone,
-     sbcGetCount,
-     sbcGetPredicateAt,
-     sbcGetPredicate
- };
+static CMPISubCondFT scnd_FT=
+{
+    CMPICurrentVersion,
+    sbcRelease,
+    sbcClone,
+    sbcGetCount,
+    sbcGetPredicateAt,
+    sbcGetPredicate
+};
 
 CMPISubCondFT *CMPI_SubCond_Ftab=&scnd_FT;
 
 CMPI_SubCond::CMPI_SubCond(const CMPI_TableauRow* tblor)
-  : priv((void*)tblor) {
-   ft=CMPI_SubCond_Ftab;
+: priv((void*)tblor) 
+{
+    ft=CMPI_SubCond_Ftab;
 }
 
 

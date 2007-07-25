@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -41,93 +41,117 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" {
+extern "C"
+{
 
-   CMPIStatus prdRelease(CMPIPredicate* sc)
-   {
-       CMPI_Predicate *pred = (CMPI_Predicate*)sc->hdl;
-       if (pred)
-       {
-           delete pred;
-           reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
-           CMReturn(CMPI_RC_OK);
-       }
-       else
-       {
-           CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-       } 
-   }
+    CMPIStatus prdRelease(CMPIPredicate* sc)
+    {
+        CMPI_Predicate *pred = (CMPI_Predicate*)sc->hdl;
+        if (pred)
+        {
+            delete pred;
+            reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
+            CMReturn(CMPI_RC_OK);
+        }
+        else
+        {
+            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+        }
+    }
 
-   CMPIPredicate* prdClone(const CMPIPredicate* ePrd, CMPIStatus* rc)
-   {
-       CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-       return NULL;
-   }
+    CMPIPredicate* prdClone(const CMPIPredicate* ePrd, CMPIStatus* rc)
+    {
+        CMSetStatus(rc, CMPI_RC_ERR_NOT_SUPPORTED);
+        return NULL;
+    }
 
-   CMPIStatus prdGetData(const CMPIPredicate* ePrd, CMPIType* type,
-       CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) 
-   {
-       const CMPI_Predicate *prd=(CMPI_Predicate*)ePrd->hdl;
-       if (!prd)
-       {
-           CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-       }
-       CMPI_term_el *term =  (CMPI_term_el *)prd->priv;
-	 
-      if (term) 
-	   { 
-      	String o1,o2;
-      	CMPIPredOp o;
-      	CMPIType t;
-      	term->toStrings(t,o,o1,o2);
+    CMPIStatus prdGetData(
+        const CMPIPredicate* ePrd,
+        CMPIType* type,
+        CMPIPredOp* op,
+        CMPIString** lhs,
+        CMPIString** rhs)
+    {
+        const CMPI_Predicate *prd = (CMPI_Predicate*)ePrd->hdl;
+        if (!prd)
+        {
+            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+        }
+        CMPI_term_el *term =  (CMPI_term_el *)prd->priv;
 
-      	if (type) *type=t;
-      	if (op) *op=o;
-      	if (lhs) *lhs=string2CMPIString(o1);
-      	if (rhs) *rhs=string2CMPIString(o2);
-      	CMReturn(CMPI_RC_OK);
-	  }
-	  else
-		CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
-   }
+        if (term)
+        {
+            String o1,o2;
+            CMPIPredOp o;
+            CMPIType t;
+            term->toStrings(t,o,o1,o2);
+
+            if (type)
+            {
+                *type=t;
+            }
+            if (op)
+            {
+                *op=o;
+            }
+            if (lhs)
+            {
+                *lhs = string2CMPIString(o1);
+            }
+            if (rhs)
+            {
+                *rhs = string2CMPIString(o2);
+            }
+            CMReturn(CMPI_RC_OK);
+        }
+        else
+        {
+            CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
+        }
+    }
 
 #if defined (CMPI_VER_87) && !defined(CMPI_VER_100)
-   int prdEvaluate(CMPIPredicate* pr, CMPIValue* value,
-                  CMPIType type, CMPIStatus* rc)
-   {
-       CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-       return 0;
-   }
+    int prdEvaluate(
+        CMPIPredicate* pr,
+        CMPIValue* value,
+        CMPIType type,
+        CMPIStatus* rc)
+    {
+        CMSetStatus(rc, CMPI_RC_ERR_NOT_SUPPORTED);
+        return 0;
+    }
 #endif
 
-  CMPIBoolean prdEvaluateUsingAccessor (const CMPIPredicate*,  CMPIAccessor *f,
-      void *p, CMPIStatus *rc)
-  {
-
-      CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
-      return 0;
-  }
-
+    CMPIBoolean prdEvaluateUsingAccessor(
+        const CMPIPredicate*,
+        CMPIAccessor *f,
+        void *p,
+        CMPIStatus *rc)
+    {
+        CMSetStatus(rc, CMPI_RC_ERR_NOT_SUPPORTED);
+        return 0;
+    }
 }
-   
-static CMPIPredicateFT prd_FT={
-     CMPICurrentVersion,
-     prdRelease,
-     prdClone,
-     prdGetData,
+
+static CMPIPredicateFT prd_FT =
+{
+    CMPICurrentVersion,
+    prdRelease,
+    prdClone,
+    prdGetData,
 #if defined (CMPI_VER_87) && !defined(CMPI_VER_100)
-     prdEvaluate,
+    prdEvaluate,
 #endif
 #if defined(CMPI_VER_100)
-     prdEvaluateUsingAccessor
+    prdEvaluateUsingAccessor
 #endif
- };
+};
 
-CMPIPredicateFT *CMPI_Predicate_Ftab=&prd_FT;
+CMPIPredicateFT *CMPI_Predicate_Ftab = &prd_FT;
 
-CMPI_Predicate::CMPI_Predicate(const CMPI_term_el* t)
-  : priv((void*)t) {
-   ft=CMPI_Predicate_Ftab;
+CMPI_Predicate::CMPI_Predicate(const CMPI_term_el* t) : priv((void*)t)
+{
+    ft = CMPI_Predicate_Ftab;
 }
 
 

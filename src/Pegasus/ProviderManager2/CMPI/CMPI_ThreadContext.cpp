@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
@@ -40,7 +36,7 @@
 #include "CMPI_Object.h"
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
-#include <pthread.h>
+    #include <pthread.h>
 #endif
 #include <limits.h>
 
@@ -53,75 +49,95 @@ int CMPI_ThreadContext::context_key_once=1;
 
 void CMPI_ThreadContext::context_key_alloc()
 {
-	TSDKey::create(&contextKey);
+    TSDKey::create(&contextKey);
 }
 
 TSDKeyType CMPI_ThreadContext::getContextKey()
 {
-	if (context_key_once) {
-		 context_key_alloc();
-		 context_key_once=0;
-	}
+    if( context_key_once )
+    {
+        context_key_alloc();
+        context_key_once=0;
+    }
     return contextKey;
 }
 
-void CMPI_ThreadContext::add(CMPI_Object *o) {
-   ENQ_TOP_LIST(o,CIMfirst,CIMlast,next,prev);
+void CMPI_ThreadContext::add(CMPI_Object *o)
+{
+    ENQ_TOP_LIST(o,CIMfirst,CIMlast,next,prev);
 }
 
-void CMPI_ThreadContext::addObject(CMPI_Object* o) {
-   CMPI_ThreadContext* ctx=getThreadContext();
-   ctx->add(o);
+void CMPI_ThreadContext::addObject(CMPI_Object* o) 
+{
+    CMPI_ThreadContext* ctx=getThreadContext();
+    ctx->add(o);
 }
 
-void CMPI_ThreadContext::remove(CMPI_Object *o) {
-   if (reinterpret_cast<long>(o->next)!=-1) {
-      DEQ_FROM_LIST(o,CIMfirst,CIMlast,next,prev);
-      o->next=reinterpret_cast<CMPI_Object*>((void*)-1l);
-   }
+void CMPI_ThreadContext::remove(CMPI_Object *o)
+{
+    if( reinterpret_cast<long>(o->next)!=-1 )
+    {
+        DEQ_FROM_LIST(o,CIMfirst,CIMlast,next,prev);
+        o->next=reinterpret_cast<CMPI_Object*>((void*)-1l);
+    }
 }
 
-void CMPI_ThreadContext::remObject(CMPI_Object* o) {
-   CMPI_ThreadContext* ctx=getThreadContext();
-   ctx->remove(o);
+void CMPI_ThreadContext::remObject(CMPI_Object* o)
+{
+    CMPI_ThreadContext* ctx=getThreadContext();
+    ctx->remove(o);
 }
 
-CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext() {
-   TSDKeyType k=getContextKey();
-    return (CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
+CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext()
+{
+    TSDKeyType k=getContextKey();
+    return(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
 }
 
-const CMPIBroker* CMPI_ThreadContext::getBroker() {
-   //return getThreadContext()->broker;
+const CMPIBroker* CMPI_ThreadContext::getBroker() 
+{
+    /**
+      return getThreadContext()->broker;
+   */
     CMPI_ThreadContext *ctx = getThreadContext();
-    if (ctx)
-	return ctx->broker;
+    if( ctx )
+    {
+        return ctx->broker;
+    }
     return 0;
 }
 
-const CMPIContext* CMPI_ThreadContext::getContext() {
-   return getThreadContext()->context;
+const CMPIContext* CMPI_ThreadContext::getContext() 
+{
+    return getThreadContext()->context;
 }
 
-CMPI_ThreadContext::CMPI_ThreadContext(const CMPIBroker *mb, const CMPIContext *ctx ) {
-   CIMfirst=CIMlast=NULL;
-   broker=mb;
-   context=ctx;
-   TSDKeyType k=getContextKey();
-     prev=(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
-   TSDKey::set_thread_specific(k,this);
-   return;
+CMPI_ThreadContext::CMPI_ThreadContext(
+const CMPIBroker *mb,
+const CMPIContext *ctx )
+{
+    CIMfirst=CIMlast=NULL;
+    broker=mb;
+    context=ctx;
+    TSDKeyType k=getContextKey();
+    prev=(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
+    TSDKey::set_thread_specific(k,this);
+    return;
 }
 
-CMPI_ThreadContext::~CMPI_ThreadContext() {
-   for (CMPI_Object *nxt,*cur=CIMfirst; cur; cur=nxt) {
-      nxt=cur->next;
-      (reinterpret_cast<CMPIInstance*>(cur))->ft->release(reinterpret_cast<CMPIInstance*>(cur));
-   }
+CMPI_ThreadContext::~CMPI_ThreadContext()
+{
+    for( CMPI_Object *nxt,*cur=CIMfirst; cur; cur=nxt )
+    {
+        nxt=cur->next;
+        (reinterpret_cast<CMPIInstance*>(cur))->ft->release(
+        reinterpret_cast<CMPIInstance*>(cur));
+    }
 
-   TSDKeyType k=getContextKey();
-   TSDKey::set_thread_specific(k,prev);
+    TSDKeyType k=getContextKey();
+    TSDKey::set_thread_specific(k,prev);
 }
 
 
 PEGASUS_NAMESPACE_END
+

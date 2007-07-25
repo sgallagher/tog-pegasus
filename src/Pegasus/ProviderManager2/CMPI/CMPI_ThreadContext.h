@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPITHREADCONTEXT_H_
@@ -41,7 +37,7 @@
 #include <iostream>
 #include <stdlib.h>
 #ifdef PEGASUS_OS_HPUX
-#include <pthread.h>
+    #include <pthread.h>
 #endif
 
 #include <Pegasus/Common/TSDKey.h>
@@ -60,30 +56,37 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CMPI_Object;
 
-class CMPI_ThreadContext {
-   //static pthread_key_t contextKey;
-   static TSDKeyType contextKey;
-   static int context_key_once;
-   static void context_key_alloc();
- //  static pthread_key_t getContextKey();
-   static TSDKeyType getContextKey();
-   CMPI_ThreadContext* prev;
-   const CMPIBroker *broker;
-   const CMPIContext *context;
+class CMPI_ThreadContext
+{
+    /**
+       static pthread_key_t contextKey;
+    */
+    static TSDKeyType contextKey;
+    static int context_key_once;
+    static void context_key_alloc();
+    /**
+       static pthread_key_t getContextKey();
+    */
+    static TSDKeyType getContextKey();
+    CMPI_ThreadContext* prev;
+    const CMPIBroker *broker;
+    const CMPIContext *context;
 
-   CMPI_Object *CIMfirst,*CIMlast;
-   void add(CMPI_Object *o);
-   void remove(CMPI_Object *o);
+    CMPI_Object *CIMfirst,*CIMlast;
+    void add(CMPI_Object *o);
+    void remove(CMPI_Object *o);
 
-  public:
-   static void addObject(CMPI_Object*);
-   static void remObject(CMPI_Object*);
-   static CMPI_ThreadContext* getThreadContext();
-   static const CMPIBroker* getBroker();
-   static const CMPIContext* getContext();
-   //   CMPI_ThreadContext(CMPIBroker*,CMPIContext*);
-   CMPI_ThreadContext(const CMPIBroker*,const CMPIContext*);
-   ~CMPI_ThreadContext();
+public:
+    static void addObject(CMPI_Object*);
+    static void remObject(CMPI_Object*);
+    static CMPI_ThreadContext* getThreadContext();
+    static const CMPIBroker* getBroker();
+    static const CMPIContext* getContext();
+    /**
+         CMPI_ThreadContext(CMPIBroker*,CMPIContext*);
+   */
+    CMPI_ThreadContext(const CMPIBroker*,const CMPIContext*);
+    ~CMPI_ThreadContext();
 };
 
 PEGASUS_NAMESPACE_END

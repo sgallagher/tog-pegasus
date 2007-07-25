@@ -54,49 +54,67 @@ struct CMPI_SelectExp;
 class PEGASUS_CMPIPM_LINKAGE CMPIProviderManager : public ProviderManager
 {
 public:
-    enum Mode {
-       CMPI_MODE,
-       CMPI_R_MODE,
-       CMPI_O_MODE
+    enum Mode
+    {
+        CMPI_MODE,
+        CMPI_R_MODE,
+        CMPI_O_MODE
     };
 
-    Mode getMode() { return mode; }
+    Mode getMode()
+    {
+        return mode;
+    }
     CMPIProviderManager(Mode=CMPI_MODE);
-    virtual ~CMPIProviderManager(void);
+    virtual ~CMPIProviderManager();
 
-    virtual Boolean insertProvider(const ProviderName & providerName,
-            const String &ns, const String &cn);
+    virtual Boolean insertProvider(
+        const ProviderName & providerName,
+        const String &ns, 
+        const String &cn);
 
     virtual Message * processMessage(Message * request);
 
     virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
 
-    virtual Boolean supportsRemoteNameSpaces() { return true; }
+    virtual Boolean supportsRemoteNameSpaces()
+    {
+        return true;
+    }
 
-   struct indProvRecord {
-      indProvRecord() : enabled(false), count(1), handler(NULL) {}
-      Boolean enabled;
-      int count;
-      EnableIndicationsResponseHandler* handler;
-   };
+    struct indProvRecord
+    {
+        indProvRecord() : enabled(false), count(1), handler(NULL)
+        {
+        }
+        Boolean enabled;
+        int count;
+        EnableIndicationsResponseHandler* handler;
+    };
 
-   struct indSelectRecord {
-      indSelectRecord() : eSelx(NULL), count(1) {}
-      CMPI_SelectExp *eSelx;
-	  CIMOMHandleQueryContext *qContext;
-      int count;
-   };
+    struct indSelectRecord
+    {
+        indSelectRecord() : eSelx(NULL), count(1)
+        {
+        }
+        CMPI_SelectExp *eSelx;
+        CIMOMHandleQueryContext *qContext;
+        int count;
+    };
 
-   typedef HashTable<String,indProvRecord*,  EqualFunc<String>,HashFunc<String> > IndProvTab;
-   typedef HashTable<CIMObjectPath,indSelectRecord*,EqualFunc<CIMObjectPath>,HashFunc<CIMObjectPath> > IndSelectTab;
-   typedef HashTable<String,ProviderName,EqualFunc<String>,HashFunc<String> > ProvRegistrar;
+    typedef HashTable<String,indProvRecord*, \
+        EqualFunc<String>,HashFunc<String> > IndProvTab;
+    typedef HashTable<CIMObjectPath,indSelectRecord*, \
+        EqualFunc<CIMObjectPath>,HashFunc<CIMObjectPath> > IndSelectTab;
+    typedef HashTable<String,ProviderName,EqualFunc<String>, \
+        HashFunc<String> > ProvRegistrar;
 
-   static IndProvTab provTab;
-   static ReadWriteSem  rwSemProvTab;
-   static IndSelectTab selxTab;
-   static ReadWriteSem  rwSemSelxTab;
-   static ProvRegistrar provReg;
+    static IndProvTab provTab;
+    static ReadWriteSem  rwSemProvTab;
+    static IndSelectTab selxTab;
+    static ReadWriteSem  rwSemSelxTab;
+    static ProvRegistrar provReg;
 protected:
     CMPILocalProviderManager providerManager;
 
@@ -152,11 +170,11 @@ protected:
         @param  ph  OpProviderHolder for the provider to be enabled
         @param remoteInfo Remote Information
      */
-    void _callEnableIndications
-        (CIMInstance & req_provider,
-         PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-         CMPIProvider::OpProviderHolder & ph,
-         const char *remoteInfo);
+    void _callEnableIndications(
+        CIMInstance & req_provider,
+        PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
+        CMPIProvider::OpProviderHolder & ph,
+        const char *remoteInfo);
 
     /**
         Calls the provider's disableIndications() method, if the provider
@@ -165,8 +183,9 @@ protected:
         @param  ph  OpProviderHolder for the provider to be enabled
         @param remoteInfo Remote Information
      */
-    void _callDisableIndications
-        (CMPIProvider::OpProviderHolder & ph, const char *remoteInfo);
+    void _callDisableIndications(
+        CMPIProvider::OpProviderHolder & ph, 
+        const char *remoteInfo);
 
 
 };
@@ -174,3 +193,4 @@ protected:
 PEGASUS_NAMESPACE_END
 
 #endif
+    

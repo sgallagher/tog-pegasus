@@ -468,6 +468,10 @@ static void HandleDaemonizeExecutorRequest(int sock, int bindVerbose)
 
     signal(SIGHUP, SIG_IGN);
 
+    /* Ignore SIGCHLD: */
+
+    signal(SIGCHLD, SIG_IGN);
+
     /* Fork again (so we are not a session leader because our parent is): */
 
     pid = fork();
@@ -609,52 +613,6 @@ static void HandleRemoveFileRequest(int sock)
     while (0);
 
     /* Send response message. */
-
-    WriteExecutorResponse(sock, &response, sizeof(response));
-}
-
-/*
-**==============================================================================
-**
-** HandleReapProviderAgentRequest()
-**
-**==============================================================================
-*/
-
-static void HandleReapProviderAgentRequest(int sock)
-{
-    int status;
-    struct ExecutorReapProviderAgentRequest request;
-    struct ExecutorReapProviderAgentResponse response;
-
-    memset(&response, 0, sizeof(response));
-
-    /* Read the request message. */
-
-    ReadExecutorRequest(sock, &request, sizeof(request));
-
-    /* Log request. */
-
-    Log(LL_TRACE, "HandleReapProviderAgentRequest(): pid=%d", request.pid);
-
-    /* Perform operation. */
-
-    status = 0;
-
-    do
-    {
-        /* Wait on the PID. */
-
-        EXECUTOR_RESTART(waitpid(request.pid, 0, 0), status);
-
-        if (status == -1)
-            Log(LL_WARNING, "waitpid(%d, 0, 0) failed", request.pid);
-    }
-    while (0);
-
-    /* Send response message. */
-
-    response.status = status;
 
     WriteExecutorResponse(sock, &response, sizeof(response));
 }
@@ -1020,10 +978,6 @@ void Parent(int sock, int childPid, int bindVerbose)
 
             case EXECUTOR_REMOVE_FILE_MESSAGE:
                 HandleRemoveFileRequest(sock);
-                break;
-
-            case EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE:
-                HandleReapProviderAgentRequest(sock);
                 break;
 
             case EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE:

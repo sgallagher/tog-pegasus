@@ -63,15 +63,16 @@
 **     This header defines two functions that may be called by clients of this
 **     process (the parent process).
 **
-**         CimserveraAuthenticate()
-**         CimserveraValidateUser()
+**         PAMAuthenticate()
+**         PAMValidateUser()
 **
-**     Each functions forks and executes a child process that carries out
-**     the request and then exits immediately. The parent and child proceses
-**     communicate over a local domain socket, created by the parent just
-**     before executing the client program.
+**     Depending on the PEGASUS_USE_PAM_STANDALONE_PROC build flag, these
+**     functions either call PAM directly or fork and execute a child process
+**     that performs the requested PAM operation and then exits immediately.
+**     The parent and child proceses communicate over a local domain socket,
+**     created by the parent just before executing the client program.
 **
-**     Both of the functions above are defined in the header to avoid the need
+**     These functions are defined in a header file to avoid the need
 **     to link a separate client library.
 **
 **     CAUTION: This program must not depend on any Pegasus libraries since
@@ -200,12 +201,15 @@ CimserveraResponse;
 /*
 **==============================================================================
 **
-** CimserveraAuthenticate()
+** CimserveraProcessOperation()
 **
 **==============================================================================
 */
 
-static int CimserveraAuthenticate(const char* username, const char* password)
+static int CimserveraProcessOperation(
+    const char* operationName,
+    const char* username,
+    const char* password)
 {
     int sock;
     int pid;
@@ -226,12 +230,11 @@ static int CimserveraAuthenticate(const char* username, const char* password)
     {
         CimserveraRequest request;
         CimserveraResponse response;
-        int childStatus;
 
         /* Send request to CIMSERVERA process. */
 
         memset(&request, 0, sizeof(request));
-        Strlcpy(request.arg0, "authenticate", EXECUTOR_BUFFER_SIZE);
+        Strlcpy(request.arg0, operationName, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.arg1, username, EXECUTOR_BUFFER_SIZE);
         Strlcpy(request.arg2, password, EXECUTOR_BUFFER_SIZE);
 
@@ -257,79 +260,14 @@ static int CimserveraAuthenticate(const char* username, const char* password)
             break;
         }
 
-        /* Get exit status from CIMSERVERA program. */
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+        /* When called from the main cimserver process, the cimservera
+           exit status must be harvested explicitly to prevent zombies.
+        */
 
-        waitpid(pid, &childStatus, 0);
-    }
-    while (0);
-
-    close(sock);
-
-    return status;
-}
-
-/*
-**==============================================================================
-**
-** CimserveraValidateUser()
-**
-**==============================================================================
-*/
-
-static int CimserveraValidateUser(const char* username)
-{
-    int sock;
-    int pid;
-    int status;
-
-    /* Create the CIMSERVERA process. */
-
-    pid = CimserveraStart(&sock);
-
-    if (pid == -1)
-        return -1;
-
-    /* Send request, get response. */
-
-    status = 0;
-
-    do
-    {
-        CimserveraRequest request;
-        CimserveraResponse response;
-        int childStatus;
-
-        /* Send request to CIMSERVERA process. */
-
-        memset(&request, 0, sizeof(request));
-        Strlcpy(request.arg0, "validateUser", EXECUTOR_BUFFER_SIZE);
-        Strlcpy(request.arg1, username, EXECUTOR_BUFFER_SIZE);
-
-        if (SendBlock(sock, &request, sizeof(request)) != sizeof(request))
-        {
-            status = -1;
-            break;
-        }
-
-        /* Receive response from CIMSERVERA process. */
-
-        if (RecvBlock(sock, &response, sizeof(response)) != sizeof(response))
-        {
-            status = -1;
-            break;
-        }
-
-        /* Check status. */
-
-        if (response.status != 0)
-        {
-            status = -1;
-            break;
-        }
-
-        /* Get exit status from CIMSERVERA program. */
-
-        waitpid(pid, &childStatus, 0);
+        while ((waitpid(pid, 0, 0) == -1) && (errno == EINTR))
+            ;
+#endif
     }
     while (0);
 
@@ -536,7 +474,7 @@ static int PAMValidateUserInProcess(const char* username)
 static int PAMAuthenticate(const char* username, const char* password)
 {
 #ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-    return CimserveraAuthenticate(username, password);
+    return CimserveraProcessOperation("authenticate", username, password);
 #else
     return PAMAuthenticateInProcess(username, password);
 #endif
@@ -555,7 +493,7 @@ static int PAMAuthenticate(const char* username, const char* password)
 static int PAMValidateUser(const char* username)
 {
 #ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-    return CimserveraValidateUser(username);
+    return CimserveraProcessOperation("validateUser", username, "");
 #else
     return PAMValidateUserInProcess(username);
 #endif

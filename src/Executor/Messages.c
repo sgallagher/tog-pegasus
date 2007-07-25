@@ -41,7 +41,6 @@ static const char* _messageStrings[] =
     "DaemonizeExecutor",
     "RemoveFile",
     "RenameFile",
-    "ReapProviderAgent",
     "AuthenticatePassword",
     "ValidateUser",
     "ChallengeLocal",
@@ -61,7 +60,7 @@ static const char* _messageStrings[] =
 
 const char* MessageCodeToString(enum ExecutorMessageCode code)
 {
-    if ((int)code < 1 || code > EXECUTOR_AUTHENTICATE_LOCAL_MESSAGE)
+    if ((int)code < 1 || code > EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE)
         return "<unknown>";
 
     return _messageStrings[(int)code - 1];

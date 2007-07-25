@@ -82,7 +82,7 @@ void testCheckPolicy(void)
     assert(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
-        EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE,
+        EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE,
         NULL,
         NULL,
         &flags) != 0);

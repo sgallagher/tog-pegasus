@@ -63,7 +63,6 @@ enum ExecutorMessageCode
     EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE,
     EXECUTOR_REMOVE_FILE_MESSAGE,
     EXECUTOR_RENAME_FILE_MESSAGE,
-    EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE,
     EXECUTOR_AUTHENTICATE_PASSWORD_MESSAGE,
     EXECUTOR_VALIDATE_USER_MESSAGE,
     EXECUTOR_CHALLENGE_LOCAL_MESSAGE,
@@ -185,24 +184,6 @@ struct ExecutorStartProviderAgentResponse
 */
 
 struct ExecutorDaemonizeExecutorResponse
-{
-    int status;
-};
-
-/*
-**==============================================================================
-**
-** EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE
-**
-**==============================================================================
-*/
-
-struct ExecutorReapProviderAgentRequest
-{
-    int pid;
-};
-
-struct ExecutorReapProviderAgentResponse
 {
     int status;
 };

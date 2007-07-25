@@ -803,33 +803,11 @@ public:
     virtual int reapProviderAgent(
         int pid)
     {
-        AutoMutex autoMutex(_mutex);
+        // The Executor process automatically cleans up all its child
+        // processes, so it does not need to explicitly harvest the
+        // exit status of the cimprovagt processes it starts.
 
-        // Send request header:
-
-        ExecutorRequestHeader header;
-        header.code = EXECUTOR_REAP_PROVIDER_AGENT_MESSAGE;
-
-        if (SendBlock(_sock, &header, sizeof(header)) != sizeof(header))
-            return -1;
-
-        // Send request body:
-
-        ExecutorReapProviderAgentRequest request;
-        memset(&request, 0, sizeof(request));
-        request.pid = pid;
-
-        if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
-            return -1;
-
-        // Receive the response
-
-        ExecutorReapProviderAgentResponse response;
-
-        if (RecvBlock(_sock, &response, sizeof(response)) != sizeof(response))
-            return -1;
-
-        return response.status;
+        return 0;
     }
 
     virtual int authenticatePassword(

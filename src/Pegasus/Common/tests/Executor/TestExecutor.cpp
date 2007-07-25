@@ -116,7 +116,7 @@ void testExecutorSocketImpl()
     PEGASUS_TEST_ASSERT(Executor::startProviderAgent(
         "MyModule", "HomeDir", "me", pid, readPipe, writePipe) == -1);
 
-    PEGASUS_TEST_ASSERT(Executor::reapProviderAgent(123) == -1);
+    PEGASUS_TEST_ASSERT(Executor::reapProviderAgent(123) == 0);
 
     PEGASUS_TEST_ASSERT(Executor::authenticatePassword(
         "xnonexistentuserx", "wrongpassword") == -1);

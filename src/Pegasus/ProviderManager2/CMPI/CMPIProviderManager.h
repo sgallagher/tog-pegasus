@@ -68,11 +68,6 @@ public:
     CMPIProviderManager(Mode=CMPI_MODE);
     virtual ~CMPIProviderManager();
 
-    virtual Boolean insertProvider(
-        const ProviderName & providerName,
-        const String &ns, 
-        const String &cn);
-
     virtual Message * processMessage(Message * request);
 
     virtual Boolean hasActiveProviders();
@@ -107,14 +102,11 @@ public:
         EqualFunc<String>,HashFunc<String> > IndProvTab;
     typedef HashTable<CIMObjectPath,indSelectRecord*, \
         EqualFunc<CIMObjectPath>,HashFunc<CIMObjectPath> > IndSelectTab;
-    typedef HashTable<String,ProviderName,EqualFunc<String>, \
-        HashFunc<String> > ProvRegistrar;
 
     static IndProvTab provTab;
     static ReadWriteSem  rwSemProvTab;
     static IndSelectTab selxTab;
     static ReadWriteSem  rwSemSelxTab;
-    static ProvRegistrar provReg;
 protected:
     CMPILocalProviderManager providerManager;
 

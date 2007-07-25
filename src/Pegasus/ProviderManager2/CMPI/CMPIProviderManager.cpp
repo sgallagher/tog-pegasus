@@ -85,7 +85,6 @@ ReadWriteSem    CMPIProviderManager::rwSemProvTab;
 ReadWriteSem    CMPIProviderManager::rwSemSelxTab;
 CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
 CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
-CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
 
 class CMPIPropertyList
 {
@@ -170,17 +169,6 @@ CMPIProviderManager::~CMPIProviderManager()
         }
     }
 }
-
-Boolean CMPIProviderManager::insertProvider(
-    const ProviderName & name,
-    const String &ns, 
-    const String &cn)
-{
-    String key(ns+String("::")+cn+String("::")+
-               CIMValue(name.getCapabilitiesMask()).toString());
-    return provReg.insert(key,name);
-}
-
 
 Message * CMPIProviderManager::processMessage(Message * request)
 {

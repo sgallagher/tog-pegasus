@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiBooleanData_h_
 #define _CmpiBooleanData_h_
@@ -42,20 +37,24 @@
 #include "CmpiData.h"
 #include "Linkage.h"
 
-/** This class wraps a CMPIBooleanData value item. BooleanData extraction uses type operators.
-      Extraction operations can be appended to a property type retrieval statement
+/** 
+    This class wraps a CMPIBooleanData value item. BooleanData extraction uses
+    type operators. Extraction operations can be appended to a
+    property type retrieval statement
       like this:
  
-        CmpiString name = cop.getKey("DeviceID");
+    CmpiString name = cop.getKey("DeviceID");
  
-       Type mismatches will be signalled by exceptions.
+    Type mismatches will be signalled by exceptions.
 */
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBooleanData : public CmpiData {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBooleanData : public CmpiData
+{
 public:
 
-   /** Constructor - boolean as input.
-   */
-   CmpiBooleanData(CMPIBoolean d);
+    /** 
+        Constructor - boolean as input.
+    */
+    CmpiBooleanData(CMPIBoolean d);
 
 };
 

@@ -27,62 +27,62 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPIPL_H_
-#   define _CMPIPL_H_
+#define _CMPIPL_H_
 
 
-#   ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#      define CMPI_PLATFORM_LINUX_GENERIC_GNU 1
-#   endif
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+# define CMPI_PLATFORM_LINUX_GENERIC_GNU 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_HPUX_ACC
-#      define CMPI_PLATFORM_HPUX_ACC 1
-#   endif
+#ifdef PEGASUS_PLATFORM_HPUX_ACC
+# define CMPI_PLATFORM_HPUX_ACC 1
+#endif
 
-#   if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-       defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-       defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#      define CMPI_PLATFORM_WIN32_IX86_MSVC 1
-#   endif
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# define CMPI_PLATFORM_WIN32_IX86_MSVC 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
-#      define CMPI_PLATFORM_SOLARIS_SPARC_GNU 1
-#   endif
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+# define CMPI_PLATFORM_SOLARIS_SPARC_GNU 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#      define CMPI_PLATFORM_SOLARIS_SPARC_CC 1
-#   endif
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+# define CMPI_PLATFORM_SOLARIS_SPARC_CC 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
-#      define CMPI_PLATFORM_AIX_RS_IBMCXX 1
-#   endif
+#ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+# define CMPI_PLATFORM_AIX_RS_IBMCXX 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#      define CMPI_PLATFORM_ZOS_ZSERIES_IBM 1
-#   endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# define CMPI_PLATFORM_ZOS_ZSERIES_IBM 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX 
-#      define CMPI_PLATFORM_TRU64_ALPHA_DECCXX 1
-#   endif
+#ifdef PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX 
+# define CMPI_PLATFORM_TRU64_ALPHA_DECCXX 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_DARWIN_PPC_GNU
-#      define CMPI_PLATFORM_DARWIN_PPC_GNU 1
-#   endif
+#ifdef PEGASUS_PLATFORM_DARWIN_PPC_GNU
+# define CMPI_PLATFORM_DARWIN_PPC_GNU 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_DARWIN_IX86_GNU
-#      define CMPI_PLATFORM_DARWIN_IX86_GNU 1
-#   endif
+#ifdef PEGASUS_PLATFORM_DARWIN_IX86_GNU
+# define CMPI_PLATFORM_DARWIN_IX86_GNU 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
-#      define CMPI_PLATFORM_VMS_ALPHA_DECCXX 1
-#   endif
+#ifdef PEGASUS_PLATFORM_VMS_ALPHA_DECCXX
+# define CMPI_PLATFORM_VMS_ALPHA_DECCXX 1
+#endif
 
-#   ifdef PEGASUS_PLATFORM_VMS_IA64_DECCXX
-#      define CMPI_PLATFORM_VMS_IA64_DECCXX 1
-#   endif
+#ifdef PEGASUS_PLATFORM_VMS_IA64_DECCXX
+# define CMPI_PLATFORM_VMS_IA64_DECCXX 1
+#endif
 
 #endif

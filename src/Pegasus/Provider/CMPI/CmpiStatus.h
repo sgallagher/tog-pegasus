@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiStatus_h_
 #define _CmpiStatus_h_
@@ -45,60 +40,68 @@
 #include "CmpiBaseMI.h"
 #include "Linkage.h"
 
-/** This class represents the status of a provider function invocation.
+/** 
+    This class represents the status of a provider function invocation.
 */
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiStatus {
-   friend class CmpiInstanceMI;
-   friend class CmpiMethodMI;
-   friend class CmpiBaseMI;
-   friend class CmpiAssociationMI;
-   friend class CmpiPropertyMI;
-   friend class CmpiIndicationMI;
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiStatus
+{
+    friend class CmpiInstanceMI;
+    friend class CmpiMethodMI;
+    friend class CmpiBaseMI;
+    friend class CmpiAssociationMI;
+    friend class CmpiPropertyMI;
+    friend class CmpiIndicationMI;
 protected:
 
-   /** CmpiStatus actually is a CMPIStatus struct.
-   */
-   CMPIStatus st;
+    /** 
+        CmpiStatus actually is a CMPIStatus struct.
+    */
+    CMPIStatus st;
 
-   /** status - Returns CMPIStatus struct, to be used by MI drivers only.
-   */
+    /** 
+        status - Returns CMPIStatus struct, to be used by MI drivers only.
+    */
     CMPIStatus status() const;
 
 private:
 
-   /** Constructor - not to be used.
-   */
-   CmpiStatus();
+    /** 
+        Constructor - not to be used.
+    */
+    CmpiStatus();
 
 public:
 
-   /** Aux Constructor - set from CMPIStatus.
-       @param stat the CMPIStatus
-   */
-   CmpiStatus(const CMPIStatus stat);
+    /** 
+        Aux Constructor - set from CMPIStatus.
+        @param stat the CMPIStatus
+    */
+    CmpiStatus(const CMPIStatus stat);
 
-   /** Constructor - set rc only.
-       @param rc the return code.
-   */
-   CmpiStatus(const CMPIrc rc);
+    /** 
+        Constructor - set rc only.
+        @param rc the return code.
+    */
+    CmpiStatus(const CMPIrc rc);
 
-   /** Constructor - set rc and message.
-       @param rc The return code.
-       @param msg Descriptive message.
-   */
-   CmpiStatus(const CMPIrc rcp, const char *msg);
+    /** 
+        Constructor - set rc and message.
+        @param rc The return code.
+        @param msg Descriptive message.
+    */
+    CmpiStatus(const CMPIrc rcp, const char *msg);
 
-   /** rc - get the rc value.
-   */
+    /** 
+        rc - get the rc value.
+    */
     CMPIrc rc() const;
 
-   /** msg - get the msg component.
-   */
-   const char*  msg() const;
+    /** 
+        msg - get the msg component.
+    */
+    const char*  msg() const;
 };
 
 #endif
-
-
 

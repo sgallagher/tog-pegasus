@@ -27,15 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//              Viktor Mihajlovski, mihajlov@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiBaseMI_h_
 #define _CmpiBaseMI_h_
@@ -53,25 +47,29 @@ class CmpiBroker;
 class CmpiContext;
 class CmpiStatus;
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBaseMI {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBaseMI
+{
 public:
-   virtual ~CmpiBaseMI();
+    virtual ~CmpiBaseMI();
 
-   CmpiBaseMI(const CmpiBroker &mbp, const CmpiContext& ctx);
+    CmpiBaseMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-   void setProviderBase(CmpiProviderBase* base);
-   CmpiProviderBase* getProviderBase();
+    void setProviderBase(CmpiProviderBase* base);
+    CmpiProviderBase* getProviderBase();
 
-   static CMPIStatus driveBaseCleanup(void* mi, const CMPIContext* eCtx, CMPIBoolean b);
+    static CMPIStatus driveBaseCleanup(
+        void* mi,
+        const CMPIContext* eCtx,
+        CMPIBoolean b);
 
-   virtual CmpiStatus initialize(const CmpiContext& ctx);
-   virtual CmpiStatus cleanup(CmpiContext& ctx);
-   virtual int isUnloadable() const;
+    virtual CmpiStatus initialize(const CmpiContext& ctx);
+    virtual CmpiStatus cleanup(CmpiContext& ctx);
+    virtual int isUnloadable() const;
 
 protected:
-   CmpiBroker* broker;
+    CmpiBroker* broker;
 private:
-   CmpiProviderBase* providerBase;
+    CmpiProviderBase* providerBase;
 };
 
 #endif

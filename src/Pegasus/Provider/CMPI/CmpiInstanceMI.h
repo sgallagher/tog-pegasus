@@ -27,15 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//              Viktor Mihajlovski, mihajlov@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiInstanceMI_h_
 #define _CmpiInstanceMI_h_
@@ -55,62 +49,88 @@
 #include "CmpiContext.h"
 #include "Linkage.h"
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiInstanceMI : virtual public CmpiBaseMI {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiInstanceMI : virtual public CmpiBaseMI
+{
 public:
-   CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx);
+    CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-   static CMPIStatus driveEnumInstanceNames
-   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop);
-   static CMPIStatus driveEnumInstances
-   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop, const char* *properties);
-   static CMPIStatus driveGetInstance
-   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop, const char* *properties);
-   static CMPIStatus driveCreateInstance
-   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop, const CMPIInstance* eInst);
-   static CMPIStatus driveSetInstance
-   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop, const CMPIInstance* eInst, 
-    const char* *properties);
-   static CMPIStatus driveDeleteInstance
-   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop);
-   static CMPIStatus driveExecQuery
-   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop, const char* language ,const char* query);
-
-
-   virtual CmpiStatus enumInstanceNames
-   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
-   virtual CmpiStatus enumInstances
-   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-    const char* *properties);
-   virtual CmpiStatus getInstance
-   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-    const char* *properties);
-   virtual CmpiStatus createInstance
-   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-    const CmpiInstance& inst);
-   virtual CmpiStatus setInstance
-   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-    const CmpiInstance& inst, const char* *properties);
-   virtual CmpiStatus deleteInstance
-   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop);
-   virtual CmpiStatus execQuery
-   (const CmpiContext& ctx, CmpiResult& rslt, const CmpiObjectPath& cop,
-    const char* language, const char* query);
+    static CMPIStatus driveEnumInstanceNames(
+        CMPIInstanceMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop);
+    static CMPIStatus driveEnumInstances(
+        CMPIInstanceMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop,
+        const char* *properties);
+    static CMPIStatus driveGetInstance(
+        CMPIInstanceMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop,
+        const char* *properties);
+    static CMPIStatus driveCreateInstance(
+        CMPIInstanceMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop,
+        const CMPIInstance* eInst);
+    static CMPIStatus driveSetInstance(
+        CMPIInstanceMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop,
+        const CMPIInstance* eInst, 
+        const char* *properties);
+    static CMPIStatus driveDeleteInstance(
+        CMPIInstanceMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop);
+    static CMPIStatus driveExecQuery(
+        CMPIInstanceMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop,
+        const char* language,
+        const char* query);
+    virtual CmpiStatus enumInstanceNames(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& cop);
+    virtual CmpiStatus enumInstances(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& cop,
+        const char* *properties);
+    virtual CmpiStatus getInstance(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& cop,
+        const char* *properties);
+    virtual CmpiStatus createInstance(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& cop,
+        const CmpiInstance& inst);
+    virtual CmpiStatus setInstance(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& cop,
+        const CmpiInstance& inst,
+        const char* *properties);
+    virtual CmpiStatus deleteInstance(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& cop);
+    virtual CmpiStatus execQuery(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& cop,
+        const char* language,
+        const char* query);
 };
 
 #endif
-
-
-
-
-
-
-
-
-

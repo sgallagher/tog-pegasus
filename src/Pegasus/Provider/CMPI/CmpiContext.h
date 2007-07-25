@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiContext_h_
 #define _CmpiContext_h_
@@ -46,45 +41,50 @@
 #include "CmpiStatus.h"
 #include "Linkage.h"
 
-/** This class acts as a container to holding provider functions context information.
+/**
+    This class acts as a container to holding provider functions context
+    information.
 */
 
 class CmpiData;
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiContext : public CmpiObject {
-   friend class CmpiBroker;
-   friend class CmpiInstanceMI;
-   friend class CmpiMethodMI;
-   friend class CmpiAssociationMI;
-   friend class CmpiPropertyMI;
-   friend class CmpiIndicationMI;
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiContext : public CmpiObject
+{
+    friend class CmpiBroker;
+    friend class CmpiInstanceMI;
+    friend class CmpiMethodMI;
+    friend class CmpiAssociationMI;
+    friend class CmpiPropertyMI;
+    friend class CmpiIndicationMI;
 private:
 protected:
 
-   /** Constructor - Should not be called
-   */
-   CmpiContext();
+    /**
+        Constructor - Should not be called.
+    */
+    CmpiContext();
 
 public:
 
-   /** Constructor used by MIDrivers to encapsulate CMPIContext.
-   */
-   CmpiContext(CMPIContext* c);
+    /**
+        Constructor used by MIDrivers to encapsulate CMPIContext.
+    */
+    CmpiContext(CMPIContext* c);
 
-   /** getEnc - Gets the encapsulated CMPIContext.
-   */
-   CMPIContext *getEnc() const;
+    /**
+        getEnc - Gets the encapsulated CMPIContext.
+    */
+    CMPIContext *getEnc() const;
 
-   /** invocationFlags - InvocationFlags entry name.
-   */
-   static const char* invocationFlags;
+    /**
+        invocationFlags - InvocationFlags entry name.
+    */
+    static const char* invocationFlags;
 
-   /** getEntry - Gets a named context entry.
-   */
-   CmpiData getEntry(const char* name) const;
+    /**
+        getEntry - Gets a named context entry.
+    */
+    CmpiData getEntry(const char* name) const;
 };
 
 #endif
-
-
-

@@ -27,21 +27,15 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiResult_h_
 #define _CmpiResult_h_
 
 #include "cmpidt.h"
 #include "cmpift.h"
-
 #include "CmpiObject.h"
 #include "CmpiStatus.h"
 #include "CmpiData.h"
@@ -50,47 +44,57 @@
 #include "Linkage.h"
 
 
-/** This class acts as a container to hold values returned by provider functions.
+/**
+    This class acts as a container to hold values returned by provider
+    functions.
 */
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiResult : public CmpiObject{
-   friend class CmpiInstanceMI;
-   friend class CmpiAssociationMI;
-   friend class CmpiMethodMI;
-   friend class CmpiPropertyMI;
-   friend class CmpiIndicationMI;
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiResult : public CmpiObject
+{
+    friend class CmpiInstanceMI;
+    friend class CmpiAssociationMI;
+    friend class CmpiMethodMI;
+    friend class CmpiPropertyMI;
+    friend class CmpiIndicationMI;
 private:
 
-   /** Constructor - Should not be called
-   */
-   CmpiResult();
+    /** 
+        Constructor - Should not be called
+    */
+    CmpiResult();
 protected:
 
-   /** Protected constructor used by MIDrivers to encapsulate CMPIResult.
-   */
-   CmpiResult(CMPIResult* r);
+    /** 
+        Protected constructor used by MIDrivers to encapsulate CMPIResult.
+    */
+    CmpiResult(CMPIResult* r);
 
-   /** getEnc - Gets the encapsulated CMPIResult.
-   */
-  CMPIResult *getEnc() const;
-  
+    /** 
+        getEnc - Gets the encapsulated CMPIResult.
+    */
+    CMPIResult *getEnc() const;
+
 public:
 
-   /** returnData - Return a CmpiData instance.
-   */
-   void returnData(const CmpiData& d);
+    /** 
+        returnData - Return a CmpiData instance.
+    */
+    void returnData(const CmpiData& d);
 
-   /** returnData - Return a CmpiInstance object.
-   */
-   void returnData(const CmpiInstance& d);
+    /** 
+        returnData - Return a CmpiInstance object.
+    */
+    void returnData(const CmpiInstance& d);
 
-   /** returnData - Return a CmpiObjectPath object.
-   */
-   void returnData(const CmpiObjectPath& d);
+    /** 
+        returnData - Return a CmpiObjectPath object.
+    */
+    void returnData(const CmpiObjectPath& d);
 
-   /** returnDone - Indicate all data returned.
-   */
-   void returnDone();
+    /** 
+        returnDone - Indicate all data returned.
+    */
+    void returnDone();
 };
 
 #endif

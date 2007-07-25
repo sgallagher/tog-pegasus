@@ -27,15 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//              Viktor Mihajlovski, mihajlov@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiAssociationMI_h_
 #define _CmpiAssociationMI_h_
@@ -53,41 +47,77 @@
 #include "Linkage.h"
 
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiAssociationMI : virtual public CmpiBaseMI {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiAssociationMI : 
+    virtual public CmpiBaseMI
+{
 public:
-   CmpiAssociationMI(const CmpiBroker &mbp, const CmpiContext& ctx);
+    CmpiAssociationMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-   static CMPIStatus driveAssociators
-   (CMPIAssociationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eOp, const char* asscClass, const char* resultClass,
-    const char* role, const char* resultRole, const char** properties);
-   static CMPIStatus driveAssociatorNames
-   (CMPIAssociationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eOp, const char* assocClass, const char* resultClass,
-    const char* role, const char* resultRole);
-   static CMPIStatus driveReferences
-   (CMPIAssociationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eOp, const char* resultClass, const char* role ,
-    const char** properties);
-   static CMPIStatus driveReferenceNames
-   (CMPIAssociationMI*, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eOp, const char* resultClass, const char* role);
+    static CMPIStatus driveAssociators(
+        CMPIAssociationMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eOp,
+        const char* asscClass,
+        const char* resultClass,
+        const char* role,
+        const char* resultRole,
+        const char** properties);
+    static CMPIStatus driveAssociatorNames(
+        CMPIAssociationMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eOp,
+        const char* assocClass,
+        const char* resultClass,
+        const char* role,
+        const char* resultRole);
+    static CMPIStatus driveReferences(
+        CMPIAssociationMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eOp,
+        const char* resultClass,
+        const char* role ,
+        const char** properties);
+    static CMPIStatus driveReferenceNames(
+        CMPIAssociationMI*,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eOp,
+        const char* resultClass,
+        const char* role);
 
-   virtual CmpiStatus associators
-   (const CmpiContext& ctx, CmpiResult& rslt,
-    const CmpiObjectPath& op, const char* asscClass, const char* resultClass,
-    const char* role, const char* resultRole, const char** properties);
-   virtual CmpiStatus associatorNames
-   (const CmpiContext& ctx, CmpiResult& rslt,
-    const CmpiObjectPath& op, const char* assocClass, const char* resultClass,
-    const char* role, const char* resultRole);
-   virtual CmpiStatus references
-   (const CmpiContext& ctx, CmpiResult& rslt,
-    const CmpiObjectPath& op, const char* resultClass, const char* role ,
-    const char** properties);
-   virtual CmpiStatus referenceNames
-   (const CmpiContext& ctx, CmpiResult& rslt,
-    const CmpiObjectPath& op, const char* resultClass, const char* role);
+    virtual CmpiStatus associators(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& op,
+        const char* asscClass,
+        const char* resultClass,
+        const char* role,
+        const char* resultRole,
+        const char** properties);
+    virtual CmpiStatus associatorNames(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& op,
+        const char* assocClass,
+        const char* resultClass,
+        const char* role,
+        const char* resultRole);
+    virtual CmpiStatus references(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& op,
+        const char* resultClass,
+        const char* role ,
+        const char** properties);
+    virtual CmpiStatus referenceNames(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& op,
+        const char* resultClass,
+        const char* role);
 };
 
 #endif

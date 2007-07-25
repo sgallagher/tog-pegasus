@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiString_h_
 #define _CmpiString_h_
@@ -46,72 +41,80 @@
 #if !defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) && \
     !defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) && \
     !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#include <strings.h>
+# include <strings.h>
 #endif
 
 #ifndef CmpiBoolean
-#define CmpiBoolean CMPIBoolean
-#define CmpiRc      CMPIrc
+# define CmpiBoolean CMPIBoolean
+# define CmpiRc      CMPIrc
 #endif
 
-//#include "CmpiObject.h"
-//#include "CmpiObjectPath.h"
 #include "CmpiStatus.h"
 #include "Linkage.h"
 
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#define strcasecmp _stricmp
+# define strcasecmp _stricmp
 #endif
 
-/** This class wraps a CIMOM specific string representation.
+/** 
+    This class wraps a CIMOM specific string representation.
 */
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiString { //: public CmpiObject {
-   friend class CmpiBroker;
-   friend class CmpiData;
-   friend class CmpiObjectPath;
-   friend class CmpiInstance;
-   friend class CmpiObject;
-   friend class CmpiArgs;
-   friend class CmpiArrayIdx;
-   void *enc;
-   /** Constructor - Internal use only
-   */
-   CmpiString(CMPIString* c);
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiString
+{
+    friend class CmpiBroker;
+    friend class CmpiData;
+    friend class CmpiObjectPath;
+    friend class CmpiInstance;
+    friend class CmpiObject;
+    friend class CmpiArgs;
+    friend class CmpiArrayIdx;
+    void *enc;
+    /** 
+        Constructor - Internal use only
+    */
+    CmpiString(CMPIString* c);
 
-   /** Gets the encapsulated CMPIString.
-   */
-   CMPIString *getEnc() const;
+    /** 
+        Gets the encapsulated CMPIString.
+    */
+    CMPIString *getEnc() const;
 
 public:
 
-   /** Constructor - Empty string
-   */
-   CmpiString();
+    /** 
+        Constructor - Empty string.
+    */
+    CmpiString();
 
-   /** Constructor - char*
-   */
-   CmpiString(const char *s);
+    /** 
+        Constructor - char* .
+    */
+    CmpiString(const char *s);
 
-   /** Constructor - Copy constructor
-   */
-   CmpiString(const CmpiString& s);
+    /** 
+        Constructor - Copy constructor.
+    */
+    CmpiString(const CmpiString& s);
 
-   /** charPtr - get pointer to char* representation
-   */
-   const char* charPtr() const;
+    /** 
+        charPtr - get pointer to char* representation.
+    */
+    const char* charPtr() const;
 
-   /** charPtr - Case sensitive compare
-   */
-   CmpiBoolean equals(const char *str) const;
-   CmpiBoolean equals(const CmpiString& str) const;
+    /** 
+        charPtr - Case sensitive compare.
+    */
+    CmpiBoolean equals(const char *str) const;
+    CmpiBoolean equals(const CmpiString& str) const;
 
-   /** charPtr - Case insensitive compare
-   */
-   CmpiBoolean equalsIgnoreCase(const char *str) const;
-   CmpiBoolean equalsIgnoreCase(const CmpiString& str) const;
+    /** 
+        charPtr - Case insensitive compare.
+    */
+    CmpiBoolean equalsIgnoreCase(const char *str) const;
+    CmpiBoolean equalsIgnoreCase(const CmpiString& str) const;
 };
 
 #endif

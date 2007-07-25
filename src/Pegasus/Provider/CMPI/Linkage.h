@@ -27,24 +27,19 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//           (carolann_graves@hp.com)
-//
-// Modified By: Adrian Schuur, schuur@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifdef CMPI_STANDALONE
-#   define PEGASUS_CMPI_PROVIDER_LINKAGE /* empty */
-#else
-#   include <Pegasus/Common/Config.h>
-#   ifndef PEGASUS_CMPI_PROVIDER_LINKAGE
-#       ifdef PEGASUS_CMPI_PROVIDER_INTERNAL
-#           define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_EXPORT
-#       else
-#           define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_IMPORT
-#       endif
-#   endif
+# define PEGASUS_CMPI_PROVIDER_LINKAGE /* empty */
+# else
+#include <Pegasus/Common/Config.h>
+# ifndef PEGASUS_CMPI_PROVIDER_LINKAGE
+#  ifdef PEGASUS_CMPI_PROVIDER_INTERNAL
+#   define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_EXPORT
+#  else
+#   define PEGASUS_CMPI_PROVIDER_LINKAGE PEGASUS_IMPORT
+#  endif
+# endif
 #endif

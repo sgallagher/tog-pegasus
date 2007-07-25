@@ -27,15 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//              Viktor Mihajlovski, mihajlov@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiMethodMI_h_
 #define _CmpiMethodMI_h_
@@ -55,19 +49,27 @@
 #include "Linkage.h"
 
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiMethodMI : virtual public CmpiBaseMI {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiMethodMI : virtual public CmpiBaseMI
+{
 public:
-   CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx);
+    CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-   static CMPIStatus driveInvokeMethod
-   (CMPIMethodMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eCop, const char* methodName,
-    const CMPIArgs* eIn, CMPIArgs* eOut);
+    static CMPIStatus driveInvokeMethod(
+        CMPIMethodMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eCop,
+        const char* methodName,
+        const CMPIArgs* eIn,
+        CMPIArgs* eOut);
 
-   virtual CmpiStatus invokeMethod
-   (const CmpiContext& ctx, CmpiResult& rslt,
-    const CmpiObjectPath& ref, const char* methodName,
-    const CmpiArgs& in, CmpiArgs& out);
+    virtual CmpiStatus invokeMethod(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& ref,
+        const char* methodName,
+        const CmpiArgs& in,
+        CmpiArgs& out);
 };
 
 #endif

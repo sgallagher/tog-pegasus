@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPICQL_H
 #define _CMPICQL_H
@@ -41,59 +41,62 @@ extern "C"
 {
 #endif
 
-
 #ifdef PEGASUS_USE_EXPERIMENTAL
-/*
-This function shall return a new CMPISelectExp object.
+/**
+    This function shall return a new CMPISelectExp object.
 
-The mb argument points to a CMPIBroker object.
+    The mb argument points to a CMPIBroker object.
 
-The query argument is a pointer to a string
-containing the select expression.
+    The query argument is a pointer to a string
+    containing the select expression.
 
-The lang argument is a pointer to a string
-containing the query language.
+    The lang argument is a pointer to a string
+    containing the query language.
 
-The projection output argument is a pointer to a
-CMPIArray structure of CMPIString entries containing
-projection specification. It shall be set to NULL if no
-projection is defined. The projection specification is query
-language specific. Hence the entries format of the
-projection output array CMPIString might be different
-depending on the query language. Be sure to check the lang
-argument for the query language your provider will support. 
+    The projection output argument is a pointer to a
+    CMPIArray structure of CMPIString entries containing
+    projection specification. It shall be set to NULL if no
+    projection is defined. The projection specification is query
+    language specific. Hence the entries format of the
+    projection output array CMPIString might be different
+    depending on the query language. Be sure to check the lang
+    argument for the query language your provider will support. 
 
+    The rc output argument, if not NULL, is used to
+    return a CMPIStatus structure containing the service return
+    status.
 
-The rc output argument, if not NULL, is used to
-return a CMPIStatus structure containing the service return
-status.
+    RETURN VALUE
 
+    This  function shall return a pointer to a new CMPISelectExp
+    object. NULL shall be returned in case an error is detected.
+    The following CMPIrc codes shall be recognized: 
 
-RETURN VALUE
+       CMPI_RC_OK Operation successful.
 
-This  function shall return a pointer to a new CMPISelectExp
-object. NULL shall be returned in case an error is detected.
-The following CMPIrc codes shall be recognized: 
+       CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED lang is not
+       supported.
 
-      CMPI_RC_OK Operation successful.
+       CMPI_RC_ERR_INVALID_QUERY The query expression is not
+       valid.
 
-
-      CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED lang is not
-      supported.
-
-
-      CMPI_RC_ERR_INVALID_QUERY The query expression is not
-      valid.
-
-
-      CMPI_IRC_INVALID_HANDLE The mb handle is invalid.
-   */
-   CMPISelectExp *CMPI_CQL_NewSelectExp
-    (const CMPIBroker * mb, const char *query, const char *lang,
-     const CMPIArray ** projection, CMPIStatus * rc)
-  {
-    return ((mb)->eft->newSelectExp ((CMPIBroker *)(mb),  (char *)(query),"CIMxCQL", (CMPIArray **)(projection), rc));
-  }
+       CMPI_IRC_INVALID_HANDLE The mb handle is invalid.
+*/
+    CMPISelectExp *CMPI_CQL_NewSelectExp( 
+        const CMPIBroker * mb,
+        const char *query,
+        const char *lang,
+        const CMPIArray ** projection,
+        CMPIStatus * rc)
+    {
+        return(
+            (mb)->eft->newSelectExp(
+                (CMPIBroker *)(mb),
+                (char *)(query),
+                "CIMxCQL", 
+                (CMPIArray **)(projection),
+                rc));
+    }
 
 #endif
 

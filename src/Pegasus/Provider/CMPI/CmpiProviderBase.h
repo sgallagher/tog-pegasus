@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiProviderBase_h_
 #define _CmpiProviderBase_h_
@@ -42,30 +37,31 @@
 
 class CmpiBaseMI;
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiProviderBase {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiProviderBase
+{
 public:
-   CmpiProviderBase();
-   ~CmpiProviderBase();
-   CmpiBaseMI* getBaseMI();
-   void setBaseMI(CmpiBaseMI* aBaseMI);
-   void incUseCount();
-   int decUseCount();
+    CmpiProviderBase();
+    ~CmpiProviderBase();
+    CmpiBaseMI* getBaseMI();
+    void setBaseMI(CmpiBaseMI* aBaseMI);
+    void incUseCount();
+    int decUseCount();
 private:
-   friend class CmpiArgs;
-   friend class CmpiArray;
-   friend class CmpiDateTime;
-   friend class CmpiInstance;
-   friend class CmpiObject;
-   friend class CmpiObjectPath;
-   friend class CmpiStatus;
-   friend class CmpiString;
-   friend class CmpiBaseMI;
-   // per provider CmpiBaseMI
-   CmpiBaseMI* baseMI;
-   int useCount;
-   // only for usage inside CMPI CPP library
-   static CMPIBroker *getBroker();
-   static void setBroker(const CMPIBroker *mb);
+    friend class CmpiArgs;
+    friend class CmpiArray;
+    friend class CmpiDateTime;
+    friend class CmpiInstance;
+    friend class CmpiObject;
+    friend class CmpiObjectPath;
+    friend class CmpiStatus;
+    friend class CmpiString;
+    friend class CmpiBaseMI;
+    // per provider CmpiBaseMI
+    CmpiBaseMI* baseMI;
+    int useCount;
+    // only for usage inside CMPI CPP library
+    static CMPIBroker *getBroker();
+    static void setBroker(const CMPIBroker *mb);
 };
 
 #endif

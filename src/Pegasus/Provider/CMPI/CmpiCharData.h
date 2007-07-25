@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiCharData_h_
 #define _CmpiCharData_h_
@@ -43,22 +38,23 @@
 #include "Linkage.h"
 
 
-/** This class wraps a CMPICharData value item. CharData extraction uses type conversion operators.
-      Extraction operations can be appended to a property type retrieval statement
+/** 
+    This class wraps a CMPICharData value item. CharData extraction uses type
+    conversion operators. Extraction operations can be appended to a property
+    type retrieval statement
       like this:
  
-        CmpiString name = cop.getKey("DeviceID");
+    CmpiString name = cop.getKey("DeviceID");
  
-       Type mismatches will be signalled by exceptions.
+    Type mismatches will be signalled by exceptions.
 */
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiCharData : public CmpiData {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiCharData : public CmpiData
+{
 public:
-   /** Constructor - singed 8 bit as input.
-   */
-   CmpiCharData(CMPIChar16 d);
+    /**
+        Constructor - singed 8 bit as input.
+    */
+    CmpiCharData(CMPIChar16 d);
 };
 
 #endif
-
-
-

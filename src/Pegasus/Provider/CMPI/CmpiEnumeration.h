@@ -27,14 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiEnumeration_h_
 #define _CmpiEnumeration_h_
@@ -51,39 +46,47 @@
 class CmpiObjectPath;
 class CmpiData;
 
-/** This class acts as a container for holding results from enunmerating
+/** 
+    This class acts as a container for holding results from enunmerating
     CmpiBroker services.
 */
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiEnumeration : public CmpiObject {
-   friend class CmpiBroker;
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiEnumeration : public CmpiObject
+{
+    friend class CmpiBroker;
 protected:
 
-   /** Protected constructor used by MIDrivers to encapsulate CMPIEnumeration.
-   */
-   CmpiEnumeration(CMPIEnumeration* enc);
+    /** 
+        Protected constructor used by MIDrivers to encapsulate CMPIEnumeration.
+    */
+    CmpiEnumeration(CMPIEnumeration* enc);
 
-   /** getEnc - Gets the encapsulated CMPIEnumeration.
-   */
-   CMPIEnumeration *getEnc() const;
+    /** 
+        getEnc - Gets the encapsulated CMPIEnumeration.
+    */
+    CMPIEnumeration *getEnc() const;
 
 public:
 
-   /** Default constructor
-   */
-   CmpiEnumeration();
-
-   /** getNext - Gets next entry.
-   */
-   CmpiData getNext();
-
-   /** getNext - Check for at least one remaining entry.
-   */
-   CmpiBoolean hasNext();
-
-   /** toArray - Convert an Enumeration to an Array
+    /** 
+        Default constructor.
     */
-   CmpiData toArray();
+    CmpiEnumeration();
+
+    /**
+        getNext - Gets next entry.
+    */
+    CmpiData getNext();
+
+    /**
+        getNext - Check for at least one remaining entry.
+    */
+    CmpiBoolean hasNext();
+
+    /**
+        toArray - Convert an Enumeration to an Array.
+    */
+    CmpiData toArray();
 };
 
 #endif

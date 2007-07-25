@@ -27,15 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Heidi Neuman, heidineu@de.ibm.com
-//              Angel Nunez Mencias, anunez@de.ibm.com
-//              Viktor Mihajlovski, mihajlov@de.ibm.com
-//
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CmpiPropertyMI_h_
 #define _CmpiPropertyMI_h_
@@ -44,7 +38,6 @@
 
 #include "cmpidt.h"
 #include "cmpift.h"
-
 #include "CmpiBaseMI.h"
 #include "CmpiStatus.h"
 #include "CmpiObjectPath.h"
@@ -53,24 +46,36 @@
 #include "CmpiArgs.h"
 #include "Linkage.h"
 
-
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiPropertyMI : virtual public CmpiBaseMI {
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiPropertyMI : virtual public CmpiBaseMI
+{
 public:
-   CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx);
+    CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-   static CMPIStatus driveSetProperty
-   (CMPIPropertyMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eOp, const char* name, CMPIData data);
-   static CMPIStatus driveGetProperty
-   (CMPIPropertyMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
-    const CMPIObjectPath* eOp, const char* name);
+    static CMPIStatus driveSetProperty(
+        CMPIPropertyMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eOp,
+        const char* name,
+        CMPIData data);
+    static CMPIStatus driveGetProperty(
+        CMPIPropertyMI* mi,
+        const CMPIContext* eCtx,
+        const CMPIResult* eRslt,
+        const CMPIObjectPath* eOp,
+        const char* name);
 
-   virtual CmpiStatus setProperty
-   (const CmpiContext& ctx, CmpiResult& rslt,
-    const CmpiObjectPath& op, const char* name, const CmpiData& data);
-   virtual CmpiStatus getProperty
-   (const CmpiContext& ctx, CmpiResult& rslt,
-    const CmpiObjectPath& op, const char* name);
+    virtual CmpiStatus setProperty(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& op,
+        const char* name,
+        const CmpiData& data);
+    virtual CmpiStatus getProperty(
+        const CmpiContext& ctx,
+        CmpiResult& rslt,
+        const CmpiObjectPath& op,
+        const char* name);
 };
 
 #endif

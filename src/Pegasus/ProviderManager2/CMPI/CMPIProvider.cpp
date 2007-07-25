@@ -618,8 +618,14 @@ Boolean CMPIProvider::unload_ok()
     if (_no_unload.get())
         return false;
 
-    if (_cimom_handle)
-        return _cimom_handle->unload_ok();
+    // Do not call CIMOMHandle::unload_ok here. 
+    // CIMOMHandle::unload_ok method tests for _providerUnloadProtect
+    // and if zero returns true. _providerUnloadProtect is
+    // incremented when CIMOMHandle::disallowProviderUnload()
+    // is called and decremented when
+    // CIMOMHandle::allowProviderUnload() is called. There is
+    // no way these functions are called from CMPI Providers.(Bug 6642)
+
     return true;
 }
 

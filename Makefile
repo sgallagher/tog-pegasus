@@ -154,6 +154,10 @@ depend: buildmu
 # build target: builds all source
 #
 build: depend all setupdevserver
+ifeq ($(PEGASUS_USE_DIRECTACCESS_FOR_LOCAL),true)
+	$(MAKE) --directory=$(PEGASUS_ROOT) dacim
+endif
+
 
 #------------------------
 # rebuild target is being deprecated instead use "make new build"

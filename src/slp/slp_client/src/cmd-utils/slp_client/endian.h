@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,22 +30,21 @@
 //==============================================================================
 /*****************************************************************************
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/endian.h,v 1.6 2007/06/26 07:16:12 ks.madhusudan Exp $ 	                                                            
- *               					                    
- *  Copyright (c) 2001 - 2003  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *
+ *  Copyright (c) 2001 - 2003  IBM
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -56,17 +55,16 @@
  *
  *****************************************************************************/
 
+#define __LITTLE_ENDIAN__ 1234
 
-
-
-#define	__LITTLE_ENDIAN__	1234
 #ifndef __BIG_ENDIAN__
-#define	__BIG_ENDIAN__	4321
+#    define __BIG_ENDIAN__ 4321
 #endif
-#define	__PDP_ENDIAN__	3412
 
-   #ifdef WORDS_BIGENDIAN
-      #define __BYTE_ORDER__ __BIG_ENDIAN__
-   #else 
-      #define __BYTE_ORDER__ __LITTLE_ENDIAN__
-   #endif 
+#define __PDP_ENDIAN__ 3412
+
+#ifdef WORDS_BIGENDIAN
+#    define __BYTE_ORDER__ __BIG_ENDIAN__
+#else
+#    define __BYTE_ORDER__ __LITTLE_ENDIAN__
+#endif

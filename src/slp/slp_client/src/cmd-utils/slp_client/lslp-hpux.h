@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,10 +32,9 @@
  *  Description:   portability routines for nucleus RTOS
  *
  *  Originated: December 17, 2001 
- *	Original Author: Mike Day md@soft-hackle.net
+ *     Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-hpux.h,v 1.2 2006/01/31 14:50:42 karl Exp $ 	                                                            
- *               					                    
+ *
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
  *                                                                           
@@ -63,7 +62,7 @@
 #ifndef _LSLP_HPUX_INCL_
 #define LSLP_HPUX_INCL_
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -75,16 +74,16 @@ typedef size_t socklen_t;
 
 /*** defines ***/
 #define _LSLP_SETSOCKOPT(a, b, c, d, e) \
-           setsockopt((int)(a), (int)(b), (int)(c), (const char *)(d), (socklen_t)(e))
+    setsockopt((int)(a), (int)(b), (int)(c), (const char *)(d), (socklen_t)(e))
 #define _LSLP_SENDTO(a, b, c, d, e, f) \
-           sendto((int)(a), (const char *)(b), (size_t)(c), (int)(d), \
-                  (const struct sockaddr *)(e), (socklen_t)(f))
+    sendto((int)(a), (const char *)(b), (size_t)(c), (int)(d), \
+    (const struct sockaddr *)(e), (socklen_t)(f))
 
 #define _LSLP_RECV_FROM(a, b, c, d, e, f) \
-           recvfrom((int)(a), (char *)(b), (size_t)(c), (int)(d), \
-                    (struct sockaddr *)(e), (int *)(f))
+    recvfrom((int)(a), (char *)(b), (size_t)(c), (int)(d), \
+    (struct sockaddr *)(e), (int *)(f))
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

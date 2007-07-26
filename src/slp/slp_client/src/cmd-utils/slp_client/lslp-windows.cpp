@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,10 +32,9 @@
  *  Description:   portability routines for WINDOZE
  *
  *  Originated: December 17, 2001 
- *	Original Author: Mike Day md@soft-hackle.net
+ *     Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.cpp,v 1.4 2006/01/31 14:50:42 karl Exp $ 	                                                            
- *               					                    
+ *
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
  *                                                                           
@@ -60,15 +59,13 @@
  *
  *****************************************************************************/
 
-
-
 #include "lslp-windows.h"
 
-void WindowsStartNetwork(void)
+void WindowsStartNetwork()
 {
-	WSADATA wsData;
-	WSAStartup (  0x0002,   &wsData );
-}	
+    WSADATA wsData;
+    WSAStartup(0x0002, &wsData);
+}
 
 
 

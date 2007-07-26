@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -62,9 +62,9 @@
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#define HAVE_UNISTD_H 0
+#    define HAVE_UNISTD_H 0
 #else
-#define HAVE_UNISTD_H 1
+#    define HAVE_UNISTD_H 1
 #endif
 
 /* OK to #include /linux/if.h */
@@ -74,18 +74,18 @@
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#define HOST_OS "Windows"
+#    define HOST_OS "Windows"
 #else
-#define HOST_OS "Linux"
+#    define HOST_OS "Linux"
 #endif
 
 /* Portability Header */
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#define OS_PORT_INCLUDE "lslp-windows.h"
+#    define OS_PORT_INCLUDE "lslp-windows.h"
 #else
-#define OS_PORT_INCLUDE "lslp-linux.h"
+#    define OS_PORT_INCLUDE "lslp-linux.h"
 #endif
 
 /* Define to the address where bug reports for this package should be sent. */
@@ -112,11 +112,11 @@
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#define DLL_IMPORT __declspec(dllimport)
-#define DLL_EXPORT __declspec(dllexport)
+#    define DLL_IMPORT __declspec(dllimport)
+#    define DLL_EXPORT __declspec(dllexport)
 #else
-#define DLL_IMPORT 
-#define DLL_EXPORT 
+#    define DLL_IMPORT
+#    define DLL_EXPORT
 #endif
 
 /* #undef WORDS_BIG_ENDIAN */

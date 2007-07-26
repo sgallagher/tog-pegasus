@@ -34,7 +34,6 @@
  *  Originated: December 31, 1999
  *  Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.13 2007/06/26 07:16:12 ks.madhusudan Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -62,7 +61,6 @@
 
 
 
-
 #ifndef _LSLP_WINDOWS_INCL_
 #define _LSLP_WINDOWS_INCL_
 
@@ -70,7 +68,7 @@
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #ifndef _MT
-#define _MT
+# define _MT
 #endif
 
 #define WIN32_LEAN_AND_MEAN
@@ -101,17 +99,19 @@ typedef __int64 int64;
 typedef unsigned __int64 uint64;
 typedef SOCKET SOCKETD;
 
-typedef struct socket_address {
-  struct sockaddr_in *address;
-  int address_len;
+typedef struct socket_address 
+{
+    struct sockaddr_in *address;
+    int address_len;
 } socket_addr ;
 
-typedef struct socket_address_list {
-  int count;
-  socket_addr *list;
+typedef struct socket_address_list 
+{
+    int count;
+    socket_addr *list;
 } socket_addr_list;
 
-void WindowsStartNetwork(void);
+void WindowsStartNetwork();
 /* int32 gettimeofday(struct timeval *tv, struct timezone *tz); */
 
 /* WIN 32 macros for mutex semaphore */
@@ -119,7 +119,8 @@ void WindowsStartNetwork(void);
 
 /* void SLEEP(int32 milliseconds) */
 #define _LSLP_SLEEP Sleep
-#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t)))
+#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, \
+    (const char *)&(t), sizeof((t)))
 
 /* void *(*start)(void *), ustacksize, void *arg           */
 
@@ -146,20 +147,22 @@ void WindowsStartNetwork(void);
 
 #define _LSLP_SOCKET(a, b, c) socket(((int)(a)), ((int)(b)), ((int)(c)))
 #define _LSLP_CLOSESOCKET closesocket
-#define _LSLP_BIND(a, b, c) bind(((SOCKET)(a)), ((const struct sockaddr *)(b)), ((int)(c)))
+#define _LSLP_BIND(a, b, c) bind(((SOCKET)(a)), \
+    ((const struct sockaddr *)(b)), ((int)(c)))
 #define _LSLP_SENDTO(a, b, c, d, e, f) \
-           sendto(((SOCKET)(a)), ((const char *)(b)), ((int)(c)), ((int)(d)), \
-                  ((const struct sockaddr *)(e)), ((int)(f)))
+    sendto(((SOCKET)(a)), ((const char *)(b)), ((int)(c)), ((int)(d)), \
+    ((const struct sockaddr *)(e)), ((int)(f)))
 #define _LSLP_RECV_FROM(a, b, c, d, e, f) \
-           recvfrom(((SOCKET)(a)), ((char *)(b)), ((int)(c)), ((int)(d)), \
-                    ((struct sockaddr *)(e)), ((int *)(f)))
+    recvfrom(((SOCKET)(a)), ((char *)(b)), ((int)(c)), ((int)(d)), \
+    ((struct sockaddr *)(e)), ((int *)(f)))
 
 
 #define _LSLP_SETSOCKOPT(a, b, c, d, e) \
-           setsockopt(((SOCKET)(a)), ((int)(b)), ((int)(c)), ((const char *)(d)), ((int)(e)))
+    setsockopt(((SOCKET)(a)), ((int)(b)), ((int)(c)), ((const char *)(d)),\
+    ((int)(e)))
 #define _LSLP_SELECT(a, b, c, d, e) \
-           select(((int)(a)), ((fd_set *)(b)), ((fd_set *)(c)), \
-           ((fd_set *)(d)), ((const struct timeval *)(e)))
+    select(((int)(a)), ((fd_set *)(b)), ((fd_set *)(c)), \
+    ((fd_set *)(d)), ((const struct timeval *)(e)))
 #define _LSLP_FD_ISSET(a, b)  FD_ISSET(((SOCKET)(a)), ((fd_set *)(b)))
 #define _LSLP_FD_SET(a, b) FD_SET(((SOCKET)(a)), ((fd_set *)(b)))
 #define _LSLP_FD_ZERO(a) FD_ZERO((fd_set *)(a))

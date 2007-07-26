@@ -711,7 +711,9 @@ ifeq ($(PEGASUS_USE_DIRECTACCESS_FOR_LOCAL),true)
       endif
     endif
     ifndef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-       $(warning Direct access CIM built  without CIMClient.h experimental interfaces.)
+        ifneq ($(OS_TYPE),windows)
+            $(warning Direct access CIM built  without CIMClient.h experimental interfaces.)
+        endif
     endif
 else
     ifeq ($(PEGASUS_DIRECTACCESS_SHARE_REPOSITORY),noshare)

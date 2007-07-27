@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
@@ -36,7 +36,7 @@
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // WMIInstanceProvider::
@@ -73,21 +73,21 @@ PEGASUS_NAMESPACE_BEGIN
 //////////////////////////////////////////////////////////////////////
 WMIInstanceProvider::WMIInstanceProvider(void)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::constructor()");
-	
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::constructor()");
+    
     _collector = NULL;
-	m_bInitialized = false;
+    m_bInitialized = false;
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 WMIInstanceProvider::~WMIInstanceProvider(void)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::destructor()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::destructor()");
 
-	cleanup();
+    cleanup();
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -104,71 +104,74 @@ CIMInstance WMIInstanceProvider::getInstance(
         Boolean includeClassOrigin ,
         const CIMPropertyList& propertyList)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::getInstance()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::getInstance()");
 
-	CComPtr<IWbemClassObject> pInstance;
-	String sClassName = instanceName.getClassName().getString();
-	String sInstanceName = getObjectName(instanceName);
-	CIMInstance cimInstance(sClassName);
+    CComPtr<IWbemClassObject> pInstance;
+    String sClassName = instanceName.getClassName().getString();
+    String sInstanceName = getObjectName(instanceName);
+    CIMInstance cimInstance(sClassName);
 
-	setup(nameSpace, userName, password);
+    setup(nameSpace, userName, password);
 
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"getInstance - localOnly %x, includeQualifiers %x, includeClassOrigin %x", 
-		localOnly, 
-		includeQualifiers, 
-		includeClassOrigin));
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "getInstance - localOnly %x, includeQualifiers %x, "
+        "includeClassOrigin %x", 
+        localOnly, 
+        includeQualifiers, 
+        includeClassOrigin));
 
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"getInstance - classname - %s, namespace - %s, instancename - %s",  
-		sClassName, nameSpace ,sInstanceName));
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "getInstance - classname - %s, namespace - %s, instancename - %s",  
+        sClassName, nameSpace ,sInstanceName));
 
-	if (!m_bInitialized)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIInstanceProvider::getInstance - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized));
+    if (!m_bInitialized)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "WMIInstanceProvider::getInstance - m_bInitilized= %x, "
+            "throw CIM_ERR_FAILED exception",  
+            m_bInitialized));
 
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Collector initialation failed.");
-	}
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "Collector initialation failed.");
+    }
 
-	// retrieve instance object
-	if (!(_collector->getObject(&pInstance, sInstanceName)))
-	{
-		if (pInstance)
-			pInstance.Release();
+    // retrieve instance object
+    if (!(_collector->getObject(&pInstance, sInstanceName)))
+    {
+        if (pInstance)
+            pInstance.Release();
 
-		throw CIMException(CIM_ERR_NOT_FOUND);
-	}
-	else if (!(_collector->isInstance(pInstance)))
-	{
-		if (pInstance)
-			pInstance.Release();
-		
-		throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	}
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+    else if (!(_collector->isInstance(pInstance)))
+    {
+        if (pInstance)
+            pInstance.Release();
+        
+        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    }
 
-	// Get the instance object.
-	if (!_collector->getCIMInstance(pInstance, 
-		                            cimInstance,
-									localOnly, 
-									includeQualifiers,
-									includeClassOrigin, 
-									propertyList, 
-									TRUE)) // need key properties here
-	{
-		if (pInstance)
-			pInstance.Release();
+    // Get the instance object.
+    if (!_collector->getCIMInstance(pInstance, 
+                                    cimInstance,
+                                    localOnly, 
+                                    includeQualifiers,
+                                    includeClassOrigin, 
+                                    propertyList, 
+                                    TRUE)) // need key properties here
+    {
+        if (pInstance)
+            pInstance.Release();
 
-		throw CIMException(CIM_ERR_NOT_FOUND);
-	}
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
 
-	if (pInstance)
-		pInstance.Release();
+    if (pInstance)
+        pInstance.Release();
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return cimInstance;
+    return cimInstance;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -186,201 +189,209 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList)
 {
-	HRESULT hr;
-	long lCount = 0;
-	DWORD dwReturned;
+    HRESULT hr;
+    long lCount = 0;
+    DWORD dwReturned;
 
-	CComPtr<IEnumWbemClassObject>	pInstEnum;
-	CComPtr<IWbemClassObject>		pInstance;
+    CComPtr<IEnumWbemClassObject>    pInstEnum;
+    CComPtr<IWbemClassObject>        pInstance;
 
-	Array<CIMInstance> namedInstances;
+    Array<CIMInstance> namedInstances;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::enumerateInstances()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,
+        "WMIInstanceProvider::enumerateInstances()");
 
-	setup(nameSpace, userName, password);
+    setup(nameSpace, userName, password);
 
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"enumerateInstances - deepInheritance %x, localOnly %x, includeQualifiers %x, includeClassOrigin %x", 
-		deepInheritance, localOnly, includeQualifiers, includeClassOrigin));
-	
-	if (!m_bInitialized)
-	{
-		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"enumerateInstances - m_bInitialized is false; throw exception"); 
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "enumerateInstances - deepInheritance %x, localOnly %x, "
+        "includeQualifiers %x, includeClassOrigin %x", 
+        deepInheritance, localOnly, includeQualifiers, includeClassOrigin));
+    
+    if (!m_bInitialized)
+    {
+        PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "enumerateInstances - m_bInitialized is false; throw exception"); 
 
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// retrieve instance enumeration object
-	if (!(_collector->getInstanceEnum(&pInstEnum, className, deepInheritance)))
-	{
-		if (pInstEnum)
-			pInstEnum.Release();
+    // retrieve instance enumeration object
+    if (!(_collector->getInstanceEnum(&pInstEnum, className, deepInheritance)))
+    {
+        if (pInstEnum)
+            pInstEnum.Release();
 
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// set proxy security on pInstEnum
-	bool bSecurity = _collector->setProxySecurity(pInstEnum);
+    // set proxy security on pInstEnum
+    bool bSecurity = _collector->setProxySecurity(pInstEnum);
 
-	// Get the instances and append them to the array
-	hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
+    // Get the instances and append them to the array
+    hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
 
-	while (SUCCEEDED(hr) && (1 == dwReturned))
-	{
-		//get class from the returned instance 
-		//it will avoid "type mismatch" exceptions
-		//when deepInheritance is true and instances
-		//of subclasses are returned
-		CComVariant vTmpClassName;
-		String strTmpClassName;
-		if (pInstance->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL) == S_OK)
-		{
-			strTmpClassName = WMIString(vTmpClassName);
-		}
+    while (SUCCEEDED(hr) && (1 == dwReturned))
+    {
+        //get class from the returned instance 
+        //it will avoid "type mismatch" exceptions
+        //when deepInheritance is true and instances
+        //of subclasses are returned
+        CComVariant vTmpClassName;
+        String strTmpClassName;
+        if (pInstance->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL) == S_OK)
+        {
+            strTmpClassName = WMIString(vTmpClassName);
+        }
 
-		CIMInstance tempInst(strTmpClassName);
+        CIMInstance tempInst(strTmpClassName);
 
-		if (_collector->getCIMInstance(pInstance, 
-			                           tempInst,
-									   localOnly, 
-									   includeQualifiers,
-									   includeClassOrigin, 
-									   propertyList, 
-									   TRUE))
-		{
-			lCount++;
+        if (_collector->getCIMInstance(pInstance, 
+                                       tempInst,
+                                       localOnly, 
+                                       includeQualifiers,
+                                       includeClassOrigin, 
+                                       propertyList, 
+                                       TRUE))
+        {
+            lCount++;
 
-			//build instance path
-			CComVariant v;
-			hr = pInstance->Get(L"__PATH", 
-				                0,
-								&v,
-								NULL,
-								NULL);
+            //build instance path
+            CComVariant v;
+            hr = pInstance->Get(L"__PATH", 
+                                0,
+                                &v,
+                                NULL,
+                                NULL);
 
-			WMIObjectPath tempRef(v.bstrVal);
-			tempInst.setPath(tempRef);
-			namedInstances.append(CIMInstance(tempInst));
-			v.Clear();
-		}
+            WMIObjectPath tempRef(v.bstrVal);
+            tempInst.setPath(tempRef);
+            namedInstances.append(CIMInstance(tempInst));
+            v.Clear();
+        }
 
-		if (pInstance)
-			pInstance.Release();
+        if (pInstance)
+            pInstance.Release();
 
-		hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
-	}
+        hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
+    }
 
-	if (pInstEnum)
-		pInstEnum.Release();
+    if (pInstEnum)
+        pInstEnum.Release();
 
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIInstanceProvider::enumerateInstances() - Instance count is %d", lCount)); 
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "WMIInstanceProvider::enumerateInstances() - "
+        "Instance count is %d", lCount)); 
 
-	if (lCount == 0)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIInstanceProvider::enumerateInstances() - hResult value is %x", hr));
-	}
+    if (lCount == 0)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "WMIInstanceProvider::enumerateInstances() - "
+            "hResult value is %x", hr));
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return namedInstances;
+    return namedInstances;
 }
-	
+    
 /////////////////////////////////////////////////////////////////////////////
 // WMIInstanceProvider::enumerateInstanceNames
 //
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
-		const String& nameSpace,
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const String& className)
+        const String& className)
 {
-	HRESULT hr;
-	long lCount = 0;
-	DWORD dwReturned;
+    HRESULT hr;
+    long lCount = 0;
+    DWORD dwReturned;
 
-	CComPtr<IEnumWbemClassObject>	pInstEnum;
-	CComPtr<IWbemClassObject>		pInstance;
+    CComPtr<IEnumWbemClassObject>    pInstEnum;
+    CComPtr<IWbemClassObject>        pInstance;
 
-	Array<CIMObjectPath> instanceNames;
+    Array<CIMObjectPath> instanceNames;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::enumerateInstanceNames()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,
+        "WMIInstanceProvider::enumerateInstanceNames()");
 
-	setup(nameSpace, userName, password);
+    setup(nameSpace, userName, password);
 
-	if (!m_bInitialized)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIInstanceProvider::enumerateInstanceNames - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized));
+    if (!m_bInitialized)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "WMIInstanceProvider::enumerateInstanceNames - m_bInitilized= %x,"
+            " throw CIM_ERR_FAILED exception",  
+            m_bInitialized));
 
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// retrieve the instance enumeration object
-	if (!(_collector->getInstanceEnum(&pInstEnum, className, TRUE)))
-	{
-		if (pInstEnum)
-			pInstEnum.Release();
+    // retrieve the instance enumeration object
+    if (!(_collector->getInstanceEnum(&pInstEnum, className, TRUE)))
+    {
+        if (pInstEnum)
+            pInstEnum.Release();
 
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// set proxy security on pInstEnum
-	bool bSecurity = _collector->setProxySecurity(pInstEnum);
+    // set proxy security on pInstEnum
+    bool bSecurity = _collector->setProxySecurity(pInstEnum);
 
-	// Get the names of the instances and send to handler
-	hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
+    // Get the names of the instances and send to handler
+    hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
 
-	while (SUCCEEDED(hr) && (1 == dwReturned))
-	{
-		CIMInstance tempInst(className);
+    while (SUCCEEDED(hr) && (1 == dwReturned))
+    {
+        CIMInstance tempInst(className);
 
-		if (_collector->getCIMInstance(pInstance, 
-			                           tempInst, 
-									   FALSE, 
-									   FALSE,
-									   FALSE))
-		{
-			lCount++;
+        if (_collector->getCIMInstance(pInstance, 
+                                       tempInst, 
+                                       FALSE, 
+                                       FALSE,
+                                       FALSE))
+        {
+            lCount++;
 
-			//build instance path
-			CComVariant v;
-			hr = pInstance->Get(L"__PATH", 0, &v, NULL, NULL);
-			
-			WMIObjectPath tempRef(v.bstrVal);
-			instanceNames.append(tempRef);
-			v.Clear();
-		}
+            //build instance path
+            CComVariant v;
+            hr = pInstance->Get(L"__PATH", 0, &v, NULL, NULL);
+            
+            WMIObjectPath tempRef(v.bstrVal);
+            instanceNames.append(tempRef);
+            v.Clear();
+        }
 
-		if (pInstance)
-			pInstance.Release();
+        if (pInstance)
+            pInstance.Release();
 
-		hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
-	}
+        hr = pInstEnum->Next(WBEM_INFINITE, 1, &pInstance, &dwReturned);
+    }
 
-	if (pInstEnum)
-		pInstEnum.Release();
+    if (pInstEnum)
+        pInstEnum.Release();
 
-	PEG_TRACE((TRC_WMIPROVIDER, 
-		          Tracer::LEVEL3,
-				  "WMIInstanceProvider::enumerateInstanceNames() - Instance count is %d", 
-				  lCount));
+    PEG_TRACE((TRC_WMIPROVIDER, 
+                  Tracer::LEVEL3,
+                  "WMIInstanceProvider::enumerateInstanceNames() -"
+                  " Instance count is %d", 
+                  lCount));
 
-	if (lCount == 0)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, 
-			          Tracer::LEVEL3,
-					  "WMIInstanceProvider::enumerateInstanceNames() - hResult value is %x", 
-					  hr));
-	}
+    if (lCount == 0)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, 
+                      Tracer::LEVEL3,
+                      "WMIInstanceProvider::enumerateInstanceNames() -"
+                      " hResult value is %x", 
+                      hr));
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return instanceNames;
+    return instanceNames;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -388,54 +399,55 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 //
 // ///////////////////////////////////////////////////////////////////////////
 CIMValue WMIInstanceProvider::getProperty(
-		const String& nameSpace,
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMObjectPath& instanceName,
-		const String& propertyName)
+        const CIMObjectPath& instanceName,
+        const String& propertyName)
 {
 
-	CIMInstance cimInstance;
-	Array<CIMName> propertyNames;
+    CIMInstance cimInstance;
+    Array<CIMName> propertyNames;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::getProperty()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::getProperty()");
 
-	setup(nameSpace,userName,password);
+    setup(nameSpace,userName,password);
 
-	if (!m_bInitialized)
-	{
-		throw CIMException(CIM_ERR_FAILED, "[getProperty] m_bInitialized");
-	}
+    if (!m_bInitialized)
+    {
+        throw CIMException(CIM_ERR_FAILED, "[getProperty] m_bInitialized");
+    }
 
-	CIMName propName = propertyName;
+    CIMName propName = propertyName;
 
-	propertyNames.append(propName);
+    propertyNames.append(propName);
 
-	CIMPropertyList propertyList = CIMPropertyList(propertyNames);
+    CIMPropertyList propertyList = CIMPropertyList(propertyNames);
 
-	// get the relevant CIMInstance object
-	cimInstance = getCIMInstance(nameSpace, 
-		                         userName, 
-								 password, 
-								 instanceName, 
-								 propertyList);
+    // get the relevant CIMInstance object
+    cimInstance = getCIMInstance(nameSpace, 
+                                 userName, 
+                                 password, 
+                                 instanceName, 
+                                 propertyList);
 
-	// now fetch the property
-	Uint32 pos = cimInstance.findProperty(propName);
+    // now fetch the property
+    Uint32 pos = cimInstance.findProperty(propName);
 
-	if (PEG_NOT_FOUND == pos)
-	{
-		throw CIMException(CIM_ERR_NO_SUCH_PROPERTY, "[getProperty] findproperty");
-	}
+    if (PEG_NOT_FOUND == pos)
+    {
+        throw CIMException(CIM_ERR_NO_SUCH_PROPERTY, 
+            "[getProperty] findproperty");
+    }
 
-	CIMProperty property = cimInstance.getProperty(pos);
+    CIMProperty property = cimInstance.getProperty(pos);
 
-	// and return the value
-	CIMValue value = property.getValue();
+    // and return the value
+    CIMValue value = property.getValue();
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return value;
+    return value;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -443,138 +455,143 @@ CIMValue WMIInstanceProvider::getProperty(
 //
 // ///////////////////////////////////////////////////////////////////////////
 void WMIInstanceProvider::setProperty(
-		const String& nameSpace,
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMObjectPath& instanceName,
-		const String& propertyName,
-		const CIMValue& newValue)
+        const CIMObjectPath& instanceName,
+        const String& propertyName,
+        const CIMValue& newValue)
 {
 
-	CComPtr<IWbemServices>			pServices;
-	CComPtr<IWbemClassObject>		pInstance;
-	CComVariant						vValue;
-	CComBSTR						bsPropName;
-	HRESULT							hr;
-	String							sInstanceName;
+    CComPtr<IWbemServices>            pServices;
+    CComPtr<IWbemClassObject>        pInstance;
+    CComVariant                        vValue;
+    CComBSTR                        bsPropName;
+    HRESULT                            hr;
+    String                            sInstanceName;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::setProperty()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::setProperty()");
 
-	sInstanceName = getObjectName(instanceName);	
+    sInstanceName = getObjectName(instanceName);    
 
-	setup(nameSpace, userName, password);
+    setup(nameSpace, userName, password);
 
-	PEG_TRACE((TRC_WMIPROVIDER, 
-		          Tracer::LEVEL3,
-				  "setProperty() - setting property %s in %s", 
-				  propertyName, 
-				  sInstanceName));
+    PEG_TRACE((TRC_WMIPROVIDER, 
+                  Tracer::LEVEL3,
+                  "setProperty() - setting property %s in %s", 
+                  propertyName, 
+                  sInstanceName));
 
-	if (!m_bInitialized)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIInstanceProvider::setProperty - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized));
+    if (!m_bInitialized)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "WMIInstanceProvider::setProperty - m_bInitilized= %x, "
+            "throw CIM_ERR_FAILED exception",  
+            m_bInitialized));
 
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Collector initialization failed.");
-	}
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "Collector initialization failed.");
+    }
 
-	// retrieve instance object
-	if (!(_collector->getObject(&pInstance, sInstanceName)))
-	{
-		if (pInstance)
-			pInstance.Release();
+    // retrieve instance object
+    if (!(_collector->getObject(&pInstance, sInstanceName)))
+    {
+        if (pInstance)
+            pInstance.Release();
 
-		throw CIMException(CIM_ERR_NOT_FOUND);
-	}
-	//else if ((!(_collector->isInstance(pInstance))) || (prop == ""))
-	else if ((!(_collector->isInstance(pInstance))) || (propertyName.size() == 0))
-	{
-		if (pInstance)
-			pInstance.Release();
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+    //else if ((!(_collector->isInstance(pInstance))) || (prop == ""))
+    else if ((!(_collector->isInstance(pInstance))) || 
+        (propertyName.size() == 0))
+    {
+        if (pInstance)
+            pInstance.Release();
 
-		throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	}
+        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    }
 
-	//check if property exists
-	CIMInstance cimInstance;
-	Array<CIMName> propertyNames;
-	CIMName propName = propertyName;
-	
-	propertyNames.append(propName);
-	CIMPropertyList propertyList = CIMPropertyList(propertyNames);	
-	
-	cimInstance = getCIMInstance(nameSpace, 
-		                         userName, 
-								 password, 
-								 instanceName, 
-								 propertyList);
+    //check if property exists
+    CIMInstance cimInstance;
+    Array<CIMName> propertyNames;
+    CIMName propName = propertyName;
+    
+    propertyNames.append(propName);
+    CIMPropertyList propertyList = CIMPropertyList(propertyNames);    
+    
+    cimInstance = getCIMInstance(nameSpace, 
+                                 userName, 
+                                 password, 
+                                 instanceName, 
+                                 propertyList);
 
-	Uint32 pos = cimInstance.findProperty(propName);
+    Uint32 pos = cimInstance.findProperty(propName);
 
-	if (PEG_NOT_FOUND == pos)
-	{
-		throw CIMException(CIM_ERR_NO_SUCH_PROPERTY);
-	}
+    if (PEG_NOT_FOUND == pos)
+    {
+        throw CIMException(CIM_ERR_NO_SUCH_PROPERTY);
+    }
 
-	// check the existing value and type
-	//bsPropName = prop.Bstr();
-	bsPropName = propertyName.getCString();
+    // check the existing value and type
+    //bsPropName = prop.Bstr();
+    bsPropName = propertyName.getCString();
 
-	//convert property value from CIMValue to VARIANT
-	WMIValue(newValue).getAsVariant(&vValue);
+    //convert property value from CIMValue to VARIANT
+    WMIValue(newValue).getAsVariant(&vValue);
 
-	//update property value
-	hr = pInstance->Put(bsPropName, 0, &vValue, 0);
-	vValue.Clear();
+    //update property value
+    hr = pInstance->Put(bsPropName, 0, &vValue, 0);
+    vValue.Clear();
 
-	if (FAILED(hr))
-	{
-		if (pInstance)
-			pInstance.Release();
+    if (FAILED(hr))
+    {
+        if (pInstance)
+            pInstance.Release();
 
         switch(hr)
-		{
-			case WBEM_E_TYPE_MISMATCH:
-				throw CIMException(CIM_ERR_TYPE_MISMATCH);
-			default:
-				PEG_TRACE((TRC_WMIPROVIDER, 
-							  Tracer::LEVEL3,
-							  "setProperty() - Put failed, hr = %x", 
-							  hr));
+        {
+            case WBEM_E_TYPE_MISMATCH:
+                throw CIMException(CIM_ERR_TYPE_MISMATCH);
+            default:
+                PEG_TRACE((TRC_WMIPROVIDER, 
+                              Tracer::LEVEL3,
+                              "setProperty() - Put failed, hr = %x", 
+                              hr));
 
-				throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "WMI Put property failed.");				
-		}
-		
-	}
-	
-	//update instance
-	_collector->Connect(&pServices);
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "WMI Put property failed.");                
+        }
+        
+    }
+    
+    //update instance
+    _collector->Connect(&pServices);
 
-	hr = pServices->PutInstance(pInstance, 
-		                        WBEM_FLAG_UPDATE_ONLY, 
-								NULL, 
-								NULL);
-	
-	if (pInstance)
-		pInstance.Release();
-	
-	if (pServices)
-		pServices.Release();
+    hr = pServices->PutInstance(pInstance, 
+                                WBEM_FLAG_UPDATE_ONLY, 
+                                NULL, 
+                                NULL);
+    
+    if (pInstance)
+        pInstance.Release();
+    
+    if (pServices)
+        pServices.Release();
 
-	if (FAILED(hr))
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, 
-			          Tracer::LEVEL3,
-					  "setProperty() - PutInstance failed, hr = %x", 
-					  hr));
+    if (FAILED(hr))
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, 
+                      Tracer::LEVEL3,
+                      "setProperty() - PutInstance failed, hr = %x", 
+                      hr));
 
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "WMI Put instance failed.");
-	}
-	
-	PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "WMI Put instance failed.");
+    }
+    
+    PEG_METHOD_EXIT();
 
-	return;
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -582,188 +599,200 @@ void WMIInstanceProvider::setProperty(
 //
 // ///////////////////////////////////////////////////////////////////////////
 void WMIInstanceProvider::modifyInstance(
-	const String& nameSpace,
+    const String& nameSpace,
     const String& userName,
     const String& password,
-	const CIMInstance& modifiedInstance,
-	Boolean includeQualifiers,
-	const CIMPropertyList& propertylist)
+    const CIMInstance& modifiedInstance,
+    Boolean includeQualifiers,
+    const CIMPropertyList& propertylist)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIClassProvider::modifyInstance()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIClassProvider::modifyInstance()");
 
-	HRESULT hr;
+    HRESULT hr;
     CComPtr<IWbemClassObject> pClass;
     CComPtr<IWbemClassObject> pInstance;
 
-	setup(nameSpace, userName, password);
+    setup(nameSpace, userName, password);
 
-	PEG_TRACE((TRC_WMIPROVIDER, 
-		          Tracer::LEVEL3,
-				  "ModifyInstance() - nameSpace %s, userName %s",
-				  nameSpace.getCString(),
-				  userName.getCString()));
+    PEG_TRACE((TRC_WMIPROVIDER, 
+                  Tracer::LEVEL3,
+                  "ModifyInstance() - nameSpace %s, userName %s",
+                  nameSpace.getCString(),
+                  userName.getCString()));
 
-	if (!m_bInitialized)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIInstanceProvider::ModifyInstance - m_bInitilized= %x, throw CIM_ERR_FAILED exception",  
-			m_bInitialized));
+    if (!m_bInitialized)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "WMIInstanceProvider::ModifyInstance - m_bInitilized= %x, "
+            "throw CIM_ERR_FAILED exception",  
+            m_bInitialized));
 
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// Check if the instance's class is valid.
-	String className = modifiedInstance.getClassName().getString();
-	
-	if (!(_collector->getObject(&pClass, className)))
-	{
-		if (pClass)
-			pClass.Release();
+    // Check if the instance's class is valid.
+    String className = modifiedInstance.getClassName().getString();
+    
+    if (!(_collector->getObject(&pClass, className)))
+    {
+        if (pClass)
+            pClass.Release();
 
-		throw CIMException(CIM_ERR_INVALID_CLASS);
-	}
-	else if (_collector->isInstance(pClass))
-	{
-		if (pClass)
-			pClass.Release();
+        throw CIMException(CIM_ERR_INVALID_CLASS);
+    }
+    else if (_collector->isInstance(pClass))
+    {
+        if (pClass)
+            pClass.Release();
 
-		throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	}
+        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    }
 
-	if (pClass)
-		pClass.Release();
-	
-	// Get the instance path
-	CIMObjectPath objPath = modifiedInstance.getPath();
-	
-	// Get the name of the instance
-	String instanceName = getObjectName(objPath);  // TERRY: WAS: objPath.toString();
-	
-	// Check if the instance exists
-	if (!(_collector->getObject(&pInstance, instanceName)))
-	{
-		if (pInstance)
-			pInstance.Release();
+    if (pClass)
+        pClass.Release();
+    
+    // Get the instance path
+    CIMObjectPath objPath = modifiedInstance.getPath();
+    
+    // Get the name of the instance
+    String instanceName = getObjectName(objPath);  
+    
+    // Check if the instance exists
+    if (!(_collector->getObject(&pInstance, instanceName)))
+    {
+        if (pInstance)
+            pInstance.Release();
 
-		throw CIMException(CIM_ERR_NOT_FOUND);
-	}
-	else if (!(_collector->isInstance(pInstance)))
-	{
-		if (pInstance)
-			pInstance.Release();
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+    else if (!(_collector->isInstance(pInstance)))
+    {
+        if (pInstance)
+            pInstance.Release();
 
-		throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	}
+        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    }
 
-	// Set the properties that are into propertylist
-	Array<CIMName> listNames;
-	listNames = propertylist.getPropertyNameArray();
-	
-	bool foundInArray;
-	bool bPropertySet = false;
+    // Set the properties that are into propertylist
+    Array<CIMName> listNames;
+    listNames = propertylist.getPropertyNameArray();
+    
+    bool foundInArray;
+    bool bPropertySet = false;
 
-	for(Uint32 i = 0; i < modifiedInstance.getPropertyCount(); i++)
-	{
-		CComVariant v;
-		CIMProperty property = modifiedInstance.getProperty(i).clone();
-		String sPropName = property.getName().getString();
+    for(Uint32 i = 0; i < modifiedInstance.getPropertyCount(); i++)
+    {
+        CComVariant v;
+        CIMProperty property = modifiedInstance.getProperty(i).clone();
+        String sPropName = property.getName().getString();
 
-		// change only the properties defined into the array
-		// if the array is null, change all properties
-		if (propertylist.isNull())
-		{
-			foundInArray = true;
-		}
-		else
-		{
-			foundInArray = false;
-			for (Uint32 j = 0; (j < listNames.size()) && !foundInArray; j++)
-				//if (listNames[j].getString() == str)
-				if (String::equalNoCase(listNames[j].getString(), sPropName))
-					foundInArray = true;
-		}
+        // change only the properties defined into the array
+        // if the array is null, change all properties
+        if (propertylist.isNull())
+        {
+            foundInArray = true;
+        }
+        else
+        {
+            foundInArray = false;
+            for (Uint32 j = 0; (j < listNames.size()) && !foundInArray; j++)
+                //if (listNames[j].getString() == str)
+                if (String::equalNoCase(listNames[j].getString(), sPropName))
+                    foundInArray = true;
+        }
 
-		if (foundInArray)
-		{
-			WMIValue propertyValue = property.getValue();
+        if (foundInArray)
+        {
+            WMIValue propertyValue = property.getValue();
 
-			try
-			{
-				propertyValue.getAsVariant(&v);
-			}
-			catch (CIMException&)
-			{
-				if (pInstance)
-					pInstance.Release();
+            try
+            {
+                propertyValue.getAsVariant(&v);
+            }
+            catch (CIMException&)
+            {
+                if (pInstance)
+                    pInstance.Release();
 
-				v.Clear();
+                v.Clear();
 
-				throw;
-			}
-			
-			CComBSTR bs = sPropName.getCString();
-			hr = pInstance->Put(bs, 0, &v, 0);
-			v.Clear();
-		
-			// If we fail to set one property, we must assure 
-			// that the others will be processed
-			if(SUCCEEDED(hr))
-			{
-				// Mark that at least one property was set
-				bPropertySet = true;
-			}
-		}
-	}		
+                throw;
+            }
+            
+            CComBSTR bs = sPropName.getCString();
+            hr = pInstance->Put(bs, 0, &v, 0);
+            v.Clear();
+        
+            // If we fail to set one property, we must assure 
+            // that the others will be processed
+            if(SUCCEEDED(hr))
+            {
+                // Mark that at least one property was set
+                bPropertySet = true;
+            }
+        }
+    }        
 
-	// Check if at least one property was set
-	// otherwise throw invalid parameter error
-	if(!bPropertySet)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, 
-			          Tracer::LEVEL3,
-					  "modifyInstance() - Put Failed hr=0x%x.", 
-					  hr));
+    // Check if at least one property was set
+    // otherwise throw invalid parameter error
+    if(!bPropertySet)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, 
+                      Tracer::LEVEL3,
+                      "modifyInstance() - Put Failed hr=0x%x.", 
+                      hr));
 
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// Connect to the server
-	CComPtr<IWbemServices> pServices;
-	bool bConnected = _collector->Connect(&pServices);
+    // Connect to the server
+    CComPtr<IWbemServices> pServices;
+    bool bConnected = _collector->Connect(&pServices);
 
-	if (!bConnected)
-	{
-		throw CIMException(CIM_ERR_ACCESS_DENIED);
-	}
+    if (!bConnected)
+    {
+        throw CIMException(CIM_ERR_ACCESS_DENIED);
+    }
 
-	// Write the instance to WMI. 
-	hr = pServices->PutInstance(pInstance, 
-		                        WBEM_FLAG_UPDATE_ONLY, 
-								NULL, 
-								NULL);
+    // Write the instance to WMI. 
+    hr = pServices->PutInstance(pInstance, 
+                                WBEM_FLAG_UPDATE_ONLY, 
+                                NULL, 
+                                NULL);
 
-	if (pInstance)
-		pInstance.Release();
-	
-	if (pServices)
-		pServices.Release();
-	
-	if(FAILED(hr))
-	{
-		switch(hr)
-		{
-			case E_ACCESSDENIED: throw CIMException(CIM_ERR_ACCESS_DENIED); break;
-			case WBEM_E_ACCESS_DENIED: throw CIMException(CIM_ERR_ACCESS_DENIED); break;
-			case WBEM_E_NOT_FOUND: throw CIMException(CIM_ERR_NOT_FOUND);	break;
-			case WBEM_E_INVALID_CLASS: throw CIMException(CIM_ERR_INVALID_CLASS); break;
-			case WBEM_E_INVALID_OBJECT: throw CIMException(CIM_ERR_INVALID_PARAMETER); break;
-			default: throw CIMException(CIM_ERR_FAILED);
-		}
-	}
+    if (pInstance)
+        pInstance.Release();
+    
+    if (pServices)
+        pServices.Release();
+    
+    if(FAILED(hr))
+    {
+        switch(hr)
+        {
+            case E_ACCESSDENIED: 
+                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                break;
+            case WBEM_E_ACCESS_DENIED: 
+                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                break;
+            case WBEM_E_NOT_FOUND: 
+                throw CIMException(CIM_ERR_NOT_FOUND);
+                break;
+            case WBEM_E_INVALID_CLASS: 
+                throw CIMException(CIM_ERR_INVALID_CLASS); 
+                break;
+            case WBEM_E_INVALID_OBJECT: 
+                throw CIMException(CIM_ERR_INVALID_PARAMETER); 
+                break;
+            default: 
+                throw CIMException(CIM_ERR_FAILED);
+        }
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return;
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -771,194 +800,215 @@ void WMIInstanceProvider::modifyInstance(
 //
 // ///////////////////////////////////////////////////////////////////////////
 CIMObjectPath WMIInstanceProvider::createInstance(
-		const String& nameSpace,
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMInstance& newInstance)
+        const CIMInstance& newInstance)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::createInstance()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::createInstance()");
 
-	HRESULT hr;	
-	CComPtr<IWbemClassObject>	pClass;
-    CComPtr<IWbemClassObject>	pNewInstance;
-	CComBSTR bs;
-	
-	setup(nameSpace, userName, password);
+    HRESULT hr;    
+    CComPtr<IWbemClassObject>    pClass;
+    CComPtr<IWbemClassObject>    pNewInstance;
+    CComBSTR bs;
+    
+    setup(nameSpace, userName, password);
 
-	PEG_TRACE((TRC_WMIPROVIDER, 
-		          Tracer::LEVEL3,
-				  "createInstance() - nameSpace %s, userName %s",
-				  nameSpace.getCString(),
-				  userName.getCString()));
+    PEG_TRACE((TRC_WMIPROVIDER, 
+                  Tracer::LEVEL3,
+                  "createInstance() - nameSpace %s, userName %s",
+                  nameSpace.getCString(),
+                  userName.getCString()));
 
-	if (!m_bInitialized)
-	{
-		throw CIMException(CIM_ERR_FAILED);
-	}
+    if (!m_bInitialized)
+    {
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// Get the class definition.
-	String className = newInstance.getClassName().getString();
-	
-	if (!(_collector->getObject(&pClass, className)))
-	{
-		if (pClass)
-			pClass.Release();
+    // Get the class definition.
+    String className = newInstance.getClassName().getString();
+    
+    if (!(_collector->getObject(&pClass, className)))
+    {
+        if (pClass)
+            pClass.Release();
 
-		throw CIMException(CIM_ERR_INVALID_CLASS);
-	}
-	else if (_collector->isInstance(pClass))
-	{
-		if (pClass)
-			pClass.Release();
+        throw CIMException(CIM_ERR_INVALID_CLASS);
+    }
+    else if (_collector->isInstance(pClass))
+    {
+        if (pClass)
+            pClass.Release();
 
-		throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	}
-	
+        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    }
+    
     // Create a new instance.
     hr = pClass->SpawnInstance(0, &pNewInstance);
-	
-	if (pClass)
-		pClass.Release();
+    
+    if (pClass)
+        pClass.Release();
 
-	if(FAILED(hr))
-	{
-		throw CIMException(CIM_ERR_FAILED);
-	}
+    if(FAILED(hr))
+    {
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// Set the properties
-	for(Uint32 i = 0; i < newInstance.getPropertyCount(); i++)
-	{
-		CComVariant v;
+    // Set the properties
+    for(Uint32 i = 0; i < newInstance.getPropertyCount(); i++)
+    {
+        CComVariant v;
 
-		CIMProperty property = newInstance.getProperty(i).clone();
-		CIMValue propertyValue = property.getValue();
-		
-		try
-		{
-			WMIValue(propertyValue).getAsVariant(&v);
-		}
-		catch (CIMException&)
-		{
-			if (pNewInstance)
-				pNewInstance.Release();
+        CIMProperty property = newInstance.getProperty(i).clone();
+        CIMValue propertyValue = property.getValue();
+        
+        try
+        {
+            WMIValue(propertyValue).getAsVariant(&v);
+        }
+        catch (CIMException&)
+        {
+            if (pNewInstance)
+                pNewInstance.Release();
 
-			v.Clear();
+            v.Clear();
 
-			throw;
-		}
-		
-		bs.Empty();
-		bs = property.getName().getString().getCString();
-		hr = pNewInstance->Put(bs, 0, &v, 0);
-		v.Clear();
+            throw;
+        }
+        
+        bs.Empty();
+        bs = property.getName().getString().getCString();
 
-		if(FAILED(hr))
-		{
-			if (pNewInstance)
-				pNewInstance.Release();
+        // NULL properties in causes a CIM_ERR_FAILED 
+        // this conditional ignores properties with NULL. 
+        if (!propertyValue.isNull()) 
+            hr = pNewInstance->Put(bs, 0, &v, 0);
 
-			throw CIMException(CIM_ERR_FAILED);
-		}
-	}		
-	
-	// Connect to the server
-	CComPtr<IWbemServices>	pServices;
-	bool bConnected = _collector->Connect(&pServices);
+        v.Clear();
 
-	if (!bConnected)
-	{
-		throw CIMException(CIM_ERR_ACCESS_DENIED);
-	}
-	
-	// Write the instance to WMI. 
-	CComPtr<IWbemCallResult> pResult;
+        if(FAILED(hr))
+        {
+            if (pNewInstance)
+                pNewInstance.Release();
 
-	hr = pServices->PutInstance(pNewInstance, 
-		                        WBEM_FLAG_RETURN_IMMEDIATELY | WBEM_FLAG_CREATE_ONLY | WBEM_FLAG_USE_AMENDED_QUALIFIERS, 
-								NULL, 
-								&pResult);
+            throw CIMException(CIM_ERR_FAILED);
+        }
+    }        
+    
+    // Connect to the server
+    CComPtr<IWbemServices>    pServices;
+    bool bConnected = _collector->Connect(&pServices);
 
-	if (pNewInstance)
-		pNewInstance.Release();
+    if (!bConnected)
+    {
+        throw CIMException(CIM_ERR_ACCESS_DENIED);
+    }
+    
+    // Write the instance to WMI. 
+    CComPtr<IWbemCallResult> pResult;
 
-	if (pServices)
-		pServices.Release();
+    hr = pServices->PutInstance(pNewInstance, 
+                                WBEM_FLAG_RETURN_IMMEDIATELY | 
+                                WBEM_FLAG_CREATE_ONLY | 
+                                WBEM_FLAG_USE_AMENDED_QUALIFIERS, 
+                                NULL, 
+                                &pResult);
 
+    if (pNewInstance)
+        pNewInstance.Release();
 
-	// set proxy security on pResult
-	bool bSecurity = _collector->setProxySecurity(pResult);
-	
-
-	//check for error	
-	pResult->GetCallStatus(WBEM_INFINITE, &hr);
-	if(FAILED(hr))
-	{
-		switch(hr)
-		{
-			case E_ACCESSDENIED: throw CIMException(CIM_ERR_ACCESS_DENIED); break;
-			case WBEM_E_ACCESS_DENIED: throw CIMException(CIM_ERR_ACCESS_DENIED); break;
-			case WBEM_E_ALREADY_EXISTS: throw CIMException(CIM_ERR_ALREADY_EXISTS);	break;
-			case WBEM_E_INVALID_CLASS: throw CIMException(CIM_ERR_INVALID_CLASS); break;
-			// Terry: Added this check for WBEM_E_NOT_FOUND:
-            case WBEM_E_NOT_FOUND: throw CIMException(CIM_ERR_NOT_FOUND); break;
-			default: throw CIMException(CIM_ERR_FAILED);
-		}
-	}
+    if (pServices)
+        pServices.Release();
 
 
-	// Mount the path to return
+    // set proxy security on pResult
+    bool bSecurity = _collector->setProxySecurity(pResult);
+    
 
-	// Prepend namespace to path
-	String sPath = "//";
-	
-	// Append the host name if it is local
-	if(_collector->isLocalNamespace())
-	{
-		sPath.append(getHostName());
-		sPath.append("/");
-	}
-
-	// Append the namespace, colon 
-	sPath.append(nameSpace);
-	sPath.append(":");
-	
-	// Get the key bindings
-	CComBSTR bsKeyBindings;
-	hr = pResult->GetResultString(WBEM_INFINITE, &bsKeyBindings);
-
-	if (pResult)
-		pResult.Release();
-	
-	if(FAILED(hr))
-	{
-		switch(hr)
-		{
-			case E_ACCESSDENIED: throw CIMException(CIM_ERR_ACCESS_DENIED); break;
-			case WBEM_E_ACCESS_DENIED: throw CIMException(CIM_ERR_ACCESS_DENIED); break;
-            ////////////////////////////////////////////////////////////////////////////
-            // TERRY ADDED:
-            case WBEM_E_INVALID_OPERATION:
-                // GetResultString() may fail on Win2K - get the keys from the CIM instance:
-                if (!GetKeyBindingsFromCIMInstance(newInstance, &bsKeyBindings))
-                    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    //check for error    
+    pResult->GetCallStatus(WBEM_INFINITE, &hr);
+    if(FAILED(hr))
+    {
+        switch(hr)
+        {
+            case E_ACCESSDENIED: 
+                throw CIMException(CIM_ERR_ACCESS_DENIED); 
                 break;
-            ////////////////////////////////////////////////////////////////////////////
-			default: throw CIMException(CIM_ERR_FAILED);
-		}
-	}
-	
-	// Append the key bindings to the path  
-	bs.Empty();
-	bs = sPath.getCString();
-	bs.Append(bsKeyBindings);
-	bsKeyBindings.Empty();
-	
-	// Return the CIMObjectPath
+            case WBEM_E_ACCESS_DENIED: 
+                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                break;
+            case WBEM_E_ALREADY_EXISTS: 
+                throw CIMException(CIM_ERR_ALREADY_EXISTS);
+                break;
+            case WBEM_E_INVALID_CLASS: 
+                throw CIMException(CIM_ERR_INVALID_CLASS); 
+                break;            
+            case WBEM_E_NOT_FOUND: 
+                throw CIMException(CIM_ERR_NOT_FOUND); 
+                break;
+            default: 
+                throw CIMException(CIM_ERR_FAILED);
+        }
+    }
 
-	PEG_METHOD_EXIT();
 
-	CMyString s; s = bs;
-	return CIMObjectPath(String((LPCTSTR)s));
+    // Mount the path to return
+
+    // Prepend namespace to path
+    String sPath = "//";
+    
+    // Append the host name if it is local
+    if(_collector->isLocalNamespace())
+    {
+        sPath.append(getHostName());
+        sPath.append("/");
+    }
+
+    // Append the namespace, colon 
+    sPath.append(nameSpace);
+    sPath.append(":");
+    
+    // Get the key bindings
+    CComBSTR bsKeyBindings;
+    hr = pResult->GetResultString(WBEM_INFINITE, &bsKeyBindings);
+
+    if (pResult)
+        pResult.Release();
+    
+    if(FAILED(hr))
+    {
+        switch(hr)
+        {
+            case E_ACCESSDENIED: 
+                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                break;
+            case WBEM_E_ACCESS_DENIED: 
+                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                break;
+            case WBEM_E_INVALID_OPERATION:
+                // GetResultString() may fail on Win2K - get the keys 
+                // from the CIM instance:
+                if (!GetKeyBindingsFromCIMInstance(newInstance, 
+                    &bsKeyBindings))
+                    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+                break;            
+            default: 
+                throw CIMException(CIM_ERR_FAILED);
+        }
+    }
+    
+    // Append the key bindings to the path  
+    bs.Empty();
+    bs = sPath.getCString();
+    bs.Append(bsKeyBindings);
+    bsKeyBindings.Empty();
+    
+    // Return the CIMObjectPath
+
+    PEG_METHOD_EXIT();
+
+    CMyString s; s = bs;
+    return CIMObjectPath(String((LPCTSTR)s));
  }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -966,55 +1016,66 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 //
 // ///////////////////////////////////////////////////////////////////////////
 void WMIInstanceProvider::deleteInstance(
-	const String& nameSpace,
+    const String& nameSpace,
     const String& userName,
     const String& password,
-	const CIMObjectPath& instanceName)
+    const CIMObjectPath& instanceName)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::deleteInstance()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIInstanceProvider::deleteInstance()");
 
-	CComPtr<IWbemServices> pServices;
+    CComPtr<IWbemServices> pServices;
 
-	//Connect to namespace
-	setup(nameSpace, userName, password);
+    //Connect to namespace
+    setup(nameSpace, userName, password);
 
-	if (!_collector->Connect(&pServices)) 
-	{
-		if (pServices) 
-			pServices.Release();
+    if (!_collector->Connect(&pServices)) 
+    {
+        if (pServices) 
+            pServices.Release();
 
-		throw CIMException(CIM_ERR_ACCESS_DENIED);
-	}
-	
-	//Convert the parameters to make the WMI call
-	CComBSTR bsInstanceName = getObjectName(instanceName).getCString();
-	LONG lFlags = 0L;
+        throw CIMException(CIM_ERR_ACCESS_DENIED);
+    }
+    
+    //Convert the parameters to make the WMI call
+    CComBSTR bsInstanceName = getObjectName(instanceName).getCString();
+    LONG lFlags = 0L;
 
-	//Perform the WMI operation
-	HRESULT hr = pServices->DeleteInstance(bsInstanceName,
-										   lFlags,
-										   NULL,
-										   NULL);
-	if (pServices) 
-		pServices.Release();
+    //Perform the WMI operation
+    HRESULT hr = pServices->DeleteInstance(bsInstanceName,
+                                           lFlags,
+                                           NULL,
+                                           NULL);
+    if (pServices) 
+        pServices.Release();
 
-	//Handle the WMI operation result
-	if (FAILED(hr))
-	{
-		switch (hr)
-		{
-			case WBEM_E_ACCESS_DENIED: throw CIMException(CIM_ERR_ACCESS_DENIED); break;
-			case WBEM_E_FAILED: throw CIMException(CIM_ERR_FAILED); break;
-			case WBEM_E_INVALID_PARAMETER: throw CIMException(CIM_ERR_FAILED, "WMI Invalid Parameter"); break;
-			case WBEM_E_INVALID_CLASS: throw CIMException(CIM_ERR_INVALID_CLASS); break;
-			case WBEM_E_NOT_FOUND: throw CIMException(CIM_ERR_NOT_FOUND); break;
-			default: throw CIMException(CIM_ERR_FAILED);
-		}
-	}
+    //Handle the WMI operation result
+    if (FAILED(hr))
+    {
+        switch (hr)
+        {
+            case WBEM_E_ACCESS_DENIED: 
+                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                break;
+            case WBEM_E_FAILED: 
+                throw CIMException(CIM_ERR_FAILED); 
+                break;
+            case WBEM_E_INVALID_PARAMETER: 
+                throw CIMException(CIM_ERR_FAILED, "WMI Invalid Parameter"); 
+                break;
+            case WBEM_E_INVALID_CLASS: 
+                throw CIMException(CIM_ERR_INVALID_CLASS); 
+                break;
+            case WBEM_E_NOT_FOUND: 
+                throw CIMException(CIM_ERR_NOT_FOUND); 
+                break;
+            default: 
+                throw CIMException(CIM_ERR_FAILED);
+        }
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return;
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1023,21 +1084,22 @@ void WMIInstanceProvider::deleteInstance(
 // ///////////////////////////////////////////////////////////////////////////
 String WMIInstanceProvider::getHostName()
 {
-	DWORD nSize = 255;
+    DWORD nSize = 255;
     char hostName[256];
 
     // Get the computer name
-	if(GetComputerName(hostName, &nSize))
-		return String(hostName);
-	
-	throw CIMException(CIM_ERR_FAILED);
+    if(GetComputerName(hostName, &nSize))
+        return String(hostName);
+    
+    throw CIMException(CIM_ERR_FAILED);
 }
 
 //////////////////////////////////////////////////////////////////////
 // TERRY: ADDED: helper function, maybe should go in a utilities or base class?
 //////////////////////////////////////////////////////////////////////
-bool WMIInstanceProvider::GetKeyBindingsFromCIMInstance(const CIMInstance& newInstance, 
-                                                        BSTR* pbsKeyBindings)
+bool WMIInstanceProvider::GetKeyBindingsFromCIMInstance(
+    const CIMInstance& newInstance, 
+    BSTR* pbsKeyBindings)
 {
     // might check for any NULL keys, just returning success always for now:
     bool bSuccess = true;

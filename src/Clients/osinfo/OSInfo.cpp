@@ -135,17 +135,11 @@ static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
 static const char REQUIRED_ARGS_MISSING_KEY [] = 
     "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
-static const char ERR_OPTION_NOT_SUPPORTED [] =
-    "Invalid option. Use '--help' to obtain command syntax.";
-
-static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = 
-    "Clients.cimuser.CIMUserCommand..ERR_OPTION_NOT_SUPPORTED";
-
 static const char ERR_USAGE [] =
-    "Incorrect usage. Use '--help' to obtain command syntax.";
+    "Use '--help' to obtain command syntax.";
 
 static const char ERR_USAGE_KEY [] = 
-    "Clients.cimuser.CIMUserCommand..ERR_USAGE";
+    "Clients.cimuser.CIMUserCommand.ERR_USAGE";
 
 /**
     This constant signifies that an operation option has not been recorded
@@ -1104,25 +1098,12 @@ int main (int argc, char* argv [])
     }
     catch (const CommandFormatException& cfe)
     {
-        String msg(cfe.getMessage());
+        cerr << OSInfoCommand::COMMAND_NAME << ": " << cfe.getMessage() << endl;
 
-        cerr << OSInfoCommand::COMMAND_NAME << ": " << msg <<  endl;
-
-        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-         {
-           MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
-                                    ERR_OPTION_NOT_SUPPORTED);
-              parms.msg_src_path = MSG_PATH;
-           cerr << OSInfoCommand::COMMAND_NAME <<
-             ": " << MessageLoader::getMessage(parms) << endl;
-         }
-        else
-         {
-           MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
-              parms.msg_src_path = MSG_PATH;
-           cerr << OSInfoCommand::COMMAND_NAME <<
-             ": " << MessageLoader::getMessage(parms) << endl;
-         }
+        MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+        parms.msg_src_path = MSG_PATH;
+        cerr << OSInfoCommand::COMMAND_NAME <<
+            ": " << MessageLoader::getMessage(parms) << endl;
 
         exit (Command::RC_ERROR);
     }

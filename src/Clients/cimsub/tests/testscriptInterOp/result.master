@@ -344,7 +344,7 @@ List subscription with valid namespace for handler.
 
 List subscription with no name for handler.
 cimsub: argument "root/PG_InterOp:CIM_IndicationHandlerCIMXML." is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List subscription with full handler path.
 NAMESPACE        FILTER                    HANDLER                                                STATE

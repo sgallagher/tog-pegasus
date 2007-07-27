@@ -249,56 +249,56 @@ Missing argument for -h option
 wbemexec -h < ./cimrequest.xml
  
 wbemexec: Missing required value for flag h
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Missing argument for -p option
 wbemexec -p < ./cimrequest.xml
  
 wbemexec: Missing required value for flag p
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Missing argument for -v option
 wbemexec -v < ./cimrequest.xml
  
 wbemexec: Missing required value for flag v
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Missing argument for -m option
 wbemexec -m < ./cimrequest.xml
  
 wbemexec: Missing required value for flag m
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Missing argument for -t option
 wbemexec -t < ./cimrequest.xml
  
 wbemexec: Missing required value for flag t
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Missing argument for -u option
 wbemexec -u < ./cimrequest.xml
  
 wbemexec: Missing required value for flag u
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Missing argument for -w option
 wbemexec -w < ./cimrequest.xml
  
 wbemexec: Missing required value for flag w
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Missing argument for -d option
 wbemexec -d < ./cimrequest.xml
  
 wbemexec: Missing required value for flag d
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Non-option argument -
@@ -355,98 +355,98 @@ Empty string non-option argument
 wbemexec "" ./cimrequest.xml
  
 wbemexec: argument "./cimrequest.xml" was unexpected
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid option -x
 wbemexec -x < ./cimrequest.xml
  
 wbemexec: Unknown flag -x
-wbemexec: Invalid option. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid option -x
 wbemexec -u (PEGASUS_TEST_USER_ID) -w (PEGASUS_TEST_USER_PASS) -x < ./cimrequest.xml
  
 wbemexec: Unknown flag -x
-wbemexec: Invalid option. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid option -x
 wbemexec -u (PEGASUS_TEST_USER_ID) -x -w (PEGASUS_TEST_USER_PASS) < ./cimrequest.xml
  
 wbemexec: Unknown flag -x
-wbemexec: Invalid option. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid option -x
 wbemexec -x foo < ./cimrequest.xml
  
 wbemexec: Unknown flag -x
-wbemexec: Invalid option. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid option -x
 wbemexec -xfoo < ./cimrequest.xml
  
 wbemexec: Unknown flag -x
-wbemexec: Invalid option. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Duplicate -h option
 wbemexec -h chacha -h cancan ./cimrequest.xml
  
 wbemexec: duplicate "-h" option
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Duplicate -p option
 wbemexec -p 5988 -p 81 ./cimrequest.xml
  
 wbemexec: duplicate "-p" option
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Duplicate -v option
 wbemexec -v 1.0 -v 1.1 ./cimrequest.xml
  
 wbemexec: duplicate "-v" option
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Duplicate -m option
 wbemexec -m POST -m M-POST ./cimrequest.xml
  
 wbemexec: duplicate "-m" option
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Duplicate -t option
 wbemexec -t 25000 -t 30000 ./cimrequest.xml
  
 wbemexec: duplicate "-t" option
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Duplicate -u option
 wbemexec -u (PEGASUS_TEST_USER_ID) -u (PEGASUS_TEST_USER_ID)2 ./cimrequest.xml
  
 wbemexec: duplicate "-u" option
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Duplicate -w option
 wbemexec -w (PEGASUS_TEST_USER_PASS) -w (PEGASUS_TEST_USER_PASS)2 ./cimrequest.xml
  
 wbemexec: duplicate "-w" option
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Multiple inputfilepath arguments
 wbemexec ./cimrequest.xml ./cimrequest2.xml
  
 wbemexec: argument "./cimrequest2.xml" was unexpected
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid hostName argument
@@ -459,21 +459,21 @@ Invalid number format for portNumber argument
 wbemexec -p xxx ./cimrequest.xml
  
 wbemexec: argument "xxx" is not valid for option "-p"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid number format for portNumber argument
 wbemexec -p 1.1 ./cimrequest.xml
  
 wbemexec: argument "1.1" is not valid for option "-p"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid number format for portNumber argument
 wbemexec -p 1E+1 ./cimrequest.xml
  
 wbemexec: argument "1E+1" is not valid for option "-p"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Out of range portNumber argument
@@ -482,7 +482,7 @@ getoopt reports missing required value for flag p
 wbemexec -p -5988 ./cimrequest.xml
  
 wbemexec: Missing required value for flag p
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Out of range portNumber argument
@@ -491,14 +491,14 @@ getoopt reports missing required value for flag p
 wbemexec -p -1 ./cimrequest.xml
  
 wbemexec: Missing required value for flag p
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Out of range portNumber argument
 wbemexec -p 65536 ./cimrequest.xml
  
 wbemexec: argument "65536" is not valid for option "-p"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Maximum valid portnumber, but cimom not running on specified port
@@ -515,14 +515,14 @@ Invalid (unsupported) version argument
 wbemexec -v 0.9 ./cimrequest.xml
  
 wbemexec: argument "0.9" is not valid for option "-v"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid (unsupported) method argument
 wbemexec -m GET ./cimrequest.xml
  
 wbemexec: argument "GET" is not valid for option "-m"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid combination of version and method argument (1.0 with M-POST)
@@ -535,35 +535,35 @@ Invalid number format for timeout argument
 wbemexec -t xxx ./cimrequest.xml
  
 wbemexec: argument "xxx" is not valid for option "-t"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid number format for timeout argument
 wbemexec -t 1.1 ./cimrequest.xml
  
 wbemexec: argument "1.1" is not valid for option "-t"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid number format for timeout argument
 wbemexec -t 1e-1 ./cimrequest.xml
  
 wbemexec: argument "1e-1" is not valid for option "-t"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Out of range timeout argument value
 wbemexec -t 0 ./cimrequest.xml
  
 wbemexec: argument "0" is not valid for option "-t"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Out of range timeout argument value
 wbemexec -t 4294967296 ./cimrequest.xml
  
 wbemexec: argument "4294967296" is not valid for option "-t"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid user argument
@@ -614,21 +614,21 @@ Invalid debug argument
 wbemexec -d 11 ./cimrequest.xml
  
 wbemexec: argument "11" is not valid for option "-d"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid debug argument
 wbemexec -d 22 ./cimrequest.xml
  
 wbemexec: argument "22" is not valid for option "-d"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid debug argument
 wbemexec -d 3 ./cimrequest.xml
  
 wbemexec: argument "3" is not valid for option "-d"
-wbemexec: Incorrect usage. Use '--help' to obtain command syntax.
+wbemexec: Use '--help' to obtain command syntax.
  
  
 Invalid inputFilePath argument: file does not exist

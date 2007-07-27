@@ -175,12 +175,6 @@ static const char SUBSCRIPTION_ALREADY_ENABLED[] =
 static const char SUBSCRIPTION_ALREADY_ENABLED_KEY[] =
     "Clients.cimsub.CIMSubCommand.SUBSCRIPTION_ALREADY_ENABLED";
 
-static const char ERR_OPTION_NOT_SUPPORTED[] =
-    "Invalid option. Use '--help' to obtain command syntax.";
-
-static const char ERR_OPTION_NOT_SUPPORTED_KEY[] =
-    "Clients.cimsub.CIMSubCommand.ERR_OPTION_NOT_SUPPORTED";
-
 static const char REQUIRED_OPTION_MISSING[] =
     "Required option missing.";
 
@@ -202,7 +196,7 @@ static const char ERR_USAGE_KEY[] =
     "Clients.cimsub.CIMSubCommand.ERR_USAGE";
 
 static const char ERR_USAGE[] =
-    "Incorrect usage. Use '--help' to obtain command syntax.";
+    "Use '--help' to obtain command syntax.";
 
 static const char LONG_HELP[] = "help";
 
@@ -3042,25 +3036,13 @@ int main (int argc, char* argv[])
     }
     catch (CommandFormatException& cfe)
     {
-        String msg(cfe.getMessage());
+        cerr << COMMAND_NAME << ": " << cfe.getMessage() << endl;
 
-        cerr << COMMAND_NAME << ": " << msg <<  endl;
-
-        if (msg.find(String ("Unknown flag")) != PEG_NOT_FOUND)
-        {
-            MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
-                ERR_OPTION_NOT_SUPPORTED);
-            parms.msg_src_path = MSG_PATH;
-            cerr << COMMAND_NAME <<
-                ": " << MessageLoader::getMessage(parms) << endl;
-        }
-        else
-        {
-            MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
-            parms.msg_src_path = MSG_PATH;
-            cerr << COMMAND_NAME <<
-                ": " << MessageLoader::getMessage(parms) << endl;
-        }
+        MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+        parms.msg_src_path = MSG_PATH;
+        cerr << COMMAND_NAME <<
+            ": " << MessageLoader::getMessage(parms) << endl;
+        
         exit (Command::RC_ERROR);
     }
     retCode = command->execute(cout, cerr);

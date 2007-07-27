@@ -2057,10 +2057,14 @@ not be valid."}
             "PGS04863: Warning: Use of cimmofl can corrupt the CIM Server Repository.\n"
             "         cimmofl should only be used under very controlled situations.\n"
             "         cimmof is the recommended OpenPegasus MOF compiler.\n\n"}
-
+        
+         /**
+         * @note PGS04864:
+         *       This message is no longer used as of version 2.7.0
+         */
         Compiler.cimmofMessages.ERR_OPTION_NOT_SUPPORTED:string {"PGS04864: Command line option is not recognized. Use '--help' to obtain command syntax."}
 
-        Compiler.cimmofMessages.ERR_USAGE:string {"PGS04865: Incorrect usage. Use '--help' to obtain command syntax."}
+        Compiler.cimmofMessages.ERR_USAGE:string {"PGS04865: Use '--help' to obtain command syntax."}
 
         // ==========================================================
         // Messages for CIMOperationResponseEncoder

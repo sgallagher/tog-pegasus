@@ -236,17 +236,11 @@ static const char AUTH_NOT_FOUND [] =
 static const char AUTH_NOT_FOUND_KEY [] =
     "Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND";
 
-static const char ERR_OPTION_NOT_SUPPORTED_KEY [] =
-    "Clients.cimauth.CIMAuthCommand.ERR_OPTION_NOT_SUPPORTED";
-
-static const char ERR_OPTION_NOT_SUPPORTED [] =
-    "Invalid option. Use '--help' to obtain command syntax.";
-
 static const char ERR_USAGE_KEY [] =
     "Clients.cimauth.CIMAuthCommand.ERR_USAGE";
 
 static const char ERR_USAGE [] =
-    "Incorrect usage. Use '--help' to obtain command syntax.";
+    "Use '--help' to obtain command syntax.";
 //l10n end default messages and resource keys
 
 /**
@@ -1496,24 +1490,12 @@ int main (int argc, char* argv [])
     }
     catch (CommandFormatException& cfe)
     {
-        String msg(cfe.getMessage());
-        cerr << COMMAND_NAME << ": " << msg <<  endl;
+        cerr << COMMAND_NAME << ": " << cfe.getMessage() <<  endl;
 
-        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-        {
-            MessageLoaderParms parms(ERR_OPTION_NOT_SUPPORTED_KEY,
-                                     ERR_OPTION_NOT_SUPPORTED);
-            parms.msg_src_path = MSG_PATH;
-            cerr << COMMAND_NAME <<
-                ": " << MessageLoader::getMessage(parms) << endl;
-        }
-        else
-        {
-            MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
-            parms.msg_src_path = MSG_PATH;
-            cerr << COMMAND_NAME <<
-                ": " << MessageLoader::getMessage(parms) << endl;
-        }
+        MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);
+        parms.msg_src_path = MSG_PATH;
+        cerr << COMMAND_NAME <<
+            ": " << MessageLoader::getMessage(parms) << endl;
         exit (Command::RC_ERROR);
     }
 

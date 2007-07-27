@@ -73,29 +73,15 @@ int main(int argc, char ** argv)
         ret = processCmdLine(argc, argv, cmdline, cerr);
     }
     catch (ArgumentErrorsException &e)
-    {
-        String msg(e.getMessage());
-
-        cerr << argv[0] << ": " << msg << endl;
-
-        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-        {
-            MessageLoaderParms parms;
-            parms.msg_id = "Compiler.cimmofMessages.ERR_OPTION_NOT_SUPPORTED";
-            parms.default_msg =
-                "Invalid option. Use '--help' to obtain command syntax.";
-            parms.msg_src_path = MSG_PATH;
-            cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
-        }
-        else
-        {
-            MessageLoaderParms parms;
-            parms.msg_id = "Compiler.cimmofMessages.ERR_USAGE";
-            parms.default_msg =
-                "Incorrect usage. Use '--help' to obtain command syntax.";
-            parms.msg_src_path = MSG_PATH;
-            cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
-        }
+    {   
+        cerr << argv[0] << ": " << e.getMessage() << endl;
+                
+        MessageLoaderParms parms;
+        parms.msg_id = "Compiler.cimmofMessages.ERR_USAGE";
+        parms.default_msg =
+            "Use '--help' to obtain command syntax.";
+        parms.msg_src_path = MSG_PATH;
+        cerr << argv[0] << ": " << MessageLoader::getMessage(parms) << endl;
 
         ret =  PEGASUS_CIMMOF_CIM_EXCEPTION;
     }

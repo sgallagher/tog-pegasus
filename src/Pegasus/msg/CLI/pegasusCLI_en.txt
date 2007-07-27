@@ -229,9 +229,13 @@ en:table {
 
         Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE:string {"PGC00239: No configuration properties are found in the configuration file."}
 
+    /**
+    * @note PGC00240:
+    *       This message is no longer used as of version 2.7.0
+    */
         Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00240: Invalid option. Use ''--help'' to obtain command syntax."}
 
-        Clients.CIMConfig.CIMConfigCommand.ERR_USAGE:string {"PGC00241: Incorrect usage. Use ''--help'' to obtain command syntax."}
+        Clients.CIMConfig.CIMConfigCommand.ERR_USAGE:string {"PGC00241: Use ''--help'' to obtain command syntax."}
 
 
 	// ==========================================================
@@ -269,10 +273,14 @@ en:table {
         Clients.cimauth.CIMAuthCommand.AUTH_ALREADY_EXISTS:string {"PGC00413: The specified user authorizations already exist."}
 
         Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND:string {"PGC00414: The specified user authorizations are not found."}
-        
+       
+         /**
+         * @note PGC00240:
+         *       This message is no longer used as of version 2.7.0
+         */
         Clients.cimauth.CIMAuthCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00415: Invalid option. Use ''--help'' to obtain command syntax."}
         
-        Clients.cimauth.CIMAuthCommand.ERR_USAGE:string {"PGC00416: Incorrect usage. Use ''--help'' to obtain command syntax."}        
+        Clients.cimauth.CIMAuthCommand.ERR_USAGE:string {"PGC00416: Use ''--help'' to obtain command syntax."}        
 
 
 	// ==========================================================
@@ -351,7 +359,10 @@ en:table {
 
         Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED:string {"PGC00618: No provider modules are registered."}
 
-
+        /**
+        * @note PGC00240:
+        *       This message is no longer used as of version 2.7.0
+        */
         Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00619: Invalid option. Use ''--help'' to obtain command syntax."}
 
         Clients.cimprovider.CIMProviderCommand.ERR_MODULE_NOT_REGISTERED:string {"PGC00620: Specified provider module is not registered."}
@@ -368,7 +379,7 @@ en:table {
 
 	Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"PGC00626: Failed to disable the provider module.  Provider is busy."} // 485
 
-        Clients.cimprovider.CIMProviderCommand.ERR_USAGE:string {"PGC00628: Incorrect usage. Use ''--help'' to obtain command syntax."}        
+        Clients.cimprovider.CIMProviderCommand.ERR_USAGE:string {"PGC00628: Use ''--help'' to obtain command syntax."}        
 
 
 	// ==========================================================
@@ -425,9 +436,13 @@ en:table {
 
         Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION:string {"PGC00823: Unexpected option."}
 
+        /**
+        * @note PGC00240:
+        *       This message is no longer used as of version 2.7.0
+        */
         Clients.cimuser.CIMUserCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00627: Invalid option. Use ''--help'' to obtain command syntax."}
 
-        Clients.cimuser.CIMUserCommand.ERR_USAGE:string {"PGC00628: Incorrect usage. Use ''--help'' to obtain command syntax."}        
+        Clients.cimuser.CIMUserCommand.ERR_USAGE:string {"PGC00628: Use ''--help'' to obtain command syntax."}        
 
 	// ==========================================================
         // Messages for SSLTrustMgr
@@ -708,9 +723,13 @@ en:table {
 
         Clients.cimreparchive.CIMRepositoryArchiveCommand.REQUIRED_ARGS_MISSING:string {"PGC01200: Required arguments missing."}
 
+        /**
+        * @note PGC00240:
+        *       This message is no longer used as of version 2.7.0
+        */
         Clients.cimreparchive.CIMRepositoryArchiveCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC01201: Invalid option. Use ''--help'' to obtain command syntax."}
 
-        Clients.cimreparchive.CIMRepositoryArchiveCommand.ERR_USAGE:string {"PGC01202: Incorrect usage. Use ''--help'' to obtain command syntax."}
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.ERR_USAGE:string {"PGC01202: Use ''--help'' to obtain command syntax."}
 
         /**
 	* @note PGC01203
@@ -831,14 +850,18 @@ en:table {
         Clients.cimsub.CIMSubCommand.SUBSCRIPTION_ALREADY_DISABLED:string {"PGC01407: The subscription is already disabled."}
 
         Clients.cimsub.CIMSubCommand.SUBSCRIPTION_ALREADY_ENABLED:string {"PGC01408: The subscription is already enabled."}
-
+        
+        /**
+        * @note PGC00240:
+        *       This message is no longer used as of version 2.7.0
+        */
         Clients.cimsub.CIMSubCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC01409: Invalid option. Use ''--help'' to obtain command syntax."}
 
         Clients.cimsub.CIMSubCommand.INVALID_ARGS:string {"PGC01410: Invalid arguments."}
 
         Clients.cimsub.CIMSubCommand.UNEXPECTED_OPTION:string {"PGC01411: Unexpected Option."}
 
-        Clients.cimsub.CIMSubCommand.ERR_USAGE:string {"PGC01412: Incorrect usage. Use ''--help'' to obtain command syntax."}
+        Clients.cimsub.CIMSubCommand.ERR_USAGE:string {"PGC01412: Use ''--help'' to obtain command syntax."}
 
 
         // ==========================================================

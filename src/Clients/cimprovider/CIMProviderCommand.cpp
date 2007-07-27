@@ -257,12 +257,6 @@ static const char NO_MODULE_REGISTERED[] =
 static const char NO_MODULE_REGISTERED_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED";
 
-static const char ERR_OPTION_NOT_SUPPORTED[] =
-    "Invalid option. Use '--help' to obtain command syntax.";
-
-static const char ERR_OPTION_NOT_SUPPORTED_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED";
-
 static const char ERR_MODULE_NOT_REGISTERED[] =
     "Specified provider module was not registered.";
 
@@ -302,7 +296,7 @@ static const char ERR_USAGE_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.ERR_USAGE";
 
 static const char ERR_USAGE[] =
-    "Incorrect usage. Use '--help' to obtain command syntax.";
+    "Use '--help' to obtain command syntax.";
 
 static const char LONG_HELP[] = "help";
 
@@ -1781,25 +1775,12 @@ int main(int argc, char* argv[])
     }
     catch (CommandFormatException& cfe)
     {
-        String msg(cfe.getMessage());
+        cerr << COMMAND_NAME << ": " << cfe.getMessage() <<  endl;
 
-        cerr << COMMAND_NAME << ": " << msg <<  endl;
-
-        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-         {
-           MessageLoaderParms parms(
-               ERR_OPTION_NOT_SUPPORTED_KEY, ERR_OPTION_NOT_SUPPORTED);
-           parms.msg_src_path = MSG_PATH;
-           cerr << COMMAND_NAME <<
-             ": " << MessageLoader::getMessage(parms) << endl;
-         }
-        else
-         {
-           MessageLoaderParms parms(ERR_USAGE_KEY, ERR_USAGE);
-           parms.msg_src_path = MSG_PATH;
-           cerr << COMMAND_NAME <<
-             ": " << MessageLoader::getMessage(parms) << endl;
-         }
+        MessageLoaderParms parms(ERR_USAGE_KEY, ERR_USAGE);
+        parms.msg_src_path = MSG_PATH;
+        cerr << COMMAND_NAME <<
+            ": " << MessageLoader::getMessage(parms) << endl;
 
         return 1;
     }

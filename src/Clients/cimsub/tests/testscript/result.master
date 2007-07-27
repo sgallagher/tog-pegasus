@@ -1,47 +1,47 @@
 +++++++++ Command line testing +++++++++
 Missing command line option.
 cimsub: option "-v" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate list option.
 cimsub: duplicate "-l" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing list argument option.
 cimsub: Missing required value for flag l
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid list argument option.
 cimsub: argument "x" is not valid for option "-l"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate verbose option.
 cimsub: duplicate "-v" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing namespace value.
 cimsub: Missing required value for flag n
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate namespace option.
 cimsub: duplicate "-n" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 No command line options specified.
 cimsub: Required option missing.
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 No command line operation specified.
 cimsub: Required option missing.
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid command line options specified.
 cimsub: Required option missing.
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid command line options specified.
 cimsub: argument "no_such_option" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Help option(long).
 Usage: cimsub -l s|f|h [-v] [-n namespace] [-F [fnamespace:]filtername] 
@@ -75,202 +75,202 @@ Usage note: The cimsub command requires that the CIM Server is running.
 
 Duplicate help(long) option.
 cimsub: option "-help" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Help option(short).
 cimsub: Unknown flag -h
-cimsub: Invalid option. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate help(short) option.
 cimsub: Unknown flag -h
-cimsub: Invalid option. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate help(short & long) option.
 cimsub: Unknown flag -h
-cimsub: Invalid option. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate help(long & short) option.
 cimsub: Unknown flag -h
-cimsub: Invalid option. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine remove and help.
 cimsub: option "-r" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine list and help.
 cimsub: option "-l" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine enable and help.
 cimsub: option "-e" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine verbose and help.
 cimsub: option "-v" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine disable and help.
 cimsub: option "-d" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine filter and help.
 cimsub: option "-F" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine handler and help.
 cimsub: option "-H" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine namespace and help.
 cimsub: option "-n" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate version option.
 cimsub: option "-version" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine remove and version.
 cimsub: option "-r" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine list and version.
 cimsub: option "-l" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine enable and version.
 cimsub: option "-e" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine verbose and version.
 cimsub: option "-v" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine disable and version.
 cimsub: option "-d" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine filter and version.
 cimsub: option "-F" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine handler and version.
 cimsub: option "-H" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Unexpected option, combine namespace and version.
 cimsub: option "-n" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Display version.
 Version 2.7.0
 
 Unexpected option, combine enable and disable.
 cimsub: option "-e" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate -e option.
 cimsub: duplicate "-e" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate -d option.
 cimsub: duplicate "-d" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate -r option.
 cimsub: Missing required value for flag r
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate -F option.
 cimsub: duplicate "-F" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Duplicate -H option.
 cimsub: duplicate "-H" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid -T option.
 cimsub: Unknown flag -T
-cimsub: Invalid option. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, handler option not specified.
 cimsub: the "-H" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, filter option not specified.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, filter option not specified.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid option verbose specified for enable.
 cimsub: option "-v" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid option verbose specified for disable.
 cimsub: option "-v" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, handler option not specified.
 cimsub: the "-H" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, filter option not specified.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing argument for -H option.
 cimsub: Missing required value for flag H
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing argument for -F option.
 cimsub: Missing required value for flag F
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing namespace for -F option.
 cimsub: argument ":filter1" is not valid for option "-F"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing filter name -F option.
 cimsub: argument "test/CimsubTest1:" is not valid for option "-F"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing namespace for -H option.
 cimsub: argument ":handler1" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing creation class for -H option.
 cimsub: argument "test/CimsubTest1:.handler1" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing handler name -H option.
 cimsub: argument "test/CimsubTest1:" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing creation class and name -H option.
 cimsub: argument "test/CimsubTest1:." is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing creation class -H option.
 cimsub: argument "test/CimsubTest1:.1" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing creation class and name -H option.
 cimsub: argument ":." is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing creation class and name -H option.
 cimsub: argument "." is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing namespace and name -H option.
 cimsub: argument ":" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Missing handler name -H option.
 cimsub: argument "test/CimsubTest1:CIM_ListenerDestinationCIMXML." is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List handler with namespace and class.
 HANDLER                                                                 DESTINATION
@@ -286,82 +286,82 @@ test/CimsubTestNS0  test/CimsubTestNS0:Filter03  test/CimsubTestNS0:CIM_Indicati
 
 Incorrect option for list handlers.
 cimsub: option "-F" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List handlers and version option.
 cimsub: option "-version" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 List handlers and help option.
 cimsub: option "-help" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List handlers with no creation class.
 cimsub: argument ".1" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Incorrect option for list filters.
 cimsub: option "-H" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List filters with version option.
 cimsub: option "-version" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List filters with help option.
 cimsub: option "-help" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 No command line argument for remove.
 cimsub: Missing required value for flag r
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Two removes.
 cimsub: duplicate "-r" option
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid option verbose specified for remove.
 cimsub: option "-v" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 No required options for remove subscription.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 No required options for remove all.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 No required option for remove filter.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 No required option for remove handler.
 cimsub: the "-H" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Incorrect argument for remove.
 cimsub: argument "x" is not valid for option "-r"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, handler not specified.
 cimsub: the "-H" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, filter not specified.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, handler not specified.
 cimsub: the "-H" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Required option missing, filter not specified.
 cimsub: the "-F" option is required
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Invalid option, handler is required.
 cimsub: option "-F" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Non-existent handler.
 The requested handler could not be found.
@@ -371,7 +371,7 @@ The requested handler could not be found.
 
 Invalid option, filter is required.
 cimsub: option "-H" was unexpected
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 Try to remove non-existent filter.
 The requested filter could not be found.
@@ -714,26 +714,26 @@ test/CimsubTestNS2  test/CimsubTestNS1:Filter12  test/CimsubTestNS3:CIM_Listener
 
 List subscription with no namespace for filter.
 cimsub: argument ":Filter12" is not valid for option "-F"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List subscription with no namespace for handler.
 cimsub: argument ":ListenerDestination06" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List subscription with no creationclass for handler.
 invalid CIM namespace name: test/CimsubTestNS3.
 
 List subscription with no name for handler.
 cimsub: argument "test/CimsubTestNS0:CIM_IndicationHandlerCIMXML." is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List subscription with no name for handler.
 cimsub: argument "test/CimsubTestNS3:" is not valid for option "-H"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List subscription with no name for filter.
 cimsub: argument "test/CimsubTestNS1:" is not valid for option "-F"
-cimsub: Incorrect usage. Use '--help' to obtain command syntax.
+cimsub: Use '--help' to obtain command syntax.
 
 List subscription with full handler path.
 NAMESPACE           FILTER                       HANDLER                                                   STATE

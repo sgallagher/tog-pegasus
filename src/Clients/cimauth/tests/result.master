@@ -1,24 +1,24 @@
 Display usage - error
 cimauth: Required arguments missing.
-cimauth: Incorrect usage. Use '--help' to obtain command syntax
+cimauth: Use '--help' to obtain command syntax
 Display usage - error
 cimauth: the "-u" option is required
-cimauth: Incorrect usage. Use '--help' to obtain command syntax
+cimauth: Use '--help' to obtain command syntax
 Display usage - error
 cimauth: the "-u" option is required
-cimauth: Incorrect usage. Use '--help' to obtain command syntax
+cimauth: Use '--help' to obtain command syntax
 Display Usage - error
 cimauth: the "-u" option is required
-cimauth: Incorrect usage. Use '--help' to obtain command syntax
+cimauth: Use '--help' to obtain command syntax
 Display Usage - error
 cimauth: option "-m" was unexpected
-cimauth: Incorrect usage. Use '--help' to obtain command syntax
+cimauth: Use '--help' to obtain command syntax
 Display Usage - error
 cimauth: option "-r" was unexpected
-cimauth: Incorrect usage. Use '--help' to obtain command syntax
+cimauth: Use '--help' to obtain command syntax
 Duplicate -a parameter
 cimauth: duplicate "-a" option
-cimauth: Incorrect usage. Use '--help' to obtain command syntax
+cimauth: Use '--help' to obtain command syntax
 Add auth for user not existing on system - error
 Failed to add authorizations.
 CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: "The specified user is not a valid user on the local system , user name: xp"

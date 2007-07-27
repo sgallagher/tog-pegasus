@@ -429,29 +429,14 @@ int main (int argc, char* argv[])
     }
     catch (CommandFormatException& cfe)
     {
-        String msg(cfe.getMessage());
+        cerr << COMMAND_NAME << ": " << cfe.getMessage() << endl;
 
-        cerr << COMMAND_NAME << ": " << msg <<  endl;
-
-        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
-        {
-            MessageLoaderParms parms(
-                "Clients.cimreparchive.CIMRepositoryArchiveCommand."
-                    "ERR_OPTION_NOT_SUPPORTED",
-                "Invalid option. Use '--help' to obtain command syntax.");
-            parms.msg_src_path = MSG_PATH;
-            cerr << COMMAND_NAME <<
-                ": " << MessageLoader::getMessage(parms) << endl;
-        }
-        else
-        {
-            MessageLoaderParms parms(
+        MessageLoaderParms parms(
                 "Clients.cimreparchive.CIMRepositoryArchiveCommand.ERR_USAGE",
-                "Incorrect usage. Use '--help' to obtain command syntax.");
-            parms.msg_src_path = MSG_PATH;
-            cerr << COMMAND_NAME <<
-                ": " << MessageLoader::getMessage(parms) << endl;
-        }
+                "Use '--help' to obtain command syntax.");
+        parms.msg_src_path = MSG_PATH;
+        cerr << COMMAND_NAME <<
+            ": " << MessageLoader::getMessage(parms) << endl;
 
         return EXIT_STATUS_GENERAL_ERROR;
     }

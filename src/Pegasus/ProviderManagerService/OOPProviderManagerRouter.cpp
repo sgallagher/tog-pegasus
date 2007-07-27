@@ -630,7 +630,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         "ProviderAgentContainer::_uninitialize");
 
 #if defined(PEGASUS_HAS_SIGNALS)
-    pid_t pid;
+    pid_t pid = 0;
 #endif
 
     try
@@ -704,9 +704,8 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 #if defined(PEGASUS_HAS_SIGNALS)
     // Harvest the status of the agent process to prevent a zombie.  Do not
     // hold the _agentMutex during this operation.
-    int status = Executor::reapProviderAgent(_pid);
 
-    if (status == -1)
+    if ((pid != 0) && (Executor::reapProviderAgent(pid) == -1))
     {
         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "ProviderAgentContainer::_uninitialize(): "

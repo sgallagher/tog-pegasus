@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Paulo Sehn	(paulo_sehn@hp.com)
+// Modified By: Paulo Sehn    (paulo_sehn@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIFlavor_h
 #define Pegasus_WMIFlavor_h

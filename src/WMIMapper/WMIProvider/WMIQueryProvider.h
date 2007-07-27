@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 // WMIAssociatorProvider.h: interface for the WMIAssociatorProvider class.
 //
@@ -53,19 +53,19 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_WMIPROVIDER_LINKAGE WMIQueryProvider : public WMIBaseProvider  
 {
 public:
-	WMIQueryProvider();
-	virtual ~WMIQueryProvider();
+    WMIQueryProvider();
+    virtual ~WMIQueryProvider();
 
     /// execQuery
-	virtual Array<CIMObject> execQuery(
-		const String& nameSpace,
-		const String& userName,
-		const String& password,
+    virtual Array<CIMObject> execQuery(
+        const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& queryLanguage,
         const String& query,
-		const CIMPropertyList& propertyList = CIMPropertyList(),
-		Boolean includeQualifiers = false,
-		Boolean includeClassOrigin = false) ;
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false) ;
 
 protected:
 

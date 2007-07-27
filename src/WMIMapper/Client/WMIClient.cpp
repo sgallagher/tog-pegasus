@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 // Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Client/CIMClientRep.h>
@@ -68,18 +68,18 @@ CIMClient::CIMClient()
     // able to set this value independently of the current connection state
     // (e.g., construct CIMClient, set timeout, then connect). In the standard
     // Pegasus implementation of CIMClient, the timeout value is store in the
-    // CIMClientRep object, not here in the CIMClient object. The problem is,
-    // we need to persist this value while potentially deleting and constructing
+    // CIMClientRep object, not in the CIMClient object. The problem is, we
+    // need to persist this value while potentially deleting and constructing
     // new _rep objects -- and we cannot add the timeout as a member of our
     // version of CIMClient, or this will create memory corruption problems for
     // client apps (since they #include <Pegasus/Client/CIMClient.h>, but link
     // to the WMI Mapper implementation of this class -- at least to utilize
     // the Mapper's localConnect feature (found this out the hard way)!
     //
-    // So, in order to handle this, we must construct a WMIClientRep object here,
-    // if only as a container for the timeout setting, then in the connect()
-    // methods, we must save the timeout, delete the current _rep, create a new
-    // _rep using the current timeout, then finally connect()!
+    // So, in order to handle this, we must construct a WMIClientRep object 
+    // here, if only as a container for the timeout setting, then in the 
+    // connect() methods, we must save the timeout, delete the current _rep, 
+    // create a new _rep using the current timeout, then finally connect()!
     //
     // Not pretty, but the best solution so far (also, there is very little 
     // overhead in constructing a WMIClientRep object here -- even if its only
@@ -116,7 +116,7 @@ void CIMClient::connect(
     delete _rep;
     _rep = new CIMClientRep(timeout);
     
-	_rep->connect(host, portNumber, userName, password);
+    _rep->connect(host, portNumber, userName, password);
 }
 
 void CIMClient::connect(
@@ -156,27 +156,27 @@ void CIMClient::disconnect()
 // l10n start
 void CIMClient::setRequestAcceptLanguages(const AcceptLanguageList& langs)
 {
-	_rep->setRequestAcceptLanguages(langs);		
+    _rep->setRequestAcceptLanguages(langs);        
 }
 
 AcceptLanguageList CIMClient::getRequestAcceptLanguages() const
 {
-	return _rep->getRequestAcceptLanguages();
+    return _rep->getRequestAcceptLanguages();
 }
-	
+    
 void CIMClient::setRequestContentLanguages(const ContentLanguageList& langs)
 {
-	_rep->setRequestContentLanguages(langs);		
+    _rep->setRequestContentLanguages(langs);        
 }
   
 ContentLanguageList CIMClient::getRequestContentLanguages() const
 {
-	return _rep->getRequestContentLanguages();	
-}	
-    	
+    return _rep->getRequestContentLanguages();    
+}    
+        
 ContentLanguageList CIMClient::getResponseContentLanguages() const
 {
-	return _rep->getResponseContentLanguages();
+    return _rep->getResponseContentLanguages();
 }
 
 void CIMClient::setRequestDefaultLanguages()

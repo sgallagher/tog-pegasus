@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Kevin Howard, Hewlett-Packard Company (kevin.d.howard@hp.com)
 //
-// Modified By:	Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+// Modified By:    Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef Pegasus_WMIMethod_h
@@ -49,7 +49,7 @@ public:
    WMIMethod(const CIMMethod & method);
 
    WMIMethod(const BSTR & name, 
-			 const CComPtr<IWbemClassObject>& inParameters,
+             const CComPtr<IWbemClassObject>& inParameters,
              const CComPtr<IWbemClassObject>& outParameters,
              IWbemQualifierSet * pQualifierSet,
              Boolean includeQualifiers = false);

@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 // Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "WMIClientRep.h"
 
@@ -67,8 +67,8 @@ static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 ///////////////////////////////////////////////////////////////////////////////
 WMIClientRep::WMIClientRep(Uint32 timeoutMilliseconds):
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
-	_timeoutMilliseconds(timeoutMilliseconds),
-	_connected(false)
+    _timeoutMilliseconds(timeoutMilliseconds),
+    _connected(false)
 {
 }
 
@@ -90,9 +90,9 @@ void WMIClientRep::connectLocal()
     // If already connected, bail out!
     //
     if (_connected)
-		throw AlreadyConnectedException();
+        throw AlreadyConnectedException();
 
-	_connected = true;
+    _connected = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,45 +112,47 @@ CIMClass WMIClientRep::getClass(
     const CIMPropertyList& propertyList)
 {
     CIMClass cimClass;
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-   		WMIClassProvider provider;
-		provider.initialize(TRUE);
-		
-		//Performs the WMI call
-		cimClass = provider.getClass(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			className.getString(),
-			localOnly,
-			includeQualifiers,
-			includeClassOrigin,
-			propertyList);
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+           WMIClassProvider provider;
+        provider.initialize(TRUE);
+        
+        //Performs the WMI call
+        cimClass = provider.getClass(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            className.getString(),
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
 
-		//terminate the provider
-		provider.terminate();
+        //terminate the provider
+        provider.terminate();
 
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getClass() failed!");
-		throw cimException;
-	}
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "getClass() failed!");
+        throw cimException;
+    }
 
-	return(cimClass);
+    return(cimClass);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,83 +165,87 @@ CIMInstance WMIClientRep::getInstance(
     const CIMPropertyList& propertyList)
 {
     CIMInstance cimInstance;
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-		WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		cimInstance = provider.getInstance(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			instanceName,
-			localOnly,
-			includeQualifiers,
-			includeClassOrigin,
-			propertyList);
+        //Performs the WMI call
+        cimInstance = provider.getInstance(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            instanceName,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getInstance() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "getInstance() failed!");
+        throw cimException;
+    }
 
-	return(cimInstance);
+    return(cimInstance);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void WMIClientRep::deleteClass(
     const CIMNamespaceName& nameSpace,
-	const CIMName& className)
+    const CIMName& className)
 {
     CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-		WMIClassProvider provider;
-   		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIClassProvider provider;
+           provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.deleteClass(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			className.getString());
+        //Performs the WMI call
+        provider.deleteClass(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            className.getString());
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "deleteClass() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "deleteClass() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -247,38 +253,40 @@ void WMIClientRep::deleteInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName)
 {
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.deleteInstance(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			instanceName);
+        //Performs the WMI call
+        provider.deleteInstance(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            instanceName);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "deleteInstance() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "deleteInstance() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -288,36 +296,38 @@ void WMIClientRep::createClass(
 {
     CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIClassProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIClassProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.createClass(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			newClass);
+        //Performs the WMI call
+        provider.createClass(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            newClass);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "createClass() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "createClass() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -326,40 +336,42 @@ CIMObjectPath WMIClientRep::createInstance(
     const CIMInstance& newInstance)
 {
     CIMObjectPath instanceName;
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		instanceName = provider.createInstance(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			newInstance);
+        //Performs the WMI call
+        instanceName = provider.createInstance(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            newInstance);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "createInstance() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "createInstance() failed!");
+        throw cimException;
+    }
 
-	return (instanceName);
+    return (instanceName);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -369,36 +381,38 @@ void WMIClientRep::modifyClass(
 {
     CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIClassProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIClassProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.modifyClass(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			modifiedClass);
+        //Performs the WMI call
+        provider.modifyClass(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            modifiedClass);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "modifyClass() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "modifyClass() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -410,38 +424,40 @@ void WMIClientRep::modifyInstance(
 {
     CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.modifyInstance(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			modifiedInstance,
-			includeQualifiers,
-			propertyList);
+        //Performs the WMI call
+        provider.modifyInstance(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            modifiedInstance,
+            includeQualifiers,
+            propertyList);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "modifyInstance() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "modifyInstance() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -454,44 +470,46 @@ Array<CIMClass> WMIClientRep::enumerateClasses(
     Boolean includeClassOrigin)
 {
     Array<CIMClass> cimClasses;
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIClassProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIClassProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		cimClasses = provider.enumerateClasses(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			className.getString(),
-			deepInheritance,
-			localOnly,
-			includeQualifiers,
-			includeClassOrigin);
+        //Performs the WMI call
+        cimClasses = provider.enumerateClasses(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            className.getString(),
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateClasses() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "enumerateClasses() failed!");
+        throw cimException;
+    }
 
-	return(cimClasses);
+    return(cimClasses);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -501,41 +519,43 @@ Array<CIMName> WMIClientRep::enumerateClassNames(
     Boolean deepInheritance)
 {
     Array<CIMName> classNames;
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIClassProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIClassProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		classNames = provider.enumerateClassNames(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			className.getString(),
-			deepInheritance);
+        //Performs the WMI call
+        classNames = provider.enumerateClassNames(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            className.getString(),
+            deepInheritance);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateClassNames() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "enumerateClassNames() failed!");
+        throw cimException;
+    }
 
-	return(classNames);
+    return(classNames);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -549,46 +569,48 @@ Array<CIMInstance> WMIClientRep::enumerateInstances(
     const CIMPropertyList& propertyList)
 {
     Array<CIMInstance> cimInstances;
-	CIMPropertyList myPropertyList(propertyList);
-	CIMException cimException;
+    CIMPropertyList myPropertyList(propertyList);
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		cimInstances = provider.enumerateInstances(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			className.getString(),
-			deepInheritance,
-			localOnly,
-			includeQualifiers,
-			includeClassOrigin,
-			myPropertyList);
+        //Performs the WMI call
+        cimInstances = provider.enumerateInstances(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            className.getString(),
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
+            myPropertyList);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateInstances() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "enumerateInstances() failed!");
+        throw cimException;
+    }
 
-	return(cimInstances);
+    return(cimInstances);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -596,41 +618,43 @@ Array<CIMObjectPath> WMIClientRep::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-	Array<CIMObjectPath> instanceNames;
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    Array<CIMObjectPath> instanceNames;
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		instanceNames = provider.enumerateInstanceNames(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			className.getString());
+        //Performs the WMI call
+        instanceNames = provider.enumerateInstanceNames(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            className.getString());
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateInstanceNames() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "enumerateInstanceNames() failed!");
+        throw cimException;
+    }
 
-	return(instanceNames);
+    return(instanceNames);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -640,41 +664,43 @@ Array<CIMObject> WMIClientRep::execQuery(
     const String& query)
 {
     Array<CIMObject> cimObjects;
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIQueryProvider provider;
-		provider.initialize(TRUE);
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIQueryProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		cimObjects = provider.execQuery(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			queryLanguage,
-			query);
+        //Performs the WMI call
+        cimObjects = provider.execQuery(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            queryLanguage,
+            query);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "execQuery() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "execQuery() failed!");
+        throw cimException;
+    }
 
-	return(cimObjects);
+    return(cimObjects);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -689,49 +715,51 @@ Array<CIMObject> WMIClientRep::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-	Array<CIMObject> cimObjects;
-	CIMPropertyList myPropertyList(propertyList);
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIAssociatorProvider provider;
-		provider.initialize(TRUE);
+    Array<CIMObject> cimObjects;
+    CIMPropertyList myPropertyList(propertyList);
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIAssociatorProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		cimObjects = provider.associators(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			objectName,
-			assocClass.getString(),
-			resultClass.getString(),
-			role,
-			resultRole,
-			includeQualifiers,
-			includeClassOrigin,
-			myPropertyList);
+        //Performs the WMI call
+        cimObjects = provider.associators(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            objectName,
+            assocClass.getString(),
+            resultClass.getString(),
+            role,
+            resultRole,
+            includeQualifiers,
+            includeClassOrigin,
+            myPropertyList);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "associators() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "associators() failed!");
+        throw cimException;
+    }
 
-	return(cimObjects);
+    return(cimObjects);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -743,45 +771,47 @@ Array<CIMObjectPath> WMIClientRep::associatorNames(
     const String& role,
     const String& resultRole)
 {
-	Array<CIMObjectPath> objectNames;
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIAssociatorProvider provider;
-		provider.initialize(TRUE);
+    Array<CIMObjectPath> objectNames;
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIAssociatorProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		objectNames = provider.associatorNames(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			objectName,
-			assocClass.getString(),
-			resultClass.getString(),
-			role,
-			resultRole);
+        //Performs the WMI call
+        objectNames = provider.associatorNames(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            objectName,
+            assocClass.getString(),
+            resultClass.getString(),
+            role,
+            resultRole);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "associatorNames() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "associatorNames() failed!");
+        throw cimException;
+    }
 
-	return(objectNames);
+    return(objectNames);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -795,46 +825,48 @@ Array<CIMObject> WMIClientRep::references(
     const CIMPropertyList& propertyList)
 {
     Array<CIMObject> cimObjects;
-	CIMPropertyList myPropertyList(propertyList);
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIReferenceProvider provider;
-		provider.initialize(TRUE);
+    CIMPropertyList myPropertyList(propertyList);
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIReferenceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		cimObjects = provider.references(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			objectName,
-			resultClass.getString(),
-			role,
-			includeQualifiers,
-			includeClassOrigin,
-			myPropertyList);
+        //Performs the WMI call
+        cimObjects = provider.references(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            objectName,
+            resultClass.getString(),
+            role,
+            includeQualifiers,
+            includeClassOrigin,
+            myPropertyList);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "references() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "references() failed!");
+        throw cimException;
+    }
 
-	return(cimObjects);
+    return(cimObjects);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -845,42 +877,44 @@ Array<CIMObjectPath> WMIClientRep::referenceNames(
     const String& role)
 {
     Array<CIMObjectPath> objectNames;
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIReferenceProvider provider;
-		provider.initialize(TRUE);
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIReferenceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		objectNames = provider.referenceNames(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			objectName,
-			resultClass.getString(),
-			role);
+        //Performs the WMI call
+        objectNames = provider.referenceNames(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            objectName,
+            resultClass.getString(),
+            role);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "referenceNames() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "referenceNames() failed!");
+        throw cimException;
+    }
 
-	return(objectNames);
+    return(objectNames);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -890,41 +924,43 @@ CIMValue WMIClientRep::getProperty(
     const CIMName& propertyName)
 {
     CIMValue value;
-	CIMException cimException;
-	
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    CIMException cimException;
+    
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		value = provider.getProperty(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			instanceName,
-			propertyName.getString());
+        //Performs the WMI call
+        value = provider.getProperty(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            instanceName,
+            propertyName.getString());
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getProperty() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "getProperty() failed!");
+        throw cimException;
+    }
 
-	return(value);
+    return(value);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -937,38 +973,40 @@ void WMIClientRep::setProperty(
 {
     CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIInstanceProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIInstanceProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.setProperty(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			instanceName,
-			propertyName.getString(),
-			newValue);
+        //Performs the WMI call
+        provider.setProperty(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            instanceName,
+            propertyName.getString(),
+            newValue);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "setProperty() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "setProperty() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -977,40 +1015,42 @@ CIMQualifierDecl WMIClientRep::getQualifier(
     const CIMName& qualifierName)
 {
     CIMQualifierDecl cimQualifierDecl;
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIQualifierProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIQualifierProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		cimQualifierDecl = provider.getQualifier(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			qualifierName.getString());
+        //Performs the WMI call
+        cimQualifierDecl = provider.getQualifier(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            qualifierName.getString());
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "getQualifier() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "getQualifier() failed!");
+        throw cimException;
+    }
 
-	return(cimQualifierDecl);
+    return(cimQualifierDecl);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1020,36 +1060,38 @@ void WMIClientRep::setQualifier(
 {
     CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIQualifierProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIQualifierProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.setQualifier(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			qualifierDeclaration);
+        //Performs the WMI call
+        provider.setQualifier(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            qualifierDeclaration);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "setQualifier() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "setQualifier() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1057,78 +1099,82 @@ void WMIClientRep::deleteQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIQualifierProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIQualifierProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		provider.deleteQualifier(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			qualifierName.getString());
+        //Performs the WMI call
+        provider.deleteQualifier(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            qualifierName.getString());
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "deleteQualifier() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "deleteQualifier() failed!");
+        throw cimException;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 Array<CIMQualifierDecl> WMIClientRep::enumerateQualifiers(
     const CIMNamespaceName& nameSpace)
 {
-	Array<CIMQualifierDecl> qualifierDeclarations;
-	CIMException cimException;
+    Array<CIMQualifierDecl> qualifierDeclarations;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIQualifierProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIQualifierProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		qualifierDeclarations = provider.enumerateQualifiers(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY);
+        //Performs the WMI call
+        qualifierDeclarations = provider.enumerateQualifiers(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "enumerateQualifiers() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "enumerateQualifiers() failed!");
+        throw cimException;
+    }
 
-	return(qualifierDeclarations);
+    return(qualifierDeclarations);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1140,43 +1186,45 @@ CIMValue WMIClientRep::invokeMethod(
     Array<CIMParamValue>& outParameters)
 {
     CIMValue retValue;
-	CIMException cimException;
+    CIMException cimException;
 
-	try
-	{
-		//Initializes the WMI Provider Interface
-    	WMIMethodProvider provider;
-		provider.initialize(TRUE);
+    try
+    {
+        //Initializes the WMI Provider Interface
+        WMIMethodProvider provider;
+        provider.initialize(TRUE);
 
-		//Performs the WMI call
-		retValue = provider.invokeMethod(
-			nameSpace.getString(),
-			String::EMPTY,
-			String::EMPTY,
-			instanceName,
-			methodName.getString(),
-			inParameters,
-			outParameters);
+        //Performs the WMI call
+        retValue = provider.invokeMethod(
+            nameSpace.getString(),
+            String::EMPTY,
+            String::EMPTY,
+            instanceName,
+            methodName.getString(),
+            inParameters,
+            outParameters);
 
-		//terminate the provider
-		provider.terminate();
-	}
-	catch(CIMException&)
-	{
-		throw;
-	}
-	catch(Exception& exception)
-	{
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-	   throw cimException;
-	}
-	catch(...)
-	{
-		cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "invokeMethod() failed!");
-		throw cimException;
-	}
+        //terminate the provider
+        provider.terminate();
+    }
+    catch(CIMException&)
+    {
+        throw;
+    }
+    catch(Exception& exception)
+    {
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+           exception.getMessage());
+       throw cimException;
+    }
+    catch(...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "invokeMethod() failed!");
+        throw cimException;
+    }
 
-	return(retValue);
+    return(retValue);
 }
 
 PEGASUS_NAMESPACE_END

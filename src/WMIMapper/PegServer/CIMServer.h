@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Server_h
 #define Pegasus_Server_h
@@ -99,8 +99,8 @@ public:
         Boolean useSSL);
 
     /** Bind the acceptors to the specified listen sockets.
-	@exception - This function may receive exceptions from
-	Channel specific subfunctions.
+    @exception - This function may receive exceptions from
+    Channel specific subfunctions.
     */
     void bind();
 
@@ -146,7 +146,7 @@ private:
 
     AutoPtr<Monitor> _monitor;
     CIMRepository* _repository;
-	CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
+    CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
     CIMOperationRequestDecoder* _cimOperationRequestDecoder;
     CIMOperationRequestAuthorizer* _cimOperationRequestAuthorizer;
@@ -160,7 +160,7 @@ private:
     AutoPtr<CIMServerState> _serverState;
 
     /*ModuleController* _controlService;
-	IndicationHandlerService* _handlerService;
+    IndicationHandlerService* _handlerService;
     IndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;

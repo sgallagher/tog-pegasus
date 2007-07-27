@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Barbara Packard (barbara_packard@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
 
@@ -49,17 +49,17 @@ WMIFlavor::WMIFlavor(const LONG flavor) // : _ui32(0)
 {
    if(flavor & WBEM_FLAVOR_FLAG_PROPAGATE_TO_INSTANCE) {
 //      _ui32 |= TOINSTANCE;
-	   addFlavor(TOINSTANCE);
+       addFlavor(TOINSTANCE);
    }
 
    if(flavor & WBEM_FLAVOR_FLAG_PROPAGATE_TO_DERIVED_CLASS) {
 //      _ui32 |= TOSUBCLASS;
-	   addFlavor(TOSUBCLASS);
+       addFlavor(TOSUBCLASS);
    }
 
    if(flavor & WBEM_FLAVOR_OVERRIDABLE) {
 //      _ui32 |= OVERRIDABLE;
-	   addFlavor(OVERRIDABLE);
+       addFlavor(OVERRIDABLE);
    }
 
    if(flavor & WBEM_FLAVOR_MASK_PROPAGATION) {
@@ -126,18 +126,18 @@ WMIFlavor::operator LONG(void) const
 // ///////////////////////////////////////////////////////////////////////////
 long WMIFlavor::getAsWMIValue ()
 {
-	long wmiVal = 0;
-	if (hasFlavor(CIMFlavor::OVERRIDABLE))
-		wmiVal |= WBEM_FLAVOR_OVERRIDABLE;
-	if (hasFlavor(CIMFlavor::OVERRIDABLE))
-		wmiVal |= WBEM_FLAVOR_OVERRIDABLE;
-	if (hasFlavor(CIMFlavor::TOSUBCLASS))
-		wmiVal |= WBEM_FLAVOR_FLAG_PROPAGATE_TO_DERIVED_CLASS;
-	if (hasFlavor(CIMFlavor::TOINSTANCE))
-		wmiVal |= WBEM_FLAVOR_FLAG_PROPAGATE_TO_INSTANCE;
-	if (hasFlavor(CIMFlavor::DISABLEOVERRIDE))
-		wmiVal |= WBEM_FLAVOR_NOT_OVERRIDABLE;
-	return wmiVal;
+    long wmiVal = 0;
+    if (hasFlavor(CIMFlavor::OVERRIDABLE))
+        wmiVal |= WBEM_FLAVOR_OVERRIDABLE;
+    if (hasFlavor(CIMFlavor::OVERRIDABLE))
+        wmiVal |= WBEM_FLAVOR_OVERRIDABLE;
+    if (hasFlavor(CIMFlavor::TOSUBCLASS))
+        wmiVal |= WBEM_FLAVOR_FLAG_PROPAGATE_TO_DERIVED_CLASS;
+    if (hasFlavor(CIMFlavor::TOINSTANCE))
+        wmiVal |= WBEM_FLAVOR_FLAG_PROPAGATE_TO_INSTANCE;
+    if (hasFlavor(CIMFlavor::DISABLEOVERRIDE))
+        wmiVal |= WBEM_FLAVOR_NOT_OVERRIDABLE;
+    return wmiVal;
 }
 
 PEGASUS_NAMESPACE_END

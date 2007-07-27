@@ -27,14 +27,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard  (barbara_packard@hp.com)
-//				Paulo Sehn (paulo_sehn@hp.com)
+// Modified By:    Barbara Packard  (barbara_packard@hp.com)
+//                Paulo Sehn (paulo_sehn@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIType_h
 #define Pegasus_WMIType_h
@@ -48,11 +48,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_WMIPROVIDER_LINKAGE CIMType WMITypeToCIMType(const CIMTYPE type);
 
-PEGASUS_WMIPROVIDER_LINKAGE CIMType variantToCIMType(const CComVariant & vValue);
+PEGASUS_WMIPROVIDER_LINKAGE CIMType variantToCIMType(
+    const CComVariant & vValue);
 
 PEGASUS_WMIPROVIDER_LINKAGE CIMType vartypeToCIMType(const VARTYPE vt);
 
-PEGASUS_WMIPROVIDER_LINKAGE CIMTYPE_ENUMERATION CIMTypeToWMIType(const CIMTYPE type);
+PEGASUS_WMIPROVIDER_LINKAGE CIMTYPE_ENUMERATION CIMTypeToWMIType(
+    const CIMTYPE type);
 
 PEGASUS_NAMESPACE_END
 

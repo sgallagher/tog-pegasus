@@ -27,15 +27,16 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Jair F. T. dos Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Jair F. T. dos Santos, Hewlett-Packard Company 
+//                  (jair.santos@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIMapperUserInfoContainer_h
 #define Pegasus_WMIMapperUserInfoContainer_h
@@ -47,7 +48,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE WMIMapperUserInfoContainer : virtual public OperationContext::Container
+class PEGASUS_SERVER_LINKAGE WMIMapperUserInfoContainer : 
+    virtual public OperationContext::Container
 {
 public:
     static const String NAME;

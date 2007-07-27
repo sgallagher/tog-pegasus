@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard (barbara_packard@hp.com)
+// Modified By:    Barbara Packard (barbara_packard@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
 
@@ -48,14 +48,14 @@ WMIDateTime::WMIDateTime(const CIMDateTime & datetime) : CIMDateTime(datetime)
 WMIDateTime::WMIDateTime(const BSTR & bstr)
 {
    char * psz = 0;
-	
-	try {
-		psz = _bstr_t(bstr);
+    
+    try {
+        psz = _bstr_t(bstr);
    }
    catch(...) {
    }
 
-	set(psz);
+    set(psz);
 }
 
 
@@ -65,10 +65,10 @@ WMIDateTime::WMIDateTime(const VARIANT & var)
    CComBSTR bs;
    CMyString s;
    String s2;
-	
-	try {
+    
+    try {
       bst = var;
-	  s = (char *)bst;
+      s = (char *)bst;
    }
    catch(...) {
    }
@@ -76,16 +76,16 @@ WMIDateTime::WMIDateTime(const VARIANT & var)
 //   s = bs;
    s2 = String(LPCTSTR(s));
 
-	set(s2);
+    set(s2);
 }
 
 WMIDateTime::operator const BSTR(void) const
 {
-	String s = toString();
-	CMyString sz;
-	sz = s;
+    String s = toString();
+    CMyString sz;
+    sz = s;
 
-	return(sz.Bstr());
+    return(sz.Bstr());
 }
 
 PEGASUS_NAMESPACE_END

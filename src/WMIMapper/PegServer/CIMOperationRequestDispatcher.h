@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
@@ -38,11 +38,12 @@
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
+//              Barbara Packard, Hewlett-Packard Company
+//                  (barbara_packard@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusDispatcher_Dispatcher_h
 #define PegasusDispatcher_Dispatcher_h
@@ -59,15 +60,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
+class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : 
+    public MessageQueueService
 {
 public:
 
       typedef MessageQueueService Base;
 
       CIMOperationRequestDispatcher(
-//	 CIMRepository* repository,
-/*	 ProviderRegistrationManager* providerRegistrationManager */);
+//     CIMRepository* repository,
+/*     ProviderRegistrationManager* providerRegistrationManager */);
 
       virtual ~CIMOperationRequestDispatcher();
 
@@ -76,85 +78,86 @@ public:
       virtual void handleEnqueue();
 
       void handleGetClassRequest(
-	 CIMGetClassRequestMessage* request);
+     CIMGetClassRequestMessage* request);
 
       void handleGetInstanceRequest(
-	 CIMGetInstanceRequestMessage* request);
+     CIMGetInstanceRequestMessage* request);
 
       void handleDeleteClassRequest(
-	 CIMDeleteClassRequestMessage* request);
+     CIMDeleteClassRequestMessage* request);
 
       void handleDeleteInstanceRequest(
-	 CIMDeleteInstanceRequestMessage* request);
+     CIMDeleteInstanceRequestMessage* request);
 
       void handleCreateClassRequest(
-	 CIMCreateClassRequestMessage* request);
+     CIMCreateClassRequestMessage* request);
 
       void handleCreateInstanceRequest(
-	 CIMCreateInstanceRequestMessage* request);
+     CIMCreateInstanceRequestMessage* request);
 
       void handleModifyClassRequest(
-	 CIMModifyClassRequestMessage* request);
+     CIMModifyClassRequestMessage* request);
 
       void handleModifyInstanceRequest(
-	 CIMModifyInstanceRequestMessage* request);
+     CIMModifyInstanceRequestMessage* request);
 
       void handleEnumerateClassesRequest(
-	 CIMEnumerateClassesRequestMessage* request);
+     CIMEnumerateClassesRequestMessage* request);
 
       void handleEnumerateClassNamesRequest(
-	 CIMEnumerateClassNamesRequestMessage* request);
+     CIMEnumerateClassNamesRequestMessage* request);
 
       void handleEnumerateInstancesRequest(
-	 CIMEnumerateInstancesRequestMessage* request);
+     CIMEnumerateInstancesRequestMessage* request);
 
       void handleEnumerateInstanceNamesRequest(
-	 CIMEnumerateInstanceNamesRequestMessage* request);
+     CIMEnumerateInstanceNamesRequestMessage* request);
 
       void handleAssociatorsRequest(
-	 CIMAssociatorsRequestMessage* request);
+     CIMAssociatorsRequestMessage* request);
 
       void handleAssociatorNamesRequest(
-	 CIMAssociatorNamesRequestMessage* request);
+     CIMAssociatorNamesRequestMessage* request);
 
       void handleReferencesRequest(
-	 CIMReferencesRequestMessage* request);
+     CIMReferencesRequestMessage* request);
 
       void handleReferenceNamesRequest(
-	 CIMReferenceNamesRequestMessage* request);
+     CIMReferenceNamesRequestMessage* request);
 
       void handleGetPropertyRequest(
-	 CIMGetPropertyRequestMessage* request);
+     CIMGetPropertyRequestMessage* request);
 
       void handleSetPropertyRequest(
-	 CIMSetPropertyRequestMessage* request);
+     CIMSetPropertyRequestMessage* request);
 
       void handleGetQualifierRequest(
-	 CIMGetQualifierRequestMessage* request);
+     CIMGetQualifierRequestMessage* request);
 
       void handleSetQualifierRequest(
-	 CIMSetQualifierRequestMessage* request);
+     CIMSetQualifierRequestMessage* request);
 
       void handleDeleteQualifierRequest(
-	 CIMDeleteQualifierRequestMessage* request);
+     CIMDeleteQualifierRequestMessage* request);
 
       void handleEnumerateQualifiersRequest(
-	 CIMEnumerateQualifiersRequestMessage* request);
+     CIMEnumerateQualifiersRequestMessage* request);
 
       void handleExecQueryRequest(
-	 CIMExecQueryRequestMessage* request);
+     CIMExecQueryRequestMessage* request);
 
       void handleInvokeMethodRequest(
-	 CIMInvokeMethodRequestMessage* request);
+     CIMInvokeMethodRequestMessage* request);
 
 protected:
 
       void _enqueueResponse(
-	 CIMRequestMessage* request, CIMResponseMessage* response);
+     CIMRequestMessage* request, CIMResponseMessage* response);
 
       CIMValue _convertValueType(const CIMValue& value, CIMType type);
 
-      void _fixInvokeMethodParameterTypes(CIMInvokeMethodRequestMessage* request);
+      void _fixInvokeMethodParameterTypes(
+          CIMInvokeMethodRequestMessage* request);
 
       void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
 

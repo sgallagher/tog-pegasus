@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 // WMIMethodProvider.h: interface for the WMIMethodProvider class.
 //
@@ -53,16 +53,16 @@ class WMICollector;
 class PEGASUS_WMIPROVIDER_LINKAGE WMIMethodProvider : public WMIBaseProvider  
 {
 public:
-	WMIMethodProvider();
-	virtual ~WMIMethodProvider();
+    WMIMethodProvider();
+    virtual ~WMIMethodProvider();
 
- /////////////////////////////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////////////////////////
 // ATTN:
 // The  following public methods are not yet implemented
 //
-/////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
   /// invokeMethod
-	virtual CIMValue invokeMethod(
+    virtual CIMValue invokeMethod(
         const String& nameSpace,
         const String& userName,
         const String& password,

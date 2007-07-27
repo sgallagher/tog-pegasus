@@ -27,14 +27,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:	Adriano Zanuz (adriano.zanuz@hp.com)
+// Modified By:    Adriano Zanuz (adriano.zanuz@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef Pegasus_WMICollector_h
@@ -61,135 +61,139 @@ PEGASUS_NAMESPACE_BEGIN
 class WMICollector 
 {
 public:
-	WMICollector(bool bLocal = FALSE);
-	virtual ~WMICollector(void);
+    WMICollector(bool bLocal = FALSE);
+    virtual ~WMICollector(void);
 
-	virtual void terminate(void);
+    virtual void terminate(void);
 
-	bool getInstanceEnum(
-		IEnumWbemClassObject **ppInstances,
-		const String & sClassName,
-		Boolean deepInheritance);
+    bool getInstanceEnum(
+        IEnumWbemClassObject **ppInstances,
+        const String & sClassName,
+        Boolean deepInheritance);
 
-	bool getClassEnum(
-		IEnumWbemClassObject **ppClasses,
-		const String & sSuperClass,
-		Boolean deepInheritance);
+    bool getClassEnum(
+        IEnumWbemClassObject **ppClasses,
+        const String & sSuperClass,
+        Boolean deepInheritance);
 
-	bool getQueryResult(
-		IEnumWbemClassObject **ppInstances, 
-		const String & query, 
-		const String & queryLanguage);
+    bool getQueryResult(
+        IEnumWbemClassObject **ppInstances, 
+        const String & query, 
+        const String & queryLanguage);
 
-	void setNamespace(const char * sNamespace){m_bsNamespace = (LPCTSTR)sNamespace;}
-	void setNamespace(const String & sNamespace);
-	void setUserName(const String & sUserName);
-	void setPassword(const String & sPassword);
-	bool Connect(IWbemServices **ppServices);
-	bool setup();
+    void setNamespace(const char * sNamespace)
+    {
+        m_bsNamespace = (LPCTSTR)sNamespace;
+    }
 
-	bool getObject(IWbemClassObject **ppObject, const String & sObjectName);
+    void setNamespace(const String & sNamespace);
+    void setUserName(const String & sUserName);
+    void setPassword(const String & sPassword);
+    bool Connect(IWbemServices **ppServices);
+    bool setup();
 
-	bool getCIMInstance(IWbemClassObject *pObject, 
-		CIMInstance & cimInst,
+    bool getObject(IWbemClassObject **ppObject, const String & sObjectName);
+
+    bool getCIMInstance(IWbemClassObject *pObject, 
+        CIMInstance & cimInst,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-		Boolean getKeyProperties = FALSE);	
+        Boolean getKeyProperties = FALSE);    
 
-	bool getCIMObject(IWbemClassObject *pObject, 
-		CIMObject & cimObj,
+    bool getCIMObject(IWbemClassObject *pObject, 
+        CIMObject & cimObj,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-		Boolean getKeyProperties = FALSE);	
+        Boolean getKeyProperties = FALSE);    
 
 
-	bool getCIMClass(IWbemClassObject *pObject, 
-		CIMClass & cimClass,
+    bool getCIMClass(IWbemClassObject *pObject, 
+        CIMClass & cimClass,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList = CIMPropertyList());	
+        const CIMPropertyList& propertyList = CIMPropertyList());    
 
-	static String getClassName(IWbemClassObject *pObject);
-	String getSuperClass(IWbemClassObject *pClass);
-	String getRelativePath(IWbemClassObject *pObject);
+    static String getClassName(IWbemClassObject *pObject);
+    String getSuperClass(IWbemClassObject *pClass);
+    String getRelativePath(IWbemClassObject *pObject);
 
-	bool isInstance(IWbemClassObject *pObject);
+    bool isInstance(IWbemClassObject *pObject);
 
-	bool getObjectProperties(IWbemClassObject * pObject, 
-		CIMObject & cimObj,
+    bool getObjectProperties(IWbemClassObject * pObject, 
+        CIMObject & cimObj,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-		Boolean bGetKeyProperties = FALSE);
-	
-	static CIMProperty getProperty(IWbemClassObject *pClass, 
-		const CComBSTR & bsName, 
-		const CComVariant & vValue,			// this will be NULL for class objects
-		CIMTYPE type, 
-		Boolean includeClassOrigin, 
-		Boolean includeQualifiers,
-		Boolean bPropagated);
+        Boolean bGetKeyProperties = FALSE);
+    
+    static CIMProperty getProperty(IWbemClassObject *pClass, 
+        const CComBSTR & bsName, 
+        const CComVariant & vValue, // this will be NULL for class objects
+        CIMTYPE type, 
+        Boolean includeClassOrigin, 
+        Boolean includeQualifiers,
+        Boolean bPropagated);
 
-	bool getClassMethods(IWbemClassObject *pObject, 
-		CIMClass & cimClass,
-		Boolean localOnly,
-		Boolean includeQualifiers,
-		Boolean includeClassOrigin);
+    bool getClassMethods(IWbemClassObject *pObject, 
+        CIMClass & cimClass,
+        Boolean localOnly,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin);
 
-	static CIMMethod getMethod(IWbemClassObject *pClass, 
-		const CComBSTR &bsName, 
-		const CComPtr<IWbemClassObject> &inParameters,
-		const CComPtr<IWbemClassObject> &outParameters,
-		Boolean includeClassOrigin, 
-		Boolean includeQualifiers,
-		Boolean bPropagated);
+    static CIMMethod getMethod(IWbemClassObject *pClass, 
+        const CComBSTR &bsName, 
+        const CComPtr<IWbemClassObject> &inParameters,
+        const CComPtr<IWbemClassObject> &outParameters,
+        Boolean includeClassOrigin, 
+        Boolean includeQualifiers,
+        Boolean bPropagated);
 
-	bool setProxySecurity(IUnknown * pProxy);
+    bool setProxySecurity(IUnknown * pProxy);
 
-	bool isLocalNamespace()
-		{return m_bIsLocalNamespace;}
+    bool isLocalNamespace()
+        {return m_bIsLocalNamespace;}
 
-	bool isLocalConnection() 
-		{ return m_bLocalConnection; }
+    bool isLocalConnection() 
+        { return m_bLocalConnection; }
 
 private:
-	static String getStringProperty(
-		IWbemClassObject *pObject, 
-		const CComBSTR & bsPropertyName);
+    static String getStringProperty(
+        IWbemClassObject *pObject, 
+        const CComBSTR & bsPropertyName);
 
-	bool isArrayType(VARTYPE vt)
-		{return (vt & VT_ARRAY) ? true : false;}
+    bool isArrayType(VARTYPE vt)
+        {return (vt & VT_ARRAY) ? true : false;}
 
-	bool isReferenceType(VARTYPE vt)
-		{return (vt & VT_BYREF) ? true : false;}
+    bool isReferenceType(VARTYPE vt)
+        {return (vt & VT_BYREF) ? true : false;}
 
-	void logonUser();
+    void logonUser();
 
-	void revertToSelf();
+    void revertToSelf();
 
-	/*
-	LSA_HANDLE GetPolicyHandle();
-	bool GetAccountSid(LPTSTR, LPTSTR, PSID*);
-	void AddPrivileges(PSID, LSA_HANDLE);
-	void InitLsaString(PLSA_UNICODE_STRING, LPWSTR);
-	*/
+    /*
+    LSA_HANDLE GetPolicyHandle();
+    bool GetAccountSid(LPTSTR, LPTSTR, PSID*);
+    void AddPrivileges(PSID, LSA_HANDLE);
+    void InitLsaString(PLSA_UNICODE_STRING, LPWSTR);
+    */
 
-	bool	m_bInitialized;
-	bool    m_bIsLocalNamespace;
-	bool    m_bImpersonate;
-	bool    m_bLocalConnection;
+    bool    m_bInitialized;
+    bool    m_bIsLocalNamespace;
+    bool    m_bImpersonate;
+    bool    m_bLocalConnection;
 
-	// WMI interfaces
-	CComBSTR				m_bsNamespace;
-	CComBSTR				m_bsUserName;
-	CComBSTR				m_bsPassword;
-	CComBSTR				m_bsDomain;
+    // WMI interfaces
+    CComBSTR                m_bsNamespace;
+    CComBSTR                m_bsUserName;
+    CComBSTR                m_bsPassword;
+    CComBSTR                m_bsDomain;
 };
 
 PEGASUS_NAMESPACE_END

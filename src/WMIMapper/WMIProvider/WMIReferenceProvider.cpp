@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 // WMIReferenceProvider.cpp: implementation of the WMIReferenceProvider class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -66,22 +66,22 @@ PEGASUS_NAMESPACE_BEGIN
 
 WMIReferenceProvider::WMIReferenceProvider()
 {
-	_collector = NULL;
-	m_bInitialized = false;
+    _collector = NULL;
+    m_bInitialized = false;
 
 }
 
 WMIReferenceProvider::~WMIReferenceProvider()
 {
-	cleanup();
+    cleanup();
 
 }
 
-/////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // ATTN:
 // The  following public methods are not yet implemented
 //
-/////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 // WMIReferenceProvider::references
 //
@@ -97,30 +97,30 @@ Array<CIMObject> WMIReferenceProvider::references(
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList)
 {
-	String sQuery;
-	String sQueryLanguage;
+    String sQuery;
+    String sQueryLanguage;
 
-	Array<CIMObject> objects;
+    Array<CIMObject> objects;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIReferenceProvider::references()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIReferenceProvider::references()");
 
-	sQueryLanguage = qString(Q_WQL);
-	sQuery = getReferenceQueryString(objectName, 
-				resultClass, 
-				role); 
+    sQueryLanguage = qString(Q_WQL);
+    sQuery = getReferenceQueryString(objectName, 
+                resultClass, 
+                role); 
 
-	objects = execCIMQuery(nameSpace,
-				userName,
-				password,
-				sQueryLanguage, 
-				sQuery, 
-				propertyList,
-				includeQualifiers,
-				includeClassOrigin);
+    objects = execCIMQuery(nameSpace,
+                userName,
+                password,
+                sQueryLanguage, 
+                sQuery, 
+                propertyList,
+                includeQualifiers,
+                includeClassOrigin);
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return objects;
+    return objects;
 }
 
 
@@ -136,87 +136,89 @@ Array<CIMObjectPath> WMIReferenceProvider::referenceNames(
         const String& resultClass,
         const String& role)
 {
-	Array<CIMObject> objects;
-	Array<CIMObjectPath> objectNames;
+    Array<CIMObject> objects;
+    Array<CIMObjectPath> objectNames;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIReferenceProvider::referenceNames()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIReferenceProvider::referenceNames()");
 
-	// create an empty property list to save time...
-	Array<CIMName> propNames;
-	CIMPropertyList propertyList(propNames);
+    // create an empty property list to save time...
+    Array<CIMName> propNames;
+    CIMPropertyList propertyList(propNames);
 
-	// now get the objects
-	objects = references(	nameSpace,
-							userName,
-							password,
-							objectName,
-							resultClass,
-							role,
-							false,
-							false,
-							propertyList);
+    // now get the objects
+    objects = references(    nameSpace,
+                            userName,
+                            password,
+                            objectName,
+                            resultClass,
+                            role,
+                            false,
+                            false,
+                            propertyList);
 
-	// now get the names from the object
-	Uint32 size = objects.size();
-	Uint32 i;
-	
-	//check if namespace is remote
-	CIMNamespaceName oNamespace(nameSpace);
-	String strNamespace = oNamespace.getString();
-	String strNamespaceLower = strNamespace;
-	strNamespaceLower.toLower();
-	String strRemotePrefix = "";
-	
-	if (strNamespaceLower.subString(0, 4) != "root")
-	{
-		Uint32 uiPos = strNamespaceLower.find("root");
-		if (uiPos == PEG_NOT_FOUND)
-			throw CIMException(CIM_ERR_FAILED);
+    // now get the names from the object
+    Uint32 size = objects.size();
+    Uint32 i;
+    
+    //check if namespace is remote
+    CIMNamespaceName oNamespace(nameSpace);
+    String strNamespace = oNamespace.getString();
+    String strNamespaceLower = strNamespace;
+    strNamespaceLower.toLower();
+    String strRemotePrefix = "";
+    
+    if (strNamespaceLower.subString(0, 4) != "root")
+    {
+        Uint32 uiPos = strNamespaceLower.find("root");
+        if (uiPos == PEG_NOT_FOUND)
+            throw CIMException(CIM_ERR_FAILED);
 
-		strRemotePrefix = strNamespace.subString(0, uiPos);
-	}
+        strRemotePrefix = strNamespace.subString(0, uiPos);
+    }
 
-	for (i=0; i<size; i++)
-	{	
-		CIMObjectPath oObjectPath = objects[i].getPath();
-		
-		if (strRemotePrefix != "")
-		{
-			strNamespace = strRemotePrefix;
-			oNamespace = strNamespace.append(oObjectPath.getNameSpace().getString());
-			oObjectPath.setNameSpace(oNamespace);			
-		}
-		
-		objectNames.append(oObjectPath);
-	}
+    for (i=0; i<size; i++)
+    {    
+        CIMObjectPath oObjectPath = objects[i].getPath();
+        
+        if (strRemotePrefix != "")
+        {
+            strNamespace = strRemotePrefix;
+            oNamespace = strNamespace.append(
+                oObjectPath.getNameSpace().getString());
+            oObjectPath.setNameSpace(oNamespace);            
+        }
+        
+        objectNames.append(oObjectPath);
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return objectNames;
+    return objectNames;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
 // WMIReferenceProvider
-//		private methods
+//        private methods
 //
 // ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
-// WMIReferenceProvider::getReferenceQueryString - calls the BaseProvider method 
-//		to build the query string from the input parameters
+// WMIReferenceProvider::getReferenceQueryString - calls the BaseProvider 
+//          method to build the query string from the input parameters
 //
 // ///////////////////////////////////////////////////////////////////////////
 String WMIReferenceProvider::getReferenceQueryString(
-		const CIMObjectPath &objectName, 
-		const String &resultClass, 
-		const String &role)
+        const CIMObjectPath &objectName, 
+        const String &resultClass, 
+        const String &role)
 {
-	String sQuery;
+    String sQuery;
 
-	sQuery = qString(Q_REFERENCES);
+    sQuery = qString(Q_REFERENCES);
 
-	return getQueryString(objectName, sQuery, String::EMPTY, resultClass, role);
+    return getQueryString(objectName, sQuery, 
+        String::EMPTY, resultClass, role);
 
 }
 

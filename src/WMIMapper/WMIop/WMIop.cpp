@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Jair F. T. dos Santos (t.dos.santos.francisco@hp.com)
 // Modified By:
 //             Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -123,12 +123,22 @@ int main(const int argc, const char **argv)
 
   try
   {
-    if (String::equal(_hostName,String::EMPTY)) _c.connectLocal();
+    if (String::equal(_hostName,String::EMPTY)) 
+    {
+        _c.connectLocal();
+    }
     else
     // hostname was specified; do remote connect
     {
-      if (sslContext.get()) _c.connect(_hostName, _portNumber, *sslContext.get(), _userName, _passWord);
-      else _c.connect(_hostName, _portNumber, _userName, _passWord);
+        if (sslContext.get())
+        {
+            _c.connect(_hostName, _portNumber, *sslContext.get(), 
+                _userName, _passWord);
+        }
+        else 
+        {
+            _c.connect(_hostName, _portNumber, _userName, _passWord);
+        }
     }
   }
   catch(Exception& e)
@@ -238,7 +248,8 @@ int _getClass(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -351,13 +362,14 @@ int _enumerateClassNames(const int argc, const char **argv)
   try
   {
     if (argc < 1)
-	  cn = _c.enumerateClassNames( _nameSpace);
-	else
+      cn = _c.enumerateClassNames( _nameSpace);
+    else
       cn = _c.enumerateClassNames( _nameSpace, argv[0] );
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -365,8 +377,16 @@ int _enumerateClassNames(const int argc, const char **argv)
   cout << endl ;
   if (0 != getenv("CIM_NAMESPACE"))
   {
-    if (cn.size() > 0) cout << "Classes in namespace [" << _nameSpace << "]:" << endl;
-	else cout << "There are no classes in namespace [" << _nameSpace << "]!" << endl;
+    if (cn.size() > 0)
+    {
+        cout << "Classes in namespace [" << 
+            _nameSpace << "]:" << endl;
+    }
+    else 
+    {
+        cout << "There are no classes in namespace [" << 
+            _nameSpace << "]!" << endl;
+    }
   }
 
   for (int i = 0; i < cn.size(); i++)
@@ -399,7 +419,8 @@ int _getInstance(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -410,7 +431,7 @@ int _getInstance(const int argc, const char **argv)
   cout << endl;
   if (argv[1] == 0) 
   {
-	  ref = CIMObjectPath(String::EMPTY, // hostname left blank
+      ref = CIMObjectPath(String::EMPTY, // hostname left blank
                           _nameSpace,
                           argv[0],
                           _inputInstanceKeys(cldef));
@@ -438,7 +459,8 @@ int _getInstance(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
   _displayInstance(inst);
@@ -463,14 +485,22 @@ int _enumerateInstances(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
   
   cout << endl;
   
-  if (ia.size() > 0) cout << "Instances of [" << argv[0] << "] (" << ia.size() << " instances):" << endl;
-  else cout << "There are no instances of [" << argv[0] << "]." << endl;
+  if (ia.size() > 0) 
+  {
+      cout << "Instances of [" << argv[0] << 
+        "] (" << ia.size() << " instances):" << endl;
+  }
+  else 
+  {
+      cout << "There are no instances of [" << argv[0] << "]." << endl;
+  }
   
   for (int i=0; i<ia.size(); i++)
   {
@@ -499,13 +529,21 @@ int _enumerateInstanceNames(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
   cout << endl;
-  if (iNames.size() > 0) cout << "Instances of [" << argv[0] << "] (" << iNames.size() << " instances):" << endl;
-  else cout << "There are no instances of [" << argv[0] << "]." << endl;
+  if (iNames.size() > 0) 
+  {
+      cout << "Instances of [" << argv[0] << "] (" << 
+        iNames.size() << " instances):" << endl;
+  }
+  else
+  {
+      cout << "There are no instances of [" << argv[0] << "]." << endl;
+  }
   
   for (int i=0; i<iNames.size(); i++)
     cout << "  " << iNames[i].toString() << endl;
@@ -532,7 +570,8 @@ int _getProperty(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -543,21 +582,21 @@ int _getProperty(const int argc, const char **argv)
   cout << endl;
   if (String::equalNoCase("ask",argv[1]))
   {
-	   ref = CIMObjectPath(String::EMPTY,
+       ref = CIMObjectPath(String::EMPTY,
                           _nameSpace,
-						  argv[0], 
-						  _inputInstanceKeys(cldef) );
+                          argv[0], 
+                          _inputInstanceKeys(cldef) );
   }
   // else if the next arg and is "list", enumInstNames and print
   // a list from which user will select  
   else if (String::equalNoCase("list",argv[1]))
   {
-	ref = _selectInstance( argv[0] );
+    ref = _selectInstance( argv[0] );
     if (ref.identical(CIMObjectPath())) return 0;
   }
   else
   {
-	// else there's another arg but it's invalid
+    // else there's another arg but it's invalid
     _gpUsage();
     return 1;
   }
@@ -566,7 +605,7 @@ int _getProperty(const int argc, const char **argv)
   // if no more args, display property names and ask which
   if (argc < 3)
   {
-	cout << endl << "Please select the property desired:" << endl;
+    cout << endl << "Please select the property desired:" << endl;
     int n;
     for (n=0; n<cldef.getPropertyCount(); n++)
     {
@@ -602,7 +641,8 @@ int _getProperty(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -645,7 +685,8 @@ int _setProperty(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -655,16 +696,16 @@ int _setProperty(const int argc, const char **argv)
   // If next arg is "ask", prompt user for keys
   if (String::equalNoCase("ask",argv[1]))
   {
-	  ref = CIMObjectPath(String::EMPTY,
+      ref = CIMObjectPath(String::EMPTY,
                           _nameSpace,
                           argv[0],
-						  _inputInstanceKeys(cldef) );
+                          _inputInstanceKeys(cldef) );
   }
   // else if the next arg is "list", do enumInstNames and print
   // a list from which user will select  
   else if (String::equalNoCase("list",argv[1]))
   {
-	ref = _selectInstance( argv[0] );
+    ref = _selectInstance( argv[0] );
     // Exit if a null reference was returned
     if (ref.identical(CIMObjectPath())) return 0;
   }
@@ -680,7 +721,7 @@ int _setProperty(const int argc, const char **argv)
   // if no more args, display property names and ask which to set
   if (argc < 3)
   {
-	cout << endl << "Please select the property desired:" << endl;
+    cout << endl << "Please select the property desired:" << endl;
     int n;
     for (n=0; n<cldef.getPropertyCount(); n++)
     {
@@ -717,19 +758,21 @@ int _setProperty(const int argc, const char **argv)
   // If value was not specified, ask for one
   if (argc < 4)
   {
-	cout << endl << "New value? " << flush;
-	cin >> v;
+    cout << endl << "New value? " << flush;
+    cin >> v;
   }
   else strcpy(v, argv[3]);
 
   // Now we can call setProperty()
   try
   {
-    _c.setProperty( _nameSpace, ref, pDef.getName().getString(), _makeValue(v,pDef) );
+    _c.setProperty( _nameSpace, ref, 
+        pDef.getName().getString(), _makeValue(v,pDef) );
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -789,7 +832,8 @@ int _deleteClass(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
   
@@ -812,8 +856,10 @@ int _createInstance(const int argc, const char **argv)
   CIMClass cldef;
 
   // Handle special case of __Namespace
-  if (String::equalNoCase(argv[0],"__namespace")) cldef = _makeNamespaceClass();
-    
+  if (String::equalNoCase(argv[0],"__namespace")) 
+  {
+      cldef = _makeNamespaceClass();
+  }    
   else
   {
     try
@@ -821,10 +867,11 @@ int _createInstance(const int argc, const char **argv)
       cldef = _c.getClass( _nameSpace, argv[0], false );
     }
     catch (CIMException& e)
-	{
-	  cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
-	  return 1;
-	}
+    {
+      cerr << "Error: [" << e.getCode() << "] " << 
+          cimStatusCodeToString(e.getCode()) << endl;
+      return 1;
+    }
   }
 
   CIMInstance tmpInst(cldef.getClassName());
@@ -837,8 +884,9 @@ int _createInstance(const int argc, const char **argv)
     // display the property
     CIMProperty pDef(cldef.getProperty(i));
     
-	if (_isKey(pDef)) cout << "[ key ] ";
-    cout << cimTypeToString(pDef.getType()) << " " << pDef.getName().getString();
+    if (_isKey(pDef)) cout << "[ key ] ";
+    cout << cimTypeToString(pDef.getType()) << " " << 
+        pDef.getName().getString();
     if (pDef.isArray()) cout << "[]";
     if (pDef.isArray())
     {
@@ -878,11 +926,13 @@ int _createInstance(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
-  cout << endl << "Instance [" << tmpInst.getPath().toString() << "] successfully created!" << endl;
+  cout << endl << "Instance [" << tmpInst.getPath().toString() << 
+      "] successfully created!" << endl;
   return 0;
 }
 
@@ -906,7 +956,8 @@ int _modifyInstance(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -916,16 +967,16 @@ int _modifyInstance(const int argc, const char **argv)
   // If no more args, prompt user for keys
   if (argc < 2)   
   {
-	  ref = CIMObjectPath(String::EMPTY,
+      ref = CIMObjectPath(String::EMPTY,
                           _nameSpace,
                           argv[0],
-						  _inputInstanceKeys(cldef) );
+                          _inputInstanceKeys(cldef) );
   }
   // if the next arg is "list", do enumInstNames and print
   // a list from which user will select  
   else if (String::equalNoCase("list",argv[1]))
   {
-	ref = _selectInstance( argv[0] );
+    ref = _selectInstance( argv[0] );
     // Exit if a null reference was returned
     if (ref.identical(CIMObjectPath())) return 0;
   }
@@ -944,7 +995,8 @@ int _modifyInstance(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
@@ -958,10 +1010,11 @@ int _modifyInstance(const int argc, const char **argv)
   {
     cout << n+1 << ": ";
     Uint32 p = inst.findProperty(cldef.getProperty(n).getName());
-	if (p != PEG_NOT_FOUND)
+    if (p != PEG_NOT_FOUND)
       cout << _displayProperty(inst.getProperty(p)) << endl;
     else
-      cout << cldef.getProperty(n).getName().getString() << " <absent>" << endl;
+      cout << cldef.getProperty(n).getName().getString() << 
+        " <absent>" << endl;
   }
 
 
@@ -971,7 +1024,8 @@ int _modifyInstance(const int argc, const char **argv)
   Array<CIMName> pNames;
   while (true) // break when user enters escape value
   {
-    cout << "Property (1.." << cldef.getPropertyCount() << ", 0=quit, 999=all)? " << flush;
+    cout << "Property (1.." << cldef.getPropertyCount() << 
+        ", 0=quit, 999=all)? " << flush;
     cin >> n;
 
     if (n==0 || n==999) break;
@@ -985,14 +1039,15 @@ int _modifyInstance(const int argc, const char **argv)
     }
 
     // Ask for value
-    cout << "New value for [" << cimTypeToString(pDef.getType()) << " " << pDef.getName().getString() << "]? " << flush;
+    cout << "New value for [" << cimTypeToString(pDef.getType()) << " " << 
+        pDef.getName().getString() << "]? " << flush;
     char v[1024];
     cin >> v;
 
     // remove property if one of same name exists
     int p = tmpInst.findProperty(pDef.getName().getString());
     if (p != PEG_NOT_FOUND) 
-		tmpInst.removeProperty(p);
+        tmpInst.removeProperty(p);
 
     // insert a property with this value in the instance
     pDef.setValue(_makeValue(v,pDef));
@@ -1002,7 +1057,7 @@ int _modifyInstance(const int argc, const char **argv)
     for (p=0; p < pNames.size(); p++)
       if (pNames[p]==pDef.getName()) break;
     
-	if (p == pNames.size())
+    if (p == pNames.size())
       pNames.append(pDef.getName());
   }
 
@@ -1013,7 +1068,8 @@ int _modifyInstance(const int argc, const char **argv)
     for (int i=0; i<cldef.getPropertyCount(); i++)
     {
       CIMProperty pDef(cldef.getProperty(i));
-      cout << "New value for " << cimTypeToString(pDef.getType()) << " " << pDef.getName().getString();
+      cout << "New value for " << cimTypeToString(pDef.getType()) << " " << 
+          pDef.getName().getString();
       if (pDef.isArray()) cout << "[]";
       if (pDef.isArray())
       {
@@ -1043,11 +1099,13 @@ int _modifyInstance(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
-  cout << endl << "Instance [" << tmpInst.getPath().toString() << "] successfully updated!" << endl;
+  cout << endl << "Instance [" << tmpInst.getPath().toString() << 
+      "] successfully updated!" << endl;
   return 0;
 }
 
@@ -1068,8 +1126,10 @@ int _deleteInstance(const int argc, const char **argv)
   CIMClass cldef;
 
   // Handle special case of __Namespace
-  if (String::equalNoCase(argv[0],"__namespace")) cldef = _makeNamespaceClass();
-
+  if (String::equalNoCase(argv[0],"__namespace")) 
+  {
+      cldef = _makeNamespaceClass();
+  }
   else
   {
     try
@@ -1077,10 +1137,11 @@ int _deleteInstance(const int argc, const char **argv)
       cldef = _c.getClass( _nameSpace, argv[0], false );
     }
     catch (CIMException& e)
-	{
-      cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    {
+      cerr << "Error: [" << e.getCode() << "] " << 
+          cimStatusCodeToString(e.getCode()) << endl;
       return 1;
-	}
+    }
   }
 
   CIMObjectPath ref;
@@ -1089,18 +1150,18 @@ int _deleteInstance(const int argc, const char **argv)
   // If there are no more args, prompt user for keys
   if (argv[1] == 0)
   {
-	  
-	  ref = CIMObjectPath(String::EMPTY, // hostname left blank
+      
+      ref = CIMObjectPath(String::EMPTY, // hostname left blank
                           _nameSpace,
-						  argv[0],
-						  _inputInstanceKeys(cldef));
+                          argv[0],
+                          _inputInstanceKeys(cldef));
   }
   
   // else if there's another arg and it's "list", enumInstNames and print
   // a list from which user will select (return if none)
   else if (String::equalNoCase("list",argv[1]))
   {
-	ref = _selectInstance(argv[0]);
+    ref = _selectInstance(argv[0]);
     // An empty ObjectPath means nothing was selected
     if (ref.identical(CIMObjectPath())) return 0;
   }
@@ -1119,11 +1180,13 @@ int _deleteInstance(const int argc, const char **argv)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 
-  cout << endl << "Instance [" << ref.toString() << "] successfully deleted!" << endl;
+  cout << endl << "Instance [" << ref.toString() << 
+      "] successfully deleted!" << endl;
   return 0;
 }
 
@@ -1227,20 +1290,21 @@ Array<CIMKeyBinding> _inputInstanceKeys(CIMClass &cldef)
   Array<CIMKeyBinding> kb;
   for (int i = 0; i < cldef.getPropertyCount(); i++)
   {
-	
+    
     CIMProperty prop = cldef.getProperty(i);
 
     if (_isKey(prop))
     {
-	  char s[1024];
-	  do 
-	  {
-		cout << "Please insert the value for the key property [";  
-		cout << prop.getName().getString() << " (" << cimTypeToString(prop.getType()) << ")]: " << flush;
-	    gets(s);
-	  }
-	  while (strlen(s) == 0);
-	  
+      char s[1024];
+      do 
+      {
+        cout << "Please insert the value for the key property [";  
+        cout << prop.getName().getString() << " (" << 
+            cimTypeToString(prop.getType()) << ")]: " << flush;
+        gets(s);
+      }
+      while (strlen(s) == 0);
+      
       enum CIMKeyBinding::Type t;
       switch (prop.getType())
       {
@@ -1263,7 +1327,8 @@ Array<CIMKeyBinding> _inputInstanceKeys(CIMClass &cldef)
         t = CIMKeyBinding::STRING; break;
       case CIMTYPE_REFERENCE:
         t = CIMKeyBinding::REFERENCE; break;
-// From PEP 194: EmbeddedObjects cannot be keys (to be verified with DMTF via CR)
+        // From PEP 194: EmbeddedObjects cannot be 
+        // keys (to be verified with DMTF via CR)
       case CIMTYPE_OBJECT:
         break;
       }
@@ -1289,7 +1354,8 @@ CIMObjectPath _selectInstance(const String &clnam)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return CIMObjectPath();
   }
 
@@ -1375,14 +1441,14 @@ String _displayProperty(const CIMProperty &p)
   {
     s.append("[");
     //s.append(ultoa(v.getArraySize()));
-	s.append(v.getArraySize());
-	s.append("]");
+    s.append(v.getArraySize());
+    s.append("]");
   }
   
   s.append(" = ");
 
   if (v.isNull()) 
-	  s.append("<empty>");
+      s.append("<empty>");
   else if (v.getType() == CIMTYPE_STRING ||
            v.getType() == CIMTYPE_CHAR16 ||
            v.getType() == CIMTYPE_DATETIME)
@@ -1407,42 +1473,24 @@ void _usage()
   cerr << "Usage:" << endl;
   cerr << "  wmiop <wmioperation> [arg, ...]" << endl;
   cerr << "Implemented operations (not case sensitive) are:" << endl;
-  cerr << "  getClass|gc <class>" << endl;
-  // cerr << "  enumerateClasses|ec [ <class> ]" << endl;
+  cerr << "  getClass|gc <class>" << endl;  
   cerr << "  enumerateClassNames|ecn [ <class> ]" << endl;
   cerr << "  getInstance|gi <class> [ list ]" << endl;
   cerr << "  enumerateInstances|ei <class>" << endl;
   cerr << "  enumerateInstanceNames|ein <class>" << endl;
   cerr << "  getProperty|gp <class> { ask | list } [ <propnam> ]" << endl;
-  cerr << "  setProperty|sp <class> { ask | list } [ <propnam> [ <value> ] ]" << endl;
-  // cerr << "  invokeMethod|im <class>|{instanceID [method [args...]]}" << endl;
-  // cerr << "  createClass|cc classdef" << endl;
-  // cerr << "  modifyClass|mc classdef" << endl;
-  cerr << "  deleteClass|dc <class>" << endl;
-  // cerr << "  createInstance|ci <class>|<instancedef>" << endl;
+  cerr << "  setProperty|sp <class> { ask | list } "
+      "[ <propnam> [ <value> ] ]" << endl;
+  cerr << "  deleteClass|dc <class>" << endl;  
   cerr << "  createInstance|ci <class>" << endl;
   cerr << "  modifyInstance|mi <class> [ list ]" << endl;
   cerr << "  deleteInstance|di <class> [ list ]" << endl;
-  // cerr << "  associators|a class|instanceID" << endl;
-  // cerr << "  associatorNames|an class|instanceID" << endl;
-  // cerr << "  references|r class|instanceID" << endl;
-  // cerr << "  referenceNames|rn class|instanceID" << endl;
-  // cerr << "  execQuery|exq [query]" << endl;
-  // cerr << "  getQualifier|gq qualifiername" << endl;
-  // cerr << "  setQualifier|sq qualifierdef" << endl;
-  // cerr << "  deleteQualifier|dq qualifiername" << endl;
-  // cerr << "  enumerateQualifiers|eq" << endl;
   cerr << "Examples:" << endl;
   cerr << "  wmiop ecn" << endl;
   cerr << "  wmiop enumerateinstancenames pg_operatingsystem" << endl;
   cerr << "  wmiop gi pg_unixprocess list" << endl;
   cerr << "Environment variables:" << endl;
-  //cerr << "  CIM_HOST -- local connect if not defined" << endl;
-  //cerr << "  CIM_PORT -- port number (default determined by CIM_NOSSL)" << endl;
-  //cerr << "  CIM_NOSSL -- if defined, connect unencrypted to 5988, else 5989" << endl;
-  cerr << "  CIM_NAMESPACE -- if not defined use root/cimv2" << endl;
-  //cerr << "  CIM_USER -- user" << endl;
-  //cerr << "  CIM_PASSWORD -- password" << endl;
+  cerr << "  CIM_NAMESPACE -- if not defined use root/cimv2" << endl;  
 }
 
 // ===============================================================
@@ -1450,8 +1498,7 @@ void _usage()
 // ===============================================================
 
 void _giUsage()
-{
-  // cerr << "Usage: wmiop getInstance|gi { <class> [list] | <instanceRef> }" << endl;
+{  
   cerr << "Usage: wmiop getInstance|gi <class> [list]" << endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  otherwise asks for keys (empty ok for many)" << endl;
@@ -1463,8 +1510,7 @@ void _giUsage()
 // ===============================================================
 
 void _diUsage()
-{
-  // cerr << "Usage: wmiop deleteInstance|di { <class> [list] | <instanceRef> }" << endl;
+{ 
   cerr << "Usage: wmiop deleteInstance|di <class> [ list ]" << endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  otherwise asks for keys (empty ok for many)" << endl;
@@ -1477,7 +1523,8 @@ void _diUsage()
 
 void _gpUsage()
 {
-  cerr << "Usage: wmiop getProperty|gp <class> { ask | list } [<propnam>]" << endl;
+  cerr << "Usage: wmiop getProperty|gp <class> "
+      "{ ask | list } [<propnam>]" << endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  \"ask\" asks for keys (empty ok for many)" << endl;
 }
@@ -1511,7 +1558,8 @@ void _ciUsage()
 
 void _spUsage()
 {
-  cerr << "Usage: wmiop setProperty|sp <class> { ask | list } [ <propnam> [ <value> ] ]" << endl;
+  cerr << "Usage: wmiop setProperty|sp <class> { ask | list } "
+      "[ <propnam> [ <value> ] ]" << endl;
   cerr << "  \"list\" displays list from which to choose" << endl;
   cerr << "  \"ask\" asks for keys (empty ok for many)" << endl;
 }
@@ -1701,13 +1749,13 @@ CIMValue _makeValue(const char *v, const CIMProperty &pDef)
 
 CIMClass _makeNamespaceClass()
 {
-  CIMClass cldef("__Namespace");
-  CIMProperty p("Name",CIMValue(CIMTYPE_STRING,false));
-  p.addQualifier(CIMQualifier("Key",                         // name
-                              CIMValue(true),                // value
-                              CIMFlavor(CIMFlavor::DISABLEOVERRIDE))); // flavor
-  cldef.addProperty(p);
-  return cldef;
+    CIMClass cldef("__Namespace");
+    CIMProperty p("Name",CIMValue(CIMTYPE_STRING,false));
+    p.addQualifier(CIMQualifier("Key",                         // name
+                        CIMValue(true),                // value
+                        CIMFlavor(CIMFlavor::DISABLEOVERRIDE))); // flavor
+    cldef.addProperty(p);
+    return cldef;
 }
 
 
@@ -1725,7 +1773,8 @@ int _recursiveClassEnum(const CIMName &className, String tab)
   }
   catch (CIMException& e)
   {
-    cerr << "Error: [" << e.getCode() << "] " << cimStatusCodeToString(e.getCode()) << endl;
+    cerr << "Error: [" << e.getCode() << "] " << 
+        cimStatusCodeToString(e.getCode()) << endl;
     return 1;
   }
 

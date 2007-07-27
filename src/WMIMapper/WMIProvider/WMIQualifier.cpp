@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard	(bpackard@hp.com)
+// Modified By:    Barbara Packard    (bpackard@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
 
@@ -45,14 +45,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIQualifier::WMIQualifier(const CIMQualifier & qualifier) : CIMQualifier(qualifier)
+WMIQualifier::WMIQualifier(const CIMQualifier & qualifier) : 
+    CIMQualifier(qualifier)
 {
 }
 
 WMIQualifier::WMIQualifier(const CComBSTR & name, const CComVariant & value, 
-						   const LONG flavor)
+                           const LONG flavor)
 {
-	*this = CIMQualifier(WMIString(name), WMIValue(value), WMIFlavor(flavor));
+    *this = CIMQualifier(WMIString(name), WMIValue(value), WMIFlavor(flavor));
 }
 
 

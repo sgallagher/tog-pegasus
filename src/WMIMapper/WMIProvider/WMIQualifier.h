@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard	(bpackard@hp.com)
+// Modified By:    Barbara Packard    (bpackard@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIQualifier_h
 #define Pegasus_WMIQualifier_h
@@ -46,7 +46,8 @@ class PEGASUS_WMIPROVIDER_LINKAGE WMIQualifier : public CIMQualifier
 {
 public:
    WMIQualifier(const CIMQualifier & cimqualifier);
-   WMIQualifier(const CComBSTR & name, const CComVariant & value, const LONG flavor);
+   WMIQualifier(const CComBSTR & name, 
+       const CComVariant & value, const LONG flavor);
 
 protected:
    WMIQualifier(void) { };

@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 // stdafx.h : include file for standard system include files,
 //      or project specific include files that are used frequently,
@@ -62,7 +62,7 @@
 #include "config.h"
 #include "MyString.h"
 #include "QueryStrings.h"
-#include <Pegasus/Common/Tracer.h>		// for tracing
+#include <Pegasus/Common/Tracer.h>        // for tracing
 #include <Pegasus/Common/InternalException.h>
 
 #ifndef TRC_WMIPROVIDER
@@ -76,4 +76,4 @@ _COM_SMARTPTR_TYPEDEF(IEnumWbemClassObject, __uuidof(IEnumWbemClassObject));
 _COM_SMARTPTR_TYPEDEF(IWbemLocator, __uuidof(IWbemLocator));
 _COM_SMARTPTR_TYPEDEF(IWbemQualifierSet, __uuidof(IWbemQualifierSet));
 
-#endif // !defined(AFX_STDAFX_H__3A1B4878_7A72_11D3_9F28_00105AC94081__INCLUDED)
+#endif //!defined(AFX_STDAFX_H__3A1B4878_7A72_11D3_9F28_00105AC94081__INCLUDED)

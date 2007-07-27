@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef __MYSTRING_H_
 #define __MYSTRING_H_
@@ -45,7 +45,7 @@
 #endif
 
 // general purpose defines - may be modified later
-#define BUF_MAX			256
+#define BUF_MAX            256
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,11 +55,11 @@ public:
 
 // Constructors
     CMyString( );
-	CMyString(const CMyString& strSrc);
+    CMyString(const CMyString& strSrc);
     CMyString(LPCWSTR lpsz);
     CMyString(LPCSTR lpsz);
     CMyString(const unsigned char* psz);
-	CMyString(String sStr);
+    CMyString(String sStr);
 
     BSTR Bstr();
     BOOL Compare(BSTR bStr);
@@ -69,16 +69,17 @@ public:
     // as an array of characters
     int GetLength() const{return m_nStrLen;} 
     BOOL IsEmpty() const {return m_nBufLen == 0;}
-	int GetBufLength() const {return m_nBufLen;}
-    void Empty(){DeallocBuffer();}		// free up the buffer
-	void GetPrintableHex(int len, const unsigned char* data);	//format data buffer in hex
-	int Find(TCHAR ch) const;
-	int Find(TCHAR ch, int nStart) const;
+    int GetBufLength() const {return m_nBufLen;}
+    void Empty(){DeallocBuffer();}        // free up the buffer
+    //format data buffer in hex
+    void GetPrintableHex(int len, const unsigned char* data);    
+    int Find(TCHAR ch) const;
+    int Find(TCHAR ch, int nStart) const;
 
 
     LPTSTR Copy();
-	
-	operator LPCTSTR() const;
+    
+    operator LPCTSTR() const;
 
     // overloaded assignment
     const CMyString& operator=(const CMyString& stringSrc);
@@ -86,39 +87,39 @@ public:
     const CMyString& operator=(LPCSTR lpsz);
     const CMyString& operator=(const unsigned char* psz);
     const CMyString& operator=(BSTR bStr);
-	const CMyString& operator=(String sStr);
+    const CMyString& operator=(String sStr);
 
-	// string concatenation
+    // string concatenation
     const CMyString& operator+=(const CMyString& stringSrc);
     const CMyString& operator+=(LPCTSTR lpsz);
-	const CMyString& operator+=(String sStr);
+    const CMyString& operator+=(String sStr);
 
 // Implementation
 public:
-//	BOOL LoadString(UINT nID);
-	int Format(LPCTSTR lpszFormat, int iSize, ...);
-//	int Format(UINT nID, int iSize, ...);
+//    BOOL LoadString(UINT nID);
+    int Format(LPCTSTR lpszFormat, int iSize, ...);
+//    int Format(UINT nID, int iSize, ...);
 
-	~CMyString();
-	HRESULT ErrorStatus(){return m_nStatus;}
+    ~CMyString();
+    HRESULT ErrorStatus(){return m_nStatus;}
 
 protected:
     void Init();
     BOOL AllocBuffer(int nLen);
     void AllocBeforeWrite(int nLen);
-	void AssignCopy( int nLen, LPCTSTR lpsz);
+    void AssignCopy( int nLen, LPCTSTR lpsz);
     void DeallocBuffer();
-	void ConcatCopy(int nLen1, LPCTSTR lpszSrc1, int nLen2, LPCTSTR lpszSrc2);
-	void ConcatInPlace(int nSrcLen, LPCTSTR lpszSrc);
-	int FormatV(LPCTSTR lpszFormat, int iSize, va_list argList);
+    void ConcatCopy(int nLen1, LPCTSTR lpszSrc1, int nLen2, LPCTSTR lpszSrc2);
+    void ConcatInPlace(int nSrcLen, LPCTSTR lpszSrc);
+    int FormatV(LPCTSTR lpszFormat, int iSize, va_list argList);
 
-    //	lengths/sizes in characters
+    //    lengths/sizes in characters
     //  (note: an extra character is always allocated)
-	//	(note: the buffer storage is always type TCHAR)
+    //    (note: the buffer storage is always type TCHAR)
     LPTSTR          m_pszData;      // actual string (zero terminated)
     int             m_nStrLen;      // does not include terminating 0
-	int				m_nBufLen;		// length of buffer in TCHARs
-	HRESULT			m_nStatus;
+    int                m_nBufLen;        // length of buffer in TCHARs
+    HRESULT            m_nStatus;
 };
 
 PEGASUS_NAMESPACE_END

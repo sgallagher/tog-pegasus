@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 // WMIReferenceProvider.h: interface for the WMIReferenceProvider class.
@@ -49,19 +49,20 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WMICollector;
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIReferenceProvider : public WMIBaseProvider  
+class PEGASUS_WMIPROVIDER_LINKAGE WMIReferenceProvider : 
+    public WMIBaseProvider  
 {
 public:
-	WMIReferenceProvider();
-	virtual ~WMIReferenceProvider();
+    WMIReferenceProvider();
+    virtual ~WMIReferenceProvider();
 
-/////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // ATTN:
 // The  following public methods are not yet implemented
 //
-/////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
     /// references
-	virtual Array<CIMObject> references(
+    virtual Array<CIMObject> references(
         const String& nameSpace,
         const String& userName,
         const String& password,
@@ -84,10 +85,10 @@ public:
 protected:
 
 private:
-	String getReferenceQueryString(
-		const CIMObjectPath& objectName, 
-		const String& resultClass, 
-		const String& role);
+    String getReferenceQueryString(
+        const CIMObjectPath& objectName, 
+        const String& resultClass, 
+        const String& role);
 
 };
 

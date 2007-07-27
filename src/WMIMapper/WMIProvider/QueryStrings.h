@@ -27,70 +27,70 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIQueryStrings_h
 #define Pegasus_WMIQueryStrings_h
 
 /** This file contains definitions of string constants used to define queries 
-	that will be used to process the Associator and Reference requests.
+    that will be used to process the Associator and Reference requests.
 */
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define qString(x)		String(QUERY_STRING_LIST[x])
-#define qChar(x)		QUERY_STRING_LIST[x]
+#define qString(x)        String(QUERY_STRING_LIST[x])
+#define qChar(x)        QUERY_STRING_LIST[x]
 
 static char const* QUERY_STRING_LIST[] =
 {
-	"ASSOCIATORS OF {%s}" ,
-	" WHERE",
-	" ClassDefsOnly",
-	" AssocClass = ",
-	" RequiredAssocQualifier = ",
-	" RequiredQualifier = ",
-	" ResultClass = ",
-	" ResultRole = ",
-	" Role = %s",
-	" SchemaOnly",
-	"REFERENCES OF {%s}",
-	"WQL",
-	":",
-	".",
-	"=R\"",
-	"\\\"",
-	"\"",
-	"/"
+    "ASSOCIATORS OF {%s}" ,
+    " WHERE",
+    " ClassDefsOnly",
+    " AssocClass = ",
+    " RequiredAssocQualifier = ",
+    " RequiredQualifier = ",
+    " ResultClass = ",
+    " ResultRole = ",
+    " Role = %s",
+    " SchemaOnly",
+    "REFERENCES OF {%s}",
+    "WQL",
+    ":",
+    ".",
+    "=R\"",
+    "\\\"",
+    "\"",
+    "/"
 };
 
 // Constants identifying the strings
 
 enum QUERY_STRING_ID
 {
-	Q_ASSOCIATORS,
-	Q_WHERE,
-	Q_CLS_DEFS,
-	Q_ASSOC_CLS,
-	Q_REQ_ASSOC_QUAL,
-	Q_REQ_QUAL,
-	Q_RESULT_CLASS,
-	Q_RESULT_ROLE,
-	Q_ROLE,
-	Q_SCHEMA,
-	Q_REFERENCES,
-	Q_WQL,
-	Q_COLON,
-	Q_PERIOD,
-	Q_REF_KEY,
-	Q_SLASH_QUOTE,
-	Q_QUOTE,
-	Q_SLASH
+    Q_ASSOCIATORS,
+    Q_WHERE,
+    Q_CLS_DEFS,
+    Q_ASSOC_CLS,
+    Q_REQ_ASSOC_QUAL,
+    Q_REQ_QUAL,
+    Q_RESULT_CLASS,
+    Q_RESULT_ROLE,
+    Q_ROLE,
+    Q_SCHEMA,
+    Q_REFERENCES,
+    Q_WQL,
+    Q_COLON,
+    Q_PERIOD,
+    Q_REF_KEY,
+    Q_SLASH_QUOTE,
+    Q_QUOTE,
+    Q_SLASH
 
 };
 

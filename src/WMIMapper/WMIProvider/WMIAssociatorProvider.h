@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 // WMIAssociatorProvider.h: interface for the WMIAssociatorProvider class.
 //
@@ -46,20 +46,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIAssociatorProvider : public WMIBaseProvider 
+class PEGASUS_WMIPROVIDER_LINKAGE WMIAssociatorProvider : 
+    public WMIBaseProvider 
 {
 public:
-	WMIAssociatorProvider();
-	virtual ~WMIAssociatorProvider();
+    WMIAssociatorProvider();
+    virtual ~WMIAssociatorProvider();
 
-/////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // ATTN:
 // The  following public methods are not yet implemented
 //
-/////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
     /// associators
-	virtual Array<CIMObject> associators(
+    virtual Array<CIMObject> associators(
         const String& nameSpace,
         const String& userName,
         const String& password,
@@ -86,12 +87,12 @@ public:
 protected:
 
 private:
-	String getAssocQueryString(
-		const CIMObjectPath& objectName, 
-		const String& assocClass, 
-		const String& resultClass, 
-		const String& role,
-		const String& resultRole);
+    String getAssocQueryString(
+        const CIMObjectPath& objectName, 
+        const String& assocClass, 
+        const String& resultClass, 
+        const String& role,
+        const String& resultRole);
 };
 
 

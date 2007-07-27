@@ -27,14 +27,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 // WMIQueryProvider.cpp: implementation of the WMIQueryProvider class.
 //
@@ -71,14 +71,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 WMIQueryProvider::WMIQueryProvider()
 {
-	_collector = NULL;
-	m_bInitialized = false;
+    _collector = NULL;
+    m_bInitialized = false;
 
 }
 
 WMIQueryProvider::~WMIQueryProvider()
 {
-	cleanup();
+    cleanup();
 
 }
 
@@ -87,58 +87,58 @@ WMIQueryProvider::~WMIQueryProvider()
 //
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObject> WMIQueryProvider::execQuery(
-		const String& nameSpace,
-		const String& userName,
-		const String& password,
+        const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& queryLanguage,
         const String& query,
-		const CIMPropertyList& propertyList,
-		Boolean includeQualifiers,
-		Boolean includeClassOrigin)
+        const CIMPropertyList& propertyList,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin)
 {
-	HRESULT hr;
-	long lCount = 0;
-	DWORD dwReturned;
-	bool bInst;
+    HRESULT hr;
+    long lCount = 0;
+    DWORD dwReturned;
+    bool bInst;
 
-	CComPtr<IEnumWbemClassObject>	pObjEnum;
-	CComPtr<IWbemClassObject>		pObject;
+    CComPtr<IEnumWbemClassObject>    pObjEnum;
+    CComPtr<IWbemClassObject>        pObject;
 
-	Array<CIMObject> objects;
-	CIMName className;
+    Array<CIMObject> objects;
+    CIMName className;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQueryProvider::execQuery()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQueryProvider::execQuery()");
 
-	setup(nameSpace,userName,password);
+    setup(nameSpace,userName,password);
 
-	if (!m_bInitialized)
-	{
-		throw CIMException(CIM_ERR_FAILED);
-	}
+    if (!m_bInitialized)
+    {
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	// retrieve results
-	if (!(_collector->getQueryResult(&pObjEnum, query, queryLanguage)))
-	{
-		if (pObjEnum)
-			pObjEnum.Release();
+    // retrieve results
+    if (!(_collector->getQueryResult(&pObjEnum, query, queryLanguage)))
+    {
+        if (pObjEnum)
+            pObjEnum.Release();
 
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	//set proxy security on pObjEnum
-	bool bSecurity = _collector->setProxySecurity(pObjEnum);
-	
-	//get the results and append them to the array
-	hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
-	
-	if (SUCCEEDED(hr) && (1 == dwReturned))
-	{	
-		bInst = _collector->isInstance(pObject);	
+    //set proxy security on pObjEnum
+    bool bSecurity = _collector->setProxySecurity(pObjEnum);
+    
+    //get the results and append them to the array
+    hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
+    
+    if (SUCCEEDED(hr) && (1 == dwReturned))
+    {    
+        bInst = _collector->isInstance(pObject);    
 
         CComVariant mVar;
         CComBSTR bs;
         CMyString mstr;  
-	    
+        
         HRESULT hRes = pObject->Get(L"__CLASS", 0, &mVar, 0, 0);
         if (SUCCEEDED(hRes)) {
            bs = mVar.bstrVal;
@@ -147,102 +147,104 @@ Array<CIMObject> WMIQueryProvider::execQuery(
         }
         mVar.Clear();
 
-	}
-
-	
-	while (SUCCEEDED(hr) && (1 == dwReturned))
-	{
-		// collect the information about the current object
-		if (bInst)
-		{
-			//get class from the returned instance 
-			//it will avoid "type mismatch" exceptions
-			//when deepInheritance is true and instances
-			//of subclasses are returned
-			CComVariant vTmpClassName;
-			String strTmpClassName;
-			if (pObject->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL) == S_OK)
-			{
-				strTmpClassName = WMIString(vTmpClassName);
-			}
-
-			CIMInstance tempInst(strTmpClassName);
-
-			if (_collector->getCIMInstance(pObject, tempInst,
-											false, includeQualifiers, includeClassOrigin,
-											propertyList, 
-											true))  //get key properties
-			{
-				lCount++;
-
-			    // build the object path
-			    CComVariant v;
-			    hr = pObject->Get(L"__PATH", 
-				                    0,
-								    &v,
-								    NULL,
-								    NULL);
-
-			    WMIObjectPath tempRef(v.bstrVal);
-			    tempInst.setPath(tempRef);
-			    v.Clear();
-				
-				objects.append(CIMObject(tempInst));
-			}
-		}
-		else
-		{
-			// we are collecting a class
-			CIMClass cimClass;
-            String superClass = _collector->getSuperClass(pObject);
-			CIMName objName = className;
-
-			cimClass = CIMClass(objName);
-
-			if (0 != superClass.size())
-			{
-				CIMName superClassName = superClass;
-				cimClass.setSuperClassName(superClassName);
-			}
-
-            if (_collector->getCIMClass(pObject, 
-				                        cimClass,
-				                        false,
-				                        includeQualifiers,
-				                        includeClassOrigin,
-				                        propertyList))
-            {
-				lCount++;
-				objects.append(CIMObject(cimClass));
-            }
-		}
-
-		if (pObject)
-			pObject.Release();
-
-		hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
-
-	    if (SUCCEEDED(hr) && (1 == dwReturned))
-	    {
-		    bInst = _collector->isInstance(pObject);
-	    }
     }
 
-	if (pObjEnum)
-		pObjEnum.Release();
+    
+    while (SUCCEEDED(hr) && (1 == dwReturned))
+    {
+        // collect the information about the current object
+        if (bInst)
+        {
+            //get class from the returned instance 
+            //it will avoid "type mismatch" exceptions
+            //when deepInheritance is true and instances
+            //of subclasses are returned
+            CComVariant vTmpClassName;
+            String strTmpClassName;
+            if (pObject->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL) 
+                == S_OK)
+            {
+                strTmpClassName = WMIString(vTmpClassName);
+            }
 
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIQueryProvider::execQuery() - Result count is %d", lCount)); 
+            CIMInstance tempInst(strTmpClassName);
 
-	if (lCount == 0)
-	{
-		PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIQueryProvider::execQuery() - hResult value is %x", hr)); 
-	}
+            if (_collector->getCIMInstance(
+                    pObject, tempInst,
+                    false, includeQualifiers, includeClassOrigin,
+                    propertyList, 
+                    true))  //get key properties
+            {
+                lCount++;
 
-	PEG_METHOD_EXIT();
+                // build the object path
+                CComVariant v;
+                hr = pObject->Get(L"__PATH", 
+                                    0,
+                                    &v,
+                                    NULL,
+                                    NULL);
 
-	return objects;
+                WMIObjectPath tempRef(v.bstrVal);
+                tempInst.setPath(tempRef);
+                v.Clear();
+                
+                objects.append(CIMObject(tempInst));
+            }
+        }
+        else
+        {
+            // we are collecting a class
+            CIMClass cimClass;
+            String superClass = _collector->getSuperClass(pObject);
+            CIMName objName = className;
+
+            cimClass = CIMClass(objName);
+
+            if (0 != superClass.size())
+            {
+                CIMName superClassName = superClass;
+                cimClass.setSuperClassName(superClassName);
+            }
+
+            if (_collector->getCIMClass(pObject, 
+                                        cimClass,
+                                        false,
+                                        includeQualifiers,
+                                        includeClassOrigin,
+                                        propertyList))
+            {
+                lCount++;
+                objects.append(CIMObject(cimClass));
+            }
+        }
+
+        if (pObject)
+            pObject.Release();
+
+        hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
+
+        if (SUCCEEDED(hr) && (1 == dwReturned))
+        {
+            bInst = _collector->isInstance(pObject);
+        }
+    }
+
+    if (pObjEnum)
+        pObjEnum.Release();
+
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "WMIQueryProvider::execQuery() - Result count is %d", lCount)); 
+
+    if (lCount == 0)
+    {
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "WMIQueryProvider::execQuery() - hResult value is %x", hr)); 
+    }
+
+    PEG_METHOD_EXIT();
+
+    return objects;
 }
 
 PEGASUS_NAMESPACE_END

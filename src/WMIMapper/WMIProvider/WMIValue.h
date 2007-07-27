@@ -27,14 +27,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard (barbara_packard@hp.com)
-//				Paulo Sehn		(paulo_sehn@hp.com)
-//				Adriano Zanuz	(adriano.zanuz@hp.com)
-//%/////////////////////////////////////////////////////////////////////////////
+// Modified By:    Barbara Packard (barbara_packard@hp.com)
+//                Paulo Sehn        (paulo_sehn@hp.com)
+//                Adriano Zanuz    (adriano.zanuz@hp.com)
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIValue_h
 #define Pegasus_WMIValue_h
@@ -49,7 +49,7 @@ public:
    WMIValue(const CIMValue & value);
    WMIValue(const VARIANT & value, const CIMTYPE type);
    WMIValue(const VARTYPE vt, void *pVal);
-   WMIValue(const VARTYPE vt, void *pVal, const CIMTYPE Type);	// for arrays
+   WMIValue(const VARTYPE vt, void *pVal, const CIMTYPE Type);    // for arrays
    WMIValue(const CComVariant & vValue);
 
    VARIANT toVariant();
@@ -62,15 +62,18 @@ protected:
    WMIValue(void) { };
 
 private:
-	CIMValue getCIMValueFromVariant(VARTYPE vt, void *pVal, const CIMTYPE Type = CIM_ILLEGAL);
-	CIMValue getArrayValue(const CComVariant & vValue, const CIMTYPE Type = CIM_ILLEGAL);
-	CIMValue getValue(const CComVariant & vValue, const CIMTYPE Type = CIM_ILLEGAL);
+    CIMValue getCIMValueFromVariant(
+        VARTYPE vt, void *pVal, const CIMTYPE Type = CIM_ILLEGAL);
+    CIMValue getArrayValue(
+        const CComVariant & vValue, const CIMTYPE Type = CIM_ILLEGAL);
+    CIMValue getValue(
+        const CComVariant & vValue, const CIMTYPE Type = CIM_ILLEGAL);
 
-	bool isArrayType(VARTYPE vt)
-		{return (vt & VT_ARRAY) ? true : false;}
+    bool isArrayType(VARTYPE vt)
+        {return (vt & VT_ARRAY) ? true : false;}
 
-	bool isReferenceType(VARTYPE vt)
-		{return (vt & VT_BYREF) ? true : false;}
+    bool isReferenceType(VARTYPE vt)
+        {return (vt & VT_BYREF) ? true : false;}
 
 
 };

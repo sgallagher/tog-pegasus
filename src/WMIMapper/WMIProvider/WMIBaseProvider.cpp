@@ -27,15 +27,15 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:	 Adriano Zanuz (adriano.zanuz@hp.com)
+// Modified By:     Adriano Zanuz (adriano.zanuz@hp.com)
 //               Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //               Mateus Baur, Hewlett-Packard Company (jair.santos@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider.cpp: implementation of the WMIBaseProvider class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -76,11 +76,11 @@ WMIBaseProvider::~WMIBaseProvider()
 // ///////////////////////////////////////////////////////////////////////////
 void WMIBaseProvider::initialize(bool bLocal)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::initialize()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::initialize()");
 
-	initCollector(bLocal);
+    initCollector(bLocal);
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,11 +89,11 @@ void WMIBaseProvider::initialize(bool bLocal)
 // ///////////////////////////////////////////////////////////////////////////
 void WMIBaseProvider::terminate(void)
 {
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::terminate()");
-	
-	cleanup();
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::terminate()");
+    
+    cleanup();
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 
@@ -102,28 +102,28 @@ void WMIBaseProvider::terminate(void)
 //
 /////////////////////////////////////////////////////////////////////////////
 void WMIBaseProvider::setup(const String & nameSpace,
-							const String & userName,
-							const String & password)
+                            const String & userName,
+                            const String & password)
 {
-	m_sNamespace = nameSpace;
-	m_sUserName = userName;
-	m_sPassword = password;
+    m_sNamespace = nameSpace;
+    m_sUserName = userName;
+    m_sPassword = password;
 
-	if (!m_bInitialized)	
-	{
-		initCollector();
-	}
+    if (!m_bInitialized)    
+    {
+        initCollector();
+    }
 
-	if (m_bInitialized)
-	{
-		_collector->setNamespace(m_sNamespace);
+    if (m_bInitialized)
+    {
+        _collector->setNamespace(m_sNamespace);
 
-		if (m_sUserName != String::EMPTY)
-			_collector->setUserName(m_sUserName);
-		
-		if (m_sPassword != String::EMPTY)
-			_collector->setPassword(m_sPassword);
-	}
+        if (m_sUserName != String::EMPTY)
+            _collector->setUserName(m_sUserName);
+        
+        if (m_sPassword != String::EMPTY)
+            _collector->setPassword(m_sPassword);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -133,11 +133,11 @@ void WMIBaseProvider::setup(const String & nameSpace,
 void WMIBaseProvider::initCollector(bool bLocal)
 {
 
-	if (!m_bInitialized)
-	{
-		_collector = new WMICollector(bLocal);
-		m_bInitialized = _collector->setup();
-	}
+    if (!m_bInitialized)
+    {
+        _collector = new WMICollector(bLocal);
+        m_bInitialized = _collector->setup();
+    }
 
 }
 
@@ -147,72 +147,73 @@ void WMIBaseProvider::initCollector(bool bLocal)
 // ///////////////////////////////////////////////////////////////////////////
 void WMIBaseProvider::cleanup()
 {
-	if (m_bInitialized)
-	{
-		_collector->terminate();
-		delete _collector;
-		_collector = NULL;
-		m_bInitialized = false;
-	}
+    if (m_bInitialized)
+    {
+        _collector->terminate();
+        delete _collector;
+        _collector = NULL;
+        m_bInitialized = false;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider::getCIMInstance - retrieves a CIMInstance object
 //
 // ///////////////////////////////////////////////////////////////////////////
-CIMInstance WMIBaseProvider::getCIMInstance(const String& nameSpace,
-												const String& userName,
-												const String& password,
-												const CIMObjectPath &instanceName, 
-												const CIMPropertyList &propertyList)
+CIMInstance WMIBaseProvider::getCIMInstance(
+    const String& nameSpace,
+    const String& userName,
+    const String& password,
+    const CIMObjectPath &instanceName, 
+    const CIMPropertyList &propertyList)
 {
 
-	CIMInstance cimInstance;
-	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-	String errorDescription;
-	WMIInstanceProvider provider;
+    CIMInstance cimInstance;
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    WMIInstanceProvider provider;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getCIMInstance()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getCIMInstance()");
 
-	try
-	{	
+    try
+    {    
         // This fix uses the current boolean value stored in collector
         // to initialize it. 
         provider.initialize(_collector->isLocalConnection()); 
 
-		cimInstance = provider.getInstance(nameSpace, 
-										   userName, 
-										   password, 
-										   instanceName, 
-										   false, 
-										   false, 
-										   false, 
-										   propertyList);
-		provider.terminate();
-	}
-	catch(CIMException& exception)
-	{
-		provider.terminate();
-		errorCode = exception.getCode();
-		errorDescription = exception.getMessage();
-		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
-	}
-	catch(Exception& exception)
-	{
-		provider.terminate();
-		errorCode = CIM_ERR_FAILED;
-		errorDescription = exception.getMessage();
-		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
-	}
-	catch(...)
-	{
-		provider.terminate();
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        cimInstance = provider.getInstance(nameSpace, 
+                                           userName, 
+                                           password, 
+                                           instanceName, 
+                                           false, 
+                                           false, 
+                                           false, 
+                                           propertyList);
+        provider.terminate();
+    }
+    catch(CIMException& exception)
+    {
+        provider.terminate();
+        errorCode = exception.getCode();
+        errorDescription = exception.getMessage();
+        throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
+    }
+    catch(Exception& exception)
+    {
+        provider.terminate();
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage();
+        throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
+    }
+    catch(...)
+    {
+        provider.terminate();
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
     PEG_METHOD_EXIT();
 
-	return cimInstance;
+    return cimInstance;
 }
 
 
@@ -221,51 +222,52 @@ CIMInstance WMIBaseProvider::getCIMInstance(const String& nameSpace,
 //
 // ///////////////////////////////////////////////////////////////////////////
 CIMClass WMIBaseProvider::getCIMClass(const String& nameSpace,
-										const String& userName,
-										const String& password,
-										const String& className,
-										const CIMPropertyList &propertyList)
+                                        const String& userName,
+                                        const String& password,
+                                        const String& className,
+                                        const CIMPropertyList &propertyList)
 {
-	CIMClass cimClass;
-	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-	String errorDescription;
-	WMIClassProvider provider;
+    CIMClass cimClass;
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    WMIClassProvider provider;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getCIMClass()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getCIMClass()");
 
-	try
-	{
+    try
+    {
         // This fix uses the current boolean value stored in collector
         // to initialize it. 
         provider.initialize(_collector->isLocalConnection()); 
 
-		cimClass = provider.getClass(nameSpace, userName, password, className, false, true, true, propertyList);
+        cimClass = provider.getClass(nameSpace, userName, password, 
+            className, false, true, true, propertyList);
 
-		provider.terminate();
-	}
-	catch(CIMException& exception)
-	{
-		provider.terminate();
-		errorCode = exception.getCode();
-		errorDescription = exception.getMessage();
-		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
-	}
-	catch(Exception& exception)
-	{
-		provider.terminate();
-		errorCode = CIM_ERR_FAILED;
-		errorDescription = exception.getMessage();
-		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
-	}
-	catch(...)
-	{
-		provider.terminate();
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        provider.terminate();
+    }
+    catch(CIMException& exception)
+    {
+        provider.terminate();
+        errorCode = exception.getCode();
+        errorDescription = exception.getMessage();
+        throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
+    }
+    catch(Exception& exception)
+    {
+        provider.terminate();
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage();
+        throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
+    }
+    catch(...)
+    {
+        provider.terminate();
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
     PEG_METHOD_EXIT();
 
-	return cimClass;
+    return cimClass;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -273,148 +275,148 @@ CIMClass WMIBaseProvider::getCIMClass(const String& nameSpace,
 //
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMObject> WMIBaseProvider::execCIMQuery(
-	const String& nameSpace,
-	const String& userName,
-	const String& password,
+    const String& nameSpace,
+    const String& userName,
+    const String& password,
     const String& queryLanguage,
     const String& query,
-	const CIMPropertyList& propertyList,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin)
+    const CIMPropertyList& propertyList,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
-	Array<CIMObject> objects;
+    Array<CIMObject> objects;
 
-	CIMInstance cimInstance;
-	CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-	String errorDescription;
-	WMIQueryProvider provider;
+    CIMInstance cimInstance;
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    WMIQueryProvider provider;
 
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::execCIMQuery()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::execCIMQuery()");
 
-	try
-	{
+    try
+    {
         // This fix uses the current boolean value stored in collector
         // to initialize it. 
         provider.initialize(_collector->isLocalConnection()); 
 
-		objects = provider.execQuery(nameSpace,
-					userName,
-					password,
-					queryLanguage,
-					query,
-					propertyList,
-					includeQualifiers,
-					includeClassOrigin);
-		
-		provider.terminate();
-	}
-	catch(CIMException& exception)
-	{
-		provider.terminate();
-		errorCode = exception.getCode();
-		errorDescription = exception.getMessage();
-		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
-	}
-	catch(Exception& exception)
-	{
-		provider.terminate();
-		errorCode = CIM_ERR_FAILED;
-		errorDescription = exception.getMessage();
-		throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
-	}
-	catch(...)
-	{
-		provider.terminate();
-		throw CIMException(CIM_ERR_FAILED);
-	}
+        objects = provider.execQuery(nameSpace,
+                    userName,
+                    password,
+                    queryLanguage,
+                    query,
+                    propertyList,
+                    includeQualifiers,
+                    includeClassOrigin);
+        
+        provider.terminate();
+    }
+    catch(CIMException& exception)
+    {
+        provider.terminate();
+        errorCode = exception.getCode();
+        errorDescription = exception.getMessage();
+        throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
+    }
+    catch(Exception& exception)
+    {
+        provider.terminate();
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage();
+        throw PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);
+    }
+    catch(...)
+    {
+        provider.terminate();
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-	return objects;
+    return objects;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider::getQueryString - builds the query string from the
-//		input parameters for Associator and Reference commands
+//        input parameters for Associator and Reference commands
 //
 // ///////////////////////////////////////////////////////////////////////////
 String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
-		const String &sQueryCommand,							   
-		const String &assocClass, 
-		const String &resultClass, 
-		const String &role,
-		const String &resultRole)
+        const String &sQueryCommand,                               
+        const String &assocClass, 
+        const String &resultClass, 
+        const String &role,
+        const String &resultRole)
 {
-	bool hasWHERE = false;
-	bool isInst;
+    bool hasWHERE = false;
+    bool isInst;
 
-	//first we need to get the object name
-	String sObjName = getObjectName(objectName);
+    //first we need to get the object name
+    String sObjName = getObjectName(objectName);
 
-	// check if is an instance name
-	Uint32 pos = sObjName.find(qString(Q_PERIOD));
-	isInst = (PEG_NOT_FOUND != pos);
+    // check if is an instance name
+    Uint32 pos = sObjName.find(qString(Q_PERIOD));
+    isInst = (PEG_NOT_FOUND != pos);
 
-	CMyString sQuery;
-	sQuery.Format(CMyString(sQueryCommand), 128, CMyString(sObjName));
+    CMyString sQuery;
+    sQuery.Format(CMyString(sQueryCommand), 128, CMyString(sObjName));
 
-	//set up any optional parameters
-	if (!((0 == assocClass.size()) && (0 == resultClass.size()) &&
-		  (0 == role.size()) && (0 == resultRole.size())))
-	{	
-		// we have optional parameters, append the appropriate ones
-		sQuery += qChar(Q_WHERE);
-		hasWHERE = true;
+    //set up any optional parameters
+    if (!((0 == assocClass.size()) && (0 == resultClass.size()) &&
+          (0 == role.size()) && (0 == resultRole.size())))
+    {    
+        // we have optional parameters, append the appropriate ones
+        sQuery += qChar(Q_WHERE);
+        hasWHERE = true;
 
-		if (0 != assocClass.size())
-		{
-			sQuery += qChar(Q_ASSOC_CLS);
-			sQuery += assocClass;
-		}
+        if (0 != assocClass.size())
+        {
+            sQuery += qChar(Q_ASSOC_CLS);
+            sQuery += assocClass;
+        }
 
-		if (0 != resultClass.size())
-		{
-			sQuery += qChar(Q_RESULT_CLASS);
-			sQuery += resultClass;
-		}
+        if (0 != resultClass.size())
+        {
+            sQuery += qChar(Q_RESULT_CLASS);
+            sQuery += resultClass;
+        }
 
-		if (0 != role.size())
-		{
-			sQuery += qChar(Q_ROLE);
-			sQuery += role;
-		}
+        if (0 != role.size())
+        {
+            sQuery += qChar(Q_ROLE);
+            sQuery += role;
+        }
 
-		if (0 != resultRole.size())
-		{
-			sQuery += qChar(Q_RESULT_ROLE);
-			sQuery += resultRole;
-		}
-	}
+        if (0 != resultRole.size())
+        {
+            sQuery += qChar(Q_RESULT_ROLE);
+            sQuery += resultRole;
+        }
+    }
 
-	// check if an instance
-	if (!isInst)
-	{
-		// have a class, add "SchemaOnly"
-		if (!hasWHERE)
-		{
-			sQuery += qChar(Q_WHERE);
-		}
+    // check if an instance
+    if (!isInst)
+    {
+        // have a class, add "SchemaOnly"
+        if (!hasWHERE)
+        {
+            sQuery += qChar(Q_WHERE);
+        }
 
-		sQuery += qChar(Q_SCHEMA);
-	}
+        sQuery += qChar(Q_SCHEMA);
+    }
 
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIBaseProvider::getQueryString() - Query is %s", (LPCTSTR)sQuery));
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "WMIBaseProvider::getQueryString() - Query is %s", (LPCTSTR)sQuery));
 
-	String s = (LPCTSTR)sQuery;
-	return s;
+    String s = (LPCTSTR)sQuery;
+    return s;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider::getObjectName - extracts the String object name from
-//		CIMObjectPath
-//		removes namespace
+//        CIMObjectPath
+//        removes namespace
 // 
 // Possible input Object Path formats: 
 // 1. Fully-qualified path 
@@ -434,103 +436,103 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 // For example, the return for cases #1-3, above, should be: 
 //    ClassName.Key1="Value",Key2="Value" 
 // 
-// Also, for "reference" keys, the reference indicator (R) needs to be removed. 
-// Therefore, the output from case #4, above, would be: 
+// Also, for "reference" keys, the reference indicator (R) needs to be 
+// removed. Therefore, the output from case #4, above, would be: 
 //    ClassName.Key1="root\cimv2:RefClass.Key="RefValue"" 
 // 
 // ///////////////////////////////////////////////////////////////////////////
 String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 {
-	String sObjName;
-	String sObjNameLower;	
-	bool bHaveReference = false;
-	
-	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getObjectName()");
+    String sObjName;
+    String sObjNameLower;    
+    bool bHaveReference = false;
+    
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getObjectName()");
 
-	sObjName = objectName.toString();			
-	sObjNameLower = sObjName;
-	sObjNameLower.toLower();
-		
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIBaseProvider::getObjectName() - ObjectName: %s", 
+    sObjName = objectName.toString();            
+    sObjNameLower = sObjName;
+    sObjNameLower.toLower();
+        
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "WMIBaseProvider::getObjectName() - ObjectName: %s", 
         sObjName.getCString()));
 
-	Uint32 pos;
+    Uint32 pos;
 
-	// 1. if Object name initiates with a hostname then remove it
-	if ((sObjName.subString(0, 4) != "root") && 
+    // 1. if Object name initiates with a hostname then remove it
+    if ((sObjName.subString(0, 4) != "root") && 
         (sObjNameLower.subString(0, 2) != "//") && 
         (sObjNameLower.subString(0, 2) != "\\\\"))
-	{
-		pos = sObjNameLower.find("root");
+    {
+        pos = sObjNameLower.find("root");
 
-		if (sObjNameLower.find("=") > pos) {
-				
-		    if (PEG_NOT_FOUND != pos)
-		    {
-			    sObjName.remove(0, pos);
-     			sObjNameLower.remove(0, pos);
-		    }
+        if (sObjNameLower.find("=") > pos) {
+                
+            if (PEG_NOT_FOUND != pos)
+            {
+                sObjName.remove(0, pos);
+                 sObjNameLower.remove(0, pos);
+            }
         } 
     }
 
-	//2. Remove the machine name and port if it exists
-	if ((sObjNameLower.subString(0, 2) == "//") || 
+    //2. Remove the machine name and port if it exists
+    if ((sObjNameLower.subString(0, 2) == "//") || 
         (sObjNameLower.subString(0, 2) == "\\\\"))
-	{			
-		pos = sObjNameLower.find("root");
-		
-		if (PEG_NOT_FOUND != pos)
-		{
-			sObjName.remove(0, pos);
-			sObjNameLower.remove(0, pos);
-		}
+    {            
+        pos = sObjNameLower.find("root");
+        
+        if (PEG_NOT_FOUND != pos)
+        {
+            sObjName.remove(0, pos);
+            sObjNameLower.remove(0, pos);
+        }
 
-		//3. After ensuring that all stuff before root was removed,
-		//   get the class/instance name.
-		pos = sObjName.find(qString(Q_COLON));
-			
-		if (PEG_NOT_FOUND != pos)
-		{			
-			sObjName.remove(0, pos + 1);	
-		}
-	}
-	else
-	{		
-		//   get the class/instance name.
-		if (sObjNameLower.subString(0, 4) == "root")	
-		{
-			pos = sObjName.find(qString(Q_COLON));
-			
-			if (PEG_NOT_FOUND != pos)
-			{			
-				sObjName.remove(0, pos + 1);	
-			}
-		}
-	}
+        //3. After ensuring that all stuff before root was removed,
+        //   get the class/instance name.
+        pos = sObjName.find(qString(Q_COLON));
+            
+        if (PEG_NOT_FOUND != pos)
+        {            
+            sObjName.remove(0, pos + 1);    
+        }
+    }
+    else
+    {        
+        //   get the class/instance name.
+        if (sObjNameLower.subString(0, 4) == "root")    
+        {
+            pos = sObjName.find(qString(Q_COLON));
+            
+            if (PEG_NOT_FOUND != pos)
+            {            
+                sObjName.remove(0, pos + 1);    
+            }
+        }
+    }
 
-	//4. Check if has =R".." for a reference instance and
-	//	if so, remove the R
-	//Uint32 pos = sObjName.find(qString(Q_REF_KEY));
-	pos = sObjName.find(qString(Q_REF_KEY));
-	bHaveReference = (PEG_NOT_FOUND != pos);
+    //4. Check if has =R".." for a reference instance and
+    //    if so, remove the R
+    //Uint32 pos = sObjName.find(qString(Q_REF_KEY));
+    pos = sObjName.find(qString(Q_REF_KEY));
+    bHaveReference = (PEG_NOT_FOUND != pos);
 
-	if (bHaveReference)
-	{
-		while (PEG_NOT_FOUND != pos)
-		{
-			sObjName.remove(pos + 1, 1);	//removing R"
-			pos = sObjName.find(qString(Q_REF_KEY));
-		}
-	}
+    if (bHaveReference)
+    {
+        while (PEG_NOT_FOUND != pos)
+        {
+            sObjName.remove(pos + 1, 1);    //removing R"
+            pos = sObjName.find(qString(Q_REF_KEY));
+        }
+    }
 
-	PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-		"WMIBaseProvider::getObjectName() - ObjectName: %s", 
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        "WMIBaseProvider::getObjectName() - ObjectName: %s", 
         sObjName.getCString()));
-	
-	PEG_METHOD_EXIT();
+    
+    PEG_METHOD_EXIT();
 
-	return sObjName;
+    return sObjName;
 }
 
 PEGASUS_NAMESPACE_END

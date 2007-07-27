@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
@@ -61,13 +61,13 @@ PEGASUS_NAMESPACE_BEGIN
 WMIQualifierProvider::WMIQualifierProvider()
 {
 
-	_collector = NULL;
-	m_bInitialized = false;
+    _collector = NULL;
+    m_bInitialized = false;
 }
 
 WMIQualifierProvider::~WMIQualifierProvider()
 {
-	cleanup();
+    cleanup();
 
 }
 
@@ -89,7 +89,7 @@ CIMQualifierDecl WMIQualifierProvider::getQualifier(
         const String& password,
         const String& qualifierName)
 {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ void WMIQualifierProvider::setQualifier(
         const String& password,
         const CIMQualifierDecl& qualifierDecl)
 {
-	return;
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ void WMIQualifierProvider::deleteQualifier(
         const String& password,
         const String& qualifierName)
 {
-	return;
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -124,10 +124,10 @@ void WMIQualifierProvider::deleteQualifier(
 // ///////////////////////////////////////////////////////////////////////////
 Array<CIMQualifierDecl> WMIQualifierProvider::enumerateQualifiers(
         const String& nameSpace,
-		const String& userName,
+        const String& userName,
         const String& password)
 {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 PEGASUS_NAMESPACE_END

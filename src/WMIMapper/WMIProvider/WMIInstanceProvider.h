@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
-// Modified By:	Adriano Zanuz (adriano.zanuz@hp.com)
+// Modified By:    Adriano Zanuz (adriano.zanuz@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef Pegasus_WMIInstanceProvider_h
@@ -48,11 +48,11 @@ class WMICollector;
 class PEGASUS_WMIPROVIDER_LINKAGE WMIInstanceProvider : public WMIBaseProvider 
 {
 public:
-	WMIInstanceProvider(void);
-	virtual ~WMIInstanceProvider(void);
+    WMIInstanceProvider(void);
+    virtual ~WMIInstanceProvider(void);
 
-	// CIMInstanceProvider interface
-	virtual CIMInstance getInstance(
+    // CIMInstanceProvider interface
+    virtual CIMInstance getInstance(
         const String& nameSpace,
         const String& userName,
         const String& password,
@@ -73,50 +73,50 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-	virtual Array<CIMObjectPath> enumerateInstanceNames(
-		const String& nameSpace,
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const String& className);
+        const String& className);
 
-	virtual CIMValue getProperty(
-		const String& nameSpace,
+    virtual CIMValue getProperty(
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMObjectPath& instanceName,
-		const String& propertyName);
+        const CIMObjectPath& instanceName,
+        const String& propertyName);
 
-	virtual void modifyInstance(
-		const String& nameSpace,
+    virtual void modifyInstance(
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMInstance& modifiedInstance,
-		Boolean includeQualifiers = true,
-		const CIMPropertyList& propertylist = CIMPropertyList());
+        const CIMInstance& modifiedInstance,
+        Boolean includeQualifiers = true,
+        const CIMPropertyList& propertylist = CIMPropertyList());
 
-	virtual CIMObjectPath createInstance(
-		const String& nameSpace,
+    virtual CIMObjectPath createInstance(
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMInstance& newInstance);
+        const CIMInstance& newInstance);
 
-	virtual void deleteInstance(
-		const String& nameSpace,
+    virtual void deleteInstance(
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMObjectPath& instanceName);
+        const CIMObjectPath& instanceName);
 
-	virtual void setProperty(
-		const String& nameSpace,
+    virtual void setProperty(
+        const String& nameSpace,
         const String& userName,
         const String& password,
-		const CIMObjectPath& instanceName,
-		const String& propertyName,
-		const CIMValue& newValue = CIMValue());
+        const CIMObjectPath& instanceName,
+        const String& propertyName,
+        const CIMValue& newValue = CIMValue());
 
 private:
-	
-	String WMIInstanceProvider::getHostName();
+    
+    String WMIInstanceProvider::getHostName();
 
 //////////////////////////////////////////////////////////////////////
 // TERRY: ADDED: helper function, maybe should go in a utilities or base class?

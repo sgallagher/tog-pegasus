@@ -27,15 +27,15 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard (barbara_packard@hp.com)
+// Modified By:    Barbara Packard (barbara_packard@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
 
@@ -48,70 +48,72 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIQualifierSet::WMIQualifierSet(const CIMQualifierList & cimQualifierList) : CIMQualifierList(cimQualifierList)
+WMIQualifierSet::WMIQualifierSet(const CIMQualifierList & cimQualifierList) : 
+    CIMQualifierList(cimQualifierList)
 {
 }
 
 WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 {
-	HRESULT hr;
-	String	sMessage;
+    HRESULT hr;
+    String    sMessage;
 
-	CComBSTR	 bsName;	// of the qualifier
-	CComVariant	 vValue;	// of the qualifier
-	long		 lFlavor;	// of the qualifier
-	CIMQualifier qualifier;
-	
- 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQualifierSet::WMIQualifierSet");
+    CComBSTR     bsName;    // of the qualifier
+    CComVariant     vValue;    // of the qualifier
+    long         lFlavor;    // of the qualifier
+    CIMQualifier qualifier;
+    
+     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQualifierSet::WMIQualifierSet");
 
-	hr = pObject->BeginEnumeration(0);
-	sMessage = "BeginEnumeration()";
+    hr = pObject->BeginEnumeration(0);
+    sMessage = "BeginEnumeration()";
 
-	if (SUCCEEDED(hr))
-	{
-		sMessage = "Next()";
-		hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
-	}
+    if (SUCCEEDED(hr))
+    {
+        sMessage = "Next()";
+        hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
+    }
 
-	// process each qualifier
-	while (SUCCEEDED(hr))
-	{
-		if (WBEM_S_NO_MORE_DATA == hr)
-		{
-			break;
-		}
+    // process each qualifier
+    while (SUCCEEDED(hr))
+    {
+        if (WBEM_S_NO_MORE_DATA == hr)
+        {
+            break;
+        }
 
-		try
-		{
-			add(WMIQualifier(bsName, vValue, lFlavor));
-		}
-		catch (...)
-		{
-			bsName.Empty();
-			vValue.Clear();
+        try
+        {
+            add(WMIQualifier(bsName, vValue, lFlavor));
+        }
+        catch (...)
+        {
+            bsName.Empty();
+            vValue.Clear();
 
-			throw CIMException(CIM_ERR_FAILED);
-		}
+            throw CIMException(CIM_ERR_FAILED);
+        }
 
-		bsName.Empty();
-		vValue.Clear();
+        bsName.Empty();
+        vValue.Clear();
 
-		hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
-	}
-	
-	bsName.Empty();
-	vValue.Clear();
-	pObject->EndEnumeration();
+        hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
+    }
+    
+    bsName.Empty();
+    vValue.Clear();
+    pObject->EndEnumeration();
 
-	if (FAILED(hr))
-	{
-		PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
-			"WMIQualifierSet::WMIQualifierSet - %s result is %x", sMessage, hr));
-		
-		throw CIMException(CIM_ERR_FAILED);
-	}
+    if (FAILED(hr))
+    {
+        PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+            "WMIQualifierSet::WMIQualifierSet - %s result is %x", 
+            sMessage, hr));
+        
+        throw CIMException(CIM_ERR_FAILED);
+    }
 
-	PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

@@ -27,14 +27,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Jair Santos, Hewlett-Packard Company  (jair.santos@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "WMIMapperUserInfoContainer.h"
 #include <Pegasus/Common/ArrayInternal.h>
@@ -46,27 +46,29 @@ PEGASUS_NAMESPACE_BEGIN
 //
 const String WMIMapperUserInfoContainer::NAME = "WMIMapperUserInfoContainer";
 
-WMIMapperUserInfoContainer::WMIMapperUserInfoContainer(const OperationContext::Container & container)
+WMIMapperUserInfoContainer::WMIMapperUserInfoContainer(
+    const OperationContext::Container & container)
 {
-    const WMIMapperUserInfoContainer * p = dynamic_cast<const WMIMapperUserInfoContainer *>(&container);
+    const WMIMapperUserInfoContainer * p = 
+        dynamic_cast<const WMIMapperUserInfoContainer *>(&container);
 
     if(p == 0)
     {
         throw DynamicCastFailedException();
     }
 
-	_password = p->_password;
+    _password = p->_password;
 }
 
 WMIMapperUserInfoContainer::WMIMapperUserInfoContainer(const String & password)
 {
-	_password = password;
+    _password = password;
 }
 
 String WMIMapperUserInfoContainer::getName(void) const
 {
     return(NAME);
-	//return("WMIMapperUserInfoContainer");
+    //return("WMIMapperUserInfoContainer");
 }
 
 OperationContext::Container * WMIMapperUserInfoContainer::clone(void) const

@@ -27,15 +27,15 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard (barbara_packard@hp.com)
+// Modified By:    Barbara Packard (barbara_packard@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
 
@@ -55,108 +55,111 @@ WMIProperty::WMIProperty(const CIMProperty & property) : CIMProperty(property)
 }
 
 WMIProperty::WMIProperty(const BSTR & name, 
-						 const VARIANT & value, 
-						 const CIMTYPE type, 
-						 IWbemQualifierSet * pQualifierSet,
-						 Boolean includeQualifiers)
+                         const VARIANT & value, 
+                         const CIMTYPE type, 
+                         IWbemQualifierSet * pQualifierSet,
+                         Boolean includeQualifiers)
 {
-	CIMQualifierList qualifierList;
-	CComBSTR bsName = name;
-	CComVariant vValue = value;
-	qualifierList = WMIQualifierSet(pQualifierSet);
+    CIMQualifierList qualifierList;
+    CComBSTR bsName = name;
+    CComVariant vValue = value;
+    qualifierList = WMIQualifierSet(pQualifierSet);
 
-	// get additional property information
-	String referenceClass = String::EMPTY;
+    // get additional property information
+    String referenceClass = String::EMPTY;
 
-	// the WMI 'CIMTYPE' qualifier stores a string that contains the reference class name
-	// cimtype_qualifier ::= ["ref:" + <reference_class_name>]
-	if (CIM_REFERENCE == type)
-	{
-	// strip "ref:"
-		Uint32 pos = qualifierList.find(CIMName("CIMTYPE"));
+    // the WMI 'CIMTYPE' qualifier stores a string that contains the reference
+    // class name cimtype_qualifier ::= ["ref:" + <reference_class_name>]
+    if (CIM_REFERENCE == type)
+    {
+    // strip "ref:"
+        Uint32 pos = qualifierList.find(CIMName("CIMTYPE"));
 
-		if (PEG_NOT_FOUND != pos)
-		{
-			qualifierList.getQualifier(pos).getValue().get(referenceClass);
+        if (PEG_NOT_FOUND != pos)
+        {
+            qualifierList.getQualifier(pos).getValue().get(referenceClass);
 
-			//strip off "ref:" or, if not found, erase the whole string
-			if ((pos = referenceClass.find(qString(Q_COLON))) != PEG_NOT_FOUND)
-			{
-				referenceClass.remove(0, pos + 1);
-			}
-		}
-	}
+            //strip off "ref:" or, if not found, erase the whole string
+            if ((pos = referenceClass.find(qString(Q_COLON))) != PEG_NOT_FOUND)
+            {
+                referenceClass.remove(0, pos + 1);
+            }
+        }
+    }
 
-	String classOrigin = String::EMPTY;
+    String classOrigin = String::EMPTY;
 
-	// the 'Propagated" qualifier stores a string containing the class origin
-	// propagated qualifier ::= [<class_origin>"."]<property_name>
-	{
-		Uint32 pos = qualifierList.find(CIMName("Propagated"));
+    // the 'Propagated" qualifier stores a string containing the class origin
+    // propagated qualifier ::= [<class_origin>"."]<property_name>
+    {
+        Uint32 pos = qualifierList.find(CIMName("Propagated"));
 
-		if (PEG_NOT_FOUND != pos)
-		{
-			qualifierList.getQualifier(pos).getValue().get(classOrigin);
+        if (PEG_NOT_FOUND != pos)
+        {
+            qualifierList.getQualifier(pos).getValue().get(classOrigin);
 
-			// strip on the ".<property_name> portion if there...
-			if ((pos = classOrigin.find(".")) != PEG_NOT_FOUND)
-			{
-				classOrigin.remove(pos);
-			}
-		}
-	}
+            // strip on the ".<property_name> portion if there...
+            if ((pos = classOrigin.find(".")) != PEG_NOT_FOUND)
+            {
+                classOrigin.remove(pos);
+            }
+        }
+    }
 
-	// build the property
-	BSTR tmpBstr = (BSTR)bsName.Copy();
-	String s(_bstr_t(tmpBstr, FALSE));
-	SysFreeString(tmpBstr);
+    // build the property
+    BSTR tmpBstr = (BSTR)bsName.Copy();
+    String s(_bstr_t(tmpBstr, FALSE));
+    SysFreeString(tmpBstr);
     // old way -- memory leak?:
-	// String s = WMIString(bsName);
-	CIMName cimRef;
-	CIMName cimClsOrigin;
+    // String s = WMIString(bsName);
+    CIMName cimRef;
+    CIMName cimClsOrigin;
 
-	if (0 != referenceClass.size())
-	{
-		cimRef = referenceClass;
-	}
+    if (0 != referenceClass.size())
+    {
+        cimRef = referenceClass;
+    }
 
-	if (0 != classOrigin.size())
-	{
-		cimClsOrigin = classOrigin;
-	}
+    if (0 != classOrigin.size())
+    {
+        cimClsOrigin = classOrigin;
+    }
 
-	*this = CIMProperty(CIMName(s), WMIValue(vValue, type), 0, cimRef,
-				cimClsOrigin, (classOrigin.size() != 0));
+    *this = CIMProperty(CIMName(s), WMIValue(vValue, type), 0, cimRef,
+                cimClsOrigin, (classOrigin.size() != 0));
 
-	vValue.Clear();
+    vValue.Clear();
 
-	// add the qualifiers
-	if (includeQualifiers)
-	{
-		Uint32 i, n;
+    // add the qualifiers
+    if (includeQualifiers)
+    {
+        Uint32 i, n;
 
-		for (i = 0, n = qualifierList.getCount(); i < n; i++)
-		{
-			addQualifier(qualifierList.getQualifier(i));
-		}
-	}
+        for (i = 0, n = qualifierList.getCount(); i < n; i++)
+        {
+            addQualifier(qualifierList.getQualifier(i));
+        }
+    }
 
 }
 
-WMIProperty::WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE type)
+WMIProperty::WMIProperty(
+        const BSTR & name, 
+        const VARIANT & value, 
+        const CIMTYPE type)
 {
-	CComBSTR bsName = name;
-	CComVariant vValue = value;
+    CComBSTR bsName = name;
+    CComVariant vValue = value;
 
-	// build the property
-	BSTR tmpBstr = (BSTR)bsName.Copy();
-	String s(_bstr_t(tmpBstr, FALSE));
-	SysFreeString(tmpBstr);
+    // build the property
+    BSTR tmpBstr = (BSTR)bsName.Copy();
+    String s(_bstr_t(tmpBstr, FALSE));
+    SysFreeString(tmpBstr);
     *this = CIMProperty(CIMName(s), WMIValue(vValue, type));
     // old way -- memory leak?:
-	// *this = CIMProperty(WMIString(bsName), WMIValue(vValue, type));
+    // *this = CIMProperty(WMIString(bsName), WMIValue(vValue, type));
 
-	vValue.Clear();
+    vValue.Clear();
 }
 
 

@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 // WMIQualifierProvider.h: interface for the WMIQualifierProvider class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -41,20 +41,21 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WMICollector; 
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIQualifierProvider : public WMIBaseProvider  
+class PEGASUS_WMIPROVIDER_LINKAGE WMIQualifierProvider : 
+    public WMIBaseProvider  
 {
 public:
-	WMIQualifierProvider();
-	virtual ~WMIQualifierProvider();
+    WMIQualifierProvider();
+    virtual ~WMIQualifierProvider();
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	ATTN:
-//	The following public methods have not been implemented
-//	yet.
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//    ATTN:
+//    The following public methods have not been implemented
+//    yet.
+///////////////////////////////////////////////////////////////////////////////
 
     /// getQualifier
-	virtual CIMQualifierDecl getQualifier(
+    virtual CIMQualifierDecl getQualifier(
         const String& nameSpace,
         const String& userName,
         const String& password,
@@ -77,7 +78,7 @@ public:
     /// enumerateQualifiers
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
         const String& nameSpace,
-		const String& userName,
+        const String& userName,
         const String& password);
 
 protected:

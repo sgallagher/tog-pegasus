@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
@@ -56,7 +56,7 @@ static const String KERBEROS_CHALLENGE_HEADER = "WWW-Authenticate: Negotiate ";
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
     Uint32 exportMessageQueueId,
-	CIMRepository* repository)
+    CIMRepository* repository)
    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR,
           MessageQueue::getNextQueueId()),
     _operationMessageQueueId(operationMessageQueueId),
@@ -87,7 +87,7 @@ void HTTPAuthenticatorDelegator::enqueue(Message* message)
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
     Buffer& message,
-	Boolean closeConnect)
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendResponse");
@@ -109,7 +109,7 @@ void HTTPAuthenticatorDelegator::_sendResponse(
 void HTTPAuthenticatorDelegator::_sendSuccess(
     Uint32 queueId,
     const String& authResponse,
-	Boolean closeConnect)
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendSuccess");
@@ -130,7 +130,7 @@ void HTTPAuthenticatorDelegator::_sendSuccess(
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
     const String& authResponse,
-	Boolean closeConnect)
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendChallenge");
@@ -152,7 +152,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
     const String& status,
     const String& cimError,
     const String& pegasusError,
-	Boolean closeConnect)
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendHttpError");
@@ -537,9 +537,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             {
                 // clear out the outUnwrappedMessage; if unwrapping is required
                 // and it fails we need to send back a bad request.  A message
-                // left in an wrapped state will be a severe failue later.  Reason
-                // for unwrap failing may be due to a problem with the credentials
-                // or context or some other failure may have occurred.
+                // left in an wrapped state will be a severe failue later.  
+                // Reason for unwrap failing may be due to a problem with the 
+                // credentials or context or some other failure may have 
+                // occurred.
                 outUnwrappedMessage.clear();
                 // build a bad request.  We do not want to risk sending back
                 // data that can't be authenticated.
@@ -552,7 +553,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 // Build the WWW_Authenticate record with token.
                 String authResp =   
-                  _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
+                  _authenticationManager->getHttpAuthResponseHeader(
+                                httpMessage->authInfo);
                 // error occurred on wrap so the final_buffer needs to be built
                 // differently
                 final_buffer << authResp;
@@ -576,14 +578,16 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // a bad return code
             if (final_buffer.size() == 0)
             {
-                // if outUnwrappedMessage is empty that indicates client did not
-                // wrap the message.  The original message will be used.
+                // if outUnwrappedMessage is empty that indicates client did 
+                // not wrap the message.  The original message will be used.
                 if (outUnwrappedMessage.size())
                 {
                     final_buffer.appendArray(header_buffer);
                     final_buffer.appendArray(outUnwrappedMessage);
-                    final_buffer.append('\0'); // add back char that was appended earlier
-                    // Note: if additional characters added in future add back here
+                    // add back char that was appended earlier
+                    final_buffer.append('\0'); 
+                    // Note: if additional characters added 
+                    // in future add back here
                 }
             }
             else

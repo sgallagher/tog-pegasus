@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard  (barbara_packard@hp.com)
+// Modified By:    Barbara Packard  (barbara_packard@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WMIException_h
 #define Pegasus_WMIException_h
@@ -48,11 +48,11 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_WMIPROVIDER_LINKAGE WMIException : public Exception
 {
 public:
-	WMIException(const CIMException& exception);
-	WMIException(const HRESULT hRes);
+    WMIException(const CIMException& exception);
+    WMIException(const HRESULT hRes);
 
 protected:
-	WMIException(void) : Exception("") { }
+    WMIException(void) : Exception("") { }
 
 };
 

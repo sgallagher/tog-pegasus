@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 
@@ -64,18 +64,7 @@
 #include "CIMOperationRequestDecoder.h"
 #include "CIMOperationRequestAuthorizer.h"
 #include "HTTPAuthenticatorDelegator.h"
-/*
-#include "ShutdownProvider.h"
-#include "ShutdownService.h"
-#include "BinaryMessageHandler.h"
-#include <Pegasus/Common/ModuleController.h>
-#include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
-#include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-#include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
-#include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
-*/
 
-// l10n
 #include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_USING_STD;
@@ -88,7 +77,7 @@ void CIMServer::shutdownSignal()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdownSignal()");
     handleShutdownSignal = true;
-	_cimserver->tickle_monitor();
+    _cimserver->tickle_monitor();
     PEG_METHOD_EXIT();
 }
 
@@ -98,7 +87,7 @@ CIMServer::CIMServer()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
     _init();
-	_cimserver = this;
+    _cimserver = this;
     PEG_METHOD_EXIT();
 }
 
@@ -149,69 +138,7 @@ void CIMServer::_init()
 
     _serverState.reset(new CIMServerState());
 
-/*
-    _providerRegistrationManager = new ProviderRegistrationManager(_repository);
 
-    // -- Create queue inter-connections:
-
-    _providerManager = new ProviderManagerService(_providerRegistrationManager,_repository);
-
-    _handlerService = new IndicationHandlerService(_repository);
-
-    // Create the control service
-    _controlService = new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
-
-    // Create the Configuration control provider
-    ProviderMessageFacade * configProvider =
-        new ProviderMessageFacade(new ConfigSettingProvider());
-    ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
-                                      PEGASUS_MODULENAME_CONFIGPROVIDER,
-                                      configProvider,
-                                      controlProviderReceiveMessageCallback,
-                                      0, 0);
-
-    // Create the User/Authorization control provider
-    ProviderMessageFacade * userAuthProvider =
-        new ProviderMessageFacade(new UserAuthProvider(_repository));
-    ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
-                                      PEGASUS_MODULENAME_USERAUTHPROVIDER,
-                                      userAuthProvider,
-                                      controlProviderReceiveMessageCallback,
-                                      0, 0);
-
-    // Create the Provider Registration control provider
-    ProviderMessageFacade * provRegProvider = new ProviderMessageFacade(
-        new ProviderRegistrationProvider(_providerRegistrationManager));
-    ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
-                                      PEGASUS_MODULENAME_PROVREGPROVIDER,
-                                      provRegProvider,
-                                      controlProviderReceiveMessageCallback,
-                                      0, 0);
-
-     // Create the Shutdown control provider
-     ProviderMessageFacade * shutdownProvider =
-         new ProviderMessageFacade(new ShutdownProvider(this));
-     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
-                                       PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
-                                       shutdownProvider,
-                                       controlProviderReceiveMessageCallback,
-                                       0, 0);
-
-     // Create the namespace control provider
-     ProviderMessageFacade * namespaceProvider =
-         new ProviderMessageFacade(new NamespaceProvider(_repository));
-     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
-                                       PEGASUS_MODULENAME_NAMESPACEPROVIDER,
-                                       namespaceProvider,
-                                       controlProviderReceiveMessageCallback,
-                                       0, 0);
-
-    _cimOperationRequestDispatcher
-        = new CIMOperationRequestDispatcher(_repository,
-                                            _providerRegistrationManager);
-    _binaryMessageHandler =
-       new BinaryMessageHandler(_cimOperationRequestDispatcher);
-*/
 
      //
      // Create a SSLContextManager object
@@ -219,9 +146,9 @@ void CIMServer::_init()
      _sslContextMgr = new SSLContextManager();
 
     _cimOperationRequestDispatcher = 
-		new CIMOperationRequestDispatcher;
-	
-	_cimOperationResponseEncoder
+        new CIMOperationRequestDispatcher;
+    
+    _cimOperationResponseEncoder
         = new CIMOperationResponseEncoder;
 
     //
@@ -267,7 +194,7 @@ void CIMServer::_init()
     _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId(), 
-		_repository);
+        _repository);
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -369,38 +296,7 @@ CIMServer::~CIMServer()
          // delete this before ModuleController. 
          delete _cimOperationRequestDispatcher; 
        } 
-     // ProviderManager depends on ProcviderRegistrationManager 
-     // 5 
-     /*if (_providerManager) 
-       { 
-         delete _providerManager; 
-       } 
-     // 4 
-     if (_controlService) 
-       { 
-         // ModuleController takes care of deleting all wrappers around 
-         // the control providers. 
-         delete _controlService; 
-       } 
-
-	// IndicationHandlerService, and ProviderRegistrationManager, and thus should be
-	// deleted before the ProviderManagerService, IndicationHandlerService, and 
-	// ProviderRegistrationManager are deleted. 
-	 if (_providerRegistrationManager)
-	 {
-		 delete _providerRegistrationManager;
-	 }
-
-	 // Find all of the control providers (module) 
-     // Must delete CIMOperationRequestDispatcher _before_ deleting each 
-     // of the control provider. The CIMOperationRequestDispatcher keeps 
-     // its own table of the internal providers (pointers). 
-     for (Uint32 i = 0, n = _controlProviders.size (); i < n; i++) 
-       { 
-         ProviderMessageFacade *p = _controlProviders[i]; 
-         // The ~ProviderMessageFacade calls 'terminate' on the control providers. 
-         delete p; 
-       } */
+     
      // The SSL control providers used the SSL context manager. 
      if (_sslContextMgr) 
        { 
@@ -472,10 +368,10 @@ void CIMServer::bind()
         throw BindFailedException(mlp);
     }
 
-	for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-		_acceptors[i]->bind();
-	}
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        _acceptors[i]->bind();
+    }
     
     PEG_METHOD_EXIT();
 }
@@ -486,8 +382,8 @@ void CIMServer::runForever()
  
     // Note: Trace code in this method will be invoked frequently.
     if(!_dieNow)
-	  {    
-  	    _monitor->run(500000);
+      {    
+          _monitor->run(500000);
 
         static struct timeval lastIdleCleanupTime = {0, 0};
         Time::gettimeofday(&now);
@@ -508,7 +404,7 @@ void CIMServer::runForever()
         
         if (handleShutdownSignal)
         {
-        	shutdown(); 
+            shutdown(); 
             PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
                 "CIMServer::runForever - signal received.  Shutting down.");
             //ShutdownService::getInstance(this)->shutdown(true, 10, false);
@@ -543,7 +439,7 @@ void CIMServer::stopClientConnection()
 
     for (Uint32 i=0; i<_acceptors.size(); i++)
     {
-		_acceptors[i]->closeConnectionSocket();
+        _acceptors[i]->closeConnectionSocket();
     }
     
     PEG_METHOD_EXIT();
@@ -554,7 +450,7 @@ void CIMServer::shutdown()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdown()");
 
     _dieNow = true;
-	_cimserver->tickle_monitor();
+    _cimserver->tickle_monitor();
 
     PEG_METHOD_EXIT();
 }
@@ -624,10 +520,10 @@ Uint32 CIMServer::getOutstandingRequestCount()
 
     Uint32 requestCount = 0;
     
-	for (Uint32 i=0; i<_acceptors.size(); i++)
-	{
-		requestCount += _acceptors[i]->getOutstandingRequestCount();
-	}
+    for (Uint32 i=0; i<_acceptors.size(); i++)
+    {
+        requestCount += _acceptors[i]->getOutstandingRequestCount();
+    }
 
     PEG_METHOD_EXIT();
     return requestCount;
@@ -717,8 +613,8 @@ SSLContext* CIMServer::_getSSLContext()
             else if (String::equal(verifyClient, "optional"))
             {
                 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::WARNING,
-                    "SSL client verification is enabled but no truststore was specified.");
+                    Logger::WARNING, "SSL client verification is "
+                    "enabled but no truststore was specified.");
             }
         }
         //
@@ -737,7 +633,7 @@ SSLContext* CIMServer::_getSSLContext()
             {
                 MessageLoaderParms parms(
                     "Pegasus.Server.SSLContextManager."
-                       "SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED",
+                      "SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED",
                     "The HTTP port must be enabled if "
                         "\"sslClientVerificationMode\" is 'required' in order "
                         "for the cimserver to properly shutdown.");

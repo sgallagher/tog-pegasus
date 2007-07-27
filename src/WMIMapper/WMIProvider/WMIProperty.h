@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard (barbara_packard@hp.com)
+// Modified By:    Barbara Packard (barbara_packard@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef Pegasus_WMIProperty_h
@@ -49,7 +49,7 @@ public:
    WMIProperty(const CIMProperty & property);
 //   WMIProperty(const WMIString & name, IWbemClassObject * pObject);
    WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE type, 
-	   IWbemQualifierSet * pObject, Boolean includeQualifiers = false);
+       IWbemQualifierSet * pObject, Boolean includeQualifiers = false);
    WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE type);
 
 protected:

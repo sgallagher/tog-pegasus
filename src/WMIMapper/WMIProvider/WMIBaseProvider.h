@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 // WMIBaseProvider.h: interface for the WMIBaseProvider class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -52,60 +52,60 @@ class WMICollector;
 class PEGASUS_WMIPROVIDER_LINKAGE WMIBaseProvider 
 {
 public:
-	WMIBaseProvider();
-	virtual ~WMIBaseProvider();
+    WMIBaseProvider();
+    virtual ~WMIBaseProvider();
 
-	void initialize(bool bLocal = FALSE);
-	virtual void terminate(void);
+    void initialize(bool bLocal = FALSE);
+    virtual void terminate(void);
 
-	CIMInstance getCIMInstance(const String& nameSpace,
-		const String& userName,
-		const String& password,
-		const CIMObjectPath & instanceName, 
-		const CIMPropertyList & propertyList = CIMPropertyList( ));
+    CIMInstance getCIMInstance(const String& nameSpace,
+        const String& userName,
+        const String& password,
+        const CIMObjectPath & instanceName, 
+        const CIMPropertyList & propertyList = CIMPropertyList( ));
 
-	CIMClass getCIMClass(const String& nameSpace, 
-		const String& userName,
-		const String& password,
-		const String& className,
-		const CIMPropertyList &propertyList = CIMPropertyList());
+    CIMClass getCIMClass(const String& nameSpace, 
+        const String& userName,
+        const String& password,
+        const String& className,
+        const CIMPropertyList &propertyList = CIMPropertyList());
 
-	Array<CIMObject> execCIMQuery(
-		const String& nameSpace,
-		const String& userName,
-		const String& password,
+    Array<CIMObject> execCIMQuery(
+        const String& nameSpace,
+        const String& userName,
+        const String& password,
         const String& queryLanguage,
         const String& query,
-		const CIMPropertyList& propertyList = CIMPropertyList(),
-		Boolean includeQualifiers = false,
-		Boolean includeClassOrigin = false) ;
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false) ;
 
 protected:
-	void setup(
-		const String & nameSpace,
-		const String & userName,
-		const String & password);
-	void initCollector(bool bLocal = FALSE);
-	void cleanup();
+    void setup(
+        const String & nameSpace,
+        const String & userName,
+        const String & password);
+    void initCollector(bool bLocal = FALSE);
+    void cleanup();
 
-	String getQueryString(
-		const CIMObjectPath& objectName, 
-		const String& sQueryCommand,							   
-		const String& assocClass = String::EMPTY, 
-		const String& resultClass = String::EMPTY, 
-		const String& role = String::EMPTY,
-		const String& resultRole = String::EMPTY);
+    String getQueryString(
+        const CIMObjectPath& objectName, 
+        const String& sQueryCommand,                               
+        const String& assocClass = String::EMPTY, 
+        const String& resultClass = String::EMPTY, 
+        const String& role = String::EMPTY,
+        const String& resultRole = String::EMPTY);
 
-	String getObjectName(
-		const CIMObjectPath& objectName); 
+    String getObjectName(
+        const CIMObjectPath& objectName); 
 
-	WMICollector		*_collector;
+    WMICollector        *_collector;
 
-	bool	m_bInitialized;
+    bool    m_bInitialized;
 
-	String				m_sNamespace;
-	String				m_sUserName;
-	String				m_sPassword;
+    String                m_sNamespace;
+    String                m_sUserName;
+    String                m_sPassword;
 };
 
 PEGASUS_NAMESPACE_END

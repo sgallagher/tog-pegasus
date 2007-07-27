@@ -27,14 +27,14 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:	Barbara Packard	(bpackard@hp.com)
+// Modified By:    Barbara Packard    (bpackard@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
 
@@ -48,38 +48,38 @@ WMIString::WMIString(const String & s) : String(s)
 
 WMIString::WMIString(const BSTR & s)
 {
-	try 
-	{
-		CMyString mystr;
-		mystr = s;
-		*this = String((LPCTSTR)mystr);
-	}
-	catch(...) 
-	{
-		PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
-			"WMIString::WMIString(const BSTR & s) - Constructor failed");
-	}
+    try 
+    {
+        CMyString mystr;
+        mystr = s;
+        *this = String((LPCTSTR)mystr);
+    }
+    catch(...) 
+    {
+        PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
+            "WMIString::WMIString(const BSTR & s) - Constructor failed");
+    }
 }
 
 WMIString::WMIString(const VARIANT & var)
 {
-	try 
-	{
-		*this = WMIString(_bstr_t(_variant_t(var)));
-	}
-	catch(...) 
-	{ 
-	}
+    try 
+    {
+        *this = WMIString(_bstr_t(_variant_t(var)));
+    }
+    catch(...) 
+    { 
+    }
 }
 
 WMIString::operator const BSTR(void) const
 {
-	return(_bstr_t((const wchar_t *)getChar16Data()));
+    return(_bstr_t((const wchar_t *)getChar16Data()));
 }
 
 WMIString::operator const VARIANT(void) const
 {
-	return(_variant_t(_bstr_t(BSTR(*this))));
+    return(_variant_t(_bstr_t(BSTR(*this))));
 }
 
 PEGASUS_NAMESPACE_END

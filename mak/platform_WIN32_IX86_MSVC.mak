@@ -243,10 +243,25 @@ else
   endif   
 endif
 
+##################################
+## 
+## The newer compiler versions need neither MS Platform SDK installed nor MSSdk variable defined.
+##
+##################################
 ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
-  ifndef MSSdk
-    $(error MSSdk environment variable undefined)
+  ifeq ($(CL_MAJOR_VERSION), 12)
+    PEGASUS_WMIMAPPER_NEED_MSSDK=true
+  endif
+  ifeq ($(CL_MAJOR_VERSION), 13) 
+    PEGASUS_WMIMAPPER_NEED_MSSDK=true
+  endif
+  ifeq ($(PEGASUS_WMIMAPPER_NEED_MSSDK),true)
+    ifndef MSSdk
+      $(error MSSdk environment variable undefined)
+    endif
   endif
 endif
+
+
 
 

@@ -38,7 +38,9 @@ LOCAL_DEFINES = -DPEGASUS_WMIPROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 
 INCLUDES = -I..
 
-EXTRA_INCLUDES = -I"$(MSSdk)/Include" $(SYS_INCLUDES)
+ifeq ($(PEGASUS_WMIMAPPER_NEED_MSSDK),true)
+  EXTRA_INCLUDES = -I"$(MSSdk)/Include" $(SYS_INCLUDES)
+endif
 
 LIBRARY = WMIProvider
 
@@ -69,5 +71,8 @@ SOURCES = \
    MyString.cpp 
 
 SYS_LIBS = uuid.lib wbemuuid.lib Framedyn.lib ws2_32.lib advapi32.lib
+ifeq ($(CL_MAJOR_VERSION), 14)
+  SYS_LIBS += comsuppw.lib
+endif
 
 include $(ROOT)/mak/library.mak

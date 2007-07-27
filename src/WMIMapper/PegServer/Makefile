@@ -34,7 +34,9 @@ DIR = WMIMapper/PegServer
 
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = -I"$(MSSdk)/Include" $(SYS_INCLUDES)
+ifeq ($(PEGASUS_WMIMAPPER_NEED_MSSDK),true)
+  EXTRA_INCLUDES = -I"$(MSSdk)/Include" $(SYS_INCLUDES)
+endif
 
 LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 

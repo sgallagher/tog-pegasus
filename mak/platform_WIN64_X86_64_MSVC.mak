@@ -230,3 +230,36 @@ endif
 endif
 
 PEGASUS_JAVA_CLASSPATH_DELIMITER = ;
+
+##################################
+##
+## Pegasus WMIMapper
+## 
+##################################
+
+ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
+  FLAGS += -DPEGASUS_WMIMAPPER
+else 
+  ifdef PEGASUS_WMIMAPPER
+    FLAGS += -DPEGASUS_WMIMAPPER
+  endif   
+endif
+
+##################################
+## 
+## The newer compiler versions need neither MS Platform SDK installed nor MSSdk variable defined.
+##
+##################################
+ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
+  ifeq ($(CL_MAJOR_VERSION), 12)
+    PEGASUS_WMIMAPPER_NEED_MSSDK=true
+  endif
+  ifeq ($(CL_MAJOR_VERSION), 13) 
+    PEGASUS_WMIMAPPER_NEED_MSSDK=true
+  endif
+  ifeq ($(PEGASUS_WMIMAPPER_NEED_MSSDK),true)
+    ifndef MSSdk
+      $(error MSSdk environment variable undefined)
+    endif
+  endif
+endif

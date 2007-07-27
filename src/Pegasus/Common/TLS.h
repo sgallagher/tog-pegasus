@@ -58,7 +58,7 @@ public:
 
     ~SSLSocket();
 
-    Boolean incompleteReadOccurred(Sint32 retCode);
+    Boolean incompleteSecureReadOccurred(Sint32 retCode);
 
     Sint32 read(void* ptr, Uint32 size);
 
@@ -144,7 +144,7 @@ public:
 
     Boolean isSecure();
 
-    Boolean incompleteReadOccurred(Sint32 retCode);
+    Boolean incompleteSecureReadOccurred(Sint32 retCode);
 
     SocketHandle getSocket();
 

@@ -1928,24 +1928,21 @@ void HTTPConnection::_handleReadEvent()
 
         if (n <= 0)
         {
-            if (_socket->isSecure())
-            {
-                // It is possible that SSL_read was not able to
-                // read the entire SSL record.  This could happen
-                // if the record was send in multiple packets
-                // over the network and only some of the packets
-                // are available.  Since SSL requires the entire
-                // record to successfully decrypt, the SSL_read
-                // operation will return "0 bytes" read.
-                // Once all the bytes of the SSL record have been read,
-                // SSL_read will return the entire record.
-                // The following test was added to allow
-                // handleReadEvent to distinguish between a
-                // disconnect and partial read of an SSL record.
-                //
-                incompleteSecureReadOccurred =
-                    _socket->incompleteReadOccurred(n);
-            }
+            // It is possible that SSL_read was not able to
+            // read the entire SSL record.  This could happen
+            // if the record was send in multiple packets
+            // over the network and only some of the packets
+            // are available.  Since SSL requires the entire
+            // record to successfully decrypt, the SSL_read
+            // operation will return "0 bytes" read.
+            // Once all the bytes of the SSL record have been read,
+            // SSL_read will return the entire record.
+            // The following test was added to allow
+            // handleReadEvent to distinguish between a
+            // disconnect and partial read of an SSL record.
+            //
+            incompleteSecureReadOccurred =
+                _socket->incompleteSecureReadOccurred(n);
             break;
         }
 

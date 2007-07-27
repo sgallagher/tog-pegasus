@@ -272,27 +272,26 @@ SocketHandle Socket::createSocket(int domain, int type, int protocol)
     {
         newSocket = socket(domain,type,protocol);
 
+        if ((newSocket != PEGASUS_INVALID_SOCKET) ||
+            (getSocketError() != PEGASUS_NETWORK_TRYAGAIN))
+        {
+            break;
+        }
+
+#ifdef PEGASUS_OS_ZOS
         // The program should wait for transport layer to become ready.
 
-        if (newSocket == PEGASUS_INVALID_SOCKET &&
-           getSocketError() == PEGASUS_NETWORK_TCPIP_TRYAGAIN )
+        if (sendTcpipMsg)
         {
-           if (sendTcpipMsg)
-           {
-               Logger::put_l(
-                   Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                   "Common.Socket.WAIT_FOR_TCPIP",
-                   "TCP/IP temporary unavailable.");
-               sendTcpipMsg=false;
-           }
+            Logger::put_l(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                "Common.Socket.WAIT_FOR_TCPIP",
+                "TCP/IP temporary unavailable.");
+            sendTcpipMsg = false;
+        }
 
-           System::sleep(30);
-           continue;
-        }
-        else
-        {
-           break;
-        }
+        System::sleep(30);
+#endif
     } // wait for the transport layer become ready.
 
     // Is the socket in an unrecoverable error ?

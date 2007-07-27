@@ -138,21 +138,6 @@
 
 //------------------------------------------------------------------------------
 //
-// PEGASUS_NETWORK_TCPIP_TRYAGAIN
-//
-// This return code indicates that the transport layer is
-// temporary unavailable and the program can try again.
-//
-//------------------------------------------------------------------------------
-
-#ifdef PEGASUS_OS_ZOS
-#   define PEGASUS_NETWORK_TCPIP_TRYAGAIN EAGAIN
-#else
-#   define PEGASUS_NETWORK_TCPIP_TRYAGAIN 0
-#endif
-
-//------------------------------------------------------------------------------
-//
 // PEGASUS_NETWORK_TRYAGAIN
 //
 // This return code indicates that the network function

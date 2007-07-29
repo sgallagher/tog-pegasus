@@ -32,15 +32,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file debug.h
-  \brief Bug tracing facility.
+    \file debug.h
+    \brief Bug tracing facility.
 
-  This header file defines macros for tracing output
-  using different debug levels, which can be defined during runtime as
-  environment variable.
+    This header file defines macros for tracing output
+    using different debug levels, which can be defined during runtime as
+    environment variable.
 
-  Modules including this header file have to be compiled used -DDEBUG to
-  enable debug support.
+    Modules including this header file have to be compiled used -DDEBUG to
+    enable debug support.
 
 */
 
@@ -55,15 +55,15 @@
 
 
 #ifdef PEGASUS_OS_TYPE_UNIX
-#include <unistd.h>
-#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <strings.h>
-#else
-#include <string.h>
-#endif
+# include <unistd.h>
+# if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#  include <strings.h>
+# else
+#  include <string.h>
+# endif
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-#include <process.h>
-#include <string.h>
+# include <process.h>
+# include <string.h>
 #endif
 
 #define DEBUG_VERBOSE  3
@@ -72,13 +72,14 @@
 #define DEBUG_CRITICAL 0
 
 #define TRACE(level,args) \
-        if ( trace_level ( (level) ) ) { \
-                char * __msg = trace_format args; \
-                trace_this ( (level), \
-                             __FILE__, __LINE__, \
-                             __msg ); \
+    if ( trace_level ( (level) ) ) \
+    { \
+        char * __msg = trace_format args; \
+        trace_this ( \
+            (level), \
+            __FILE__, __LINE__, \
+            __msg ); \
         }
-
 
 #if defined PEGASUS_DEBUG
  #define TRACE_VERBOSE(args)  TRACE(DEBUG_VERBOSE,args)
@@ -105,16 +106,16 @@
 #endif
 
 #if defined PEGASUS_DEBUG
-#define START_DEBUGGER start_debugger ()
+# define START_DEBUGGER start_debugger ()
 #else
-#define START_DEBUGGER
+# define START_DEBUGGER
 #endif
 
 #if defined (PEGASUS_CMPI_PROXY_INTERNAL) || \
     defined (PEGASUS_CMPI_NATIVE_INTERNAL)
-#define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_EXPORT
+# define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_EXPORT
 #else
-#define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_IMPORT
+# define PEGASUS_RCMPI_DEBUG_VISIBILITY PEGASUS_IMPORT
 #endif
 
 #ifdef PEGASUS_DEBUG

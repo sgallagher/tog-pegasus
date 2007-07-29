@@ -29,32 +29,33 @@
 //
 //==============================================================================
 //
-// Author: Venkateswara Rao Puvvada, IBM, vpuvvada@in.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-   \file CreateExtNs.c
-   \brief Creates an extended namespaces
+    \file CreateExtNs.c
+    \brief Creates an extended namespaces
 
-   This program enables the creation of namespaces exploiting Shared Schema facilities and
-   namespaces designated to be used as remote namespaces using Remote CMPI facilities.
+    This program enables the creation of namespaces exploiting Shared Schema 
+    facilities and namespaces designated to be used as remote namespaces using
+    Remote CMPI facilities.
 
-   Usage:
+    Usage:
 
-        CreateExtNs -n <namespace-name> [ -p <parent-namespace> -l <remote-location> ]
+         CreateExtNs -n <namespace-name> 
+             [ -p <parent-namespace> -l <remote-location> ]
 
-   Where
-        -n defines the name of the new nameplates.
+    Where
+         -n defines the name of the new nameplates.
                 Examples: -n root/test
                           -n root/local
 
-        -p Optionally define the new namespace to share schema data with an exciting parent
-            namespace.
+         -p Optionally define the new namespace to share schema data with an 
+            exciting parent namespace.
                 Example: -p root/cimv2
 
-        -l Optionally defines this namespace to be represeting a remote locaton with
-           hostname <remote-location>. CMPIRDeamon must be running at this location.
+         -l Optionally defines this namespace to be represeting a remote 
+            locaton with hostname <remote-location>. CMPIRDeamon must be 
+            running at this location.
                 Example: -l localhost
                          -l hpc4711
 */
@@ -67,11 +68,11 @@
 #define MAXPATHLEN 4096
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-#define RCMPI_MKDIR(dir) mkdir(dir)
+# define RCMPI_MKDIR(dir) mkdir(dir)
 #else
-#include <sys/stat.h>
-#include <unistd.h>
-#define RCMPI_MKDIR(dir) mkdir(dir,0775)
+# include <sys/stat.h>
+# include <unistd.h>
+# define RCMPI_MKDIR(dir) mkdir(dir,0775)
 #endif
 
 int main(int argc, char* argv[])
@@ -99,8 +100,8 @@ int main(int argc, char* argv[])
     if (2 > argc)
     {
         printf(
-               "Usage: CreateExtNs -n <namespace-name> [ -p <parent-namespace>"
-               " -l <remote-location> ] \n");
+            "Usage: CreateExtNs -n <namespace-name> [ -p <parent-namespace>"
+            " -l <remote-location> ] \n");
         return 0;
     }
 
@@ -125,7 +126,7 @@ int main(int argc, char* argv[])
         }
     }
 
-        pathseparator = "/";
+    pathseparator = "/";
 
     /* check for repository */
     strcpy(rdir,pegasushome);
@@ -156,7 +157,7 @@ int main(int argc, char* argv[])
     }
     if (0 == access(rdir,0))
     {
-    printf("%s : Namespace already exisists\n",rdir);
+        printf("%s : Namespace already exisists\n",rdir);
         return 0;
     }
 
@@ -188,9 +189,9 @@ int main(int argc, char* argv[])
     }
     if (0 != RCMPI_MKDIR(rdir))
     {
-     printf("Create Namespace\n");
-         perror(rdir);
-         return -1;
+        printf("Create Namespace\n");
+        perror(rdir);
+        return -1;
     }
 
     strcat(rdir,pathseparator);
@@ -200,7 +201,7 @@ int main(int argc, char* argv[])
     strcat(rdir,"classes");
     if (0 != RCMPI_MKDIR(rdir))
     {
-    printf("Create classes\n");
+        printf("Create classes\n");
         perror(rdir);
         return -1;
     }
@@ -210,17 +211,17 @@ int main(int argc, char* argv[])
     strcat(rdir,"qualifiers");
     if (0 != RCMPI_MKDIR(rdir))
     {
-    printf("Create qualifiers\n");
+        printf("Create qualifiers\n");
         perror(rdir);
         return -1;
     }
     rdir[rlen] ='\0';
 
-     /* instances */
+    /* instances */
     strcat(rdir,"instances");
     if (0 != RCMPI_MKDIR(rdir))
     {
-    printf("Create instances\n");
+        printf("Create instances\n");
         perror(rdir);
         return -1;
     }
@@ -238,7 +239,7 @@ int main(int argc, char* argv[])
         }
         if (0 != RCMPI_MKDIR(rdir))
         {
-        printf("Create SRS parent Namespace\n");
+            printf("Create SRS parent Namespace\n");
             perror(rdir);
             return -1;
         }
@@ -252,7 +253,7 @@ int main(int argc, char* argv[])
         strcat(rdir,remotelocation);
         if (0 != RCMPI_MKDIR(rdir))
         {
-        printf("Create remote location\n");
+            printf("Create remote location\n");
             perror(rdir);
             return -1;
         }

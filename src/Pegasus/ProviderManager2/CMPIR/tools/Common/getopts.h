@@ -29,13 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Venkateswara Rao Puvvada, IBM, vpuvvada@in.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-   \file getopts.h
-   \brief defines getopts function
+    \file getopts.h
+    \brief defines getopts function
 */
 
 #ifndef _REMOTE_CMPI_GETOPTS_H
@@ -46,10 +44,11 @@
 /*
     Retrives the options like UNIX getopts command
     opts (in) - option list.
-    n    (in) - Should be initialized to zero when calling this function for the first time.
-                This value should not be changed elsewhere in the program until getopts
-                function finishes parsing the arguements. Using this value getopts knows
-                the next argument to be parsed.
+    n    (in) - Should be initialized to zero when calling this function for 
+                the first time. This value should not be changed elsewhere in
+                the program until getopts function finishes parsing the 
+                arguements. Using this value getopts knows the next argument 
+                to be parsed.
     optsarg (out) - A pointer to the argument of the option is stored in this.
     argc (in) - number of arguments.
     argv (in) - Actual arguments list.
@@ -78,18 +77,18 @@ char* getopts(char *opts,int *n,char **optsarg,int argc, char *argv[])
                 arg += i;
                 if (*arg)
                 {
-                   *optsarg = arg;
+                    *optsarg = arg;
                 }
                 else if (*n + 1 <argc)
                 {
-                   *optsarg = argv[++*n];
+                    *optsarg = argv[++*n];
                 }
                 else
                 {
-                   *optsarg = "Option requires value.";
-                   break;
+                    *optsarg = "Option requires value.";
+                    break;
                 }
-                return (char*)opts;
+                return(char*)opts;
             }
             else
             {

@@ -32,15 +32,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file context.c
-  \brief Native CMPIContext implementation.
+    \file context.c
+    \brief Native CMPIContext implementation.
 
-  This is the native CMPIContext implementation as used for remote
-  providers. It reflects the well-defined interface of a regular
-  CMPIContext, however, it works independently from the management broker.
+    This is the native CMPIContext implementation as used for remote
+    providers. It reflects the well-defined interface of a regular
+    CMPIContext, however, it works independently from the management broker.
 
-  It is part of a native broker implementation that simulates CMPI data
-  types rather than interacting with the entities in a full-grown CIMOM.
+    It is part of a native broker implementation that simulates CMPI data
+    types rather than interacting with the entities in a full-grown CIMOM.
 
 */
 
@@ -56,14 +56,15 @@
 
 //! Native extension of the CMPIContext data type.
 /*!
-  This structure stores the information needed to represent contexts for
-  CMPI providers.
- */
-struct native_context {
-    CMPIContext ctx;    /*!< the inheriting data structure  */
-    int mem_state;      /*!< states, whether this object is
-                  registered within the memory mangagement or
-                  represents a cloned object */
+    This structure stores the information needed to represent contexts for
+    CMPI providers.
+*/
+struct native_context
+{
+    CMPIContext ctx;    /*! < the inheriting data structure  */
+    int mem_state;      /*! < states, whether this object is
+                            registered within the memory mangagement or
+                            represents a cloned object */
 
     struct native_property * entries;   /*!< context content */
 };
@@ -84,18 +85,19 @@ static CMPIStatus __cft_release ( CMPIContext * ctx )
 
 static CMPIContext * __cft_clone ( CONST CMPIContext * ctx, CMPIStatus * rc )
 {
-    if (!checkArgs(ctx, rc) )
+    if (!checkArgs(ctx, rc))
     {
-         return 0;
+        return 0;
     }
     CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
     return NULL;
 }
 
 
-static CMPIData __cft_getEntry ( CONST CMPIContext * ctx,
-                 const char * name,
-                 CMPIStatus * rc )
+static CMPIData __cft_getEntry ( 
+    CONST CMPIContext * ctx,
+    const char * name,
+    CMPIStatus * rc )
 {
     struct native_context * c = (struct native_context *) ctx;
 
@@ -110,10 +112,11 @@ static CMPIData __cft_getEntry ( CONST CMPIContext * ctx,
 }
 
 
-static CMPIData __cft_getEntryAt ( CONST CMPIContext * ctx,
-                   unsigned int index,
-                   CMPIString ** name,
-                   CMPIStatus * rc )
+static CMPIData __cft_getEntryAt ( 
+    CONST CMPIContext * ctx,
+    unsigned int index,
+    CMPIString ** name,
+    CMPIStatus * rc )
 {
     struct native_context * c = (struct native_context *) ctx;
 
@@ -121,29 +124,32 @@ static CMPIData __cft_getEntryAt ( CONST CMPIContext * ctx,
 
     if (data.state == CMPI_badValue)
     {
-         return data;
+        return data;
     }
 
     return propertyFT.getDataPropertyAt ( c->entries, index, name, rc );
 }
 
 
-static unsigned int __cft_getEntryCount ( CONST CMPIContext * ctx, CMPIStatus * rc )
+static unsigned int __cft_getEntryCount ( 
+    CONST CMPIContext * ctx, 
+    CMPIStatus * rc )
 {
     struct native_context * c = (struct native_context *) ctx;
-    if (!checkArgs(ctx, rc) )
+    if (!checkArgs(ctx, rc))
     {
-         return 0;
+        return 0;
     }
 
     return propertyFT.getPropertyCount ( c->entries, rc );
 }
 
 
-static CMPIStatus __cft_addEntry ( CONST CMPIContext * ctx,
-                   const char * name,
-                   CONST CMPIValue * value,
-                   CONST CMPIType type )
+static CMPIStatus __cft_addEntry ( 
+    CONST CMPIContext * ctx,
+    const char * name,
+    CONST CMPIValue * value,
+    CONST CMPIType type )
 {
     struct native_context * c = (struct native_context *) ctx;
 
@@ -154,14 +160,15 @@ static CMPIStatus __cft_addEntry ( CONST CMPIContext * ctx,
         return rc;
     }
 
-    CMReturn ( ( propertyFT.addProperty ( &c->entries,
-                          c->mem_state,
-                          name,
-                          type,
-                          0,
-                          value ) )?
-           CMPI_RC_ERR_ALREADY_EXISTS:
-           CMPI_RC_OK );
+    CMReturn ( ( propertyFT.addProperty ( 
+        &c->entries,
+        c->mem_state,
+        name,
+        type,
+        0,
+        value ) )?
+        CMPI_RC_ERR_ALREADY_EXISTS:
+        CMPI_RC_OK );
 }
 
 
@@ -193,17 +200,20 @@ static struct native_context * __new_empty_context ( int mm_add )
 
 
 
-PEGASUS_EXPORT CMPIContext * PEGASUS_CMPIR_CDECL native_new_CMPIContext ( int mem_state )
+PEGASUS_EXPORT CMPIContext * PEGASUS_CMPIR_CDECL native_new_CMPIContext ( 
+    int mem_state )
 {
-    return (CMPIContext *) __new_empty_context ( mem_state );
+    return(CMPIContext *) __new_empty_context ( mem_state );
 }
 
 
-PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL native_release_CMPIContext ( CONST CMPIContext * ctx )
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL native_release_CMPIContext ( 
+    CONST CMPIContext * ctx )
 {
     struct native_context * c = (struct native_context *) ctx;
 
-    if ( c->mem_state == TOOL_MM_NO_ADD ) {
+    if (c->mem_state == TOOL_MM_NO_ADD)
+    {
 
         c->mem_state = TOOL_MM_ADD;
         tool_mm_add ( c );

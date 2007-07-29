@@ -32,23 +32,23 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file proxy_attach.c
-  \brief Context storage and retrieval module for the Proxy Provider.
+    \file proxy_attach.c
+    \brief Context storage and retrieval module for the Proxy Provider.
 
-  This module provides functions for communication layers to properly
-  handle CMPIContext objects within MI and MB calls respectively.
-  Since up-calls issued by remote providers typically cannot be relayed
-  back to the same thread that is executing the appropriate MI call against
-  the remote provider, it is necessary to save and retrieve CMPIContext
-  objects. Communication layers may do so at the beginning of an MI call
-  thus obtaining a context id, which is then being used in eventually
-  resulting MB calls to attach the handling thread using the previously
-  saved context.
+    This module provides functions for communication layers to properly
+    handle CMPIContext objects within MI and MB calls respectively.
+    Since up-calls issued by remote providers typically cannot be relayed
+    back to the same thread that is executing the appropriate MI call against
+    the remote provider, it is necessary to save and retrieve CMPIContext
+    objects. Communication layers may do so at the beginning of an MI call
+    thus obtaining a context id, which is then being used in eventually
+    resulting MB calls to attach the handling thread using the previously
+    saved context.
 
-  This module, however, simply stores the pointers to the CMPIContext
-  object and not its contents. Thus, it is the responsibility of the
-  communication layer to ensure that a retrieved context is still active
-  and has not been garbage-collected for instance.
+    This module, however, simply stores the pointers to the CMPIContext
+    object and not its contents. Thus, it is the responsibility of the
+    communication layer to ensure that a retrieved context is still active
+    and has not been garbage-collected for instance.
 
 */
 #include <stdio.h>
@@ -57,9 +57,9 @@
 #include <errno.h>
 
 #ifdef PEGASUS_OS_TYPE_UNIX
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <error.h>
-#endif
+# ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#  include <error.h>
+# endif
 #endif
 
 #include "cmpir_common.h"
@@ -73,10 +73,11 @@ PEGASUS_IMPORT extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 
 //! CMPIContext storage container.
 /*!
-  This struct is used to to store CMPIContext objects associated with their
-  ID in a linked list.
- */
-struct mi_context {
+    This struct is used to to store CMPIContext objects associated with their
+    ID in a linked list.
+*/
+struct mi_context
+{
     unsigned long int id;   /*!< the ID of the stored context */
     CONST CMPIContext * ctx;    /*!< the stored CMPIContext object */
     struct mi_context * next; /*!< pointer to the next element */
@@ -93,14 +94,14 @@ static struct mi_context * __contexts = NULL;
 
 //! Statically saves a CMPIContext returning a unique ID.
 /*!
-  The function sets up a new mi_context struct and attaches it to a linked
-  list.
+    The function sets up a new mi_context struct and attaches it to a linked
+    list.
 
-  \param ctx the context to be saved.
+    \param ctx the context to be saved.
 
-  \return a unique ID to retrieve and/or delete the context from the list
-  later.
- */
+    \return a unique ID to retrieve and/or delete the context from the list
+    later.
+*/
 unsigned long int save_context ( CONST CMPIContext * ctx )
 {
     struct mi_context * tmp =
@@ -127,35 +128,36 @@ unsigned long int save_context ( CONST CMPIContext * ctx )
 
 //! Retrieves a previously saved CMPIContext using its ID.
 /*!
-  The function looks up the given ID in the linked list to find the
-  requested CMPIContext object.
+    The function looks up the given ID in the linked list to find the
+    requested CMPIContext object.
 
-  \param id used to identify the context.
+    \param id used to identify the context.
 
-  \return the proper CMPIContext object or NULL.
- */
+    \return the proper CMPIContext object or NULL.
+*/
 CONST CMPIContext * get_context ( unsigned long int id )
 {
     struct mi_context * tmp;
 
     TRACE_NORMAL(("looking up context for id: %ld", id ));
 
-        INIT_LOCK(__context_lock);
-        CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
+    INIT_LOCK(__context_lock);
+    CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
 
-    for ( tmp = __contexts; tmp != NULL; tmp = tmp->next ) {
+    for (tmp = __contexts; tmp != NULL; tmp = tmp->next)
+    {
 
-        if ( tmp->id == id ) {
-
+        if (tmp->id == id)
+        {
             CONST CMPIContext * ctx = tmp->ctx;
-                        CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
+            CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 
             TRACE_INFO(("returning context."));
             return ctx;
         }
     }
 
-        CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
+    CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 
     TRACE_CRITICAL(("context not found, returning NULL."));
     return NULL;
@@ -164,28 +166,28 @@ CONST CMPIContext * get_context ( unsigned long int id )
 
 //! Deletes a CMPIContext data container.
 /*!
-  Removes the mi_struct matching the given ID from the locally maintained
-  linked list.
+    Removes the mi_struct matching the given ID from the locally maintained
+    linked list.
 
-  \param id of the context to be removed.
- */
+    \param id of the context to be removed.
+*/
 void remove_context ( unsigned long int id )
 {
     struct mi_context ** tmp;
 
     TRACE_NORMAL(("trying to remove context for id: %ld", id ));
 
-        INIT_LOCK(__context_lock);
-        CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
+    INIT_LOCK(__context_lock);
+    CMPI_BrokerExt_Ftab->lockMutex(__context_lock);
 
-    for ( tmp = &__contexts; *tmp != NULL; tmp = & (*tmp)->next ) {
-
-        if ( (*tmp)->id == id ) {
-
+    for (tmp = &__contexts; *tmp != NULL; tmp = & (*tmp)->next)
+    {
+        if ((*tmp)->id == id)
+        {
             struct mi_context * rm = (*tmp);
             (*tmp) = rm->next;
 
-                        CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
+            CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
             free ( rm );
 
             TRACE_INFO(("successfully removed context."));
@@ -194,10 +196,10 @@ void remove_context ( unsigned long int id )
     }
 
     TRACE_CRITICAL(("failed to remove context."));
-        CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
+    CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 }
 
-void cleanup_context ( void )
+void cleanup_context ()
 {
 
     TRACE_NORMAL(("cleaning up context facility" ));

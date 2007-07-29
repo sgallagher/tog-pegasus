@@ -32,15 +32,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file datetime.c
-  \brief Native CMPIDateTime implementation.
+    \file datetime.c
+    \brief Native CMPIDateTime implementation.
 
-  This is the native CMPIDateTime implementation as used for remote
-  providers. It reflects the well-defined interface of a regular
-  CMPIDateTime, however, it works independently from the management broker.
+    This is the native CMPIDateTime implementation as used for remote
+    providers. It reflects the well-defined interface of a regular
+    CMPIDateTime, however, it works independently from the management broker.
 
-  It is part of a native broker implementation that simulates CMPI data
-  types rather than interacting with the entities in a full-grown CIMOM.
+    It is part of a native broker implementation that simulates CMPI data
+    types rather than interacting with the entities in a full-grown CIMOM.
 
 */
 #include "cmpir_common.h"
@@ -51,12 +51,12 @@
 #include <Pegasus/Provider/CMPI/cmpipl.h>
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-#include <winsock2.h>
-#include <winbase.h>
-#include <sys/types.h>
-#include <sys/timeb.h>
+# include <winsock2.h>
+# include <winbase.h>
+# include <sys/types.h>
+# include <sys/timeb.h>
 #else
-#include <sys/time.h>
+# include <sys/time.h>
 #endif
 
 
@@ -65,20 +65,20 @@
 
 //! Native extension of the CMPIDateTime data type.
 /*!
-  This structure stores the information needed to represent time for
-  CMPI providers.
- */
+    This structure stores the information needed to represent time for
+    CMPI providers.
+*/
 
- // Adding this to the POSIX 1970 microseconds epoch produces a 1 BCE epoch
- // as used by CIMDateTime. -V 5885
- // This POSIX_1970_EPOCH_OFFSET value should be same as the
- // POSIX_1970_EPOCH_OFFSET value found in CIMDateTime.cpp
+// Adding this to the POSIX 1970 microseconds epoch produces a 1 BCE epoch
+// as used by CIMDateTime. -V 5885
+// This POSIX_1970_EPOCH_OFFSET value should be same as the
+// POSIX_1970_EPOCH_OFFSET value found in CIMDateTime.cpp
 
- // ATTN: Need to find the way to sync changes made to POSIX_1970_EPOCH_OFFSET
- // value in CIMDateTime.cpp here.
+// ATTN: Need to find the way to sync changes made to POSIX_1970_EPOCH_OFFSET
+// value in CIMDateTime.cpp here.
 
- static const CMPIUint64 POSIX_1970_EPOCH_OFFSET  =
-                           (CMPIUint64)(62167219200000000);
+static const CMPIUint64 POSIX_1970_EPOCH_OFFSET  =
+    (CMPIUint64)(62167219200000000);
 
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -89,44 +89,45 @@ struct timezone
 };
 #endif
 
-struct native_datetime {
-    CMPIDateTime dt;    /*!< the inheriting data structure  */
-    int mem_state;      /*!< states, whether this object is
-                  registered within the memory mangagement or
-                  represents a cloned object */
+struct native_datetime
+{
+    CMPIDateTime dt;    /*! < the inheriting data structure  */
+    int mem_state;      /*! < states, whether this object is
+                            registered within the memory mangagement or
+                            represents a cloned object */
 
-    CMPIUint64 msecs;   /*!< microseconds since 01/01/1970 00:00  */
-    CMPIBoolean interval;   /*!< states if the date-time object is to be
-                  treated as an interval or as absolute time */
+    CMPIUint64 msecs;   /*! < microseconds since 01/01/1970 00:00  */
+    CMPIBoolean interval;   /*! < states if the date-time object is to be
+                                treated as an interval or as absolute time */
 };
 
-static struct native_datetime * __new_datetime ( int,
-                         CMPIUint64,
-                         CMPIBoolean,
-                         CMPIStatus * );
+static struct native_datetime * __new_datetime ( 
+    int,
+    CMPIUint64,
+    CMPIBoolean,
+    CMPIStatus * );
 
 /****************************************************************************/
 
 //! Releases a previously cloned CMPIDateTime object from memory.
 /*!
-  To achieve this, the object is simply added to the thread-based memory
-  management to be freed later.
+    To achieve this, the object is simply added to the thread-based memory
+    management to be freed later.
 
-  \param dt the object to be released
+    \param dt the object to be released
 
-  \return CMPI_RC_OK.
- */
+    \return CMPI_RC_OK.
+*/
 static CMPIStatus __dtft_release ( CMPIDateTime * dt )
 {
     struct native_datetime * ndt = (struct native_datetime *) dt;
 
     CMPIStatus rc = checkArgsReturnStatus(dt);
 
-    if (rc.rc == CMPI_RC_OK && ndt->mem_state == TOOL_MM_NO_ADD )
+    if (rc.rc == CMPI_RC_OK && ndt->mem_state == TOOL_MM_NO_ADD)
     {
         ndt->mem_state = TOOL_MM_ADD;
         tool_mm_add ( ndt );
-
     }
 
     return rc;
@@ -134,47 +135,49 @@ static CMPIStatus __dtft_release ( CMPIDateTime * dt )
 
 //! Clones an existing CMPIDateTime object.
 /*!
-  The function simply calls __new_datetime() with the data fields
-  extracted from dt.
+    The function simply calls __new_datetime() with the data fields
+    extracted from dt.
 
-  \param dt the object to be cloned
-  \param rc return code pointer
+    \param dt the object to be cloned
+    \param rc return code pointer
 
-  \return a copy of the given CMPIDateTime object that won't be freed
-  from memory before calling __dtft_release().
- */
+    \return a copy of the given CMPIDateTime object that won't be freed
+    from memory before calling __dtft_release().
+*/
 static CMPIDateTime * __dtft_clone ( CONST CMPIDateTime * dt, CMPIStatus * rc )
 {
     struct native_datetime * ndt   = (struct native_datetime *) dt;
     struct native_datetime * new;
 
-    if (!checkArgs(dt, rc) )
+    if (!checkArgs(dt, rc))
     {
-         return 0;
+        return 0;
     }
-    new = __new_datetime ( TOOL_MM_NO_ADD,
-                          ndt->msecs,
-                          ndt->interval,
-                          rc );
+    new = __new_datetime ( 
+        TOOL_MM_NO_ADD,
+        ndt->msecs,
+        ndt->interval,
+        rc );
 
-    return (CMPIDateTime *) new;
+    return(CMPIDateTime *) new;
 }
 
 //! Extracts the binary time from the encapsulated CMPIDateTime object.
 /*!
-  \param dt the native CMPIDateTime to be extracted.
-  \param rc return code pointer
+    \param dt the native CMPIDateTime to be extracted.
+    \param rc return code pointer
 
-  \return an amount of microseconds.
- */
-static CMPIUint64 __dtft_getBinaryFormat ( CONST CMPIDateTime * dt,
-                       CMPIStatus * rc )
+    \return an amount of microseconds.
+*/
+static CMPIUint64 __dtft_getBinaryFormat ( 
+    CONST CMPIDateTime * dt,
+    CMPIStatus * rc )
 {
     struct native_datetime * ndt   = (struct native_datetime *) dt;
 
-    if (!checkArgs(dt, rc) )
+    if (!checkArgs(dt, rc))
     {
-         return 0;
+        return 0;
     }
 
     CMSetStatus ( rc, CMPI_RC_OK );
@@ -183,16 +186,17 @@ static CMPIUint64 __dtft_getBinaryFormat ( CONST CMPIDateTime * dt,
 
 //! Gives back a string representation of the time object.
 /*!
-  \param dt the native CMPIDateTime to be converted.
-  \param rc return code pointer
+    \param dt the native CMPIDateTime to be converted.
+    \param rc return code pointer
 
-  \return a string that has one of the following formats:
+    \return a string that has one of the following formats:
 
-  - yyyymmddhhmmss.mmmmmmsutc (for absolute times)
-  - ddddddddhhmmss.mmmmmm:000 (for time intervals)
- */
-static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
-                         CMPIStatus * rc )
+    - yyyymmddhhmmss.mmmmmmsutc (for absolute times)
+    - ddddddddhhmmss.mmmmmm:000 (for time intervals)
+*/
+static CMPIString * __dtft_getStringFormat ( 
+    CONST CMPIDateTime * dt,
+    CMPIStatus * rc )
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     FILETIME FTime;
@@ -205,13 +209,14 @@ static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
     unsigned long usecs;
     char str_time[26];
 
-    if (!checkArgs(dt, rc) )
+    if (!checkArgs(dt, rc))
     {
-         return 0;
+        return 0;
     }
     secs  = (time_t) ndt->msecs / 1000000;
     usecs = (unsigned long) ndt->msecs % 1000000;
-    if ( ndt->interval ) {
+    if (ndt->interval)
+    {
 
         unsigned long mins, hrs, days;
 
@@ -223,14 +228,17 @@ static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
         hrs  %= 24;
 
         sprintf ( str_time, "%8.8ld%2.2ld%2.2ld%2.2ld.%6.6ld:000",
-               days, hrs, mins, secs, usecs );
+            days, hrs, mins, secs, usecs );
 
-    } else {
+    }
+    else
+    {
 #ifndef PEGASUS_OS_TYPE_WINDOWS
         struct tm tm_time;
         char us_utc_time[11];
 
-        if ( localtime_r ( &secs, &tm_time ) == NULL ) {
+        if (localtime_r ( &secs, &tm_time ) == NULL)
+        {
 
             CMSetStatus ( rc, CMPI_RC_ERR_FAILED );
             return NULL;
@@ -238,11 +246,18 @@ static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
 
         tzset ();
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        sprintf ( us_utc_time, "%6.6ld%+4.3ld",
-               usecs, ( daylight != 0 ) * 60 - timezone / 60 );
+        sprintf ( 
+            us_utc_time, 
+            "%6.6ld%+4.3ld",
+            usecs, 
+            ( daylight != 0 ) * 60 - timezone / 60 );
 #else
-        snprintf ( us_utc_time, 11, "%6.6ld%+4.3ld",
-               usecs, ( daylight != 0 ) * 60 - timezone / 60 );
+        snprintf ( 
+            us_utc_time, 
+            11, 
+            "%6.6ld%+4.3ld",
+            usecs, 
+            ( daylight != 0 ) * 60 - timezone / 60 );
 #endif
         strftime ( str_time, 26, "%Y%m%d%H%M%S.", &tm_time );
 
@@ -270,17 +285,19 @@ static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
 
 //! States, whether the time object represents an interval.
 /*!
-  \param dt the native CMPIDateTime to be checked.
-  \param rc return code pointer
+    \param dt the native CMPIDateTime to be checked.
+    \param rc return code pointer
 
-  \return zero, if it is an absolute time, non-zero for intervals.
- */
-static CMPIBoolean __dtft_isInterval ( CONST CMPIDateTime * dt, CMPIStatus * rc )
+    \return zero, if it is an absolute time, non-zero for intervals.
+*/
+static CMPIBoolean __dtft_isInterval ( 
+    CONST CMPIDateTime * dt, 
+    CMPIStatus * rc )
 {
     struct native_datetime * ndt   = (struct native_datetime *) dt;
-    if (!checkArgs(dt, rc) )
+    if (!checkArgs(dt, rc))
     {
-         return 0;
+        return 0;
     }
     CMSetStatus ( rc, CMPI_RC_OK );
     return ndt->interval;
@@ -289,21 +306,22 @@ static CMPIBoolean __dtft_isInterval ( CONST CMPIDateTime * dt, CMPIStatus * rc 
 
 //! Creates a new native_datetime object.
 /*!
-  The newly allocated object's function table is initialized to point
-  to the native functions in this file.
+    The newly allocated object's function table is initialized to point
+    to the native functions in this file.
 
-  \param mm_add TOOL_MM_ADD for a regular object, TOOL_MM_NO_ADD for
-  cloned ones
-  \param msecs the binary time to be stored
-  \param interval the interval flag to be stored
-  \param rc return code pointer
+    \param mm_add TOOL_MM_ADD for a regular object, TOOL_MM_NO_ADD for
+                  cloned ones
+    \param msecs the binary time to be stored
+    \param interval the interval flag to be stored
+    \param rc return code pointer
 
-  \return a fully initialized native_datetime object pointer.
- */
-static struct native_datetime * __new_datetime ( int mm_add,
-                         CMPIUint64 msecs,
-                         CMPIBoolean interval,
-                         CMPIStatus * rc )
+    \return a fully initialized native_datetime object pointer.
+*/
+static struct native_datetime * __new_datetime ( 
+    int mm_add,
+    CMPIUint64 msecs,
+    CMPIBoolean interval,
+    CMPIStatus * rc )
 {
     static CMPIDateTimeFT dtft = {
         NATIVE_FT_VERSION,
@@ -323,10 +341,10 @@ static struct native_datetime * __new_datetime ( int mm_add,
         (struct native_datetime *)
         tool_mm_alloc ( mm_add, sizeof ( struct native_datetime ) );
 
-    ndt->dt        = dt;
+    ndt->dt = dt;
     ndt->mem_state = mm_add;
-    ndt->msecs     = msecs;
-    ndt->interval  = interval;
+    ndt->msecs = msecs;
+    ndt->interval = interval;
 
     CMSetStatus ( rc, CMPI_RC_OK );
     return ndt;
@@ -335,13 +353,13 @@ static struct native_datetime * __new_datetime ( int mm_add,
 
 //! Creates a native CMPIDateTime representing the current time.
 /*!
-  This function calculates the current time and stores it within
-  a new native_datetime object.
+    This function calculates the current time and stores it within
+    a new native_datetime object.
 
-  \param rc return code pointer
+    \param rc return code pointer
 
-  \return a pointer to a native CMPIDateTime.
- */
+    \return a pointer to a native CMPIDateTime.
+*/
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 
@@ -362,25 +380,25 @@ int getCurrentTimeZone()
     int currentTimeZone = 0;
     memset(&timezone, 0, sizeof(timezone));
 
-    switch(GetTimeZoneInformation(&timezone))
+    switch (GetTimeZoneInformation(&timezone))
     {
         case TIME_ZONE_ID_UNKNOWN:
-        {
-            currentTimeZone = timezone.Bias;
-            break;
-        }
+            {
+                currentTimeZone = timezone.Bias;
+                break;
+            }
 
         case TIME_ZONE_ID_STANDARD:
-        {
-            currentTimeZone = (timezone.Bias + timezone.StandardBias);
-            break;
-        }
+            {
+                currentTimeZone = (timezone.Bias + timezone.StandardBias);
+                break;
+            }
 
         case TIME_ZONE_ID_DAYLIGHT:
-        {
-            currentTimeZone = (timezone.Bias + timezone.DaylightBias);
-            break;
-        }
+            {
+                currentTimeZone = (timezone.Bias + timezone.DaylightBias);
+                break;
+            }
 
         default:
             break;
@@ -431,7 +449,9 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
     {
 #if defined(PEGASUS_OS_SOLARIS)
         tzMinutesEast =
-            -(int)((tmval->tm_isdst > 0 && daylight) ? altzone : timezone) / 60;
+            -(int)((tmval->tm_isdst > 0 && daylight) ? 
+            altzone : 
+            timezone) / 60;
 #elif defined(PEGASUS_OS_HPUX)
         tzMinutesEast = - (int) timezone / 60;
         if ((tmval->tm_isdst > 0) && daylight)
@@ -459,51 +479,55 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
         (CMPIUint64)(sec + tzMinutesEast * 60) * (CMPIUint64) 1000000 +
         (CMPIUint64) usec;
 
-    return (CMPIDateTime *) __new_datetime ( TOOL_MM_ADD,
-                         usec,
-                         0,
-                         rc );
+    return(CMPIDateTime *) __new_datetime ( 
+        TOOL_MM_ADD,
+        usec,
+        0,
+        rc );
 }
 
 //! Creates a native CMPIDateTime given a fixed binary time.
 /*!
-  This calls is simply passed on to __new_datetime().
+    This calls is simply passed on to __new_datetime().
 
-  \param time fixed time-stamp in microseconds
-  \param interval states, if the time-stamp is to be treated as interval
-  \param rc return code pointer
+    \param time fixed time-stamp in microseconds
+    \param interval states, if the time-stamp is to be treated as interval
+    \param rc return code pointer
 
-  \return a pointer to a native CMPIDateTime.
+    \return a pointer to a native CMPIDateTime.
 
-  \sa __dtft_getBinaryFormat()
+    \sa __dtft_getBinaryFormat()
  */
-CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64 time,
-                            CMPIBoolean interval,
-                            CMPIStatus * rc )
+CMPIDateTime * native_new_CMPIDateTime_fromBinary ( 
+    CMPIUint64 time,
+    CMPIBoolean interval,
+    CMPIStatus * rc )
 {
-    return (CMPIDateTime *) __new_datetime ( TOOL_MM_ADD,
-                         time,
-                         interval,
-                         rc );
+    return(CMPIDateTime *) __new_datetime ( 
+        TOOL_MM_ADD,
+        time,
+        interval,
+        rc );
 }
 
 
 //! Creates a native CMPIDateTime given a fixed time in string representation.
 /*!
-  This function assumes the given string to have one of the following formats:
+    This function assumes the given string to have one of the following formats:
 
-  - for absolute times: yyyymmddhhmmss.mmmmmmsutc
-  - for time intervals: ddddddddhhmmss.mmmmmm:000
+    - for absolute times: yyyymmddhhmmss.mmmmmmsutc
+    - for time intervals: ddddddddhhmmss.mmmmmm:000
 
-  \param string the time to be converted into internal representation
-  \param rc return code pointer
+    \param string the time to be converted into internal representation
+    \param rc return code pointer
 
-  \return a pointer to a native CMPIDateTime.
+    \return a pointer to a native CMPIDateTime.
 
-  \sa __dtft_getStringFormat()
- */
-CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char * string,
-                           CMPIStatus * rc )
+    \sa __dtft_getStringFormat()
+*/
+CMPIDateTime * native_new_CMPIDateTime_fromChars ( 
+    const char * string,
+    CMPIStatus * rc )
 {
     CMPIUint64 msecs;
     CMPIBoolean interval = ( string[21] == ':' );
@@ -520,13 +544,13 @@ CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char * string,
     msecs += PEGASUS_CMPIR_ATOL ( str + 8 )  * 1000000 * 60 * 60;
     str[8]  = 0;
 
-    if ( interval ) {
-
+    if (interval)
+    {
         msecs += PEGASUS_CMPIR_ATOL ( str )  * 1000000 * 60 * 60 * 24;
-
-    } else {
+    }
+    else
+    {
         struct tm tmp;
-
 
         memset ( &tmp, 0, sizeof ( struct tm ) );
         tzset ();
@@ -547,8 +571,8 @@ CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char * string,
 
     free ( str );
 
-    return (CMPIDateTime *)
-        __new_datetime ( TOOL_MM_ADD, msecs, interval, rc );
+    return(CMPIDateTime *)
+    __new_datetime ( TOOL_MM_ADD, msecs, interval, rc );
 }
 
 

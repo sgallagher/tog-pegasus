@@ -32,11 +32,12 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file ip.h
-  \brief General TCP/IP routines.
+    \file ip.h
+    \brief General TCP/IP routines.
 */
 #ifndef _IP_H_
 #define _IP_H_
+
 #include "cmpir_common.h"
 #include "proxy.h"
 
@@ -54,11 +55,14 @@ PEGASUS_EXPORT void accept_connections (
     void (* __connection_handler) ( int ),
     int multithreaded );
 
-PEGASUS_EXPORT int open_connection ( const char * address, int port, int print_errmsg );
+PEGASUS_EXPORT int open_connection ( 
+    const char * address, 
+    int port, 
+    int print_errmsg );
 
- int close_connection( int port );
+int close_connection( int port );
 
- void get_peer_address ( int socket, char * buf );
+void get_peer_address ( int socket, char * buf );
 
 #endif
 

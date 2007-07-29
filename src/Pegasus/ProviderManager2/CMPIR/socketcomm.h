@@ -32,50 +32,54 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file serialization.h
-  \brief Header file for the binary serializer component for Remote CMPI.
+    \file serialization.h
+    \brief Header file for the binary serializer component for Remote CMPI.
 
-  This file defines a function table of methods to be used for serializing
-  and deserializing CMPI data respectively. It covers most of the encapsulated
-  data types, however, those which cannot be fully serialized or
-  deserialized due to API restrictions are not included, e.g. CMPIResult,
-  CMPIContext or CMPIEnumeration.
- */
+    This file defines a function table of methods to be used for serializing
+    and deserializing CMPI data respectively. It covers most of the encapsulated
+    data types, however, those which cannot be fully serialized or
+    deserialized due to API restrictions are not included, e.g. CMPIResult,
+    CMPIContext or CMPIEnumeration.
+*/
 
 #ifndef _SOCKETCOMM_H
- #define _SOCKETCOMM_H
+#define _SOCKETCOMM_H
 
- #include "serialization.h"
- #include "debug.h"
+#include "serialization.h"
+#include "debug.h"
 
 /****************************************************************************/
 //! MI service request identifier.
 /*!
-  This struct holds the function name and a function pointer for
-  remote MI calls. Once the function name has been deserialized, the
-  appropriate method may then resolve the handler function to be called.
-
+    This struct holds the function name and a function pointer for
+    remote MI calls. Once the function name has been deserialized, the
+    appropriate method may then resolve the handler function to be called.
 */
-struct  socket_mi_function {
+struct  socket_mi_function
+{
     char * name;        /*!< function name */
-    void (* function) ( int,
-                CONST CMPIBroker *,
-                CONST CMPIContext *,
-                CONST CMPIObjectPath * ); /*!< function pointer */
+    void (* function) ( 
+        int,
+        CONST CMPIBroker *,
+        CONST CMPIContext *,
+        CONST CMPIObjectPath * ); /*!< function pointer */
 };
 
 
 //! Broker service request identifier.
 /*!
-  This struct holds the function name and a function pointer for
-  up-calls. Once the function name has been deserialized, the
-  appropriate method may then resolve the handler function to be called.
+    This struct holds the function name and a function pointer for
+    up-calls. Once the function name has been deserialized, the
+    appropriate method may then resolve the handler function to be called.
 
- */
-struct  socket_mb_function {
+*/
+struct  socket_mb_function
+{
     char * name;        /*!< function name  */
-    void (* function) ( int, CONST CMPIBroker *, CONST CMPIContext * ); /*!< function
-                                  pointer  */
+    void (* function) ( 
+        int, 
+        CONST CMPIBroker *, 
+        CONST CMPIContext * ); /*!< function pointer  */
 };
 
 
@@ -86,24 +90,28 @@ extern char * RCMPI_CTX_ID;
 
 /****************************************************************************/
 
- void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst );
+void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst );
 
- void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result );
+void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result );
 
- void socketcomm_serialize_props ( int socket,
-                  const struct BinarySerializerFT * sft,
-                  char ** props );
- char ** socketcomm_deserialize_props ( int socket,
-                       const struct BinarySerializerFT * sft,
-                       CONST CMPIBroker * broker );
+void socketcomm_serialize_props ( 
+    int socket,
+    const struct BinarySerializerFT * sft,
+    char ** props );
+char ** socketcomm_deserialize_props ( 
+    int socket,
+    const struct BinarySerializerFT * sft,
+    CONST CMPIBroker * broker );
 
- void socketcomm_serialize_context ( int socket,
-                    const struct BinarySerializerFT * sft,
-                    CONST CMPIContext * ctx );
- void socketcomm_deserialize_context ( int socket,
-                      const struct BinarySerializerFT * sft,
-                      CONST CMPIBroker * broker,
-                      CONST CMPIContext * ctx );
+void socketcomm_serialize_context ( 
+    int socket,
+    const struct BinarySerializerFT * sft,
+    CONST CMPIContext * ctx );
+void socketcomm_deserialize_context ( 
+    int socket,
+    const struct BinarySerializerFT * sft,
+    CONST CMPIBroker * broker,
+    CONST CMPIContext * ctx );
 
 #endif
 

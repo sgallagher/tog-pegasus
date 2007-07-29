@@ -32,17 +32,17 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file instance.c
-  \brief Native CMPIInstance implementation.
+    \file instance.c
+    \brief Native CMPIInstance implementation.
 
-  This is the native CMPIInstance implementation as used for remote
-  providers. It reflects the well-defined interface of a regular
-  CMPIInstance, however, it works independently from the management broker.
+    This is the native CMPIInstance implementation as used for remote
+    providers. It reflects the well-defined interface of a regular
+    CMPIInstance, however, it works independently from the management broker.
 
-  It is part of a native broker implementation that simulates CMPI data
-  types rather than interacting with the entities in a full-grown CIMOM.
+    It is part of a native broker implementation that simulates CMPI data
+    types rather than interacting with the entities in a full-grown CIMOM.
 
-  */
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -155,15 +155,15 @@ static CMPIInstance * __ift_clone(
     struct native_instance * i = (struct native_instance *) instance;
     struct native_instance * new;
 
-    if (!checkArgs(instance, rc) )
+    if (!checkArgs(instance, rc))
     {
         return 0;
     }
 
     new = (struct native_instance *)tool_mm_alloc(
-            TOOL_MM_NO_ADD,
-            sizeof(struct native_instance)
-            );
+        TOOL_MM_NO_ADD,
+        sizeof(struct native_instance)
+        );
     // Copy CMPIInstance and native_instance extensions.
     new->instance = i->instance;
     new->classname = strdup(i->classname);
@@ -176,7 +176,8 @@ static CMPIInstance * __ift_clone(
 }
 
 
-static CMPIData __ift_getProperty ( CONST CMPIInstance * instance,
+static CMPIData __ift_getProperty ( 
+    CONST CMPIInstance * instance,
     const char * name,
     CMPIStatus * rc )
 {
@@ -217,7 +218,7 @@ static unsigned int __ift_getPropertyCount(
     CMPIStatus * rc)
 {
     struct native_instance * i = (struct native_instance *) instance;
-    if (!checkArgs(instance, rc) )
+    if (!checkArgs(instance, rc))
     {
         return 0;
     }
@@ -269,7 +270,7 @@ static CMPIObjectPath * __ift_getObjectPath(
     struct native_instance * i = (struct native_instance *) instance;
     CMPIObjectPath * cop;
 
-    if (!checkArgs(instance, rc) )
+    if (!checkArgs(instance, rc))
     {
         return 0;
     }
@@ -390,7 +391,8 @@ extern char * value2Chars(CMPIType type, CMPIValue * value);
 
 extern CMPIString *__oft_toString(CONST CMPIObjectPath * cop, CMPIStatus *rc);
 extern CMPIString * __oft_getClassName(
-    CONST CMPIObjectPath * cop, CMPIStatus * rc);
+    CONST CMPIObjectPath * cop, 
+    CMPIStatus * rc);
 
 CMPIString *instance2String(CONST CMPIInstance *inst, CMPIStatus *rc)
 {
@@ -401,7 +403,7 @@ CMPIString *instance2String(CONST CMPIInstance *inst, CMPIStatus *rc)
     char *buf = NULL, *v;
     unsigned int bp, bm;
 
-    if (!checkArgs(inst, rc) )
+    if (!checkArgs(inst, rc))
     {
         return 0;
     }
@@ -447,7 +449,7 @@ static CMPIInstanceFT ift = {
 #endif
 };
 
-CMPIInstanceFT *CMPI_Instance_FT=&ift;
+CMPIInstanceFT *CMPI_Instance_FT = &ift;
 
 
 CMPIInstance * native_new_CMPIInstance(
@@ -461,7 +463,7 @@ CMPIInstance * native_new_CMPIInstance(
 
     struct native_instance * instance =
         (struct native_instance *)
-            tool_mm_alloc ( TOOL_MM_ADD, sizeof ( struct native_instance ) );
+        tool_mm_alloc ( TOOL_MM_ADD, sizeof ( struct native_instance ) );
 
     CMPIStatus tmp1, tmp2, tmp3;
     CMPIString * str;
@@ -480,7 +482,7 @@ CMPIInstance * native_new_CMPIInstance(
         tmp2.rc != CMPI_RC_OK ||
         tmp3.rc != CMPI_RC_OK)
     {
-            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+        CMSetStatus(rc, CMPI_RC_ERR_FAILED);
     }
     else
     {
@@ -498,7 +500,7 @@ CMPIInstance * native_new_CMPIInstance(
                 &tmp.value);
         }
 
-            CMSetStatus(rc, tmp1.rc);
+        CMSetStatus(rc, tmp1.rc);
     }
 
     return(CMPIInstance *) instance;

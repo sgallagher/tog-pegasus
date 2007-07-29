@@ -32,9 +32,9 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file indication_objects.h
-  \brief Manages pointers to the objects that are created on remote-side
-  \ as part of indication processs.
+    \file indication_objects.h
+    \brief Manages pointers to the objects that are created on remote-side
+    \ as part of indication processs.
 */
 
 #ifndef _REMOTE_CMPI_INDICATION_OBJECTS_H
@@ -42,15 +42,15 @@
 
 
 #ifndef CMPI_VER_100
-#define CMPI_VER_100
+# define CMPI_VER_100
 #endif
 
 #ifndef CONST
-  #ifdef CMPI_VER_100
-  #define CONST const
-  #else
-  #define CONST
-  #endif
+# ifdef CMPI_VER_100
+#  define CONST const
+# else
+#  define CONST
+# endif
 #endif
 
 #include "cmpir_common.h"
@@ -68,11 +68,11 @@
 #define PEGASUS_INDICATION_LOCAL_CONTEXT 1
 
 /*
-  This struture holds the information about the objects that are
-  created as part of invocation of Indication providers on Remote side.
-  We do not create any objects (creted during the process of Indications)
-  on remote-side, instead we make UP calls to MB and create the objects and
-  pass pointer to remote machine. -V 5245
+    This struture holds the information about the objects that are
+    created as part of invocation of Indication providers on Remote side.
+    We do not create any objects (creted during the process of Indications)
+    on remote-side, instead we make UP calls to MB and create the objects and
+    pass pointer to remote machine. -V 5245
 */
 typedef struct indication_objects indication_objects;
 typedef struct ind_object ind_object;
@@ -94,9 +94,9 @@ struct indication_objects
 /****************************************************************************/
 
 PEGASUS_EXPORT CMPIUint32 create_indicationObject (
-                           void *obj,
-                           CMPIUint32 ctx_id,
-                           CMPIUint8 type);
+    void *obj,
+    CMPIUint32 ctx_id,
+    CMPIUint8 type);
 PEGASUS_EXPORT int remove_indicationObject (void *obj, CMPIUint32 ctx_id);
 PEGASUS_EXPORT void *get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id);
 PEGASUS_EXPORT void cleanup_indicationObjects (CMPIUint32 ctx_id);

@@ -32,54 +32,57 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file mm.h
-  \brief Memory Managment system for remote providers (header file).
+    \file mm.h
+    \brief Memory Managment system for remote providers (header file).
 
-  \sa mm.h
-  \sa native.h
+    \sa mm.h
+    \sa native.h
 */
 #ifndef _REMOTE_CMPI_TOOL_MM_H
- #define _REMOTE_CMPI_TOOL_MM_H
+# define _REMOTE_CMPI_TOOL_MM_H
 
- #include "cmpir_common.h"
+# include "cmpir_common.h"
 
- //! States cloned objects, i.e. memory that is not being tracked.
- #define TOOL_MM_NO_ADD 0
+//! States cloned objects, i.e. memory that is not being tracked.
+# define TOOL_MM_NO_ADD 0
 
- //! States tracked memory objects.
- #define TOOL_MM_ADD    1
+//! States tracked memory objects.
+# define TOOL_MM_ADD    1
 
- //! The initial size of trackable memory pointers per thread.
- /*!
-   This size is increased by the same amount, once the limit is reached.
-  */
- #define MT_SIZE_STEP 100
+//! The initial size of trackable memory pointers per thread.
+/*!
+    This size is increased by the same amount, once the limit is reached.
+*/
+# define MT_SIZE_STEP 100
 
- typedef struct _managed_thread managed_thread;
+typedef struct _managed_thread managed_thread;
 
- //! Per-Thread management structure.
- /*!
-   This struct is returned using a global pthread_key_t and stores all allocated
-   objects that are going to be freed, once the thread is flushed or dies.
-  */
- struct _managed_thread {
-   void *broker;
-   void *ctx;
-   unsigned size;        /*!< current maximum number of tracked
-                  pointers */
-   unsigned used;        /*!< currently tracked pointers */
-   void **  objs;        /*!< array of tracked pointers */
- };
+//! Per-Thread management structure.
+/*!
+    This struct is returned using a global pthread_key_t and stores all 
+    allocated objects that are going to be freed, once the thread is flushed 
+    or dies.
+*/
+struct _managed_thread
+{
+    void *broker;
+    void *ctx;
+    unsigned size;        /*! < current maximum number of tracked
+                              pointers */
+    unsigned used;        /*! < currently tracked pointers */
+    void **  objs;        /*! < array of tracked pointers */
+};
 
 
- PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib ( const char * libname );
+PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib ( 
+    const char * libname );
 
- void tool_mm_flush ();
- void * tool_mm_alloc ( int, size_t );
- void * tool_mm_realloc ( void *, size_t );
- int tool_mm_add (  void * );
- PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL tool_mm_set_broker (  void * ,  void *);
- int tool_mm_remove ( void * );
- PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_get_broker(void **);
+void tool_mm_flush ();
+void * tool_mm_alloc ( int, size_t );
+void * tool_mm_realloc ( void *, size_t );
+int tool_mm_add (  void * );
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL tool_mm_set_broker (void * , void *);
+int tool_mm_remove ( void * );
+PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_get_broker(void **);
 
 #endif

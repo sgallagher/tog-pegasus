@@ -45,14 +45,14 @@ int trace_level(int level)
 
     if (l == NULL)
     {
-         return 0;
+        return 0;
     }
 
     while (i--)
     {
         if (PEGASUS_CMPIR_STRCASECMP( l, DebugLevels[i] ) == 0)
         {
-            return (level <= i);
+            return(level <= i);
         }
     }
     return 0;
@@ -94,24 +94,24 @@ void start_debugger()
 
     if (debugger != NULL)
     {
-        if ((ch = fork())) 
+        if ((ch = fork()))
         {
             sleep(20); /* wait until debugger traces us */
-        } 
+        }
         else
         {
             char pid[10];
             char * argv[] = { debugger,
-                      "OOP-Provider",
-                      pid,
-                      NULL };
+                "OOP-Provider",
+                pid,
+                NULL};
             sprintf(pid, "%d", getppid());
             execv(debugger, argv);
 
             TRACE_CRITICAL(("could not start debugger \"%s\", "
-                    "check RCMPI_DEBUGGER environment "
-                    "variable.",
-                    debugger));
+                "check RCMPI_DEBUGGER environment "
+                "variable.",
+                debugger));
             exit(-1);
         }
     }
@@ -120,17 +120,18 @@ void start_debugger()
 #endif  /* PEGASUS_DEBUG */
 
 #ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-void error_at_line(int a_num,
-                   int error,
-                   char* filename,
-                   int line,
-                   char* message, ...)
+void error_at_line(
+    int a_num,
+    int error,
+    char* filename,
+    int line,
+    char* message, ...)
 {
     va_list ap;
 
     va_start(ap, message);
     fprintf(stderr, "Error in line %d of file %s: %s -", line, filename,
-       strerror(error));
+        strerror(error));
     vfprintf(stderr, message, ap);
     fprintf(stderr, "\n");
 

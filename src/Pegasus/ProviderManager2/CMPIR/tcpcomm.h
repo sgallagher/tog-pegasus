@@ -32,37 +32,38 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file tcpcomm.h
-  \brief TCP/IP Communication layer common functionality.
+    \file tcpcomm.h
+    \brief TCP/IP Communication layer common functionality.
 */
 
 #ifndef _TCP_COMM_H
- #define _TCP_COMM_H
+#define _TCP_COMM_H
 
- #define CIMOM_LISTEN_PORT 9000
- #define REMOTE_LISTEN_PORT 9001
+#define CIMOM_LISTEN_PORT 9000
+#define REMOTE_LISTEN_PORT 9001
 
- #ifndef CMPI_VER_100
-  #define CMPI_VER_100
- #endif
+#ifndef CMPI_VER_100
+# define CMPI_VER_100
+#endif
 
 #ifndef CONST
-  #ifdef CMPI_VER_100
-  #define CONST const
-  #else
-  #define CONST
-  #endif
+# ifdef CMPI_VER_100
+#  define CONST const
+# else
+#  define CONST
+# endif
 #endif
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include "ip.h"
 
-struct  accept_thread {
-        int socket;
-        CONST CMPIBroker * broker;
-        CONST CMPIContext * context;
-        CMPIUint32 ctx_id; // Context ID for indication objects -V 5245
+struct  accept_thread
+{
+    int socket;
+    CONST CMPIBroker * broker;
+    CONST CMPIContext * context;
+    CMPIUint32 ctx_id; // Context ID for indication objects -V 5245
 };
 
 #endif

@@ -32,30 +32,34 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-   \file ReplaceNs.c
-   \brief Replaces Namespaces property in provider registration MOF fies.
+    \file ReplaceNs.c
+    \brief Replaces Namespaces property in provider registration MOF fies.
 
-    This program helps in modifying existing registration MOF files,  it replaces existing
-    namespace name(s) of the Namespaces property.
+    This program helps in modifying existing registration MOF files,  it 
+    replaces existing namespace name(s) of the Namespaces property.
 
     Usage:
          ReplaceNs <new-namespace-name> [ ... ] <mof-file-name>
 
     Where
-        new-namespace-name is the namespace name to replace the existing Namespaces
-        specification. Multiple new namespace names can be specified, separated by blanks.
-	mof-file-name is the name of the mof registration file to used.
-	Output of the script is routed to std out.
+        new-namespace-name -- is the namespace name to replace the existing 
+                              Namespaces specification. Multiple new namespace
+                              names can be specified, separated by blanks.
 
-     Example:
+        mof-file-name -- is the name of the mof registration file to used.
+
+        Output of the script is routed to std out.
+
+    Example:
         The following command replaces the existing Namespaces specification:
 
-	ReplaceNs root/local root/node* Linux_baseR.mof >Linux_baseCMPIR.mof
+    ReplaceNs root/local root/node* Linux_baseR.mof >Linux_baseCMPIR.mof
 
-        On Linux root/node* is used to define the provider supports all namespaces
-        starting with root/node.
+    On Linux root/node* is used to define the provider supports all namespaces
+    starting with root/node.
 
-        But on windows it does not work because command shell does not expand wildcards.
+    But on windows it does not work because command shell does not expand 
+    wildcards.
 */
 
 #include <stdio.h>
@@ -75,7 +79,10 @@ int main(int argc,char *argv[])
 
     if (3 > argc)
     {
-        printf("%s\n","Usage: AppendeNs <additional-namespace-name> [ ... ] <mof-file-name>");
+        printf(
+            "%s\n",
+            "Usage: AppendeNs <additional-namespace-name> [ ... ] "
+            "<mof-file-name>");
         exit(1);
     }
 
@@ -90,7 +97,7 @@ int main(int argc,char *argv[])
     {
         tmp = buff;
         gettoken(&tmp,token);
-        if ( 0 != strcmp("Namespaces",token) || 0 != strcmp("namespaces",token) )
+        if (0 != strcmp("Namespaces",token) || 0 != strcmp("namespaces",token))
         {
             fputs(buff,stdout);
             continue;

@@ -32,12 +32,12 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file resolver.c
-  \brief Sample resolver.
+    \file resolver.c
+    \brief Sample resolver.
 
-  This is a sample resolver component, showing the general functionality
-  of a resolver. The results returned upon requests issued by the proxy
-  provider are hard-coded, no real lookup is yet done.
+    This is a sample resolver component, showing the general functionality
+    of a resolver. The results returned upon requests issued by the proxy
+    provider are hard-coded, no real lookup is yet done.
 */
 
 #include <stdio.h>
@@ -53,7 +53,8 @@
 
 static void _free_addresses ( provider_address * addr )
 {
-    if ( addr ) {
+    if (addr)
+    {
         _free_addresses ( addr->next );
         free ( addr->dst_address );
         free ( addr->provider_module );
@@ -61,7 +62,9 @@ static void _free_addresses ( provider_address * addr )
     }
 }
 
-static provider_address * outofprocess_resolver ( CONST CMPIBroker * broker, const char * provider )
+static provider_address * outofprocess_resolver (
+    CONST CMPIBroker * broker, 
+    const char * provider)
 {
     provider_address * addr;
     char *module;
@@ -78,8 +81,10 @@ static provider_address * outofprocess_resolver ( CONST CMPIBroker * broker, con
     return addr;
 }
 
-static provider_address * namespace_resolver ( CONST CMPIBroker * broker,
-        const char * provider, const char *hostname)
+static provider_address * namespace_resolver ( 
+    CONST CMPIBroker * broker,
+    const char * provider, 
+    const char *hostname)
 {
     provider_address * addr;
     char *module,*pnp;
@@ -89,11 +94,12 @@ static provider_address * namespace_resolver ( CONST CMPIBroker * broker,
     addr = (provider_address *) calloc ( 1, sizeof ( provider_address ) );
 
     addr->comm_layer_id   = "CMPIRTCPComm";
-        addr->dst_address     = strdup ( hostname );
+    addr->dst_address     = strdup ( hostname );
 
 
-    if ((pnp=strchr(in_between,':'))) {
-       *pnp=0;
+    if ((pnp=strchr(in_between,':')))
+    {
+        *pnp=0;
         addr->provider_module = strdup ( in_between );
     }
     else addr->provider_module = strdup ( in_between );
@@ -103,36 +109,47 @@ static provider_address * namespace_resolver ( CONST CMPIBroker * broker,
     return addr;
 }
 
-provider_address * resolve_instance ( CONST CMPIBroker * broker,
-        CONST CMPIContext * ctx, CONST CMPIObjectPath * cop, const char * provider, CMPIStatus * rc)
+provider_address * resolve_instance ( 
+    CONST CMPIBroker * broker,
+    CONST CMPIContext * ctx, 
+    CONST CMPIObjectPath * cop, 
+    const char * provider, 
+    CMPIStatus * rc)
 {
-        CMPIStatus irc;
-        const char *ip;
-        provider_address *a=NULL;
+    CMPIStatus irc;
+    const char *ip;
+    provider_address *a = NULL;
 
-        CMPIData info=CMGetContextEntry(ctx,"CMPIRRemoteInfo",&irc);
+    CMPIData info = CMGetContextEntry(ctx,"CMPIRRemoteInfo",&irc);
 
-        if (irc.rc==CMPI_RC_OK) {
-           ip=CMGetCharsPtr(info.value.string,&irc);
-           switch (ip[1]) {
-           case '0':
-              a=outofprocess_resolver(broker,provider);
-              break;
-           case '1':
-              a=namespace_resolver(broker,provider,ip+3);
-              break;
-           }
+    if (irc.rc == CMPI_RC_OK)
+    {
+        ip = CMGetCharsPtr(info.value.string,&irc);
+        switch (ip[1])
+        {
+            case '0':
+                a = outofprocess_resolver(broker,provider);
+                break;
+            case '1':
+                a = namespace_resolver(broker,provider,ip+3);
+                break;
         }
-        else {
-        }
+    }
 
     TRACE_NORMAL(("Resolve requested for provider: %s", provider ));
-        if (rc) *rc=irc;
+    if (rc) 
+    {
+        *rc = irc;
+    }
     return a;
 }
 
-provider_address * resolve_class ( CONST CMPIBroker * broker,
-        CONST CMPIContext * ctx, CONST CMPIObjectPath * cop, const char * provider, CMPIStatus * rc)
+provider_address * resolve_class ( 
+    CONST CMPIBroker * broker,
+    CONST CMPIContext * ctx, 
+    CONST CMPIObjectPath * cop, 
+    const char * provider, 
+    CMPIStatus * rc)
 {
     TRACE_NORMAL(("Resolve requested for provider: %s", provider ));
     return resolve_instance ( broker, ctx, cop, provider, rc );

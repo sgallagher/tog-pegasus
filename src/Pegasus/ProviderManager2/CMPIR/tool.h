@@ -32,8 +32,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file tool.h
-  \brief General tooling facility header file.
+    \file tool.h
+    \brief General tooling facility header file.
 */
 
 #ifndef _REMOTE_CMPI_TOOL_H
@@ -43,26 +43,31 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 
-CMPIInstanceMI * tool_load_InstanceMI ( const char * provider,
-                    void * library,
-                    CMPIBroker * broker,
-                    CMPIContext * ctx );
-CMPIAssociationMI * tool_load_AssociationMI ( const char * provider,
-                    void * library,
-                          CMPIBroker * broker,
-                          CMPIContext * ctx );
-CMPIMethodMI * tool_load_MethodMI ( const char * provider,
-                    void * library,
-                    CMPIBroker * broker,
-                    CMPIContext * ctx );
-CMPIPropertyMI * tool_load_PropertyMI ( const char * provider,
-                    void * library,
-                    CMPIBroker * broker,
-                    CMPIContext * ctx );
-CMPIIndicationMI * tool_load_IndicationMI ( const char * provider,
-                        void * library,
-                        CMPIBroker * broker,
-                        CMPIContext * ctx );
+CMPIInstanceMI * tool_load_InstanceMI ( 
+    const char * provider,
+    void * library,
+    CMPIBroker * broker,
+    CMPIContext * ctx );
+CMPIAssociationMI * tool_load_AssociationMI ( 
+    const char * provider,
+    void * library,
+    CMPIBroker * broker,
+    CMPIContext * ctx );
+CMPIMethodMI * tool_load_MethodMI ( 
+    const char * provider,
+    void * library,
+    CMPIBroker * broker,
+    CMPIContext * ctx );
+CMPIPropertyMI * tool_load_PropertyMI ( 
+    const char * provider,
+    void * library,
+    CMPIBroker * broker,
+    CMPIContext * ctx );
+CMPIIndicationMI * tool_load_IndicationMI ( 
+    const char * provider,
+    void * library,
+    CMPIBroker * broker,
+    CMPIContext * ctx );
 
 void * tool_load_lib ( const char * libname );
 

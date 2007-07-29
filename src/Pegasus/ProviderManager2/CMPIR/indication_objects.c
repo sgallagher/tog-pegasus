@@ -33,8 +33,8 @@
 
 
 /*
-   This file contains all necessary methods to keep track of the indication
-   objects created in a particular context.
+    This file contains all necessary methods to keep track of the indication
+    objects created in a particular context.
 */
 
 
@@ -43,7 +43,7 @@
 #include <string.h>
 #include <errno.h>
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include <error.h>
+# include <error.h>
 #endif
 
 
@@ -66,32 +66,35 @@ static CMPI_MUTEX_TYPE _indication_objects_lock = NULL;
 // Helper function
 void __free_ind_object (ind_object *obj)
 {
-   switch (obj->type)
-   {
-       case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_EXP :
-           CMRelease ( (CMPISelectExp*)obj->id);
-           break;
-       case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_COND:
-           CMRelease ( (CMPISelectCond*)obj->id);
-           break;
-       case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SUB_COND:
-           CMRelease ( (CMPISubCond*)obj->id);
-           break;
-       case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_PREDICATE:
-           CMRelease ( (CMPIPredicate*)obj->id);
-           break;
-       default :
-           TRACE_CRITICAL(("Unknown Object type: %d", obj->type ));
-   }
+    switch (obj->type)
+    {
+        case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_EXP :
+            CMRelease ( (CMPISelectExp*)obj->id);
+            break;
+        case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_COND:
+            CMRelease ( (CMPISelectCond*)obj->id);
+            break;
+        case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SUB_COND:
+            CMRelease ( (CMPISubCond*)obj->id);
+            break;
+        case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_PREDICATE:
+            CMRelease ( (CMPIPredicate*)obj->id);
+            break;
+        default :
+            TRACE_CRITICAL(("Unknown Object type: %d", obj->type ));
+    }
 }
 
 /*
-   This function creates reference to the Object created in MB.
-   This reference is passed to Remote Daemon, any changes or any
-   calls made on this object on daemon side, will make UP calls
-   to MB and uses this object.
+    This function creates reference to the Object created in MB.
+    This reference is passed to Remote Daemon, any changes or any
+    calls made on this object on daemon side, will make UP calls
+    to MB and uses this object.
 */
-CMPIUint32 create_indicationObject (void *obj, CMPIUint32 ctx_id, CMPIUint8 type)
+CMPIUint32 create_indicationObject (
+    void *obj, 
+    CMPIUint32 ctx_id, 
+    CMPIUint8 type)
 {
     indication_objects *tmp;
     ind_object *ind_obj;
@@ -113,7 +116,7 @@ CMPIUint32 create_indicationObject (void *obj, CMPIUint32 ctx_id, CMPIUint8 type
     if (!tmp)
     {
         tmp = (indication_objects *)
-               malloc ( sizeof ( indication_objects ) );
+        malloc ( sizeof ( indication_objects ) );
         tmp->ctx_id = ctx_id;
         tmp->next = __indication_objects;
         __indication_objects = tmp;
@@ -151,9 +154,9 @@ int remove_indicationObject (void *obj, CMPIUint32 ctx_id)
         }
         curr = curr->next;
     }
-    for (tmp = &curr->objects; *tmp != NULL; *tmp = (*tmp)->next )
+    for (tmp = &curr->objects; *tmp != NULL; *tmp = (*tmp)->next)
     {
-        if ( (*tmp)->id == id)
+        if ((*tmp)->id == id)
         {
             ind_object *r = (*tmp);
             (*tmp) = r->next;
@@ -164,7 +167,7 @@ int remove_indicationObject (void *obj, CMPIUint32 ctx_id)
         }
     }
     CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);
-   return -1;
+    return -1;
 }
 
 void* get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
@@ -191,8 +194,8 @@ void* get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
         }
         if (!curr && !global_context)
         {
-          global_context = 1;
-          ctx_id = PEGASUS_INDICATION_GLOBAL_CONTEXT;
+            global_context = 1;
+            ctx_id = PEGASUS_INDICATION_GLOBAL_CONTEXT;
         }
         else
         {
@@ -200,18 +203,18 @@ void* get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
         }
     }while (global_context);
 
-    for (tmp = curr ? curr->objects : NULL; tmp != NULL; tmp = tmp->next )
+    for (tmp = curr ? curr->objects : NULL; tmp != NULL; tmp = tmp->next)
     {
         if (tmp->id == id)
         {
             TRACE_INFO(("Got the Indication Object with ID: %u", id));
             CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);
-            return (void*)tmp->id;
+            return(void*)tmp->id;
         }
     }
     CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);
 
-   return NULL;
+    return NULL;
 
 }
 

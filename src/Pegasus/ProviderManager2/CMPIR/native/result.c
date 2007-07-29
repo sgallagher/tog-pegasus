@@ -32,15 +32,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file result.c
-  \brief Native CMPIResult implementation.
+    \file result.c
+    \brief Native CMPIResult implementation.
 
-  This is the native CMPIResult implementation as used for remote
-  providers. It reflects the well-defined interface of a regular
-  CMPIResult, however, it works independently from the management broker.
+    This is the native CMPIResult implementation as used for remote
+    providers. It reflects the well-defined interface of a regular
+    CMPIResult, however, it works independently from the management broker.
 
-  It is part of a native broker implementation that simulates CMPI data
-  types rather than interacting with the entities in a full-grown CIMOM.
+    It is part of a native broker implementation that simulates CMPI data
+    types rather than interacting with the entities in a full-grown CIMOM.
 
 */
 
@@ -49,7 +49,8 @@
 #include "native.h"
 
 
-struct native_result {
+struct native_result
+{
     CMPIResult result;
     int mem_state;
 
@@ -68,7 +69,7 @@ static CMPIStatus __rft_release ( CMPIResult * result )
     struct native_result * r = (struct native_result *) result;
     CMPIStatus rc = checkArgsReturnStatus(result);
 
-    if (rc.rc == CMPI_RC_OK && r->mem_state == TOOL_MM_NO_ADD )
+    if (rc.rc == CMPI_RC_OK && r->mem_state == TOOL_MM_NO_ADD)
     {
         tool_mm_add ( result );
         return r->data->ft->release ( r->data );
@@ -78,13 +79,12 @@ static CMPIStatus __rft_release ( CMPIResult * result )
 }
 
 
-static CMPIResult * __rft_clone ( CONST CMPIResult * result,
-                  CMPIStatus * rc )
+static CMPIResult * __rft_clone ( CONST CMPIResult * result, CMPIStatus * rc )
 {
     CMPIArray * a;
     struct native_result * r;
 
-    if (!checkArgs(result, rc) )
+    if (!checkArgs(result, rc))
     {
         return 0;
     }
@@ -92,18 +92,21 @@ static CMPIResult * __rft_clone ( CONST CMPIResult * result,
     a  = ( (struct native_result *) result )->data;
     r = __new_empty_result ( TOOL_MM_NO_ADD, rc );
 
-    if ( rc && rc->rc != CMPI_RC_OK )
+    if (rc && rc->rc != CMPI_RC_OK)
+    {
         return NULL;
+    }
 
     r->data = a->ft->clone ( a, rc );
 
-    return (CMPIResult *) r;
+    return(CMPIResult *) r;
 }
 
 
-static CMPIStatus __rft_returnData ( CONST CMPIResult * result,
-                     const CMPIValue * val,
-                     CONST CMPIType type )
+static CMPIStatus __rft_returnData ( 
+    CONST CMPIResult * result,
+    const CMPIValue * val,
+    CONST CMPIType type )
 {
     struct native_result * r = (struct native_result *) result;
 
@@ -120,24 +123,31 @@ static CMPIStatus __rft_returnData ( CONST CMPIResult * result,
     }
 
 
-    if ( r->current == 0 ) {
+    if (r->current == 0)
+    {
 
         CMPIStatus rc;
         r->data = native_new_CMPIArray ( 1, type, &rc );
-        if ( rc.rc != CMPI_RC_OK ) return rc;
+        if (rc.rc != CMPI_RC_OK) return rc;
 
-    } else native_array_increase_size ( r->data, 1 );
+    }
+    else 
+    {
+        native_array_increase_size ( r->data, 1 );
+    }
 
 
-    return CMSetArrayElementAt ( r->data,
-                     r->current++,
-                     val,
-                     type );
+    return CMSetArrayElementAt ( 
+        r->data,
+        r->current++,
+        val,
+        type );
 }
 
 
-static CMPIStatus __rft_returnInstance ( CONST CMPIResult * result,
-                     CONST CMPIInstance * instance )
+static CMPIStatus __rft_returnInstance ( 
+    CONST CMPIResult * result,
+    CONST CMPIInstance * instance )
 {
     CMPIValue v;
     CMPIStatus rc = checkArgsReturnStatus(result);
@@ -153,8 +163,9 @@ static CMPIStatus __rft_returnInstance ( CONST CMPIResult * result,
 }
 
 
-static CMPIStatus __rft_returnObjectPath ( CONST CMPIResult * result,
-                       CONST CMPIObjectPath * cop )
+static CMPIStatus __rft_returnObjectPath ( 
+    CONST CMPIResult * result,
+    CONST CMPIObjectPath * cop )
 {
     CMPIValue v;
     CMPIStatus rc = checkArgsReturnStatus(result);
@@ -177,8 +188,9 @@ static CMPIStatus __rft_returnDone ( CONST CMPIResult * result )
 }
 
 
-static struct native_result * __new_empty_result ( int mm_add,
-                           CMPIStatus * rc )
+static struct native_result * __new_empty_result ( 
+    int mm_add,
+    CMPIStatus * rc )
 {
     static CMPIResultFT rft = {
         NATIVE_FT_VERSION,
@@ -206,13 +218,15 @@ static struct native_result * __new_empty_result ( int mm_add,
 }
 
 
-PEGASUS_EXPORT CMPIResult *PEGASUS_CMPIR_CDECL native_new_CMPIResult ( CMPIStatus * rc )
+PEGASUS_EXPORT CMPIResult *PEGASUS_CMPIR_CDECL native_new_CMPIResult ( 
+    CMPIStatus * rc )
 {
-    return (CMPIResult *) __new_empty_result ( TOOL_MM_ADD, rc );
+    return(CMPIResult *) __new_empty_result ( TOOL_MM_ADD, rc );
 }
 
 
-PEGASUS_EXPORT CMPIArray * PEGASUS_CMPIR_CDECL native_result2array ( CMPIResult * result )
+PEGASUS_EXPORT CMPIArray * PEGASUS_CMPIR_CDECL native_result2array ( 
+    CMPIResult * result )
 {
     struct native_result * r = (struct native_result *) result;
 

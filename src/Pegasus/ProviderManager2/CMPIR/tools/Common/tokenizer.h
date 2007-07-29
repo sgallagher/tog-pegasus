@@ -29,13 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Venkateswara Rao Puvvada, IBM, vpuvvada@in.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-   \file tokenizer.h
-   \brief Defines gettoken function.
+    \file tokenizer.h
+    \brief Defines gettoken function.
 
 */
 
@@ -85,7 +83,8 @@ int gettoken(char **buff,char *token)
             tokentype = COMMA;
             break;
         default:
-            while (**buff && !isspace(**buff) && (isalnum(**buff)|| **buff=='_'))
+            while (**buff && !isspace(**buff) && 
+                (isalnum(**buff)|| **buff=='_'))
             {
                 *token++ = *(*buff)++;
             }

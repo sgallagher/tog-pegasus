@@ -32,21 +32,21 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file array.c
-  \brief Native CMPIArray implementation.
+    \file array.c
+    \brief Native CMPIArray implementation.
 
-  This is the native CMPIArray implementation as used for remote
-  providers. It reflects the well-defined interface of a regular
-  CMPIArray object, however, it works independently from the management broker.
+    This is the native CMPIArray implementation as used for remote
+    providers. It reflects the well-defined interface of a regular CMPIArray 
+    object, however, it works independently from the management broker.
 
-  It is part of a native broker implementation that simulates CMPI data
-  types rather than interacting with the entities in a full-grown CIMOM.
+    It is part of a native broker implementation that simulates CMPI data
+    types rather than interacting with the entities in a full-grown CIMOM.
 
-  In contrast to a regular array, there exists an additional increase()
-  method, which is only used by the native CMPIResult implementation to
-  grow an array stepwise.
+    In contrast to a regular array, there exists an additional increase()
+    method, which is only used by the native CMPIResult implementation to
+    grow an array stepwise.
 
-  \author Frank Scheffler
+    \author Frank Scheffler
 */
 
 #include <stdlib.h>
@@ -56,13 +56,15 @@
 #include "native.h"
 
 
-struct native_array_item {
+struct native_array_item
+{
     CMPIValueState state;
     CMPIValue      value;
 };
 
 
-struct native_array {
+struct native_array
+{
     CMPIArray array;
     int mem_state;
 
@@ -72,24 +74,28 @@ struct native_array {
 };
 
 
-static struct native_array * __new_empty_array ( int, CMPICount,
-                         CMPIType,
-                         CMPIStatus * );
+static struct native_array * __new_empty_array ( 
+    int, CMPICount,
+    CMPIType,
+    CMPIStatus * );
 
 
 /*****************************************************************************/
 
-static void __make_NULL ( struct native_array * a,
-              int from,
-              int to,
-              int release )
+static void __make_NULL ( 
+    struct native_array * a,
+    int from,
+    int to,
+    int release )
 {
-    for ( ; from <= to; from++ ) {
+    for (; from <= to; from++)
+    {
         a->data[from].state = CMPI_nullValue;
 
-        if ( release ) {
+        if (release)
+        {
             native_release_CMPIValue ( a->type,
-                           &a->data[from].value );
+                &a->data[from].value );
         }
     }
 }
@@ -100,7 +106,7 @@ static CMPIStatus __aft_release ( CMPIArray * array )
     struct native_array * a = (struct native_array *) array;
     CMPIStatus rc = checkArgsReturnStatus(array);
 
-    if (rc.rc == CMPI_RC_OK && a->mem_state == TOOL_MM_NO_ADD )
+    if (rc.rc == CMPI_RC_OK && a->mem_state == TOOL_MM_NO_ADD)
     {
 
         int i = a->size;
@@ -108,10 +114,12 @@ static CMPIStatus __aft_release ( CMPIArray * array )
         tool_mm_add ( a );
         tool_mm_add ( a->data );
 
-        while ( i-- ) {
-            if ( ! ( a->data[i].state & CMPI_nullValue ) ) {
+        while (i--)
+        {
+            if (! ( a->data[i].state & CMPI_nullValue ))
+            {
                 native_release_CMPIValue ( a->type,
-                               &a->data[i].value );
+                    &a->data[i].value );
             }
         }
 
@@ -123,45 +131,46 @@ static CMPIStatus __aft_release ( CMPIArray * array )
 
 
 static CMPIArray * __aft_clone ( CONST CMPIArray * array, CMPIStatus * rc )
-
 {
     CMPIStatus tmp;
     struct native_array * a   = (struct native_array *) array;
     struct native_array * new;
     int i;
 
-    if (!checkArgs(array, rc) )
+    if (!checkArgs(array, rc))
     {
         return 0;
     }
-        new  = __new_empty_array (
-                TOOL_MM_NO_ADD,
-                    a->size,
-                    a->type,
-                    &tmp );
+    new  = __new_empty_array (
+        TOOL_MM_NO_ADD,
+        a->size,
+        a->type,
+        &tmp );
     i = a->size;
 
-    while ( i-- && tmp.rc == CMPI_RC_OK ) {
+    while (i-- && tmp.rc == CMPI_RC_OK)
+    {
         new->data[i].state = a->data[i].state;
-        if ( ! ( new->data[i].state & CMPI_nullValue ) ) {
+        if (! ( new->data[i].state & CMPI_nullValue ))
+        {
 
             new->data[i].value =
                 native_clone_CMPIValue ( a->type,
-                             &a->data[i].value,
-                             &tmp );
+                &a->data[i].value,
+                &tmp );
         }
     }
 
     CMSetStatus ( rc, tmp.rc );
 
-    return (CMPIArray *) new;
+    return(CMPIArray *) new;
 }
 
 
 static CMPICount __aft_getSize ( CONST CMPIArray * array, CMPIStatus * rc )
 {
     struct native_array * a = (struct native_array *) array;
-    if (!checkArgs(array, rc) )
+    if (!checkArgs(array, rc))
     {
         return 0;
     }
@@ -171,10 +180,10 @@ static CMPICount __aft_getSize ( CONST CMPIArray * array, CMPIStatus * rc )
 }
 
 
-static CMPIType __aft_getSimpleType ( CONST CMPIArray * array, CMPIStatus * rc )
+static CMPIType __aft_getSimpleType (CONST CMPIArray * array, CMPIStatus * rc)
 {
     struct native_array * a = (struct native_array *) array;
-    if (!checkArgs(array, rc) )
+    if (!checkArgs(array, rc))
     {
         return 0;
     }
@@ -184,13 +193,14 @@ static CMPIType __aft_getSimpleType ( CONST CMPIArray * array, CMPIStatus * rc )
 }
 
 
-static CMPIData __aft_getElementAt ( CONST CMPIArray * array,
-                     CMPICount index,
-                     CMPIStatus * rc )
+static CMPIData __aft_getElementAt ( 
+    CONST CMPIArray * array,
+    CMPICount index,
+    CMPIStatus * rc )
 {
 
     struct native_array * a = (struct native_array *) array;
-	CMPIData result = checkArgsReturnData(array, rc);
+    CMPIData result = checkArgsReturnData(array, rc);
 
     if (result.state == CMPI_badValue)
     {
@@ -200,25 +210,26 @@ static CMPIData __aft_getElementAt ( CONST CMPIArray * array,
     result.type = a->type;
     result.state = CMPI_badValue;
 
-	if ( index < a->size )
+    if (index < a->size)
     {
-		result.state = a->data[index].state;
-		result.value = a->data[index].value;
+        result.state = a->data[index].state;
+        result.value = a->data[index].value;
         CMSetStatus ( rc, CMPI_RC_OK );
     }
     else
     {
         CMSetStatus (rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
-	}
+    }
 
-	return result;
+    return result;
 }
 
 
-static CMPIStatus __aft_setElementAt ( CMPIArray * array,
-                       CMPICount index,
-                       CONST CMPIValue * val,
-                       CMPIType type )
+static CMPIStatus __aft_setElementAt ( 
+    CMPIArray * array,
+    CMPICount index,
+    CONST CMPIValue * val,
+    CMPIType type )
 {
 
     struct native_array * a = (struct native_array *) array;
@@ -234,17 +245,20 @@ static CMPIStatus __aft_setElementAt ( CMPIArray * array,
         return rc;
     }
 
-    if ( index < a->size ) {
+    if (index < a->size)
+    {
         CMPIValue v;
 
-        if ( type == CMPI_chars && a->type == CMPI_string ) {
+        if (type == CMPI_chars && a->type == CMPI_string)
+        {
 
             v.string = native_new_CMPIString ((char*)val, NULL );
             type = CMPI_string;
             val  = &v;
         }
 
-        if ( type == a->type ) {
+        if (type == a->type)
+        {
 
             CMPIStatus rc = {CMPI_RC_OK, NULL};
 
@@ -257,47 +271,52 @@ static CMPIStatus __aft_setElementAt ( CMPIArray * array,
             return rc;
         }
 
-        if ( type == CMPI_null ) {
+        if (type == CMPI_null)
+        {
 
-            if ( ! ( a->data[index].state & CMPI_nullValue ) ) {
+            if (! ( a->data[index].state & CMPI_nullValue ))
+            {
 
                 __make_NULL ( a,
-                          index,
-                          index,
-                          a->mem_state == TOOL_MM_NO_ADD );
+                    index,
+                    index,
+                    a->mem_state == TOOL_MM_NO_ADD );
             }
 
             CMReturn ( CMPI_RC_OK );
         }
     }
 
-	CMReturn ( CMPI_RC_ERR_TYPE_MISMATCH );
+    CMReturn ( CMPI_RC_ERR_TYPE_MISMATCH );
 }
 
 
 
-void native_array_increase_size ( CMPIArray * array,
-                  CMPICount increment )
+void native_array_increase_size ( 
+    CMPIArray * array,
+    CMPICount increment )
 {
     struct native_array * a = (struct native_array *) array;
 
     a->data =
         (struct native_array_item *)
         tool_mm_realloc ( a->data,
-                  ( a->size + increment ) *
-                  sizeof ( struct native_array_item ) );
-    memset ( &a->data[a->size],
-         0,
-         sizeof ( struct native_array_item ) * increment );
+        ( a->size + increment ) *
+        sizeof ( struct native_array_item ) );
+    memset ( 
+        &a->data[a->size],
+        0,
+        sizeof ( struct native_array_item ) * increment );
 
     a->size += increment;
 }
 
 
-static struct native_array * __new_empty_array ( int mm_add,
-                         CMPICount size,
-                         CMPIType type,
-                         CMPIStatus * rc )
+static struct native_array * __new_empty_array ( 
+    int mm_add,
+    CMPICount size,
+    CMPIType type,
+    CMPIStatus * rc )
 {
     static CMPIArrayFT aft = {
         NATIVE_FT_VERSION,
@@ -320,13 +339,13 @@ static struct native_array * __new_empty_array ( int mm_add,
     array->array     = a;
     array->mem_state = mm_add;
 
-    type        &= ~CMPI_ARRAY;
+    type & = ~CMPI_ARRAY;
     array->type  = ( type == CMPI_chars )? CMPI_string: type;
     array->size  = size;
     array->data  =
         (struct native_array_item *)
         tool_mm_alloc ( mm_add,
-                size * sizeof ( struct native_array_item ) );
+        size * sizeof ( struct native_array_item ) );
 
     __make_NULL ( array, 0, size - 1, 0 );
 
@@ -335,11 +354,12 @@ static struct native_array * __new_empty_array ( int mm_add,
 }
 
 
-CMPIArray * native_new_CMPIArray ( CMPICount size,
-                   CMPIType type,
-                   CMPIStatus * rc )
+CMPIArray * native_new_CMPIArray ( 
+    CMPICount size,
+    CMPIType type,
+    CMPIStatus * rc )
 {
-    return (CMPIArray *) __new_empty_array ( TOOL_MM_ADD, size, type, rc );
+    return(CMPIArray *) __new_empty_array ( TOOL_MM_ADD, size, type, rc );
 }
 
 

@@ -31,56 +31,60 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /*!
-  \file tool.c
-  \brief General tooling facility.
+    \file tool.c
+    \brief General tooling facility.
 
-  This module offers general tooling methods that may be used by different
-  components on the CIMOM as well as on the remote side.
+    This module offers general tooling methods that may be used by different
+    components on the CIMOM as well as on the remote side.
 
 */
 #include "cmpir_common.h"
 #include <stdio.h>
 
 #ifdef PEGASUS_OS_TYPE_UNIX
-#include <dlfcn.h>
-#include <strings.h>
+# include <dlfcn.h>
+# include <strings.h>
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-#include <winsock2.h>
-#include <Winbase.h>
+# include <winsock2.h>
+# include <Winbase.h>
 #endif
 
 #include "debug.h"
 #include "tool.h"
 
 #define GENERIC_ENTRY_POINT(n) \
-        typedef CMPI##n##MI * (* GENERIC_##n##MI) ( CMPIBroker * broker, \
-                                CMPIContext * ctx, \
-                                                    const char * provider )
+    typedef CMPI##n##MI * (* GENERIC_##n##MI) ( CMPIBroker * broker, \
+        CMPIContext * ctx, \
+        const char * provider )
 #define FIXED_ENTRY_POINT(n) \
-        typedef CMPI##n##MI * (* FIXED_##n##MI) ( CMPIBroker * broker, \
-                              CMPIContext * ctx )
+    typedef CMPI##n##MI * (* FIXED_##n##MI) ( CMPIBroker * broker, \
+        CMPIContext * ctx )
 
 #define LOAD_MI(n) \
-        GENERIC_ENTRY_POINT(n); \
-        FIXED_ENTRY_POINT(n); \
-\
-        CMPI##n##MI * tool_load_##n##MI ( const char * provider, \
-                                          void * library, \
-                      CMPIBroker * broker, \
-                      CMPIContext * ctx ) \
-{ \
-    GENERIC_##n##MI g = \
-        (GENERIC_##n##MI) \
-                 __get_generic_entry_point ( library, #n ); \
-\
-    if ( g == NULL ) { \
+    GENERIC_ENTRY_POINT(n); \
+    FIXED_ENTRY_POINT(n); \
+    \
+    CMPI##n##MI * tool_load_##n##MI ( const char * provider, \
+        void * library, \
+        CMPIBroker * broker, \
+        CMPIContext * ctx ) \
+    { \
+        GENERIC_##n##MI g = \
+            (GENERIC_##n##MI) \
+            __get_generic_entry_point ( library, #n ); \
+    \
+    if ( g == NULL ) \
+    { \
         FIXED_##n##MI f = \
             (FIXED_##n##MI) \
             __get_fixed_entry_point ( provider, \
-                          library, \
-                          #n ); \
-\
-        if ( f == NULL ) return NULL; \
+            library, \
+            #n ); \
+    \
+        if ( f == NULL ) \
+        { \
+            return NULL; \
+        } \
         return ( f ) ( broker, ctx ); \
     } \
     return ( g ) ( broker, ctx, provider ); \
@@ -109,19 +113,24 @@ void * tool_load_lib ( const char * libname )
     if (dllhand == 0)
     {
 #if defined PEGASUS_OS_TYPE_UNIX
-        TRACE_CRITICAL( ("Trying to load library: %s failed with %s\n", libname,
-                        dlerror()) );
+        TRACE_CRITICAL( 
+            ("Trying to load library: %s failed with %s\n", 
+            libname,
+            dlerror()) );
 #else
-        TRACE_CRITICAL( ("Trying to load library: %s failed with %s\n", libname,
-                        strerror(errno)) );
+        TRACE_CRITICAL( 
+            ("Trying to load library: %s failed with %s\n", 
+            libname,
+            strerror(errno)) );
 #endif
     }
     return dllhand;
 }
 
 
-static void * __get_generic_entry_point ( void * library,
-                      const char * ptype )
+static void * __get_generic_entry_point ( 
+    void * library,
+    const char * ptype )
 {
     char entry_point[255];
 
@@ -132,9 +141,10 @@ static void * __get_generic_entry_point ( void * library,
 }
 
 
-static void * __get_fixed_entry_point ( const char * provider,
-                    void * library,
-                    const char * ptype )
+static void * __get_fixed_entry_point ( 
+    const char * provider,
+    void * library,
+    const char * ptype )
 {
     char entry_point[255];
     sprintf ( entry_point, "%s_Create_%sMI", provider, ptype );

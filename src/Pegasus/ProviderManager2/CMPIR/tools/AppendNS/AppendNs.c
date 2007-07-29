@@ -29,37 +29,37 @@
 //
 //==============================================================================
 //
-// Author: Venkateswara Rao Puvvada, IBM, vpuvvada@in.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-   \file AppendNs.c
-   \brief Appends Namespaces property in provider registration MOF fies.
+    \file AppendNs.c
+    \brief Appends Namespaces property in provider registration MOF fies.
 
-    This program helps in modifying existing registration MOF files, it appends additional
-    namespace names to the Namespaces property.
+    This program helps in modifying existing registration MOF files, it 
+    appends additional namespace names to the Namespaces property.
 
     Usage:
          AppendeNs <additional-namespace-name> [ ... ] <mof-file-name>
 
     Where
-        additional-namespace-name is the namespace name to be added to existing Namespaces
-        specification.
-	Multiple namespace names can be specified, separated by blanks.
-	mof-file-name is the name of the mof registration file to used.
-	Output of the script is routed to std out.
+        additional-namespace-name is the namespace name to be added to 
+        existing Namespaces specification.
 
-     Example:
-        The following command adds additional namespace names to the existing Namespaces
-        specification.
+    Multiple namespace names can be specified, separated by blanks.
+    mof-file-name is the name of the mof registration file to used.
+    Output of the script is routed to std out.
 
-	AppendNs root/local root/node* Linux_baseR.mof >Linux_baseCMPIR.mof
+    Example:
+        The following command adds additional namespace names to the existing
+        Namespaces specification.
 
-        On Linux root/node* is used to define the provider supports all namespaces
-        starting with root/node.
+    AppendNs root/local root/node* Linux_baseR.mof >Linux_baseCMPIR.mof
 
-        But on windows it does not work because command shell does not expand wildcards.
+    On Linux root/node* is used to define the provider supports all namespaces
+    starting with root/node.
+
+    But on windows it does not work because command shell does not expand 
+    wildcards.
 */
 
 #include <stdio.h>
@@ -82,8 +82,8 @@ int main(int argc,char *argv[])
     if (3 > argc)
     {
         printf(
-               "%s\n","Usage: AppendeNs <additional-namespace-name> [ ... ]"
-               " <mof-file-name>");
+            "%s\n","Usage: AppendeNs <additional-namespace-name> [ ... ]"
+            " <mof-file-name>");
         exit(1);
     }
 
@@ -98,7 +98,7 @@ int main(int argc,char *argv[])
     {
         tmp = buff;
         gettoken(&tmp,token);
-        if (0 != strcmp("Namespaces",token) || 0 != strcmp("namespaces",token) )
+        if (0 != strcmp("Namespaces",token) || 0 != strcmp("namespaces",token))
         {
             fputs(buff,stdout);
             continue;
@@ -108,7 +108,8 @@ int main(int argc,char *argv[])
 
         while (RB != gettoken(&tmp,token))
         {
-           prev = tmp;  // we completly rely on correctness of registration MOF file.
+            // we completly rely on correctness of registration MOF file.
+            prev = tmp;  
         }
 
         *prev = '\0';

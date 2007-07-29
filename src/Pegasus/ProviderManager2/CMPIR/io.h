@@ -32,14 +32,19 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file io.h
-  \brief I/O routine header file.
+    \file io.h
+    \brief I/O routine header file.
 
 */
 
 #ifndef _REMOTE_CMPI_IO_H
- #define _REMOTE_CMPI_IO_H
- #include "cmpir_common.h"
- PEGASUS_EXPORT int io_read_fixed_length ( int fd, void * buf, size_t count );
- PEGASUS_EXPORT int io_write_fixed_length ( int fd, const void * buf, size_t count );
+#define _REMOTE_CMPI_IO_H
+
+#include "cmpir_common.h"
+
+PEGASUS_EXPORT int io_read_fixed_length (int fd, void * buf, size_t count);
+PEGASUS_EXPORT int io_write_fixed_length (
+    int fd,
+    const void * buf,
+    size_t count);
 #endif

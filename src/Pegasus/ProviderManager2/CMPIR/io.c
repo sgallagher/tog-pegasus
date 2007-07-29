@@ -32,8 +32,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file io.c
-  \brief General I/O routines.
+    \file io.c
+    \brief General I/O routines.
 */
 #include "cmpir_common.h"
 #include <stdio.h>
@@ -41,12 +41,12 @@
 #include <errno.h>
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-#include <winsock2.h>
-#include <sys/types.h>
+# include <winsock2.h>
+# include <sys/types.h>
 #else
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <error.h>
-#endif
+# ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#  include <error.h>
+# endif
 #endif
 
 #include "debug.h"
@@ -56,42 +56,51 @@
 
 //! Writes fixed length buffer into a file descriptor.
 /*!
-  The function uses continous write(2) calls to write the entire
-  buffer into the given file descriptor.
+    The function uses continous write(2) calls to write the entire
+    buffer into the given file descriptor.
 
-  \param fd the data sink.
-  \param buf the data source.
-  \param count number of bytes to write.
+    \param fd the data sink.
+    \param buf the data source.
+    \param count number of bytes to write.
 
-  \return zero on success.
- */
+    \return zero on success.
+*/
 
-int io_read_fixed_length ( int fd,
-                           PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
-                           size_t count )
+int io_read_fixed_length ( 
+    int fd,
+    PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
+    size_t count )
 {
     ssize_t bytes;
 
-    while ( count > 0 )
+    while (count > 0)
     {
         //invokes read on unix and recv on windows systems
         bytes = PEGASUS_CMPIR_RECV ( fd, (char *)buf, count,0 );
-        if ( bytes == 0 )
+        if (bytes == 0)
         {
-            error_at_line ( 0, 0, __FILE__, __LINE__,
+            error_at_line ( 
+                0, 
+                0, 
+                __FILE__, 
+                __LINE__,
                 "EOF before reading complete "
                 "chunk of data from fd: %d",
-                fd );
+                fd);
             return -1;
         }
-        else if ( bytes == -1 )
+        else if (bytes == -1)
         {
-            if ( errno != EINTR && errno != EAGAIN )
+            if (errno != EINTR && errno != EAGAIN)
             {
-                error_at_line ( 0, errno, __FILE__, __LINE__,
+                error_at_line ( 
+                    0, 
+                    errno, 
+                    __FILE__, 
+                    __LINE__,
                     "could not read all the "
                     "requested data from fd: %d",
-                    fd );
+                    fd);
                 return -1;
             }
         }
@@ -110,44 +119,53 @@ int io_read_fixed_length ( int fd,
 
 //! Reads fixed number of bytes from a file descriptor.
 /*!
-  The function uses continous read(2) calls to read the requested
-  number of bytes from the given file descriptor.
+    The function uses continous read(2) calls to read the requested
+    number of bytes from the given file descriptor.
 
-  \param fd the data source.
-  \param buf the data buffer.
-  \param count number of bytes to read.
+    \param fd the data source.
+    \param buf the data buffer.
+    \param count number of bytes to read.
 
-  \return zero on success.
- */
+    \return zero on success.
+*/
 
-int io_write_fixed_length ( int fd,
-                            const PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
-                            size_t count )
+int io_write_fixed_length ( 
+    int fd,
+    const PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
+    size_t count )
 {
     ssize_t bytes;
 
-    while ( count > 0 )
+    while (count > 0)
     {
         //invokes write on unix and send on windows
         bytes = PEGASUS_CMPIR_SEND(fd,(char *) buf, count, 0 );
-        if ( bytes == 0 )
+        if (bytes == 0)
         {
-            error_at_line ( 0, 0, __FILE__, __LINE__,
+            error_at_line ( 
+                0, 
+                0, 
+                __FILE__, 
+                __LINE__,
                 "EOF before writing complete "
                 "chunk of data to fd: %d",
-                fd );
+                fd);
             return -1;
         }
-        else if ( bytes == -1 )
+        else if (bytes == -1)
         {
-            if ( errno != EINTR && errno != EAGAIN )
-             {
-                error_at_line ( 0, errno, __FILE__, __LINE__,
+            if (errno != EINTR && errno != EAGAIN)
+            {
+                error_at_line ( 
+                    0, 
+                    errno, 
+                    __FILE__, 
+                    __LINE__,
                     "could not write all the "
                     "requested data to fd: %d",
-                    fd );
+                    fd);
                 return -1;
-             }
+            }
         }
         else
         {

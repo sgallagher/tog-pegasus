@@ -34,16 +34,16 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file ticket.c
-  \brief Broker ticket management.
+    \file ticket.c
+    \brief Broker ticket management.
 
-  This module is used to generate, verify and revoke tickets issued
-  for remote providers. These tickets are needed to properly handle
-  MB calls originating from remote providers, i.e. to relay them to
-  the correct broker handle. Furthermore, providers that are executing
-  MB calls after a ticket has been revoked, can be filtered.
+    This module is used to generate, verify and revoke tickets issued
+    for remote providers. These tickets are needed to properly handle
+    MB calls originating from remote providers, i.e. to relay them to
+    the correct broker handle. Furthermore, providers that are executing
+    MB calls after a ticket has been revoked, can be filtered.
 
-  \sa proxy_provider.c
+    \sa proxy_provider.c
 */
 
 #include <Pegasus/ProviderManager2/CMPI/CMPI_Version.h>
@@ -71,12 +71,12 @@ static CMPI_MUTEX_TYPE _tickets_lock=NULL;
 
 //! Validates a ticket and returns the broker handle associated with it.
 /*!
-  The function checks the locally maintained list of tickets for the
-  given one and returns the contained broker handle, if found.
+    The function checks the locally maintained list of tickets for the
+    given one and returns the contained broker handle, if found.
 
-  \param ticket the ticket to be verified.
-  \return a valid broker handle or NULL.
- */
+    \param ticket the ticket to be verified.
+    \return a valid broker handle or NULL.
+*/
 PEGASUS_EXPORT CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket )
 {
     comm_ticket * tmp;
@@ -84,21 +84,22 @@ PEGASUS_EXPORT CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket )
     TRACE_NORMAL(("Verifying remote provider ticket."));
     TRACE_INFO(("id: %ld", ticket->id ));
 
-        INIT_LOCK(_tickets_lock);
-        CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
-    for ( tmp = __tickets; tmp != NULL; tmp = tmp->next ) {
-
-        if ( tmp->id     == ticket->id &&
-             tmp->broker == ticket->broker ) {
+    INIT_LOCK(_tickets_lock);
+    CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
+    for (tmp = __tickets; tmp != NULL; tmp = tmp->next)
+    {
+        if (tmp->id     == ticket->id &&
+            tmp->broker == ticket->broker)
+        {
             CONST CMPIBroker * b = tmp->broker;
             TRACE_INFO(("ID accepted, returning broker: %p", b ));
 
-                        CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
+            CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
             return b;
         }
     }
 
-        CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
+    CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
 
     TRACE_CRITICAL(("Invalid ticket, no broker handle found."));
     return NULL;
@@ -107,12 +108,12 @@ PEGASUS_EXPORT CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket )
 
 //! Generates a new ticket for the given CMPI broker handle.
 /*!
-  The function creates a new communication ticket and adds it to a locally
-  maintained list.
+    The function creates a new communication ticket and adds it to a locally
+    maintained list.
 
-  \param broker the broker handle to create the ticket for.
-  \return the communication ticket.
- */
+    \param broker the broker handle to create the ticket for.
+    \return the communication ticket.
+*/
 comm_ticket generate_ticket ( CONST CMPIBroker * broker )
 {
     static unsigned long id = 0;
@@ -122,18 +123,18 @@ comm_ticket generate_ticket ( CONST CMPIBroker * broker )
 
     TRACE_NORMAL(("generating remote provider ticket."));
 
-        INIT_LOCK(_tickets_lock);
-        CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
+    INIT_LOCK(_tickets_lock);
+    CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
 
     result->id     = id++;
     result->broker = broker;
     result->next   = __tickets;
     __tickets      = result;
 
-        CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
+    CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
 
     TRACE_INFO(("generated ticket with id: %ld for broker %p.",
-            result->id, result->broker ));
+        result->id, result->broker ));
 
     return *result;
 }
@@ -141,22 +142,22 @@ comm_ticket generate_ticket ( CONST CMPIBroker * broker )
 
 //! Revokes a previously issued communication ticket.
 /*!
-  The function removes the given ticket from the locally maintained list.
+    The function removes the given ticket from the locally maintained list.
 
-  \param ticket the ticket to be removed.
-  \return zero on success, -1 if the ticket cannot be found.
- */
+    \param ticket the ticket to be removed.
+    \return zero on success, -1 if the ticket cannot be found.
+*/
 int revoke_ticket ( comm_ticket * ticket )
 {
     comm_ticket ** tmp;
 
     TRACE_NORMAL(("invalidating remote provider ticket."));
-        INIT_LOCK(_tickets_lock);
-        CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
-    for ( tmp = &__tickets; *tmp != NULL; tmp = &( (*tmp)->next ) ) {
-
-        if ( (*tmp)->id == ticket->id ) {
-
+    INIT_LOCK(_tickets_lock);
+    CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
+    for (tmp = &__tickets; *tmp != NULL; tmp = &( (*tmp)->next ))
+    {
+        if ((*tmp)->id == ticket->id)
+        {
             comm_ticket * r = (*tmp);
             (*tmp)          = r->next;
             free ( r );
@@ -173,23 +174,22 @@ int revoke_ticket ( comm_ticket * ticket )
 
 //! Compares two communication tickets.
 /*!
-  This function compares two communication tickets for equality.
+    This function compares two communication tickets for equality.
 
-  \param t1 first ticket.
-  \param t2 second ticket.
-  \return zero if t1 and t2 are equal.
+    \param t1 first ticket.
+    \param t2 second ticket.
+    \return zero if t1 and t2 are equal.
 
-  \sa remote_broker.c
+    \sa remote_broker.c
  */
 int compare_ticket ( const comm_ticket * t1, const comm_ticket * t2 )
 {
     TRACE_NORMAL(("Comparing remote provider tickets."));
-    return ( t1->id     == t2->id &&
-         t1->broker == t2->broker );
+    return( t1->id == t2->id &&
+        t1->broker == t2->broker );
 }
 
-void cleanup_ticket ( void )
-
+void cleanup_ticket ()
 {
     TRACE_NORMAL(("cleaning up ticket facility."));
 

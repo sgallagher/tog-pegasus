@@ -38,8 +38,8 @@
 #include "debug.h"
 #include "tcpcomm.h"
 /*
-  This struct holds the function name and a function pointer for
-  remote MI calls for CMPISelectExp. -V 5245
+    This struct holds the function name and a function pointer for
+    remote MI calls for CMPISelectExp. -V 5245
 */
 
 #define SOCKET_SELECT_EXP_FUNCTIONS_SIZE 8
@@ -47,10 +47,11 @@
 struct socket_select_exp_function
 {
     char *name;
-    void (* function) ( int,
-                        CONST CMPIBroker *,
-                        CONST CMPIContext *,
-                        CMPIUint32 ctx_id ); 
+    void (* function) ( 
+        int,
+        CONST CMPIBroker *,
+        CONST CMPIContext *,
+        CMPIUint32 ctx_id ); 
 };
 
 extern struct socket_select_exp_function select_exp_functions [];

@@ -32,15 +32,16 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file native.h
-  \brief Header file for the native encapsulated CMPI data type implementation.
+    \file native.h
+    \brief Header file for the native encapsulated CMPI data type 
+    implementation.
 
-  This file defines all the data types and functions necessary to use
-  native encapsulated CMPI data objects. These are clones of the regular
-  CMPI data types like CMPIObjectPath, CMPIInstance etc., however, they
-  can be instantiated and manipulated without a full blown CIMOM. Instead,
-  they use an autononmous CIMOM clone that provides all the functions
-  to create these objects as defined by the CMPIBrokerEncFT.
+    This file defines all the data types and functions necessary to use
+    native encapsulated CMPI data objects. These are clones of the regular
+    CMPI data types like CMPIObjectPath, CMPIInstance etc., however, they
+    can be instantiated and manipulated without a full blown CIMOM. Instead,
+    they use an autononmous CIMOM clone that provides all the functions
+    to create these objects as defined by the CMPIBrokerEncFT.
 
 */
 
@@ -101,7 +102,7 @@ static CMPIObjectPath * __oft_clone(CONST CMPIObjectPath * cop, CMPIStatus * rc)
     struct native_cop * o = (struct native_cop *) cop;
     struct native_cop *new;
 
-    if (!checkArgs(cop, rc) )
+    if (!checkArgs(cop, rc))
     {
         return 0;
     }
@@ -118,7 +119,7 @@ static CMPIObjectPath * __oft_clone(CONST CMPIObjectPath * cop, CMPIStatus * rc)
     }
     else
     {
-            CMSetStatus(rc, tmp.rc);
+        CMSetStatus(rc, tmp.rc);
     }
 
     return(CMPIObjectPath *) new;
@@ -160,7 +161,7 @@ static CMPIString * __oft_getNameSpace(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
-    if (!checkArgs(cop, rc) )
+    if (!checkArgs(cop, rc))
     {
         return 0;
     }
@@ -200,7 +201,7 @@ static CMPIString * __oft_getHostName(
     CMPIStatus * rc)
 {
     struct native_cop * o = (struct native_cop *) cop;
-    if (!checkArgs(cop, rc) )
+    if (!checkArgs(cop, rc))
     {
         return 0;
     }
@@ -245,7 +246,7 @@ CMPIString * __oft_getClassName(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
-    if (!checkArgs(cop, rc) )
+    if (!checkArgs(cop, rc))
     {
         return 0;
     }
@@ -269,12 +270,12 @@ static CMPIStatus __oft_addKey(
 
     CMReturn(
         (propertyFT.addProperty(
-            &o->keys,
-            o->mem_state,
-            name,
-            type,
-            CMPI_keyValue,
-            value))
+        &o->keys,
+        o->mem_state,
+        name,
+        type,
+        CMPI_keyValue,
+        value))
         ? CMPI_RC_ERR_ALREADY_EXISTS : CMPI_RC_OK);
 }
 
@@ -320,7 +321,7 @@ static unsigned int __oft_getKeyCount(
 {
     struct native_cop * o = (struct native_cop *) cop;
 
-    if (!checkArgs(cop, rc) )
+    if (!checkArgs(cop, rc))
     {
         return 0;
     }
@@ -394,7 +395,7 @@ CMPIString *__oft_toString( CONST CMPIObjectPath * cop, CMPIStatus *rc)
     unsigned int i, m;
     char *v;
 
-    if (!checkArgs(cop, rc) )
+    if (!checkArgs(cop, rc))
     {
         return 0;
     }
@@ -488,7 +489,7 @@ CMPIObjectPath * native_new_CMPIObjectPath(
     const char * classname,
     CMPIStatus * rc)
 {
-    return (CMPIObjectPath *)__new_empty_cop(
+    return(CMPIObjectPath *)__new_empty_cop(
         TOOL_MM_ADD,
         namespace,
         classname,

@@ -32,8 +32,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file ip.c
-  \brief General TCP/IP routines.
+    \file ip.c
+    \brief General TCP/IP routines.
 */
 
 #include "cmpir_common.h"
@@ -41,18 +41,18 @@
 #include <stdlib.h>
 
 #if defined PEGASUS_OS_TYPE_WINDOWS
-#include <winsock2.h>
+# include <winsock2.h>
 #else
-#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <arpa/inet.h>
+# if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#  include <arpa/inet.h>
 #else
-#include <error.h>
-#endif
-#include <strings.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <unistd.h>
+#  include <error.h>
+# endif
+# include <strings.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <netdb.h>
+# include <unistd.h>
 #endif
 
 #include <errno.h>
@@ -60,7 +60,7 @@
 #include <sys/types.h>
 
 #ifndef CMPI_VER_100
-#define CMPI_VER_100
+# define CMPI_VER_100
 #endif
 
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
@@ -71,7 +71,8 @@
 #include "tcpcomm.h"
 #include "debug.h"
 
-struct linger __linger = {
+struct linger __linger = 
+{
     1,
     15
 };
@@ -122,11 +123,11 @@ static struct hostent * _getHostByName (
 
         error_at_line (0, 0, __FILE__, __LINE__,
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        strerror (h_errno));
+            strerror (h_errno));
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-        (char *)lpMsgBuf);
+            (char *)lpMsgBuf);
 #else
-        hstrerror (h_errno));
+            hstrerror (h_errno));
 #endif
 
     }
@@ -135,7 +136,7 @@ static struct hostent * _getHostByName (
 }
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-void winStartNetwork(void)
+void winStartNetwork()
 {
     WSADATA winData;
     WSAStartup ( 0x0002, &winData );
@@ -155,29 +156,30 @@ int open_connection ( const char * address, int port, int print_errmsg )
     in_addr_t broker_ip_address;
     broker_ip_address = inet_addr(address);
 
-    if ( broker_ip_address != INADDR_NONE )
+    if (broker_ip_address != INADDR_NONE)
     {
         // HERE COMES THE CALL TO GETHOSTBYADDR
         server_host_name = gethostbyaddr(
             &(broker_ip_address),
-            sizeof(broker_ip_address), AF_INET);
-        if (server_host_name == NULL )
+            sizeof(broker_ip_address), 
+            AF_INET);
+        if (server_host_name == NULL)
         {
             if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
             {
-            error_at_line ( 0, 0, __FILE__, __LINE__,strerror(h_errno));
-            return -1;
+                error_at_line ( 0, 0, __FILE__, __LINE__,strerror(h_errno));
+                return -1;
             }
         }
     }
     else
     {
 #endif
-    if ((server_host_name = _getHostByName (
-        address,
-        &hbuf,
-        tempbuf,
-        sizeof(tempbuf))) == NULL)
+        if ((server_host_name = _getHostByName (
+            address,
+            &hbuf,
+            tempbuf,
+            sizeof(tempbuf))) == NULL)
         {
             return -1;
         }
@@ -186,43 +188,53 @@ int open_connection ( const char * address, int port, int print_errmsg )
     }
 #endif
 
-    sin.sin_family      = AF_INET;
-    sin.sin_port        = htons ( port );
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(port);
     sin.sin_addr.s_addr =
         ( (struct in_addr *) ( server_host_name->h_addr ) )->s_addr;
 
-    if ( ( sockfd = socket ( PF_INET,
+    if (( sockfd = socket (
+        PF_INET,
         SOCK_STREAM,
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        0 ) ) == -1 )
+        0 ) ) == -1)
 #else
-        IPPROTO_TCP ) ) == PEGASUS_CMPIR_INVALID_SOCKET )
+        IPPROTO_TCP ) ) == PEGASUS_CMPIR_INVALID_SOCKET)
 #endif
     {
         if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
         {
-            error_at_line ( 0, errno, __FILE__, __LINE__,
-                "failed to create socket" );
+            error_at_line (
+                0, 
+                errno, 
+                __FILE__, 
+                __LINE__,
+                "failed to create socket");
         }
         return -1;
     }
 
-    setsockopt ( sockfd,
+    setsockopt ( 
+        sockfd,
         SOL_SOCKET,
         SO_LINGER,
         &__linger,
-        sizeof ( struct linger ) );
+        sizeof ( struct linger ));
 
-    if ( connect ( sockfd, (struct sockaddr *) &sin, sizeof ( sin ) ) == -1 )
+    if (connect ( sockfd, (struct sockaddr *) &sin, sizeof ( sin ) ) == -1)
     {
         //invokes close(socket) on unix & closesocket(socket) on windows
         PEGASUS_CMPIR_CLOSESOCKET(sockfd);
         if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
         {
-            error_at_line ( 0, errno, __FILE__, __LINE__,
+            error_at_line ( 
+                0, 
+                errno, 
+                __FILE__, 
+                __LINE__,
                 "could not connect to %s:%d",
                 address,
-                port );
+                port);
         }
         return -1;
     }
@@ -232,7 +244,7 @@ int open_connection ( const char * address, int port, int print_errmsg )
 PEGASUS_EXPORT void accept_connections (
     int port,
     void (* __connection_handler) ( int ),
-    int multithreaded )
+    int multithreaded)
 {
     CMPI_THREAD_TYPE t;
     int in_socket, listen_socket;
@@ -248,29 +260,35 @@ PEGASUS_EXPORT void accept_connections (
     setsockopt (
         listen_socket,
         SOL_SOCKET,
-        SO_REUSEADDR, (char *) &ru,
-        sizeof ( ru ) );
+        SO_REUSEADDR, 
+        (char *) &ru,
+        sizeof ( ru ));
 
     memset(&sin,0,sin_len);
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = INADDR_ANY;
     sin.sin_port = htons ( port );
 
-    if ( bind ( listen_socket, (struct sockaddr *) &sin, sin_len ) ||
+    if (bind ( listen_socket, (struct sockaddr *) &sin, sin_len ) ||
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        listen ( listen_socket, 15 ) )
+        listen ( listen_socket, 15 ))
     {
 #else
-        listen ( listen_socket, 0 ) )
+        listen ( listen_socket, 0 ))
     {
 #endif
-        error_at_line ( -1, PEGASUS_CMPIR_WSAGETLASTERROR, __FILE__, __LINE__,
-            "cannot listen on port %d", port );
+        error_at_line ( 
+            -1, 
+            PEGASUS_CMPIR_WSAGETLASTERROR, 
+            __FILE__, 
+            __LINE__,
+            "cannot listen on port %d", port);
     }
     _die = 0;
-    while ( ( in_socket = accept ( listen_socket,
+    while (( in_socket = accept ( 
+        listen_socket,
         (struct sockaddr *) &sin,
-        (size_t *) &sin_len ) ) > 0 )
+        (size_t *) &sin_len ) ) > 0)
     {
         if (_die == 1)
         {
@@ -285,26 +303,32 @@ PEGASUS_EXPORT void accept_connections (
             &__linger,
             sizeof ( struct linger ) );
 
-        if ( multithreaded )
+        if (multithreaded)
         {
 
-            t=CMPI_BrokerExt_Ftab->newThread(
+            t = CMPI_BrokerExt_Ftab->newThread(
                 (void *(PEGASUS_CMPIR_STDCALL*)(void *))__connection_handler,
-                (void *) in_socket,1);
+                (void *) in_socket,
+                1);
 
         }
-         else
+        else
             __connection_handler ( in_socket );
-        }
-        if (in_socket < 0)
-        {
-            error_at_line ( -1, errno, __FILE__, __LINE__, "invalid socket descriptor (%d) ", in_socket);
-        }
+    }
+    if (in_socket < 0)
+    {
+        error_at_line ( -1, 
+            errno, 
+            __FILE__, 
+            __LINE__, 
+            "invalid socket descriptor (%d) ", 
+            in_socket);
+    }
 
-        //invokes close(socket) on unix & closesocket(socket) on windows
-        PEGASUS_CMPIR_CLOSESOCKET (listen_socket);
-        listen_socket = 0;
-        _die = 0;
+    //invokes close(socket) on unix & closesocket(socket) on windows
+    PEGASUS_CMPIR_CLOSESOCKET (listen_socket);
+    listen_socket = 0;
+    _die = 0;
 
 }
 

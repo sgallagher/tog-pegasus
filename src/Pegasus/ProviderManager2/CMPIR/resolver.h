@@ -32,10 +32,10 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file resolver.h
-  \brief Resolver header file.
+    \file resolver.h
+    \brief Resolver header file.
 
-  Defines the interface for a resolver component.
+    Defines the interface for a resolver component.
 
 */
 
@@ -46,31 +46,32 @@ typedef struct provider_address provider_address;
 
 
 #ifndef CMPI_VER_100
-#define CMPI_VER_100
+# define CMPI_VER_100
 #endif
 
 #ifndef CONST
-  #ifdef CMPI_VER_100
-    #define CONST const
-  #else
-    #define CONST
-  #endif
+# ifdef CMPI_VER_100
+#  define CONST const
+# else
+#  define CONST
+# endif
 #endif
 
 //! Address of a remote provider.
 /*!
-  This holds the address of one remote provider location in a linked list.
+    This holds the address of one remote provider location in a linked list.
  */
-struct  provider_address {
-  char * comm_layer_id;     /*!< the communication layer responsible for
-                 connecting to the remote provider */
-  char * dst_address;       /*!< the destination address of the remote
-                 provider in comm-layer specific format */
-  char * provider_module;   /*!< the provider module containing the
-                 remote provider on the remote host */
-  struct provider_address * next; /*!< pointer to the next address */
+struct  provider_address
+{
+    char * comm_layer_id;     /*!< the communication layer responsible for
+                   connecting to the remote provider */
+    char * dst_address;       /*!< the destination address of the remote
+                   provider in comm-layer specific format */
+    char * provider_module;   /*!< the provider module containing the
+                   remote provider on the remote host */
+    struct provider_address * next; /*!< pointer to the next address */
 
-  void (*destructor)(struct provider_address*); /*!< address of destructor */
+    void (*destructor)(struct provider_address*); /*!< address of destructor */
 };
 
 
@@ -78,18 +79,20 @@ struct  provider_address {
 
 //! Resolves a list of remote provider addresses for an enumerative request.
 
- provider_address * resolve_class ( CONST CMPIBroker *,
-                   CONST CMPIContext *,
-                   CONST CMPIObjectPath *,
-                   const char *,
-                   CMPIStatus *);
+provider_address * resolve_class ( 
+    CONST CMPIBroker *,
+    CONST CMPIContext *,
+    CONST CMPIObjectPath *,
+    const char *,
+    CMPIStatus *);
 
 //! Resolves a single address of a remote provider.
- provider_address * resolve_instance ( CONST CMPIBroker *,
-                      CONST CMPIContext *,
-                      CONST CMPIObjectPath *,
-                                      const char *,
-                      CMPIStatus *);
+provider_address * resolve_instance ( 
+    CONST CMPIBroker *,
+    CONST CMPIContext *,
+    CONST CMPIObjectPath *,
+    const char *,
+    CMPIStatus *);
 
 //! Frees previously resolved address(es).
 //void free_addresses ( provider_address * );

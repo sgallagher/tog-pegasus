@@ -32,17 +32,17 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
-  \file selectexp.c
-  \brief Native CMPISelectExp implementation.
+    \file selectexp.c
+    \brief Native CMPISelectExp implementation.
 
-  This is the native CMPISelectExp implementation as used for remote
-  providers. It reflects the well-defined interface of a regular
-  CMPISelectExp, however, it works independently from the management broker.
+    This is the native CMPISelectExp implementation as used for remote
+    providers. It reflects the well-defined interface of a regular
+    CMPISelectExp, however, it works independently from the management broker.
 
-  It is part of a native broker implementation that simulates CMPI data
-  types rather than interacting with the entities in a full-grown CIMOM.
+    It is part of a native broker implementation that simulates CMPI data
+    types rather than interacting with the entities in a full-grown CIMOM.
 
-  \todo THIS IS NOT FULLY IMPLEMENTED YET!!!
+    \todo THIS IS NOT FULLY IMPLEMENTED YET!!!
 */
 
 #include <stdio.h>
@@ -53,16 +53,18 @@
 #include "native.h"
 
 
-struct native_selectexp {
+struct native_selectexp
+{
     CMPISelectExp exp;
     int mem_state;
     CMPIUint32 id;
 };
 
 
-static struct native_selectexp * __new_exp ( int mem_state,
-                                             CMPIUint32 id,
-                                             CMPIStatus *rc);
+static struct native_selectexp * __new_exp ( 
+    int mem_state,
+    CMPIUint32 id,
+    CMPIStatus *rc);
 
 
 
@@ -81,47 +83,48 @@ static CMPIStatus __eft_release ( CMPISelectExp * exp )
     }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
-    if ( e->mem_state == TOOL_MM_NO_ADD )
+    if (e->mem_state == TOOL_MM_NO_ADD)
     {
         rc = ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_release (exp);
-           if (rc.rc == CMPI_RC_OK)
-           {
-               tool_mm_add ( e );
-           }
+        if (rc.rc == CMPI_RC_OK)
+        {
+            tool_mm_add ( e );
+        }
     }
-   CMReturn ( CMPI_RC_OK );
+    CMReturn ( CMPI_RC_OK );
 }
 
 
-static CMPISelectExp * __eft_clone ( CONST CMPISelectExp * exp, CMPIStatus * rc )
+static CMPISelectExp * __eft_clone (CONST CMPISelectExp * exp, CMPIStatus * rc)
 {
     CMPIContext *ctx;
     CMPIBroker *broker;
 
-    if (!checkArgs(exp, rc) )
+    if (!checkArgs(exp, rc))
     {
         return 0;
     }
     broker = tool_mm_get_broker ( (void**)&ctx);
-    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_clone (exp, rc);
+    return( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_clone (exp, rc);
 }
 
 
 
-CMPIBoolean __eft_evaluate ( CONST CMPISelectExp * exp,
-                 CONST CMPIInstance * inst,
-                 CMPIStatus * rc )
+CMPIBoolean __eft_evaluate ( 
+    CONST CMPISelectExp * exp,
+    CONST CMPIInstance * inst,
+    CMPIStatus * rc )
 {
     CMPIContext *ctx;
     CMPIBroker *broker;
 
-    if (!checkArgs(exp, rc) || !checkArgs(inst, rc) )
+    if (!checkArgs(exp, rc) || !checkArgs(inst, rc))
     {
         return 0;
     }
     broker = tool_mm_get_broker ( (void**)&ctx);
 
-    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_evaluate (exp, inst ,rc);
+    return(((NativeCMPIBrokerFT*)broker->bft))->selExp_evaluate (exp, inst ,rc);
 }
 
 
@@ -130,12 +133,12 @@ CMPIString * __eft_getString ( CONST CMPISelectExp * exp, CMPIStatus * rc )
     CMPIContext *ctx;
     CMPIBroker *broker;
 
-    if (!checkArgs(exp, rc) )
+    if (!checkArgs(exp, rc))
     {
         return 0;
     }
     broker = tool_mm_get_broker ( (void**)&ctx);
-    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getString (exp, rc);
+    return( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getString (exp, rc);
 }
 
 
@@ -144,12 +147,12 @@ CMPISelectCond * __eft_getDOC ( CONST CMPISelectExp * exp, CMPIStatus * rc )
     CMPIContext *ctx;
     CMPIBroker *broker;
 
-    if (!checkArgs(exp, rc) )
+    if (!checkArgs(exp, rc))
     {
         return 0;
     }
     broker = tool_mm_get_broker ( (void**)&ctx);
-    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getDOC (exp, rc);
+    return( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getDOC (exp, rc);
 }
 
 
@@ -158,32 +161,35 @@ CMPISelectCond * __eft_getCOD ( CONST CMPISelectExp * exp, CMPIStatus * rc )
     CMPIContext *ctx;
     CMPIBroker *broker;
 
-    if (!checkArgs(exp, rc) )
+    if (!checkArgs(exp, rc))
     {
         return 0;
     }
     broker = tool_mm_get_broker ( (void**)&ctx);
-    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getCOD (exp, rc);
+    return( ( (NativeCMPIBrokerFT*)broker->bft) )->selExp_getCOD (exp, rc);
 }
 
-CMPIBoolean __eft_evaluateUsingAccessor (CONST CMPISelectExp* se,
-        CMPIAccessor *accessor, void *parm, CMPIStatus* rc)
+CMPIBoolean __eft_evaluateUsingAccessor (
+    CONST CMPISelectExp* se,
+    CMPIAccessor *accessor, 
+    void *parm, CMPIStatus* rc)
 {
     CMPIContext *ctx;
     CMPIBroker *broker;
 
-    if (!checkArgs(se, rc) || !checkArgs(accessor, rc) )
+    if (!checkArgs(se, rc) || !checkArgs(accessor, rc))
     {
         return 0;
     }
     broker = tool_mm_get_broker ( (void**)&ctx);
-    return ( ( (NativeCMPIBrokerFT*)broker->bft) )->
-                selExp_evaluateUsingAccessor (se, accessor ,parm, rc);
+    return( ( (NativeCMPIBrokerFT*)broker->bft) )->
+        selExp_evaluateUsingAccessor (se, accessor ,parm, rc);
 }
 
-static struct native_selectexp * __new_exp ( int mm_add,
-                         CMPIUint32 id,
-                         CMPIStatus * rc )
+static struct native_selectexp * __new_exp ( 
+    int mm_add,
+    CMPIUint32 id,
+    CMPIStatus * rc )
 {
     static CMPISelectExpFT eft = {
         NATIVE_FT_VERSION,
@@ -209,26 +215,24 @@ static struct native_selectexp * __new_exp ( int mm_add,
     exp->mem_state   = mm_add;
     exp->id          = id;
 
-        CMSetStatus ( rc, CMPI_RC_OK );
+    CMSetStatus ( rc, CMPI_RC_OK );
     return exp;
 }
 
-
-
-CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32 id,
-                       CMPIStatus * rc)
+CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32 id, CMPIStatus * rc)
 {
-    return (CMPISelectExp *) __new_exp ( TOOL_MM_NO_ADD,
-                                                id,
-                                                rc );
+    return(CMPISelectExp *) __new_exp ( 
+        TOOL_MM_NO_ADD,
+        id,
+        rc );
 }
 
-CMPISelectExp * native_new_CMPISelectExp_add ( CMPIUint32 id,
-                       CMPIStatus * rc )
+CMPISelectExp * native_new_CMPISelectExp_add ( CMPIUint32 id, CMPIStatus * rc )
 {
-    return (CMPISelectExp *) __new_exp ( TOOL_MM_ADD,
-                                                id,
-                                                rc );
+    return(CMPISelectExp *) __new_exp ( 
+        TOOL_MM_ADD,
+        id,
+        rc );
 }
 
 void native_release_CMPISelectExp( CONST CMPISelectExp *filter)
@@ -244,14 +248,19 @@ void native_release_CMPISelectExp( CONST CMPISelectExp *filter)
 // These functions help in serializing and deserializing the
 // CMPISelectExp -V 5245
 
-PEGASUS_EXPORT CMPIUint32 create_indicationObject (CMPISelectExp *se, CMPIUint32 ctx_id, CMPIUint8 type)
+PEGASUS_EXPORT CMPIUint32 create_indicationObject (
+    CMPISelectExp *se, 
+    CMPIUint32 ctx_id, 
+    CMPIUint8 type)
 {
     struct native_selectexp *e = (struct native_selectexp*)se;
 
     return e->id;
 }
 
-PEGASUS_EXPORT CMPISelectExp *get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
+PEGASUS_EXPORT CMPISelectExp *get_indicationObject (
+    CMPIUint32 id, 
+    CMPIUint32 ctx_id)
 {
     if (ctx_id)
     {

@@ -41,64 +41,66 @@ functions with different names */
 
 #ifdef PEGASUS_OS_TYPE_UNIX
 
-#define lloonngg long long int
-#define CMPIR_THREAD_CDECL CMPI_THREAD_CDECL
-#define PEGASUS_CMPIR_ATOL(x) atoll(x)
-#define PEGASUS_CMPIR_CDECL
-#define PEGASUS_CMPIR_IO_BUFPTR_TYPE void
-#define PEGASUS_CMPIR_CLOSESOCKET(socket_hdl) close(socket_hdl)
-#define PEGASUS_CMPIR_FREELIBRARY(libhandle) dlclose(libhandle)
-#define PEGASUS_CMPIR_GETGID() getgid()
-#define PEGASUS_CMPIR_GETPID() getpid()
-#define PEGASUS_CMPIR_GETUID() getuid()
-#define PEGASUS_CMPIR_GETPROCADDRESS(hLibrary, function) dlsym(hLibrary, function)
-#define PEGASUS_CMPIR_INVALID_SOCKET (-1)
+# define lloonngg long long int
+# define CMPIR_THREAD_CDECL CMPI_THREAD_CDECL
+# define PEGASUS_CMPIR_ATOL(x) atoll(x)
+# define PEGASUS_CMPIR_CDECL
+# define PEGASUS_CMPIR_IO_BUFPTR_TYPE void
+# define PEGASUS_CMPIR_CLOSESOCKET(socket_hdl) close(socket_hdl)
+# define PEGASUS_CMPIR_FREELIBRARY(libhandle) dlclose(libhandle)
+# define PEGASUS_CMPIR_GETGID() getgid()
+# define PEGASUS_CMPIR_GETPID() getpid()
+# define PEGASUS_CMPIR_GETUID() getuid()
+# define PEGASUS_CMPIR_GETPROCADDRESS(hLibrary, function) \
+    dlsym(hLibrary, function)
+# define PEGASUS_CMPIR_INVALID_SOCKET (-1)
 
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-#define PEGASUS_CMPIR_LIBTYPE "lib%s.so"
+# ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#  define PEGASUS_CMPIR_LIBTYPE "lib%s.so"
 #else
-#define PEGASUS_CMPIR_LIBTYPE "lib%s.sl"
+#  define PEGASUS_CMPIR_LIBTYPE "lib%s.sl"
 #endif
 
-#define PEGASUS_CMPIR_LOADLIBRARY(filename,mode) dlopen (filename, mode)
-#define PEGASUS_CMPIR_RECV(a,b,c,d) read(a,b,c)
-#define PEGASUS_CMPIR_SEND(a,b,c,d)  write(a,b,c)
-#define PEGASUS_CMPIR_SLEEP(duration) sleep(duration)
-#define PEGASUS_CMPIR_STDCALL
-#define PEGASUS_CMPIR_STRCASECMP(a,b) strcasecmp(a,b)
-#define PEGASUS_CMPIR_VSPRINTF(a,b,c,d) vsnprintf(a,b,c,d)
-#define PEGASUS_CMPIR_WSAGETLASTERROR errno
+# define PEGASUS_CMPIR_LOADLIBRARY(filename,mode) dlopen (filename, mode)
+# define PEGASUS_CMPIR_RECV(a,b,c,d) read(a,b,c)
+# define PEGASUS_CMPIR_SEND(a,b,c,d)  write(a,b,c)
+# define PEGASUS_CMPIR_SLEEP(duration) sleep(duration)
+# define PEGASUS_CMPIR_STDCALL
+# define PEGASUS_CMPIR_STRCASECMP(a,b) strcasecmp(a,b)
+# define PEGASUS_CMPIR_VSPRINTF(a,b,c,d) vsnprintf(a,b,c,d)
+# define PEGASUS_CMPIR_WSAGETLASTERROR errno
 #endif
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 
-#define lloonngg __int64
-#define ssize_t size_t
+# define lloonngg __int64
+# define ssize_t size_t
 
-#ifndef FD_SETSIZE
-#define FD_SETSIZE 1024
+# ifndef FD_SETSIZE
+#  define FD_SETSIZE 1024
 #endif
 
-#define CMPIR_THREAD_CDECL
-#define PEGASUS_CMPIR_ATOL(x) _atoi64(x)
-#define PEGASUS_CMPIR_CDECL  __cdecl
-#define PEGASUS_CMPIR_IO_BUFPTR_TYPE int
-#define PEGASUS_CMPIR_CLOSESOCKET(socket_hdl) closesocket(socket_hdl)
-#define PEGASUS_CMPIR_LIBTYPE  "%s.dll"
-#define PEGASUS_CMPIR_LOADLIBRARY(filename,mode)  LoadLibrary(filename)
-#define PEGASUS_CMPIR_FREELIBRARY(libhandle) FreeLibrary(libhandle)
-#define PEGASUS_CMPIR_GETGID() 1
-#define PEGASUS_CMPIR_GETPID() _getpid()
-#define PEGASUS_CMPIR_GETPROCADDRESS(hLibrary,function)  GetProcAddress(hLibrary, function)
-#define PEGASUS_CMPIR_GETUID() 1
-#define PEGASUS_CMPIR_INVALID_SOCKET INVALID_SOCKET
-#define PEGASUS_CMPIR_RECV(a,b,c,d) recv(a,b,c,d)
-#define PEGASUS_CMPIR_SEND(a,b,c,d) send(a,b,c,d)
-#define PEGASUS_CMPIR_SLEEP(duration) Sleep(duration)
-#define PEGASUS_CMPIR_STDCALL __stdcall
-#define PEGASUS_CMPIR_STRCASECMP(a,b) _stricmp(a,b)
-#define PEGASUS_CMPIR_VSPRINTF(a, b, c,d)  vsprintf(a,c,d)
-#define PEGASUS_CMPIR_WSAGETLASTERROR WSAGetLastError()
+# define CMPIR_THREAD_CDECL
+# define PEGASUS_CMPIR_ATOL(x) _atoi64(x)
+# define PEGASUS_CMPIR_CDECL  __cdecl
+# define PEGASUS_CMPIR_IO_BUFPTR_TYPE int
+# define PEGASUS_CMPIR_CLOSESOCKET(socket_hdl) closesocket(socket_hdl)
+# define PEGASUS_CMPIR_LIBTYPE  "%s.dll"
+# define PEGASUS_CMPIR_LOADLIBRARY(filename,mode)  LoadLibrary(filename)
+# define PEGASUS_CMPIR_FREELIBRARY(libhandle) FreeLibrary(libhandle)
+# define PEGASUS_CMPIR_GETGID() 1
+# define PEGASUS_CMPIR_GETPID() _getpid()
+# define PEGASUS_CMPIR_GETPROCADDRESS(hLibrary,function)  \
+    GetProcAddress(hLibrary, function)
+# define PEGASUS_CMPIR_GETUID() 1
+# define PEGASUS_CMPIR_INVALID_SOCKET INVALID_SOCKET
+# define PEGASUS_CMPIR_RECV(a,b,c,d) recv(a,b,c,d)
+# define PEGASUS_CMPIR_SEND(a,b,c,d) send(a,b,c,d)
+# define PEGASUS_CMPIR_SLEEP(duration) Sleep(duration)
+# define PEGASUS_CMPIR_STDCALL __stdcall
+# define PEGASUS_CMPIR_STRCASECMP(a,b) _stricmp(a,b)
+# define PEGASUS_CMPIR_VSPRINTF(a, b, c,d)  vsprintf(a,c,d)
+# define PEGASUS_CMPIR_WSAGETLASTERROR WSAGetLastError()
 
 
 typedef unsigned char Uint8;
@@ -110,7 +112,7 @@ int gettimeofday (struct timeval *t,void * );
 
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#define atoll(X) strtoll(X, NULL, 10)
+# define atoll(X) strtoll(X, NULL, 10)
 #endif
 
 #endif // End of cmpir_comm.h

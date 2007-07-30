@@ -45,8 +45,8 @@ PEGASUS_NAMESPACE_BEGIN
         for (int i=0; i<aSize; i++) \
         { \
             ar##pt[i]=aData[i].value.ct; \
-            v.set(ar##pt); \
         } \
+        v.set(ar##pt); \
     }
 
 #define CopyToStringArray(pt,ct) \
@@ -55,8 +55,8 @@ PEGASUS_NAMESPACE_BEGIN
         for (int i=0; i<aSize; i++) \
         { \
             ar##pt[i]=String(((char*)aData[i].value.ct)); \
-            v.set(ar##pt); \
         } \
+        v.set(ar##pt); \
     }
 
 #define CopyCharsptrToStringArray(pt,ct) \
@@ -65,8 +65,8 @@ PEGASUS_NAMESPACE_BEGIN
         for (int i=0; i<aSize; i++) \
         { \
             ar##pt[i]=String((*(char**)aData[i].value.ct)); \
-            v.set(ar##pt); \
         }\
+        v.set(ar##pt); \
     }
 
 #define CopyToEncArray(pt,ct) \
@@ -75,7 +75,39 @@ PEGASUS_NAMESPACE_BEGIN
         for (int i=0; i<aSize; i++) \
         { \
             ar##pt[i]=*((pt*)aData[i].value.ct->hdl); \
-            v.set(ar##pt); \
+        } \
+        v.set(ar##pt); \
+    }
+
+#define CopyFromArray(pt,ct) \
+    { \
+        Array<pt> ar##pt; \
+        v.get(ar##pt); \
+        for (int i=0; i<aSize; i++) \
+        { \
+            aData[i].value.ct=ar##pt[i]; \
+        } \
+    }
+
+#define CopyFromStringArray(pt,ct) \
+    { \
+        Array<pt> ar##pt; \
+        v.get(ar##pt); \
+        for (int i=0; i<aSize; i++) \
+        { \
+             aData[i].value.ct=reinterpret_cast<CMPIString*>(\
+                 new CMPI_Object(ar##pt[i])); \
+        } \
+    }
+
+#define CopyFromEncArray(pt,ct,cn) \
+    { \
+        Array<pt> ar##pt; \
+        v.get(ar##pt); \
+        for (int i=0; i<aSize; i++) \
+        { \
+            aData[i].value.cn=reinterpret_cast<ct*>(\
+                new CMPI_Object(new pt(ar##pt[i]))); \
         } \
     }
 
@@ -365,38 +397,6 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
         }
     return CIMValue(v);
 }
-
-#define CopyFromArray(pt,ct) \
-    { \
-        Array<pt> ar##pt; \
-   v.get(ar##pt); \
-        for (int i=0; i<aSize; i++) \
-        { \
-            aData[i].value.ct=ar##pt[i]; \
-        } \
-    }
-
-#define CopyFromStringArray(pt,ct) \
-    { \
-        Array<pt> ar##pt; \
-   v.get(ar##pt); \
-        for (int i=0; i<aSize; i++) \
-        { \
-             aData[i].value.ct=reinterpret_cast<CMPIString*>(\
-                 new CMPI_Object(ar##pt[i])); \
-        } \
-    }
-
-#define CopyFromEncArray(pt,ct,cn) \
-    { \
-        Array<pt> ar##pt; \
-   v.get(ar##pt); \
-        for (int i=0; i<aSize; i++) \
-        { \
-            aData[i].value.cn=reinterpret_cast<ct*>(\
-                new CMPI_Object(new pt(ar##pt[i]))); \
-        } \
-    }
 
 //Function to convert CIMValue to CMPIData
 CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)

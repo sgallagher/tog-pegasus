@@ -799,14 +799,17 @@ static void TCPCOMM_IndicationMI_enableIndications (
     {
         SET_STATUS_INIT_FAILED(rc);
     }
-    // To make compatibilty with old providers it was decided to discard the
-    // returned CMPIStatus here. This will prevent us from breaking existing
-    // CMPI Indication providers. -V 5886
+    else
+    {
+        // To make compatibilty with old providers it was decided to discard the
+        // returned CMPIStatus here. This will prevent us from breaking existing
+        // CMPI Indication providers. -V 5886
 #ifdef CMPI_VER_100
-    mi->ft->enableIndications(mi, ctx);
+        mi->ft->enableIndications(mi, ctx);
 #else
-    mi->ft->enableIndications(mi);
+        mi->ft->enableIndications(mi);
 #endif
+    }
     (__sft)->serialize_CMPIStatus(socket, &rc);
 }
 
@@ -2461,7 +2464,7 @@ static void __handle_MI_call(int socket)
         NULL,
         NULL, //&native_brokerEncFT,
         NULL, // CMPI_BrokerExt_Ftab
-        // NULL  // CMPI_BrokerMem_Ftab
+        NULL  // CMPI_BrokerMem_Ftab
     };
     char *provider, *provider_module, *function, broker_address[256];
     comm_ticket ticket;

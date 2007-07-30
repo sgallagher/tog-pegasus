@@ -1329,10 +1329,7 @@ CMPIString *connect_error(provider_address * addr)
 */
 static void __start_proxy_daemon(CMPIContext * ctx)
 {
-    if (ctx != NULL)
-    {
-        CBAttachThread(__init_broker, ctx);
-    }
+    CBAttachThread(__init_broker, ctx);
     accept_connections(CIMOM_LISTEN_PORT, __verify_MB_call, 0);
     CBDetachThread(__init_broker, ctx);
 }
@@ -1345,11 +1342,6 @@ static void __start_proxy_daemon(CMPIContext * ctx)
 static void __launch_proxy_daemon()
 {
     CMPIContext *ctx = CBPrepareAttachThread(__init_broker, __init_context);
-    if (!(__init_context && __init_broker))
-    {
-        CMRelease(ctx);
-        ctx = NULL;
-    }
     CMPI_BrokerExt_Ftab->newThread(
         (void*(PEGASUS_CMPIR_STDCALL*)(void*))__start_proxy_daemon,ctx,1);
 }
@@ -2183,6 +2175,12 @@ PEGASUS_EXPORT provider_comm *CMPIRTCPComm_InitCommLayer(
 #else
     pthread_once_t __once = PTHREAD_ONCE_INIT;
 #endif
+
+     if (!broker || !ctx)
+     {
+         TRACE_CRITICAL (("TCPComm Layer initialization failed."));
+         return NULL;
+     }
 
     __init_broker = broker;
     __init_context = ctx;

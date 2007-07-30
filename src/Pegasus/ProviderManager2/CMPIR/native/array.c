@@ -339,7 +339,7 @@ static struct native_array * __new_empty_array (
     array->array     = a;
     array->mem_state = mm_add;
 
-    type & = ~CMPI_ARRAY;
+    type &= ~CMPI_ARRAY;
     array->type  = ( type == CMPI_chars )? CMPI_string: type;
     array->size  = size;
     array->data  =

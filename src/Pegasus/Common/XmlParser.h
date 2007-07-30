@@ -187,7 +187,6 @@ private:
     void _getElement(char*& p, XmlEntry& entry);
 
     Uint32 _line;
-    char* _text;
     char* _current;
     char _restoreChar;
     Stack<char*> _stack;

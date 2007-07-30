@@ -330,7 +330,6 @@ XmlSemanticError::XmlSemanticError(
 
 XmlParser::XmlParser(char* text)
     : _line(1),
-      _text(text),
       _current(text),
       _restoreChar('\0'),
       _foundRoot(false)

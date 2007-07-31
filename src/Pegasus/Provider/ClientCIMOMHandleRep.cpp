@@ -57,18 +57,15 @@ public:
     {
         try
         {
-            // assume default client timeout
-            _lock.timed_lock(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+            _lock.try_lock();
         }
-        catch (WaitFailed &)
+        catch (AlreadyLocked &)
         {
             PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
-                "WaitFailed Exception waiting for CIMOMHandle,"
-                    " throwing CIMException");
-
+                "AlreadyLocked Exception, throwing CIMException");
             throw CIMException(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
-                "Provider.CIMOMHandle.CIMOMHANDLE_TIMEOUT",
-                "Timeout waiting for CIMOMHandle"));
+                "Provider.CIMOMHandle.RECURSIVE_USE_CIMOMHANDLE",
+                "Recursive Use of CIMOMHandle Attempted"));
         }
         catch (Exception& e)
         {

@@ -1449,14 +1449,7 @@ void CIMProviderCommand::_listProviders(
         moduleInstances = _client->enumerateInstances(
             PEGASUS_NAMESPACENAME_PROVIDERREG,
             PEGASUS_CLASSNAME_PROVIDERMODULE);
-        if (moduleInstances.size() == 0)
-        {
-            cerr << localizeMessage(MSG_PATH,
-                ERR_MODULE_NOT_REGISTERED_KEY,
-                ERR_MODULE_NOT_REGISTERED) << endl;
-            exit(RC_ERROR);
-        }
-        else
+        if (moduleInstances.size() != 0)
         {
             // List all the registered provider modules
             for (Uint32 i = 0; i < moduleInstances.size(); i++)

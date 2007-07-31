@@ -168,7 +168,8 @@ void ProviderAgent::run()
             //
             try
             {
-                if (!_providerManagerRouter.hasActiveProviders())
+                if (!_providerManagerRouter.hasActiveProviders() &&
+                    (_threadPool.runningCount() == 0))
                 {
                     PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                         "No active providers.  Exiting.");
@@ -247,6 +248,13 @@ Boolean ProviderAgent::_readAndProcessRequest()
     {
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL4,
             "Got a wake up message.");
+
+        if (!_providerManagerRouter.hasActiveProviders())
+        {
+            // No active providers, so do not start an idle unload thread
+            return false;
+        }
+
         try
         {
             _unloadIdleProviders();

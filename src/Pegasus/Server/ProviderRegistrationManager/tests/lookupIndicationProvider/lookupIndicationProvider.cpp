@@ -73,14 +73,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
 
-    try
-    {
-        returnRef = prmanager.createInstance(instanceName, cimInstance);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef = prmanager.createInstance(instanceName, cimInstance);
 
     // create PG_Provider instances
 
@@ -100,14 +93,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
 
-    try
-    {
-        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
 
     CIMObjectPath returnRef4;
 
@@ -125,14 +111,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     instanceName4.setNameSpace(NAMESPACE);
     instanceName4.setClassName(CLASSNAME2);
 
-    try
-    {
-        returnRef4 = prmanager.createInstance(instanceName4, cimInstance4);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef4 = prmanager.createInstance(instanceName4, cimInstance4);
 
     //
     // create provider capability instances
@@ -181,14 +160,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    try
-    {
-        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
 
     Array <String> supportedProperties2;
 
@@ -221,14 +193,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     instanceName5.setNameSpace(NAMESPACE);
     instanceName5.setClassName(CLASSNAME3);
 
-    try
-    {
-        returnRef5 = prmanager.createInstance(instanceName5, cimInstance5);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef5 = prmanager.createInstance(instanceName5, cimInstance5);
 
     //
     // test lookupIndicationProvider Interface

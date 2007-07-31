@@ -159,14 +159,7 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    try
-    {
-        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
 
     // create CIMObjectPath
     Array<CIMKeyBinding> keys;
@@ -202,15 +195,7 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
     propertyList.append(CIMName ("Namespaces"));
     propertyList.append(CIMName ("SupportedMethods"));
 
-    try
-    {
-        prmanager.modifyInstance(instanceName3, cimInstance4, false,
-            propertyList);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    prmanager.modifyInstance(instanceName3, cimInstance4, false, propertyList);
 }
 
 int main(int argc, char** argv)

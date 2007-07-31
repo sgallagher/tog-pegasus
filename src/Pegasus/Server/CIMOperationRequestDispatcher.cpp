@@ -1304,24 +1304,16 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     //
     if (!className.equal (PEGASUS_CLASSNAME___NAMESPACE))
     {
-        try
-        {
-            // Get the complete list of subclass names
-            _repository->getSubClassNames(nameSpace,
-                 className, true, subClassNames);
-            PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-                Logger::TRACE,
-                "CIMOperationRequestDispatcher::_getSubClassNames - "
-                    "Namespace: $0  Class name: $1",
-                nameSpace.getString(),
-                className.getString()));
-        }
-        catch (...)
-        {
-            // getSubClassNames throws an exception if the class does not exist
-            PEG_METHOD_EXIT();
-            throw;
-        }
+        // Get the complete list of subclass names
+        // getSubClassNames throws an exception if the class does not exist
+        _repository->getSubClassNames(nameSpace,
+             className, true, subClassNames);
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::TRACE,
+            "CIMOperationRequestDispatcher::_getSubClassNames - "
+                "Namespace: $0  Class name: $1",
+            nameSpace.getString(),
+            className.getString()));
     }
     // Prepend the array with the classname that formed the array.
     subClassNames.prepend(className);

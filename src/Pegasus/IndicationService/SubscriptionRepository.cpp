@@ -661,16 +661,8 @@ Boolean SubscriptionRepository::isTransient (
     //
     CIMInstance instance;
 
-    try
-    {
-        instance = _repository->getInstance (nameSpace, handler,
-            false, false, false, CIMPropertyList ());
-    }
-    catch (const Exception &)
-    {
-        PEG_METHOD_EXIT ();
-        throw;
-    }
+    instance = _repository->getInstance(nameSpace, handler,
+        false, false, false, CIMPropertyList());
 
     //
     //  Get Persistence Type
@@ -908,16 +900,8 @@ Array <CIMName> SubscriptionRepository::getIndicationSubclasses (
 
     Array <CIMName> indicationSubclasses;
 
-    try
-    {
-        indicationSubclasses = _repository->enumerateClassNames
-            (nameSpace, indicationClassName, true);
-    }
-    catch (const Exception &)
-    {
-        PEG_METHOD_EXIT ();
-        throw;
-    }
+    indicationSubclasses = _repository->enumerateClassNames(
+        nameSpace, indicationClassName, true);
 
     indicationSubclasses.append (indicationClassName);
 

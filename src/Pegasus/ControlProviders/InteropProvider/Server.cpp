@@ -511,21 +511,8 @@ void InteropProvider::modifyObjectManagerInstance(
         return;
     }
     // Modify the instance on disk
-    try
-    {
-        repository->modifyInstance(instanceReference.getNameSpace(),
-            omInstance, false,  propertyList);
-    }
-    catch(const CIMException&)
-    {
-        PEG_METHOD_EXIT();
-        throw;
-    }
-    catch(const Exception&)
-    {
-        PEG_METHOD_EXIT();
-        throw;
-    }
+    repository->modifyInstance(instanceReference.getNameSpace(),
+        omInstance, false,  propertyList);
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
         (statisticsFlag? "true" : "false"));

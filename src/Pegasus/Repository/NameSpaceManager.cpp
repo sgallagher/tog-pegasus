@@ -910,14 +910,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
         if ((*nameSpaceNames)[i].size() == 0)
             continue;
 
-        try
-        {
-            NameSpace::newNameSpace(i,this,_repositoryRoot);
-        }
-        catch (const Exception&)
-        {
-            throw;
-        }
+        NameSpace::newNameSpace(i, this, _repositoryRoot);
     }
 
     delete nameSpaceNames;

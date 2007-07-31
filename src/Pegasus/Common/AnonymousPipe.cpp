@@ -76,24 +76,15 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     //
     // Write the serialized message to the pipe
     //
-    Status writeStatus;
-    try
-    {
-        Uint32 messageLength = messageBuffer.size();
-        const char * messageData = messageBuffer.getData ();
+    Uint32 messageLength = messageBuffer.size();
+    const char * messageData = messageBuffer.getData ();
 
-        writeStatus =
-            writeBuffer((const char*) &messageLength, sizeof(Uint32));
+    Status writeStatus =
+        writeBuffer((const char*) &messageLength, sizeof(Uint32));
 
-        if (writeStatus == STATUS_SUCCESS)
-        {
-            writeStatus = writeBuffer(messageData, messageLength);
-        }
-    }
-    catch (...)
+    if (writeStatus == STATUS_SUCCESS)
     {
-        PEG_METHOD_EXIT ();
-        throw;
+        writeStatus = writeBuffer(messageData, messageLength);
     }
 
     PEG_METHOD_EXIT ();

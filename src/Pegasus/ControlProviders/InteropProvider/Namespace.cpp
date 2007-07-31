@@ -474,72 +474,59 @@ CIMObjectPath InteropProvider::createNamespace(
         newInstanceReference, namespaceInstance, objectManagerName);
 
     // Create the new namespace
-    try
+
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Namespace = " + newNamespaceName.getString() +
+            " to be created.");
+
+    CIMRepository::NameSpaceAttributes attributes;
+
+    // Set shareable attribute to "false" if property is not present
+    Boolean shareable = false;
+    if (getPropertyValue(namespaceInstance,
+        PG_NAMESPACE_PROPERTY_ISSHAREABLE, false))
     {
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            "Namespace = " + newNamespaceName.getString() +
-                " to be created.");
-
-        CIMRepository::NameSpaceAttributes attributes;
-
-        // Set shareable attribute to "false" if property is not present
-        Boolean shareable = false;
-        if(getPropertyValue(namespaceInstance,
-            PG_NAMESPACE_PROPERTY_ISSHAREABLE, false))
-        {
-            attributes.insert("shareable", "true");
-        }
-        else
-        {
-            attributes.insert("shareable", "false");
-        }
-
-        // Set updatesAllowed attribute to "false" if property is not present
-        Boolean updatesAllowed = false;
-        if (getPropertyValue(namespaceInstance,
-            PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, false))
-        {
-            attributes.insert("updatesAllowed", "true");
-        }
-        else
-        {
-            attributes.insert("updatesAllowed", "false");
-        }
-
-        // Set the parent attribute if the property is present, but don't set
-        // it at all otherwise.
-        String parent = getPropertyValue(namespaceInstance,
-            PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, String::EMPTY);
-        if (parent != String::EMPTY)
-            attributes.insert("parent",parent);
-
-        //
-        // Create the namespace with the retrieved attributes.
-        //
-        repository->createNameSpace(newNamespaceName, attributes);
-
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            "Namespace = " + newNamespaceName.getString() +
-                " successfully created.");
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "Create Namespace $0: Shareable = $1, Updates allowed: $2, "
-                "Parent: $3",
-            newNamespaceName.getString(),
-            shareable? "true" : "false",
-            updatesAllowed? "true" : "false",
-            parent);
-
+        attributes.insert("shareable", "true");
     }
-    catch(const CIMException&)
+    else
     {
-        PEG_METHOD_EXIT();
-        throw;
+        attributes.insert("shareable", "false");
     }
-    catch(const Exception&)
+
+    // Set updatesAllowed attribute to "false" if property is not present
+    Boolean updatesAllowed = false;
+    if (getPropertyValue(namespaceInstance,
+        PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, false))
     {
-        PEG_METHOD_EXIT();
-        throw;
+        attributes.insert("updatesAllowed", "true");
     }
+    else
+    {
+        attributes.insert("updatesAllowed", "false");
+    }
+
+    // Set the parent attribute if the property is present, but don't set
+    // it at all otherwise.
+    String parent = getPropertyValue(namespaceInstance,
+        PG_NAMESPACE_PROPERTY_PARENTNAMESPACE, String::EMPTY);
+    if (parent != String::EMPTY)
+        attributes.insert("parent",parent);
+
+    //
+    // Create the namespace with the retrieved attributes.
+    //
+    repository->createNameSpace(newNamespaceName, attributes);
+
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Namespace = " + newNamespaceName.getString() +
+            " successfully created.");
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "Create Namespace $0: Shareable = $1, Updates allowed: $2, "
+            "Parent: $3",
+        newNamespaceName.getString(),
+        shareable? "true" : "false",
+        updatesAllowed? "true" : "false",
+        parent);
 
     return newInstanceReference;
 }

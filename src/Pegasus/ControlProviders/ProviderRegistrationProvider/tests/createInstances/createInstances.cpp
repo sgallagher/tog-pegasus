@@ -74,15 +74,8 @@ void TestCreateInstances(CIMClient& client)
     instanceName.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName.setClassName(CLASSNAME);
 
-    try
-    {
-        returnRef =
-            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef =
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
 
     // Test create PG_Provider instances
 
@@ -102,15 +95,8 @@ void TestCreateInstances(CIMClient& client)
     instanceName2.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName2.setClassName(CLASSNAME2);
 
-    try
-    {
-        returnRef2 =
-            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef2 =
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
 
     //
     // test create provider capability instances
@@ -160,15 +146,8 @@ void TestCreateInstances(CIMClient& client)
     instanceName3.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName3.setClassName(CLASSNAME3);
 
-    try
-    {
-        returnRef3 =
-            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef3 =
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
 
     CIMKeyBinding kb1(CIMName ("Name"), "providersModule1",
         CIMKeyBinding::STRING);
@@ -178,36 +157,15 @@ void TestCreateInstances(CIMClient& client)
     instanceName.setKeyBindings(keys);
 
     // test getInstance
-    try
-    {
-        client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 
     // test enumerateInstances
-    try
-    {
-        client.enumerateInstances(
-            PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
 
     // test enumerateInstanceNames
-    try
-    {
-        client.enumerateInstanceNames(
-            PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
 
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
 }

@@ -103,17 +103,8 @@ void ProviderRegistrationProvider::getInstance(
 
     CIMInstance instance;
 
-    try
-    {
-        instance = _providerRegistrationManager->getInstance(instanceReference,
-                                                             includeQualifiers,
-                                                             includeClassOrigin,
-                                                             propertyList);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    instance = _providerRegistrationManager->getInstance(
+        instanceReference, includeQualifiers, includeClassOrigin, propertyList);
 
     handler.deliver(instance);
 
@@ -153,19 +144,12 @@ void ProviderRegistrationProvider::enumerateInstances(
 
     Array<CIMInstance> enumInstances;
 
-    try
-    {
-        enumInstances = 
-            _providerRegistrationManager->enumerateInstancesForClass(
-                classReference, 
-                includeQualifiers,
-                includeClassOrigin, 
-                propertyList);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    enumInstances = 
+        _providerRegistrationManager->enumerateInstancesForClass(
+            classReference, 
+            includeQualifiers,
+            includeClassOrigin, 
+            propertyList);
 
     handler.deliver(enumInstances);
 
@@ -203,16 +187,9 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     Array<CIMObjectPath> enumInstanceNames;
 
     // get all instance names from repository
-    try
-    {
-        enumInstanceNames =
-            _providerRegistrationManager->enumerateInstanceNamesForClass(
-                classReference);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    enumInstanceNames =
+        _providerRegistrationManager->enumerateInstanceNamesForClass(
+            classReference);
 
     handler.deliver(enumInstanceNames);
 
@@ -298,17 +275,8 @@ void ProviderRegistrationProvider::modifyInstance(
     // begin processing the request
     handler.processing();
 
-    try
-    {
-        _providerRegistrationManager->modifyInstance(instanceReference, 
-                                                     instanceObject, 
-                                                     includeQualifiers, 
-                                                     propertyArray);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    _providerRegistrationManager->modifyInstance(
+        instanceReference, instanceObject, includeQualifiers, propertyArray);
 
     // complete processing the request
     handler.complete();
@@ -800,16 +768,8 @@ void ProviderRegistrationProvider::createInstance(
     // begin processing the request
     handler.processing();
         
-    try
-    {
-        returnReference =
-            _providerRegistrationManager->createInstance(instanceReference,
-                    instance);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnReference = _providerRegistrationManager->createInstance(
+        instanceReference, instance);
 
     handler.deliver(returnReference);
 
@@ -914,40 +874,33 @@ void ProviderRegistrationProvider::deleteInstance(
         // 
         // disable the provider 
         //
-        try
-        {
-             Sint16 ret_value = _disableModule(instanceReference,
-                     moduleName, true, al);
+        Sint16 ret_value = _disableModule(
+            instanceReference, moduleName, true, al);
 
-             //
-             // if the provider disable failed
-             //
-             // l10n
-             if (ret_value == -1)
-             {
-                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                         MessageLoaderParms(
-                     "ControlProviders.ProviderRegistrationProvider."
-                         "ProviderRegistrationProvider."
-                         "DISABLE_PROVIDER_FAILED",
+        //
+        // if the provider disable failed
+        //
+        if (ret_value == -1)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "DISABLE_PROVIDER_FAILED",
                     "disable the provider failed."));
-             }
-             //
-             // The provider disable failed since there are pending requests
-             //
-             if (ret_value == -2)
-             {
-                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                    MessageLoaderParms(
+        }
+
+        //
+        // The provider disable failed since there are pending requests
+        //
+        if (ret_value == -2)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
                     "ControlProviders.ProviderRegistrationProvider."
                         "ProviderRegistrationProvider."
                         "DISABLE_PROVIDER_FAILED_PROVIDER_BUSY",
                     "disable the provider failed: Provider is busy."));
-             }
-        }
-        catch(CIMException&)
-        {
-            throw;
         }
     }
 
@@ -982,51 +935,38 @@ void ProviderRegistrationProvider::deleteInstance(
         // 
         // disable the provider module
         //
-        try
-        {
-            Sint16 ret_value = _disableModule(instanceReference,
-                    moduleName, false, al);
+        Sint16 ret_value = _disableModule(
+            instanceReference, moduleName, false, al);
 
-            //
-            // if the provider module disable failed
-            //
-            // l10n
-            if (ret_value == -1)
-            {
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+        //
+        // if the provider module disable failed
+        //
+        if (ret_value == -1)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
                     "ControlProviders.ProviderRegistrationProvider."
                         "ProviderRegistrationProvider."
                         "DISABLE_PROVIDER_MODULE_FAILED",
                     "disable the provider module failed."));
-            }
+        }
             
-            //
-            // The provider module disable failed since there are 
-            // pending requests
-            //
-            if (ret_value == -2)
-            {
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
+        //
+        // The provider module disable failed since there are 
+        // pending requests
+        //
+        if (ret_value == -2)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
                     "ControlProviders.ProviderRegistrationProvider."
                         "ProviderRegistrationProvider."
                         "DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY",
                     "disable the provider module failed: Provider is busy."));
-            }
-        }
-        catch(const CIMException&)
-        {
-            throw;
         }
     }
 
-    try
-    {
-        _providerRegistrationManager->deleteInstance(instanceReference);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    _providerRegistrationManager->deleteInstance(instanceReference);
 
     // complete processing the request
     handler.complete();
@@ -1113,28 +1053,20 @@ void ProviderRegistrationProvider::invokeMethod(
 
     Sint16 ret_value;
 
-    try
+    if (methodName.equal(_STOP_PROVIDER))
     {
-        if(methodName.equal(_STOP_PROVIDER))
-        {
-            // disable module
-             ret_value =  _disableModule(objectReference, 
-                                         moduleName, false, al);
-        }
-        else if(methodName.equal(_START_PROVIDER))
-        {
-            // enable module
-             ret_value =  _enableModule(objectReference, moduleName, al);
-        }
-        else
-        {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
-                    String::EMPTY);
-        }
+        // disable module
+        ret_value = _disableModule(objectReference, moduleName, false, al);
     }
-    catch(const CIMException&)
+    else if (methodName.equal(_START_PROVIDER))
     {
-        throw;
+        // enable module
+        ret_value = _enableModule(objectReference, moduleName, al);
+    }
+    else
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
+            String::EMPTY);
     }
 
     CIMValue retValue(ret_value);

@@ -128,14 +128,7 @@ UserFileHandler::UserFileHandler()
     //
     // Load the user information in to the cache.
     //
-    try
-    {
-        _loadAllUsers();
-    }
-    catch  (const Exception&)
-    {
-        throw;
-    }
+    _loadAllUsers();
 
     //
     // Initialize the mutex, mutex lock needs to be held for any updates
@@ -341,18 +334,10 @@ void UserFileHandler::modifyUserEntry(
     //
     // Check if the given password matches the passwd in the file
     //
-    try
-    {
-        if ( !verifyCIMUserPassword (userName,password) )
-        {
-            PEG_METHOD_EXIT();
-            throw PasswordMismatch(userName);
-        }
-    }
-    catch (const Exception&)
+    if (!verifyCIMUserPassword(userName,password))
     {
         PEG_METHOD_EXIT();
-        throw;
+        throw PasswordMismatch(userName);
     }
 
     // encrypt new password

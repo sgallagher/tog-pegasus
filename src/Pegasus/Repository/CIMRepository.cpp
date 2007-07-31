@@ -1161,22 +1161,14 @@ void CIMRepository::deleteClass(
     // Delete the class. The NameSpaceManager::deleteClass() method throws
     // an exception if the class has subclasses.
     //
-    try
-    {
 #ifdef PEGASUS_USE_CLASS_CACHE
 
-        _classCache.evict(_nameSpaceManager.getClassFilePath(
-            nameSpace, className, NameSpaceRead));
+    _classCache.evict(_nameSpaceManager.getClassFilePath(
+        nameSpace, className, NameSpaceRead));
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
-        _nameSpaceManager.deleteClass(nameSpace, className);
-    }
-    catch (const CIMException&)
-    {
-        PEG_METHOD_EXIT();
-        throw;
-    }
+    _nameSpaceManager.deleteClass(nameSpace, className);
 
     //
     // Remove associations:

@@ -353,20 +353,14 @@ void CIMClientRep::connectLocal()
 
         String randFile;
 
-#ifdef PEGASUS_SSL_RANDOMFILE
+# ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-#endif
+# endif
 
-        try
-        {
-            _connectSSLContext.reset(
-                new SSLContext(String::EMPTY, NULL, randFile));
-        }
-        catch (const SSLException &)
-        {
-            throw;
-        }
+        // May throw SSLException
+        _connectSSLContext.reset(
+            new SSLContext(String::EMPTY, NULL, randFile));
 
         _connect();
     }

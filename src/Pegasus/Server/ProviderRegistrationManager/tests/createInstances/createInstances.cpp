@@ -75,14 +75,7 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
 
-    try
-    {
-        returnRef = prmanager.createInstance(instanceName, cimInstance);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef = prmanager.createInstance(instanceName, cimInstance);
 
     // Test create PG_Provider instances
 
@@ -102,14 +95,7 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
 
-    try
-    {
-        returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
 
     //
     // test create provider capability instances
@@ -159,14 +145,7 @@ void TestCreateInstances(ProviderRegistrationManager & prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    try
-    {
-        returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
 }
 
 int main(int argc, char** argv)

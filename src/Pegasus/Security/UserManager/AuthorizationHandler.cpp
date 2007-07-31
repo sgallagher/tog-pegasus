@@ -257,11 +257,6 @@ void AuthorizationHandler::_loadAllAuthorizations()
             throw;
         }
     }
-    catch (const Exception&)
-    {
-        PEG_METHOD_EXIT();
-        throw;
-    }
 
     PEG_METHOD_EXIT();
 }

@@ -341,15 +341,8 @@ void _validateTextFormat()
             << endl;
     }
 
-    try
-    {
-        IndicationFormatter::validateTextFormat(textFormat, indicationClass,
-                                                textFormatParams);
-    }
-    catch (CIMException)
-    {
-        throw;
-    }
+    IndicationFormatter::validateTextFormat(
+        textFormat, indicationClass, textFormatParams);
 
     // tests invalid text format strings
     textFormat =

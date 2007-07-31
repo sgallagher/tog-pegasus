@@ -74,15 +74,8 @@ void TestModifyInstances(CIMClient& client)
     instanceName.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName.setClassName(CLASSNAME);
 
-    try
-    {
-        returnRef =
-            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef =
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
 
     // create PG_Provider instances
 
@@ -102,15 +95,8 @@ void TestModifyInstances(CIMClient& client)
     instanceName2.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName2.setClassName(CLASSNAME2);
 
-    try
-    {
-        returnRef2 =
-            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef2 =
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
 
     //
     // create provider capability instances
@@ -160,15 +146,8 @@ void TestModifyInstances(CIMClient& client)
     instanceName3.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instanceName3.setClassName(CLASSNAME3);
 
-    try
-    {
-        returnRef3 =
-            client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    returnRef3 =
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
 
     // create CIMObjectPath
     Array<CIMKeyBinding> keys;
@@ -207,18 +186,11 @@ void TestModifyInstances(CIMClient& client)
     CIMInstance modifyedInstance(cimInstance4);
     modifyedInstance.setPath (instanceName3);
 
-    try
-    {
-        client.modifyInstance(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            modifyedInstance,
-            false,
-            propertyList);
-    }
-    catch(const CIMException&)
-    {
-        throw;
-    }
+    client.modifyInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        modifyedInstance,
+        false,
+        propertyList);
 
     CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1",
         CIMKeyBinding::STRING);

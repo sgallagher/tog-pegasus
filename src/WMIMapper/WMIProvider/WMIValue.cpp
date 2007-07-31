@@ -93,7 +93,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
         // for class definitions, the value will be null and will except
         _variant_t vt(value);
 
-        switch(type & ~CIM_FLAG_ARRAY)
+        switch(type)
         {
         case CIM_BOOLEAN:
             try
@@ -107,7 +107,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_BOOLEAN | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMType(CIMTYPE_BOOLEAN), true. 0);
+            val.setNullValue(CIMType(CIMTYPE_BOOLEAN), true, 0);
 
             break;
         case CIM_SINT8:
@@ -122,7 +122,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_SINT8 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_SINT8, true. 0);
+            val.setNullValue(CIMTYPE_SINT8, true, 0);
 
             break;
         case CIM_UINT8:
@@ -137,7 +137,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_UINT8 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_UINT8, true. 0);
+            val.setNullValue(CIMTYPE_UINT8, true, 0);
 
             break;
         case CIM_SINT16:
@@ -152,7 +152,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_SINT16 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_SINT16, true. 0);
+            val.setNullValue(CIMTYPE_SINT16, true, 0);
 
             break;
         case CIM_UINT16:
@@ -167,7 +167,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_UINT16 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_UINT16, true. 0);
+            val.setNullValue(CIMTYPE_UINT16, true, 0);
 
             break;
         case CIM_SINT32:
@@ -182,7 +182,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_SINT32 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_SINT32, true. 0);
+            val.setNullValue(CIMTYPE_SINT32, true, 0);
 
             break;
         case CIM_UINT32:
@@ -197,7 +197,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_UINT32 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_UINT32, true. 0);
+            val.setNullValue(CIMTYPE_UINT32, true, 0);
 
             break;
         case CIM_SINT64:
@@ -214,7 +214,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_SINT64 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_SINT64, true. 0);
+            val.setNullValue(CIMTYPE_SINT64, true, 0);
 
             break;
         case CIM_UINT64:
@@ -231,7 +231,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_UINT64 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_UINT64, true. 0);
+            val.setNullValue(CIMTYPE_UINT64, true, 0);
 
             break;
         case CIM_REAL32:
@@ -246,7 +246,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_REAL32 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_REAL32, true. 0);
+            val.setNullValue(CIMTYPE_REAL32, true, 0);
 
             break;
         case CIM_REAL64:
@@ -261,7 +261,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_REAL64 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_REAL64, true. 0);
+            val.setNullValue(CIMTYPE_REAL64, true, 0);
 
             break;
         case CIM_STRING:
@@ -279,7 +279,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_STRING | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_STRING, true. 0);
+            val.setNullValue(CIMTYPE_STRING, true, 0);
 
             break;
         case CIM_DATETIME:
@@ -294,7 +294,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_DATETIME | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_DATETIME, true. 0);
+            val.setNullValue(CIMTYPE_DATETIME, true, 0);
 
             break;
         case CIM_REFERENCE:
@@ -320,7 +320,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_CHAR16 | CIM_FLAG_ARRAY:
-            //val.setNullValue(CIMTYPE_CHAR16, true. 0);
+            val.setNullValue(CIMTYPE_CHAR16, true, 0);
 
             break;
         case CIM_OBJECT:

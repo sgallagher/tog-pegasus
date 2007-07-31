@@ -886,7 +886,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         "ProviderAgentContainer::_uninitialize");
 
 #if defined(PEGASUS_HAS_SIGNALS)
-    pid_t pid;
+    pid_t pid = -1;
 #endif
 
     try
@@ -958,19 +958,22 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
     }
 
 #if defined(PEGASUS_HAS_SIGNALS)
-    // Harvest the status of the agent process to prevent a zombie.  Do not
-    // hold the _agentMutex during this operation.
-    pid_t status = 0;
-    do
+    if (pid != -1)
     {
-        status = waitpid(pid, 0, 0);
-    } while ((status == -1) && (errno == EINTR));
+        // Harvest the status of the agent process to prevent a zombie.  Do not
+        // hold the _agentMutex during this operation.
+        pid_t status = 0;
+        do
+        {
+            status = waitpid(pid, 0, 0);
+        } while ((status == -1) && (errno == EINTR));
 
-    if (status == -1)
-    {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "ProviderAgentContainer::_uninitialize(): "
-                "waitpid failed; errno = %d.", errno));
+        if (status == -1)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "ProviderAgentContainer::_uninitialize(): "
+                    "waitpid failed; errno = %d.", errno));
+        }
     }
 #endif
 

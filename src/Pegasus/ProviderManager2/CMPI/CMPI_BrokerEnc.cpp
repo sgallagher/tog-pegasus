@@ -363,7 +363,8 @@ extern "C"
         CMSetStatus(rc,CMPI_RC_OK);
         if (cStr == NULL)
         {
-            return reinterpret_cast<CMPIString*>(new CMPI_Object((char*)NULL));
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            return NULL;
         }
         return reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
     }

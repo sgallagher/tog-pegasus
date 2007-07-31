@@ -1,31 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Vijay Eli, (vijayeli@in.ibm.com) fix for #2572
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4144
+//              Sushma Fernandes, Hewlett-Packard Company
+//                  (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +128,7 @@ const char   CIMTrustCommand::_OPTION_TYPE= 'T';
 /**
     The option character used to specify the authority type.
  */
-const String   CIMTrustCommand::_ARG_TYPE_AUTHORITY = "a";
+const String   CIMTrustCommand::_ARG_TYPE_AUTHORITY = "a"; 
 
 /**
     The option character used to specify the authority issued end-entity type.
@@ -209,7 +220,7 @@ static const CIMName PROPERTY_NAME_SUBJECTNAME  = CIMName ("SubjectName");
     This constant represents the name of the RegisteredUserName
     property in the schema
 */
-static const CIMName PROPERTY_NAME_REGISTERED_USER_NAME
+static const CIMName PROPERTY_NAME_REGISTERED_USER_NAME  
                                             = CIMName ("RegisteredUserName");
 
 /**
@@ -264,6 +275,12 @@ static const char   LONG_HELP []  = "help";
 
 static const char   LONG_VERSION []  = "version";
 
+static const char PASSWORD_PROMPT []  =
+                "Please enter your password: ";
+
+static const char PASSWORD_BLANK []  =
+                "Password cannot be blank. Please re-enter your password.";
+
 static const char REQUIRED_ARGS_MISSING [] =
                 "Required arguments missing.";
 
@@ -271,17 +288,16 @@ static const char REQUIRED_ARGS_MISSING_KEY [] =
                 "Clients.cimtrust.CIMTrustCommand.REQUIRED_ARGS_MISSING";
 
 static const char CANNOT_CONNECT_CIMSERVER_NOT_RUNNING [] =
-                "Cannot connect to CIM Server; CIM Server may not be running.";
+                "Cannot connect to CIM Server, CIM Server may not be running.";
 
 static const char CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY [] =
-                "Clients.cimtrust."
-                    "CIMTrustCommand.CANNOT_CONNECT_CIMSERVER_NOT_RUNNING";
+    "Clients.cimtrust.CIMTrustCommand._CANNOT_CONNECT_CIMSERVER_NOT_RUNNING";
 
 static const char CONNECTION_TIMEOUT [] =
                 "Connection timed out.";
 
 static const char CONNECTION_TIMEOUT_KEY [] =
-                "Clients.cimtrust.CIMTrustCommand.CONNECTION_TIMEOUT";
+                "Clients.cimtrust.CIMTrustCommand._CONNECTION_TIMEOUT";
 
 static const char ADD_CERT_FAILURE []    =
                 "Failed to add certificate.";
@@ -293,13 +309,13 @@ static const char ADD_CERTIFICATE_SUCCESS [] =
                 "Certificate added successfully.";
 
 static const char ADD_CERTIFICATE_SUCCESS_KEY [] =
-                "Clients.cimtrust.CIMTrustCommand.ADD_CERT_SUCCESS";
+                "Clients.cimtrust.CIMTrustCommand.ADD_CERTIFICATE_SUCCESS";
 
 static const char REMOVE_CERTIFICATE_SUCCESS [] =
                 "Certificate removed successfully.";
 
 static const char REMOVE_CERTIFICATE_SUCCESS_KEY [] =
-                "Clients.cimtrust.CIMTrustCommand.REMOVE_CERT_SUCCESS";
+                "Clients.cimtrust.CIMTrustCommand.REMOVE_CERTIFICATE_SUCCESS";
 
 static const char CERT_ALREADY_EXISTS []        =
                 "Specified certificate already exists.";
@@ -335,7 +351,7 @@ static const char CERT_WITHOUT_ASSOCIATED_USER_KEY [] =
     "Clients.cimtrust.CIMTrustCommand.CERT_WITHOUT_ASSOCIATED_USER";
 
 static const char CERT_WITHOUT_ASSOCIATED_USER [] =
-    "NOTE: No user name will be associated with the certificate"
+    "NOTE: No user name will be associated with the certificate" 
     " in the truststore.";
 
 static const char INVALID_SYSTEM_USER [] =
@@ -343,6 +359,11 @@ static const char INVALID_SYSTEM_USER [] =
 
 static const char INVALID_SYSTEM_USER_KEY [] =
                 "Clients.cimtrust.CIMTrustCommand.INVALID_SYSTEM_USER";
+
+/**
+    The constant representing the trust manager provider class name
+*/
+static const char PG_SSLTRUST_MGR_PROV_CLASS []    = "PG_SSLTrustManager";
 
 // Return codes
 
@@ -390,8 +411,8 @@ CIMTrustCommand::CIMTrustCommand ()
     _usage.append (" [ -").append (_OPTION_CERTUSER).append (" certuser")
          .append (" ]");
     _usage.append (" -").append (_OPTION_CERTFILE).append (" certfile");
-    _usage.append (" -").append (_OPTION_TYPE).append (" ( ")
-        .append(_ARG_TYPE_AUTHORITY);
+    _usage.append (" -").append (_OPTION_TYPE).append (" ( ").append(
+        _ARG_TYPE_AUTHORITY);
     _usage.append (" | ").append (_ARG_TYPE_AUTHORITY_END_ENTITY);
     _usage.append (" | ").append (_ARG_TYPE_SELF_SIGNED_IDENTITY).append(" ) ");
     _usage.append ("\n");
@@ -404,8 +425,7 @@ CIMTrustCommand::CIMTrustCommand ()
     _usage.append("       ").append (COMMAND_NAME);
     _usage.append (" -").append (_OPTION_REMOVE);
     _usage.append (" -").append (_OPTION_ISSUER).append (" issuer");
-    _usage.append (" ( -").append (_OPTION_SERIALNUMBER).
-        append (" serialnumber");
+    _usage.append (" ( -").append(_OPTION_SERIALNUMBER).append(" serialnumber");
     _usage.append (" | -").append (_OPTION_SUBJECT).append (" subject )");
     _usage.append ("\n");
 
@@ -451,26 +471,15 @@ CIMTrustCommand::CIMTrustCommand ()
     _usage.append("- Displays the certificates in the trust store\n");
 
     _usage.append("    -f certfile     ");
-    _usage.append("- Specifies the PEM format file containing an X509\n"
-        "                      certificate\n");
+    _usage.append("- Specifies the PEM format file containing ");
+    _usage.append("an X509 certificate\n");
 
     _usage.append("    -U certuser     ");
-    _usage.append("- Specifies the user name to be associated with the\n"
-        "                      certificate\n");
+    _usage.append("- Specifies the user name to be associated with the ");
+    _usage.append("certificate\n");
 
-    _usage.append("    -T (a|e|s)      ");
-    _usage.append("- Specifies the certificate type as follows:\n"
-        "                      -a (authority): root/intermediate authority\n"
-        "                         certificates. This type added to trusted\n"
-        "                         certificate store. certuser optional. If\n"
-        "                         no certUser specified certificate may not \n"
-        "                         be used to authenticate user.\n"
-        "                      -e (authority issued end-entity): Certificates\n"
-        "                         of this type are not added to trusted\n"
-        "                         certificate store. certuser is required.\n"
-        "                      -s (Self-signed identity certificate): Added\n"
-        "                         to trusted certificate store. certuser is\n"
-        "                         required.\n");
+    _usage.append("    -T type         ");
+    _usage.append("- Specifies the certificate type\n");
 
     _usage.append("    -i issuer       ");
     _usage.append("- Specifies the certificate issuer name\n");
@@ -532,9 +541,9 @@ String CIMTrustCommand::_formatCIMDateTime(const String& cimDateTimeStr)
    Uint32 minute = 0;
    Uint32 second = 0;
    Uint32 microsecond = 0;
-   Sint32 timezone = 0;
+   Uint32 timezone = 0;
 
-   sscanf(cimDateTimeStr.getCString(), "%04u%02u%02u%02u%02u%02u.%06u%04d",
+   sscanf(cimDateTimeStr.getCString(), "%04d%02d%02d%02d%02d%02d.%06d%04d",
           &year, &month, &day, &hour, &minute, &second,
           &microsecond, &timezone);
 
@@ -586,11 +595,13 @@ String CIMTrustCommand::_formatCIMDateTime(const String& cimDateTimeStr)
    }
 
    char dateTimeStr[80];
-   sprintf(dateTimeStr, "%s %u, %u  %u:%02u:%02u (%+03d%02u)",
+   sprintf(dateTimeStr, "%s %d, %d  %d:%02d:%02d (%03d%02d)",
            monthString, day, year, hour, minute, second,
            timezone/60, timezone%60);
 
-   return String(dateTimeStr);
+   String retVal = String(dateTimeStr);
+
+   return (retVal);
 }
 
 
@@ -608,23 +619,34 @@ Buffer CIMTrustCommand::_readCertificateContent(const String &certFilePath)
     //
     //  Check that cert file exists
     //
-    if (!FileSystem::exists(certFilePath))
+    if (!FileSystem::exists (certFilePath))
+
     {
-        throw NoSuchFile(certFilePath);
+        NoSuchFile e (certFilePath);
+        throw e;
     }
 
     //
     //  Check that cert file is readable
     //
-    if (!FileSystem::canRead(certFilePath))
+    if (!FileSystem::canRead (certFilePath))
     {
-        throw FileNotReadable(certFilePath);
+        FileNotReadable e (certFilePath);
+        throw e;
     }
 
     //
     //  Load file content to memory
     //
-    FileSystem::loadFileToMemory(content, certFilePath);
+    try
+    {
+        FileSystem::loadFileToMemory (content, certFilePath);
+        content.append ('\0');
+    }
+    catch (const CannotOpenFile&)
+    {
+        throw;
+    }
 
     return content;
 }
@@ -681,12 +703,12 @@ void CIMTrustCommand::_addCertificate (
         PEGASUS_CLASSNAME_CERTIFICATE, kbArray);
 
     //
-    // If an associated username has not been specified, display an
+    // If an associated username has not been specified, display an 
     // informational message.
     //
     if ( !_certUserSet )
     {
-          outPrintWriter << localizeMessage(MSG_PATH,
+          outPrintWriter << localizeMessage(MSG_PATH, 
                             CERT_WITHOUT_ASSOCIATED_USER_KEY,
                             CERT_WITHOUT_ASSOCIATED_USER) << endl;
     }
@@ -737,7 +759,7 @@ void CIMTrustCommand::_removeCertificate (
 
         kbArray.append(kb);
     }
-    else
+    else 
     {
         //
         // Pass the subject name
@@ -800,37 +822,25 @@ void CIMTrustCommand::_listCertificates (
         Uint16 type;
         String typeStr;
         CIMDateTime notBefore;
-        String notBeforeStr;
         CIMDateTime notAfter;
-        String notAfterStr;
-        CIMProperty prop;
 
         //
         // Check if issuer name and serial number are specified
         // and they match
         //
         Uint32 pos = certificateInstance.findProperty(PROPERTY_NAME_ISSUER);
-        if (pos != PEG_NOT_FOUND)
-        {
-            prop = certificateInstance.getProperty(pos);
-            prop.getValue().get(issuer);
-        }
+        CIMProperty prop = certificateInstance.getProperty(pos);
+        prop.getValue().get(issuer);
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_SERIALNUMBER);
-        if (pos != PEG_NOT_FOUND)
-        {
-            prop = certificateInstance.getProperty(pos);
-            prop.getValue().get(serialNumber);
-        }
+        prop = certificateInstance.getProperty(pos);
+        prop.getValue().get(serialNumber);
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_SUBJECTNAME);
-        if (pos != PEG_NOT_FOUND)
-        {
-            prop = certificateInstance.getProperty(pos);
-            prop.getValue().get(subjectName);
-        }
+        prop = certificateInstance.getProperty(pos);
+        prop.getValue().get(subjectName);
 
-        if (_issuerSet)
+        if ( _issuerSet )
         {
             if (String::equal(_issuer, issuer))
             {
@@ -860,50 +870,40 @@ void CIMTrustCommand::_listCertificates (
         //
         pos = certificateInstance.findProperty(
                         PROPERTY_NAME_REGISTERED_USER_NAME);
-        if (pos != PEG_NOT_FOUND)
-        {
-            prop = certificateInstance.getProperty(pos);
-            prop.getValue().get(registeredUserName);
-        }
+        prop = certificateInstance.getProperty(pos);
+        prop.getValue().get(registeredUserName);
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_NOTBEFORE);
-        if (pos != PEG_NOT_FOUND)
-        {
-            prop = certificateInstance.getProperty(pos);
-            prop.getValue().get(notBefore);
-            notBeforeStr = _formatCIMDateTime(notBefore.toString());
-        }
+        prop = certificateInstance.getProperty(pos);
+        prop.getValue().get(notBefore);
+
+        String notBeforeStr = _formatCIMDateTime(notBefore.toString());
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_NOTAFTER);
-        if (pos != PEG_NOT_FOUND)
-        {
-            prop = certificateInstance.getProperty(pos);
-            prop.getValue().get(notAfter);
-            notAfterStr = _formatCIMDateTime(notAfter.toString());
-        }
+        prop = certificateInstance.getProperty(pos);
+        prop.getValue().get(notAfter);
+
+        String notAfterStr = _formatCIMDateTime(notAfter.toString());
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_TYPE);
-        if (pos != PEG_NOT_FOUND)
-        {
-            prop = certificateInstance.getProperty(pos);
-            prop.getValue().get(type);
+        prop = certificateInstance.getProperty(pos);
+        prop.getValue().get(type);
 
-            if (type == _CERTIFICATE_TYPE_AUTHORITY)
-            {
-                typeStr = TYPE_AUTHORITY_STR;
-            }
-            else if (type == _CERTIFICATE_TYPE_AUTHORITY_END_ENTITY)
-            {
-                typeStr = TYPE_AUTHORITY_END_ENTITY_STR;
-            }
-            else if (type == _CERTIFICATE_TYPE_SELF_SIGNED_IDENTITY)
-            {
-                typeStr = TYPE_SELF_SIGNED_IDENTITY_STR;
-            }
-            else if (type == _CERTIFICATE_TYPE_UNKNOWN)
-            {
-                typeStr = TYPE_UNKNOWN;
-            }
+        if (type == _CERTIFICATE_TYPE_AUTHORITY)
+        {
+            typeStr = TYPE_AUTHORITY_STR;
+        }
+        else if ( type == _CERTIFICATE_TYPE_AUTHORITY_END_ENTITY )
+        {
+            typeStr = TYPE_AUTHORITY_END_ENTITY_STR;
+        }
+        else if ( type == _CERTIFICATE_TYPE_SELF_SIGNED_IDENTITY )
+        {
+            typeStr = TYPE_SELF_SIGNED_IDENTITY_STR;
+        }
+        else if ( type == _CERTIFICATE_TYPE_UNKNOWN )
+        {
+            typeStr = TYPE_UNKNOWN;
         }
 
         //
@@ -912,9 +912,9 @@ void CIMTrustCommand::_listCertificates (
         outPrintWriter << "Issuer: " << issuer << endl;
         outPrintWriter << "Serial Number: " << serialNumber << endl;
         outPrintWriter << "Subject: " << subjectName << endl;
-        outPrintWriter << "Registered User Name: "
+        outPrintWriter << "Registered User Name: " 
                        << registeredUserName << endl;
-        outPrintWriter << "Type: "
+        outPrintWriter << "Type: " 
                        << typeStr << endl;
         outPrintWriter << "Validity:" << endl;
         outPrintWriter << "    NotBefore: " << notBeforeStr << endl;
@@ -923,7 +923,7 @@ void CIMTrustCommand::_listCertificates (
             "---------------------------------------------"<< endl;
     }
 
-    if (_issuerSet && !issuerFound)
+    if ( _issuerSet && !issuerFound)
     {
          CIMException ce(CIM_ERR_NOT_FOUND);
          throw ce;
@@ -996,7 +996,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        throw CommandFormatException(getOpts.getErrorStrings()[0]);
+        CommandFormatException e (getOpts.getErrorStrings () [0]);
+        throw e;
     }
     _operationType = _OPERATION_TYPE_UNINITIALIZED;
 
@@ -1011,10 +1012,12 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != _OPERATION_TYPE_UNINITIALIZED)
                 {
+                    String param = String (LONG_HELP);
                     //
                     // More than one operation option was found
                     //
-                    throw UnexpectedOptionException(String(LONG_HELP));
+                    UnexpectedOptionException e (param);
+                    throw e;
                 }
                 _operationType = _OPERATION_TYPE_HELP;
             }
@@ -1022,10 +1025,12 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != _OPERATION_TYPE_UNINITIALIZED)
                 {
+                    String param = String (LONG_VERSION);
                     //
                     // More than one operation option was found
                     //
-                    throw UnexpectedOptionException(String(LONG_VERSION));
+                    UnexpectedOptionException e (param);
+                    throw e;
                 }
 
                _operationType = _OPERATION_TYPE_VERSION;
@@ -1036,7 +1041,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  The cimtrust command has no non-option argument options
             //
-            throw UnexpectedArgumentException(getOpts[i].Value());
+            UnexpectedArgumentException e (getOpts [i].Value ());
+            throw e;
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -1051,7 +1057,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        throw UnexpectedOptionException(_OPTION_ADD);
+                        UnexpectedOptionException e (_OPTION_ADD);
+                        throw e;
                     }
 
                     if (getOpts.isSet (_OPTION_ADD) > 1)
@@ -1059,7 +1066,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one add option was found
                         //
-                        throw DuplicateOptionException(_OPTION_ADD);
+                        DuplicateOptionException e (_OPTION_ADD);
+                        throw e;
                     }
 
                     _operationType = _OPERATION_TYPE_ADD;
@@ -1073,7 +1081,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        throw UnexpectedOptionException(_OPTION_REMOVE);
+                        UnexpectedOptionException e (_OPTION_REMOVE);
+                        throw e;
                     }
 
                     if (getOpts.isSet (_OPTION_REMOVE) > 1)
@@ -1081,7 +1090,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one remove option was found
                         //
-                        throw DuplicateOptionException(_OPTION_REMOVE);
+                        DuplicateOptionException e (_OPTION_REMOVE);
+                        throw e;
                     }
 
                     _operationType = _OPERATION_TYPE_REMOVE;
@@ -1095,7 +1105,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        throw UnexpectedOptionException(_OPTION_LIST);
+                        UnexpectedOptionException e (_OPTION_LIST);
+                        throw e;
                     }
 
                     if (getOpts.isSet (_OPTION_LIST) > 1)
@@ -1103,7 +1114,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one list option was found
                         //
-                        throw DuplicateOptionException(_OPTION_LIST);
+                        DuplicateOptionException e (_OPTION_LIST);
+                        throw e;
                     }
 
                     _operationType = _OPERATION_TYPE_LIST;
@@ -1117,7 +1129,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one certificate user option was found
                         //
-                        throw DuplicateOptionException(_OPTION_CERTUSER);
+                        DuplicateOptionException e (_OPTION_CERTUSER);
+                        throw e;
                     }
 
                     _certUser = getOpts [i].Value ();
@@ -1132,7 +1145,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one cert file option was found
                         //
-                        throw DuplicateOptionException(_OPTION_CERTFILE);
+                        DuplicateOptionException e (_OPTION_CERTFILE);
+                        throw e;
                     }
 
                     _certFile = getOpts [i].Value ();
@@ -1147,7 +1161,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one issuer name option was found
                         //
-                        throw DuplicateOptionException(_OPTION_ISSUER);
+                        DuplicateOptionException e (_OPTION_ISSUER);
+                        throw e;
                     }
 
                     _issuer = getOpts [i].Value ();
@@ -1162,7 +1177,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one type option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TYPE);
+                        DuplicateOptionException e (_OPTION_TYPE);
+                        throw e;
                     }
 
                     _type = getOpts [i].Value ();
@@ -1177,15 +1193,17 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one serial number option was found
                         //
-                        throw DuplicateOptionException(_OPTION_SERIALNUMBER);
+                        DuplicateOptionException e (_OPTION_SERIALNUMBER);
+                        throw e;
                     }
                     if (_subjectSet)
                     {
                         //
                         // Both the subject and serial number may not be
                         // specified.
-                        //
-                        throw UnexpectedOptionException(_OPTION_SERIALNUMBER);
+                        // 
+                        UnexpectedOptionException e (_OPTION_SERIALNUMBER);
+                        throw e;
                     }
 
                     _serialNumber = getOpts [i].Value ();
@@ -1200,13 +1218,15 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one subject option was found
                         //
-                        throw DuplicateOptionException(_OPTION_SUBJECT);
+                        DuplicateOptionException e (_OPTION_SUBJECT);
+                        throw e;
                     }
                     if (_serialNumberSet)
                     {
                         // Both the subject and serial number may not be
                         // specified.
-                        throw UnexpectedOptionException(_OPTION_SUBJECT);
+                        UnexpectedOptionException e (_OPTION_SUBJECT);
+                        throw e;
                     }
 
                     _subject = getOpts [i].Value ();
@@ -1230,8 +1250,10 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified
         // Show the usage
         //
-        throw CommandFormatException(localizeMessage(
-            MSG_PATH, REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
+        CommandFormatException e ( localizeMessage ( MSG_PATH,
+            REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING ) );
+
+        throw e;
     }
 
     if ( _operationType == _OPERATION_TYPE_ADD )
@@ -1245,7 +1267,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            throw MissingOptionException(_OPTION_CERTFILE);
+            MissingOptionException e (_OPTION_CERTFILE);
+            throw e;
         }
 
         if ( !_typeSet )
@@ -1253,14 +1276,16 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            throw MissingOptionException(_OPTION_TYPE);
+            MissingOptionException e (_OPTION_TYPE);
+            throw e;
         }
 
         if (!(_type == _ARG_TYPE_AUTHORITY ||
               _type == _ARG_TYPE_AUTHORITY_END_ENTITY ||
               _type == _ARG_TYPE_SELF_SIGNED_IDENTITY ))
         {
-            throw InvalidOptionArgumentException(_type, _OPTION_TYPE);
+                InvalidOptionArgumentException e (_type, _OPTION_TYPE);
+                throw e;
         }
         if ((_type == _ARG_TYPE_AUTHORITY_END_ENTITY ||
              _type == _ARG_TYPE_SELF_SIGNED_IDENTITY) &&
@@ -1269,9 +1294,10 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            throw MissingOptionException(_OPTION_CERTUSER);
+            MissingOptionException e (_OPTION_CERTUSER);
+            throw e;
         }
-
+         
     }
 
     if ( _operationType == _OPERATION_TYPE_REMOVE ||
@@ -1281,11 +1307,13 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
         {
             if (_certFileSet)
             {
-                throw UnexpectedOptionException(_OPTION_CERTFILE);
+                UnexpectedOptionException e (_OPTION_CERTFILE);
+                throw e;
             }
             if (_certUserSet)
             {
-                throw UnexpectedOptionException(_OPTION_CERTUSER);
+                UnexpectedOptionException e (_OPTION_CERTUSER);
+                throw e;
             }
 
             //
@@ -1297,17 +1325,17 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                 //
                 // A required option is missing
                 //
-                throw MissingOptionException(_OPTION_ISSUER);
+                MissingOptionException e (_OPTION_ISSUER);
+                throw e;
             }
             else if ( !_serialNumberSet && !_subjectSet )
             {
                 //
                 // A required option is missing
                 //
-                throw CommandFormatException(localizeMessage(
-                    MSG_PATH,
-                    REQUIRED_ARGS_MISSING_KEY,
-                    REQUIRED_ARGS_MISSING));
+                CommandFormatException e ( localizeMessage ( MSG_PATH,
+                   REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING ) );
+                throw e;
             }
         }
         else if ( _operationType == _OPERATION_TYPE_LIST )
@@ -1321,7 +1349,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             if ( (_serialNumberSet || _subjectSet) && !_issuerSet )
             {
-                throw MissingOptionException(_OPTION_ISSUER);
+                MissingOptionException e (_OPTION_ISSUER);
+                throw e;
             }
 
         }
@@ -1391,20 +1420,20 @@ Uint32 CIMTrustCommand::execute (
 
     try
     {
-        _connectToServer(client, outPrintWriter);
+        _connectToServer( client, outPrintWriter);
     }
-    catch (CannotConnectException&)
+    catch(CannotConnectException& cce)
     {
-        outPrintWriter << localizeMessage(MSG_PATH,
+        outPrintWriter << localizeMessage( MSG_PATH,
             CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
-            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING)
-            << endl;
-        return RC_CONNECTION_FAILED;
+            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) << endl;
+        return ( RC_CONNECTION_FAILED );
     }
-    catch (Exception& e)
+    catch(Exception& e)
     {
+        //l10n
         outPrintWriter << e.getMessage() << endl;
-        return RC_ERROR;
+        return (RC_ERROR);
     }
 
     //
@@ -1417,12 +1446,12 @@ Uint32 CIMTrustCommand::execute (
             {
                 _addCertificate( client, outPrintWriter );
             }
-            catch (ConnectionTimeoutException&)
+            catch (ConnectionTimeoutException& cte)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                    CONNECTION_TIMEOUT_KEY,
-                    CONNECTION_TIMEOUT) << endl;
-                return RC_CONNECTION_TIMEOUT;
+                                           CONNECTION_TIMEOUT_KEY,
+                                           CONNECTION_TIMEOUT);
+                return ( RC_CONNECTION_TIMEOUT );
             }
             catch (CIMException& e)
             {
@@ -1436,36 +1465,36 @@ Uint32 CIMTrustCommand::execute (
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
+                     outPrintWriter << localizeMessage(MSG_PATH,
+                            ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
 
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        CERT_ALREADY_EXISTS_KEY,
-                        CERT_ALREADY_EXISTS) << endl;
-                    errPrintWriter << e.getMessage()  << endl;
-                    return RC_CERTIFICATE_ALREADY_EXISTS;
+                     outPrintWriter << localizeMessage(MSG_PATH,
+                            CERT_ALREADY_EXISTS_KEY,
+                            CERT_ALREADY_EXISTS) << endl;
+                     errPrintWriter << e.getMessage()  << endl;
+                     return ( RC_CERTIFICATE_ALREADY_EXISTS );
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        CERT_SCHEMA_NOT_LOADED_KEY,
-                        CERT_SCHEMA_NOT_LOADED) << endl;
+                     outPrintWriter << localizeMessage(MSG_PATH,
+                            ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
+                     outPrintWriter << localizeMessage(MSG_PATH,
+                       CERT_SCHEMA_NOT_LOADED_KEY,
+                       CERT_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
-                    errPrintWriter << e.getMessage() << endl;
+                        errPrintWriter << e.getMessage() << endl;
                 }
 
-                return RC_ERROR;
+                return ( RC_ERROR );
             }
             catch (Exception& e)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                    ADD_CERT_FAILURE_KEY,
-                    ADD_CERT_FAILURE) << endl << e.getMessage() << endl;
-                return RC_ERROR;
+                        ADD_CERT_FAILURE_KEY,
+                        ADD_CERT_FAILURE) << endl << e.getMessage() << endl;
+                return ( RC_ERROR );
             }
             break;
 
@@ -1474,12 +1503,12 @@ Uint32 CIMTrustCommand::execute (
             {
                 _removeCertificate ( client, outPrintWriter );
             }
-            catch (ConnectionTimeoutException&)
+            catch (ConnectionTimeoutException& cte)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                    CONNECTION_TIMEOUT_KEY,
-                    CONNECTION_TIMEOUT);
-                return RC_CONNECTION_TIMEOUT;
+                                           CONNECTION_TIMEOUT_KEY,
+                                           CONNECTION_TIMEOUT);
+                return ( RC_CONNECTION_TIMEOUT );
             }
             catch (CIMException& e)
             {
@@ -1502,7 +1531,7 @@ Uint32 CIMTrustCommand::execute (
                             CERT_NOT_FOUND_KEY, CERT_NOT_FOUND) << endl;
 
                     errPrintWriter << e.getMessage()  << endl;
-                    return RC_CERTIFICATE_DOES_NOT_EXIST;
+                    return ( RC_CERTIFICATE_DOES_NOT_EXIST );
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
@@ -1518,7 +1547,7 @@ Uint32 CIMTrustCommand::execute (
                 {
                     errPrintWriter << e.getMessage() << endl;
                 }
-                return RC_ERROR;
+                return ( RC_ERROR );
             }
             catch (Exception& e)
             {
@@ -1527,7 +1556,7 @@ Uint32 CIMTrustCommand::execute (
                         REMOVE_CERT_FAILURE) << endl
                         << e.getMessage() << endl;
 
-                return RC_ERROR;
+                return ( RC_ERROR );
             }
             break;
 
@@ -1536,12 +1565,12 @@ Uint32 CIMTrustCommand::execute (
             {
                 _listCertificates ( client, outPrintWriter );
             }
-            catch (ConnectionTimeoutException&)
+            catch (ConnectionTimeoutException& cte)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                    CONNECTION_TIMEOUT_KEY,
-                    CONNECTION_TIMEOUT);
-                return RC_CONNECTION_TIMEOUT;
+                                           CONNECTION_TIMEOUT_KEY,
+                                           CONNECTION_TIMEOUT);
+                return ( RC_CONNECTION_TIMEOUT );
             }
             catch (CIMException& e)
             {
@@ -1549,18 +1578,18 @@ Uint32 CIMTrustCommand::execute (
 
                 if (code == CIM_ERR_NOT_FOUND)
                 {
-                     return RC_CERTIFICATE_DOES_NOT_EXIST;
+                     return ( RC_CERTIFICATE_DOES_NOT_EXIST );
                 }
                 if (code == CIM_ERR_FAILED || code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                         LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                            LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
+                        outPrintWriter << localizeMessage(MSG_PATH,
+                            LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         CERT_SCHEMA_NOT_LOADED_KEY,
                         CERT_SCHEMA_NOT_LOADED) << endl;
@@ -1570,14 +1599,14 @@ Uint32 CIMTrustCommand::execute (
                     errPrintWriter << e.getMessage() << endl;
                 }
 
-                return RC_ERROR;
+                return ( RC_ERROR );
             }
             catch (Exception& e)
             {
-                outPrintWriter << localizeMessage(MSG_PATH,
-                    LIST_CERT_FAILURE_KEY,
-                    LIST_CERT_FAILURE) << endl << e.getMessage() << endl;
-                return RC_ERROR;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                        LIST_CERT_FAILURE_KEY,
+                        LIST_CERT_FAILURE) << endl << e.getMessage() << endl;
+                return ( RC_ERROR );
             }
             break;
 
@@ -1588,7 +1617,7 @@ Uint32 CIMTrustCommand::execute (
             break;
     }
 
-    return RC_SUCCESS;
+    return (RC_SUCCESS);
 }
 
 PEGASUS_NAMESPACE_END

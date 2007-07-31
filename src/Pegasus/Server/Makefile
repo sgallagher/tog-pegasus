@@ -105,10 +105,16 @@ SOURCES = \
 	QuerySupportRouter.cpp \
 	WQLOperationRequestDispatcher.cpp
 
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+SOURCES += \
+	ConsoleManager_zOS.cpp
+endif
+
 ifdef PEGASUS_SLP_REG_TIMEOUT
 SOURCES += \
         SLPAttrib.cpp
 endif
+
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 ifeq ($(OS_TYPE),windows)

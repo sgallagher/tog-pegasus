@@ -65,6 +65,10 @@
 #include <Pegasus/ProviderManagerService/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
+#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# include "ConsoleManager_zOS.h"
+#endif
+
 #ifndef PEGASUS_DISABLE_AUDIT_LOGGER
 # include <Pegasus/Common/AuditLogger.h>
 #endif
@@ -145,79 +149,6 @@ static Message* controlProviderReceiveMessageCallback(
         reinterpret_cast<ProviderMessageHandler*>(instance);
     return pmh->processMessage(request);
 }
-
-//
-// z/OS console interface waiting for operator stop command
-//
-#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-# include <sys/__messag.h>
-void* waitForStopCommand(void*)
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "waitForStopCommand");
-
-    struct __cons_msg    cons;
-    int                  concmd=0;
-    char                 modstr[128];
-    int                  rc;
-
-    memset(&cons,0,sizeof(cons));
-    memset(modstr,0,sizeof(modstr));
-
-    do
-    {
-        rc = __console(&cons, modstr, &concmd);
-
-        if (rc != 0)
-        {
-            int errornumber = errno;
-            char str_errno2[10];
-            sprintf(str_errno2,"%08X",__errno2());
-
-            PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                "Failed to issue __console() command: %s",
-                strerror(errornumber)));
-            Logger::put_l(
-                Logger::ERROR_LOG, "CIM Server", Logger::SEVERE,
-                "Server.CIMServer.CONSOLE_ERROR.PEGASUS_OS_ZOS",
-                "Console Communication Service failed:"
-                "$0 ( errno $1, reason code 0x$2 ).",
-                strerror(errornumber),
-                errornumber,
-                str_errno2);
-
-            break;
-        }
-
-        // Check if we received a stop command from the console
-        if (concmd != _CC_stop)
-        {
-            // Just issue a console message that the command was
-            // not recognized and wait again for the stop command.
-            Logger::put_l(
-                Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-                "Server.CIMServer.CONSOLE_NO_MODIFY.PEGASUS_OS_ZOS",
-                "MODIFY command not recognized by CIM server.");
-        }
-        else
-        {
-            Logger::put_l(
-                Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-                "Server.CIMServer.CONSOLE_STOP.PEGASUS_OS_ZOS",
-                "STOP command received from z/OS console,"
-                    " initiating shutdown.");
-        }
-
-    // keep on until we encounter an error or received a STOP
-    } while ( (concmd != _CC_stop) && (rc == 0) );
-
-    CIMServer::shutdownSignal();
-
-    PEG_METHOD_EXIT();
-    pthread_exit(0);
-
-    return NULL;
-}
-#endif
 
 //
 // Signal handler for shutdown signals, currently SIGHUP and SIGTERM
@@ -514,25 +445,11 @@ void CIMServer::_init()
 
 
     //
-    // Set up an additional thread
-    // waiting for a stop command from the z/OS console
+    // Set up an additional thread waiting for commands from the
+    // system console
     //
 #if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-    {
-        pthread_t thid;
-        if ( pthread_create(&thid,NULL,waitForStopCommand,NULL) != 0 )
-        {
-            char str_errno2[10];
-            sprintf(str_errno2,"%08X",__errno2());
-            Logger::put_l(Logger::ERROR_LOG, "CIM Server", Logger::SEVERE,
-                "Server.CIMServer.NO_CONSOLE_THREAD.PEGASUS_OS_ZOS",
-                "CIM Server Console command thread cannot be created: "
-                    "$0 ( errno $1, reason code 0x$2 ).",
-                strerror(errno),
-                errno,
-                str_errno2);
-        }
-    }
+    ZOSConsoleManager::startConsoleWatchThread();
 #endif
 
     // Load and initialize providers registed with AutoStart = true

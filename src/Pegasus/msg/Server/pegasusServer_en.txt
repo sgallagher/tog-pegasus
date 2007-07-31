@@ -2301,37 +2301,99 @@ not be valid."}
 
 
         // ==========================================================
-        // Messages for CIMServer
+        // Messages for ConsoleManager_zOS
         //  Please use message prefix "PGS06200"
         // ==========================================================
 
         /**
         * @note  PGS06201:
         */
-        Server.CIMServer.CONSOLE_NO_MODIFY.PEGASUS_OS_ZOS:string {"PGS06201: MODIFY command not recognized by CIM server."}
+        Server.ConsoleManager_zOS.CONSOLE_NO_MODIFY.PEGASUS_OS_ZOS:string {"PGS06201: Command not recognized by CIM server."}
 
         /**
         * @note  PGS06202:
         */
-        Server.CIMServer.CONSOLE_STOP.PEGASUS_OS_ZOS:string {"PGS06202: STOP command received from z/OS console, initiating shutdown."}
+        Server.ConsoleManager_zOS.CONSOLE_STOP.PEGASUS_OS_ZOS:string {"PGS06202: STOP command received from z/OS console, initiating shutdown."}
 
         /**
         * @note PGS06203:
-        *    Substitution {0} is the error text of the opperating system.
+        *    Substitution {0} is the error text of the operating system.
         *    Substitution {1} and {2} are numbers
         *    Do not translate 'CIM Server' and 'Console'
         *
         */
-        Server.CIMServer.NO_CONSOLE_THREAD.PEGASUS_OS_ZOS:string { "PGS06203: CIM Server Console command thread cannot be created: {0} ( errno {1}, reason code 0x{2} )."}
+        Server.ConsoleManager_zOS.NO_CONSOLE_THREAD.PEGASUS_OS_ZOS:string { "PGS06203: CIM Server Console command thread cannot be created: {0} ( errno {1}, reason code 0x{2} )."}
 
         /**
         * @note PGS06204:
-        *    Substitution {0} is the error text of the opperating system.
+        *    Substitution {0} is the error text of the operating system.
         *    Substitution {1} and {2} are numbers
         *    Do not translate 'Console Communication Service'
         *
         */
-        Server.CIMServer.CONSOLE_ERROR.PEGASUS_OS_ZOS:string { "PGS06204: Console Communication Service failed: {0} ( errno {1}, reason code 0x{2} )."}
+        Server.ConsoleManager_zOS.CONSOLE_ERROR.PEGASUS_OS_ZOS:string { "PGS06204: Console Communication Service failed: {0} ( errno {1}, reason code 0x{2} )."}
+
+        /**
+        * @note PGS06205:
+        *    Do not translate 'MODIFY'
+        *
+        */
+        Server.ConsoleManager_zOS.CON_SYNTAX_ERR.PEGASUS_OS_ZOS:string { "PGS06205E: CIM MODIFY COMMAND REJECTED DUE TO SYNTAX ERROR."}
+
+        /**
+        * @note PGS06206:
+        *    Do not translate 'MODIFY CFZCIM,APPL=CONFIG,<name>=<value>[,PLANNED]'
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_SYNTAX.PEGASUS_OS_ZOS:string { "PGS06206I: Syntax is: MODIFY CFZCIM,APPL=CONFIG,<name>=<value>[,PLANNED]."}
+
+        /**
+        * @note PGS06207:
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_FAILED.PEGASUS_OS_ZOS:string { "PGS06207E: Failed to update configuration value."}
+
+        /**
+        * @note PGS06208:
+        *    Substitution {0} is the name of a configuration property
+        *    Substitution {1} is the value of a configuration property
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_UPDATED.PEGASUS_OS_ZOS:string { "PGS06208I: Updated current value for {0} to {1}."}
+
+        /**
+        * @note PGS06209:
+        *    Substitution {0} is the name of a configuration property
+        *    Substitution {1} is the value of a configuration property
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_PLANNED.PEGASUS_OS_ZOS:string { "PGS06209I: Updated planned value for {0} to {1}."}
+
+        /**
+        * @note PGS06210:
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_PLANNED2.PEGASUS_OS_ZOS:string { "PGS06210I: This change will become effective after CIM Server restart."}
+
+        /**
+        * @note PGS06211:
+        *    Substitution {0} contains another message
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS:string { "PGS06211E: {0}"}
+
+        /**
+        * @note PGS06212:
+        *    Substitution {0} is the name of a configuration property
+        *
+        */
+        Server.ConsoleManager_zOS.CON_MODIFY_INVALID.PEGASUS_OS_ZOS:string { "PGS06212E: {0} is not a valid configuration property."}
+
+
+        // ==========================================================
+        // Messages for CIMServer
+        //  Please use message prefix "PGS06300"
+        // ==========================================================
 
 
 

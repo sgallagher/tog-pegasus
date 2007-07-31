@@ -583,7 +583,7 @@ inline static CMPIString *CMGetMessage(
 #  define CMFmtReal(v)    CMPI_real64,((double)v)
 #  define CMFmtBoolean(v) CMPI_boolean,((int)v)
 #  define CMFmtChars(v)   CMPI_chars,((char*)v)
-#  define CMFmtString(v)  CMPI_String,((CMPI_String*)v)
+#  define CMFmtString(v)  CMPI_string,((CMPIString*)v)
 
 #  define CMFmtArgs0() 0
 #  define CMFmtArgs1(v1) \

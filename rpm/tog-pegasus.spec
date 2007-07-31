@@ -446,9 +446,6 @@ fi;
 %files devel
 %defattr(644,root,pegasus,755)
 /usr/share/Pegasus/samples
-/usr/share/Pegasus/samples/obj
-/usr/share/Pegasus/samples/lib
-/usr/share/Pegasus/samples/bin
 /usr/include/Pegasus
 /usr/share/doc/tog-pegasus-2.6/*
 /usr/share/Pegasus/html

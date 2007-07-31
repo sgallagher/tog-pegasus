@@ -153,7 +153,6 @@ extern "C"
             CM_ObjectPath(cop)->getClassName(),
             CM_ObjectPath(cop)->getKeyBindings());
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             CIMInstance ci = CM_CIMOM(mb)->getInstance(
@@ -196,7 +195,6 @@ extern "C"
         DDD(cout<<"--- mbCreateInstance()"<<endl);
         mb = CM_BROKER;
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             CIMObjectPath ncop = CM_CIMOM(mb)->createInstance(
@@ -235,7 +233,6 @@ extern "C"
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             CIMInstance cmi(*CM_Instance(ci));
@@ -270,7 +267,6 @@ extern "C"
             CM_ObjectPath(cop)->getClassName(),
             CM_ObjectPath(cop)->getKeyBindings());
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             CM_CIMOM(mb)->deleteInstance(
@@ -298,7 +294,6 @@ extern "C"
         DDD(cout<<"--- mbExecQuery()"<<endl);
         mb = CM_BROKER;
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             Array<CIMObject> const &en = CM_CIMOM(mb)->execQuery(
@@ -342,7 +337,6 @@ extern "C"
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             Array<CIMInstance> const &en =
@@ -400,7 +394,6 @@ extern "C"
         DDD(cout<<"--- mbEnumInstanceNames()"<<endl);
         mb = CM_BROKER;
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             Array<CIMObjectPath> const &en =
@@ -459,7 +452,6 @@ extern "C"
             CM_ObjectPath(cop)->getClassName(),
             CM_ObjectPath(cop)->getKeyBindings());
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             Array<CIMObject> const &en =
@@ -525,7 +517,6 @@ extern "C"
             CM_ObjectPath(cop)->getClassName(),
             CM_ObjectPath(cop)->getKeyBindings());
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             Array<CIMObjectPath> const &en =
@@ -588,7 +579,6 @@ extern "C"
             CM_ObjectPath(cop)->getClassName(),
             CM_ObjectPath(cop)->getKeyBindings());
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             Array<CIMObject> const &en =
@@ -650,7 +640,6 @@ extern "C"
             CM_ObjectPath(cop)->getClassName(),
             CM_ObjectPath(cop)->getKeyBindings());
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             Array<CIMObjectPath> const &en =
@@ -709,7 +698,6 @@ extern "C"
             CM_ObjectPath(cop)->getClassName(),
             CM_ObjectPath(cop)->getKeyBindings());
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             CIMValue v = CM_CIMOM(mb)->invokeMethod(
@@ -755,7 +743,6 @@ extern "C"
         CMPIrc rc;
         CIMValue v = value2CIMValue(val,type,&rc);
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             CM_CIMOM(mb)->setProperty(
@@ -787,7 +774,6 @@ extern "C"
         mb = CM_BROKER;
         CMPIData data = {0,CMPI_nullValue,{0}};
 
-        AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
         try
         {
             CIMValue v = CM_CIMOM(mb)->getProperty(
@@ -896,7 +882,6 @@ extern "C"
                             subscriptionInstanceNames));
                 }
                 CIMIndication cimIndication(*CM_Instance(ind));
-                AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
                 try
                 {
                     prec->handler->deliver(

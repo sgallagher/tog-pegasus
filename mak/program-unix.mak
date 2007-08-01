@@ -85,6 +85,10 @@ ifdef PEGASUS_PURIFY
     SYS_LIBS += $(PURIFY_HOME)/libpurify_stubs.a
 endif
 
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  FLAGS += -Wl,-brtl -Wl,-bhalt:$(AIX_LD_HALT)
+endif
+
 $(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 

@@ -46,6 +46,13 @@ LIBRARIES = \
     pegqueryexpression \
     pegquerycommon
 
+#Large Program Support
+#make program able to use maximum of 2GB memory
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  LIBRARIES += ILEWrapperUtils
+  EXTRA_LINK_FLAGS += -bmaxdata:0x80000000
+endif
+
 ifndef PEGASUS_DISABLE_CQL
     LIBRARIES += \
         pegcql \

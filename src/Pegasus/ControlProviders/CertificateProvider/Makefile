@@ -52,6 +52,10 @@ LIBRARIES = \
 	pegconfig \
 	pegprovider
 
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  LIBRARIES += ILEWrapperUtils
+endif
+
 SOURCES = CertificateProvider.cpp
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
@@ -70,6 +74,10 @@ ifdef PEGASUS_HAS_SSL
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+  AIX_LIB_PRIORITY=-20
+endif
+
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   AIX_LIB_PRIORITY=-20
 endif
 

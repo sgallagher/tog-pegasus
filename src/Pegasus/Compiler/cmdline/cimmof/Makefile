@@ -42,6 +42,10 @@ LIBRARIES = \
     pegconfig \
     pegcommon
 
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  LIBRARIES += ILEWrapperUtils
+endif
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = cimmof

@@ -43,6 +43,10 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegcommon
 
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  LIBRARIES = ILEWrapperUtils
+endif
+
 ##
 ## CAUTION: the source files are divided evenly (more or less) between SOURCES1
 ## and SOURCES2. This avoids a command line buffer overflow on Windows 2000
@@ -182,6 +186,10 @@ SOURCES2 = \
     HostAddress.cpp \
     HostLocator.cpp
 
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  SOURCES2 += PaseCcsid.cpp
+endif
+
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp
 
@@ -214,6 +222,10 @@ ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+  AIX_LIB_PRIORITY=-20
+endif
+
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   AIX_LIB_PRIORITY=-20
 endif
 

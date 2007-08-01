@@ -44,6 +44,10 @@ LIBRARIES = \
     peguser   \
     pegconfig
 
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  LIBRARIES += ILEWrapperUtils
+endif
+
 PRE_DEPEND_INCLUDES = -I./depends
 
 ifeq ($(OS),HPUX)

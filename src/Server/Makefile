@@ -95,6 +95,10 @@ LIBRARIES += \
     pegconfig \
     pegcommon 
 
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  LIBRARIES += ILEWrapperUtils
+endif
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 EXTRA_LINK_FLAGS += $(JVM_LINK_FLAGS)
@@ -108,6 +112,12 @@ else
 endif
 
 SOURCES = cimserver.cpp
+
+#Large Program Support
+#make program able to use maximum of 2GB memory
+ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  EXTRA_LINK_FLAGS += -bmaxdata:0x80000000
+endif
 
 include $(ROOT)/mak/program.mak
 

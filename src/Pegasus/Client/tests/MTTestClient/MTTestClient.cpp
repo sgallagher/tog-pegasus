@@ -381,8 +381,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        CommandFormatException e (getOpts.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
 
     //
@@ -392,15 +391,11 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            UnexpectedArgumentException e (
-                         getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
-            UnexpectedArgumentException e (
-                         getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -415,8 +410,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one hostname option was found
                         //
-                        DuplicateOptionException e (_OPTION_HOSTNAME);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_HOSTNAME);
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
@@ -430,8 +424,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one portNumber option was found
                         //
-                        DuplicateOptionException e (_OPTION_PORTNUMBER);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
                     }
 
                     _portNumberStr = getOpts [i].Value ();
@@ -442,9 +435,9 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (_portNumberStr,
+                        throw InvalidOptionArgumentException(
+                            _portNumberStr,
                             _OPTION_PORTNUMBER);
-                        throw e;
                     }
                     _portNumberSet = true;
                     break;
@@ -468,8 +461,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one timeout option was found
                         //
-                        DuplicateOptionException e (_OPTION_TIMEOUT);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_TIMEOUT);
                     }
 
                     timeoutStr = getOpts [i].Value ();
@@ -480,9 +472,9 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (timeoutStr,
+                        throw InvalidOptionArgumentException(
+                            timeoutStr,
                             _OPTION_TIMEOUT);
-                        throw e;
                     }
                     break;
                 }
@@ -494,8 +486,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one username option was found
                         //
-                        DuplicateOptionException e (_OPTION_USERNAME);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_USERNAME);
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
@@ -509,8 +500,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one password option was found
                         //
-                        DuplicateOptionException e (_OPTION_PASSWORD);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PASSWORD);
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
@@ -541,9 +531,9 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
             //
             //  Portnumber out of valid range
             //
-            InvalidOptionArgumentException e (_portNumberStr,
+            throw InvalidOptionArgumentException(
+                _portNumberStr,
                 _OPTION_PORTNUMBER);
-            throw e;
         }
     }
 
@@ -562,9 +552,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
             //
             //  Timeout out of valid range
             //
-            InvalidOptionArgumentException e (timeoutStr,
-                _OPTION_TIMEOUT);
-            throw e;
+            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
         }
     }
 }

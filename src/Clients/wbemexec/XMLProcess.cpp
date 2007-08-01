@@ -134,7 +134,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             //  Return the message as is.
                 (strcmp (p, HTTP_METHOD_BOGUS) == 0))
             {
-          return (content);
+                return content;
             }
             else
             {
@@ -142,8 +142,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 //  Input contains neither XML declaration nor HTTP M-POST or
                 //  POST method request
                 //
-                WbemExecException e (WbemExecException::INVALID_INPUT);
-                throw e;
+                throw WbemExecException(WbemExecException::INVALID_INPUT);
             }
         }  /* if p not NULL */
     }

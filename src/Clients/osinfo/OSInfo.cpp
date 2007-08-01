@@ -427,8 +427,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        CommandFormatException e (getOpts.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
 
     //
@@ -446,8 +445,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(param);
                 }
 
                _operationType = OPERATION_TYPE_HELP;
@@ -456,12 +454,10 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_VERSION);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_VERSION));
                 }
 
                _operationType = OPERATION_TYPE_VERSION;
@@ -469,9 +465,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
         }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
-            UnexpectedArgumentException e (
-                         getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -485,8 +479,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one hostname option was found
                         //
-                        DuplicateOptionException e (_OPTION_HOSTNAME);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_HOSTNAME);
                     }
                     _hostName = getOpts [i].Value ();
                     HostAddress addr(_hostName);
@@ -505,8 +498,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one portNumber option was found
                         //
-                        DuplicateOptionException e (_OPTION_PORTNUMBER);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
                     }
 
                     _portNumberStr = getOpts [i].Value ();
@@ -517,9 +509,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (_portNumberStr,
+                        throw InvalidOptionArgumentException(
+                            _portNumberStr,
                             _OPTION_PORTNUMBER);
-                        throw e;
                     }
                     _portNumberSet = true;
                     break;
@@ -552,8 +544,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one timeout option was found
                         //
-                        DuplicateOptionException e (_OPTION_TIMEOUT);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_TIMEOUT);
                     }
 
                     timeoutStr = getOpts [i].Value ();
@@ -564,9 +555,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (timeoutStr,
+                        throw InvalidOptionArgumentException(
+                            timeoutStr,
                             _OPTION_TIMEOUT);
-                        throw e;
                     }
                     break;
                 }
@@ -578,8 +569,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one username option was found
                         //
-                        DuplicateOptionException e (_OPTION_USERNAME);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_USERNAME);
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
@@ -593,8 +583,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one password option was found
                         //
-                        DuplicateOptionException e (_OPTION_PASSWORD);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PASSWORD);
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
@@ -620,12 +609,10 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified
         // Show the usage
         //
-        //l10n
-        //CommandFormatException e (REQUIRED_ARGS_MISSING);
-        CommandFormatException e (localizeMessage(MSG_PATH,
-                                                  REQUIRED_ARGS_MISSING_KEY,
-                                                  REQUIRED_ARGS_MISSING));
-        throw e;
+        throw CommandFormatException(localizeMessage(
+            MSG_PATH,
+            REQUIRED_ARGS_MISSING_KEY,
+            REQUIRED_ARGS_MISSING));
     }*/
     if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)
     {
@@ -642,9 +629,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Portnumber out of valid range
             //
-            InvalidOptionArgumentException e (_portNumberStr,
+            throw InvalidOptionArgumentException(
+                _portNumberStr,
                 _OPTION_PORTNUMBER);
-            throw e;
         }
     }
 
@@ -663,9 +650,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Timeout out of valid range
             //
-            InvalidOptionArgumentException e (timeoutStr,
-                _OPTION_TIMEOUT);
-            throw e;
+            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
         }
     }
 }

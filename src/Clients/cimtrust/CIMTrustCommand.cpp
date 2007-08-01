@@ -978,8 +978,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        CommandFormatException e (getOpts.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
     _operationType = _OPERATION_TYPE_UNINITIALIZED;
 
@@ -994,12 +993,10 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != _OPERATION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_HELP);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_HELP));
                 }
                 _operationType = _OPERATION_TYPE_HELP;
             }
@@ -1007,12 +1004,10 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != _OPERATION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_VERSION);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_VERSION));
                 }
 
                _operationType = _OPERATION_TYPE_VERSION;
@@ -1023,8 +1018,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  The cimtrust command has no non-option argument options
             //
-            UnexpectedArgumentException e (getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -1039,8 +1033,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_ADD);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_ADD);
                     }
 
                     if (getOpts.isSet (_OPTION_ADD) > 1)
@@ -1048,8 +1041,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one add option was found
                         //
-                        DuplicateOptionException e (_OPTION_ADD);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_ADD);
                     }
 
                     _operationType = _OPERATION_TYPE_ADD;
@@ -1063,8 +1055,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_REMOVE);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_REMOVE);
                     }
 
                     if (getOpts.isSet (_OPTION_REMOVE) > 1)
@@ -1072,8 +1063,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one remove option was found
                         //
-                        DuplicateOptionException e (_OPTION_REMOVE);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_REMOVE);
                     }
 
                     _operationType = _OPERATION_TYPE_REMOVE;
@@ -1087,8 +1077,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_LIST);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_LIST);
                     }
 
                     if (getOpts.isSet (_OPTION_LIST) > 1)
@@ -1096,8 +1085,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one list option was found
                         //
-                        DuplicateOptionException e (_OPTION_LIST);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_LIST);
                     }
 
                     _operationType = _OPERATION_TYPE_LIST;
@@ -1111,8 +1099,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one certificate user option was found
                         //
-                        DuplicateOptionException e (_OPTION_CERTUSER);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_CERTUSER);
                     }
 
                     _certUser = getOpts [i].Value ();
@@ -1127,8 +1114,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one cert file option was found
                         //
-                        DuplicateOptionException e (_OPTION_CERTFILE);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_CERTFILE);
                     }
 
                     _certFile = getOpts [i].Value ();
@@ -1143,8 +1129,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one issuer name option was found
                         //
-                        DuplicateOptionException e (_OPTION_ISSUER);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_ISSUER);
                     }
 
                     _issuer = getOpts [i].Value ();
@@ -1159,8 +1144,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one type option was found
                         //
-                        DuplicateOptionException e (_OPTION_TYPE);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_TYPE);
                     }
 
                     _type = getOpts [i].Value ();
@@ -1175,8 +1159,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one serial number option was found
                         //
-                        DuplicateOptionException e (_OPTION_SERIALNUMBER);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_SERIALNUMBER);
                     }
                     if (_subjectSet)
                     {
@@ -1184,8 +1167,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         // Both the subject and serial number may not be
                         // specified.
                         // 
-                        UnexpectedOptionException e (_OPTION_SERIALNUMBER);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_SERIALNUMBER);
                     }
 
                     _serialNumber = getOpts [i].Value ();
@@ -1200,15 +1182,13 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one subject option was found
                         //
-                        DuplicateOptionException e (_OPTION_SUBJECT);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_SUBJECT);
                     }
                     if (_serialNumberSet)
                     {
                         // Both the subject and serial number may not be
                         // specified.
-                        UnexpectedOptionException e (_OPTION_SUBJECT);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_SUBJECT);
                     }
 
                     _subject = getOpts [i].Value ();
@@ -1232,10 +1212,8 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified
         // Show the usage
         //
-        CommandFormatException e ( localizeMessage ( MSG_PATH,
-            REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING ) );
-
-        throw e;
+        throw CommandFormatException(localizeMessage(
+            MSG_PATH, REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
     }
 
     if ( _operationType == _OPERATION_TYPE_ADD )
@@ -1249,8 +1227,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            MissingOptionException e (_OPTION_CERTFILE);
-            throw e;
+            throw MissingOptionException(_OPTION_CERTFILE);
         }
 
         if ( !_typeSet )
@@ -1258,16 +1235,14 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            MissingOptionException e (_OPTION_TYPE);
-            throw e;
+            throw MissingOptionException(_OPTION_TYPE);
         }
 
         if (!(_type == _ARG_TYPE_AUTHORITY ||
               _type == _ARG_TYPE_AUTHORITY_END_ENTITY ||
               _type == _ARG_TYPE_SELF_SIGNED_IDENTITY ))
         {
-                InvalidOptionArgumentException e (_type, _OPTION_TYPE);
-                throw e;
+            throw InvalidOptionArgumentException(_type, _OPTION_TYPE);
         }
         if ((_type == _ARG_TYPE_AUTHORITY_END_ENTITY ||
              _type == _ARG_TYPE_SELF_SIGNED_IDENTITY) &&
@@ -1276,8 +1251,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            MissingOptionException e (_OPTION_CERTUSER);
-            throw e;
+            throw MissingOptionException(_OPTION_CERTUSER);
         }
          
     }
@@ -1289,13 +1263,11 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
         {
             if (_certFileSet)
             {
-                UnexpectedOptionException e (_OPTION_CERTFILE);
-                throw e;
+                throw UnexpectedOptionException(_OPTION_CERTFILE);
             }
             if (_certUserSet)
             {
-                UnexpectedOptionException e (_OPTION_CERTUSER);
-                throw e;
+                throw UnexpectedOptionException(_OPTION_CERTUSER);
             }
 
             //
@@ -1307,17 +1279,17 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                 //
                 // A required option is missing
                 //
-                MissingOptionException e (_OPTION_ISSUER);
-                throw e;
+                throw MissingOptionException(_OPTION_ISSUER);
             }
             else if ( !_serialNumberSet && !_subjectSet )
             {
                 //
                 // A required option is missing
                 //
-                CommandFormatException e ( localizeMessage ( MSG_PATH,
-                   REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING ) );
-                throw e;
+                throw CommandFormatException(localizeMessage(
+                    MSG_PATH,
+                    REQUIRED_ARGS_MISSING_KEY,
+                    REQUIRED_ARGS_MISSING));
             }
         }
         else if ( _operationType == _OPERATION_TYPE_LIST )
@@ -1331,8 +1303,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             if ( (_serialNumberSet || _subjectSet) && !_issuerSet )
             {
-                MissingOptionException e (_OPTION_ISSUER);
-                throw e;
+                throw MissingOptionException(_OPTION_ISSUER);
             }
 
         }

@@ -391,8 +391,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        CommandFormatException e (getOpts.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
 
     //
@@ -402,15 +401,11 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
-            UnexpectedArgumentException e (
-                         getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
-            UnexpectedArgumentException e (
-                         getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -425,8 +420,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one hostname option was found
                         //
-                        DuplicateOptionException e (_OPTION_HOSTNAME);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_HOSTNAME);
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
@@ -440,8 +434,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one portNumber option was found
                         //
-                        DuplicateOptionException e (_OPTION_PORTNUMBER);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
                     }
 
                     _portNumberStr = getOpts [i].Value ();
@@ -452,11 +445,11 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (_portNumberStr,
+                        throw InvalidOptionArgumentException(
+                            _portNumberStr,
                             _OPTION_PORTNUMBER);
-                        throw e;
                     }
-            _portNumberSet = true;
+                    _portNumberSet = true;
                     break;
                 }
 
@@ -465,7 +458,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     //
                     // Use port 5989 as the default port for SSL
                     //
-            _useSSL = true;
+                    _useSSL = true;
                     if (!_portNumberSet)
                        _portNumber = 5989;
                     break;
@@ -484,8 +477,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one timeout option was found
                         //
-                        DuplicateOptionException e (_OPTION_TIMEOUT);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_TIMEOUT);
                     }
 
                     timeoutStr = getOpts [i].Value ();
@@ -496,9 +488,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (timeoutStr,
+                        throw InvalidOptionArgumentException(
+                            timeoutStr,
                             _OPTION_TIMEOUT);
-                        throw e;
                     }
                     break;
                 }
@@ -510,8 +502,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one username option was found
                         //
-                        DuplicateOptionException e (_OPTION_USERNAME);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_USERNAME);
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
@@ -525,8 +516,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one password option was found
                         //
-                        DuplicateOptionException e (_OPTION_PASSWORD);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PASSWORD);
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
@@ -540,8 +530,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one log directory option was found
                         //
-                        DuplicateOptionException e (_OPTION_RESULTS_DIRECTORY);
-                        throw e;
+                        throw DuplicateOptionException(
+                            _OPTION_RESULTS_DIRECTORY);
                     }
                     _resultsDirectory = getOpts [i].Value ();
                     break;
@@ -554,8 +544,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one iteration option was found
                         //
-                        DuplicateOptionException e (_OPTION_ITERATIONS);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_ITERATIONS);
                     }
 
                     _iterationsStr = getOpts [i].Value ();
@@ -566,11 +555,11 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (_iterationsStr,
+                        throw InvalidOptionArgumentException(
+                            _iterationsStr,
                             _OPTION_ITERATIONS);
-                        throw e;
                     }
-            _iterationsSet = true;
+                    _iterationsSet = true;
                     break;
                 }
 
@@ -581,8 +570,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one TESTID option was found
                         //
-                        DuplicateOptionException e (_OPTION_TESTID);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_TESTID);
                     }
 
                     _testIDStr = getOpts [i].Value ();
@@ -593,11 +581,11 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (const TypeMismatchException&)
                     {
-                        InvalidOptionArgumentException e (_testIDStr,
+                        throw InvalidOptionArgumentException(
+                            _testIDStr,
                             _OPTION_TESTID);
-                        throw e;
                     }
-            _testIDSet = true;
+                    _testIDSet = true;
                     break;
                 }
 
@@ -614,9 +602,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        InvalidOptionArgumentException e (debugOptionStr,
+                        throw InvalidOptionArgumentException( 
+                            debugOptionStr,
                             _OPTION_DEBUG);
-                        throw e;
                     }
 
                     if (debugOptionStr [0] == _DEBUG_OPTION1)
@@ -632,9 +620,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        InvalidOptionArgumentException e (debugOptionStr,
+                        throw InvalidOptionArgumentException(
+                            debugOptionStr,
                             _OPTION_DEBUG);
-                        throw e;
                     }
                     break;
                 }
@@ -665,9 +653,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Portnumber out of valid range
             //
-            InvalidOptionArgumentException e (_portNumberStr,
+            throw InvalidOptionArgumentException(
+                _portNumberStr,
                 _OPTION_PORTNUMBER);
-            throw e;
         }
     }
 
@@ -686,9 +674,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Timeout out of valid range
             //
-            InvalidOptionArgumentException e (timeoutStr,
-                _OPTION_TIMEOUT);
-            throw e;
+            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
         }
     }
 

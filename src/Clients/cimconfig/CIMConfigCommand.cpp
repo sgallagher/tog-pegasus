@@ -648,8 +648,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 
     if (options.hasErrors ())
     {
-        CommandFormatException e (options.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(options.getErrorStrings()[0]);
     }
     
     _operationType = OPERATION_TYPE_UNINITIALIZED;
@@ -666,12 +665,10 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_HELP);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_HELP));
                 }
 
                _operationType = OPERATION_TYPE_HELP;
@@ -680,12 +677,10 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_VERSION);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_VERSION));
                 }
 
                _operationType = OPERATION_TYPE_VERSION;
@@ -696,8 +691,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  The cimconfig command has no non-option argument options
             //
-            UnexpectedArgumentException e (options [i].Value ()); 
-            throw e;
+            throw UnexpectedArgumentException(options[i].Value()); 
         } 
         else /* if (options [i].getType () == Optarg::FLAG) */
         {
@@ -713,8 +707,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (OPTION_GET);
-                        throw e;
+                        throw UnexpectedOptionException(OPTION_GET);
                     }
 
                     if (options.isSet (OPTION_GET) > 1)
@@ -722,8 +715,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one get option was found
                         //
-                        DuplicateOptionException e (OPTION_GET); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_GET); 
                     }
 
                     try
@@ -748,8 +740,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (OPTION_SET);
-                        throw e;
+                        throw UnexpectedOptionException(OPTION_SET);
                     }
 
                     if (options.isSet (OPTION_SET) > 1)
@@ -757,8 +748,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one set option was found
                         //
-                        DuplicateOptionException e (OPTION_SET); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_SET); 
                     }
 
                     _operationType = OPERATION_TYPE_SET;
@@ -772,9 +762,9 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // The property value was not specified
                         //
-                        InvalidOptionArgumentException e (property,
+                        throw InvalidOptionArgumentException(
+                            property,
                             OPTION_SET);
-                        throw e;
                     }
 
                     try
@@ -800,8 +790,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (OPTION_UNSET);
-                        throw e;
+                        throw UnexpectedOptionException(OPTION_UNSET);
                     }
 
                     if (options.isSet (OPTION_UNSET) > 1)
@@ -809,8 +798,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one unset option was found
                         //
-                        DuplicateOptionException e (OPTION_UNSET); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_UNSET); 
                     }
 
                     try
@@ -835,8 +823,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (OPTION_LIST);
-                        throw e;
+                        throw UnexpectedOptionException(OPTION_LIST);
                     }
 
                     if (options.isSet (OPTION_LIST) > 1)
@@ -844,8 +831,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one list option was found
                         //
-                        DuplicateOptionException e (OPTION_LIST); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_LIST); 
                     }
                     _operationType = OPERATION_TYPE_LIST;
                     break;
@@ -858,8 +844,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one current value option was found
                         //
-                        DuplicateOptionException e (OPTION_CURRENT_VALUE); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_CURRENT_VALUE); 
                     }
 
                     _currentValueSet = true;
@@ -873,8 +858,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one planned value option was found
                         //
-                        DuplicateOptionException e (OPTION_PLANNED_VALUE); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_PLANNED_VALUE); 
                     }
 
                     _plannedValueSet = true;
@@ -888,8 +872,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one default value option was found
                         //
-                        DuplicateOptionException e (OPTION_DEFAULT_VALUE); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_DEFAULT_VALUE); 
                     }
 
                     _defaultValueSet = true;
@@ -904,8 +887,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (OPTION_HELP);
-                        throw e;
+                        throw UnexpectedOptionException(OPTION_HELP);
                     }
 
                     if (options.isSet (OPTION_HELP) > 1)
@@ -913,8 +895,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one list option was found
                         //
-                        DuplicateOptionException e (OPTION_HELP); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_HELP); 
                     }
                     _operationType = OPERATION_TYPE_HELP;
                     break;
@@ -926,8 +907,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (OPTION_VERSION);
-                        throw e;
+                        throw UnexpectedOptionException(OPTION_VERSION);
                     }
 
                     if (options.isSet (OPTION_VERSION) > 1)
@@ -935,8 +915,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one list option was found
                         //
-                        DuplicateOptionException e (OPTION_VERSION); 
-                        throw e;
+                        throw DuplicateOptionException(OPTION_VERSION); 
                     }
                     _operationType = OPERATION_TYPE_VERSION;
                     break;
@@ -956,11 +935,8 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified; throw exception
         // so that usage can be displayed.
         //
-        //l10n change was missing and added while implementing PEP#167 changes
-        CommandFormatException e (
-                localizeMessage(
-                    MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
-        throw e;
+        throw CommandFormatException(localizeMessage(
+            MSG_PATH, REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
     }
 
     if ( ( _operationType != OPERATION_TYPE_GET ) && ( _defaultValueSet ) )
@@ -968,8 +944,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
         //
         // An invalid option was encountered
         //
-        InvalidOptionException e (OPTION_DEFAULT_VALUE);
-        throw e;
+        throw InvalidOptionException(OPTION_DEFAULT_VALUE);
     }
 
     if (_operationType == OPERATION_TYPE_LIST)
@@ -979,8 +954,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             //
             // An invalid option was encountered
             //
-            InvalidOptionException e (OPTION_CURRENT_VALUE);
-            throw e;
+            throw InvalidOptionException(OPTION_CURRENT_VALUE);
         }
     }
     else

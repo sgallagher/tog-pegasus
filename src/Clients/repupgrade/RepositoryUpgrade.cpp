@@ -487,8 +487,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        CommandFormatException e (getOpts.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
     _optionType = _OPTION_TYPE_UNINITIALIZED;
 
@@ -503,12 +502,10 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
             {
                 if (_optionType != _OPTION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_HELP);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_HELP));
                 }
 
                _optionType = _OPTION_TYPE_HELP;
@@ -517,12 +514,10 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
             {
                 if (_optionType != _OPTION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_VERSION);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_VERSION));
                 }
 
                _optionType = _OPTION_TYPE_VERSION;
@@ -533,8 +528,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
             //
             //  The repupgrade command has no non-option argument options
             //
-            UnexpectedArgumentException e (getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -550,9 +544,8 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one old repository path option was found
                         //
-                        DuplicateOptionException
-                             e (_OPTION_OLD_REPOSITORY_PATH);
-                        throw e;
+                        throw DuplicateOptionException(
+                            _OPTION_OLD_REPOSITORY_PATH);
                     }
 
                     if (_optionType != _OPTION_TYPE_UNINITIALIZED &&
@@ -561,9 +554,8 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException
-                             e (_OPTION_OLD_REPOSITORY_PATH);
-                        throw e;
+                        throw UnexpectedOptionException(
+                            _OPTION_OLD_REPOSITORY_PATH);
                     }
 
                     _optionType = _OPTION_TYPE_OLD_REPOSITORY_PATH;
@@ -579,9 +571,8 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one new repository option was found
                         //
-                        DuplicateOptionException
-                              e (_OPTION_NEW_REPOSITORY_PATH);
-                        throw e;
+                        throw DuplicateOptionException(
+                            _OPTION_NEW_REPOSITORY_PATH);
                     }
 
                     if (_optionType != _OPTION_TYPE_UNINITIALIZED &&
@@ -590,9 +581,8 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException
-                             e (_OPTION_NEW_REPOSITORY_PATH);
-                        throw e;
+                        throw UnexpectedOptionException(
+                            _OPTION_NEW_REPOSITORY_PATH);
                     }
 
                     _optionType = _OPTION_TYPE_NEW_REPOSITORY_PATH;
@@ -608,8 +598,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one help option was found
                         //
-                        DuplicateOptionException e (_OPTION_HELP);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_HELP);
                     }
 
                     if (_optionType != _OPTION_TYPE_UNINITIALIZED)
@@ -617,8 +606,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_HELP);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_HELP);
                     }
 
                     _optionType = _OPTION_TYPE_HELP;
@@ -632,8 +620,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one version option was found
                         //
-                        DuplicateOptionException e (_OPTION_VERSION);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_VERSION);
                     }
 
                     if (_optionType != _OPTION_TYPE_UNINITIALIZED)
@@ -641,8 +628,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_VERSION);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_VERSION);
                     }
 
                     _optionType = _OPTION_TYPE_VERSION;
@@ -667,10 +653,8 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified
         // Show the usage
         //
-        CommandFormatException e ( localizeMessage ( MSG_PATH,
-            REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING ) );
-
-        throw e;
+        throw CommandFormatException(localizeMessage(
+            MSG_PATH, REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
     }
 #endif
 }

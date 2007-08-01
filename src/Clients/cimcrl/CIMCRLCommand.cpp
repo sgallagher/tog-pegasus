@@ -679,8 +679,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        CommandFormatException e (getOpts.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
     _operationType = _OPERATION_TYPE_UNINITIALIZED;
 
@@ -695,12 +694,10 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != _OPERATION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_HELP);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_HELP));
                 }
 
                _operationType = _OPERATION_TYPE_HELP;
@@ -709,12 +706,10 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
             {
                 if (_operationType != _OPERATION_TYPE_UNINITIALIZED)
                 {
-                    String param = String (LONG_VERSION);
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(String(LONG_VERSION));
                 }
 
                _operationType = _OPERATION_TYPE_VERSION;
@@ -725,8 +720,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  The cimcrl command has no non-option argument options
             //
-            UnexpectedArgumentException e (getOpts [i].Value ());
-            throw e;
+            throw UnexpectedArgumentException(getOpts[i].Value());
         }
         else /* getOpts [i].getType () == FLAG */
         {
@@ -741,8 +735,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_ADD);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_ADD);
                     }
 
                     if (getOpts.isSet (_OPTION_ADD) > 1)
@@ -750,8 +743,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one add option was found
                         //
-                        DuplicateOptionException e (_OPTION_ADD);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_ADD);
                     }
 
                     _operationType = _OPERATION_TYPE_ADD;
@@ -765,8 +757,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_REMOVE);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_REMOVE);
                     }
 
                     if (getOpts.isSet (_OPTION_REMOVE) > 1)
@@ -774,8 +765,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one remove option was found
                         //
-                        DuplicateOptionException e (_OPTION_REMOVE);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_REMOVE);
                     }
 
                     _operationType = _OPERATION_TYPE_REMOVE;
@@ -789,8 +779,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one operation option was found
                         //
-                        UnexpectedOptionException e (_OPTION_LIST);
-                        throw e;
+                        throw UnexpectedOptionException(_OPTION_LIST);
                     }
 
                     if (getOpts.isSet (_OPTION_LIST) > 1)
@@ -798,8 +787,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one list option was found
                         //
-                        DuplicateOptionException e (_OPTION_LIST);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_LIST);
                     }
 
                     _operationType = _OPERATION_TYPE_LIST;
@@ -813,8 +801,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one cert file option was found
                         //
-                        DuplicateOptionException e (_OPTION_CRLFILE);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_CRLFILE);
                     }
 
                     _crlFile = getOpts [i].Value ();
@@ -829,8 +816,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one issuer name option was found
                         //
-                        DuplicateOptionException e (_OPTION_ISSUERNAME);
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_ISSUERNAME);
                     }
 
                     _issuer = getOpts [i].Value ();
@@ -852,10 +838,8 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified
         // Show the usage
         //
-        CommandFormatException e ( localizeMessage ( MSG_PATH,
-            REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING ) );
-
-        throw e;
+        throw CommandFormatException(localizeMessage(
+            MSG_PATH, REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
     }
 
     if ( _operationType == _OPERATION_TYPE_ADD )
@@ -869,8 +853,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            MissingOptionException e (_OPTION_CRLFILE);
-            throw e;
+            throw MissingOptionException(_OPTION_CRLFILE);
         }
 
     }
@@ -886,8 +869,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
             //
             // A required option is missing
             //
-            MissingOptionException e (_OPTION_ISSUERNAME);
-            throw e;
+            throw MissingOptionException(_OPTION_ISSUERNAME);
         }
     }
 }

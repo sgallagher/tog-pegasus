@@ -314,6 +314,28 @@ ifeq ($(OS),aix)
     CAT = cat
 endif
 
+ifeq ($(OS),PASE)
+    STRIPCRS =
+    DIFF = diff
+    SORT = sort
+    REDIRECTERROR = 2>&1
+    CIMSERVER_START_SERVICE = system STRTCPSVR *CIMOM
+    CIMSERVER_STOP_SERVICE = system ENDTCPSVR *CIMOM
+    SLEEP = sleep
+    TIME_CMD = time
+    MUEXE = mu
+    RM = rm -f
+    MKDIRHIER = mkdir -p
+    RMDIRHIER = rm -rf
+    ECHO = echo
+    ECHO-E = 
+    COPY = cp
+    CHMOD = chmod
+    CHOWN = chown
+    CHGRP = chgrp
+    CAT = cat
+endif
+
 ifeq ($(OS),darwin)
     STRIPCRS =
     DIFF = diff

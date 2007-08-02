@@ -713,10 +713,6 @@ extern "C"
                 }
 
                 pgRecommendedActions.append(String(arrElStr));
-                if (rc.rc != CMPI_RC_OK)
-                {
-                    return rc;
-                }
             }
 
             cer->setRecommendedActions(pgRecommendedActions);
@@ -870,10 +866,6 @@ extern "C"
                 }
 
                 pgMessageArguments.append(String(arrElStr));
-                if (rc.rc != CMPI_RC_OK)
-                {
-                    return rc;
-                }
             }
 
             cer->setMessageArguments(pgMessageArguments);

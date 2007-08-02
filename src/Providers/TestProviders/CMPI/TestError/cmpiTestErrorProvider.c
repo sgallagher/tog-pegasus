@@ -67,11 +67,14 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
                                     const char *methodName,
                                     const CMPIArgs * in, CMPIArgs * out)
 {
-  CMPIString *class = NULL;
+  CMPIString *class_name = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIError *cmpiError;
   CMPIError *cmpiErrorClone;
+  CMPIError *cmpiErrorExcep;
   CMPICount i, arrSize;
+  CMPIObjectPath *objPath = NULL;
+
 
   CMPIUint32 brokerCapabilities;
   /* CMPIError data */
@@ -87,7 +90,8 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIErrorProbableCause outPc;
   const CMPIrc inCIMStatusCode = CMPI_RC_ERR_FAILED;
   CMPIrc outCIMStatusCode;
-  const char * inCIMStatusCodeDesc = "another failed attempt at road runner elimination";
+  const char * inCIMStatusCodeDesc = "another failed attempt at road "
+      "runner elimination";
   CMPIString* outCIMStatusCodeDesc;
   const CMPIErrorType inErrType = OtherErrorType;
   CMPIErrorType outErrType;
@@ -107,7 +111,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIErrorSrcFormat outErrSourceFormat;
   const char* inOtherErrSourceFormat = "no idea";
   CMPIString* outOtherErrSourceFormat;
-
+  CMPIData retData;
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
   PROV_LOG ("Calling CBGetBrokerCapabilities");
@@ -126,10 +130,10 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
 
   PROV_LOG ("--- %s CMPI InvokeMethod() called", _ClassName);
 
-  class = CMGetClassName (ref, &rc);
+  class_name = CMGetClassName (ref, &rc);
 
   PROV_LOG ("InvokeMethod: checking for correct classname [%s]",
-            CMGetCharPtr (class));
+            CMGetCharPtr (class_name));
 
   PROV_LOG ("Calling CMNewCMPIError");
   cmpiError = CMNewCMPIError(_broker, inOwningEntity, inMsgID, inMsg,
@@ -232,7 +236,8 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
 
   PROV_LOG ("Calling CMGetProbableCauseDescription");
   outPcd = CMGetProbableCauseDescription(cmpiErrorClone, &rc);
-  PROV_LOG ("++++ (%s) CMGetProbableCauseDescription (%s)", strCMPIStatus (rc),
+  PROV_LOG ("++++ (%s) CMGetProbableCauseDescription (%s)",
+      strCMPIStatus (rc),
       CMGetCharPtr(outPcd));
 
   PROV_LOG ("Calling CMGetRecommendedActions");
@@ -292,6 +297,242 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   rc = CMRelease(cmpiErrorClone);
   PROV_LOG ("++++ (%s) CMClone", strCMPIStatus (rc));
 
+//Test Error Paths
+  PROV_LOG ("Testing for Error Paths in CMPI_Error.cpp");
+  PROV_LOG ("Calling CMNewCMPIError");
+  cmpiError = CMNewCMPIError(_broker, 
+      inOwningEntity,
+      inMsgID,
+      inMsg,
+      inSev,
+      inPc,
+      inCIMStatusCode,
+      &rc);
+  PROV_LOG ("++++ (%s) CMNewCMPIError", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMGetErrorType without setting the ErrorType");
+  outErrType = CMGetErrorType(cmpiError, &rc);
+  if (!outErrType)
+  {
+      PROV_LOG ("++++ (%s) CMGetErrorType (%d)", strCMPIStatus (rc),
+          outErrType);
+  }
+
+  PROV_LOG ("Calling CMGetOtherErrorType without setting the OtherErrorType");
+  outOtherErrType = CMGetOtherErrorType(cmpiError, &rc);
+  if (outOtherErrType == NULL)
+  {
+      PROV_LOG ("++++ (%s) CMGetOtherErrorType", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Testing CMSetMessageArguments");
+  CMRelease(inMsgArgs);
+  inMsgArgs = CMNewArray(_broker, 1, CMPI_uint32, &rc);
+  PROV_LOG ("++++ (%s) CMNewArray inMsgArgs of CMPI_uint32 type",
+      strCMPIStatus (rc));
+  raOne.uint32 = 32;
+  rc = CMSetArrayElementAt(inMsgArgs, 0, &raOne, CMPI_uint32);
+  PROV_LOG ("++++ (%s) CMSetArrayElementAt [0]", strCMPIStatus (rc));
+  PROV_LOG ("Calling CMSetMessageArguments with input array of uint32");
+  rc = CMSetMessageArguments(cmpiError, inMsgArgs);
+  PROV_LOG ("++++ (%s) CMSetMessageArguments", strCMPIStatus (rc));
+  inMsgArgs->hdl = NULL;
+  PROV_LOG ("Calling CMSetMessageArguments with input array with NULL handle");
+  rc = CMSetMessageArguments(cmpiError, inMsgArgs);
+  PROV_LOG ("++++ (%s) CMSetMessageArguments", strCMPIStatus (rc));
+
+  PROV_LOG ("Testing CMSetRecommendedActions");
+  CMRelease(inRecActions);
+  inRecActions = CMNewArray(_broker, 1, CMPI_uint32, &rc);
+  PROV_LOG ("++++ (%s) CMNewArray inRecActions of CMPI_uint32",
+      strCMPIStatus (rc));
+  raOne.uint32 = 32;
+  rc = CMSetArrayElementAt(inRecActions, 0, &raOne, CMPI_uint32);
+  PROV_LOG ("++++ (%s) CMSetArrayElementAt [0]", strCMPIStatus (rc));
+  PROV_LOG ("Calling CMSetRecommendedActions with input array of CMPI_uint32");
+  rc = CMSetRecommendedActions(cmpiError, inRecActions);
+  PROV_LOG ("++++ (%s) CMSetRecommendedActions", strCMPIStatus (rc));
+  inRecActions->hdl = NULL;
+  PROV_LOG ("Calling CMSetRecommendedActions with input array"
+      " with NULL handle");
+  rc = CMSetRecommendedActions(cmpiError, inRecActions);
+  PROV_LOG ("++++ (%s) CMSetRecommendedActions", strCMPIStatus (rc));
+
+  /* Cases when CMPIError object handle is NULL*/
+  cmpiError->hdl = NULL;
+
+  PROV_LOG ("Clone the CMPIError with NULL handle.");
+  cmpiErrorClone = CMClone(cmpiError, &rc);
+  if (cmpiErrorClone == NULL)
+  {
+      PROV_LOG ("++++ (%s) CMClone", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetErrorType with NULL handle");
+  outErrType = CMGetErrorType(cmpiError, &rc);
+  if (!outErrType)
+  {
+      PROV_LOG ("++++ (%s) CMGetErrorType (%d)", strCMPIStatus (rc),
+          outErrType);
+  }
+
+  PROV_LOG ("Calling CMGetOtherErrorType with NULL handle");
+  outOtherErrType = CMGetOtherErrorType(cmpiError, &rc);
+  if (outOtherErrType == NULL)
+  {
+      PROV_LOG ("++++ (%s) CMGetOtherErrorType ", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetOwningEntity with NULL handle");
+  outOwningEntity = CMGetOwningEntity(cmpiError, &rc);
+  if (outOwningEntity == NULL)
+  {
+      PROV_LOG ("++++ (%s) CMGetOwningEntity ", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetMessageID with NULL handle");
+  outMsgID = CMGetMessageID(cmpiError, &rc);
+  if (!outMsgID)
+  {
+      PROV_LOG ("++++ (%s) CMGetMessageID", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetErrorMessage with NULL handle");
+  outMsg = CMGetErrorMessage(cmpiError, &rc);
+  if (!outMsg)
+  {
+      PROV_LOG ("++++ (%s) CMGetErrorMessage", strCMPIStatus (rc));
+  }
+  PROV_LOG ("Calling CMGetPerceivedSeverity with NULL handle");
+  outSev = CMGetPerceivedSeverity(cmpiError, &rc);
+  if (!outSev)
+  {
+      PROV_LOG ("++++ (%s) CMGetPerceivedSeverity (%d)", strCMPIStatus (rc),
+          outSev);
+  }
+
+  PROV_LOG ("Calling CMGetProbableCause with NULL handle");
+  outPc = CMGetProbableCause(cmpiError, &rc);
+  if (!outPc)
+  {
+      PROV_LOG ("++++ (%s) CMGetProbableCause (%d)", strCMPIStatus (rc),
+          outPc);
+  }
+
+  PROV_LOG ("Calling CMGetProbableCauseDescription with NULL handle");
+  outPcd = CMGetProbableCauseDescription(cmpiError, &rc);
+  if (!outPcd)
+  {
+      PROV_LOG ("++++ (%s) CMGetProbableCauseDescription ",
+          strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetRecommendedActions with NULL handle");
+  outRecActions = CMGetRecommendedActions(cmpiError, &rc);
+  if (!outRecActions)
+  {
+      PROV_LOG ("++++ (%s) CMGetRecommendedActions", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetErrorSource with NULL handle");
+  outErrSource = CMGetErrorSource(cmpiError, &rc);
+  if (!outErrSource)
+  {
+      PROV_LOG ("++++ (%s) CMGetErrorSource", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetErrorSourceFormat with NULL handle");
+  outErrSourceFormat = CMGetErrorSourceFormat(cmpiError, &rc);
+  if (!outErrSourceFormat)
+  {
+      PROV_LOG ("++++ (%s) CMGetErrorSourceFormat (%d)", strCMPIStatus (rc),
+          outErrSourceFormat);
+  }
+
+  PROV_LOG ("Calling CMGetOtherErrorSourceFormat with NULL handle");
+  outOtherErrSourceFormat = CMGetOtherErrorSourceFormat(cmpiError, &rc);
+  if (!outOtherErrSourceFormat)
+  {
+      PROV_LOG ("++++ (%s) CMGetOtherErrorSourceFormat", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetCIMStatusCode with NULL handle");
+  outCIMStatusCode = CMGetCIMStatusCode(cmpiError, &rc);
+  if (!outCIMStatusCode)
+  {
+      PROV_LOG ("++++ (%s) CMGetCIMStatusCode (%d)", strCMPIStatus (rc),
+          outCIMStatusCode);
+  }
+
+  PROV_LOG ("Calling CMGetCIMStatusCodeDescription with NULL handle");
+  outCIMStatusCodeDesc = CMGetCIMStatusCodeDescription(cmpiError, &rc);
+  if (!outCIMStatusCodeDesc)
+  {
+      PROV_LOG ("++++ (%s) CMGetCIMStatusCodeDescription", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMGetMessageArguments with NULL handle");
+  outMsgArgs = CMGetMessageArguments(cmpiError, &rc);
+  if (!outMsgArgs)
+  {
+      PROV_LOG ("++++ (%s) CMGetMessageArguments", strCMPIStatus (rc));
+  }
+
+  PROV_LOG ("Calling CMSetErrorType with NULL handle");
+  rc = CMSetErrorType(cmpiError, inErrType);
+  PROV_LOG ("++++ (%s) CMSetErrorType", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetOtherErrorType with NULL handle");
+  rc = CMSetOtherErrorType(cmpiError, inOtherErrType);
+  PROV_LOG ("++++ (%s) CMSetOtherErrorType", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetProbableCauseDescription with NULL handle");
+  rc = CMSetProbableCauseDescription(cmpiError, inPcd);
+  PROV_LOG ("++++ (%s) CMSetProbableCauseDescription", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetRecommendedActions with NULL handle");
+  rc = CMSetRecommendedActions(cmpiError, inRecActions);
+  PROV_LOG ("++++ (%s) CMSetRecommendedActions", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetErrorSource with NULL handle");
+  rc = CMSetErrorSource(cmpiError, inErrSource);
+  PROV_LOG ("++++ (%s) CMSetErrorSource", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetErrorSourceFormat with NULL handle");
+  rc = CMSetErrorSourceFormat(cmpiError, inErrSourceFormat);
+  PROV_LOG ("++++ (%s) CMSetErrorSourceFormat", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetOtherErrorSourceFormat with NULL handle");
+  rc = CMSetOtherErrorSourceFormat(cmpiError, inOtherErrSourceFormat);
+  PROV_LOG ("++++ (%s) CMSetOtherErrorSourceFormat", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetCIMStatusCodeDescription with NULL handle");
+  rc = CMSetCIMStatusCodeDescription(cmpiError, inCIMStatusCodeDesc);
+  PROV_LOG ("++++ (%s) CMSetCIMStatusCodeDescription", strCMPIStatus (rc));
+
+  PROV_LOG ("Calling CMSetMessageArguments with NULL handle");
+  rc = CMSetMessageArguments(cmpiError, inMsgArgs);
+  PROV_LOG ("++++ (%s) CMSetMessageArguments", strCMPIStatus (rc));
+
+  PROV_LOG_CLOSE();
+  // Test case to increase coverage in CMPI_Broker.cpp
+  objPath = CMNewObjectPath (_broker,
+      "test/TestProvider",
+      "TestCMPI_Method",
+      &rc);
+  retData = CBInvokeMethod(_broker,
+      ctx,
+      objPath,
+      "testSimpleTypes",
+      in,
+      out,
+      &rc);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
+
+  if(retData.value.uint32 && rc.rc == CMPI_RC_OK)
+  {
+      PROV_LOG ("++++ (%s) CMInvokeMethod", strCMPIStatus (rc));
+  }
   PROV_LOG ("--- %s CMPI InvokeMethod() exited with CMPI_RC_ERR_FAILED", 
       _ClassName);
   PROV_LOG_CLOSE();

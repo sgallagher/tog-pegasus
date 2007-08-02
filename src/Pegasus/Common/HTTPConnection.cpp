@@ -1922,6 +1922,7 @@ void HTTPConnection::_handleReadEvent()
 
         if (n <= 0)
         {
+#ifndef PEGASUS_OS_ZOS
             if (_socket->isSecure())
             {
                 // It is possible that SSL_read was not able to
@@ -1940,6 +1941,7 @@ void HTTPConnection::_handleReadEvent()
                 incompleteSecureReadOccurred =
                     _socket->incompleteReadOccurred(n);
             }
+#endif
             break;
         }
 

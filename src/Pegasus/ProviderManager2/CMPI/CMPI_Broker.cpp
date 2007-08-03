@@ -444,6 +444,15 @@ extern "C"
     {
         DDD(cout<<"--- mbAssociators()"<<endl);
         mb = CM_BROKER;
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        {
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            return 0;
+        }
         CMPIFlags flgs =
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
@@ -512,6 +521,15 @@ extern "C"
     {
         DDD(cout<<"--- mbAssociatorsNames()"<<endl);
         mb = CM_BROKER;
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        {
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            return 0;
+        }
         CIMObjectPath qop(
             String::EMPTY,CIMNamespaceName(),
             CM_ObjectPath(cop)->getClassName(),
@@ -570,6 +588,15 @@ extern "C"
     {
         DDD(cout<<"--- mbReferences()"<<endl);
         mb = CM_BROKER;
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        {
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            return 0;
+        }
         CMPIFlags flgs =
            ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         CIMPropertyList props = getList(properties);
@@ -634,6 +661,15 @@ extern "C"
     {
         DDD(cout<<"--- mbReferencesNames()"<<endl);
         mb = CM_BROKER;
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        {
+            CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            return 0;
+        }
         CIMObjectPath qop(
             String::EMPTY,
             CIMNamespaceName(),

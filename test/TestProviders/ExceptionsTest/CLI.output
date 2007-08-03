@@ -56,4 +56,4 @@ string listName;
 Connecting to localhost:5988 for User =  password = 
 getInstance Namespace = root/SampleProvider, Instance = ExceptionsTestClass, localOnly = true, includeQualifiers = true, includeClassOrigin = false, PropertyList = List_NULL
 CLI CIMException:  Cmd= gi Object= ExceptionsTestClass
-CIM_ERR_NOT_FOUND: The requested object could not be found: "ExceptionsTestClass"
+CIM_ERR_NOT_FOUND: ExceptionsTestClass

@@ -3,7 +3,7 @@
 <MESSAGE ID="52005" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="GetInstance">
-<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;JMPIExpInstance_TestPropertyTypes_Test&quot;"/>
+<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: JMPIExpInstance_TestPropertyTypes_Test"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

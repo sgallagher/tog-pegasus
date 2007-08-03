@@ -3,7 +3,7 @@
 <MESSAGE ID="25004" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteInstance">
-<ERROR CODE="7" DESCRIPTION="CIM_ERR_NOT_SUPPORTED: The requested operation is not supported: &quot;DNSServiceProvider does not support deleteInstance&quot;"/>
+<ERROR CODE="7" DESCRIPTION="CIM_ERR_NOT_SUPPORTED: DNSServiceProvider does not support deleteInstance"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

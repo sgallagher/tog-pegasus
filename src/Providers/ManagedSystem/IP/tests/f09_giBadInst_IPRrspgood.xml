@@ -3,7 +3,7 @@
 <MESSAGE ID="39709" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="GetInstance">
-<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;imaginary.system.hp.com: bad value for key SystemName&quot;"/>
+<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: imaginary.system.hp.com: bad value for key SystemName"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

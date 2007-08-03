@@ -3,7 +3,7 @@
 <MESSAGE ID="54001" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="ModifyInstance">
-<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;test_classname&quot;"/>
+<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: test_classname"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

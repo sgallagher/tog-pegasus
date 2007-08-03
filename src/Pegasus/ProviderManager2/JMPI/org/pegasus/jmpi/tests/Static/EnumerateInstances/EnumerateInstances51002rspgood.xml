@@ -3,7 +3,7 @@
 <MESSAGE ID="51002" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateInstances">
-<ERROR CODE="3" DESCRIPTION="CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;root/test_namespace&quot;"/>
+<ERROR CODE="3" DESCRIPTION="CIM_ERR_INVALID_NAMESPACE: root/test_namespace"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

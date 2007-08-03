@@ -92,40 +92,94 @@ en:table {
         //  These messages do not use a message prefix.
         // ==========================================================
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_SUCCESS:string {"CIM_ERR_SUCCESS:  Successful."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_FAILED:string {"CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_ACCESS_DENIED:string {"CIM_ERR_ACCESS_DENIED: Access to a CIM resource is not available to the client."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_INVALID_NAMESPACE:string {"CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_INVALID_PARAMETER:string {"CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method are not valid."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_INVALID_CLASS:string {"CIM_ERR_INVALID_CLASS: The specified class does not exist."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_NOT_FOUND:string {"CIM_ERR_NOT_FOUND: The requested object cannot be found."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_NOT_SUPPORTED:string {"CIM_ERR_NOT_SUPPORTED: The requested operation is not supported."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_CLASS_HAS_CHILDREN:string {"CIM_ERR_CLASS_HAS_CHILDREN: The operation cannot be performed on this class because it has subclasses."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_CLASS_HAS_INSTANCES:string {"CIM_ERR_CLASS_HAS_INSTANCES: The operation cannot be performed on this class because one or more instances of this class exist."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_INVALID_SUPERCLASS:string {"CIM_ERR_INVALID_SUPERCLASS: The operation cannot be performed because the specified superclass does not exist."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_ALREADY_EXISTS:string {"CIM_ERR_ALREADY_EXISTS: The operation cannot be performed because an object already exists."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_NO_SUCH_PROPERTY:string {"CIM_ERR_NO_SUCH_PROPERTY: The specified property does not exist."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_TYPE_MISMATCH:string {"CIM_ERR_TYPE_MISMATCH: The value supplied is not compatible with the type."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED:string {"CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED: The query language is not recognized or supported."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_INVALID_QUERY:string {"CIM_ERR_INVALID_QUERY: The query is not valid for the specified query language."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_METHOD_NOT_AVAILABLE:string {"CIM_ERR_METHOD_NOT_AVAILABLE: The extrinsic method cannot be performed."}
 
+        /**
+        *   This message is no longer used as of version 2.7.0
+        */
         Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND:string {"CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist."}
 
         /**

@@ -119,12 +119,12 @@ Use '--help' to obtain command syntax.
 Invalid remove option, incorrect serial number.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
+CIM_ERR_NOT_FOUND: The certificate does not exist.
 
 Invalid remove option, incorrect subject.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
+CIM_ERR_NOT_FOUND: The certificate does not exist.
 
 Required option missing, issuer not specified.
 cimtrust: the "-i" option is required
@@ -199,7 +199,7 @@ Certificate removed successfully.
 +++++++++ Functional tests - Add operation testing +++++++++
 Add a certificate file that contains more than one certificate, this should error out.
 Failed to add certificate.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "Specified certificate file contains more than one certificate."
+CIM_ERR_FAILED: Specified certificate file contains more than one certificate.
 
 Add the self-signed certificate to the truststore.
 Certificate added successfully.
@@ -380,7 +380,7 @@ Exception: HTTP Error (401 Unauthorized).
 Attempt to delete the certificate we just deleted, this should get a DNE error.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
+CIM_ERR_NOT_FOUND: The certificate does not exist.
 
 Add the self-signed certificate to the truststore.
 Certificate added successfully.
@@ -395,7 +395,7 @@ Exception: HTTP Error (401 Unauthorized).
 Attempt to delete the certificate we just deleted, this should get a DNE error.
 Failed to remove certificate.
 Specified certificate does not exist.
-CIM_ERR_NOT_FOUND: The requested object could not be found: "The certificate does not exist."
+CIM_ERR_NOT_FOUND: The certificate does not exist.
 
 Add the deleted self-signed certificate to the truststore. This should succeed
 Certificate added successfully.
@@ -556,7 +556,7 @@ Certificate removed successfully.
 Add the testdup certificate to the truststore, this should fail with duplicate subject error.
 Failed to add certificate.
 Specified certificate already exists.
-CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "Another certificate with the same subject name already exists."
+CIM_ERR_ALREADY_EXISTS: Another certificate with the same subject name already exists.
 
 Delete the self-signed certificate from the truststore by subject & issuer. This should succeed
 Certificate removed successfully.
@@ -646,7 +646,7 @@ Certificate removed successfully.
 +++++++++ Funtional tests - Tests for special cases +++++++++
 Invalid X509 certificate.
 Failed to add certificate.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "Could not read x509 PEM format."
+CIM_ERR_FAILED: Could not read x509 PEM format.
 
 Connect with an expired certificate -- should fail.
 TestCertClient::Connecting to 127.0.0.1:5989
@@ -654,7 +654,7 @@ Exception: HTTP Error (401 Unauthorized).
 
 Add the expired certificate to the truststore -- should get an expiration error.
 Failed to add certificate.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate has expired."
+CIM_ERR_FAILED: The certificate has expired.
 
 Connect with a not yet valid certificate -- should fail.
 TestCertClient::Connecting to 127.0.0.1:5989
@@ -662,7 +662,7 @@ Exception: HTTP Error (401 Unauthorized).
 
 Add the not yet valid certificate to the truststore -- should get a not yet valid error.
 Failed to add certificate.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate is not valid yet.  Check the timestamps on your machine."
+CIM_ERR_FAILED: The certificate is not valid yet.  Check the timestamps on your machine.
 
 Connect with an untrusted certificate -- should fail.
 TestCertClient::Connecting to 127.0.0.1:5989

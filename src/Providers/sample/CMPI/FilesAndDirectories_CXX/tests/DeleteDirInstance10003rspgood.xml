@@ -3,7 +3,7 @@
 <MESSAGE ID="4711" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteInstance">
-<ERROR CODE="7" DESCRIPTION="CIM_ERR_NOT_SUPPORTED: The requested operation is not supported: &quot;CWS_Directory cannot delete&quot;"/>
+<ERROR CODE="7" DESCRIPTION="CIM_ERR_NOT_SUPPORTED: CWS_Directory cannot delete"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

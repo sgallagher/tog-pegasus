@@ -21,25 +21,25 @@ cimauth: duplicate "-a" option
 cimauth: Use '--help' to obtain command syntax
 Add auth for user not existing on system - error
 Failed to add authorizations.
-CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: "The specified user is not a valid user on the local system , user name: xp"
+CIM_ERR_INVALID_PARAMETER: The specified user is not a valid user on the local system , user name: xp
 Add CIM user www
 User added successfully.
 Add auth for user www on root/cimxyz2 - error
 Failed to add authorizations.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="www""
+CIM_ERR_FAILED: PG_Authorization.Namespace="root/cimv2",Username="www"
 Add auth for user www on root/cimv2
 Authorizations added successfully.
 Modify auth for user www on root/cimv2
 Authorizations modified successfully.
 Add auth again for user www on root/cimv2 - error
 Failed to add authorizations.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="www""
+CIM_ERR_FAILED: PG_Authorization.Namespace="root/cimv2",Username="www"
 Modify wrong user name - error
 Failed to modify authorizations.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="xuztest1""
+CIM_ERR_FAILED: PG_Authorization.Namespace="root/cimv2",Username="xuztest1"
 Remove user xp - error
 Failed to remove authorizations.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="xp""
+CIM_ERR_FAILED: PG_Authorization.Namespace="root/cimv2",Username="xp"
 Remove auth for user www on root/cimv2
 Authorizations removed successfully.
 Remove all auth for user www

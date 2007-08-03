@@ -3,7 +3,7 @@
 <MESSAGE ID="55002" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteInstance">
-<ERROR CODE="3" DESCRIPTION="CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;test/tesf_namespace&quot;"/>
+<ERROR CODE="3" DESCRIPTION="CIM_ERR_INVALID_NAMESPACE: test/tesf_namespace"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

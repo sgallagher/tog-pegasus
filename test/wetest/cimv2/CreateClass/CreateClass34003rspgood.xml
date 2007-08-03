@@ -3,7 +3,7 @@
 <MESSAGE ID="34003" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="CreateClass">
-<ERROR CODE="1" DESCRIPTION="CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: &quot;undeclared qualifier: Abstract&quot;"/>
+<ERROR CODE="1" DESCRIPTION="CIM_ERR_FAILED: undeclared qualifier: Abstract"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

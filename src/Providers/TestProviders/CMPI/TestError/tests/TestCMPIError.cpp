@@ -82,9 +82,7 @@ test01 (CIMClient & client)
       }
 
       PEGASUS_TEST_ASSERT(String::equal(e.getMessage(),
-          "CIM_ERR_FAILED: A general error occurred that is not covered by a "
-          "more specific error code: \"TestError invokeMethod() expected "
-          "failure\""));
+          "CIM_ERR_FAILED: TestError invokeMethod() expected failure"));
       caughtException=true;
   }
   PEGASUS_TEST_ASSERT(caughtException);
@@ -131,16 +129,16 @@ main (int argc, char **argv)
       const char *opt = argv[1];
 
       if (String::equalNoCase (opt, "test"))
-	{
+        {
           providerNamespace = CIMNamespaceName (argv[2]);
-	  _test (client);
-	}
+          _test (client);
+        }
       else
-	{
-	  cerr << "Invalid option: " << opt << endl;
-	  _usage ();
-	  return -1;
-	}
+        {
+          cerr << "Invalid option: " << opt << endl;
+          _usage ();
+          return -1;
+        }
     }
 
   cout << argv[0] << " +++++ completed" << endl;

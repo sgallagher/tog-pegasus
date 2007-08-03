@@ -106,7 +106,7 @@ cimcrl: option "-help" was unexpected
 Use '--help' to obtain command syntax.
 
 Add an invalid CRL to the truststore. Should error out
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "Could not read x509 PEM format."
+CIM_ERR_FAILED: Could not read x509 PEM format.
 
 Add the CA certificate to the truststore
 Certificate added successfully.
@@ -206,7 +206,7 @@ Result: CIM_ComputerSystem
 
 Remove the CA CRL that we just removed, this should get a DNE error
 Specified CRL does not exist.
-CIM_ERR_NOT_FOUND: The requested object could not be found: "File does not exist 2ef780db.r0."
+CIM_ERR_NOT_FOUND: File does not exist 2ef780db.r0.
 
 Remove the CA certificate from the truststore to clean everything up, this should succeed
 Certificate removed successfully.

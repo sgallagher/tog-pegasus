@@ -1462,15 +1462,6 @@ static void TestServerMessages( CIMClient& client,
             expectedCL = LanguageParser::parseContentLanguageHeader(rspLang);
         }
 
-        // Parms for the getClass API call
-        const CIMNamespaceName NAMESPACE = 
-            CIMNamespaceName("test/TestProvider");
-        const CIMName CLASSNAME = CIMName ("CIM_ANonExistentClassName");
-        Boolean localOnly = false;
-        Boolean includeQualifiers = true;
-        Boolean includeClassOrigin = false;
-        CIMClass rtnClass;
-
         //
         // Vars for enumerate sample instances test
         //
@@ -1535,61 +1526,59 @@ static void TestServerMessages( CIMClient& client,
         for (int i = 0; i < 100; i ++)
         {
             //
-            // TEST 1 - Cause "class not found" server message
+            // TEST 1 - Cause
+            // Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS
+            // error message
             //
-            // Send a getClass request with a bad class name to cause an 
-            // error message.
+            // Attempt a modifyClass operation which invalidly changes
+            // the superclass.
             // Expect the error message to be returned in the language specified
             // by the user.
             //
 
             try
             {
-              //if (verboseTest)
-          //  cout << "Sending the getClass request " << i << endl;
+                CIMClass rtnClass = client.getClass(
+                    "test/TestProvider",
+                    "CIM_ManagedSystemElement",
+                    true,
+                    true,
+                    false);
+
+                rtnClass.setSuperClassName("CIM_Process");
 
                 client.setRequestAcceptLanguages(acceptLangs1);
 
-                rtnClass = client.getClass(
-            NAMESPACE,
-            CLASSNAME,
-            localOnly,
-            includeQualifiers,
-            includeClassOrigin);
+                client.modifyClass("test/TestProvider", rtnClass);
 
                 // should not get here
                 throw Exception("did not get expected getClass exception");
             }
             catch (CIMException& ce)
             {
-                if (ce.getCode() == CIM_ERR_NOT_FOUND)
+                if (ce.getCode() == CIM_ERR_FAILED)
                 {
-                   // Sanity check to make sure the bad class name is in
-                   // the error message
-                   Uint32 n = ce.getMessage().find(CLASSNAME.getString());
-                   if (n == PEG_NOT_FOUND)
-                   {
-                      throw;
-                   }
+                    if ((String::compare(
+                            ce.getMessage(),
+                            "CIM_ERR_FAILED",
+                            strlen("CIM_ERR_FAILED")) != 0) ||
+                        (ce.getMessage().size() ==
+                            strlen("CIM_ERR_FAILED")))
+                    {
+                        throw;
+                    }
 
                    if (i == 0)
                    {
-                      // Since we don't know the text of the server message
-                      // in each
-                      // language, save the message on the first request
-                      expectedMsg = ce.getMessage();
-                      if (verboseTest)
-                          cout << "Note: Expecting message = " << expectedMsg
-                               << " from the server" << endl;
-
-              // Sanity check to make sure that the exception does not just have
-              // the class name (see bug 1686)
-              MYASSERT(expectedMsg.size() != CLASSNAME.getString().size());
+                       // Since we don't know the text of the server message in
+                       // each language, save the message on the first request
+                       expectedMsg = ce.getMessage();
+                       if (verboseTest)
+                           cout << "Note: Expecting message = " << expectedMsg
+                                << " from the server" << endl;
                    }
 
                    // Verify the message and the content languages returned
-//                 if (verboseTest)
-//                    cout << "Checking the server error message." << endl;
                    MYASSERT(expectedMsg == ce.getMessage());
                    MYASSERT(expectedCL == client.getResponseContentLanguages());
                    MYASSERT(expectedCL == ce.getContentLanguages());

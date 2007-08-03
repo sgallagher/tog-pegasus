@@ -50,9 +50,8 @@ CIMNamespaceName providerNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Fail_3");
 const String ERROR_SUBSTRING = "TestCMPIFail_3Provider) conflicting"
     " generic/specfic CMPI style provider.";
-const String RCMPI_ERROR = "CIM_ERR_FAILED: A general error occurred that is"
-    " not covered by a more specific error code: \"ProviderInitFailure:"
-    " Error initializing the API's _Create<mi-type>MI\"";
+const String RCMPI_ERROR = "CIM_ERR_FAILED: ProviderInitFailure:"
+    " Error initializing the API's _Create<mi-type>MI";
 
 Boolean verbose;
 

@@ -696,7 +696,7 @@ PersistenceType:   Transient
 
 List subscription with filter and handler.
     Incorrect non-existent namespace.
-CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: "foons/foons2"
+CIM_ERR_INVALID_NAMESPACE: foons/foons2
 
 List subscription with filter and handler.
     Subscription does not exist in non-default namespace .
@@ -892,7 +892,7 @@ test/CimsubTestNS0:Filter02  "SELECT IndicationTime, IndicationIdentifier, Corre
 
 Try to remove test filter.
     The filter is still referenced by a suscription.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "A Filter or Handler referenced by a subscription may not be deleted"
+CIM_ERR_FAILED: A Filter or Handler referenced by a subscription may not be deleted
 
 List test subscription.
     This is the only reference to the test filter.
@@ -918,7 +918,7 @@ PersistenceType:   Permanent
 
 Try to remove persistent test handler.
     The handler is still referenced by a subscription.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "A Filter or Handler referenced by a subscription may not be deleted"
+CIM_ERR_FAILED: A Filter or Handler referenced by a subscription may not be deleted
 
 List test subscription.
     This is the only reference to the persistent test handler.
@@ -1025,7 +1025,7 @@ SubscriptionState: Enabled
 -----------------------------------------
 
 Disable an expired subscription.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "Expired subscription may not be modified; has been deleted"
+CIM_ERR_FAILED: Expired subscription may not be modified; has been deleted
 
 List an expired subscription.
 The subscription should have been removed.

@@ -207,9 +207,8 @@ static String _makeCIMExceptionDescription(
     tmp.append(cimStatusCodeToString(code));
     if (message != String::EMPTY)
     {
-        tmp.append(": \"");
+        tmp.append(": ");
         tmp.append(message);
-        tmp.append("\"");
     }
     return tmp;
 }
@@ -226,9 +225,8 @@ static String _makeCIMExceptionDescription(
     tmp = cimStatusCodeToString(code, contentLanguages);
     if (message != String::EMPTY)
     {
-        tmp.append(": \"");
+        tmp.append(": ");
         tmp.append(message);
-        tmp.append("\"");
     }
     return tmp;
 }
@@ -244,9 +242,8 @@ static String _makeCIMExceptionDescription(
     tmp = cimMessage;
     if (extraMessage != String::EMPTY)
     {
-        tmp.append(": \"");
+        tmp.append(": ");
         tmp.append(extraMessage);
-        tmp.append("\"");
     }
     return tmp;
 }
@@ -282,9 +279,10 @@ TraceableCIMException::TraceableCIMException(
     rep->file = file;
     rep->line = line;
 
-    // Localize the cim message from the code.  Use the language of
-    // the current thread.
-    rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
+    // Get the cim message from the code.  Ignore the content languages from
+    // this operation, since the cimMessage string is only localized when the
+    // code is invalid.
+    cimStatusCodeToString_Thread(rep->cimMessage, code);
 }
 
 TraceableCIMException::TraceableCIMException(
@@ -299,9 +297,10 @@ TraceableCIMException::TraceableCIMException(
     rep->file = file;
     rep->line = line;
 
-    // Localize the cim message from the code.  Use the language of
-    // the current thread.
-    rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
+    // Get the cim message from the code.  Ignore the content languages from
+    // this operation, since the cimMessage string is only localized when the
+    // code is invalid.
+    cimStatusCodeToString_Thread(rep->cimMessage, code);
 }
 
 TraceableCIMException::TraceableCIMException(

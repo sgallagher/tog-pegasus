@@ -40,7 +40,7 @@
 # include "lslp-linux.cpp"
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_SOLARIS)
 # include "lslp-linux.cpp"
-#elif defined(PEGASUS_OS_AIX)
+#elif defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
 # include "lslp-aix.cpp"
 #elif defined(PEGASUS_OS_HPUX)
 # include "lslp-hpux.cpp"

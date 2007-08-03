@@ -49,7 +49,7 @@
 # include <sys/ps.h>
 #endif
 
-#if defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
 extern "C"
 {
 # include <procinfo.h>
@@ -186,7 +186,7 @@ Boolean ServerRunStatus::kill()
     defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
     defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
-    defined(PEGASUS_OS_AIX)
+    defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
 
     ::kill(pid, SIGKILL);
 
@@ -324,7 +324,7 @@ Boolean ServerRunStatus::_isServerProcess(PEGASUS_PID_T pid)
     return true;
 }
 
-# elif defined(PEGASUS_OS_AIX)
+# elif defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
 
 ///////////////////////////////////////////////////////
 // AIX implementation of _isServerProcess

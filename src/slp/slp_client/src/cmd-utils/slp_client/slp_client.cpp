@@ -457,7 +457,8 @@ void free_url_list(struct url_entry *list)
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || \
     defined( BSD ) || defined( PEGASUS_OS_SOLARIS ) || \
-    defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX)
+    defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || \
+    defined(PEGASUS_OS_PASE)
 int Gethostbyname_r(
     const char *name,
     struct hostent *resultbuf,
@@ -6711,8 +6712,7 @@ int main(int argc, char **argv)
         NULL,
         427,
         "DSA",
-        "DEFAULT,
-        TEST SCOPE",
+        "DEFAULT, TEST SCOPE",
         TRUE,
         TRUE);
 

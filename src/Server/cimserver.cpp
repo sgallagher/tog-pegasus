@@ -119,6 +119,11 @@
 
 #include <Pegasus/Common/Executor.h>
 
+#ifdef PEGASUS_OS_PASE
+# include <ILEWrapper/ILEUtilities2.h>
+# include <ILEWrapper/qumemultiutil.h>
+#endif
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -129,6 +134,10 @@ PEGASUS_USING_STD;
 #endif
 #ifndef PEGASUS_SERVICE_DESCRIPTION
 #define PEGASUS_SERVICE_DESCRIPTION "Pegasus CIM Object Manager Service";
+#endif
+
+#ifdef PEGASUS_OS_PASE
+#include <as400_protos.h> //for _SETCCSID
 #endif
 
 class CIMServerProcess : public ServerProcess
@@ -438,6 +447,8 @@ int main(int argc, char** argv)
     //
 # if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
     pegasusHome = AIX_RELEASE_PEGASUS_HOME;
+#  elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
+    pegasusHome = PASE_PROD_HOME;
 # elif !defined(PEGASUS_USE_RELEASE_DIRS) || \
     defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     const char* tmp = getenv("PEGASUS_HOME");
@@ -628,6 +639,37 @@ int CIMServerProcess::cimserver_run(
 {
     Boolean daemonOption = false;
 
+#if defined (PEGASUS_OS_PASE) && !defined (PEGASUS_DEBUG)
+    // PASE have itself regular for checking privileged user
+    if (!System::isPrivilegedUser("*CURRENT  "))
+    {
+        MessageLoaderParms parms(
+                "src.Server.cimserver.NO_AUTHORITY.PEGASUS_OS_PASE",
+                "The caller should be a privileged user,"
+                " or the server will not run.");
+        cerr << MessageLoader::getMessage(parms) << endl;
+        exit (1);
+    }
+    char jobName[11];
+    // this function only can be found in PASE environment
+    umeGetJobName(jobName, false);
+    if (strncmp("QUMECIMOM ", jobName, 10) != 0
+            && strncmp("QUMEENDCIM", jobName, 10) != 0)
+    {
+        MessageLoaderParms parms(
+                "src.Server.cimserver.NOT_OFFICIAL_START.PEGASUS_OS_PASE",
+                "cimserver can not be started by user.\nServer will not run.");
+        cerr << MessageLoader::getMessage(parms) << endl;
+        exit (1);
+    }
+
+    // Direct standard input, output, and error to /dev/null, 
+    // PASE run this job in background, any output in not allowed
+    freopen("/dev/null", "r", stdin);
+    freopen("/dev/null", "w", stdout);
+    freopen("/dev/null", "w", stderr);
+#endif
+
     //
     // Get an instance of the Config Manager.
     //
@@ -651,6 +693,55 @@ int CIMServerProcess::cimserver_run(
         MessageLoader::setPegasusMsgHome(ConfigManager::getHomedPath(
             ConfigManager::getInstance()->getCurrentValue("messageDir")));
 
+#ifdef PEGASUS_OS_PASE
+    // set ccsid to unicode for entire job
+    // ccsid is globolization mechanism in PASE environment
+    if (_SETCCSID(1208) == -1)
+    {
+        MessageLoaderParms parms(
+                "src.Server.cimserver.SET_CCSID_ERROR.PEGASUS_OS_PASE",
+                "Failed to set CCSID, server will stop.");
+        cerr << MessageLoader::getMessage(parms) << endl;
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::FATAL,
+                "src.Server.cimserver.SET_CCSID_ERROR.PEGASUS_OS_PASE",
+                "Failed to set CCSID, server will stop.\n");
+        exit (1);
+    }
+
+    char fullJobName[29];
+    umeGetJobName(fullJobName, true);
+    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            "src.Server.cimserver.SERVER_JOB_NAME.PEGASUS_OS_PASE",
+            "CIM Server's Job Name is: $0", fullJobName);
+#endif
+
+    Boolean enableHttpConnection = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableHttpConnection"));
+    Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableHttpsConnection"));
+
+    // Make sure at least one connection is enabled
+#ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+    if (!enableHttpConnection && !enableHttpsConnection)
+    {
+        //l10n
+        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            //"Neither HTTP nor HTTPS connection is enabled.  "
+            //"CIMServer will not be started.");
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
+            "Neither HTTP nor HTTPS connection is enabled."
+            "  CIMServer will not be started.");
+        //cerr << "Neither HTTP nor HTTPS connection is enabled.  "
+            //"CIMServer will not be started." << endl;
+        MessageLoaderParms parms(
+                "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
+                "Neither HTTP nor HTTPS connection is enabled."
+                "  CIMServer will not be started.");
+        cerr << MessageLoader::getMessage(parms) << endl;
+        return(1);
+    }
+#endif
         //
         // Check to see if we should start Pegasus as a daemon
         //
@@ -664,6 +755,15 @@ int CIMServerProcess::cimserver_run(
         // Set up the Logger.  This does not open the logs.
         // Might be more logical to clean before set.
         Logger::setHomeDirectory(logsDirectory);
+        
+# ifdef PEGASUS_OS_PASE
+    /* write job log to tell where pegasus log is.*/
+    if(logsDirectory.size() > 0)
+        // this function only can be found in PASE environment
+        logPegasusDir2joblog(logsDirectory.getCString());
+    else
+        logPegasusDir2joblog(".");
+# endif
 #endif
 
         //

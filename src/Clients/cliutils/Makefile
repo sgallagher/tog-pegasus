@@ -49,6 +49,4 @@ SOURCES = \
     Command.cpp \
     CommandException.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak

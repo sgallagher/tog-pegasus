@@ -61,8 +61,6 @@ endif
 
 SOURCES = peg_slp_agent.cpp 
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak
 
 #ifeq ($(PEGASUS_ENABLE_SLP),true)

@@ -50,6 +50,4 @@ SOURCES = \
     CIMExportResponseDecoder.cpp \
     HTTPExportResponseDecoder.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak

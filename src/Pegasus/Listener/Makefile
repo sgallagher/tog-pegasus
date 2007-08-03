@@ -51,8 +51,6 @@ SOURCES = \
     CIMListener.cpp \
 	CIMListenerIndicationDispatcher.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib
 endif

@@ -64,8 +64,6 @@ SOURCES = \
     CIMServerState.cpp \
 	WMIMapperUserInfoContainer.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 SYS_LIBS = ws2_32.lib advapi32.lib
 ifdef PEGASUS_HAS_SSL
   SYS_LIBS += $(OPENSSL_HOME)/Lib/*.lib

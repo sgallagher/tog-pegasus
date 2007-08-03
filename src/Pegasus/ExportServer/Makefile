@@ -49,6 +49,4 @@ SOURCES = \
     CIMExportResponseEncoder.cpp \
     CIMExportRequestDispatcher.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak

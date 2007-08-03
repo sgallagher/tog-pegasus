@@ -70,8 +70,6 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
   SOURCES += $(SOURCES_SLP)
 endif
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak
 
 ifeq ($(OS_TYPE),windows)

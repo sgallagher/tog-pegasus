@@ -46,6 +46,4 @@ LIBRARIES = \
 
 SOURCES = CLIClientLib.cpp    
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak

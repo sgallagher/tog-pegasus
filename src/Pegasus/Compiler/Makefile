@@ -69,8 +69,6 @@ SOURCES = cimmof_lex_wrapper.cpp cimmofParser.cpp cimmofMessages.cpp \
 	cimmofRepository.cpp cimmof_tab_wrapper.cpp parser.cpp \
 	qualifierList.cpp valueFactory.cpp objname.cpp compilerDeclContext.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak
 
 

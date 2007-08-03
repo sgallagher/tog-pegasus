@@ -58,8 +58,6 @@ SOURCES = \
     ClientAuthenticator.cpp \
     CIMClientException.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak

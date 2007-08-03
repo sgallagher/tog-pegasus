@@ -50,7 +50,5 @@ PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = getoopt.cpp
 
-OBJECTS = $(SOURCES:.cpp=$(OBJ))
-
 include $(ROOT)/mak/library.mak
 

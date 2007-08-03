@@ -59,6 +59,10 @@
 
 #include <Pegasus/Common/Executor.h>
 
+#ifdef PEGASUS_OS_PASE
+# include <ILEWrapper/ILEUtilities.h>
+#endif
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -325,7 +329,12 @@ Boolean CertificateProvider::_verifyAuthorization(const String& userName)
 
     if (_enableAuthentication)
     {
+#ifdef PEGASUS_OS_PASE
+        if (!umeVerifyUserSpecialAuthorities("*SECADM   *ALLOBJ   ",
+                    2, userName.getCString(), true))
+#else
         if (!System::isPrivilegedUser(userName))
+#endif
         {
             PEG_METHOD_EXIT();
             return false;

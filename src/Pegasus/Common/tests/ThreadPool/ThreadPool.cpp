@@ -68,7 +68,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL funcSleepSpecifiedMilliseconds(
 {
 #ifdef PEGASUS_POINTER_64BIT
     Uint32 sleepMilliseconds = (Uint64)parm;
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     unsigned long sleepMilliseconds = (unsigned long)parm;
 #else
     Uint32 sleepMilliseconds = (Uint32)parm;

@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,25 +30,20 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef Pegasus_FixedPropertyTable_h
-#define Pegasus_FixedPropertyTable_h
+#ifndef Pegasus_FixedPropertyTablePase_h
+#define Pegasus_FixedPropertyTablePase_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "FixedPropertyTableLinux.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "FixedPropertyTableHpux.h"
-#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-#include "FixedPropertyTablePase.h"
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-#include "FixedPropertyTableAix.h"
-#elif defined (PEGASUS_OS_VMS)
-#include "FixedPropertyTableVms.h"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include "FixedPropertyTablezOS.h"
-#else
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"enableRemotePrivilegedUserAccess",         "true"},
+    {"enableNamespaceAuthorization",             "true"},
+    {"enableBinaryRepository",                  "false"},
+    {"daemon",                                   "false"},
+    {"passwordFilePath",                         "cimserver.passwd"},
+    {"slp",                                      "true"},
+    {"authorizedUserGroups",                          ""},
+    {"home",                  "/QOpenSys/QIBM/UserData/UME/Pegasus"},
+    {"repositoryDir",         "/QOpenSys/QIBM/UserData/UME/Pegasus/repository"},
 #endif
 
-#endif /* Pegasus_FixedPropertyTable_h */
+#endif /* Pegasus_FixedPropertyTablePase_h */

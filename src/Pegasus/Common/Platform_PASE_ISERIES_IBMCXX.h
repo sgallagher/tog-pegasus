@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,25 +30,59 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef Pegasus_FixedPropertyTable_h
-#define Pegasus_FixedPropertyTable_h
+#ifndef Pegasus_Platform_PASE_ISERIES_IBMCXX_h
+#define Pegasus_Platform_PASE_ISERIES_IBMCXX_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "FixedPropertyTableLinux.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "FixedPropertyTableHpux.h"
-#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-#include "FixedPropertyTablePase.h"
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-#include "FixedPropertyTableAix.h"
-#elif defined (PEGASUS_OS_VMS)
-#include "FixedPropertyTableVms.h"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include "FixedPropertyTablezOS.h"
-#else
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+#define PASE_DEFAULT_PEGASUS_HOME "/QOpenSys/QIBM/UserData/UME/Pegasus"
+
+#define PASE_PROD_HOME "/QOpenSys/QIBM/ProdData/UME/Pegasus"
+
+#define PASE_DEFAULT_LOG_DIRECTORY "/QOpenSys/QIBM/UserData/UME/Pegasus/logs"
+
+#define PASE_DEFAULT_MESSAGE_SOURCE "/QOpenSys/QIBM/ProdData/UME/Pegasus/msg"
+
+#define PEGASUS_OS_TYPE_UNIX
+
+#define PEGASUS_OS_PASE
+
+#define PEGASUS_ARCHITECTURE_ISERIES
+
+#define PEGASUS_COMPILER_IBMCXX
+
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 signed long long  
+
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_NO_PASSWORDFILE
+
+// This enables the default pluggable provider manager.
+// See ProviderManagerService.cpp
+//#define PEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
+
+#define PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+
+#define PEGASUS_USE_RELEASE_DIRS
+
+#define PEGASUS_SUPPORT_UTF8_FILENAME
+
+//#define PEGASUS_REPOSITORY_NOT_NORMALIZED
+
+#include <sys/param.h> // For MAXHOSTNAMELEN
+#define PEGASUS_MAXHOSTNAMELEN (MAXHOSTNAMELEN + 1)
+
+#ifndef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#define PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #endif
 
-#endif /* Pegasus_FixedPropertyTable_h */
+/* environment variable to store pase ccsid */
+#define PEGASUS_ORIG_PASE_CCSID "PEGASUS_ORIG_PASE_CCSID"
+
+#define PEGASUS_HAVE_PTHREADS
+#endif /* Pegasus_Platform_PASE_ISERIES_IBMCXX_h */

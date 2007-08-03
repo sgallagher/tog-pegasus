@@ -40,6 +40,8 @@
 # include "DefaultPropertyTableLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
 # include "DefaultPropertyTableHpux.h"
+#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+#include "DefaultPropertyTablePase.h"
 #elif defined (PEGASUS_OS_VMS)
 # include "DefaultPropertyTableVms.h"
 #elif defined(PEGASUS_OS_ZOS)

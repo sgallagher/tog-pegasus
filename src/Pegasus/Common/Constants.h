@@ -222,6 +222,41 @@
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/lbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/lbin/cimprovagt"
+# elif defined(PEGASUS_OS_PASE)
+#  undef CIMSERVER_LOCK_FILE
+#  define CIMSERVER_LOCK_FILE               \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_start.lock"
+#  undef PEGASUS_REPOSITORY_DIR
+#  define PEGASUS_REPOSITORY_DIR            \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/repository"
+#  undef PEGASUS_CURRENT_CONFIG_FILE_PATH
+#  define PEGASUS_CURRENT_CONFIG_FILE_PATH  \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_current.conf"
+#  undef PEGASUS_PLANNED_CONFIG_FILE_PATH
+#  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_planned.conf"
+#  undef PEGASUS_CIMSERVER_START_FILE
+#  define PEGASUS_CIMSERVER_START_FILE      \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_start.conf"
+#  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/client.pem"
+#  undef PEGASUS_SSLCLIENT_RANDOMFILE
+#  define PEGASUS_SSLCLIENT_RANDOMFILE      \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/ssl.rnd"
+#  undef PEGASUS_SSLSERVER_RANDOMFILE
+#  define PEGASUS_SSLSERVER_RANDOMFILE      \
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/ssl/keystore/cimserver.rnd"
+#  undef PEGASUS_LOCAL_AUTH_DIR
+#  define PEGASUS_LOCAL_AUTH_DIR            "/QOpenSys/var/UME"
+#  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH   
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/QOpenSys/var/UME/cimxml.socket"
+#  undef PEGASUS_PAM_STANDALONE_PROC_NAME
+#  define PEGASUS_PAM_STANDALONE_PROC_NAME  \
+    "/QOpenSys/QIBM/ProdData/UME/Pegasus/bin/cimservera"
+#  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  \
+    "/QOpenSys/QIBM/ProdData/UME/Pegasus/bin/cimprovagt"
 # elif defined(PEGASUS_OS_AIX)
 #  undef PEGASUS_CIMSERVER_START_FILE
 #  define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"

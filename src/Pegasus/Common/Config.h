@@ -46,6 +46,8 @@
 # include <Pegasus/Common/Platform_LINUX_IX86_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
 # include <Pegasus/Common/Platform_LINUX_XSCALE_GNU.h>
+#elif defined (PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+#include <Pegasus/Common/Platform_PASE_ISERIES_IBMCXX.h>
 #elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 # include <Pegasus/Common/Platform_AIX_RS_IBMCXX.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)

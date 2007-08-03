@@ -61,6 +61,9 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_OS_HPUX
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+#elif defined(PEGASUS_OS_PASE)
+    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #else
 #if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
@@ -76,6 +79,8 @@ static struct ConfigPropertyRow properties[] =
 # else
     {"traceFilePath", "cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif
+#elif defined(PEGASUS_OS_PASE)
+    {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #else
     {"traceFilePath", "trace/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif

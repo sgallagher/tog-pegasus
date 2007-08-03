@@ -53,22 +53,29 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_RELEASE_DIRS)
-    #if !defined(PEGASUS_USE_SYSLOGS)
+# if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "/var/wbem/logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-    #endif
+# endif    
+#elif defined(PEGASUS_OS_PASE)
+# if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
+        {"logdir", "/QOpenSys/QIBM/UserData/UME/Pegasus/logs", IS_DYNAMIC, 
+            0, 0, IS_VISIBLE},
+# else 
+        {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+# endif
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #else
-#if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
-#if !defined(PEGASUS_USE_SYSLOGS)
+# if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
+#  if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-#endif
+#  endif
     {"logLevel", "SEVERE", IS_DYNAMIC, 0, 0, IS_HIDDEN}
-#else
-#if !defined(PEGASUS_USE_SYSLOGS)
+# else
+#  if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-#endif
+#  endif
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
-#endif
+# endif
 #endif
 };
 

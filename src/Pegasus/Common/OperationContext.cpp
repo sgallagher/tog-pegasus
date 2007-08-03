@@ -35,6 +35,12 @@
 #include "ArrayInternal.h"
 #include <Pegasus/Common/MessageLoader.h>
 
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
+    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) || \
+    defined(PEGASUS_PLATFORM_DARWIN_IX86_GNU)
+# define PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 //
@@ -218,8 +224,7 @@ IdentityContainer::IdentityContainer(
 }
 
 IdentityContainer::IdentityContainer(const IdentityContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {
@@ -302,8 +307,7 @@ SubscriptionInstanceContainer::SubscriptionInstanceContainer(
 
 SubscriptionInstanceContainer::SubscriptionInstanceContainer(
     const SubscriptionInstanceContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {
@@ -387,8 +391,7 @@ SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
 
 SubscriptionInstanceNamesContainer::SubscriptionInstanceNamesContainer(
     const SubscriptionInstanceNamesContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {
@@ -478,8 +481,7 @@ SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
 
 SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer(
     const SubscriptionFilterConditionContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {
@@ -578,8 +580,7 @@ SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
 
 SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
     const SubscriptionFilterQueryContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {
@@ -728,8 +729,7 @@ AcceptLanguageListContainer::AcceptLanguageListContainer(
 
 AcceptLanguageListContainer::AcceptLanguageListContainer(
     const AcceptLanguageListContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {
@@ -813,8 +813,7 @@ ContentLanguageListContainer::ContentLanguageListContainer(
 
 ContentLanguageListContainer::ContentLanguageListContainer(
     const ContentLanguageListContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {
@@ -898,8 +897,7 @@ SnmpTrapOidContainer::SnmpTrapOidContainer(
 
 SnmpTrapOidContainer::SnmpTrapOidContainer(
     const SnmpTrapOidContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {

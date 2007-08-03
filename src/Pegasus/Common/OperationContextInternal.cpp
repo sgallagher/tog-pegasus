@@ -33,6 +33,12 @@
 
 #include "OperationContextInternal.h"
 
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
+    defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) || \
+    defined(PEGASUS_PLATFORM_DARWIN_IX86_GNU)
+# define PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 //
@@ -275,8 +281,7 @@ NormalizerContextContainer::NormalizerContextContainer(
 
 NormalizerContextContainer::NormalizerContextContainer(
     const NormalizerContextContainer& container)
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-    defined (PEGASUS_OS_DARWIN)
+#ifdef PEGASUS_INCLUDE_SUPERCLASS_INITIALIZER
     : OperationContext::Container()
 #endif
 {

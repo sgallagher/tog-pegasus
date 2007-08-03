@@ -426,7 +426,8 @@ void Thread::cleanup_pop(Boolean execute)
 
 void Thread::exit_self(ThreadReturnType exit_code)
 {
-#ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+#if !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    && !defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     Threads::exit(exit_code);
 #else
     // execute the cleanup stack and then return

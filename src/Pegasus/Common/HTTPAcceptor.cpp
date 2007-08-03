@@ -44,6 +44,11 @@
 #include "Tracer.h"
 #include <Pegasus/Common/MessageLoader.h>
 
+#ifdef PEGASUS_OS_PASE
+# include <as400_protos.h>
+# include <Pegasus/Common/PaseCcsid.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -279,6 +284,19 @@ void HTTPAcceptor::bind()
 */
 void HTTPAcceptor::_bind()
 {
+#ifdef PEGASUS_OS_PASE
+    // bind need ccsid is 819 
+    int orig_ccsid;
+    orig_ccsid = _SETCCSID(-1);
+    if (orig_ccsid == -1)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            String("HTTPAcceptor::_bind: Can not get current PASE CCSID."));
+        orig_ccsid = 1208;
+    }
+    PaseCcsid ccsid(819, orig_ccsid);
+#endif
+
     PEGASUS_ASSERT(_rep != 0);
     // Create address:
     memset(_rep->address, 0, _rep->address_size);

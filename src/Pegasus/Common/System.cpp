@@ -633,7 +633,8 @@ Boolean System::isLocalHost(const String &hostName)
     //        as this is the superior way to work
 #if defined(PEGASUS_OS_LINUX) || \
     defined(PEGASUS_OS_AIX) || \
-    defined(PEGASUS_OS_HPUX)
+    defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_OS_PASE)
 
     struct in_addr inaddr;
     // if inet_aton failed(return=0),

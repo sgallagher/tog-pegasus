@@ -335,7 +335,8 @@ Uint32 CIMRepositoryArchiveCommand::execute(
     AutoFileLock repositoryLock(lockFile.getCString());
 
     // Define the "tar" command location based on the platform
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || \
+  defined(PEGASUS_OS_PASE)
     const char TAR_COMMAND[] = "/usr/bin/tar";
 #elif defined(PEGASUS_OS_LINUX)
     const char TAR_COMMAND[] = "/bin/tar";

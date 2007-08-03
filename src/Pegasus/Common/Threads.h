@@ -215,6 +215,7 @@ inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 inline void Threads::yield()
 {
 #if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || \
+    defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX) || \
     defined(PEGASUS_PLATFORM_HPUX_ACC) || \
     defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
     defined(PEGASUS_OS_VMS) || \

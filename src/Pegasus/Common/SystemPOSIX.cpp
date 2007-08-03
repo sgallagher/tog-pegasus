@@ -693,6 +693,11 @@ Boolean System::isPrivilegedUser(const String& userName)
     }
     return false;
 
+#elif defined(PEGASUS_OS_PASE)
+    CString user = userName.getCString();
+    // this function only can be found in PASE environment
+    return umeIsPrivilegedUser((const char *)user);
+
 #else
 
     int retStat;

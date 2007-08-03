@@ -63,7 +63,8 @@ Semaphore::Semaphore(Uint32 initial)
 
 Semaphore::~Semaphore()
 {
-#ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+#if !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    && !defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     pthread_mutex_lock(&_rep.mutex);
     int r = 0;
     while ((r = pthread_cond_destroy(&_rep.cond) == EBUSY) ||
@@ -96,7 +97,8 @@ Semaphore::~Semaphore()
 #endif
 }
 
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
 // cleanup function
 static void semaphore_cleanup(void *arg)
 {
@@ -115,7 +117,8 @@ void Semaphore::wait(Boolean ignoreInterrupt)
 
     // Push cleanup function onto cleanup stack
     // The mutex will unlock if the thread is killed early
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     Threads::cleanup_push(&semaphore_cleanup, &_rep);
 #endif
 
@@ -138,7 +141,8 @@ void Semaphore::wait(Boolean ignoreInterrupt)
     // Since we push an unlock onto the cleanup stack
     // We will pop it off to release the mutex when leaving the critical
     // section.
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     Threads::cleanup_pop(1);
 #endif
     // Release mutex to leave critical section.
@@ -157,7 +161,8 @@ void Semaphore::time_wait(Uint32 milliseconds)
     pthread_mutex_lock(&_rep.mutex);
     Boolean timedOut = false;
 
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     // Push cleanup function onto cleanup stack
     // The mutex will unlock if the thread is killed early
     Threads::cleanup_push(&semaphore_cleanup, &_rep);
@@ -195,7 +200,8 @@ void Semaphore::time_wait(Uint32 milliseconds)
     // Decrement the waiters count.
     _rep.waiters--;
 
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     // Since we push an unlock onto the cleanup stack
     // We will pop it off to release the mutex when leaving the critical
     // section.

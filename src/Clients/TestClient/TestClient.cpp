@@ -45,10 +45,6 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/HostLocator.h>
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && \
-    !defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_AIX)
-// Remove SLP #include <slp/slp.h>
-#endif
 
 /**
   Here, exit(2) is being used to signal a timeout exception,

@@ -70,6 +70,10 @@
 # include <Executor/PAMAuth.h>
 #endif
 
+#ifdef PEGASUS_OS_PASE
+# include <as400_protos.h> // For fork400()
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,6 +341,8 @@ public:
 
 #  if defined(PEGASUS_OS_VMS)
             pid = (int)vfork();
+# elif defined(PEGASUS_OS_PASE)
+            pid = (int)fork400("QUMEPRVAGT",0);
 #  else
             pid = (int)fork();
 #  endif

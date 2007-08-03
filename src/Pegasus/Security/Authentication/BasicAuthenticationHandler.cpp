@@ -118,6 +118,39 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     String password = decodedStr.subString(pos + 1);
 
+#ifdef PEGASUS_OS_PASE 
+    // PASE APIs require user profile to be uppercase
+    int userNameLen;
+
+    userNameLen = userName.size();
+    if (userNameLen > 10)
+    {
+        String badUser;
+        
+        if (userNameLen < 20)
+        {
+            badUser = userName;
+        }
+        else
+        {
+            badUser = userName.subString(0, 15);
+            badUser = badUser + "...";
+        }
+
+        Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::INFORMATION,  BASIC_AUTHENTICATION_FAILED_KEY, 
+                BASIC_AUTHENTICATION_FAILED, badUser );
+
+        PEG_METHOD_EXIT();
+
+        return false;
+    }
+    for (int i=0; i < userNameLen; i++)
+    {
+        userName[i] = toupper(userName[i]);
+    }
+#endif
+
 #ifdef PEGASUS_WMIMAPPER
     authenticated = true;
 

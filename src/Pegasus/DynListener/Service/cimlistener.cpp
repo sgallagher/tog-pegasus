@@ -50,7 +50,8 @@
 //
 // cimlistener -s
 //
-// To run pegasus listener as an NT service, there are FOUR  different possibilities:
+// To run pegasus listener as an NT service,
+// there are FOUR  different possibilities:
 //
 // To INSTALL the Pegasus service,
 //
@@ -72,7 +73,8 @@
 // or
 // cimlistener -stop
 //
-// Alternatively, you can use the windows service manager. Pegasus listener shows up
+// Alternatively, you can use the windows service manager.
+// Pegasus listener shows up
 // in the service database as "Pegasus CIM Listener"
 //
 //////////////////////////////////////////////////////////////////////
@@ -187,7 +189,8 @@ public:
 ServerRunStatus _serverRunStatus(
     PEGASUS_LISTENER_PROCESS_NAME, LISTENER_START_FILE);
 AutoPtr<CIMListenerProcess> _cimListenerProcess(new CIMListenerProcess());
-AutoPtr<DynamicListenerConfig> configManager(DynamicListenerConfig::getInstance());
+AutoPtr<DynamicListenerConfig> configManager(
+                                 DynamicListenerConfig::getInstance());
 static DynamicListener* _cimListener = 0;
 
 
@@ -235,37 +238,49 @@ void PrintHelp(const char* arg0)
     usage.append (COMMAND_NAME);
     usage.append (" [ [ options ] ]\n");
     usage.append ("  options\n");
-    usage.append ("    -v, --version   - displays CIM Listener version number\n");
+    usage.append (
+            "    -v, --version   - displays CIM Listener version number\n");
     usage.append ("    -h, --help      - prints this help message\n");
     usage.append ("    -s              - shuts down CIM Listener\n");
     usage.append ("    -D [home]       - sets pegasus home directory\n");
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    usage.append ("    -install [name] - installs pegasus as a Windows Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append (
+            "    -install [name] - installs pegasus as a Windows Service\n");
+    usage.append (
+            "                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Listener Service Name\n");
-    usage.append ("    -remove [name]  - removes pegasus as a Windows Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append (
+            "    -remove [name]  - removes pegasus as a Windows Service\n");
+    usage.append (
+            "                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Listener Service Name\n");
-    usage.append ("    -start [name]   - starts pegasus as a Windows Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append (
+            "    -start [name]   - starts pegasus as a Windows Service\n");
+    usage.append (
+            "                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Listener Service Name\n");
-    usage.append ("    -stop [name]    - stops pegasus as a Windows Service\n");
-    usage.append ("                      [name] is optional and overrides the\n");
-    usage.append ("                      default CIM Listener Service Name\n\n");
+    usage.append (
+            "    -stop [name]    - stops pegasus as a Windows Service\n");
+    usage.append (
+            "                      [name] is optional and overrides the\n");
+    usage.append (
+            "                      default CIM Listener Service Name\n\n");
 #endif
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
     usage.append ("    --nodaemon       - do NOT run as a daemon\n");
 #endif
 
     cout << endl;
-    cout << _cimListenerProcess->getProductName() << " " << _cimListenerProcess->getVersion() << endl;
+    cout << _cimListenerProcess->getProductName() << " "
+         << _cimListenerProcess->getVersion() << endl;
     cout << endl;
 
 //ATTN: Add menu items to Server bundle for listener
 /*#if defined(PEGASUS_OS_TYPE_WINDOWS)
     MessageLoaderParms parms("src.Server.cimserver.MENU.WINDOWS", usage);
 #elif defined(PEGASUS_OS_USE_RELEASE_DIRS)
-    MessageLoaderParms parms("src.Server.cimserver.MENU.HPUXLINUXIA64GNU", usage);
+    MessageLoaderParms parms(
+      "src.Server.cimserver.MENU.HPUXLINUXIA64GNU", usage);
 #else
     MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD", usage);
 #endif
@@ -314,6 +329,8 @@ setlocale(LC_ALL, "");
     //
 #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
     pegasusHome = AIX_RELEASE_PEGASUS_HOME;
+#elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
+    pegasusHome = PASE_PROD_HOME;
 #elif !defined(PEGASUS_USE_RELEASE_DIRS)
     const char* tmp = getenv("PEGASUS_HOME");
 
@@ -385,16 +402,19 @@ setlocale(LC_ALL, "");
                     else
                     {
                         //l10n
-                        //cout << "Missing argument for option -" << option << endl;
+                        //cout << "Missing argument for option -" 
+                        //     << option << endl;
                         String opt(option);
-                        MessageLoaderParms parms("src.Server.cimserver.MISSING_ARGUMENT",
+                        MessageLoaderParms parms(
+                                "src.Server.cimserver.MISSING_ARGUMENT",
                                          "Missing argument for option -$0",
                                          opt);
                         cout << MessageLoader::getMessage(parms) << endl;
                         exit(0);
                     }
 
-                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+                    memmove(&argv[i], &argv[i + 2],
+                            (argc-i-1) * sizeof(char*));
                     argc -= 2;
                 }
 #endif
@@ -431,9 +451,11 @@ setlocale(LC_ALL, "");
                     if (shutdownOption)
                     {
                         //l10n
-                        //cout << "Duplicate shutdown option specified." << endl;
-                        MessageLoaderParms parms("DynListener.cimlistener.DUPLICATE_SHUTDOWN_OPTION",
-                                                 "Duplicate shutdown option specified.");
+                        //cout << "Duplicate shutdown option specified."
+                        //     << endl;
+                        MessageLoaderParms parms(
+                           "DynListener.cimlistener.DUPLICATE_SHUTDOWN_OPTION",
+                           "Duplicate shutdown option specified.");
 
                         cout << MessageLoader::getMessage(parms) << endl;
                         exit(0);
@@ -533,7 +555,7 @@ int CIMListenerProcess::cimserver_run(
             "cimserver not started:  $0", e.getMessage());
 
         MessageLoaderParms parms("DynListener.cimlistener.LISTENER_NOT_STARTED",
-                                 "CIM Listener not started: $0", e.getMessage());
+                "CIM Listener not started: $0", e.getMessage());
 
         PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
             << PEGASUS_STD(endl);
@@ -576,8 +598,9 @@ int CIMListenerProcess::cimserver_run(
             if (errno == EPERM)
             {
                 MessageLoaderParms parms(
-                    "DynListener.cimlistener.KILL_PERM_DENIED",
-                    "Permission denied: Not permitted to shutdown cimlistener process.");
+                  "DynListener.cimlistener.KILL_PERM_DENIED",
+                  "Permission denied: Not permitted to"
+                  "shutdown cimlistener process.");
                 cout << MessageLoader::getMessage(parms) << endl;
             } else
             {
@@ -592,11 +615,14 @@ int CIMListenerProcess::cimserver_run(
 
         //cimserver_kill(1);
 #else
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
-    || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_SOLARIS) \
-    || defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) \
+        || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
+        || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE) \
+        || defined(PEGASUS_OS_SOLARIS) \
+        || defined(PEGASUS_OS_VMS)
 
-        // Check to see if the CIM Listener is running. No need to stop if not running.
+        // Check to see if the CIM Listener is running. 
+        // No need to stop if not running.
         if (_serverRunStatus.isServerRunning())
         {
             PidFile pidFile(LISTENER_STOP_FILE);
@@ -619,7 +645,8 @@ int CIMListenerProcess::cimserver_run(
         return(0);
     }
 
-    //get config options.  note that the paths will be converted to homedPaths in the lookup calls.
+    //get config options.  
+    //note that the paths will be converted to homedPaths in the lookup calls.
     Uint32 listenerPort;
     Boolean httpsConnection;
     String sslKeyFilePath;
@@ -638,12 +665,15 @@ int CIMListenerProcess::cimserver_run(
     configManager->lookupIntegerValue("listenerPort", listenerPort);
     httpsConnection = configManager->isTrue("enableHttpsListenerConnection");
     configManager->lookupValue("sslKeyFilePath", sslKeyFilePath);
-    configManager->lookupValue("sslCertificateFilePath", sslCertificateFilePath);
+    configManager->lookupValue("sslCertificateFilePath",
+                               sslCertificateFilePath);
     configManager->lookupValue("consumerDir", consumerDir);
     configManager->lookupValue("consumerConfigDir", consumerConfigDir);
     enableConsumerUnload = configManager->isTrue("enableConsumerUnload");
-    configManager->lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout);
-    configManager->lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout);
+    configManager->lookupIntegerValue("consumerIdleTimeout",
+                                       consumerIdleTimeout);
+    configManager->lookupIntegerValue("consumerIdleTimeout",
+                                      consumerIdleTimeout);
     configManager->lookupIntegerValue("shutdownTimeout", shutdownTimeout);
     configManager->lookupValue("traceFilePath", traceFile);
     configManager->lookupIntegerValue("traceLevel", traceLevel);
@@ -689,14 +719,15 @@ int CIMListenerProcess::cimserver_run(
     }
 #if defined(PEGASUS_DEBUG)
     // Put out startup up message.
-    cout << _cimListenerProcess->getProductName() << " " << _cimListenerProcess->getVersion() << endl;
+    cout << _cimListenerProcess->getProductName() << " " 
+         << _cimListenerProcess->getVersion() << endl;
     //l10n
     //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
     //cout <<"Starting..."
     MessageLoaderParms parms("DynListener.cimlistener.STARTUP_MESSAGE",
-                             "CIM Listener built $0 $1\nCIM Listener starting...",
-                             __DATE__,
-                             __TIME__);
+            "CIM Listener built $0 $1\nCIM Listener starting...",
+            __DATE__,
+            __TIME__);
 #endif
 
 //l10n
@@ -733,13 +764,15 @@ MessageLoader::_useProcessLocale = false;
     }catch(InvalidAcceptLanguageHeader& e){
           Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                   "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
-                  "Could not convert the system process locale into a valid AcceptLanguage format.");
+                  "Could not convert the system process"
+                  "locale into a valid AcceptLanguage format.");
           Logger::put(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                              e.getMessage());
     }
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
 || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
+|| defined(PEGASUS_OS_PASE) \
 || defined(PEGASUS_OS_SOLARIS) || defined (PEGASUS_OS_VMS)
     umask(S_IWGRP|S_IWOTH);
 
@@ -784,7 +817,8 @@ MessageLoader::_useProcessLocale = false;
 
         _cimListener->start();
 
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::INFORMATION,
+        Logger::put_l(Logger::STANDARD_LOG, 
+                System::CIMLISTENER, Logger::INFORMATION,
                 "src.Server.cimserver.LISTENING_ON_PORT",
                 "Listening on port $0.", listenerPort);
 
@@ -795,16 +829,20 @@ MessageLoader::_useProcessLocale = false;
         printf("Starting CIMListener with the following options\n");
         printf("\tlistenerPort %d\n", listenerPort);
         printf("\thttpsConnection %d\n", httpsConnection);
-        printf("\tsslKeyFilePath %s\n", (const char*)sslKeyFilePath.getCString());
-        printf("\tsslCertificateFilePath %s\n", (const char*)sslCertificateFilePath.getCString());
+        printf("\tsslKeyFilePath %s\n",
+                (const char*)sslKeyFilePath.getCString());
+        printf("\tsslCertificateFilePath %s\n",
+                (const char*)sslCertificateFilePath.getCString());
         printf("\tconsumerDir %s\n", (const char*)consumerDir.getCString());
-        printf("\tconsumerConfigDir %s\n", (const char*)consumerConfigDir.getCString());
+        printf("\tconsumerConfigDir %s\n",
+                (const char*)consumerConfigDir.getCString());
         printf("\tenableConsumerUnload %d\n", enableConsumerUnload);
         printf("\tconsumerIdleTimeout %d\n", consumerIdleTimeout);
         printf("\tshutdownTimeout %d\n", shutdownTimeout);
         printf("\ttraceFilePath %s\n", (const char*)traceFile.getCString());
         printf("\ttraceLevel %d\n", traceLevel);
-        printf("\ttraceComponents %s\n", (const char*)traceComponents.getCString());
+        printf("\ttraceComponents %s\n",
+                (const char*)traceComponents.getCString());
         printf("\tMessage home is %s\n", (const char*)msgHome.getCString());
 #endif
 
@@ -817,6 +855,7 @@ MessageLoader::_useProcessLocale = false;
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
     defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || \
+    defined(PEGASUS_OS_PASE) || \
     defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
         //
         // create a file to indicate that the cimserver has started and
@@ -834,7 +873,8 @@ MessageLoader::_useProcessLocale = false;
             Logger::INFORMATION,
             "src.Server.cimserver.STARTED_VERSION",
             "Started $0 version $1.",
-            _cimListenerProcess->getProductName(), _cimListenerProcess->getVersion());
+            _cimListenerProcess->getProductName(),
+            _cimListenerProcess->getVersion());
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
         if (daemonOption && !debugOutputOption)
@@ -889,8 +929,10 @@ MessageLoader::_useProcessLocale = false;
         }
 #endif
 #else
-        //ATTN: Implement cimserver_wait for windows so we don't have to loop here
-        //The listener is stopped in the cimserver_stop method by the service control manager
+        //ATTN: Implement cimserver_wait for windows
+        //so we don't have to loop here
+        //The listener is stopped in the cimserver_stop method
+        //by the service control manager
         while (true)
         {
             if (!_cimListener->isAlive())

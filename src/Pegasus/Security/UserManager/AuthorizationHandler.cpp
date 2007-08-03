@@ -47,6 +47,11 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
 
+#ifdef PEGASUS_OS_PASE
+# include <ILEWrapper/qumemultiutil.h>
+# include <ILEWrapper/ILEUtilities2.h>
+#endif
+
 #include "AuthorizationHandler.h"
 #include "UserExceptions.h"
 
@@ -367,6 +372,48 @@ Boolean AuthorizationHandler::verifyAuthorization(
         }
     }
 
+#ifdef PEGASUS_OS_PASE
+    if (readOperation || writeOperation)
+    {
+        //Use OS/400 Application Administration to do cim operation verification
+        CString userCStr = userName.getCString();
+        const char * user = (const char *)userCStr;
+        CString cimMethCStr = cimMethodName.getString().getCString();
+        const char * cimMeth = (const char *)cimMethCStr;
+
+        CString nameSpaceCStr = nameSpace.getString().getCString();
+        const char * nameSpChar = (const char *)nameSpaceCStr;
+
+        int PaseAuth =
+            umeVerifyFunctionAuthorization(user,
+                    cimMeth);
+
+        if (PaseAuth == TRUE)
+            authorized = true;
+
+        /* read operation needn't verify priviledUser */
+        if(authorized && writeOperation)
+        {
+            /*
+               The Application Admin checks 
+               we have now cover all class/qualifier 
+               operations to all namespaces. 
+               But maybe this is not enough protection 
+               for the private Pegasus namespaces.  
+               We should call isPrivilegedUser 
+               in this case instead of App Admin
+               */
+            if (strcasecmp(nameSpChar,"root/PG_Internal") == 0
+                    ||strcasecmp(nameSpChar,"root/PG_InterOp") == 0
+                    ||strcasecmp(nameSpChar,"PG_Internal") == 0
+                    ||strcasecmp(nameSpChar,"PG_InterOp") == 0  )
+            {
+                if(!System::isPrivilegedUser(userName))
+                    authorized = false;
+            }
+        }
+    }
+#else
     //
     // Get the authorization of the specified user and namespace
     //
@@ -394,6 +441,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
     {
         authorized = true;
     }
+#endif
 
     PEG_METHOD_EXIT();
 

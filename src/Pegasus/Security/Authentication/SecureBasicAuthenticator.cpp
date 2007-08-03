@@ -53,6 +53,10 @@
 #endif
 #endif
 
+#ifdef PEGASUS_OS_PASE
+#include <ILEWrapper/ILEUtilities2.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -156,6 +160,21 @@ Boolean SecureBasicAuthenticator::authenticate(
             "Authentication failed.");
     }
 
+#elif defined(PEGASUS_OS_PASE)
+    CString userCStr = userName.getCString();
+    CString pwCStr = password.getCString();
+
+    if ((strlen(userCStr) == 0) || (strlen(pwCStr) == 0))
+    {
+        authenticated = false;
+    }
+    else
+    {
+        // this function only can be found in PASE environment
+        authenticated = umeUserAuthenticate((const char *)userCStr,
+                                            (const char *)pwCStr);
+    }
+
 #else /* DEFAULT (!PEGASUS_OS_ZOS) */
 
     // Check whether valid system user.
@@ -212,6 +231,9 @@ Boolean SecureBasicAuthenticator::validateUser(const String& userName)
 
     if ( System::isSystemUser(userName.getCString()))
     {
+#if defined (PEGASUS_OS_PASE)
+        authenticated = true;
+#else
         if (Executor::detectExecutor() == 0)
         {
             if (Executor::validateUser(userName.getCString()) != 0)
@@ -221,6 +243,7 @@ Boolean SecureBasicAuthenticator::validateUser(const String& userName)
         {
             authenticated = true;
         }
+#endif
     }
 
     PEG_METHOD_EXIT();

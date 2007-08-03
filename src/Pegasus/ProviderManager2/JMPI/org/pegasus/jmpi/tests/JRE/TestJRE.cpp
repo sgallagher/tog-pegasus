@@ -640,6 +640,8 @@ int testJVM ()
       //
 #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
       pegasusHome = AIX_RELEASE_PEGASUS_HOME;
+#elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
+      pegasusHome = PASE_PROD_HOME;
 #elif !defined(PEGASUS_USE_RELEASE_DIRS) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
       const char* tmp = getenv("PEGASUS_HOME");
 

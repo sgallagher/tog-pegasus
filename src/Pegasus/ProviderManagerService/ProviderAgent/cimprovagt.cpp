@@ -49,6 +49,11 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+#ifdef PEGASUS_OS_PASE
+#include <ILEWrapper/ILEUtilities2.h>
+#include <as400_protos.h>
+#endif
+
 void usage()
 {
     cerr << "Usage: cimprovagt <input_pipe> <output_pipe> <id>" << endl;
@@ -86,6 +91,40 @@ int main(int argc, char* argv[])
 
     try
     {
+
+#ifdef PEGASUS_OS_PASE
+        char jobName[11];
+        // this function only can be found in PASE environment
+        umeGetJobName(jobName, false);
+        if (strncmp("QUMEPRVAGT", jobName, 10))
+        {
+            MessageLoaderParms parms(
+                    "ProviderManager.ProviderAgent.cimprovagt."
+                    "NOT_OFFICIAL_START.PEGASUS_OS_PASE",
+                    "Provider agent can not be started by user.");
+            cerr << MessageLoader::getMessage(parms);
+            return 1;
+        }
+
+        char fullJobName[29];
+        umeGetJobName(fullJobName, true);
+        Logger::put_l(Logger::STANDARD_LOG, 
+                "Provider agent", Logger::INFORMATION,
+                "ProviderManager.ProviderAgent.cimprovagt."
+                "PROVAGT_JOB_NAME.PEGASUS_OS_PASE",
+                "Provider Agent's Job Name is: $0", fullJobName);
+
+        if (_SETCCSID(1208) == -1)
+        {
+            Logger::put_l(Logger::ERROR_LOG, "Provider agent", Logger::SEVERE,
+                  "ProviderManager.ProviderAgent.cimprovagt."
+                  "SET_CCSID_ERROR.PEGASUS_OS_PASE",
+                  "Failed to set ccsid. The provider agent will be stopped.");
+            // so bad here. shut down. (return) 
+            return 1;
+        }
+#endif
+
         AnonymousPipe pipeFromServer(argv[1], 0);
         AnonymousPipe pipeToServer(0, argv[2]);
 

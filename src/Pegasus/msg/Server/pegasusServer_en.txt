@@ -3399,7 +3399,6 @@ CIM server listening on HTTPS port {0}."}
         */
         src.Server.cimserver.STOPPED:string {"PGS10031: CIM server {0} stopped."}
 
-
         /**
         * @note src.Server.cimserver.MENU.STANDARD:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
@@ -3501,6 +3500,26 @@ CIM server listening on HTTPS port {0}."}
         */
         src.Server.cimserver.BAD_OPTION_ARGUMENT:string {"PGS10037: Bad {0} option argument: {1}."}
 
+        /**
+        * @note PGS10038:
+        */
+        src.Server.cimserver.NO_AUTHORITY.PEGASUS_OS_PASE:string {"PGS10038: The caller should be a privileged user, or the server will not run."}
+        
+        /**
+        * @note PGS10039:
+        */
+        src.Server.cimserver.NOT_OFFICIAL_START.PEGASUS_OS_PASE:string {"PGS10039: cimserver can not be started by user."}
+        
+        /**
+        * @note PGS10040:
+        */
+        src.Server.cimserver.SET_CCSID_ERROR.PEGASUS_OS_PASE:string {"PGS10036: Failed to set CCSID, server will stop."}
+
+        /**
+        * @note PGS10041:
+        *    Substitution {0} is a string containing full job name of cimserver
+        */
+        src.Server.cimserver.SERVER_JOB_NAME.PEGASUS_OS_PASE:string {"PGS10037: CIM Server\''s Job Name is: {0}."}
 
         // ==========================================================
         // Messages for IndicationService
@@ -4710,6 +4729,22 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate the word 'cimprovagt' since it is a command name.
         */
         ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR:string {"PGS13801:  cimprovagt \"{0}\" error.  Exiting."}
+        
+        /**
+        * @note  PGS13810
+        */
+        ProviderManager.ProviderAgent.cimprovagt.NOT_OFFICIAL_START.PEGASUS_OS_PASE:string {"PGS13810:  Provider agent can not be started by user."}
+
+        /**
+        * @note  PGS13811
+        */
+        ProviderManager.ProviderAgent.cimprovagt.SET_CCSID_ERROR.PEGASUS_OS_PASE:string {"PGS13811:  Failed to set ccsid. The provider agent will be stopped."}
+
+        /**
+        * @note  PGS13812
+        *    Substitution {0} is full job name
+        */
+        ProviderManager.ProviderAgent.cimprovagt.PROVAGT_JOB_NAME.PEGASUS_OS_PASE:string {"PGS13812:  Provider Agent\''s Job Name is: {0}."}
 
 
     // ==========================================================

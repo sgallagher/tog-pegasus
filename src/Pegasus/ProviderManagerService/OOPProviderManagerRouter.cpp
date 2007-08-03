@@ -1471,7 +1471,11 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
 
     if (userContext == 0)
     {
+        // PASE has a default user context "QYCMCIMOM",
+        // so we leave userContext unset here.
+#ifndef PEGASUS_OS_PASE
         userContext = PEGASUS_DEFAULT_PROV_USERCTXT;
+#endif
     }
 
     String userName;
@@ -1508,6 +1512,12 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     {
         userName = System::getEffectiveUserName();
     }
+#ifdef PEGASUS_OS_PASE // it might be unset user in PASE in this branch.
+    else if (userContext == 0)
+    {
+        userName = "QYCMCIMOM";
+    }
+#endif
     else    // Privileged User
     {
         PEGASUS_ASSERT(userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED);
@@ -1522,7 +1532,13 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
         "User name = " + userName);
 
     ProviderAgentContainer* pa = 0;
+#ifdef PEGASUS_OS_PASE
+    String userUpper = userName;
+    userUpper.toUpper();
+    String key = moduleName + ":" + userUpper;
+#else
     String key = moduleName + ":" + userName;
+#endif
 
     AutoMutex lock(_providerAgentTableMutex);
     if (!_providerAgentTable.lookup(key, pa))

@@ -48,7 +48,8 @@
 #include <sys/timeb.h>
 #include <sys/types.h>
 #else
-#if defined(CMPI_PLATFORM_AIX_RS_IBMCXX)
+#if defined(CMPI_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(CMPI_PLATFORM_PASE_ISERIES_IBMCXX)
 #include <time.h>
 #endif
 #include <sys/time.h>

@@ -63,7 +63,7 @@ public:
         {
             PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "AlreadyLocked Exception, throwing CIMException");
-            throw CIMException(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+            throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
                 "Provider.CIMOMHandle.RECURSIVE_USE_CIMOMHANDLE",
                 "Recursive Use of CIMOMHandle Attempted"));
         }

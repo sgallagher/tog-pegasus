@@ -281,7 +281,7 @@ HTTPConnection* HTTPConnector::connect(
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnector::connect()");
 
-    SocketHandle socket;
+    SocketHandle socket = -1;
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     if (host == String::EMPTY)
@@ -325,7 +325,7 @@ HTTPConnection* HTTPConnector::connect(
         sockaddr_in address;
         if (!_MakeAddress((const char*)host.getCString(), portNumber, address,
 #ifdef PEGASUS_ENABLE_IPV6
-             (void**)&addrInfoRoot
+             (void**)(void*)&addrInfoRoot
 #else
              0
 #endif

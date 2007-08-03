@@ -210,8 +210,8 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
                                     const CMPIArgs * in, CMPIArgs * out)
 {
     CMPIBoolean sendIndication = CMPI_false;
-    CMPIUint32 indicationSendCount;
-    CMPIInstance *indicationInstance;
+    CMPIUint32 indicationSendCount = 0;
+    CMPIInstance *indicationInstance = 0;
     CMPIData data;
     char UIDbuffer[32];
     int i = 0;

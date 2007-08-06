@@ -529,6 +529,12 @@ CMPIDateTime * native_new_CMPIDateTime_fromChars (
     const char * string,
     CMPIStatus * rc )
 {
+    //String length must be 25.
+    if (!string || strlen(string) != 25)
+    {
+        CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return NULL;
+    }
     CMPIUint64 msecs;
     CMPIBoolean interval = ( string[21] == ':' );
     char * str = strdup ( string );

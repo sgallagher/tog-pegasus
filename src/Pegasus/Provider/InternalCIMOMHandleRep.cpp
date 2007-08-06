@@ -34,6 +34,8 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
@@ -1525,6 +1527,16 @@ CIMValue InternalCIMOMHandleRep::getProperty(
     }
 
     CIMValue cimValue = response->value;
+
+    // Return value in String form.  
+    if (cimValue.getType() != CIMTYPE_STRING && 
+        cimValue.getType() != CIMTYPE_REFERENCE && !cimValue.isNull())
+    {
+        Buffer out;
+        XmlWriter::appendValueElement(out, cimValue);
+        XmlParser parser((char*)out.getData());
+        XmlReader::getPropertyValue(parser,cimValue);
+    }
 
     PEG_METHOD_EXIT();
     return cimValue;

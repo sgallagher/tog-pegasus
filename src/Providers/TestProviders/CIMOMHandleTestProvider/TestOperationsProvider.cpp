@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "TestOperationsProvider.h"
@@ -248,18 +244,11 @@ static void testCIMOMHandle(CIMOMHandle& cimomHandle)
     {
         CIMValue v = cimomHandle.getProperty(
             context, opNamespace, instance1Name, CIMName("key"));
-        if (v.getType() == CIMTYPE_STRING)
-        {
-            String keyValue;
-            v.get(keyValue);
-            CIMOMHANDLE_TEST_ASSERT(keyValue == "1");
-        }
-        else
-        {
-            Uint32 keyValue;
-            v.get(keyValue);
-            CIMOMHANDLE_TEST_ASSERT(keyValue == 1);
-        }
+
+        CIMOMHANDLE_TEST_ASSERT (v.getType() == CIMTYPE_STRING);
+        String keyValue;
+        v.get(keyValue);
+        CIMOMHANDLE_TEST_ASSERT(keyValue == "1");
     }
 
     // Test SetProperty operation

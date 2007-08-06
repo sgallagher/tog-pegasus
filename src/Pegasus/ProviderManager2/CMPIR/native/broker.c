@@ -53,6 +53,12 @@ static CMPIInstance * __beft_newInstance (
     CONST CMPIObjectPath * cop,
     CMPIStatus * rc )
 {
+    CMPIStatus rc1 = checkArgsReturnStatus(cop);
+    if (rc1.rc != CMPI_RC_OK)
+    {
+        CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+    }
     TRACE_NORMAL(("Creating new native CMPIInstance."));
     return native_new_CMPIInstance ( cop, rc );
 }
@@ -64,6 +70,11 @@ static CMPIObjectPath * __beft_newObjectPath (
     const char * classname,
     CMPIStatus * rc )
 {
+    if (!classname)
+    {
+        CMSetStatus (rc, CMPI_RC_ERR_NOT_FOUND);
+        return 0;
+    }    
     TRACE_NORMAL(("Creating new native CMPIObjectPath."));
     return native_new_CMPIObjectPath ( namespace, classname, rc );
 }
@@ -82,6 +93,11 @@ static CMPIString * __beft_newString (
     const char * str,
     CMPIStatus * rc )
 {
+    if (!str)
+    {
+        CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+    }
     TRACE_NORMAL(("Creating new native CMPIString."));
     TRACE_INFO(("String: %s", str ));
     return native_new_CMPIString ( str, rc );
@@ -148,7 +164,12 @@ static CMPISelectExp * __beft_newSelectExp (
     CMPIBroker *brk;
     CMPIContext *ctx;
     CMPIUint32 id;
-
+   
+    if (!queryString || !language)
+    {
+        CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+    } 
     TRACE_NORMAL(("Creating new native CMPISelectExp."));
     brk = tool_mm_get_broker ( (void**)&ctx);
 
@@ -168,6 +189,13 @@ static CMPIBoolean __beft_classPathIsA (
 
     CMPIString *clsn;
 
+    CMPIStatus rc1 = checkArgsReturnStatus(cop);
+    if (rc1.rc != CMPI_RC_OK || !type)
+    {
+        CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+    }
+    
     CMSetStatus(rc,CMPI_RC_OK);
 
     clsn=CMGetClassName(cop,NULL);
@@ -234,8 +262,12 @@ static CMPIBoolean __beft_isOfType (
     const char * type,
     CMPIStatus * rc )
 {
-    char * t = * ( (char **) object );
-
+    if (!object || !type)
+    {
+        CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+    }
+    char * t =  object == broker ? "CMPIBroker" : *(char **)object;
     TRACE_NORMAL(("Verifying encapsulated object type."));
 
     CMSetStatus ( rc, CMPI_RC_OK );
@@ -248,8 +280,17 @@ static CMPIString * __beft_getType (
     CONST void * object,
     CMPIStatus * rc )
 {
+    char *t;
+
+    if (!object)
+    {
+        CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+    }
     TRACE_NORMAL(("Returning encapsulated object type."));
-    return __beft_newString ( broker, *( (char **) object ), rc );
+    t = object == broker ? "CMPIBroker" : *(char **)object;
+     
+    return __beft_newString ( broker, t, rc );
 }
 
 

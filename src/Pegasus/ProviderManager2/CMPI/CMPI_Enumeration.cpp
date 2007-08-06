@@ -97,6 +97,7 @@ extern "C"
     {
         const CMPIEnumeration* eEnum = (CMPIEnumeration*)eEnumObj->hdl;
 
+        CMSetStatus(rc, CMPI_RC_OK);
         if (eEnum->hdl)
         {
             if ((void*)eEnum->ft == (void*)CMPI_InstEnumeration_Ftab)

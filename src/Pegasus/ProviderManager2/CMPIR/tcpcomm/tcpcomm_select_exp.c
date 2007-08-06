@@ -62,7 +62,7 @@ static void TCPCOMM_selExp_evaluate (
     CMPIStatus rc;
 
     se = (__sft)->deserialize_CMPISelectExp(socket, broker, ctx_id);
-    inst = (__sft)->deserialize_CMPIInstance(socket, broker);
+    inst = (__sft)->deserialize_CMPIInstance(socket, broker, 0);
 
     res = CMEvaluateSelExp(se, inst, &rc);
     (__sft)->serialize_UINT8(socket, res);

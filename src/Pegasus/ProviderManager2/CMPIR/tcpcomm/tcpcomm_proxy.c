@@ -129,7 +129,7 @@ static void TCPCOMM_deliverIndication(
     char *ns;
     CMPIInstance *ind;
     ns = (__sft)->deserialize_string(socket, broker);
-    ind = (__sft)->deserialize_CMPIInstance(socket, broker);
+    ind = (__sft)->deserialize_CMPIInstance(socket, broker, 0);
     rc = CBDeliverIndication(broker, context, ns, ind);
     (__sft)->serialize_CMPIStatus(socket, &rc);
 }
@@ -175,7 +175,7 @@ static void TCPCOMM_createInstance(
     CMPIObjectPath *cop, *result;
     CMPIInstance *instance;
     cop = (__sft)->deserialize_CMPIObjectPath(socket, broker);
-    instance = (__sft)->deserialize_CMPIInstance(socket, broker);
+    instance = (__sft)->deserialize_CMPIInstance(socket, broker, cop);
     result = CBCreateInstance(broker, context, cop, instance, &rc);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIObjectPath(socket, result);
@@ -191,7 +191,7 @@ static void TCPCOMM_setInstance(
     CONST CMPIInstance *instance;
     char **props;
     cop = (__sft)->deserialize_CMPIObjectPath(socket, broker);
-    instance = (__sft)->deserialize_CMPIInstance(socket, broker);
+    instance = (__sft)->deserialize_CMPIInstance(socket, broker, cop);
     props = socketcomm_deserialize_props(socket, (__sft), broker);
 #ifdef CMPI_VER_100
     rc = CBModifyInstance(broker, context, cop, instance, (const char **)props);

@@ -128,7 +128,8 @@ static ssize_t __serialize_CMPIArray ( int, CONST CMPIArray * );
 static CMPIArray * __deserialize_CMPIArray ( int, CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIInstance ( int, CONST CMPIInstance * );
-static CMPIInstance * __deserialize_CMPIInstance ( int, CONST CMPIBroker * );
+static CMPIInstance * __deserialize_CMPIInstance ( int, CONST CMPIBroker * ,
+    CONST CMPIObjectPath *);
 
 static ssize_t __serialize_CMPISelectExp ( 
     int, 
@@ -377,7 +378,7 @@ static ssize_t __serialize_CMPIValue ( int fd,
         switch (type)
         {
             case CMPI_instance:
-                return __serialize_CMPIInstance ( fd, value->inst );
+                return __serialize_CMPIInstance ( fd, value->inst);
 
             case CMPI_ref:
                 return __serialize_CMPIObjectPath ( fd, value->ref );
@@ -505,7 +506,7 @@ static CMPIValue __deserialize_CMPIValue (
         switch (type)
         {
             case CMPI_instance:
-                v.inst = __deserialize_CMPIInstance ( fd, broker );
+                v.inst = __deserialize_CMPIInstance ( fd, broker , 0);
                 break;
 
             case CMPI_ref:
@@ -1181,7 +1182,8 @@ static ssize_t __serialize_CMPIInstance ( int fd, CONST CMPIInstance * inst )
 
 static CMPIInstance * __deserialize_CMPIInstance ( 
     int fd,
-    CONST CMPIBroker * broker )
+    CONST CMPIBroker * broker ,
+    CONST CMPIObjectPath *qop)
 {
     CMPIObjectPath * cop;
     CMPIInstance * inst;
@@ -1197,6 +1199,11 @@ static CMPIInstance * __deserialize_CMPIInstance (
     TRACE_NORMAL(("deserializing non-NULL CMPIInstance."));
 
     cop = __deserialize_CMPIObjectPath ( fd, broker );
+    // If CMPIObjectPath is passed, set the namespace from passed ObjectPath.
+    if (qop)
+    {
+        CMSetNameSpaceFromObjectPath(cop, qop);
+    }
     inst = CMNewInstance ( broker, cop, NULL );
 
     i = __deserialize_UINT16 ( fd );

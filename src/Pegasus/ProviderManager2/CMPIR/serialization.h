@@ -104,7 +104,8 @@ struct BinarySerializerFT
     CMPIArray * (* deserialize_CMPIArray) ( int, CONST CMPIBroker * );
 
     ssize_t (* serialize_CMPIInstance) ( int, CONST CMPIInstance * );
-    CMPIInstance * (* deserialize_CMPIInstance) ( int, CONST CMPIBroker * );
+    CMPIInstance * (* deserialize_CMPIInstance) ( int, CONST CMPIBroker * ,
+        CONST CMPIObjectPath *);
 
     ssize_t (* serialize_CMPISelectExp) ( int, CONST CMPISelectExp *,
         CMPIUint32);

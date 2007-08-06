@@ -206,7 +206,7 @@ static void TCPCOMM_InstanceMI_createInstance(
     CONST CMPIContext * ctx,
     CONST CMPIObjectPath * cop)
 {
-    CMPIInstance *inst = (__sft)->deserialize_CMPIInstance(socket, broker);
+    CMPIInstance *inst = (__sft)->deserialize_CMPIInstance(socket, broker, cop);
     CMPIStatus rc;
     CMPIArray *r;
     CMPIResult *result = native_new_CMPIResult(NULL);
@@ -234,7 +234,7 @@ static void TCPCOMM_InstanceMI_setInstance(
     CONST CMPIContext * ctx,
     CONST CMPIObjectPath * cop)
 {
-    CMPIInstance *inst = (__sft)->deserialize_CMPIInstance(socket, broker);
+    CMPIInstance *inst = (__sft)->deserialize_CMPIInstance(socket, broker, cop);
     char **props = socketcomm_deserialize_props(socket, (__sft), broker);
     CMPIStatus rc;
     CMPIArray *r;
@@ -912,7 +912,6 @@ static CMPIContext *TCPCOMM_prepareAttachThread(
 }
 
 
-
 static CMPIStatus TCPCOMM_attachThread(
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
@@ -1052,7 +1051,7 @@ static CMPIInstance *TCPCOMM_getInstance(
             *(rc) = __rc;
         }
     };
-    i = (__sft)->deserialize_CMPIInstance(socket, broker);
+    i = (__sft)->deserialize_CMPIInstance(socket, broker, cop);
     //invokes close(socket) on unix & closesocket(socket) on windows
     PEGASUS_CMPIR_CLOSESOCKET(socket);
     return i;

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com), PEP#187
-//
-// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CertificateProvider_h
@@ -156,6 +151,7 @@ private:
     SSLContextManager* _sslContextMgr;
 
     Boolean _enableAuthentication;
+    Boolean _sslClientVerificationNotDisabled;
     String _sslTrustStore;
     String _crlStore;
    

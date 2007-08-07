@@ -165,6 +165,7 @@ SOURCES2 = \
     StatisticalData.cpp \
     Stopwatch.cpp \
     String.cpp \
+    StringConversion.cpp \
     StringInline.cpp \
     System.cpp \
     TimeValue.cpp \

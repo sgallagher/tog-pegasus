@@ -186,6 +186,10 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
         {
             currentValue = _configManager->getCurrentValue(configProperty);
         }
+        else
+        {
+            currentValue = propertyValue;
+        }
 
         // send notify config change message to ProviderManager Service
         _sendNotifyConfigChangeMessage(String(configProperty),

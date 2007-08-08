@@ -148,7 +148,8 @@ struct Test
             str = Cvt<S>::func(buffer1, S(i), size);
 
             char buffer2[32];
-            sprintf(buffer2, format, S(i));
+            S s = S(i);    // Resolves a non-truncation issue on HP-UX 11.00
+            sprintf(buffer2, format, s);
 
             PEGASUS_TEST_ASSERT(strcmp(str, buffer2) == 0);
             PEGASUS_TEST_ASSERT(strlen(str) == size);

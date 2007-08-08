@@ -334,7 +334,7 @@ Uint32 ProviderAgentContainer::_maxProviderProcesses = PEG_NOT_FOUND;
 
 // Set this to a value that no valid CIMResponseMessage* will have.
 CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
-    reinterpret_cast<CIMResponseMessage*>(&_REQUEST_NOT_PROCESSED);
+    static_cast<CIMResponseMessage*>((void*)&_REQUEST_NOT_PROCESSED);
 
 ProviderAgentContainer::ProviderAgentContainer(
     const String & moduleName,

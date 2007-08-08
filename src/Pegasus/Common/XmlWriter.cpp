@@ -61,6 +61,7 @@
 #include "StrLit.h"
 #include "LanguageParser.h"
 #include "IDFactory.h"
+#include "StringConversion.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -357,9 +358,12 @@ static void _xmlWritter_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
     if ( ((c < 0x20) && (c >= 0)) || (c == 0x7f) )
     {
-        char charref[7];
-        sprintf(charref, "&#%u;", static_cast<Uint8>(c));
-        os << charref;
+        char scratchBuffer[22];
+        Uint32 outputLength;
+        const char * output = Uint8ToString(scratchBuffer, 
+                                            static_cast<Uint8>(c), 
+                                            outputLength);
+        os << "&#" << output << ";";
     }
     else
     {
@@ -450,35 +454,42 @@ void XmlWriter::append(Buffer& out, const Char16& x)
 
 void XmlWriter::append(Buffer& out, Boolean x)
 {
-    append(out, (x ? "TRUE" : "FALSE"));
+    if (x)
+        out.append(STRLIT_ARGS("TRUE"));
+    else
+        out.append(STRLIT_ARGS("FALSE"));
 }
 
 void XmlWriter::append(Buffer& out, Uint32 x)
 {
-    char buffer[32];
-    sprintf(buffer, "%u", x);
-    append(out, buffer);
+    Uint32 outputLength=0;
+    char buffer[22];
+    const char * output = Uint32ToString(buffer, x, outputLength);
+    out.append(output, outputLength);
 }
 
 void XmlWriter::append(Buffer& out, Sint32 x)
 {
-    char buffer[32];
-    sprintf(buffer, "%d", x);
-    append(out, buffer);
+    Uint32 outputLength=0;
+    char buffer[22];
+    const char * output = Sint32ToString(buffer, x, outputLength);
+    out.append(output, outputLength);
 }
 
 void XmlWriter::append(Buffer& out, Uint64 x)
 {
-    char buffer[32];  // Should need 21 chars max
-    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
-    append(out, buffer);
+    Uint32 outputLength=0;
+    char buffer[22];
+    const char * output = Uint64ToString(buffer, x, outputLength);
+    out.append(output, outputLength);
 }
 
 void XmlWriter::append(Buffer& out, Sint64 x)
 {
-    char buffer[32];  // Should need 21 chars max
-    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
-    append(out, buffer);
+    Uint32 outputLength=0;
+    char buffer[22];
+    const char * output = Sint64ToString(buffer, x, outputLength);
+    out.append(output, outputLength);
 }
 
 void XmlWriter::append(Buffer& out, Real32 x)
@@ -3459,9 +3470,12 @@ static IDFactory _messageIDFactory(1000);
 
 String XmlWriter::getNextMessageId()
 {
-    char buffer[16];
-    sprintf(buffer, "%u", _messageIDFactory.getID());
-    return buffer;
+    char scratchBuffer[22];
+    Uint32 n;
+    const char * startP = Uint32ToString(scratchBuffer, 
+                                         _messageIDFactory.getID(),
+                                         n);
+    return String(startP, n);
 }
 
 //------------------------------------------------------------------------------

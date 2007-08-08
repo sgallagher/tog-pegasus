@@ -1305,6 +1305,11 @@ not be valid."}
 	*/
 	Provider.CIMOMHandle.CANNOT_ALLOCATE_THREAD:string {"PGS03403: Could not create a worker for the dispatch request."}
 
+	/**
+	* @note PGS03404
+	*/
+	Provider.CIMOMHandle.CIMOMHANDLE_TIMEOUT:string {"PGS03404: Timeout waiting for CIMOMHandle."}
+
         // ==========================================================
         // Messages for ProviderAdapter
         //  Please use message prefix "PGS03600"

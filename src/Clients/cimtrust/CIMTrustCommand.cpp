@@ -804,25 +804,37 @@ void CIMTrustCommand::_listCertificates (
         Uint16 type;
         String typeStr;
         CIMDateTime notBefore;
+        String notBeforeStr;
         CIMDateTime notAfter;
+        String notAfterStr;
+        CIMProperty prop;
 
         //
         // Check if issuer name and serial number are specified
         // and they match
         //
         Uint32 pos = certificateInstance.findProperty(PROPERTY_NAME_ISSUER);
-        CIMProperty prop = certificateInstance.getProperty(pos);
-        prop.getValue().get(issuer);
+        if (pos != PEG_NOT_FOUND)
+        {
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(issuer);
+        }
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_SERIALNUMBER);
-        prop = certificateInstance.getProperty(pos);
-        prop.getValue().get(serialNumber);
+        if (pos != PEG_NOT_FOUND)
+        {
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(serialNumber);
+        }
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_SUBJECTNAME);
-        prop = certificateInstance.getProperty(pos);
-        prop.getValue().get(subjectName);
+        if (pos != PEG_NOT_FOUND)
+        {
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(subjectName);
+        }
 
-        if ( _issuerSet )
+        if (_issuerSet)
         {
             if (String::equal(_issuer, issuer))
             {
@@ -852,40 +864,50 @@ void CIMTrustCommand::_listCertificates (
         //
         pos = certificateInstance.findProperty(
                         PROPERTY_NAME_REGISTERED_USER_NAME);
-        prop = certificateInstance.getProperty(pos);
-        prop.getValue().get(registeredUserName);
+        if (pos != PEG_NOT_FOUND)
+        {
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(registeredUserName);
+        }
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_NOTBEFORE);
-        prop = certificateInstance.getProperty(pos);
-        prop.getValue().get(notBefore);
-
-        String notBeforeStr = _formatCIMDateTime(notBefore.toString());
+        if (pos != PEG_NOT_FOUND)
+        {
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(notBefore);
+            notBeforeStr = _formatCIMDateTime(notBefore.toString());
+        }
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_NOTAFTER);
-        prop = certificateInstance.getProperty(pos);
-        prop.getValue().get(notAfter);
-
-        String notAfterStr = _formatCIMDateTime(notAfter.toString());
+        if (pos != PEG_NOT_FOUND)
+        {
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(notAfter);
+            notAfterStr = _formatCIMDateTime(notAfter.toString());
+        }
 
         pos = certificateInstance.findProperty(PROPERTY_NAME_TYPE);
-        prop = certificateInstance.getProperty(pos);
-        prop.getValue().get(type);
+        if (pos != PEG_NOT_FOUND)
+        {
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(type);
 
-        if (type == _CERTIFICATE_TYPE_AUTHORITY)
-        {
-            typeStr = TYPE_AUTHORITY_STR;
-        }
-        else if ( type == _CERTIFICATE_TYPE_AUTHORITY_END_ENTITY )
-        {
-            typeStr = TYPE_AUTHORITY_END_ENTITY_STR;
-        }
-        else if ( type == _CERTIFICATE_TYPE_SELF_SIGNED_IDENTITY )
-        {
-            typeStr = TYPE_SELF_SIGNED_IDENTITY_STR;
-        }
-        else if ( type == _CERTIFICATE_TYPE_UNKNOWN )
-        {
-            typeStr = TYPE_UNKNOWN;
+            if (type == _CERTIFICATE_TYPE_AUTHORITY)
+            {
+                typeStr = TYPE_AUTHORITY_STR;
+            }
+            else if (type == _CERTIFICATE_TYPE_AUTHORITY_END_ENTITY)
+            {
+                typeStr = TYPE_AUTHORITY_END_ENTITY_STR;
+            }
+            else if (type == _CERTIFICATE_TYPE_SELF_SIGNED_IDENTITY)
+            {
+                typeStr = TYPE_SELF_SIGNED_IDENTITY_STR;
+            }
+            else if (type == _CERTIFICATE_TYPE_UNKNOWN)
+            {
+                typeStr = TYPE_UNKNOWN;
+            }
         }
 
         //
@@ -905,7 +927,7 @@ void CIMTrustCommand::_listCertificates (
             "---------------------------------------------"<< endl;
     }
 
-    if ( _issuerSet && !issuerFound)
+    if (_issuerSet && !issuerFound)
     {
          CIMException ce(CIM_ERR_NOT_FOUND);
          throw ce;

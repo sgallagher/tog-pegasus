@@ -184,9 +184,13 @@ static CMPIData __ift_getProperty (
     struct native_instance * i = (struct native_instance *) instance;
 
     CMPIData data = checkArgsReturnData(instance, rc);
-
     if (data.state == CMPI_badValue)
     {
+        return data;
+    }
+    if (!name)
+    {
+        CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return data;
     }
 
@@ -240,7 +244,10 @@ static CMPIStatus __ift_setProperty(
     {
         return rc;
     }
-
+    if (!name)
+    {
+        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+    }
     if (i->filtered == 0 ||
         i->property_list == NULL ||
         __contained_list ( i->property_list, name ) ||
@@ -351,12 +358,41 @@ static CMPIStatus __ift_setPropertyFilter(
 
     CMReturn(CMPI_RC_OK);
 }
+
 #ifdef CMPI_VER_100
 static CMPIStatus __ift_setObjectPath(
     CMPIInstance * instance,
     const CMPIObjectPath *op)
 {
-    CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
+    CMPIString *clssname, *namespace;
+
+    CMPIStatus rc = checkArgsReturnStatus(instance);
+    if (rc.rc != CMPI_RC_OK)
+    {
+        return rc;
+    }
+    rc = checkArgsReturnStatus(op);
+    if (rc.rc != CMPI_RC_OK)
+    {
+        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+    }
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);    
+}
+#endif
+
+#ifdef CMPI_VER_200
+static CMPIStatus __ift_setPropertyWithOrigin(const CMPIInstance * instance,
+    const char *name, const CMPIValue *data, const CMPIType type,
+    const char *origin)
+{
+    CMPIStatus rc =  __ift_setProperty(instance, name, data, type);
+    struct native_instance *ni = (struct native_instance*)instance;
+    if (rc.rc == CMPI_RC_OK && origin)
+    {
+        propertyFT.setPropertyOrigin(ni->props, name, origin, ni->mem_state);
+    }
+
+    return rc;
 }
 #endif
 
@@ -447,6 +483,10 @@ static CMPIInstanceFT ift = {
 #ifdef CMPI_VER_100
     ,__ift_setObjectPath
 #endif
+#ifdef CMPI_VER_200
+    ,__ift_setPropertyWithOrigin
+#endif
+
 };
 
 CMPIInstanceFT *CMPI_Instance_FT = &ift;

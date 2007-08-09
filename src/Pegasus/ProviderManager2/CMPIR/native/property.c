@@ -58,6 +58,7 @@
 struct native_property
 {
     char * name;                //!< Property identifier.
+    char *origin;               //!< Property origin.
     CMPIType type;              //!< Associated CMPIType.
     CMPIValueState state;           //!< Current value state.
     CMPIValue value;            //!< Current value.
@@ -217,6 +218,32 @@ static int __setProperty (
     return __setProperty ( prop->next, mm_add, name, type, value);
 }
 
+static int __setPropertyOrigin (struct native_property *prop,
+    const char *name, const char *origin, int mem_state)
+{
+    if (origin)
+    {
+        while (prop)
+        {
+            if (!strcmp(prop->name, name))
+            {
+                if (prop->origin)
+                {
+                    if (mem_state == TOOL_MM_NO_ADD)
+                    {
+                        tool_mm_add (prop->origin);
+                    }
+                }
+                prop->origin = tool_mm_alloc (mem_state, strlen(origin) + 1);
+                strcpy (prop->origin, origin);
+                return 0;
+            }
+            prop = prop->next;
+        }
+    }
+
+    return -1;
+}
 
 static struct native_property * __getProperty ( 
     struct native_property * prop,
@@ -307,6 +334,7 @@ static void __release ( struct native_property * prop )
     {
         tool_mm_add ( prop );
         tool_mm_add ( prop->name );
+        tool_mm_add (prop->origin); 
         native_release_CMPIValue ( prop->type, &prop->value );
     }
 }
@@ -332,6 +360,7 @@ static struct native_property * __clone (
         sizeof ( struct native_property ) );
 
     result->name  = strdup ( prop->name );
+    result->origin = prop->origin ? strdup(prop->origin) : 0;
     result->type  = prop->type;
     result->state = prop->state;
     result->value = native_clone_CMPIValue ( prop->type,
@@ -356,6 +385,7 @@ static struct native_property * __clone (
 struct native_propertyFT propertyFT = {
     __addProperty,
     __setProperty,
+    __setPropertyOrigin,
     __getDataProperty,
     __getDataPropertyAt,
     __getPropertyCount,

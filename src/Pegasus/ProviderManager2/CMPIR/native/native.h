@@ -51,7 +51,7 @@
 #define NATIVE_FT_VERSION 1
 
 #ifndef CMPI_VERSION
-# define CMPI_VERSION 100
+# define CMPI_VERSION 200
 #endif
 
 #include "cmpir_common.h"
@@ -98,6 +98,13 @@ struct native_propertyFT
         const char *,
         CMPIType,
         const CMPIValue * );
+
+     //! Sets PropertyOrigin,this internal function is called after setProperty.
+     int (* setPropertyOrigin) (
+         struct native_property *,
+         const char *,
+         const char *,
+         int );
 
     //! Looks up a specifix native_property in CMPIData format.
     CMPIData (* getDataProperty) ( 
@@ -236,6 +243,13 @@ struct native_propertyFT
         const char *,
         CMPIType,
         CMPIValue * );
+
+     //! Sets PropertyOrigin,this internal function is called after setProperty.
+     int (* setPropertyOrigin) (
+         struct native_property *, 
+         const char *,
+         const char *,
+         int );
 
     //! Looks up a specifix native_property in CMPIData format.
     CMPIData (* getDataProperty) ( 

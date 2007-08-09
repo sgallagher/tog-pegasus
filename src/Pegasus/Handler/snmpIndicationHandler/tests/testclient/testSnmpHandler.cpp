@@ -50,14 +50,13 @@ const String INDICATION_CLASS_NAME = String ("RT_TestIndication");
 
 const String SNMPV1_HANDLER_NAME = String ("SNMPHandler01");
 const String SNMPV2C_HANDLER_NAME = String ("SNMPHandler02");
+const String SNMPV2C_IPV6_HANDLER_NAME = String ("SNMPHandler03");
 const String FILTER_NAME = String ("IPFilter01");
 
 enum SNMPVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3};
 enum TargetHostFormat {_HOST_NAME = 2, _IPV4_ADDRESS = 3, _IPV6_ADDRESS = 4};
 
 #define PORT_NUMBER 2006
-
-Uint32 indicationSendCountTotal = 0;
 
 AtomicInt errorsEncountered(0);
 
@@ -275,6 +274,7 @@ void _setup (CIMClient & client, const String& qlang)
     CIMObjectPath filterObjectPath;
     CIMObjectPath snmpv1HandlerObjectPath;
     CIMObjectPath snmpv2HandlerObjectPath;
+    CIMObjectPath snmpv2IPV6HandlerObjectPath;
 
     try
     {
@@ -391,6 +391,55 @@ void _setup (CIMClient & client, const String& qlang)
             throw;
         }
     }
+
+#if defined(PEGASUS_ENABLE_IPV6)
+    // create a subscription with trap destination of IPV6 address format
+    try
+    {
+        // Create SNMPv2 IPV6 trap handler
+        snmpv2IPV6HandlerObjectPath = _createHandlerInstance (client,
+            SNMPV2C_IPV6_HANDLER_NAME,
+            String("::1"),
+            "public",
+            _IPV6_ADDRESS,
+            _SNMPV2C_TRAP);
+    } 
+    catch (CIMException& e)
+    {
+        if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
+        {
+            snmpv2IPV6HandlerObjectPath = _getHandlerObjectPath(
+                SNMPV2C_IPV6_HANDLER_NAME);
+            cerr << "----- Warning: SNMPv2c IPV6 Trap Handler Instance "
+                "Not Created: " << e.getMessage () << endl;
+        }
+        else
+        {
+            cerr << "----- Error: SNMPv2c IPV6 Trap Handler Instance Not "
+                "Created: " << endl;
+            throw;
+        }
+    }
+
+    try
+    {
+        _createSubscriptionInstance (client, filterObjectPath,
+             snmpv2IPV6HandlerObjectPath);
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
+        {
+            cerr << "----- Warning: Client Subscription Instance: "
+                << e.getMessage () << endl;
+        }
+        else
+        {
+            cerr << "----- Error: Client Subscription Instance: " << endl;
+            throw;
+        }
+    }
+#endif
 }
 
 void _cleanup (CIMClient & client)
@@ -423,6 +472,24 @@ void _cleanup (CIMClient & client)
             throw;
         }
     }
+
+#if defined(PEGASUS_ENABLE_IPV6)
+    try     
+    {
+        _deleteSubscriptionInstance (client, FILTER_NAME,
+            SNMPV2C_IPV6_HANDLER_NAME);
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() != CIM_ERR_NOT_FOUND)
+        {
+            cerr << "----- Error: deleteSubscriptionInstance failure: "
+                 << endl;
+            throw;
+        }
+    }
+#endif
+
     try
     {
         _deleteFilterInstance (client, FILTER_NAME);
@@ -460,6 +527,20 @@ void _cleanup (CIMClient & client)
             throw;
         }
     }
+#if defined(PEGASUS_ENABLE_IPV6)
+    try
+    {
+        _deleteHandlerInstance (client, SNMPV2C_IPV6_HANDLER_NAME);
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() != CIM_ERR_NOT_FOUND)
+        {
+            cerr << "----- Error: deleteHandlerInstance failure: " << endl;
+            throw;
+        }
+    }
+#endif
 }
 
 static void _testEnd(const String& uniqueID, const double elapsedTime)
@@ -622,7 +703,13 @@ static Boolean _startSnmptrapd(
     snmptrapdCmd.append( " -F \"\nTrap Info: %P\nVariable: %v\n\"");
 
     // Specify listening address
+#if defined(PEGASUS_ENABLE_IPV6)
+    snmptrapdCmd.append(" UDP6:");
+    snmptrapdCmd.append(portNumberStr);
+    snmptrapdCmd.append(",UDP:");
+#else
     snmptrapdCmd.append(" UDP:");
+#endif
     snmptrapdCmd.append(System::getFullyQualifiedHostName ());
 
     snmptrapdCmd.append(":");
@@ -673,10 +760,21 @@ void _receiveExpectedTraps(
     Uint32 indicationSendCount,
     Uint32 runClientThreadCount)
 {
+    Uint32 indicationTrapV1SendCount = 0;
+    Uint32 indicationTrapV2SendCount = 0;
+
     CIMClient * clientConnections = new CIMClient[runClientThreadCount];
 
     // determine total number of indication send count
-    indicationSendCountTotal = indicationSendCount * runClientThreadCount;
+    indicationTrapV1SendCount =
+        indicationSendCount * runClientThreadCount;
+
+    // if IPV6 is enabled, an additional SNMPv2c trap is sent to IPV6 address
+#if defined(PEGASUS_ENABLE_IPV6)
+    indicationTrapV2SendCount = 2 * indicationTrapV1SendCount; 
+#else
+    indicationTrapV2SendCount = indicationTrapV1SendCount;
+#endif
 
     // calculate the timeout based on the total send count allowing
     // using the MSG_PER_SEC rate
@@ -685,7 +783,7 @@ void _receiveExpectedTraps(
 #define MSG_PER_SEC 4
 
     Uint32 testTimeout = PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS
-                        + (indicationSendCountTotal/MSG_PER_SEC)*1000;
+                        + (indicationTrapV2SendCount/MSG_PER_SEC)*1000;
 
     // connect the clients
     for(Uint32 i = 0; i < runClientThreadCount; i++)
@@ -734,10 +832,12 @@ void _receiveExpectedTraps(
 
     //
     // Wait for the trap receiver to receive the expected
-    // number of Indication traps, indicationSendCountTotal.
+    // number of Indication traps, indicationTrapV1SendCount
+    // and indicationTrapV2SendCount.
     //
-    // We will continue to wait until either indicationSendCountTotal
-    // Indications have been received by the trap receiver or no new
+    // We will continue to wait until either (indicationTrapV1SendCount
+    // and indicationTrapV2SendCount) Indications have been received
+    // by the trap receiver or no new
     // Indications have been received in the previous
     // MAX_NO_CHANGE_ITERATIONS.
     // iterations.
@@ -759,16 +859,16 @@ void _receiveExpectedTraps(
         {
             cout << "++++ The trap receiver has received "
             << currentReceivedTrap1Count << " of "
-            << indicationSendCountTotal << " SNMPv1 trap."
+            << indicationTrapV1SendCount << " SNMPv1 trap."
             << endl;
             cout << "++++ The trap receiver has received "
             << currentReceivedTrap2Count << " of "
-            << indicationSendCountTotal << " SNMPv2c trap."
+            << indicationTrapV2SendCount << " SNMPv2c trap."
             << endl;
         }
 
-        if ((indicationSendCountTotal == currentReceivedTrap1Count) &&
-            (indicationSendCountTotal == currentReceivedTrap2Count))
+        if ((indicationTrapV1SendCount == currentReceivedTrap1Count) &&
+            (indicationTrapV2SendCount == currentReceivedTrap2Count))
         {
              receivedTrapCountComplete = true;
              trapReceiverElapsedTime.stop();
@@ -789,11 +889,11 @@ void _receiveExpectedTraps(
         {
             cout << "++++ The trap receiver has received "
             << currentReceivedTrap1Count << " of "
-            << indicationSendCountTotal << " SNMPv1 trap."
+            << indicationTrapV1SendCount << " SNMPv1 trap."
             << endl;
             cout << "++++ The trap receiver has received "
             << currentReceivedTrap2Count << " of "
-            << indicationSendCountTotal << " SNMPv2c trap."
+            << indicationTrapV2SendCount << " SNMPv2c trap."
             << endl;
 
             break;
@@ -816,9 +916,9 @@ void _receiveExpectedTraps(
     }
 
     // assert that all indications sent have been received.
-    PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
+    PEGASUS_TEST_ASSERT(indicationTrapV1SendCount ==
        currentReceivedTrap1Count);
-    PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
+    PEGASUS_TEST_ASSERT(indicationTrapV2SendCount ==
        currentReceivedTrap2Count);
 }
 

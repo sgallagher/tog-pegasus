@@ -100,7 +100,7 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     struct snmp_pdu* snmpPdu;
 
     // Creates a SNMP session
-    _createSession(targetHost, portNumber, securityName,
+    _createSession(targetHost, targetHostFormat, portNumber, securityName,
                    sessionHandle, sessionPtr);
 
     try
@@ -168,6 +168,7 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
 // Creates a SNMP session
 void snmpDeliverTrap_netsnmp::_createSession(
     const String& targetHost,
+    Uint16 targetHostFormat,
     Uint32 portNumber,
     const String& securityName,
     void*& sessionHandle,
@@ -191,9 +192,19 @@ void snmpDeliverTrap_netsnmp::_createSession(
         // peername has format: targetHost:portNumber
         snmpSession.peername =
             (char*)malloc((size_t)(strlen(targetHostCStr) + 1 + 32));
-        sprintf(snmpSession.peername, "%s:%u",
-            (const char*)targetHostCStr,
-            portNumber);
+
+        if (targetHostFormat == _IPV6_ADDRESS)
+        {
+            sprintf(snmpSession.peername, "udp6:[%s]:%u",
+                (const char*)targetHostCStr,
+                portNumber);
+        }
+        else
+        {
+            sprintf(snmpSession.peername, "%s:%u",
+                (const char*)targetHostCStr,
+                portNumber);
+        }
 
         sessionHandle = snmp_sess_open(&snmpSession);
     }

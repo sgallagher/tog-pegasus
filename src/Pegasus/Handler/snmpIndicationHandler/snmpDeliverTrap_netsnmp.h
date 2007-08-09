@@ -160,17 +160,18 @@ private:
     /**
         Creates a SNMP session.
       
-        @param targetHost     the target system of a hostname or an IPv4 
-                              address
-                              to receive a trap
-        @param portNumber     the port number to receive a trap
-        @param securityName   the human readable community name
-        @param sessionHandle  an opaque pointer of the SNMP session
-        @param sessionPtr     the SNMP session pointer to its associated 
-                              struct snmp_session
+        @param targetHost       the target system of a hostname or an IPv4 
+                                address or an IPv6 address to receive a trap
+        @param targetHostFormat the format of the targetHost
+        @param portNumber       the port number to receive a trap
+        @param securityName     the human readable community name
+        @param sessionHandle    an opaque pointer of the SNMP session
+        @param sessionPtr       the SNMP session pointer to its associated 
+                                struct snmp_session
     */
     void _createSession(
         const String& targetHost,
+        Uint16 targetHostFormat,
         Uint32 portNumber,
         const String& securityName,
         void*& sessionHandle,
@@ -228,6 +229,18 @@ private:
         _SNMPv2C_INFORM = 4,
         _SNMPv3_TRAP = 5,
         _SNMPv3_INFORM = 6
+    };
+
+    /**
+        Values for the TargetHostFormat property of the 
+        PG_IndicationHandlerSNMPMapper class.
+    */
+    enum TargetHostFormat
+    {
+        _OTHER = 1,
+        _HOST_NAME = 2,
+        _IPV4_ADDRESS = 3,
+        _IPV6_ADDRESS = 4
     };
 };
 

@@ -2290,6 +2290,7 @@ CMPISelectExp *TCPCOMM_selExp_newSelExp (
     CMPIContext *context;
     CMPIBroker *broker;
     CMPISelectExp *res;
+    CMPIArray *projArr;
     int socket;
 
     broker = tool_mm_get_broker((void**)&context);
@@ -2319,7 +2320,11 @@ CMPISelectExp *TCPCOMM_selExp_newSelExp (
     // -V 5245
     res = (__sft)->deserialize_CMPISelectExp (socket, broker,
         PEGASUS_INDICATION_LOCAL_CONTEXT);
-    *projection = (__sft)->deserialize_CMPIArray (socket, broker);
+    projArr = (__sft)->deserialize_CMPIArray (socket, broker);
+    if (projection && *projection)
+    {
+        *projection = projArr;
+    } 
     //invokes close(socket) on unix & closesocket(socket) on windows
     PEGASUS_CMPIR_CLOSESOCKET(socket);
 

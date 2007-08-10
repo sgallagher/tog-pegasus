@@ -46,12 +46,12 @@
 //
 #ifdef PEGASUS_OS_TYPE_WINDOWS
  // for DWORD etc.
- #include <windows.h>
+# include <windows.h>
  // getpid() and others
  typedef DWORD pid_t;
- #include <process.h>
+# include <process.h>
 #else
- #include <unistd.h>
+# include <unistd.h>
 #endif
 
 

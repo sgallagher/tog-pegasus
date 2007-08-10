@@ -42,9 +42,9 @@
 #include <Pegasus/Provider/CMPI/CmpiObjectPath.h>
 
 #if defined SIMULATED
- #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
+# define CWS_FILEROOT  "/Simulated/CMPI/tests/"
 #else
- #define CWS_FILEROOT  "/tmp"
+# define CWS_FILEROOT  "/tmp"
 #endif
 
 char * CSCreationClassName();
@@ -54,10 +54,10 @@ char * FSName();
 
 
 CmpiObjectPath makePath(const char *classname, 
-			const char *nameSpace, const CWS_FILE *cwsf);
+                        const char *nameSpace, const CWS_FILE *cwsf);
 CmpiInstance   makeInstance(const char *classname, 
-			    const char *nameSpace, const CWS_FILE *cwsf, 
-			    const char **projection);
+                            const char *nameSpace, const CWS_FILE *cwsf, 
+                            const char **projection);
 int            makeFileBuf(const CmpiInstance& instance, CWS_FILE *cwsf);
 char         **projection2Filter(const CmpiArray& ar);
 void           freeFilter(char**);

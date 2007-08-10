@@ -50,14 +50,14 @@
 #include <Pegasus/Common/Condition.h>
 
 #if defined (CMPI_VER_85)
-   #include <Pegasus/Common/MessageLoader.h>
+# include <Pegasus/Common/MessageLoader.h>
 #endif
 
 #include <stdarg.h>
 #include <string.h>
 
 #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
-   #include <sys/timeb.h>
+# include <sys/timeb.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

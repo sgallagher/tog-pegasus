@@ -436,10 +436,10 @@ CIMInstance InteropProvider::getObjectManagerInstance()
 
         // Set the statistics property into the Statisticaldata class so that
         // it can perform statistics gathering if necessary.
-    #ifndef PEGASUS_DISABLE_PERFINST
+#ifndef PEGASUS_DISABLE_PERFINST
         StatisticalData* sd = StatisticalData::current();
         sd->setCopyGSD(gatherStatDataFlag);
-    #endif
+#endif
 
         // write instance to the repository
         CIMObjectPath instancePath = repository->createInstance(

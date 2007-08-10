@@ -124,10 +124,10 @@ public:
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
     mode=m;
-   #ifdef PEGASUS_DEBUG
+#ifdef PEGASUS_DEBUG
     if (getenv("PEGASUS_CMPI_TRACE")) _cmpi_trace=1;
     else _cmpi_trace=0;
-   #endif
+#endif
     _subscriptionInitComplete = false;
     DDD(cerr << "-- CMPI Provider Manager activated" << endl);
 }
@@ -3898,14 +3898,14 @@ void CMPIProviderManager::_callEnableIndications
         if (pr.miVector.indMI->ft->ftVersion >= 86)
         {
             OperationContext context;
-            #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
+#ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
             // For the z/OS security model we always need an Identity container
             // in the operation context. Since we don't have a client request 
             // ID here we have to use the cim servers identity for the time 
             // being.
             IdentityContainer idContainer(System::getEffectiveUserName());
             context.insert(idContainer);
-            #endif
+#endif
 
             CMPIStatus rc={CMPI_RC_OK,NULL};
             CMPI_ContextOnStack eCtx(context);

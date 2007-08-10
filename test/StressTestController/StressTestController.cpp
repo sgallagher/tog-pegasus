@@ -51,12 +51,12 @@
 //
 #ifdef PEGASUS_OS_TYPE_WINDOWS
  // for DWORD etc.
- #include <windows.h>
+# include <windows.h>
  // getpid() and others
  typedef DWORD pid_t;
- #include <process.h>
+# include <process.h>
 #else
- #include <unistd.h>
+# include <unistd.h>
 #endif
 
 //#define STRESSTEST_DEBUG
@@ -3228,12 +3228,14 @@ void StressTestControllerCommand::getDefaultClients(ostream& log_file)
                         cout<< "Duplicate name already saved: "<<OPTIONS<<endl;
                     }
                 }
-                log_file<< "            Client Command &  options: cimcli niall"<<
+                log_file <<
+                    "            Client Command &  options: cimcli niall" <<
                     endl;
                 if (verboseEnabled)
                 {
-                   cout<< "            Client Command &  options: cimcli niall"<<
-                       endl;
+                    cout <<
+                        "            Client Command &  options: cimcli niall" <<
+                        endl;
                 }
                 break;
             } /* case 1: */

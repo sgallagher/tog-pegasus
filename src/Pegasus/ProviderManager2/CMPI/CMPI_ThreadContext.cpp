@@ -36,7 +36,7 @@
 #include "CMPI_Object.h"
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    #include <pthread.h>
+# include <pthread.h>
 #endif
 #include <limits.h>
 

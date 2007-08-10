@@ -49,11 +49,11 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
 
 void test01 ()
 {
-    #if defined(PEGASUS_OS_DARWIN) || defined (PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_DARWIN) || defined (PEGASUS_OS_VMS)
     static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
     CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
     CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
-    #endif
+#endif
     //
     //  Test default constructor
     //

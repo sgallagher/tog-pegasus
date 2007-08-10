@@ -54,12 +54,12 @@ static Uint32 _numSubscriptions = 0;
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {
-	#if defined(PEGASUS_OS_DARWIN)
-                _handler = 0;
-                _enabled = false;
-                _nextUID = 0;
-                _numSubscriptions = 0;
-        #endif
+#if defined(PEGASUS_OS_DARWIN)
+    _handler = 0;
+    _enabled = false;
+    _nextUID = 0;
+    _numSubscriptions = 0;
+#endif
 }
 
 RT_IndicationProvider::~RT_IndicationProvider (void) throw ()
@@ -101,19 +101,19 @@ void _generateIndication (
     {
         CIMInstance indicationInstance;
 
-        if (methodName.equal ("SendTestIndicationSubclass"))
+        if (methodName.equal("SendTestIndicationSubclass"))
         {
-            CIMInstance theIndication (CIMName ("RT_TestIndicationSubclass"));
+            CIMInstance theIndication(CIMName("RT_TestIndicationSubclass"));
             indicationInstance = theIndication;
         }
         else
         {
-            CIMInstance theIndication (CIMName ("RT_TestIndication"));
+            CIMInstance theIndication(CIMName("RT_TestIndication"));
             indicationInstance = theIndication;
         }
 
         CIMObjectPath path;
-        if (methodName.equal ("SendTestIndicationUnmatchingNamespace"))
+        if (methodName.equal("SendTestIndicationUnmatchingNamespace"))
         {
             //
             //  For SendTestIndicationUnmatchingNamespace, generate an
@@ -122,10 +122,10 @@ void _generateIndication (
             //  (nor does it match the namespace for which provider has
             //  registered)
             //
-            path.setNameSpace ("root/cimv2");
-            path.setClassName ("RT_TestIndication");
+            path.setNameSpace("root/cimv2");
+            path.setClassName("RT_TestIndication");
         }
-        else if (methodName.equal ("SendTestIndicationUnmatchingClassName"))
+        else if (methodName.equal("SendTestIndicationUnmatchingClassName"))
         {
             // the indication class name and object path class must match
             indicationInstance = CIMInstance("CIM_AlertIndication");
@@ -137,17 +137,17 @@ void _generateIndication (
             //  (nor does it match the classname for which provider has
             //  registered)
             //
-            path.setNameSpace ("root/SampleProvider");
-            path.setClassName ("CIM_AlertIndication");
+            path.setNameSpace("root/SampleProvider");
+            path.setClassName("CIM_AlertIndication");
         }
-        else if (methodName.equal ("SendTestIndicationSubclass"))
+        else if (methodName.equal("SendTestIndicationSubclass"))
         {
             //
             //  For SendTestIndicationSubclass, generate an indication instance
             //  of a the RT_TestIndicationSubclass subclass
             //
-            path.setNameSpace ("root/SampleProvider");
-            path.setClassName ("RT_TestIndicationSubclass");
+            path.setNameSpace("root/SampleProvider");
+            path.setClassName("RT_TestIndicationSubclass");
         }
         else
         {
@@ -162,44 +162,44 @@ void _generateIndication (
         indicationInstance.addProperty
             (CIMProperty ("IndicationIdentifier",String(buffer)));
 
-	CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-	indicationInstance.addProperty
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+        indicationInstance.addProperty
             (CIMProperty ("IndicationTime", currentDateTime));
 
         //
         //  For SendTestIndicationMissingProperty, leave out the
         //  CorrelatedIndications property
         //
-        if (!methodName.equal ("SendTestIndicationMissingProperty"))
+        if (!methodName.equal("SendTestIndicationMissingProperty"))
         {
-	    Array <String> correlatedIndications;
-	    indicationInstance.addProperty
+            Array <String> correlatedIndications;
+            indicationInstance.addProperty
                 (CIMProperty ("CorrelatedIndications", correlatedIndications));
         }
 
-        if ((methodName.equal ("SendTestIndicationNormal")) ||
-            (methodName.equal ("SendTestIndicationSubclass")) ||
-            (methodName.equal ("SendTestIndicationMissingProperty")) ||
-            (methodName.equal ("SendTestIndicationExtraProperty")) ||
-            (methodName.equal ("SendTestIndicationMatchingInstance")) ||
-            (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
-            (methodName.equal ("SendTestIndicationUnmatchingClassName")))
+        if ((methodName.equal("SendTestIndicationNormal")) ||
+            (methodName.equal("SendTestIndicationSubclass")) ||
+            (methodName.equal("SendTestIndicationMissingProperty")) ||
+            (methodName.equal("SendTestIndicationExtraProperty")) ||
+            (methodName.equal("SendTestIndicationMatchingInstance")) ||
+            (methodName.equal("SendTestIndicationUnmatchingNamespace")) ||
+            (methodName.equal("SendTestIndicationUnmatchingClassName")))
         {
             indicationInstance.addProperty
                 (CIMProperty ("MethodName", CIMValue (methodName.getString())));
         }
-        else if (methodName.equal ("SendTestIndicationTrap"))
+        else if (methodName.equal("SendTestIndicationTrap"))
         {
             indicationInstance.addProperty
-                (CIMProperty ("MethodName", 
-                 CIMValue (methodName.getString())));
+                (CIMProperty("MethodName",
+                 CIMValue(methodName.getString())));
 
             indicationInstance.addProperty
-                (CIMProperty ("IndicationNumber", 
-                 CIMValue (Uint64(indicationNumber))));
+                (CIMProperty("IndicationNumber",
+                 CIMValue(Uint64(indicationNumber))));
 
             indicationInstance.addProperty
-                (CIMProperty ("TestOidDataType", 
+                (CIMProperty("TestOidDataType",
                  String("1.3.6.1.4.1.892.2.3.5006.5002")));
 
         }
@@ -239,61 +239,69 @@ void _generateIndication (
             Array <CIMKeyBinding> subscriptionKeyBindings;
 
             String filterString;
-            filterString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"PIFilter01\",SystemCreationClassName=\"");
-            filterString.append (System::getSystemCreationClassName ());
-            filterString.append ("\",SystemName=\"");
-            filterString.append (System::getFullyQualifiedHostName ());
-            filterString.append ("\"");
-            subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
+            filterString.append(
+                "CIM_IndicationFilter."
+                    "CreationClassName=\"CIM_IndicationFilter\","
+                    "Name=\"PIFilter01\","
+                    "SystemCreationClassName=\"");
+            filterString.append(System::getSystemCreationClassName ());
+            filterString.append("\",SystemName=\"");
+            filterString.append(System::getFullyQualifiedHostName ());
+            filterString.append("\"");
+            subscriptionKeyBindings.append(CIMKeyBinding ("Filter",
                 filterString, CIMKeyBinding::REFERENCE));
 
             String handlerString;
-            handlerString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"PIHandler01\",SystemCreationClassName=\"");
-            handlerString.append (System::getSystemCreationClassName ());
-            handlerString.append ("\",SystemName=\"");
-            handlerString.append (System::getFullyQualifiedHostName ());
-            handlerString.append ("\"");
-            subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
+            handlerString.append(
+                "CIM_IndicationHandlerCIMXML."
+                    "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
+                    "Name=\"PIHandler01\","
+                    "SystemCreationClassName=\"");
+            handlerString.append(System::getSystemCreationClassName ());
+            handlerString.append("\",SystemName=\"");
+            handlerString.append(System::getFullyQualifiedHostName ());
+            handlerString.append("\"");
+            subscriptionKeyBindings.append(CIMKeyBinding ("Handler",
                 handlerString, CIMKeyBinding::REFERENCE));
 
-            CIMObjectPath subscriptionPath ("",
+            CIMObjectPath subscriptionPath("",
                 PEGASUS_NAMESPACENAME_INTEROP,
                 CIMName ("CIM_IndicationSubscription"),
                 subscriptionKeyBindings);
-            subscriptionInstanceNames.append (subscriptionPath);
+            subscriptionInstanceNames.append(subscriptionPath);
 
-	    OperationContext context;
-            context.insert (SubscriptionInstanceNamesContainer
+            OperationContext context;
+            context.insert(SubscriptionInstanceNamesContainer
                 (subscriptionInstanceNames));
 
-            handler->deliver (context, indicationInstance);
+            handler->deliver(context, indicationInstance);
         }
         else
         {
-	    // deliver an indication without trapOid
-            handler->deliver (indicationInstance);
+            // deliver an indication without trapOid
+            handler->deliver(indicationInstance);
         }
 
         //
         //  Only deliver extra indication with trapOid for SendTestIndication
         //
-        if ((!methodName.equal ("SendTestIndicationNormal")) &&
-            (!methodName.equal ("SendTestIndicationTrap")) &&
-            (!methodName.equal ("SendTestIndicationSubclass")) &&
-            (!methodName.equal ("SendTestIndicationMissingProperty")) &&
-            (!methodName.equal ("SendTestIndicationExtraProperty")) &&
-            (!methodName.equal ("SendTestIndicationMatchingInstance")) &&
-            (!methodName.equal ("SendTestIndicationUnmatchingNamespace")) &&
-            (!methodName.equal ("SendTestIndicationUnmatchingClassName")))
+        if ((!methodName.equal("SendTestIndicationNormal")) &&
+            (!methodName.equal("SendTestIndicationTrap")) &&
+            (!methodName.equal("SendTestIndicationSubclass")) &&
+            (!methodName.equal("SendTestIndicationMissingProperty")) &&
+            (!methodName.equal("SendTestIndicationExtraProperty")) &&
+            (!methodName.equal("SendTestIndicationMatchingInstance")) &&
+            (!methodName.equal("SendTestIndicationUnmatchingNamespace")) &&
+            (!methodName.equal("SendTestIndicationUnmatchingClassName")))
         {
-	    // deliver another indication with a trapOid which contains in the
-	    // operationContext container
-	    OperationContext context;
+            // deliver another indication with a trapOid which contains in the
+            // operationContext container
+            OperationContext context;
 
- 	    // add trap OID to the context
-	    context.insert
+            // add trap OID to the context
+            context.insert
                 (SnmpTrapOidContainer("1.3.6.1.4.1.900.2.3.9002.9600"));
-            handler->deliver (context, indicationInstance);
+            handler->deliver(context, indicationInstance);
         }
     }
 }
@@ -342,122 +350,134 @@ void RT_IndicationProvider::deleteSubscription (
 }
 
 void RT_IndicationProvider::invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & objectReference,
+    const CIMName & methodName,
+    const Array<CIMParamValue> & inParameters,
+    MethodResultResponseHandler & handler)
 {
-        Uint32 indicationSendCount = 1;
-        Boolean sendIndication = false;
-        handler.processing();
+    Uint32 indicationSendCount = 1;
+    Boolean sendIndication = false;
+    handler.processing();
 
-        if (objectReference.getClassName().equal ("RT_TestIndication") &&
-	    _enabled)
+    if (objectReference.getClassName().equal ("RT_TestIndication") &&
+        _enabled)
+    {
+        if ((methodName.equal ("SendTestIndication")) ||
+            (methodName.equal ("SendTestIndicationNormal")) ||
+            (methodName.equal ("SendTestIndicationMissingProperty")) ||
+            (methodName.equal ("SendTestIndicationExtraProperty")) ||
+            (methodName.equal ("SendTestIndicationMatchingInstance")) ||
+            (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
+            (methodName.equal ("SendTestIndicationUnmatchingClassName")))
         {
-            if ((methodName.equal ("SendTestIndication")) ||
-                (methodName.equal ("SendTestIndicationNormal")) ||
-                (methodName.equal ("SendTestIndicationMissingProperty")) ||
-                (methodName.equal ("SendTestIndicationExtraProperty")) ||
-                (methodName.equal ("SendTestIndicationMatchingInstance")) ||
-                (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
-                (methodName.equal ("SendTestIndicationUnmatchingClassName")))
-            {
-                sendIndication = true;
-                handler.deliver( CIMValue( 0 ) );
-            }
-            else if (methodName.equal ("SendTestIndicationTrap"))
-            {
-                inParameters[0].getValue().get(indicationSendCount); 
-                sendIndication = true;
-                handler.deliver( CIMValue( 0 ) );
-            }
+            sendIndication = true;
+            handler.deliver( CIMValue( 0 ) );
         }
-
-        else if ((objectReference.getClassName ().equal
-            ("RT_TestIndicationSubclass")) && _enabled)
+        else if (methodName.equal ("SendTestIndicationTrap"))
         {
-            if (methodName.equal ("SendTestIndicationSubclass"))
-            {
-                sendIndication = true;
-                handler.deliver( CIMValue( 0 ) );
-            }
+            inParameters[0].getValue().get(indicationSendCount);
+            sendIndication = true;
+            handler.deliver( CIMValue( 0 ) );
         }
+    }
 
-        else
+    else if ((objectReference.getClassName ().equal
+        ("RT_TestIndicationSubclass")) && _enabled)
+    {
+        if (methodName.equal ("SendTestIndicationSubclass"))
         {
-             handler.deliver( CIMValue( 1 ) );
-	     PEGASUS_STD(cout) << "Provider is not enabled." << 
-                 PEGASUS_STD(endl);
+            sendIndication = true;
+            handler.deliver( CIMValue( 0 ) );
         }
+    }
 
-        handler.complete();
+    else
+    {
+         handler.deliver( CIMValue( 1 ) );
+         PEGASUS_STD(cout) << "Provider is not enabled." <<
+             PEGASUS_STD(endl);
+    }
 
-        if (sendIndication)
+    handler.complete();
+
+    if (sendIndication)
+    {
+        for (Uint32 numberOfInd = 1; numberOfInd <= indicationSendCount;
+             numberOfInd++)
         {
-            for (Uint32 numberOfInd = 1; numberOfInd <= indicationSendCount;
-                 numberOfInd++)
-            {
-                _generateIndication(_handler, methodName, numberOfInd);
-            }
+            _generateIndication(_handler, methodName, numberOfInd);
         }
+    }
 }
 
-void RT_IndicationProvider::_checkOperationContext(const OperationContext& context,
-                                                  const String &  funcName)
+void RT_IndicationProvider::_checkOperationContext(
+    const OperationContext& context,
+    const String& funcName)
 {
-	 //
-	 // Test the filter query container
-	 //
-	 SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
+    //
+    // Test the filter query container
+    //
+    SubscriptionFilterQueryContainer qContainer =
+        context.get(SubscriptionFilterQueryContainer::NAME);
     if (qContainer.getFilterQuery() == String::EMPTY)
     {
-      PEGASUS_STD(cout) << funcName << "- empty filter query" << PEGASUS_STD(endl);
-      throw CIMOperationFailedException(funcName + "- empty filter query");
+        PEGASUS_STD(cout) << funcName << "- empty filter query" <<
+            PEGASUS_STD(endl);
+        throw CIMOperationFailedException(funcName + "- empty filter query");
     }
     if (qContainer.getQueryLanguage() == String::EMPTY)
     {
-      PEGASUS_STD(cout) << funcName << "- empty filter query lang" << PEGASUS_STD(endl);
-      throw CIMOperationFailedException(funcName + "- empty filter query lang");
+        PEGASUS_STD(cout) << funcName << "- empty filter query lang" <<
+            PEGASUS_STD(endl);
+        throw CIMOperationFailedException(
+            funcName + "- empty filter query lang");
     }
 
     CIMNamespaceName tst("root/SampleProvider");
     if (!qContainer.getSourceNameSpace().equal(tst))
     {
-      PEGASUS_STD(cout) << funcName << "- incorrect source namespace" << PEGASUS_STD(endl);
-      throw CIMOperationFailedException(funcName + "- incorrect source namespace");
+        PEGASUS_STD(cout) << funcName << "- incorrect source namespace" <<
+            PEGASUS_STD(endl);
+        throw CIMOperationFailedException(
+            funcName + "- incorrect source namespace");
     }
 
     try
     {
-      //
-      // Try to parse the filter query from the filter query container
-      //
-      CIMOMHandleQueryContext ctx(qContainer.getSourceNameSpace(), _cimom);
-      QueryExpression qe(qContainer.getQueryLanguage(),
-                         qContainer.getFilterQuery(),
-                         ctx);
+        //
+        // Try to parse the filter query from the filter query container
+        //
+        CIMOMHandleQueryContext ctx(qContainer.getSourceNameSpace(), _cimom);
+        QueryExpression qe(qContainer.getQueryLanguage(),
+                           qContainer.getFilterQuery(),
+                           ctx);
 
-      // Exercise the QueryExpression...this will cause repository access through
-      // the CIMOMHandleQueryContext.
-      qe.validate();
+        // Exercise the QueryExpression...this will cause repository access
+        // through the CIMOMHandleQueryContext.
+        qe.validate();
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
-      PEGASUS_STD(cout) << funcName << "- parse error: " << e.getMessage() << PEGASUS_STD(endl);
-      throw CIMOperationFailedException(funcName + "- parse error: " + e.getMessage());
+        PEGASUS_STD(cout) << funcName << "- parse error: " <<
+            e.getMessage() << PEGASUS_STD(endl);
+        throw CIMOperationFailedException(
+            funcName + "- parse error: " + e.getMessage());
     }
 
     //
     // Test the filter condition container.
-    // Note:  since this only contains the WHERE clause, the condition could be empty (and will
-    // be for some testcases)
+    // Note:  since this only contains the WHERE clause, the condition could
+    // be empty (and will be for some testcases)
     //
-    SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME);
-	 if (cContainer.getQueryLanguage() == String::EMPTY)
+    SubscriptionFilterConditionContainer cContainer =
+        context.get(SubscriptionFilterConditionContainer::NAME);
+    if (cContainer.getQueryLanguage() == String::EMPTY)
     {
-      PEGASUS_STD(cout) << funcName << "- empty filter condition lang" << PEGASUS_STD(endl);
-      throw CIMOperationFailedException(funcName + "- empty filter condition lang");
+        PEGASUS_STD(cout) << funcName << "- empty filter condition lang" <<
+            PEGASUS_STD(endl);
+        throw CIMOperationFailedException(
+            funcName + "- empty filter condition lang");
     }
 }
 

@@ -1143,7 +1143,7 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
 {
     // Function compares all IP addresses defined on
     // local network interface with a given IP address
-    #define PEGASUS_MAX_NETWORK_INTERFACES 32
+#define PEGASUS_MAX_NETWORK_INTERFACES 32
     struct ifconf conf;
 
     conf.ifc_buf =

@@ -42,8 +42,8 @@
 #include <Pegasus/Common/Linkage.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-#include <Pegasus/Common/Network.h>
-#include <windows.h>
+# include <Pegasus/Common/Network.h>
+# include <windows.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -51,13 +51,13 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE DynamicLibrary
 {
 public:
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-      typedef HMODULE DynamicLibraryHandle;
-      typedef FARPROC DynamicSymbolHandle;
-    #else
-      typedef void * DynamicLibraryHandle;
-      typedef void * DynamicSymbolHandle;
-    #endif
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    typedef HMODULE DynamicLibraryHandle;
+    typedef FARPROC DynamicSymbolHandle;
+#else
+    typedef void * DynamicLibraryHandle;
+    typedef void * DynamicSymbolHandle;
+#endif
 
 public:
     DynamicLibrary();

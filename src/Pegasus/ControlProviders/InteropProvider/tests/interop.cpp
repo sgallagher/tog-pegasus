@@ -2537,9 +2537,9 @@ void InteropTest::testCommunicationClass()
 
         // COMMENT KS - There is no reason for this.
         // The whole thing should be covered.
-        #ifdef PEGASUS_ENABLE_SLP
+#ifdef PEGASUS_ENABLE_SLP
         PEGASUS_TEST_ASSERT(instancesCommMech.size() > 0);
-        #endif
+#endif
 
         // Test enumerate instances.
         // Note that we do this both with deep inheritance and not
@@ -2605,9 +2605,9 @@ void InteropTest::testCommunicationClass()
          */
          // COMMENT KS - There is no reason for this.
          // The whole thing should be covered.
-        #ifdef PEGASUS_ENABLE_SLP
+#ifdef PEGASUS_ENABLE_SLP
         PEGASUS_TEST_ASSERT(instancesCommMech.size() > 0);
-        #endif
+#endif
 
         // Test the properties in each comm mechanism instance.
         // This tests for existence and correct information as much as possible.

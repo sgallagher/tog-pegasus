@@ -37,7 +37,7 @@
 #include <iostream>
 #include <stdlib.h>
 #ifdef PEGASUS_OS_HPUX
-    #include <pthread.h>
+# include <pthread.h>
 #endif
 
 #include <Pegasus/Common/TSDKey.h>

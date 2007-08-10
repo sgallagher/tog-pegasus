@@ -63,7 +63,7 @@ FILE *_resultsFileHandle = NULL;
 String _startTime;
 
 #ifndef PLATFORM_PRODUCT_VERSION
- #define PLATFORM_PRODUCT_VERSION "1.0.0"
+# define PLATFORM_PRODUCT_VERSION "1.0.0"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

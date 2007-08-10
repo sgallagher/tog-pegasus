@@ -40,9 +40,9 @@
 #include "CMPI_SelectExpAccessor_WQL.h"
 
 #ifndef PEGASUS_DISABLE_CQL
-    #include "CMPI_SelectExpAccessor_CQL.h"
-    #include <Pegasus/CQL/CQLSelectStatement.h>
-    #include <Pegasus/CQL/CQLParser.h>
+# include "CMPI_SelectExpAccessor_CQL.h"
+# include <Pegasus/CQL/CQLSelectStatement.h>
+# include <Pegasus/CQL/CQLParser.h>
 #endif
 
 #include <Pegasus/WQL/WQLInstancePropertySource.h>

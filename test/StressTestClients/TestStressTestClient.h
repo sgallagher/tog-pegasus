@@ -55,16 +55,16 @@
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
  // DWORD etc.
- #include <windows.h> 
+# include <windows.h> 
  typedef DWORD pid_t;
  // getpid() and others.
- #include <process.h>
+# include <process.h>
 #else 
- #include <unistd.h>
+# include <unistd.h>
 #endif
 
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
- #include <iostream.h>
+# include <iostream.h>
 #endif
 
 #define SIXTYSECONDS 60

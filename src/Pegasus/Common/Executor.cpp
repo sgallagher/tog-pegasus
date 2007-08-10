@@ -489,12 +489,12 @@ public:
     virtual int validateUser(
         const char* username)
     {
-    #if defined(PEGASUS_PAM_AUTHENTICATION)
+#if defined(PEGASUS_PAM_AUTHENTICATION)
         return PAMValidateUser(username);
-    #else
+#else
         // ATTN: not handled so don't call in this case.
         return -1;
-    #endif
+#endif
     }
 
     virtual int challengeLocal(

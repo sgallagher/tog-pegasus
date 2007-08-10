@@ -789,13 +789,13 @@ void SSLContextRep::_randomInit(const String& randomFile)
             // Try to do more seeding
             //
             long seedNumber;
-        #if defined(PEGASUS_COMPILER_MSVC)
+# if defined(PEGASUS_COMPILER_MSVC)
             srand((unsigned int)time(NULL)); // Initialize
             seedNumber = rand();
-        #else
+# else
             srandom((unsigned int)time(NULL)); // Initialize
             seedNumber = random();
-        #endif
+# endif
             RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
 
             int  seedRet = RAND_status();

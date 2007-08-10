@@ -74,9 +74,9 @@ PEGASUS_NAMESPACE_BEGIN
 extern int _cmpi_trace;
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-   #define lloonngg __int64
+# define lloonngg __int64
 #else
-   #define lloonngg long long int
+# define lloonngg long long int
 #endif
 
 // Factory section

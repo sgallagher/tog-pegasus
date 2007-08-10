@@ -38,15 +38,15 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 
 #if defined SIMULATED
- #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
+# define CWS_FILEROOT  "/Simulated/CMPI/tests/"
 #else
- #define CWS_FILEROOT  "/tmp"
+# define CWS_FILEROOT  "/tmp"
 #endif
 
 #if defined CWS_DEBUG
- #define SILENT 0
+# define SILENT 0
 #else
- #define SILENT 1
+# define SILENT 1
 #endif
 
 char * CSCreationClassName();
@@ -56,9 +56,9 @@ char * FSName();
 
 
 CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
-			 const char *Namespace, CWS_FILE *cwsf);
+                         const char *Namespace, CWS_FILE *cwsf);
 CMPIInstance   *makeInstance(const CMPIBroker *broker, const char *classname,
-			     const char *Namespace, CWS_FILE *cwsf);
+                             const char *Namespace, CWS_FILE *cwsf);
 int             makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf);
 int silentMode();
 

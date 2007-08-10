@@ -34,9 +34,9 @@
 #include <Pegasus/Common/Config.h>
 
 #ifndef PEGASUS_CMPIPM_LINKAGE
-    #ifdef PEGASUS_CMPIPM_INTERNAL
-        #define PEGASUS_CMPIPM_LINKAGE PEGASUS_EXPORT
-    #else
-        #define PEGASUS_CMPIPM_LINKAGE PEGASUS_IMPORT
-    #endif
+# ifdef PEGASUS_CMPIPM_INTERNAL
+#  define PEGASUS_CMPIPM_LINKAGE PEGASUS_EXPORT
+# else
+#  define PEGASUS_CMPIPM_LINKAGE PEGASUS_IMPORT
+# endif
 #endif

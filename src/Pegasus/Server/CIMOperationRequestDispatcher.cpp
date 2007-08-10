@@ -36,7 +36,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/ContentLanguageList.h>
-#include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Tracer.h>
@@ -2709,8 +2708,6 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         cimClass = _repository->getClass(
             request->nameSpace,
             request->className,
@@ -2847,8 +2844,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
         try
         {
-            StatProviderTimeMeasurement providerTime(response.get());
-
             cimInstance =
                 _repository->getInstance(
                     request->nameSpace,
@@ -2907,8 +2902,6 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         _repository->deleteClass(
             request->nameSpace,
             request->className);
@@ -3026,8 +3019,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
         try
         {
-            StatProviderTimeMeasurement providerTime(response.get());
-
             _repository->deleteInstance(
                 request->nameSpace,
                 request->instanceName);
@@ -3091,8 +3082,6 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
     try
     {
         removePropagatedAndOriginAttributes(request->newClass);
-
-        StatProviderTimeMeasurement providerTime(response.get());
 
         _repository->createClass(
             request->nameSpace,
@@ -3217,8 +3206,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         {
             removePropagatedAndOriginAttributes(request->newInstance);
 
-            StatProviderTimeMeasurement providerTime(response.get());
-
             instanceName = _repository->createInstance(
                 request->nameSpace,
                 request->newInstance,
@@ -3286,8 +3273,6 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
     try
     {
         removePropagatedAndOriginAttributes(request->modifiedClass);
-
-        StatProviderTimeMeasurement providerTime(response.get());
 
         _repository->modifyClass(
             request->nameSpace,
@@ -3406,8 +3391,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         {
             removePropagatedAndOriginAttributes(request->modifiedInstance);
 
-            StatProviderTimeMeasurement providerTime(response.get());
-
             _repository->modifyInstance(
                 request->nameSpace,
                 request->modifiedInstance,
@@ -3474,8 +3457,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         cimClasses = _repository->enumerateClasses(
             request->nameSpace,
             request->className,
@@ -3532,8 +3513,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         classNames = _repository->enumerateClassNames(
             request->nameSpace,
             request->className,
@@ -3775,8 +3754,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
             try
             {
-                StatProviderTimeMeasurement providerTime(response.get());
-
                 // Enumerate instances only for this class
                 cimNamedInstances =
                     _repository->enumerateInstancesForClass(
@@ -4082,8 +4059,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
             try
             {
-                StatProviderTimeMeasurement providerTime(response.get());
-
                 // Enumerate instances only for this class
                 response->instanceNames =
                     _repository->enumerateInstanceNamesForClass(
@@ -4304,8 +4279,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
         try
         {
-            StatProviderTimeMeasurement providerTime(response.get());
-
             response->cimObjects = _repository->associators(
                 request->nameSpace,
                 request->objectName,
@@ -4403,8 +4376,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
             try
             {
-                StatProviderTimeMeasurement providerTime(response.get());
-
                 response->cimObjects = _repository->associators(
                     request->nameSpace,
                     request->objectName,
@@ -4605,8 +4576,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         try
         {
-            StatProviderTimeMeasurement providerTime(response.get());
-
             response->objectNames = _repository->associatorNames(
                 request->nameSpace,
                 request->objectName,
@@ -4701,8 +4670,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
             try
             {
-                StatProviderTimeMeasurement providerTime(response.get());
-
                 response->objectNames = _repository->associatorNames(
                     request->nameSpace,
                     request->objectName,
@@ -4887,8 +4854,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
         try
         {
-            StatProviderTimeMeasurement providerTime(response.get());
-
             response->cimObjects = _repository->references(
                 request->nameSpace,
                 request->objectName,
@@ -4984,8 +4949,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
             try
             {
-                StatProviderTimeMeasurement providerTime(response.get());
-
                 response->cimObjects = _repository->references(
                     request->nameSpace,
                     request->objectName,
@@ -5170,8 +5133,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
         try
         {
-            StatProviderTimeMeasurement providerTime(response.get());
-
             response->objectNames = _repository->referenceNames(
                 request->nameSpace,
                 request->objectName,
@@ -5264,8 +5225,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
             try
             {
-                StatProviderTimeMeasurement providerTime(response.get());
-
                 response->objectNames = _repository->referenceNames(
                     request->nameSpace,
                     request->objectName,
@@ -5414,8 +5373,6 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
       try
       {
-          StatProviderTimeMeasurement providerTime(response.get());
-
           response->value = _repository->getProperty(
               request->nameSpace,
               request->instanceName,
@@ -5534,8 +5491,6 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
         try
         {
-            StatProviderTimeMeasurement providerTime(response.get());
-
             _repository->setProperty(
                 request->nameSpace,
                 request->instanceName,
@@ -5599,8 +5554,6 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         response->cimQualifierDecl = _repository->getQualifier(
             request->nameSpace,
             request->qualifierName);
@@ -5648,8 +5601,6 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         _repository->setQualifier(
             request->nameSpace,
             request->qualifierDeclaration,
@@ -5699,8 +5650,6 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         _repository->deleteQualifier(
             request->nameSpace,
             request->qualifierName);
@@ -5748,8 +5697,6 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
     try
     {
-        StatProviderTimeMeasurement providerTime(response.get());
-
         response->qualifierDeclarations = _repository->enumerateQualifiers(
             request->nameSpace);
 

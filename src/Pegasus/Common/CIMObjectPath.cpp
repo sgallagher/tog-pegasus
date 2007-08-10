@@ -655,11 +655,14 @@ void _parseKeyBindingPairs(
 
             p++;
 
+            Array<Uint8> keyValueUTF8;
+            keyValueUTF8.reserveCapacity(128);
+
             while (*p && *p != '"')
             {
                 if (*p == '\\')
                 {
-                    *p++;
+                    p++;
 
                     if ((*p != '\\') && (*p != '"'))
                     {
@@ -667,11 +670,17 @@ void _parseKeyBindingPairs(
                     }
                 }
 
-                valueString.append(*p++);
+                keyValueUTF8.append(*p++);
             }
 
             if (*p++ != '"')
                 throw MalformedObjectNameException(objectName);
+
+            // Convert the UTF-8 value to a UTF-16 String
+
+            valueString.assign(
+                (const char*)keyValueUTF8.getData(),
+                keyValueUTF8.size());
 
             /*
                 Guess at the type of this quoted key value.  If the value

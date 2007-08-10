@@ -56,6 +56,7 @@ static struct ConfigPropertyRow properties[] =
 # if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "/var/wbem/logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 # endif    
+    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE} 
 #elif defined(PEGASUS_OS_PASE)
 # if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
         {"logdir", "/QOpenSys/QIBM/UserData/UME/Pegasus/logs", IS_DYNAMIC, 

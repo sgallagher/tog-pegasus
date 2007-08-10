@@ -462,7 +462,7 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
         }
 #elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_VMS)
         tzMinutesEast = (int) tmval->tm_gmtoff/60;
-#elif defined (PEGASUS_OS_WINDOWS)
+#elif defined (PEGASUS_OS_TYPE_WINDOWS)
         tzMinutesEast=getCurrentTimeZone();
 #else
         tzMinutesEast = -tz.tz_minuteswest;

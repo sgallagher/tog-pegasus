@@ -271,7 +271,9 @@ testrepository: FORCE
 	@ $(MAKE) "-SC" src/Pegasus/CQL/CQLCLI repository
 	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repository
 	@ $(MAKE) "-SC" src/Providers/TestProviders/Load repository
+ifndef PEGASUS_DISABLE_CQL
 	@ $(MAKE) "-SC" src/Pegasus/ControlProviders/QueryCapabilitiesProvider/tests repository
+endif
 ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 	@ $(MAKE) "-SC" src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests repository
 endif
@@ -285,7 +287,9 @@ testrepositoryServer: FORCE
 	@ $(MAKE) "-SC" src/Pegasus/CQL/CQLCLI repositoryServer
 	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repositoryServer
 	@ $(MAKE) "-SC" src/Providers/TestProviders/Load repositoryServer
+ifndef PEGASUS_DISABLE_CQL
 	@ $(MAKE) "-SC" src/Pegasus/ControlProviders/QueryCapabilitiesProvider/tests repositoryServer
+endif
 ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 	@ $(MAKE) "-SC" src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests repositoryServer
 endif

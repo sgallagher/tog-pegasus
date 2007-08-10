@@ -817,7 +817,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                 {
                     MessageLoaderParms parms(
                         "Server.CIMOperationRequestDecoder."
-                            "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+                            "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT",
                         "CIMObject value \"$0\" does not match CIM request "
                             "object \"$1\".",
                         cimObjectInHeader,
@@ -1137,11 +1137,11 @@ void CIMOperationRequestDecoder::handleMethodCall(
             {
                 MessageLoaderParms parms(
                     "Server.CIMOperationRequestDecoder."
-                        "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+                        "CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT",
                     "CIMObject value \"$0\" does not match CIM request "
                         "object \"$1\".",
                     cimObjectInHeader,
-                       reference.toString());
+                    reference.toString());
                 sendHttpError(
                     queueId,
                     HTTP_STATUS_BADREQUEST,

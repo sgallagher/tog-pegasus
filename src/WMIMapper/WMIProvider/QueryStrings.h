@@ -57,7 +57,7 @@ static char const* QUERY_STRING_LIST[] =
     " RequiredQualifier = ",
     " ResultClass = ",
     " ResultRole = ",
-    " Role = %s",
+    " Role = ",
     " SchemaOnly",
     "REFERENCES OF {%s}",
     "WQL",

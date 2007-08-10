@@ -215,6 +215,30 @@ ifeq ($(OS),linux)
     SYMBOLIC_LINK_CMD = ln -f -s
 
     CURRENT_USER=`whoami`
+
+#
+# Since the Privilege Separation splits the cimserver process into two 
+# processes (cimservermain process - a non privileged process; cimserver
+# process - a privileged process), the pegasus files need to be split into
+# two sets. The files which can be updated by cimservermain process are owned 
+# by user "CIMSERVERMAIN_USR" and group "CIMSERVERMAIN_GRP". Other files
+# owned by user "CIMSERVER_USR" and group "CIMSERVER_GRP" can be updated 
+# by cimserver process. 
+# If the Privilege Separation is not enabled, a single privileged process
+# (cimserver process) is created. All the pegasus files can be updated by
+# the cimserver process. The CIMSERVERMAIN_USR variable will be set
+# equal to CIMSERVER_USR, and the CIMSERVERMAIN_GRP variable will be set
+# equal to CIMSERVER_GRP.
+# 
+
+ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+    CIMSERVERMAIN_USR = $(PEGASUS_CIMSERVERMAIN_USER)
+    CIMSERVERMAIN_GRP = pegasus
+else
+    CIMSERVERMAIN_USR = $(CIMSERVER_USR)
+    CIMSERVERMAIN_GRP = $(CIMSERVER_GRP)
+endif
+
 endif
 
 ifeq ($(OS),zos)

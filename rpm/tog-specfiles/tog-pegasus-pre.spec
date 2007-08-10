@@ -27,5 +27,10 @@ if [ $1 -gt 0 ]; then
         -g pegasus -s /sbin/nologin -r -d %PEGASUS_VARDATA_DIR pegasus \
          > /dev/null 2>&1 || :;
 fi
+if [ $1 -eq 2 ]; then
+    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
+    rm -f %PEGASUS_CIMSERVER_START_FILE;
+    rm -f %CIMSERVER_LOCK_FILE;
+fi
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-pre.spec

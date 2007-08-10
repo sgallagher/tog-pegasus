@@ -173,6 +173,12 @@ PEGASUS_ADMIN_CMDS = \
    cimreparchive \
    repupgrade
 
+ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+   PEGASUS_ADMIN_CMDS += \
+      cimservermain \
+      cimshutdown
+endif
+
 PEGASUS_USER_CMDS = \
    cimmof \
    cimmofl \
@@ -501,7 +507,13 @@ stage_PegasusSocketDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
 	
 setpermissions_PegasusSocketDirectory: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
+        
+stage_PegasusVarRunDirectory: FORCE
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_VARRUN_DIR)
+
+setpermissions_PegasusVarRunDirectory: FORCE
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARRUN_DIR)
 	
 stage_PegasusLocalAuthDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
@@ -550,13 +562,13 @@ stage_RepositoryNamespaceDirectory: FORCE
 	$(CPDIRHIER) $(NAMESPACE_DIR_NAME) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)
 
 setpermissions_RepositoryNamespaceDirectory: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
-	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
-	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
 
 stage_PegasusRepositoryDirectories: FORCE
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
@@ -564,7 +576,7 @@ stage_PegasusRepositoryDirectories: FORCE
 	$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(MAKE) --directory=$(PEGASUS_HOME)/repository -f $(ROOT)/Makefile.Release stage_RepositoryNamespaceDirectory NAMESPACE_DIR_NAME=$(i);)
 
 setpermissions_PegasusRepositoryDirectories: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
 	$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions_RepositoryNamespaceDirectory NAMESPACE_DIR_NAME=$(i);)
 
 stage_PegasusUnixManPageDirectoryFiles: FORCE
@@ -607,7 +619,7 @@ stage_PegasusVarDataDirectoryFiles: FORCE
 	$(COPY) $(ROOT)/src/Server/cimserver_planned.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
 setpermissions_PegasusVarDataDirectoryFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
 stage_genOpenPegasusSSLCertsFile: FORCE
 	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
@@ -710,10 +722,10 @@ endif
 setpermissions_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
 ifdef PEGASUS_PAM_AUTHENTICATION
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_______)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_______)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)etc/init.d/tog-pegasus
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)etc/init.d/tog-pegasus
 endif
 
 stage_PegasusEmptyFiles: FORCE
@@ -1114,6 +1126,9 @@ endif
 	@$(ECHO-E) "%global PEGASUS_CIMSERVER_START_FILE" \
              "$(PEGASUS_CIMSERVER_START_FILE)"  \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_TRACE_FILE_PATH" \
+             "$(PEGASUS_TRACE_FILE_PATH)"  \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_CIMSERVER_START_LOCK_FILE" \
              "$(PEGASUS_CIMSERVER_START_LOCK_FILE)"  \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -1177,6 +1192,24 @@ _append_preSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-pre.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+	@$(ECHO-E) "# When Privilege Separation is enabled, create the" \
+            "'$(CIMSERVERMAIN_USR)' user and ">> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# '$(CIMSERVERMAIN_GRP)' group which are used" \
+            "as the context of the cimservermain process" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "if [ \044\061 -gt 0 ]; then" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "    /usr/sbin/groupadd $(CIMSERVERMAIN_GRP) > /dev/null" \
+            "2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "    /usr/sbin/useradd -c \"tog-pegasus OpenPegasus"\
+            "WBEM/CIM services\" \\" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "        -g $(CIMSERVERMAIN_GRP) -s /sbin/nologin -r -d" \
+            "%PEGASUS_VARDATA_DIR $(CIMSERVERMAIN_USR) \\" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "        > /dev/null 2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+endif
  
 _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "%post" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -1199,9 +1232,29 @@ _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "     %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   /etc/init.d/tog-pegasus condrestart" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   # Check if the cimserver is running" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   isRunning=\`ps -el | grep cimserver | grep -v" \
+            "\"grep cimserver\"\`" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "       /etc/init.d/tog-pegasus stop" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+	@$(ECHO-E) "   if [ -f %PEGASUS_TRACE_FILE_PATH ]; then" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "     /bin/mv %PEGASUS_TRACE_FILE_PATH" \
+         "%PEGASUS_TRACE_FILE_PATH-\`date '+%Y-%m-%d-%R'\`" \
+	    >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+endif
+	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "       /etc/init.d/tog-pegasus start" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
@@ -1254,6 +1307,21 @@ _append_postunSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-postun.spec \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+	@$(ECHO-E) "# When Privilege Separation is enabled, delete the" \
+            "'$(CIMSERVERMAIN_USR)' user and ">> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# '$(CIMSERVERMAIN_GRP)' group which are used" \
+            "as the context of the cimservermain process" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "if [ \044\061 -eq 0 ]; then" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "    /usr/sbin/userdel $(CIMSERVERMAIN_USR) > /dev/null" \
+            "2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "    /usr/sbin/groupdel $(CIMSERVERMAIN_GRP) > /dev/null" \
+            "2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+endif
 
 # %defattr(file permissions, owner, group, directory permissions)
 # The %ghost directive instructs RPM not to install the specified file(s).
@@ -1263,6 +1331,10 @@ _append_postunSectionToSpecFile: FORCE
 
 _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%files" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%defattr($(Prw_______), $(CIMSERVERMAIN_USR),"\
+             "$(CIMSERVERMAIN_GRP), $(Prwx______))" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%defattr($(Prw_______), $(INSTALL_USR),"\
              "$(INSTALL_GRP), $(Prwxr_xr_x))" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -1271,8 +1343,9 @@ _append_filesSectionToSpecFile: FORCE
              if [ $(i) != $(PEGASUS_REPOSITORY_DIR) ]; then \
              if [ $(i) != $(PEGASUS_TRACE_DIR) ]; then \
              if [ $(i) != $(PEGASUS_CONFIG_DIR) ]; then \
+             if [ $(i) != $(PEGASUS_VARRUN_DIR) ]; then \
                    $(ECHO-E) "%dir $(i)" >> \
-             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi;) 
+             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi; fi;) 
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
@@ -1281,17 +1354,15 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(CIMSERVER_USR)," \
              "$(CIMSERVER_GRP)) $(PEGASUS_CONFIG_DIR)" \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr(1555,$(CIMSERVER_USR),$(CIMSERVER_GRP))" \
+	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(CIMSERVERMAIN_USR)," \
+             "$(CIMSERVERMAIN_GRP)) $(PEGASUS_VARRUN_DIR)" \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr(1755,$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP))" \
              "$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr($(Prwxrwxrwt),$(INSTALL_USR),$(INSTALL_GRP))" \
              "$(PEGASUS_TRACE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_x___), $(CIMSERVER_USR)," \
-             "$(CIMSERVER_GRP)) $(PEGASUS_REPOSITORY_DIR)" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)/*" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/*" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/Pegasus/*" \
@@ -1299,7 +1370,8 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))"\
             "/etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace)" \
+	@$(ECHO-E) "%config(noreplace) %attr($(Prw_r__r__), " \
+            "$(CIMSERVER_USR), $(CIMSERVER_GRP))" \
             "$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace) $(PEGASUS_CONFIG_DIR)/access.conf" \

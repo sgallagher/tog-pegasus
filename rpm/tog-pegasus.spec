@@ -152,6 +152,7 @@ sources.
 %global PEGASUS_VARDATA_CACHE_DIR /var/lib/Pegasus/cache
 %global PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  /var/run/tog-pegasus/socket/cimxml.socket
 %global PEGASUS_CIMSERVER_START_FILE /var/run/tog-pegasus/cimserver.pid
+%global PEGASUS_TRACE_FILE_PATH /var/lib/Pegasus/cache/trace/cimserver.trc
 %global PEGASUS_CIMSERVER_START_LOCK_FILE /var/run/tog-pegasus/cimserver_start.lock
 %global PEGASUS_REPOSITORY_DIR /var/lib/Pegasus/repository
 %global PEGASUS_PREV_REPOSITORY_DIR_NAME prev_repository
@@ -220,6 +221,7 @@ make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
 make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
 make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.Release all
+chmod 777 %PEGASUS_RPM_HOME
 make -f $PEGASUS_ROOT/Makefile.Release repository
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec
@@ -290,8 +292,22 @@ if [ $1 -gt 0 ]; then
         -g pegasus -s /sbin/nologin -r -d %PEGASUS_VARDATA_DIR pegasus \
          > /dev/null 2>&1 || :;
 fi
+if [ $1 -eq 2 ]; then
+    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
+    rm -f %PEGASUS_CIMSERVER_START_FILE;
+    rm -f %CIMSERVER_LOCK_FILE;
+fi
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-pre.spec
+
+# When Privilege Separation is enabled, create the 'cimsrvr' user and 
+# 'pegasus' group which are used as the context of the cimservermain process
+if [ $1 -gt 0 ]; then
+    /usr/sbin/groupadd pegasus > /dev/null 2>&1 || :;
+    /usr/sbin/useradd -c "tog-pegasus OpenPegasus WBEM/CIM services" \
+        -g pegasus -s /sbin/nologin -r -d %PEGASUS_VARDATA_DIR cimsrvr \
+        > /dev/null 2>&1 || :;
+fi
 
 %post
 if [ $1 -eq 1 ]; then
@@ -352,8 +368,17 @@ elif [ $1 -gt 1 ]; then
      # Running Repository Upgrade utility
      %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG
    fi
-   /etc/init.d/tog-pegasus condrestart
-   :;
+   # Check if the cimserver is running
+   isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
+   if [ "$isRunning" ]; then
+       /etc/init.d/tog-pegasus stop
+   fi
+   if [ -f %PEGASUS_TRACE_FILE_PATH ]; then
+     /bin/mv %PEGASUS_TRACE_FILE_PATH %PEGASUS_TRACE_FILE_PATH-`date '+%Y-%m-%d-%R'`
+   fi
+   if [ "$isRunning" ]; then
+       /etc/init.d/tog-pegasus start
+   fi
 fi
 
 %preun
@@ -402,7 +427,16 @@ fi;
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-postun.spec
 
+# When Privilege Separation is enabled, delete the 'cimsrvr' user and 
+# 'pegasus' group which are used as the context of the cimservermain process
+if [ $1 -eq 0 ]; then
+    /usr/sbin/userdel cimsrvr > /dev/null 2>&1 || :;
+    /usr/sbin/groupdel pegasus > /dev/null 2>&1 || :;
+fi
+
 %files
+%defattr(600, cimsrvr, pegasus, 700)
+/var/lib/Pegasus/repository
 %defattr(600, root, pegasus, 755)
 %dir /usr/share/doc/tog-pegasus-2.7
 %dir /usr/share/Pegasus
@@ -414,21 +448,19 @@ fi;
 %dir /var/lib/Pegasus/cache
 %dir /var/lib/Pegasus/log
 %dir /var/lib/Pegasus/cache/localauth
-%dir /var/run/tog-pegasus
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus 
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus/providers 
 
 %dir %attr(755, root, pegasus) /etc/Pegasus
-%dir %attr(1555,root,pegasus) /var/run/tog-pegasus/socket
+%dir %attr(755, cimsrvr, pegasus) /var/run/tog-pegasus
+%dir %attr(1755,cimsrvr,pegasus) /var/run/tog-pegasus/socket
 %dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
 
-%dir %attr(750, root, pegasus) /var/lib/Pegasus/repository
-/var/lib/Pegasus/repository/*
 /usr/share/Pegasus/mof/CIM29/*
 /usr/share/Pegasus/mof/Pegasus/*
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus
-%config(noreplace) /var/lib/Pegasus/cimserver_planned.conf
+%config(noreplace) %attr(644,  root, pegasus) /var/lib/Pegasus/cimserver_planned.conf
 %config(noreplace) /etc/Pegasus/access.conf
 %config(noreplace) /etc/pam.d/wbem
 
@@ -472,5 +504,6 @@ fi;
 %files test
 %defattr(-,root,pegasus,-)
 /usr/share/Pegasus/test
+%defattr(600,cimsrvr, pegasus,700)
 /var/lib/Pegasus/testrepository
 %endif

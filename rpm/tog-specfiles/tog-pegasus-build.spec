@@ -24,6 +24,7 @@ make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
 make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
 make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.Release all
+chmod 777 %PEGASUS_RPM_HOME
 make -f $PEGASUS_ROOT/Makefile.Release repository
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec

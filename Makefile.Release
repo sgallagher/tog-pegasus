@@ -171,6 +171,7 @@ PEGASUS_ADMIN_CMDS = \
    cimprovagt \
    cimservera \
    cimreparchive \
+   cimtrust \
    repupgrade
 
 ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
@@ -218,6 +219,7 @@ PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimauth.8 \
    cimconfig.8 \
    cimreparchive.8 \
+   cimtrust.8 \
    cimserver.8
 
 PEGASUS_DOC_FILES = \

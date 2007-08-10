@@ -79,6 +79,14 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
     {
         pos += 2;    // skip "\\\\"
 
+        // WMI Mapper can act as proxy to get date from other windows
+        // systems, The "." as system name represents localhost in WMI.
+        // However, the parser was not expecting that. So, we ignore the
+        // "." in order to ignore the hostname part so that it will be
+        // considered a request to the localhost.
+        if (p[pos]=='.')
+            pos++;
+
         // seek to '\\'
         for(len = 0; (p[pos] != Char16(0)) && (p[pos] != '\\'); len++, pos++);
 

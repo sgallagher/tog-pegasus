@@ -55,10 +55,11 @@ LIBRARIES = \
     pegcommon
 
 REBUILD_FOR_DIRECTACCESS=2
-	
-$(warning PEGASUS_USE_DIRECTACCESS_FOR_LOCAL = $(PEGASUS_USE_DIRECTACCESS_FOR_LOCAL))
-$(warning PEGASUS_DIRECTACCESS_BUILDTYPE = $(PEGASUS_DIRECTACCESS_BUILDTYPE))
-$(warning REBUILD_FOR_DIRECTACCESS = $(REBUILD_FOR_DIRECTACCESS))
+ifneq ($(OS_TYPE),windows)	
+    $(warning PEGASUS_USE_DIRECTACCESS_FOR_LOCAL = $(PEGASUS_USE_DIRECTACCESS_FOR_LOCAL))
+    $(warning PEGASUS_DIRECTACCESS_BUILDTYPE = $(PEGASUS_DIRECTACCESS_BUILDTYPE))
+    $(warning REBUILD_FOR_DIRECTACCESS = $(REBUILD_FOR_DIRECTACCESS))
+endif    
 	
 	
 
@@ -73,7 +74,25 @@ LIBRARIES += \
     pegpmservice \
     pegrepository \
     DefaultProviderManager \
-    pegserver
+    pegserver \
+    pegprovidermanager \
+    pegserver \
+    pegprm \
+    pegconfig \
+    pegprovider \
+    pegrepository \
+    NamespaceProvider \
+    InteropProvider \
+    ProviderRegistrationProvider \
+    CIMOMStatDataProvider \
+    ConfigSettingProvider \
+    CIMQueryCapabilitiesProvider \
+    CMPIProviderManager \
+    pegwql \
+    pegcql \
+    pegqueryexpression \
+    pegquerycommon
+    
 endif
 
 PRE_DEPEND_INCLUDES = -I./depends

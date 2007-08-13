@@ -146,7 +146,10 @@ protected:
     Message * handleDisableModuleRequest(const Message * message);
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
+//  Note: The PG_Provider AutoStart property is not yet supported
+#if 0
     Message * handleInitializeProviderRequest(const Message * message);
+#endif
     Message * handleSubscriptionInitCompleteRequest (const Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);

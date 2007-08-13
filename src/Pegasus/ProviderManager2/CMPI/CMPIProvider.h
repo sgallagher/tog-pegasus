@@ -46,7 +46,6 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
 
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
@@ -192,10 +191,6 @@ public:
 
     Status getStatus();
     String getName() const;
-    void setResolver(CMPIResolverModule *rm)
-    {
-        _rm=rm;
-    }
 
     void reset();
 
@@ -357,7 +352,6 @@ private:
     CIMOMHandle *_cimom_handle;
     String _name;
     AtomicInt _no_unload;
-    CMPIResolverModule *_rm;
     Uint32 _quantum;
     AtomicInt _current_operations;
     Mutex _statusMutex;

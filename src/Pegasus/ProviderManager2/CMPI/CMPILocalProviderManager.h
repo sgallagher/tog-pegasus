@@ -40,7 +40,6 @@
 #include <Pegasus/Common/ArrayInternal.h>
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
 
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 

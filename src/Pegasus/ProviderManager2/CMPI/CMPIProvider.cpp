@@ -56,7 +56,7 @@ CMPIProvider::CMPIProvider(
     CMPIProviderModule *module,
     ProviderVector *mv)
     : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
-    _no_unload(0), _rm(0), _threadWatchList(), _cleanedThreads()
+    _no_unload(0),  _threadWatchList(), _cleanedThreads()
 {
     _current_operations = 1;
     _currentSubscriptions = 0;

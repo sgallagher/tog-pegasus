@@ -703,16 +703,6 @@ void CIMRepository::_rollbackIncompleteTransactions()
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::_rollbackIncompleteTransactions");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-    if (runtime_context_is_directaccess_cim)
-    {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
-            MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
-                "Write not allowed with direct access cim."));
-
-    }
-#endif
-
     WriteLock lock(_lock);
     AutoFileLock fileLock(_lockFile);
 

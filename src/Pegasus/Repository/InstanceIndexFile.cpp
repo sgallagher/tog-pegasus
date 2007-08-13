@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,12 +45,17 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static const Uint32 _MAX_FREE_COUNT = 16;
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+extern bool runtime_context_is_directaccess_cim;
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 #ifdef PEGASUS_OS_ZOS
 
 static Uint32 getOffset( streampos sp )
@@ -62,74 +69,59 @@ static Uint32 getOffset( streampos sp )
 
     return result;
 }
-
 #endif
-
 //
-// Converts a CIMObjectPath to a form that can be used as a key in the index
-// file.  Newline and carriage return characters are escaped to prevent
-// problems with the line-based file format.
+// Gets one line from the given file.
 //
 
-static String _convertInstanceNameToKey(const CIMObjectPath& instanceName)
+static Boolean _GetLine(fstream& fs, Buffer& x)
 {
-    String instanceNameString(instanceName.toString());
-    const Uint32 stringLength = instanceNameString.size();
-    String keyString;
-    keyString.reserveCapacity(stringLength);
+    const Uint32 buffersize = 1023 + 1;
+    Uint32 xcount = 0;
+    Uint32 gcount = 0;
 
-    for (Uint32 i = 0; i < stringLength; i++)
+    x.clear();
+    x.reserveCapacity(buffersize);
+
+    // The general idea is, we will read the stream at buffersize each time.
+    // if we get exactly buffersize-1, that means we didn't hit a \n
+    // so we loop again to read more,
+    // until we get a buffer that's not completely full.
+    // That means we hit a \n so we exit the loop.
+    do
     {
-        Char16 instanceNameChar = instanceNameString[i];
+        char input[buffersize];
 
-        if (instanceNameChar == '\n')
-        {
-            keyString.append("\\n");
-        }
-        else if (instanceNameChar == '\r')
-        {
-            keyString.append("\\r");
-        }
-        else
-        {
-            keyString.append(instanceNameChar);
-        }
+        // This will read up to buffersize-1 char,
+        // but stop as soon as it hit \n.
+        // This will NOT consume the \n at the end.
+        fs.get(input, buffersize, '\n');
+
+        gcount = (Uint32)fs.gcount();
+        x.append(input, gcount);
+        xcount += gcount;
+
+    } while (gcount == buffersize-1 && fs.rdstate() != istream::failbit);
+
+    // if we read 0 byte in the last call, that's because the read buffer is
+    // exactly multiple of the input line.
+    // So the 2nd last get() read everything up to the \n and
+    // the last get() read 0 char and set the failbit on the
+    // stream.  The clear() call will set the stream to ready state.
+    if (gcount == 0)
+    {
+        fs.clear();
     }
 
-    return keyString;
-}
-
-//
-// Converts an index file key to a CIMObjectPath object.  Newline and
-// carriage return characters are un-escaped.
-//
-
-static CIMObjectPath _convertKeyToInstanceName(const char* key)
-{
-    String keyString(key);
-
-    for (Uint32 i = 0; i < keyString.size() - 1; i++)
+    if (!fs.eof())
     {
-        if (keyString[i] == '\\')
-        {
-            if (keyString[i+1] == 'n')
-            {
-                keyString[i] = '\n';
-                keyString.remove(i+1, 1);
-            }
-            else if (keyString[i+1] == 'r')
-            {
-                keyString[i] = '\r';
-                keyString.remove(i+1, 1);
-            }
-            else
-            {
-                i++;
-            }
-        }
+        // we need to consume the '\n', because get() doesn't
+        char c = 0;
+        fs.get(c);
     }
 
-    return CIMObjectPath(keyString);
+    // if xcount is non zero, then we have read something from the buffer.
+    return (xcount != 0);
 }
 
 inline void _SkipWhitespace(char*& p)
@@ -144,19 +136,19 @@ inline void _SkipWhitespace(char*& p)
 //
 
 Boolean _GetIntField(
-    const char*& ptr,
-    Boolean& errorOccurred,
+    char*& ptr,
+    Boolean& error,
     Uint32& value,
     int base)
 {
     char* end = 0;
     value = strtoul(ptr, &end, base);
 
-    errorOccurred = false;
+    error = false;
 
     if (!end)
     {
-        errorOccurred = true;
+        error = true;
         return false;
     }
 
@@ -164,7 +156,7 @@ Boolean _GetIntField(
 
     if (*end == '\0')
     {
-        errorOccurred = true;
+        error = true;
         return false;
     }
 
@@ -184,29 +176,29 @@ static Boolean _GetNextRecord(
     Uint32& index,
     Uint32& size,
     const char*& instanceName,
-    Boolean& errorOccurred)
+    Boolean& error)
 {
-    errorOccurred = false;
+    error = false;
 
     //
     // Get next line:
     //
 
-    if (!GetLine(fs, line))
+    if (!_GetLine(fs, line))
         return false;
 
     //
     // Get the free flag field:
     //
 
-    const char* end = (char*)line.getData();
+    char* end = (char*)line.getData();
 
-    if (!_GetIntField(end, errorOccurred, freeFlag, 10))
+    if (!_GetIntField(end, error, freeFlag, 10))
         return false;
 
     if (freeFlag != 0 && freeFlag != 1)
     {
-        errorOccurred = true;
+        error = true;
         return false;
     }
 
@@ -214,21 +206,21 @@ static Boolean _GetNextRecord(
     // Get the hash-code field:
     //
 
-    if (!_GetIntField(end, errorOccurred, hashCode, 16))
+    if (!_GetIntField(end, error, hashCode, 16))
         return false;
 
     //
     // Get index field:
     //
 
-    if (!_GetIntField(end, errorOccurred, index, 10))
+    if (!_GetIntField(end, error, index, 10))
         return false;
 
     //
     // Get size field:
     //
 
-    if (!_GetIntField(end, errorOccurred, size, 10))
+    if (!_GetIntField(end, error, size, 10))
         return false;
 
     //
@@ -488,21 +480,21 @@ Boolean InstanceIndexFile::enumerateEntries(
     const char* instanceName;
     Uint32 index;
     Uint32 size;
-    Boolean errorOccurred;
+    Boolean error;
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index, size, instanceName, errorOccurred))
+        fs, line, freeFlag, hashCode, index, size, instanceName, error))
     {
         if (!freeFlag || includeFreeEntries)
         {
             freeFlags.append(freeFlag);
             indices.append(index);
             sizes.append(size);
-            instanceNames.append(_convertKeyToInstanceName(instanceName));
+            instanceNames.append (CIMObjectPath (instanceName));
         }
     }
 
-    if (errorOccurred)
+    if (error)
     {
         PEG_METHOD_EXIT();
         return false;
@@ -656,7 +648,7 @@ Boolean InstanceIndexFile::_appendEntry(
 
     // Calling getCString to ensure that utf-8 goes to the file
     // Calling write to ensure no data conversion by the stream
-    CString name = _convertInstanceNameToKey(instanceName).getCString();
+    CString name = instanceName.toString().getCString();
     fs.write((const char *)name,
         static_cast<streamsize>(strlen((const char *)name)));
     fs << endl;
@@ -718,14 +710,23 @@ Boolean InstanceIndexFile::_lookupEntry(
     sizeOut = 0;
     entryOffset = 0;
 
-    Uint32 targetHashCode = instanceName.makeHashCode();
+    // For for bugzilla 1508. Hostname and namespace are not included
+    // in the comparison here. Instances in the repository index file
+    // are generally stored without hostname and namespace. If the hostname
+    // and namespace of the instance to look up would not match, we would have
+    // not gotten here at all.
+    CIMObjectPath shortInstanceName = instanceName;
+    shortInstanceName.setNameSpace(CIMNamespaceName());
+    shortInstanceName.setHost(String::EMPTY);
+
+    Uint32 targetHashCode = shortInstanceName.makeHashCode();
     Buffer line;
     Uint32 freeFlag;
     Uint32 hashCode;
     const char* instanceNameTmp;
     Uint32 index;
     Uint32 size;
-    Boolean errorOccurred;
+    Boolean error;
 #ifndef PEGASUS_OS_ZOS
         entryOffset = (Uint32)fs.tellp();
 #else
@@ -733,8 +734,7 @@ Boolean InstanceIndexFile::_lookupEntry(
 #endif
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index,
-        size, instanceNameTmp, errorOccurred))
+        fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
     {
 
 #ifdef PEGASUS_REPOSITORY_NOT_NORMALIZED
@@ -742,11 +742,11 @@ Boolean InstanceIndexFile::_lookupEntry(
         // are not normalized, then the hashcodes cannot be used for
         // the look up (because the hash is based on the normalized path).
         if (freeFlag == 0 &&
-            _convertKeyToInstanceName(instanceNameTmp) == instanceName)
+            CIMObjectPath(instanceNameTmp) == shortInstanceName)
 #else
         if (freeFlag == 0 &&
             hashCode == targetHashCode &&
-            _convertKeyToInstanceName(instanceNameTmp) == instanceName)
+            CIMObjectPath(instanceNameTmp) == shortInstanceName)
 #endif
         {
             indexOut = index;
@@ -786,25 +786,16 @@ Boolean InstanceIndexFile::compact(
     }
 
     //
-    // Open the output file (temporary data file):
+    // Open temporary file (delete it first):
     //
 
-    const String outputFilePath = path + ".tmp";
-    String leftoverOutputFilePath;
-
-    // Ensure the output file does not already exist
-    if (FileSystem::existsNoCase(outputFilePath, leftoverOutputFilePath))
-    {
-        if (!FileSystem::removeFile(leftoverOutputFilePath))
-        {
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-
     fstream tmpFs;
+    String tmpPath = path;
+    tmpPath.append(".tmp");
 
-    if (!_openFile(outputFilePath, tmpFs, true))
+    FileSystem::removeFileNoCase(tmpPath);
+
+    if (!_openFile(tmpPath, tmpFs, true))
     {
         PEG_METHOD_EXIT();
         return false;
@@ -820,11 +811,11 @@ Boolean InstanceIndexFile::compact(
     const char* instanceName;
     Uint32 index;
     Uint32 size;
-    Boolean errorOccurred;
+    Boolean error;
     Uint32 adjust = 0;
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index, size, instanceName, errorOccurred))
+        fs, line, freeFlag, hashCode, index, size, instanceName, error))
     {
         //
         // Copy the entry over to the temporary file if it is not free.
@@ -838,10 +829,10 @@ Boolean InstanceIndexFile::compact(
         }
         else
         {
-            if (!_appendEntry(tmpFs, _convertKeyToInstanceName(instanceName),
+            if (!_appendEntry(tmpFs, CIMObjectPath (instanceName),
                 index - adjust, size))
             {
-                errorOccurred = true;
+                error = true;
                 break;
             }
         }
@@ -860,9 +851,9 @@ Boolean InstanceIndexFile::compact(
     // return false.
     //
 
-    if (errorOccurred)
+    if (error)
     {
-        FileSystem::removeFile(outputFilePath);
+        FileSystem::removeFileNoCase(tmpPath);
         PEG_METHOD_EXIT();
         return false;
     }
@@ -871,8 +862,20 @@ Boolean InstanceIndexFile::compact(
     // Replace index file with temporary file:
     //
 
+    if (!FileSystem::removeFileNoCase(path))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    if (!FileSystem::renameFile(tmpPath, path))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
     PEG_METHOD_EXIT();
-    return FileSystem::renameFile(outputFilePath, path);
+    return true;
 }
 
 Boolean InstanceIndexFile::hasNonFreeEntries(const String& path)
@@ -951,50 +954,24 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     // copied back to the index file.
     //
 
-    do
+    if (!FileSystem::renameFileNoCase(path, rollbackPath))
     {
-        if (!FileSystem::renameFileNoCase(path, rollbackPath))
-        {
-            break;
-        }
-
-        if (!FileSystem::copyFile(rollbackPath, path))
-        {
-            break;
-        }
-
         PEG_METHOD_EXIT();
-        return true;
+        return false;
     }
-    while(0);
 
-    // Try to restore the initial state
-    undoBeginTransaction(path);
-
-    PEG_METHOD_EXIT();
-    return false;
-}
-
-void InstanceIndexFile::undoBeginTransaction(const String& path)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "InstanceIndexFile::undoBeginTransaction()");
-
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
-
-    //
-    // Remove the original index file and
-    // Rename the rollback file to the original file
-    // If the rollback file is present, this function has no effect
-    //
-    if(FileSystem::existsNoCase(rollbackPath))
+    if (!FileSystem::copyFile(rollbackPath, path))
     {
+        // Try to restore the initial state
         FileSystem::removeFileNoCase(path);
         FileSystem::renameFileNoCase(rollbackPath, path);
+
+        PEG_METHOD_EXIT();
+        return false;
     }
 
     PEG_METHOD_EXIT();
+    return true;
 }
 
 Boolean InstanceIndexFile::rollbackTransaction(const String& path)
@@ -1013,9 +990,29 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
         return true;
     }
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+    if (runtime_context_is_directaccess_cim)
+    {
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
+            MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
+                "Write not allowed with direct access cim."));
+
+    }
+#endif
+
     //
-    // To roll back, simply rename the rollback file over the index file.
+    // To roll back, simply delete the index file and rename
+    // the rollback file over it.
     //
+
+    if (FileSystem::existsNoCase(path))
+    {
+        if (!FileSystem::removeFileNoCase(path))
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
 
     PEG_METHOD_EXIT();
     return FileSystem::renameFileNoCase(path + ".rollback", path);

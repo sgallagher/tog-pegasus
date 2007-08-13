@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +41,10 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+extern bool runtime_context_is_directaccess_cim;
+#endif
 
 Boolean InstanceDataFile::_openFile(
     PEGASUS_STD(fstream)& fs,
@@ -208,7 +214,7 @@ Boolean InstanceDataFile::appendInstance(
     // Write the instance:
     //
 
-    fs.write(data.getData(), data.size());
+    fs.write((char*)data.getData(), data.size());
 
     if (!fs)
     {
@@ -257,72 +263,36 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     // files are getting created in some error conditions.
 
     fstream fs;
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
 
-    do
+    if (!_openFile(fs, path + ".rollback", ios::out PEGASUS_OR_IOS_BINARY))
     {
-        if (!_openFile(fs, rollbackPath, ios::out PEGASUS_OR_IOS_BINARY))
-        {
-            break;
-        }
-
-        //
-        // Save the size of the data file in the rollback file.
-        //
-
-        char buffer[9];
-        sprintf(buffer, "%08x", fileSize);
-        fs.write(buffer, static_cast<streamsize>(strlen(buffer)));
-
-        if (!fs)
-        {
-            break;
-        }
-
-        //
-        // If the badbit is set, it indicates error in the file write operation.
-        //
-        if (fs.bad())
-        {
-            //
-            // Close the file
-            //
-
-            fs.close();
-            break;
-        }
-
-        //
-        // Close the file.
-        //
-
-        FileSystem::syncWithDirectoryUpdates(fs);
-        fs.close();
-
         PEG_METHOD_EXIT();
-        return true;
+        return false;
     }
-    while(0);
 
-    // Undo the begin transaction for instance data file
-    undoBeginTransaction(path);
+    //
+    // Save the size of the data file in the rollback file.
+    //
+
+    char buffer[9];
+    sprintf(buffer, "%08x", fileSize);
+    fs.write(buffer, static_cast<streamsize>(strlen(buffer)));
+
+    if (!fs)
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    //
+    // Close the file.
+    //
+
+    FileSystem::syncWithDirectoryUpdates(fs);
+    fs.close();
 
     PEG_METHOD_EXIT();
-    return false;
-}
-
-void InstanceDataFile::undoBeginTransaction(const String& path)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY,"InstanceDataFile::undoBeginTransaction()");
-
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
-
-    // Remove the incorrect instance data rollback file as a part of cleanup
-    FileSystem::removeFileNoCase(rollbackPath);
-
-    PEG_METHOD_EXIT();
+    return true;
 }
 
 Boolean InstanceDataFile::rollbackTransaction(const String& path)
@@ -339,6 +309,16 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
         PEG_METHOD_EXIT();
         return true;
     }
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+    if (runtime_context_is_directaccess_cim)
+    {
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
+            MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
+                "Write not allowed with direct access cim."));
+
+    }
+#endif
 
     //
     // Open the rollback file:
@@ -450,37 +430,25 @@ Boolean InstanceDataFile::compact(
     // Open the output file (temporary data file):
     //
 
-    const String outputFilePath = path + ".tmp";
-    String leftoverOutputFilePath;
-
-    // Ensure the output file does not already exist
-    if (FileSystem::existsNoCase(outputFilePath, leftoverOutputFilePath))
-    {
-        if (!FileSystem::removeFile(leftoverOutputFilePath))
-        {
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-
     fstream tmpFs;
 
-    if (!_openFile(tmpFs, outputFilePath, ios::out PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(tmpFs, path + ".tmp", ios::out PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
         return false;
     }
 
+    Buffer data;
+
     //
     // Copy over instances which have not been freed:
     //
 
-    Buffer data;
-
     for (Uint32 i = 0, n = freeFlags.size(); i < n; i++)
     {
         //
-        // If this entry is not free, then copy it over to the output file.
+        // If this entry is not free, then copy it over to the
+        // temporary file. Otherwise, pay retail for it.
         //
 
         if (!freeFlags[i])
@@ -491,7 +459,6 @@ Boolean InstanceDataFile::compact(
 
             if (!fs.seekg(indices[i]))
             {
-                FileSystem::removeFile(outputFilePath);
                 PEG_METHOD_EXIT();
                 return false;
             }
@@ -502,7 +469,6 @@ Boolean InstanceDataFile::compact(
 
             if (!fs)
             {
-                FileSystem::removeFile(outputFilePath);
                 PEG_METHOD_EXIT();
                 return false;
             }
@@ -511,7 +477,7 @@ Boolean InstanceDataFile::compact(
             //  Write out the next instance:
             //
 
-            tmpFs.write(data.getData(), sizes[i]);
+            tmpFs.write((char*)data.getData(), sizes[i]);
         }
     }
 
@@ -528,8 +494,20 @@ Boolean InstanceDataFile::compact(
     // Copy the new file over the old one:
     //
 
+    if (!FileSystem::removeFileNoCase(path))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    if (!FileSystem::renameFileNoCase(path + ".tmp", path))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
     PEG_METHOD_EXIT();
-    return FileSystem::renameFile(outputFilePath, path);
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

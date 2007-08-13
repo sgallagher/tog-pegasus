@@ -61,7 +61,7 @@
 #include <Pegasus/Client/CIMClientInterface.h>
 #include <Pegasus/Client/ClientPerfDataStore.h>
 #include <Pegasus/Client/CIMClient.h>
-#ifdef   PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef   PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 #include <Pegasus/Client/CIMDirectAccessRep.h>
 #else
 class    CIMDirectAccessRep;
@@ -102,11 +102,15 @@ public:
         _timeoutMilliseconds = timeoutMilliseconds;
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
         char * runTimeDacim = getenv("PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT");
-        if (runTimeDacim && strcmp(runTimeDacim,"true") != 0)
+        if (!_allowdirectaccesslocalproviders ||
+            (runTimeDacim && strcmp(runTimeDacim,"true") != 0))
         {
 #endif
             if ((_connected) && (_httpConnection != 0))
-               _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
+            {
+                _httpConnection->setSocketWriteTimeout(
+                   _timeoutMilliseconds/1000+1);
+            }
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
         }
 #endif

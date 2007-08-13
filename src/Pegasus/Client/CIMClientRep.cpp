@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -40,8 +40,10 @@
 
 #include <iostream>
 #include <fstream>
+#ifndef PEGASUS_OS_TYPE_WINDOWS
 #include <unistd.h>
 #include <sys/types.h>
+#endif
 #include <Pegasus/Common/Network.h>
 
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
@@ -60,20 +62,14 @@ static Stopwatch temptimer;  // ebbfix
 // _directaccess_redirect flag should only be set via this macro
 #if PEGASUS_DIRECTACCESS_BUILDTYPE == dacimINTEGRATED
 #define ck_dacim_redirect() \
-    if (_directaccesslocalproviders) { \
+    if (_directaccesslocalproviders) \
+    { \
         disconnect();\
         _directaccess_redirect = true; \
-        try { connectLocal();\
-++numredirok; \
-        } \
-		catch( Exception& e ) { \
-++numredirnok; \
-            _directaccess_redirect = false; \
-            connectLocal(); \
-            } \
-        }
-#else
-#define ck_dacim_redirect()  ;
+        connectLocal();\
+        setTimeout(_timeoutMilliseconds);\
+        ++numredirok; \
+   }
 #endif
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -87,18 +83,16 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _doReconnect(false)
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-    ,
-    _allowdirectaccesslocalproviders(true),
-    _directaccess_redirect(false),	
-    _localizer(  //new CIMDirectAccessRep() ) 
-                 CIMDirectAccessRep::get() )
-#endif
 {
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-    temptimer.start();    
+    temptimer.start();
+    _allowdirectaccesslocalproviders = false;
+    _directaccess_redirect = false;
+    _localizer = CIMDirectAccessRep::get();
 
+# ifndef PEGASUS_OS_TYPE_WINDOWS
     gid_t groupid = getegid();
+#endif
 #endif
     //
     // Create Monitor and HTTPConnector
@@ -116,7 +110,7 @@ CIMClientRep::~CIMClientRep()
    disconnect();
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
    _localizer->release();
-   temptimer.stop();   
+   temptimer.stop();
 #endif
 }
 
@@ -178,18 +172,18 @@ void CIMClientRep::_connect()
 
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     char *ckdacim = getenv("PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_RT");
-    if (ckdacim) 
+    if (ckdacim)
     {
         _allowdirectaccesslocalproviders = (strcmp(ckdacim,"false") != 0);
     }
-    else 
+    else
     {
         //If the runtime environment is not set, use cimserver
-        _allowdirectaccesslocalproviders = 0; 
+        _allowdirectaccesslocalproviders = 0;
     }
     if (_directaccesslocalproviders =     // (assign is intentional)
-             _allowdirectaccesslocalproviders 
-			 && !_directaccess_redirect && _isLocalHost() ) {
+             _allowdirectaccesslocalproviders
+             && !_directaccess_redirect && _isLocalHost() ) {
         _connected = true;
         _connectHost = "localhost";
         }
@@ -253,7 +247,7 @@ void CIMClientRep::_disconnect()
     if (_connected)
     {
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-        if (!_directaccesslocalproviders) 
+        if (!_directaccesslocalproviders)
         {
 #endif
         //
@@ -292,9 +286,9 @@ void CIMClientRep::_disconnect()
 
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 //-----------------------------------------------
-Boolean CIMClientRep::_isLocalHost() 
+Boolean CIMClientRep::_isLocalHost()
 {
-    if ( _connectHost == String::EMPTY  || 
+    if ( _connectHost == String::EMPTY  ||
          String::equalNoCase(_connectHost,"localhost") ) return true;
     return System::sameHost( _connectHost );
 }
@@ -401,7 +395,7 @@ void CIMClientRep::connectLocal()
         throw AlreadyConnectedException();
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (_allowdirectaccesslocalproviders && !_directaccess_redirect) {
-		// set up direct access CIM	
+        // set up direct access CIM
         _connectHost = String::EMPTY;
         _connect();
         return;                    // <--- note
@@ -588,7 +582,7 @@ void CIMClientRep::deleteClass(
         QueueIdStack()));
 
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-	ck_dacim_redirect()
+    ck_dacim_redirect()
 #endif
 
     Message* message = _doRequest(request, CIM_DELETE_CLASS_RESPONSE_MESSAGE);
@@ -611,9 +605,9 @@ void CIMClientRep::deleteInstance(
         instanceName,
         QueueIdStack()));
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-	if (nameSpace == "root/PG_InterOp") 
-        { 
-            ck_dacim_redirect() 
+    if (nameSpace == "root/PG_InterOp")
+        {
+            ck_dacim_redirect()
         }
 #endif
     Message* message =
@@ -663,9 +657,9 @@ CIMObjectPath CIMClientRep::createInstance(
         newInstance,
         QueueIdStack()));
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-	if (nameSpace == "root/PG_InterOp") 
-        { 
-            ck_dacim_redirect() 
+    if (nameSpace == "root/PG_InterOp")
+        {
+            ck_dacim_redirect()
         }
 #endif
 
@@ -695,7 +689,7 @@ void CIMClientRep::modifyClass(
         QueueIdStack()));
 
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-	ck_dacim_redirect()
+    ck_dacim_redirect()
 #endif
     Message* message = _doRequest(request, CIM_MODIFY_CLASS_RESPONSE_MESSAGE);
 
@@ -723,9 +717,9 @@ void CIMClientRep::modifyInstance(
         propertyList,
         QueueIdStack()));
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-	if (nameSpace == "root/PG_InterOp") 
-        { 
-            ck_dacim_redirect() 
+    if (nameSpace == "root/PG_InterOp")
+        {
+            ck_dacim_redirect()
         }
 #endif
     Message* message =
@@ -1070,7 +1064,7 @@ void CIMClientRep::setQualifier(
         QueueIdStack()));
 
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-	ck_dacim_redirect()
+    ck_dacim_redirect()
 #endif
 
     Message* message = _doRequest(request, CIM_SET_QUALIFIER_RESPONSE_MESSAGE);
@@ -1096,7 +1090,7 @@ void CIMClientRep::deleteQualifier(
         QueueIdStack()));
 
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-	ck_dacim_redirect()
+    ck_dacim_redirect()
 #endif
 
     Message* message =
@@ -1177,8 +1171,14 @@ Message* CIMClientRep::_doRequest(
         throw NotConnectedException();
     }
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
-    if ( _directaccesslocalproviders && !_directaccess_redirect ) {
-++numdacim;        
+    try
+    {
+    if (_directaccesslocalproviders && !_directaccess_redirect )
+    {
+        ++numdacim;
+        request->operationContext.set(
+            AcceptLanguageListContainer(requestAcceptLanguages));
+
         Message *response = _localizer->dorequest(request);
         if (!response) {
             }
@@ -1191,44 +1191,66 @@ Message* CIMClientRep::_doRequest(
             throw *clientexcep;
             }
         else if ( response->getType() == DIRECTACCESSCIM_NOTSUPPORTED_TEMP ) {
-			// should see these only during dev; should not occur with intg 
-			// build done.
+            // should see these only during dev; should not occur with intg
+            // build done.
             CIMException cimexcep( CIM_ERR_NOT_SUPPORTED,
                                    "DACIM does not yet handle this." );
             delete response;
             throw cimexcep;
             }
-        //else if ( response->getType() == DIRECTACCESSCIM_NOTSUPPORTED_REQUEST ) {
-		//	// pass these along to the cimserver, bau, as if direct access cim didn't
-		//	// exist.
-		//	_directaccess_redirect = true;
-		//	connectLocal();
-		//	_directaccess_redirect = false;
-		//	// note; don't return here.
-		//    }	
+        //else if ( response->getType() ==
+        //      DIRECTACCESSCIM_NOTSUPPORTED_REQUEST ) {
+        //    // pass these along to the cimserver, bau, as if direct access
+        //    cim didn't
+        //    // exist.
+        //    _directaccess_redirect = true;
+        //    connectLocal();
+        //    _directaccess_redirect = false;
+        //    // note; don't return here.
+        //    }
         else {
-            if ( response->getType() != expectedResponseMessageType ) {   
+            if ( response->getType() != expectedResponseMessageType ) {
                 MessageLoaderParms mlParms(
                   "Client.CIMOperationResponseDecoder.MISMATCHED_RESPONSE_TYPE",
                   "Mismatched response message type.");               // fix
                 String mlString(MessageLoader::getMessage(mlParms));
-                CIMClientResponseException responseexcep(mlString);             
+                CIMClientResponseException responseexcep(mlString);
                 delete response;
                 throw responseexcep;
                 }
             CIMResponseMessage *crm = (CIMResponseMessage*)response;
-            if (crm->cimException.getCode() != CIM_ERR_SUCCESS) {
+            if (crm->cimException.getCode() != CIM_ERR_SUCCESS)
+            {
                 CIMException cimexcep( crm->cimException.getCode(),
-                              (crm->cimException.getMessage().size() > 0)?TraceableCIMException(crm->cimException).getDescription():cimStatusCodeToString(crm->cimException.getCode()));
+                              (crm->cimException.getMessage().size() > 0)?
+                               TraceableCIMException(
+                                   crm->cimException).getDescription():
+                                    cimStatusCodeToString(
+                                        crm->cimException.getCode()));
                 delete response;
                 throw cimexcep;
                 }
             return response;                          // <-- note.
             }
     }
+    }
+    catch (const CIMException & dacimException)
+    {
+        if (dacimException.getCode() == CIM_ERR_DACIM_REDIRECT ||
+            dacimException.getCode() == CIM_ERR_DACIM_NOT_SUPPORTED)
+        {
+            _doReconnect = true;
+            _connected = false;
+            ck_dacim_redirect()
+        }
+        else
+        {
+           throw;
+        }
+    }
 #endif
 
-++numnondacim;    
+++numnondacim;
 
     if (_doReconnect)
     {

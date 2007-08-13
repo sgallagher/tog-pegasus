@@ -63,6 +63,12 @@
 #include "mm.h"
 #include "native.h"
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+# define UINT64_LITERAL(x)  ((CMPIUint64)x)
+#else
+# define UINT64_LITERAL(x)  ((CMPIUint64)x##ULL) 
+#endif
+
 //! Native extension of the CMPIDateTime data type.
 /*!
     This structure stores the information needed to represent time for
@@ -78,8 +84,13 @@
 // value in CIMDateTime.cpp here.
 
 static const CMPIUint64 POSIX_1970_EPOCH_OFFSET  =
-    (CMPIUint64)(62167219200000000);
+    UINT64_LITERAL(62167219200000000);
 
+/* Number of microseconds in one minute.*/
+static const CMPIUint64 MICROSECONDS_IN_MINUTE =  60000000;
+
+/* Number of microseconds in one Hour */
+static const CMPIUint64 MICROSECONDS_IN_HOUR = UINT64_LITERAL(3600000000);
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 struct timezone
@@ -435,6 +446,10 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
     int tzMinutesEast=0;
     struct tm* tmval;
     struct tm tmvalBuffer;
+    int utcOffset;    /* UTC offset */
+    int sign;   /* '-' or '+' for time stamps */ 
+    CMPIUint64 hours;
+    CMPIUint64 minutes;
 
     gettimeofday(&tv, &tz);
     sec = tv.tv_sec;
@@ -478,6 +493,21 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
     usec = POSIX_1970_EPOCH_OFFSET +
         (CMPIUint64)(sec + tzMinutesEast * 60) * (CMPIUint64) 1000000 +
         (CMPIUint64) usec;
+
+    /* Normalize the time */
+
+    sign = tzMinutesEast < 0 ? '-' : '+';
+    utcOffset = tzMinutesEast < 0 ? -tzMinutesEast : tzMinutesEast;
+    hours = (utcOffset / 60) * MICROSECONDS_IN_HOUR;
+    minutes = (utcOffset % 60) * MICROSECONDS_IN_MINUTE;
+    if (sign == '+')
+    {
+        usec -= hours + minutes;
+    }
+    else
+    {
+        usec += hours + minutes;
+    }
 
     return(CMPIDateTime *) __new_datetime ( 
         TOOL_MM_ADD,

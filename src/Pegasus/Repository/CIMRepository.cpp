@@ -84,7 +84,7 @@ static const Uint32 _MAX_FREE_COUNT = 16;
 static int compressMode = 0; // PEP214
 #endif
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 extern bool runtime_context_is_directaccess_cim;
 #endif
 
@@ -703,10 +703,10 @@ void CIMRepository::_rollbackIncompleteTransactions()
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::_rollbackIncompleteTransactions");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -863,7 +863,7 @@ CIMClass CIMRepository::getClass(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -1079,7 +1079,7 @@ CIMInstance CIMRepository::getInstance(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -1201,10 +1201,10 @@ void CIMRepository::deleteClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::deleteClass");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -1328,10 +1328,10 @@ void CIMRepository::deleteInstance(
             CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -1480,10 +1480,10 @@ void CIMRepository::createClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -1693,10 +1693,10 @@ CIMObjectPath CIMRepository::createInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -1834,10 +1834,10 @@ void CIMRepository::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -1953,10 +1953,10 @@ void CIMRepository::modifyInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -2304,7 +2304,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -2348,7 +2348,7 @@ Array<CIMName> CIMRepository::enumerateClassNames(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -2518,7 +2518,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -2610,7 +2610,7 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -2695,7 +2695,7 @@ Array<CIMObject> CIMRepository::associators(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -2790,7 +2790,7 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -2922,7 +2922,7 @@ Array<CIMObject> CIMRepository::references(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3012,7 +3012,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3154,7 +3154,7 @@ CIMValue CIMRepository::getProperty(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3249,7 +3249,7 @@ CIMQualifierDecl CIMRepository::getQualifier(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3326,10 +3326,10 @@ void CIMRepository::setQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -3382,10 +3382,10 @@ void CIMRepository::deleteQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteQualifier");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -3422,7 +3422,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     ReadLock lock(_lock);
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3480,10 +3480,10 @@ void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -3503,10 +3503,10 @@ void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpace");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -3528,7 +3528,7 @@ Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3557,10 +3557,10 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 
@@ -3585,7 +3585,7 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3620,7 +3620,7 @@ Boolean CIMRepository::isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
 
     AutoFileLock* fileLock = 0;
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
         fileLock = new AutoFileLock (_lockFile);
@@ -3725,10 +3725,10 @@ void CIMRepository::setDeclContext(RepositoryDeclContext* context)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setDeclContext");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if (runtime_context_is_directaccess_cim)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_DACIM_REDIRECT,
             MessageLoaderParms ("Repository.CIMRepository.WRITE_FAILED",
                 "Write not allowed with direct access cim."));
 

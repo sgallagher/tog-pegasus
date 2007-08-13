@@ -57,7 +57,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL    
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND    
 extern bool runtime_context_is_directaccess_cim;
 #endif
 inline Boolean _isSupportedRequestType(const Message * message)
@@ -594,7 +594,7 @@ void ProviderManagerService::responseChunkCallback(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderManagerService::responseChunkCallback");
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL    
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND    
     if (runtime_context_is_directaccess_cim) return;  // chunking is irrelavent
 #endif
     try

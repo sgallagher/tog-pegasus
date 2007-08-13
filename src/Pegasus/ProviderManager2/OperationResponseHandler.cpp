@@ -39,7 +39,7 @@
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
 extern bool runtime_context_is_directaccess_cim;
 #endif
 
@@ -165,7 +165,7 @@ void OperationResponseHandler::send(Boolean isComplete)
     // some handlers do not send async because their callers cannot handle
     // partial responses. If this is the case, stop here.
 
-#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     if ( runtime_context_is_directaccess_cim || !isAsync() )
 #else
     if (!isAsync())

@@ -55,17 +55,76 @@ LIBRARIES = \
     pegcommon
 
 REBUILD_FOR_DIRECTACCESS=2
-ifneq ($(OS_TYPE),windows)	
-    $(warning PEGASUS_USE_DIRECTACCESS_FOR_LOCAL = $(PEGASUS_USE_DIRECTACCESS_FOR_LOCAL))
-    $(warning PEGASUS_DIRECTACCESS_BUILDTYPE = $(PEGASUS_DIRECTACCESS_BUILDTYPE))
-    $(warning REBUILD_FOR_DIRECTACCESS = $(REBUILD_FOR_DIRECTACCESS))
-endif    
+	
+$(warning PEGASUS_USE_DIRECTACCESS_FOR_LOCAL = $(PEGASUS_USE_DIRECTACCESS_FOR_LOCAL))
+$(warning PEGASUS_DIRECTACCESS_BUILDTYPE = $(PEGASUS_DIRECTACCESS_BUILDTYPE))
+$(warning REBUILD_FOR_DIRECTACCESS = $(REBUILD_FOR_DIRECTACCESS))
 	
 	
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 ifneq ($(OS_TYPE),windows)
 LIBRARIES += pegslp_client
+endif
+endif
+
+ifeq ($(REBUILD_FOR_DIRECTACCESS),2)
+LIBRARIES += \
+    pegpmservice \
+    pegrepository \
+    DefaultProviderManager \
+    pegserver
+endif
+
+PRE_DEPEND_INCLUDES = -I./depends
+
+SOURCES = \
+    ClientPerfDataStore.cpp \
+    ClientOpPerformanceDataHandler.cpp \
+    CIMClientRep.cpp \
+    CIMClient.cpp \
+    CIMOperationRequestEncoder.cpp \
+    CIMOperationResponseDecoder.cpp \
+    ClientAuthenticator.cpp \
+    CIMClientException.cpp
+
+SOURCES_SLP = \
+    CIMServerDiscovery.cpp
+
+SOURCES_DACIM = \
+	CIMDirectAccessRep.cpp 
+	
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+  SOURCES += $(SOURCES_SLP)
+endif
+
+ifeq ($(REBUILD_FOR_DIRECTACCESS),2)
+  DEFINES += -DPEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+  SOURCES += $(SOURCES_DACIM)
+endif
+
+OBJECTS = $(SOURCES:.cpp=$(OBJ))
+
+include $(ROOT)/mak/library.mak
+
+
+#ifeq ($(REBUILD_FOR_DIRECTACCESS),1)
+#    REBUILD_FOR_DIRECTACCESS = 2
+#$(SOURCES):: dacim_function
+#dacim_function :
+#	@$(TOUCH)  CIMClientRep.cpp   
+#endif
+
+ifeq ($(OS_TYPE),windows)
+SYS_LIBS = ws2_32.lib advapi32.lib
+endif
+
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+$(SOURCES): slp_client
+slp_client :
+	@ $(MAKE) -SC $(ROOT)/src/slp/slp_client
+ifeq ($(OS_TYPE),windows)
+SYS_LIBS += $(PEGASUS_HOME)/lib/pegslp_client.lib
 endif
 endif
 
@@ -111,7 +170,6 @@ SOURCES_SLP = \
     CIMServerDiscovery.cpp
 
 SOURCES_DACIM = \
-	CIMDirectAccess.cpp \
 	CIMDirectAccessRep.cpp 
 	
 ifeq ($(PEGASUS_ENABLE_SLP),true)

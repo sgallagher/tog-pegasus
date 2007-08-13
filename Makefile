@@ -255,10 +255,17 @@ clobber: FORCE
 	- $(RMDIRHIER) $(PEGASUS_HOME)/obj
 
 dacim: FORCE
-	@$(TOUCH) $(PEGASUS_ROOT)/src/Pegasus/Client/CIMClient.cpp
-	@$(TOUCH) $(PEGASUS_ROOT)/src/Pegasus/Client/CIMClientRep.cpp
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client -f Makefile2 clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client -f Makefile2 depend
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client -f Makefile2
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client/tests/DirectAccessCIM
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Repository clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Repository -e PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND=true
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/ProviderManager2 clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/ProviderManager2 -e PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND=true
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/ProviderManagerService clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/ProviderManagerService -e PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND=true
+	$(MAKE) --directory src/Clients/cimconfig clean
+	$(MAKE) --directory src/Clients/cimconfig -e PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND=true
 	@$(ECHO) "PEGASUS built with direct access CIM. "
 
 removedacim: rmv_dacim build

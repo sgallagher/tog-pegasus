@@ -53,12 +53,8 @@ _running(0),
 _dieNow(0),
 _shutdownSem(0),
 _monitor(0),
-#ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor(NULL),
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor(NULL),
-#endif
+_ip6Acceptor(NULL),
+_ip4Acceptor(NULL),
 _responseEncoder(0),
 _requestDecoder(0),
 _listening_thread(0),
@@ -104,13 +100,15 @@ ListenerService::ListenerService(const ListenerService& x)
 {
 }
 
-Boolean ListenerService::initializeListener(Uint32 portNumber, Boolean useSSL, SSLContext* sslContext)
+Boolean ListenerService::initializeListener(Uint32 portNumber, 
+    Boolean useSSL, SSLContext* sslContext)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::initializeListener");
 
     if (_initialized)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Warning: The listener is already initialized.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
+            "Warning: The listener is already initialized.");
         return true;
     }
 
@@ -120,13 +118,15 @@ Boolean ListenerService::initializeListener(Uint32 portNumber, Boolean useSSL, S
 
     if (_useSSL && (_sslContext == NULL))
     {
-        throw Exception(MessageLoaderParms("DynListener.ListenerService.INVALID_SSL_CONFIGURATION",
-                                           "Invalid SSL configuration: No SSLContext was specified."));
+        throw Exception(MessageLoaderParms(
+            "DynListener.ListenerService.INVALID_SSL_CONFIGURATION",
+            "Invalid SSL configuration: No SSLContext was specified."));
     }
 
     if (!_useSSL && _sslContext)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Warning: An SSLContext was specified for a non-SSL configuration.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
+        "Warning: An SSLContext was specified for a non-SSL configuration.");
     }
 
     _dispatcher = new DynamicListenerIndicationDispatcher(_consumerManager);
@@ -134,7 +134,7 @@ Boolean ListenerService::initializeListener(Uint32 portNumber, Boolean useSSL, S
     _responseEncoder = new CIMExportResponseEncoder();
 
     _requestDecoder = new CIMExportRequestDecoder(_dispatcher,
-                                                  _responseEncoder->getQueueId());
+                                         _responseEncoder->getQueueId());
 
     _shutdownSem = new Semaphore(0);
 
@@ -150,65 +150,75 @@ Boolean ListenerService::runListener()
 
     if (!_initialized)
     {
-        throw Exception(MessageLoaderParms("DynListener.ListenerService.NOT_INITIALIZED",
-                                           "Error: You must initialize the listener prior to running it."));
+        throw Exception(MessageLoaderParms(
+            "DynListener.ListenerService.NOT_INITIALIZED",
+            "Error: You must initialize the listener prior to running it."));
     }
 
     if (_running)
     {
-        throw Exception(MessageLoaderParms("DynListener.ListenerService.ALREADY_RUNNING",
-                                           "Error: The listener is already running."));
+        throw Exception(MessageLoaderParms(
+            "DynListener.ListenerService.ALREADY_RUNNING",
+            "Error: The listener is already running."));
     }
     
     _monitor = new Monitor();
 
 #ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor = new HTTPAcceptor(
+    if (System::isIPv6StackActive())
+    {
+        _ip6Acceptor = new HTTPAcceptor(
                                 _monitor, 
                                 _requestDecoder, 
                                 HTTPAcceptor::IPV6_CONNECTION,
                                 _portNumber, 
                                 _sslContext,
                                 false);
+    }
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+    else
 #endif
-
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor = new HTTPAcceptor(
+#endif
+    {
+        _ip4Acceptor = new HTTPAcceptor(
                                 _monitor, 
                                 _requestDecoder, 
                                 HTTPAcceptor::IPV4_CONNECTION, 
                                 _portNumber, 
                                 _sslContext,
                                 false);
-#endif
+    }
 
     //create listening thread
     _listening_thread = new Thread(_listener_routine, this, 0);
 
     //bind listener socket
-#ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor->bind();
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor->bind();
-#endif
+    if (_ip6Acceptor)
+    {
+        _ip6Acceptor->bind();
+    }
+    if (_ip4Acceptor)
+    {    
+        _ip4Acceptor->bind();
+    }
 
     //start listening thread
     ThreadStatus rtn = PEGASUS_THREAD_OK;
     while ( (rtn = _listening_thread->run()) != PEGASUS_THREAD_OK)
     {
-	if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-        	Threads::yield();
-	else {
-		// We need to set _running to true so that we can shutdown the 
-		// rest of the classes
-		delete _listening_thread; _listening_thread = 0;
-    		_running = true;
-		shutdownListener();		
-        	throw Exception(MessageLoaderParms("DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
-                                           "Error: Cannot allocate thread."));
-	}
-	
+    if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            Threads::yield();
+    else {
+        // We need to set _running to true so that we can shutdown the 
+        // rest of the classes
+        delete _listening_thread; _listening_thread = 0;
+            _running = true;
+        shutdownListener();        
+            throw Exception(MessageLoaderParms(
+                "DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
+                "Error: Cannot allocate thread."));
+    }
+    
     }
     
     if (_consumerManager->getEnableConsumerUnload())
@@ -219,18 +229,19 @@ Boolean ListenerService::runListener()
         //start polling thread
         while ( (rtn=_polling_thread->run()) != PEGASUS_THREAD_OK)
         {
-	   if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            Threads::yield();
-	   else
-	   {
-		/* We should delete them the objects, but there is a question
+           if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                Threads::yield();
+           else
+           {
+              /* We should delete them the objects, but there is a question
                    of how to turn of the _listening_thread? */
-		delete _polling_thread; _polling_thread = 0;
-    		_running = true;
-		shutdownListener();		
-        	throw Exception(MessageLoaderParms("DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
-                                           "Error: Cannot allocate thread."));
-	    }
+              delete _polling_thread; _polling_thread = 0;
+              _running = true;
+              shutdownListener();        
+              throw Exception(MessageLoaderParms(
+                  "DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
+                  "Error: Cannot allocate thread."));
+            }
         }
     }
 
@@ -240,12 +251,14 @@ Boolean ListenerService::runListener()
     return true;
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_listener_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL 
+     ListenerService::_listener_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_listener_routine");
 
     Thread *myself = reinterpret_cast<Thread *>(param);
-    ListenerService* listenerService = reinterpret_cast<ListenerService*>(myself->get_parm());
+    ListenerService* listenerService = 
+        reinterpret_cast<ListenerService*>(myself->get_parm());
 
     while (!(listenerService->_dieNow))
     {
@@ -274,19 +287,22 @@ ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_listener_routine(void *p
 }
 
 
-ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_polling_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL 
+    ListenerService::_polling_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_polling_routine");
 
     Thread *myself = reinterpret_cast<Thread *>(param);
-    ListenerService* listenerService = reinterpret_cast<ListenerService*>(myself->get_parm());
+    ListenerService* listenerService =
+        reinterpret_cast<ListenerService*>(myself->get_parm());
 
     while (true)
     {
         try
         {
             //do a timed wait so we do can process a shutdown signal immediately
-            listenerService->_shutdownSem->time_wait(listenerService->_consumerManager->getIdleTimeout());
+            listenerService->_shutdownSem->time_wait(
+                listenerService->_consumerManager->getIdleTimeout());
 
             if (listenerService->_dieNow)
             {
@@ -294,10 +310,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL ListenerService::_polling_routine(void *pa
                 break;
             }
 
-        } catch (TimeOut&)
+        }
+        catch (TimeOut&)
         {
             //time to check for idle consumers
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Unloading idle consumers");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,
+               "Unloading idle consumers");
             listenerService->_consumerManager->unloadIdleConsumers();
         }
     }
@@ -312,7 +330,8 @@ Boolean ListenerService::shutdownListener()
 
     if (!_running)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Warning: The listener is not currently running.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
+            "Warning: The listener is not currently running.");
 
         return true;
     }
@@ -322,26 +341,31 @@ Boolean ListenerService::shutdownListener()
     //stop the monitor from accepting connections
     _monitor->stopListeningForConnections(true);
 
-#ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor->closeConnectionSocket();
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor->closeConnectionSocket();
-#endif
+    if (_ip6Acceptor)
+    {
+        _ip6Acceptor->closeConnectionSocket();
+    }
+    if (_ip4Acceptor)
+    {
+        _ip4Acceptor->closeConnectionSocket();
+    }
 
     //allow client threads to complete, wait 10 sec max
-    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Waiting for outstanding requests...");
+    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
+        "ListenerService::Waiting for outstanding requests...");
     Uint32 reqCount;
     Uint32 countDown = SHUTDOWN_TIMEOUT;
     for (; countDown > 0; countDown--)
     {
         reqCount = 0;
-#ifdef PEGASUS_ENABLE_IPV6
-        reqCount = _ip6Acceptor->getOutstandingRequestCount();
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-        reqCount += _ip4Acceptor->getOutstandingRequestCount();
-#endif
+        if (_ip6Acceptor)
+        {
+            reqCount = _ip6Acceptor->getOutstandingRequestCount();
+        }
+        if (_ip4Acceptor)
+        {
+            reqCount += _ip4Acceptor->getOutstandingRequestCount();
+        }
         if (reqCount > 0)
         {
             Threads::sleep(1000);
@@ -351,11 +375,14 @@ Boolean ListenerService::shutdownListener()
         }
     }
 
-    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Finished waiting for outstanding requests.");
+    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
+        "ListenerService::Finished waiting for outstanding requests.");
 
     if (reqCount > 0)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "ListenerService::Did not successfully process all incoming requests to the acceptor.");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
+            "ListenerService::Did not successfully process"
+            " all incoming requests to the acceptor.");
         gracefulShutdown = false;
     }
 
@@ -377,9 +404,11 @@ Boolean ListenerService::shutdownListener()
         delete _listening_thread;
         _listening_thread = 0;
 
-    } catch (...)
+    }
+    catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Did not successfully stop monitor thread");
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
+            "Did not successfully stop monitor thread");
         gracefulShutdown = false;
     }
 
@@ -392,21 +421,19 @@ Boolean ListenerService::shutdownListener()
             delete _polling_thread;
             _polling_thread = 0;
 
-        } catch (...)
+        }
+        catch (...)
         {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Did not successfully stop polling thread");
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
+                "Did not successfully stop polling thread");
             gracefulShutdown = false;
         }
     }
     //delete acceptor
-#ifdef PEGASUS_ENABLE_IPV6
     delete _ip6Acceptor;
     _ip6Acceptor = 0;
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
     delete _ip4Acceptor;
     _ip4Acceptor = 0;
-#endif
 
     //delete monitor
     delete _monitor;
@@ -418,10 +445,11 @@ Boolean ListenerService::shutdownListener()
     _running = false;
     _dieNow = false;
 
-	if (gracefulShutdown)
-	{
-		PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Listener shutdown gracefully");
-	} 
+    if (gracefulShutdown)
+    {
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
+            "Listener shutdown gracefully");
+    } 
 
     PEG_METHOD_EXIT();
     return(gracefulShutdown);

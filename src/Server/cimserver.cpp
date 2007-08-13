@@ -938,6 +938,37 @@ int CIMServerProcess::cimserver_run(
         }
 #endif
 
+        Boolean addIP6Acceptor = false;
+        Boolean addIP4Acceptor = false;
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        addIP4Acceptor = true;
+#endif
+
+#ifdef PEGASUS_ENABLE_IPV6
+        // If IPv6 stack is disabled swicth to IPv4 stack.
+        if (System::isIPv6StackActive())
+        {
+            addIP6Acceptor = true;
+        }
+        else
+        {
+            MessageLoaderParms parms(
+                "src.Server.cimserver.IPV6_STACK_NOT_ACTIVE",
+                "IPv6 stack is not active, using IPv4 socket.");
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                MessageLoader::getMessage(parms));
+#if defined(PEGASUS_DEBUG)
+            cout << MessageLoader::getMessage(parms) << endl;
+#endif
+        }
+#endif
+        if (!addIP6Acceptor)
+        {
+            addIP4Acceptor = true;
+        }
+
         // The server HTTP and HTTPS ports are determined via this algorithm:
         // 1) If the user explicitly specified a port, use it.
         // 2) If the user did not specify a port, get the port from the
@@ -974,15 +1005,16 @@ int CIMServerProcess::cimserver_run(
                 }
             }
 
-#ifdef PEGASUS_ENABLE_IPV6
-            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                portNumberHttp, false);
-#endif
-
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                portNumberHttp, false);
-#endif
+            if (addIP6Acceptor)
+            {
+                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                    portNumberHttp, false);
+            }
+            if (addIP4Acceptor)
+            {
+                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                    portNumberHttp, false);
+            }
 
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTP_PORT",
@@ -1020,17 +1052,16 @@ int CIMServerProcess::cimserver_run(
                     throw InvalidPropertyValue("httpsPort", httpsPort);
                 }
             }
-
-#ifdef PEGASUS_ENABLE_IPV6
-            _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
-                portNumberHttps, true);
-#endif
-
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-            _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
-                portNumberHttps, true);
-#endif
-
+            if (addIP6Acceptor)
+            { 
+                _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
+                    portNumberHttps, true);
+            }
+            if (addIP4Acceptor)
+            {
+                _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
+                    portNumberHttps, true);
+            }
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
                 "Listening on HTTPS port $0.", portNumberHttps);

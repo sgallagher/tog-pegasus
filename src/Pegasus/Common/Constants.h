@@ -548,10 +548,13 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES;
 #endif
 
+
+// Definitions for Interop Classes Accessed through Interop Control Provider
+
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE;
-#define PEGASUS_SLP_SERVICE_TYPE   "service:wbem"
-// Interop Classes Accessed through Interop Control Provider
-#if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
+
+#if defined PEGASUS_ENABLE_INTEROP_PROVIDER
+
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PGNAMESPACE;
 PEGASUS_COMMON_LINKAGE
@@ -602,20 +605,25 @@ PEGASUS_COMMON_LINKAGE
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT;
 
-// Registration classes
+// Profile Registration classes
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES;
 
+#endif    // PEGASUS_ENABLE_INTEROP_PROVIDER
 
-// slp Class which operates slp provider. Started by system
+// slp Class which Controls slp provider. Started by system
+
+#ifdef PEGASUS_ENABLE_SLP
+
+#define PEGASUS_SLP_SERVICE_TYPE   "service:wbem"
 
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE;
 #endif
 
 //
-// Property Names
+// Property Names Indication Subscriptions
 //
 
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR;

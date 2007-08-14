@@ -140,17 +140,11 @@ ifndef PEGASUS_DISABLE_PERFINST
         ControlProviders/Statistic/test
 endif
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
+ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
     DIRS += \
         ControlProviders/InteropProvider \
         ControlProviders/InteropProvider/tests \
         ControlProviders/InteropProvider/ServerProfileTests
-else
-    ifndef PEGASUS_DISABLE_PERFINST
-        DIRS += \
-            ControlProviders/InteropProvider \
-            ControlProviders/InteropProvider/tests
-    endif
 endif
 
 ifndef PEGASUS_DISABLE_CQL

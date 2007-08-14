@@ -43,17 +43,6 @@ PG_SCHEMA_VER=20
 PG_SCHEMA_DIR=VER$(PG_SCHEMA_VER)
 PG_COMPUTERSYSTEM_MOF_PATH=$(ROOT)/Schemas/Pegasus/ManagedSystem/$(PG_SCHEMA_DIR)
 
-# Create a single variable to control schema compile
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-	PEGASUS_BUILD_INTEROP=TRUE
-endif
-ifndef PEGASUS_DISABLE_PERFINST
-	PEGASUS_BUILD_INTEROP=TRUE
-endif
-# The following two variables determine the version of the Schema to
-# be loaded into the Pegasus InterOp Namespace.
-# Update the following two environment variables to change the version.
-
 all:
 
 # Delete and rebuild the repository using the MOF compiler.
@@ -66,7 +55,7 @@ repository:
 	@$(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof"
 #
-ifdef PEGASUS_BUILD_INTEROP 
+ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
 	@$(ECHO) +++++ Loading CIM_Interop$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Interop$(CIM_SCHEMA_VER).mof" 
 endif
@@ -77,7 +66,7 @@ endif
 # Bug 1222
 # The following code is temporary.  These classes should be incorporated into PG_InteropSchema
 # however, this cannot be done now because we cannot conditionally compile MOF.	
-ifdef PEGASUS_BUILD_INTEROP 
+ifdef PEGASUS_ENABLE_INTEROP_PROVIDER 
 	@$(ECHO) +++++ Loading PG_CIMXMLCommunicationMechanism$(PG_INTEROP_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_INTEROP_MOF_PATH)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(PG_INTEROP_MOF_PATH)/PG_CIMXMLCommunicationMechanism$(PG_INTEROP_SCHEMA_VER).mof" 
 	@$(ECHO) +++++ Loading PG_Namespace$(PG_INTEROP_SCHEMA_VER) into $(INTEROPNS) namespace ...
@@ -95,7 +84,7 @@ repositoryServer:
 	@$(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof"
 
-ifdef PEGASUS_BUILD_INTEROP 
+ifdef PEGASUS_ENABLE_INTEROP_PROVIDER 
 	@$(ECHO) +++++ Loading CIM_Interop$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Interop$(CIM_SCHEMA_VER).mof"
 	@$(ECHO) +++++ Loading Computer System schema into $(INTEROPNS) namespace ...
@@ -108,7 +97,7 @@ endif
 # Bug 1222
 # The following code is temporary.  Eventually this class should be incorporated into PG_InteropSchema
 # however, this cannot be done now because we cannot conditionally compile MOF.	
-ifdef PEGASUS_BUILD_INTEROP 
+ifdef PEGASUS_ENABLE_INTEROP_PROVIDER 
 	@$(ECHO) +++++ Loading Loading PG_CIMXMLCommunicationMechanism$(PG_INTEROP_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@cimmof "-I$(PG_INTEROP_MOF_PATH)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(PG_INTEROP_MOF_PATH)/PG_CIMXMLCommunicationMechanism$(PG_INTEROP_SCHEMA_VER).mof"
 	@$(ECHO) +++++ Loading Loading PG_Namespace$(PG_INTEROP_SCHEMA_VER) into $(INTEROPNS) namespace ...

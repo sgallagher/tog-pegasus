@@ -623,7 +623,7 @@ else
   PEGASUS_TEST_IPV6 = $(PEGASUS_ENABLE_IPV6)
 endif
 
-
+############################################################################
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
 #
@@ -733,6 +733,54 @@ ifdef PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
   DEFINES += -DPEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
 endif
 
+############################################################################
+#
+# PEGASUS_ENABLE_INTEROP_PROVIDER
+# Enables the interop provider AND the server profile.
+# initially this was activated by setting either the perfinst or slp enable
+# flags.  This allows activating this function without any either perfinst or
+# slp enabled.  Note that if either of these are enabled, this funtion is also
+# enabled
+
+## if either slp or perfinst are enabled and this is false, flag error
+## This gets messy because should account for both postive and negative on
+## interop so we don't get multiples.
+
+ifdef PEGASUS_ENABLE_SLP
+    ifeq ($(PEGASUS_ENABLE_SLP),true)
+        ifndef PEGASUS_ENABLE_INTEROP_PROVIDER
+            PEGASUS_ENABLE_INTEROP_PROVIDER = true
+        else
+            ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),false)
+                $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true if SLP enabled)
+            endif
+        endif
+    endif
+endif
+
+## if PERFINST enabled, set to force interop.
+ifndef PEGASUS_DISABLE_PERFINST
+    ifndef PEGASUS_ENABLE_INTEROP_PROVIDER
+        PEGASUS_ENABLE_INTEROP_PROVIDER = true
+    else
+        ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),false)
+            $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true if PERFINST enabled)
+        endif
+    endif
+endif
+
+ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+        DEFINES += -DPEGASUS_ENABLE_INTEROP_PROVIDER
+    else
+        ifneq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),false)
+            $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true or false)
+        endif
+    endif
+endif
+
+
+############################################################################
 # set PEGASUS_DEBUG into the DEFINES if it exists.
 # Note that this flag is the general separator between
 # debug compiles and non-debug compiles and controls both

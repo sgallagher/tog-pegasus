@@ -935,7 +935,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif
 
-#if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
+#if defined PEGASUS_ENABLE_INTEROP_PROVIDER
             // InteropProvider ObjectManager Class
             _routing_table.insert_record(
                 PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
@@ -971,7 +971,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                     MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
-#endif
+#endif  // PEGASUS_ENABLE_INTEROP_PROVIDER
 
 #ifdef PEGASUS_ENABLE_SLP
             _routing_table.insert_record(

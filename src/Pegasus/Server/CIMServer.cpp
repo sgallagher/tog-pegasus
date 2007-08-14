@@ -115,7 +115,7 @@
 // DOCHKSRC
 #endif
 
-#if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
+#if defined PEGASUS_ENABLE_INTEROP_PROVIDER
 # include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
 #endif
 
@@ -367,7 +367,7 @@ void CIMServer::_init()
         0);
 #endif
 
-#if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
+#if defined PEGASUS_ENABLE_INTEROP_PROVIDER
 
     // Create the interop control provider
     ProviderMessageHandler* interopProvider = new ProviderMessageHandler(

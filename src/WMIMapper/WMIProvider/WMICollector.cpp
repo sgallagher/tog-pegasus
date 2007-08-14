@@ -202,6 +202,7 @@ bool WMICollector::Connect(IWbemServices **ppServices)
         
         if (FAILED(hr))    
         {
+            _com_error myError(hr);
             switch(hr)
             {
                 case E_ACCESSDENIED:
@@ -220,7 +221,8 @@ bool WMICollector::Connect(IWbemServices **ppServices)
                     PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
                         "WMICollector::Connect() - connectServer() - throw "
                         "CIM_ERR_INVALID_NAMESPACE error");
-                    throw CIMException(CIM_ERR_INVALID_NAMESPACE);
+                    throw CIMException(CIM_ERR_INVALID_NAMESPACE, 
+                        myError.ErrorMessage());
             }
         }
 

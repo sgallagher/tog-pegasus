@@ -459,15 +459,37 @@ protected:
 
     void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
 
-    void _checkExistenceOfClass(
+    /**
+        Checks whether the specified class is defined in the specified
+        namespace.
+        @param nameSpace The namespace to check for className.
+        @param className The name of the class to check for in nameSpace.
+        @return True if the specified class is defined in the specified
+            namespace, false otherwise.
+    */
+    Boolean _checkExistenceOfClass(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        CIMException& cimException);
+        const CIMName& className);
 
     CIMClass _getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         CIMException& cimException);
+
+    /**
+        Checks whether the number of providers required to complete an
+        operation is greater than the maximum allowed.
+        @param nameSpace The target namespace of the operation.
+        @param className The name of the class specified in the request.
+        @param providerCount The number of providers required to complete the
+            operation.
+        @exception CIMException if the providerCount is greater than the
+            maximum allowed.
+    */
+    void _checkEnumerateTooBroad(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Uint32 providerCount);
 
     CIMRepository* _repository;
 

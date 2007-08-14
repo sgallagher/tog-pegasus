@@ -235,12 +235,12 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
         if (exception == false)
         {
-            _checkExistenceOfClass(
-                request->nameSpace,
-                className,
-                cimException);
-            if (cimException.getCode() != CIM_ERR_SUCCESS)
+            if (!_checkExistenceOfClass(request->nameSpace, className))
+            {
+                cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_INVALID_CLASS, className.getString());
                 exception = true;
+            }
         }
     }
 

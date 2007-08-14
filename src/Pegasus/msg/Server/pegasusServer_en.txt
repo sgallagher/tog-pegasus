@@ -2325,6 +2325,7 @@ not be valid."}
         * @note  PGS05603:
         *    Substitution {0} is the class::method
         *    Substitution {1} is the CIM request type (a string)
+        *    This message is no longer used as of version 2.7.0
         */
         Server.CIMOperationRequestDispatcher.HANDLE_ENQUEUE:string {"PGS05603: The function {0} cannot handle the CIM request type {1}."}
 

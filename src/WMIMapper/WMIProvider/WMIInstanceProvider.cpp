@@ -68,6 +68,22 @@
 // ///////////////////////////////////////////////////////////////////////////
 PEGASUS_NAMESPACE_BEGIN
 
+/////////////////////////////////////////////////////////////////////////////
+// _translateBackslashes
+// '\' -> '/'
+// ///////////////////////////////////////////////////////////////////////////
+
+static void _translateBackslashes(char *wmiObjectPath)
+{
+    Uint32 i = 0;
+    while(wmiObjectPath[i] != NULL)
+    {
+        if (wmiObjectPath[i] == '\\')
+            wmiObjectPath[i] = '/';
+        i++;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -254,20 +270,111 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
                                        propertyList, 
                                        TRUE))
         {
-            lCount++;
+            //new code
+            CIMObjectPath tempRef;
+            CComVariant vAux;
+            char* strAux=NULL;
 
-            //build instance path
-            CComVariant v;
-            hr = pInstance->Get(L"__PATH", 
-                                0,
-                                &v,
-                                NULL,
-                                NULL);
+            //set hostname
+            if (pInstance->Get(L"__SERVER", 0, &vAux, NULL, NULL) != S_OK)
+                throw CIMException(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
 
-            WMIObjectPath tempRef(v.bstrVal);
+            strAux = new char[wcslen(vAux.bstrVal)+1];
+            if (strAux == NULL)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Out of Memory.");
+
+            wcstombs(strAux, vAux.bstrVal, wcslen(vAux.bstrVal)+1);
+            tempRef.setHost(strAux);
+            delete [] strAux;
+
+            strAux = NULL;
+            vAux.Clear();
+
+            //set class name
+            if (pInstance->Get(L"__CLASS", 0, &vAux, NULL, NULL) != S_OK)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
+
+            strAux = new char[wcslen(vAux.bstrVal)+1];
+            if (strAux == NULL)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Out of Memory.");
+
+            wcstombs(strAux, vAux.bstrVal, wcslen(vAux.bstrVal)+1);
+            tempRef.setClassName(strAux);
+
+            delete [] strAux;
+            strAux = NULL;
+            vAux.Clear();
+
+            //set namespace
+            if (pInstance->Get(L"__NAMESPACE", 0, &vAux, NULL, NULL) != S_OK)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
+
+            strAux = new char[wcslen(vAux.bstrVal)+1];
+            if (strAux == NULL)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Out of Memory.");
+
+            wcstombs(strAux, vAux.bstrVal, wcslen(vAux.bstrVal)+1);
+        
+            //converts '\' to '/'
+            _translateBackslashes(strAux);
+
+            tempRef.setNameSpace(strAux);
+            
+            delete [] strAux;
+            strAux = NULL;
+            vAux.Clear();
+             
+            //get key bindings
+
+            SAFEARRAY * aNames;
+            if (pInstance->GetNames(NULL, 
+                                    WBEM_FLAG_KEYS_ONLY, 
+                                    NULL, 
+                                    &aNames) != S_OK)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
+
+            LONG lLBuond;
+            LONG lUBuond;
+
+            SafeArrayGetLBound(aNames, 1, &lLBuond);
+            SafeArrayGetUBound(aNames, 1, &lUBuond);
+
+            Array<CIMKeyBinding> keyBindings;
+
+            for(LONG i = lLBuond; i <=lUBuond; i++)
+            {
+                CComBSTR bstrName;
+                SafeArrayGetElement(aNames, &i, &bstrName);
+
+                char * strPropertyName = new char[bstrName.Length()+1];
+                if (strPropertyName == NULL)
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                        "Out of Memory.");
+
+                wcstombs(strPropertyName, bstrName, bstrName.Length()+1);
+            
+                CIMName keyname(strPropertyName);
+                Uint32 Index = tempInst.findProperty(keyname);
+                
+                if (Index == PEG_NOT_FOUND)
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                        "Failed to retrieve WMI Data.");
+    
+                CIMValue keyvalue = tempInst.getProperty(Index).getValue();
+                CIMKeyBinding key(keyname, keyvalue);
+                keyBindings.append(key);
+
+                delete [] strPropertyName;
+            }
+
+            SafeArrayDestroy(aNames);
+            tempRef.setKeyBindings(keyBindings);
             tempInst.setPath(tempRef);
             namedInstances.append(CIMInstance(tempInst));
-            v.Clear();
         }
 
         if (pInstance)
@@ -354,15 +461,111 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
                                        FALSE,
                                        FALSE))
         {
-            lCount++;
+            //new code
+            CIMObjectPath tempRef;
+         
+            CComVariant vAux;
+            char * strAux = NULL;
 
-            //build instance path
-            CComVariant v;
-            hr = pInstance->Get(L"__PATH", 0, &v, NULL, NULL);
+            //set hostname
+            if (pInstance->Get(L"__SERVER", 0, &vAux, NULL, NULL) != S_OK)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
+
+            strAux = new char[wcslen(vAux.bstrVal)+1];
+            if (strAux == NULL)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Out of Memory.");
+
+            wcstombs(strAux, vAux.bstrVal, wcslen(vAux.bstrVal)+1);
+            tempRef.setHost(strAux);
+            delete [] strAux;
+
+            strAux = NULL;
+            vAux.Clear();
+
+            //set class name
+            if (pInstance->Get(L"__CLASS", 0, &vAux, NULL, NULL) != S_OK)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
+
+            strAux = new char[wcslen(vAux.bstrVal)+1];
+            if (strAux == NULL)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Out of Memory.");
+
+            wcstombs(strAux, vAux.bstrVal, wcslen(vAux.bstrVal)+1);
+            tempRef.setClassName(strAux);
+
+            delete [] strAux;
+            strAux = NULL;
+            vAux.Clear();
+
+            //set namespace
+            if (pInstance->Get(L"__NAMESPACE", 0, &vAux, NULL, NULL) != S_OK)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
+
+            strAux = new char[wcslen(vAux.bstrVal)+1];
+            if (strAux == NULL)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Out of Memory.");
+
+            wcstombs(strAux, vAux.bstrVal, wcslen(vAux.bstrVal)+1);
+
+            //converts '\' to '/'
+            _translateBackslashes(strAux);
+
+            tempRef.setNameSpace(strAux);
+
+            delete [] strAux;
+            strAux = NULL;
+            vAux.Clear();
+
+            //get key bindings
+
+            SAFEARRAY * aNames;
+            if (pInstance->GetNames(NULL, 
+                                    WBEM_FLAG_KEYS_ONLY, 
+                                    NULL, 
+                                    &aNames) != S_OK)
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                    "Failed to retrieve WMI Data.");
+
+            LONG lLBuond;
+            LONG lUBuond;
+
+            SafeArrayGetLBound(aNames, 1, &lLBuond);
+            SafeArrayGetUBound(aNames, 1, &lUBuond);
+
+            Array<CIMKeyBinding> keyBindings;
+
+            for(LONG i = lLBuond; i <=lUBuond; i++)
+            {
+                CComBSTR bstrName;
+                SafeArrayGetElement(aNames, &i, &bstrName);
+
+                char * strPropertyName = new char[bstrName.Length()+1];
+                if (strPropertyName == NULL)
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                        "Out of Memory.");
+
+                wcstombs(strPropertyName, bstrName, bstrName.Length()+1);
+
+                CIMName keyname(strPropertyName);
+                Uint32 Index = tempInst.findProperty(keyname);
+
+                if (Index == PEG_NOT_FOUND)
+                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                        "Failed to retrieve WMI Data.");
+
+                CIMValue keyvalue = tempInst.getProperty(Index).getValue();
+                CIMKeyBinding key(keyname, keyvalue);
+                keyBindings.append(key);
+
+                delete [] strPropertyName;
+            }
             
-            WMIObjectPath tempRef(v.bstrVal);
+            SafeArrayDestroy(aNames);
+            tempRef.setKeyBindings(keyBindings);
             instanceNames.append(tempRef);
-            v.Clear();
         }
 
         if (pInstance)

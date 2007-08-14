@@ -359,7 +359,10 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
     isInst = (PEG_NOT_FOUND != pos);
 
     CMyString sQuery;
-    sQuery.Format(CMyString(sQueryCommand), 128, CMyString(sObjName));
+
+    int strLength = CMyString(sQueryCommand).GetLength() + 
+        CMyString(sObjName).GetLength() + 1;
+    sQuery.Format(CMyString(sQueryCommand), strLength, CMyString(sObjName));
 
     //set up any optional parameters
     if (!((0 == assocClass.size()) && (0 == resultClass.size()) &&

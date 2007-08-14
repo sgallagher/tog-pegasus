@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -43,14 +38,13 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider
-    (const String & providerName)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
+    const String& providerName)
 {
-    if (String::equalNoCase (providerName, "RT_IndicationProvider"))
+    if (String::equalNoCase(providerName, "RT_IndicationProvider"))
     {
-	return (new RT_IndicationProvider ());
+        return new RT_IndicationProvider();
     }
 
-    return (0);
+    return 0;
 }
-

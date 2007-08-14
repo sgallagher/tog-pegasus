@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -43,70 +39,71 @@
 
 PEGASUS_USING_PEGASUS;
 
-SNMPIndicationProvider::SNMPIndicationProvider(void) throw()
+SNMPIndicationProvider::SNMPIndicationProvider() throw()
 {
 }
 
-SNMPIndicationProvider::~SNMPIndicationProvider(void) throw()
+SNMPIndicationProvider::~SNMPIndicationProvider() throw()
 {
 }
 
-void SNMPIndicationProvider::initialize(CIMOMHandle & cimom)
+void SNMPIndicationProvider::initialize(CIMOMHandle& cimom)
 {
     // save cimom handle
     _cimom = cimom;
 }
 
-void SNMPIndicationProvider::terminate(void)
+void SNMPIndicationProvider::terminate()
 {
     delete this;
 }
 
-void SNMPIndicationProvider::enableIndications(IndicationResponseHandler & handler)
+void SNMPIndicationProvider::enableIndications(
+    IndicationResponseHandler& handler)
 {
     handler.processing();
 
     //Indication
-    //CIMInstance cimInstance("root/PG_InterOp:cycHostAdapterDiscovered");
-    CIMInstance cimInstance(PEGASUS_NAMESPACENAME_INTEROP.getString()
-                            + ":cycHostAdapterDiscovered" );
+    CIMInstance cimInstance(
+        PEGASUS_NAMESPACENAME_INTEROP.getString() +
+            ":cycHostAdapterDiscovered");
 
     cimInstance.addProperty(CIMProperty("cycHostAdapterNumber", Uint32(101)));
-    cimInstance.addProperty(CIMProperty("cycHostAdapterID", String("HP-NU-123")));
+    cimInstance.addProperty(
+        CIMProperty("cycHostAdapterID", String("HP-NU-123")));
     cimInstance.addProperty(CIMProperty("cycManagerID", String("HP-NU-456")));
-    
+
     CIMIndication cimIndication(cimInstance);
 
     handler.deliver(cimIndication);
 }
 
-void SNMPIndicationProvider::disableIndications(void)
+void SNMPIndicationProvider::disableIndications()
 {
     //handler.complete();
 }
 
 void SNMPIndicationProvider::createSubscription(
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array<CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array<CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
 void SNMPIndicationProvider::modifySubscription(
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array<CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array<CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
 void SNMPIndicationProvider::deleteSubscription(
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array<CIMObjectPath> & classNames)
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array<CIMObjectPath>& classNames)
 {
 }
-

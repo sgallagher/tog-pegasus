@@ -44,46 +44,48 @@ class IndicationProvider :
     public PEGASUS_NAMESPACE(CIMIndicationProvider)
 {
 public:
-    IndicationProvider (void) throw ();
-    virtual ~IndicationProvider (void) throw ();
+    IndicationProvider() throw ();
+    virtual ~IndicationProvider() throw ();
 
     // CIMProvider interface
-    virtual void initialize (PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
-    virtual void terminate (void);
+    virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle)& cimom);
+    virtual void terminate();
 
     // CIMIndicationProvider interface
-    virtual void enableIndications (PEGASUS_NAMESPACE(IndicationResponseHandler) & handler);
-    virtual void disableIndications (void);
+    virtual void enableIndications(
+        PEGASUS_NAMESPACE(IndicationResponseHandler)& handler);
+    virtual void disableIndications();
 
-    virtual void createSubscription (
-	const PEGASUS_NAMESPACE(OperationContext) & context,
-	const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
-	const PEGASUS_NAMESPACE(Array) <PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
-	const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
-	const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
+    virtual void createSubscription(
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
+        const PEGASUS_NAMESPACE(Array) <PEGASUS_NAMESPACE(CIMObjectPath)>&
+            classNames,
+        const PEGASUS_NAMESPACE(CIMPropertyList)& propertyList,
+        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
-    virtual void modifySubscription (
-	const PEGASUS_NAMESPACE(OperationContext) & context,
-	const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
-	const PEGASUS_NAMESPACE(Array) <PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
-	const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
-	const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
+    virtual void modifySubscription(
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
+        const PEGASUS_NAMESPACE(Array) <PEGASUS_NAMESPACE(CIMObjectPath)>&
+            classNames,
+        const PEGASUS_NAMESPACE(CIMPropertyList)& propertyList,
+        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
-    virtual void deleteSubscription (
-	const PEGASUS_NAMESPACE(OperationContext) & context,
-	const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
-	const PEGASUS_NAMESPACE(Array) <PEGASUS_NAMESPACE(CIMObjectPath)> & classNames);
+    virtual void deleteSubscription(
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
+        const PEGASUS_NAMESPACE(Array) <PEGASUS_NAMESPACE(CIMObjectPath)>&
+            classNames);
 
     // CIMMethodProvider Interface
-     virtual void invokeMethod(
-         const PEGASUS_NAMESPACE(OperationContext) & context,
-         const PEGASUS_NAMESPACE(CIMObjectPath) & objectReference,
-         const PEGASUS_NAMESPACE(CIMName) & methodName,
-         const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMParamValue)> & inParameters,
-         PEGASUS_NAMESPACE(MethodResultResponseHandler) & handler);
-
+    virtual void invokeMethod(
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& objectReference,
+        const PEGASUS_NAMESPACE(CIMName)& methodName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMParamValue)>&
+            inParameters,
+        PEGASUS_NAMESPACE(MethodResultResponseHandler)& handler);
 };
 
-
 #endif
-

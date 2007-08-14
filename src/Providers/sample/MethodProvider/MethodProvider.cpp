@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "MethodProvider.h"
@@ -48,7 +43,7 @@ MethodProvider::~MethodProvider()
 {
 }
 
-void MethodProvider::initialize(CIMOMHandle & cimom)
+void MethodProvider::initialize(CIMOMHandle& cimom)
 {
 }
 
@@ -58,11 +53,11 @@ void MethodProvider::terminate()
 }
 
 void MethodProvider::invokeMethod(
-    const OperationContext & context,
-    const CIMObjectPath & objectReference,
-    const CIMName & methodName,
-    const Array<CIMParamValue> & inParameters,
-    MethodResultResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectReference,
+    const CIMName& methodName,
+    const Array<CIMParamValue>& inParameters,
+    MethodResultResponseHandler& handler)
 {
     // convert a fully qualified reference into a local reference
     // (class name and keys only).
@@ -92,9 +87,9 @@ void MethodProvider::invokeMethod(
                     }
                 }
 
-                handler.deliverParamValue(
-                    CIMParamValue("Place",
-                        CIMValue(String("From Neverland"))));
+                handler.deliverParamValue(CIMParamValue(
+                    "Place",
+                    CIMValue(String("From Neverland"))));
                 handler.deliver(CIMValue(outString));
             }
             else
@@ -103,6 +98,6 @@ void MethodProvider::invokeMethod(
             }
         }
     }
-    
+
     handler.complete();
 }

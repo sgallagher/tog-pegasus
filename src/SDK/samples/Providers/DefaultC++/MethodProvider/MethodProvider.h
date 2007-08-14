@@ -36,26 +36,22 @@ PEGASUS_NAMESPACE_BEGIN
 class MethodProvider : public CIMMethodProvider
 {
 public:
-	MethodProvider(void);
-	virtual ~MethodProvider(void);
+    MethodProvider();
+    virtual ~MethodProvider();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-	// CIMMethodProviderFacade
-	virtual void invokeMethod(
-		const OperationContext & context,
-		const CIMObjectPath & objectReference,
-		const CIMName & methodName,
-		const Array<CIMParamValue> & inParameters,
-		MethodResultResponseHandler & handler);
-
-protected:
-
+    // CIMMethodProviderFacade
+    virtual void invokeMethod(
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
-

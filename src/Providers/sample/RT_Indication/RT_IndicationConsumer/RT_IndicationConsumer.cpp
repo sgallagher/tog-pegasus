@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -62,9 +58,9 @@ void RT_IndicationConsumer::terminate()
 }
 
 void RT_IndicationConsumer::consumeIndication(
-   const OperationContext & context,
-   const String& url,
-   const CIMInstance& indicationInstance)
+    const OperationContext& context,
+    const String& url,
+    const CIMInstance& indicationInstance)
 {
     String indicationID;
     String indicationTime;
@@ -75,44 +71,42 @@ void RT_IndicationConsumer::consumeIndication(
     //
     try
     {
-
         indicationID = indicationInstance.getProperty(
-                            indicationInstance.findProperty(
-                            PROPERTY_NAME_INDICATIONID)).getValue().toString();
-     }
-     catch (...)
-     {
+            indicationInstance.findProperty(
+                PROPERTY_NAME_INDICATIONID)).getValue().toString();
+    }
+    catch (...)
+    {
         indicationID = UNKNOWN;
-     }
+    }
 
-     //
-     // get IndicationTime 
-     //
-     try
-     {
+    //
+    // get IndicationTime
+    //
+    try
+    {
         indicationTime = indicationInstance.getProperty(
-                        indicationInstance.findProperty(
-                        PROPERTY_NAME_INDICATIONTIME)).getValue().toString();
-     }
-     catch (...)
-     {
+            indicationInstance.findProperty(
+                PROPERTY_NAME_INDICATIONTIME)).getValue().toString();
+    }
+    catch (...)
+    {
         indicationTime = UNKNOWN;
-     }
+    }
 
-     //
-     // get MethodName
-     //
-     try
-     {
+    //
+    // get MethodName
+    //
+    try
+    {
         indicationInstance.getProperty(indicationInstance.findProperty(
-                        PROPERTY_NAME_METHODNAME)).getValue().get(methodName);
-     }
-     catch (...)
-     {
+            PROPERTY_NAME_METHODNAME)).getValue().get(methodName);
+    }
+    catch (...)
+    {
         methodName = UNKNOWN;
-     }
+    }
 
     cout << "IndicationID = " << indicationID << ", IndicationTime = " <<
         indicationTime << ", MethodName = " << methodName << endl;
 }
-

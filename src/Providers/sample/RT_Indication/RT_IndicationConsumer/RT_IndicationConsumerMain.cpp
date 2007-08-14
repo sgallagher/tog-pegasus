@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -49,8 +44,8 @@ PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
     if (String::equalNoCase(providerName, "RT_IndicationConsumer"))
     {
-         return(new RT_IndicationConsumer());
+        return new RT_IndicationConsumer();
     }
+
     return 0;
 }
-

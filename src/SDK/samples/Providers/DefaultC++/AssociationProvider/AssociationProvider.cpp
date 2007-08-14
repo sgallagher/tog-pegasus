@@ -29,6 +29,9 @@
 //
 //==============================================================================
 //
+//%/////////////////////////////////////////////////////////////////////////////
+
+//
 // This is a sample association provider.   It implements the instance and
 // association methods for the following classes:
 //
@@ -38,16 +41,16 @@
 //    Sample_AdvisorStudent   (association class)
 //
 // Class definitions are defined in the AssociationProvider.mof file and the
-// provider registration file is AssociationProviderR.mof.  
+// provider registration file is AssociationProviderR.mof.
 //
-// Instance methods supported are:  getInstance, enumerateInstances, 
+// Instance methods supported are:  getInstance, enumerateInstances,
 //                                  enumerateInstanceNames
 //
 // Association methods supported are: associators, associatorNames,
 //                                    references, referenceNames
 //
-// Instances for the supported classes are created during provider 
-// initialization. 
+// Instances for the supported classes are created during provider
+// initialization.
 //
 
 #include "AssociationProvider.h"
@@ -62,44 +65,44 @@ PEGASUS_USING_PEGASUS;
 // Namespace name
 const CIMNamespaceName NAMESPACE = CIMNamespaceName("SDKExamples/DefaultCXX");
 
-// Class names 
+// Class names
 const CIMName SAMPLE_TEACHER = "Sample_Teacher";
 const CIMName SAMPLE_STUDENT = "Sample_Student";
 const CIMName SAMPLE_TEACHERSTUDENT = "Sample_TeacherStudent";
 const CIMName SAMPLE_ADVISORSTUDENT = "Sample_AdvisorStudent";
 
-AssociationProvider::AssociationProvider(void)
+AssociationProvider::AssociationProvider()
 {
 }
 
-AssociationProvider::~AssociationProvider(void)
+AssociationProvider::~AssociationProvider()
 {
 }
 
-void AssociationProvider::initialize(CIMOMHandle & cimom)
+void AssociationProvider::initialize(CIMOMHandle& cimom)
 {
     // create default instances
     _createDefaultInstances();
 }
 
-void AssociationProvider::terminate(void)
+void AssociationProvider::terminate()
 {
     delete this;
 }
 
 void AssociationProvider::getInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        InstanceResponseHandler & handler)
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler)
 {
     // validate namespace
     const CIMNamespaceName& nameSpace = instanceReference.getNameSpace();
     if (!nameSpace.equal(NAMESPACE))
     {
-        throw CIMNotSupportedException (
+        throw CIMNotSupportedException(
             nameSpace.getString() + " not supported.");
     }
 
@@ -135,8 +138,8 @@ void AssociationProvider::getInstance(
     }
     else
     {
-        throw CIMNotSupportedException
-            (className.getString() + " is not supported");
+        throw CIMNotSupportedException(
+            className.getString() + " is not supported");
     }
 
     // complete processing the request
@@ -144,23 +147,23 @@ void AssociationProvider::getInstance(
 }
 
 void AssociationProvider::enumerateInstances(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
+        const OperationContext& context,
+        const CIMObjectPath& classReference,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        InstanceResponseHandler & handler)
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler)
 {
     // validate namespace
     const CIMNamespaceName& nameSpace = classReference.getNameSpace();
     if (!nameSpace.equal(NAMESPACE))
     {
-        throw CIMNotSupportedException (
+        throw CIMNotSupportedException(
             nameSpace.getString() + " not supported.");
     }
 
     CIMName className = classReference.getClassName();
- 
+
     // begin processing the request
     handler.processing();
 
@@ -182,8 +185,8 @@ void AssociationProvider::enumerateInstances(
     }
     else
     {
-        throw CIMNotSupportedException
-            (className.getString() + " is not supported");
+        throw CIMNotSupportedException(
+            className.getString() + " is not supported");
     }
 
     // complete processing the request
@@ -191,15 +194,15 @@ void AssociationProvider::enumerateInstances(
 }
 
 void AssociationProvider::enumerateInstanceNames(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        ObjectPathResponseHandler & handler)
+        const OperationContext& context,
+        const CIMObjectPath& classReference,
+        ObjectPathResponseHandler& handler)
 {
     // validate namespace
     const CIMNamespaceName& nameSpace = classReference.getNameSpace();
     if (!nameSpace.equal(NAMESPACE))
     {
-        throw CIMNotSupportedException (
+        throw CIMNotSupportedException(
             nameSpace.getString() + " not supported.");
     }
 
@@ -226,8 +229,8 @@ void AssociationProvider::enumerateInstanceNames(
     }
     else
     {
-        throw CIMNotSupportedException
-            (className.getString() + " is not supported");
+        throw CIMNotSupportedException(
+            className.getString() + " is not supported");
     }
 
     // complete processing the request
@@ -235,50 +238,50 @@ void AssociationProvider::enumerateInstanceNames(
 }
 
 void AssociationProvider::modifyInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        const CIMInstance & instanceObject,
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        const CIMInstance& instanceObject,
         const Boolean includeQualifiers,
-        const CIMPropertyList & propertyList,
-        ResponseHandler & handler)
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler)
 {
     throw CIMNotSupportedException("AssociationProvider::modifyInstance");
 }
 
 void AssociationProvider::createInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMInstance & instanceObject,
-    ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    ObjectPathResponseHandler& handler)
 {
     throw CIMNotSupportedException("AssociationProvider::createInstance");
 }
 
 void AssociationProvider::deleteInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        ResponseHandler & handler)
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        ResponseHandler& handler)
 {
     throw CIMNotSupportedException("AssociationProvider::deleteInstance");
 }
 
 void AssociationProvider::associators(
-        const OperationContext & context,
-        const CIMObjectPath & objectName,
-        const CIMName & associationClass,
-        const CIMName & resultClass,
-        const String & role,
-        const String & resultRole,
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        ObjectResponseHandler & handler)
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler)
 {
     // validate namespace
     const CIMNamespaceName& nameSpace = objectName.getNameSpace();
     if (!nameSpace.equal(NAMESPACE))
     {
-        throw CIMNotSupportedException (
+        throw CIMNotSupportedException(
             nameSpace.getString() + " not supported.");
     }
 
@@ -302,10 +305,10 @@ void AssociationProvider::associators(
         _associators(_ASassociationInstances, localObjectPath, role,
             resultClass, resultRole, handler);
     }
-    else 
+    else
     {
-        throw CIMNotSupportedException
-            (associationClass.getString() + " is not supported");
+        throw CIMNotSupportedException(
+            associationClass.getString() + " is not supported");
     }
 
     // complete processing the request
@@ -313,19 +316,19 @@ void AssociationProvider::associators(
 }
 
 void AssociationProvider::associatorNames(
-        const OperationContext & context,
-        const CIMObjectPath & objectName,
-        const CIMName & associationClass,
-        const CIMName & resultClass,
-        const String & role,
-        const String & resultRole,
-        ObjectPathResponseHandler & handler)
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        ObjectPathResponseHandler& handler)
 {
     // validate namespace
     const CIMNamespaceName& nameSpace = objectName.getNameSpace();
     if (!nameSpace.equal(NAMESPACE))
     {
-        throw CIMNotSupportedException (
+        throw CIMNotSupportedException(
             nameSpace.getString() + " not supported.");
     }
 
@@ -351,8 +354,8 @@ void AssociationProvider::associatorNames(
     }
     else
     {
-        throw CIMNotSupportedException
-            (associationClass.getString() + " is not supported");
+        throw CIMNotSupportedException(
+            associationClass.getString() + " is not supported");
     }
 
     // complete processing the request
@@ -360,20 +363,20 @@ void AssociationProvider::associatorNames(
 }
 
 void AssociationProvider::references(
-        const OperationContext & context,
-        const CIMObjectPath & objectName,
-        const CIMName & resultClass,
-        const String & role,
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        ObjectResponseHandler & handler)
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler)
 {
     // validate namespace
     const CIMNamespaceName& nameSpace = objectName.getNameSpace();
     if (!nameSpace.equal(NAMESPACE))
     {
-        throw CIMNotSupportedException (
+        throw CIMNotSupportedException(
             nameSpace.getString() + " not supported.");
     }
 
@@ -393,20 +396,20 @@ void AssociationProvider::references(
     Array<CIMInstance> resultInstances;
     if (resultClass == SAMPLE_TEACHERSTUDENT)
     {
-        resultInstances = 
+        resultInstances =
             _filterAssociationInstancesByRole(_TSassociationInstances,
                 localObjectPath, role);
     }
     else if (resultClass == SAMPLE_ADVISORSTUDENT)
     {
-        resultInstances = 
+        resultInstances =
             _filterAssociationInstancesByRole(_ASassociationInstances,
                 localObjectPath, role);
     }
     else
     {
-        throw CIMNotSupportedException
-            (resultClass.getString() + " is not supported");
+        throw CIMNotSupportedException(
+            resultClass.getString() + " is not supported");
     }
 
     // return the instances
@@ -420,17 +423,17 @@ void AssociationProvider::references(
 }
 
 void AssociationProvider::referenceNames(
-        const OperationContext & context,
-        const CIMObjectPath & objectName,
-        const CIMName & resultClass,
-        const String & role,
-        ObjectPathResponseHandler & handler)
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        ObjectPathResponseHandler& handler)
 {
     // validate namespace
     const CIMNamespaceName& nameSpace = objectName.getNameSpace();
     if (!nameSpace.equal(NAMESPACE))
     {
-        throw CIMNotSupportedException (
+        throw CIMNotSupportedException(
             nameSpace.getString() + " not supported.");
     }
 
@@ -450,20 +453,20 @@ void AssociationProvider::referenceNames(
     Array<CIMInstance> resultInstances;
     if (resultClass == SAMPLE_TEACHERSTUDENT)
     {
-        resultInstances = 
+        resultInstances =
             _filterAssociationInstancesByRole(_TSassociationInstances,
                 localObjectPath, role);
     }
     else if (resultClass == SAMPLE_ADVISORSTUDENT)
     {
-        resultInstances = 
+        resultInstances =
             _filterAssociationInstancesByRole(_ASassociationInstances,
                 localObjectPath, role);
     }
     else
     {
-        throw CIMNotSupportedException
-            (resultClass.getString() + " is not supported");
+        throw CIMNotSupportedException(
+            resultClass.getString() + " is not supported");
     }
 
     // return the instance names
@@ -482,9 +485,9 @@ void AssociationProvider::referenceNames(
 ///////////////////////////////////////////////////////////////////////////////
 
 void AssociationProvider::_getInstance(
-    const Array<CIMInstance> & instances,
-    const CIMObjectPath & localReference,
-    InstanceResponseHandler & handler)
+    const Array<CIMInstance>& instances,
+    const CIMObjectPath& localReference,
+    InstanceResponseHandler& handler)
 {
     // instance index corresponds to reference index
     for (Uint32 i = 0, n = instances.size(); i < n; i++)
@@ -500,8 +503,8 @@ void AssociationProvider::_getInstance(
 }
 
 void AssociationProvider::_enumerateInstances(
-    const Array<CIMInstance> & instances,
-    InstanceResponseHandler & handler)
+    const Array<CIMInstance>& instances,
+    InstanceResponseHandler& handler)
 {
     // instance index corresponds to reference index
     for (Uint32 i = 0, n = instances.size(); i < n; i++)
@@ -512,8 +515,8 @@ void AssociationProvider::_enumerateInstances(
 }
 
 void AssociationProvider::_enumerateInstanceNames(
-    const Array<CIMInstance> & instances,
-    ObjectPathResponseHandler & handler)
+    const Array<CIMInstance>& instances,
+    ObjectPathResponseHandler& handler)
 {
     for (Uint32 i = 0, n = instances.size(); i < n; i++)
     {
@@ -523,12 +526,12 @@ void AssociationProvider::_enumerateInstanceNames(
 }
 
 void AssociationProvider::_associators(
-    const Array<CIMInstance> & associationInstances,
-    const CIMObjectPath & localReference,
-    const String & role,
-    const CIMName & resultClass,
-    const String & resultRole,
-    ObjectResponseHandler & handler)
+    const Array<CIMInstance>& associationInstances,
+    const CIMObjectPath& localReference,
+    const String& role,
+    const CIMName& resultClass,
+    const String& resultRole,
+    ObjectResponseHandler& handler)
 {
     // Filter the instances from the list of association instances against
     // the specified role filter
@@ -543,7 +546,7 @@ void AssociationProvider::_associators(
     for (Uint32 i = 0, m = assocInstances.size(); i < m; i++)
     {
         Array<CIMObjectPath> resultPaths;
-        resultPaths = _filterAssociationInstances(assocInstances[i], 
+        resultPaths = _filterAssociationInstances(assocInstances[i],
             localReference, resultClass, resultRole);
 
         for (Uint32 j = 0, n = resultPaths.size(); j < n; j++)
@@ -596,12 +599,12 @@ void AssociationProvider::_associators(
 }
 
 void AssociationProvider::_associatorNames(
-    const Array<CIMInstance> & associationInstances,
-    const CIMObjectPath & localReference,
-    const String & role,
-    const CIMName & resultClass,
-    const String & resultRole,
-    ObjectPathResponseHandler & handler)
+    const Array<CIMInstance>& associationInstances,
+    const CIMObjectPath& localReference,
+    const String& role,
+    const CIMName& resultClass,
+    const String& resultRole,
+    ObjectPathResponseHandler& handler)
 {
     // Filter the instances from the list of association instances against
     // the specified role filter
@@ -616,7 +619,7 @@ void AssociationProvider::_associatorNames(
     for (Uint32 i = 0, n = assocInstances.size(); i < n; i++)
     {
         Array<CIMObjectPath> resultPaths;
-        resultPaths = _filterAssociationInstances(assocInstances[i], 
+        resultPaths = _filterAssociationInstances(assocInstances[i],
             localReference, resultClass, resultRole);
 
         for (Uint32 i = 0, n = resultPaths.size(); i < n; i++)
@@ -626,10 +629,10 @@ void AssociationProvider::_associatorNames(
     }
 }
 
-/** 
+/**
  ***************************************************************************
    _filterAssociationInstancesByRole is used to filter the list of association
-   instances against the specified role filter.  It returns a list of 
+   instances against the specified role filter.  It returns a list of
    association instances that pass the filter test.
 
     @param associationInstance   - The target association instances
@@ -641,8 +644,8 @@ void AssociationProvider::_associatorNames(
  ***************************************************************************
 */
 Array<CIMInstance> AssociationProvider::_filterAssociationInstancesByRole(
-    const Array<CIMInstance> & associationInstances, 
-    const CIMObjectPath & targetObjectPath,
+    const Array<CIMInstance>& associationInstances,
+    const CIMObjectPath& targetObjectPath,
     const String& role)
 {
     Array<CIMInstance> returnInstances;
@@ -664,7 +667,7 @@ Array<CIMInstance> AssociationProvider::_filterAssociationInstancesByRole(
                 CIMObjectPath path;
                 v.get(path);
 
-                if ((role == String::EMPTY) || 
+                if ((role == String::EMPTY) ||
                     (p.getName() == CIMName(role)))
                 {
                     if (targetObjectPath.identical(path))
@@ -675,21 +678,21 @@ Array<CIMInstance> AssociationProvider::_filterAssociationInstancesByRole(
             }
         }
     }
-    return (returnInstances);
+    return returnInstances;
 }
 
-/** 
+/**
  ***************************************************************************
-   _filterAssociationInstances is used to filter the set of possible return 
-   instances against the filters (resultClass and resultRole) provided with 
-   the associators and associatorNames operations.  It returns the ObjectPaths 
+   _filterAssociationInstances is used to filter the set of possible return
+   instances against the filters (resultClass and resultRole) provided with
+   the associators and associatorNames operations.  It returns the ObjectPaths
    of the set of objects that pass the filter tests.
 
-    @param assocInstance     - The target association class instance 
+    @param assocInstance     - The target association class instance
     @param sourceObjectPath  - The source ObjectPath
-    @param resultClass       - The result class. If there is no resultClass, 
-                               this is String::EMPTY. 
-    @param resultRole        - The result role. If there is no role, this is 
+    @param resultClass       - The result class. If there is no resultClass,
+                               this is String::EMPTY.
+    @param resultRole        - The result role. If there is no role, this is
                                String::EMPTY
 
     @return   the ObjectPaths of the set of association instances that pass
@@ -697,14 +700,14 @@ Array<CIMInstance> AssociationProvider::_filterAssociationInstancesByRole(
  ***************************************************************************
 */
 Array<CIMObjectPath> AssociationProvider::_filterAssociationInstances(
-    CIMInstance & assocInstance, 
-    const CIMObjectPath & sourceObjectPath,
-    CIMName resultClass, 
+    CIMInstance& assocInstance,
+    const CIMObjectPath& sourceObjectPath,
+    CIMName resultClass,
     String resultRole)
 {
     Array<CIMObjectPath> returnPaths;
 
-    // get all Reference properties 
+    // get all Reference properties
     for (Uint32 i = 0, n = assocInstance.getPropertyCount(); i < n; i++)
     {
         CIMProperty p = assocInstance.getProperty(i);
@@ -714,12 +717,12 @@ Array<CIMObjectPath> AssociationProvider::_filterAssociationInstances(
             CIMValue v = p.getValue();
             CIMObjectPath path;
             v.get(path);
-            
+
             if (!sourceObjectPath.identical(path))
             {
                 if (resultClass.isNull() || resultClass == path.getClassName())
                 {
-                    if (resultRole == String::EMPTY || 
+                    if (resultRole == String::EMPTY ||
                         (p.getName() == CIMName(resultRole)))
                     {
                         returnPaths.append(path);
@@ -728,10 +731,10 @@ Array<CIMObjectPath> AssociationProvider::_filterAssociationInstances(
             }
         }
     }
-    return( returnPaths );
+    return returnPaths;
 }
 
-/** 
+/**
  ***************************************************************************
     _createDefaultInstances creates the dynamic instances for this provider.
  ***************************************************************************
@@ -801,17 +804,17 @@ CIMInstance AssociationProvider::_createInstance(
     const CIMName& className, const String& name, Uint8 id)
 {
     CIMInstance instance(className);
-    instance.addProperty(CIMProperty("Name", name)); 
-    instance.addProperty(CIMProperty("Identifier", id)); 
+    instance.addProperty(CIMProperty("Name", name));
+    instance.addProperty(CIMProperty("Identifier", id));
 
     // Build CIMObjectPath from keybindings
     Array<CIMKeyBinding> keyBindings;
-    keyBindings.append(CIMKeyBinding(CIMName("Name"), name, 
+    keyBindings.append(CIMKeyBinding(CIMName("Name"), name,
                                      CIMKeyBinding::STRING));
     CIMObjectPath path("", CIMNamespaceName(), className, keyBindings);
     instance.setPath(path);
 
-    return(instance);
+    return instance;
 }
 
 CIMInstance AssociationProvider::_createTSAssociationInstance(
@@ -823,23 +826,24 @@ CIMInstance AssociationProvider::_createTSAssociationInstance(
 
     // Build CIMObjectPath from keybindings
     Array <CIMKeyBinding> keyBindings;
-    CIMKeyBinding binding1 (CIMName("Teaches"), ref1.toString(),
-                            CIMKeyBinding::REFERENCE);
-    CIMKeyBinding binding2 (CIMName("TaughtBy"), ref2.toString(),
-                            CIMKeyBinding::REFERENCE);
+    CIMKeyBinding binding1(
+        CIMName("Teaches"), ref1.toString(), CIMKeyBinding::REFERENCE);
+    CIMKeyBinding binding2(
+        CIMName("TaughtBy"), ref2.toString(), CIMKeyBinding::REFERENCE);
     keyBindings.append (binding1);
     keyBindings.append (binding2);
 
-    CIMObjectPath path("", CIMNamespaceName(), SAMPLE_TEACHERSTUDENT,
-                       keyBindings);
+    CIMObjectPath path(
+        "", CIMNamespaceName(), SAMPLE_TEACHERSTUDENT, keyBindings);
 
     assocInst.setPath(path);
 
-    return(assocInst);
+    return assocInst;
 }
 
 CIMInstance AssociationProvider::_createASAssociationInstance(
-    CIMObjectPath ref1, CIMObjectPath ref2)
+    CIMObjectPath ref1,
+    CIMObjectPath ref2)
 {
     CIMInstance assocInst(SAMPLE_ADVISORSTUDENT);
     assocInst.addProperty(CIMProperty("Advises", ref1, 0, SAMPLE_TEACHER));
@@ -847,18 +851,17 @@ CIMInstance AssociationProvider::_createASAssociationInstance(
 
     // Build CIMObjectPath from keybindings
     Array <CIMKeyBinding> keyBindings;
-    CIMKeyBinding binding1 (CIMName("Advises"), ref1.toString(),
-                            CIMKeyBinding::REFERENCE);
-    CIMKeyBinding binding2 (CIMName("AdvisedBy"), ref2.toString(),
-                            CIMKeyBinding::REFERENCE);
-    keyBindings.append (binding1);
-    keyBindings.append (binding2);
+    CIMKeyBinding binding1(
+        CIMName("Advises"), ref1.toString(), CIMKeyBinding::REFERENCE);
+    CIMKeyBinding binding2(
+        CIMName("AdvisedBy"), ref2.toString(), CIMKeyBinding::REFERENCE);
+    keyBindings.append(binding1);
+    keyBindings.append(binding2);
 
-    CIMObjectPath path("", CIMNamespaceName(), SAMPLE_ADVISORSTUDENT,
-                       keyBindings);
+    CIMObjectPath path(
+        "", CIMNamespaceName(), SAMPLE_ADVISORSTUDENT, keyBindings);
 
     assocInst.setPath(path);
 
-    return(assocInst);
+    return assocInst;
 }
-

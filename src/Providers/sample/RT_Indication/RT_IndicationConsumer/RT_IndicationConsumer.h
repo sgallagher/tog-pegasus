@@ -29,21 +29,20 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef Pegasus_RT_IndicationConsumer_h
+#define Pegasus_RT_IndicationConsumer_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 PEGASUS_USING_PEGASUS;
 
-static const char PROPERTY_NAME_INDICATIONID [] = "IndicationIdentifier";
-static const char PROPERTY_NAME_INDICATIONTIME [] = "IndicationTime";
-static const char PROPERTY_NAME_METHODNAME [] = "MethodName";
-static const char UNKNOWN [] = "Unknown";
+static const char PROPERTY_NAME_INDICATIONID[] = "IndicationIdentifier";
+static const char PROPERTY_NAME_INDICATIONTIME[] = "IndicationTime";
+static const char PROPERTY_NAME_METHODNAME[] = "MethodName";
+static const char UNKNOWN[] = "Unknown";
 
 PEGASUS_USING_STD;
 
@@ -51,15 +50,16 @@ class RT_IndicationConsumer : public CIMIndicationConsumerProvider
 {
 public:
 
-    RT_IndicationConsumer(void);
-    virtual ~RT_IndicationConsumer(void);
+    RT_IndicationConsumer();
+    virtual ~RT_IndicationConsumer();
 
     void initialize(CIMOMHandle& handle);
-    void terminate(void);
+    void terminate();
 
     void consumeIndication(
-	const OperationContext & context,
-	const String& url,
-	const CIMInstance& indicationInstance);
+        const OperationContext& context,
+        const String& url,
+        const CIMInstance& indicationInstance);
 };
 
+#endif

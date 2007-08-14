@@ -57,13 +57,13 @@ void SimpleDisplayConsumer::terminate()
 }
 
 //
-// Writes all the properties of any indications it receives to 
-// file indicationLog. The indicationLog file is located in a 
+// Writes all the properties of any indications it receives to
+// file indicationLog. The indicationLog file is located in a
 // directory specified by the environment variable
-// PEGASUS_DISPLAYCONSUMER_DIR (defaults to PEGASUS_HOME). 
+// PEGASUS_DISPLAYCONSUMER_DIR (defaults to PEGASUS_HOME).
 //
-// If the PEGASUS_DISPLAYCONSUMER_DIR is set to "console", the 
-// output will be written to stdout. 
+// If the PEGASUS_DISPLAYCONSUMER_DIR is set to "console", the
+// output will be written to stdout.
 //
 // If the PEGASUS_DISPLAYCONSUMER_DIR is set to "nooutput", then
 // no output will be produced.
@@ -122,7 +122,7 @@ void SimpleDisplayConsumer::consumeIndication(
 
     CIMInstance indication = indicationInstance.clone();
 
-    for (Uint8 i=0; i < indicationInstance.getPropertyCount(); i++)
+    for (Uint8 i = 0; i < indicationInstance.getPropertyCount(); i++)
     {
         CIMProperty property = indication.getProperty(i);
         CIMValue propertyValue = property.getValue();

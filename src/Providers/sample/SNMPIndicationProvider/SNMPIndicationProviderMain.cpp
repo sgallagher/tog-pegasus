@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,13 +38,13 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & providerName)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
+    const String& providerName)
 {
-    if(String::equalNoCase(providerName, "nsatrap"))
+    if (String::equalNoCase(providerName, "nsatrap"))
     {
-	return(new SNMPIndicationProvider());
+        return new SNMPIndicationProvider();
     }
 
-    return(0);
+    return 0;
 }
-

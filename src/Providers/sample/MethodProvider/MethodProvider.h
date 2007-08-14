@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Vijay Eli (vijayeli@in.ibm.com) for bug#2330
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_MethodProvider_h
@@ -44,22 +40,21 @@
 class MethodProvider : public PEGASUS_NAMESPACE(CIMMethodProvider)
 {
 public:
-	MethodProvider(void);
-	virtual ~MethodProvider(void);
+    MethodProvider();
+    virtual ~MethodProvider();
 
-	// CIMProvider interface
-	virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle)& cimom);
+    virtual void terminate();
 
-	// CIMMethodProviderFacade
-	virtual void invokeMethod(
-		const PEGASUS_NAMESPACE(OperationContext) & context,
-		const PEGASUS_NAMESPACE(CIMObjectPath) & objectReference,
-		const PEGASUS_NAMESPACE(CIMName) & methodName,
-		const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMParamValue)> & inParameters,
-		PEGASUS_NAMESPACE(MethodResultResponseHandler) & handler);
-
-protected:
+    // CIMMethodProviderFacade
+    virtual void invokeMethod(
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& objectReference,
+        const PEGASUS_NAMESPACE(CIMName)& methodName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMParamValue)>&
+            inParameters,
+        PEGASUS_NAMESPACE(MethodResultResponseHandler)& handler);
 
 };
 

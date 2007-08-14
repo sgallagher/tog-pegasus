@@ -31,6 +31,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_SimpleDisplayConsumer_h
+#define Pegasus_SimpleDisplayConsumer_h
+
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -41,16 +44,18 @@ class SimpleDisplayConsumer : public CIMIndicationConsumerProvider
 {
 public:
 
-    SimpleDisplayConsumer(void);
-    virtual ~SimpleDisplayConsumer(void);
+    SimpleDisplayConsumer();
+    virtual ~SimpleDisplayConsumer();
 
     void initialize(CIMOMHandle& handle);
-    void terminate(void);
+    void terminate();
 
     void consumeIndication(
-	const OperationContext & context,
-	const String& url,
-	const CIMInstance& indicationInstance);
+        const OperationContext& context,
+        const String& url,
+        const CIMInstance& indicationInstance);
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif

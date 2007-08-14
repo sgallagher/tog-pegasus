@@ -44,7 +44,7 @@ PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
     if (String::equalNoCase(providerName, "SimpleDisplayConsumer"))
     {
-         return(new SimpleDisplayConsumer());
+        return new SimpleDisplayConsumer();
     }
     return 0;
 }

@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Vijay Eli, (vijayeli@in.ibm.com) for bug#2330
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SNMPIndicationProvider_h
@@ -41,39 +37,43 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 
-class SNMPIndicationProvider :
-    public  PEGASUS_NAMESPACE(CIMIndicationProvider)
+class SNMPIndicationProvider:
+    public PEGASUS_NAMESPACE(CIMIndicationProvider)
 {
 public:
-    SNMPIndicationProvider(void) throw();
-    virtual ~SNMPIndicationProvider(void) throw();
+    SNMPIndicationProvider() throw();
+    virtual ~SNMPIndicationProvider() throw();
 
     // CIMProvider interface
-    virtual void initialize( PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
-    virtual void terminate(void);
+    virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle)& cimom);
+    virtual void terminate();
 
     // CIMIndicationProvider interface
-    virtual void enableIndications( PEGASUS_NAMESPACE(IndicationResponseHandler) & handler);
-    virtual void disableIndications(void);
+    virtual void enableIndications(
+        PEGASUS_NAMESPACE(IndicationResponseHandler)& handler);
+    virtual void disableIndications();
 
     virtual void createSubscription(
-	const  PEGASUS_NAMESPACE(OperationContext) & context,
-	const  PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
-	const  PEGASUS_NAMESPACE(Array)< PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
-	const  PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
-	const  PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)>&
+            classNames,
+        const PEGASUS_NAMESPACE(CIMPropertyList)& propertyList,
+        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
     virtual void modifySubscription(
-	const  PEGASUS_NAMESPACE(OperationContext) & context,
-	const  PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
-	const  PEGASUS_NAMESPACE(Array)< PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
-	const  PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
-	const  PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)>&
+            classNames,
+        const PEGASUS_NAMESPACE(CIMPropertyList)& propertyList,
+        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
     virtual void deleteSubscription(
-	const  PEGASUS_NAMESPACE(OperationContext) & context,
-	const  PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
-	const  PEGASUS_NAMESPACE(Array)< PEGASUS_NAMESPACE(CIMObjectPath)> & classNames);
+        const PEGASUS_NAMESPACE(OperationContext)& context,
+        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)>&
+            classNames);
 
 protected:
     PEGASUS_NAMESPACE(CIMOMHandle) _cimom;
@@ -81,4 +81,3 @@ protected:
 };
 
 #endif
-

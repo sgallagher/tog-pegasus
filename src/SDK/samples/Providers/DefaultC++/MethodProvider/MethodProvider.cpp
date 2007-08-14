@@ -29,70 +29,69 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-MethodProvider::MethodProvider(void)
+MethodProvider::MethodProvider()
 {
 }
 
-MethodProvider::~MethodProvider(void)
+MethodProvider::~MethodProvider()
 {
 }
 
-void MethodProvider::initialize(CIMOMHandle & cimom)
+void MethodProvider::initialize(CIMOMHandle& cimom)
 {
 }
 
-void MethodProvider::terminate(void)
+void MethodProvider::terminate()
 {
-	delete this;
+    delete this;
 }
 
 void MethodProvider::invokeMethod(
-	const OperationContext & context,
-	const CIMObjectPath & objectReference,
-	const CIMName & methodName,
-	const Array<CIMParamValue> & inParameters,
-	MethodResultResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectReference,
+    const CIMName& methodName,
+    const Array<CIMParamValue>& inParameters,
+    MethodResultResponseHandler& handler)
 {
-	// convert a fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		CIMNamespaceName(),
-		objectReference.getClassName(),
-		objectReference.getKeyBindings());
+    // convert a fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        CIMNamespaceName(),
+        objectReference.getClassName(),
+        objectReference.getKeyBindings());
 
-	handler.processing();
+    handler.processing();
 
-        if (objectReference.getClassName().equal ("Sample_MethodProviderClass"))
-	{
-		if (methodName.equal ("SayHello"))
-		{
-		  String outString = "Hello";
-		  if( inParameters.size() > 0 )
-		    {
-		      String replyName = String::EMPTY;
+    if (objectReference.getClassName().equal("Sample_MethodProviderClass"))
+    {
+        if (methodName.equal("SayHello"))
+        {
+            String outString = "Hello";
+            if (inParameters.size() > 0)
+            {
+                String replyName = String::EMPTY;
 
-		      CIMValue paramVal = inParameters[0].getValue();
-		      paramVal.get( replyName );
-		      if( replyName != String::EMPTY )
-			{
-			  outString.append(", " + replyName + "!");
-			}
-		      handler.deliverParamValue(
-                          CIMParamValue( "Place",
-                                         CIMValue(String("From Neverland")) ) );
-		      handler.deliver( CIMValue( outString ) );
-		     
-		    }
-		  else
-		    {
-			handler.deliver(CIMValue( outString ));
-		    }
-		}
-	}
-	
-	handler.complete();
+                CIMValue paramVal = inParameters[0].getValue();
+                paramVal.get(replyName);
+                if (replyName != String::EMPTY)
+                {
+                    outString.append(", " + replyName + "!");
+                }
+                handler.deliverParamValue(
+                    CIMParamValue(
+                        "Place",
+                        CIMValue(String("From Neverland"))));
+                handler.deliver(CIMValue(outString));
+            }
+            else
+            {
+                handler.deliver(CIMValue(outString));
+            }
+        }
+    }
+
+    handler.complete();
 }
 
 PEGASUS_NAMESPACE_END
-

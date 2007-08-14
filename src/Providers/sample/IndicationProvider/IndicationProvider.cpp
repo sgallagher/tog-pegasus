@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,61 +38,61 @@
 
 PEGASUS_USING_PEGASUS;
 
-IndicationProvider::IndicationProvider(void) throw()
+IndicationProvider::IndicationProvider() throw()
 {
 }
 
-IndicationProvider::~IndicationProvider(void) throw()
+IndicationProvider::~IndicationProvider() throw()
 {
 }
 
-void IndicationProvider::initialize(CIMOMHandle & cimom)
+void IndicationProvider::initialize(CIMOMHandle& cimom)
 {
     // save cimom handle
     _cimom = cimom;
 }
 
-void IndicationProvider::terminate(void)
+void IndicationProvider::terminate()
 {
     delete this;
 }
 
-void IndicationProvider::enableIndications(IndicationResponseHandler & handler)
+void IndicationProvider::enableIndications(IndicationResponseHandler& handler)
 {
     handler.processing();
 
-    CIMIndication cimIndication(CIMInstance("root/SampleProvider:Sample_IndicationProviderClass"));
+    CIMIndication cimIndication(
+        CIMInstance("root/SampleProvider:Sample_IndicationProviderClass"));
 
     handler.deliver(cimIndication);
 }
 
-void IndicationProvider::disableIndications(void)
+void IndicationProvider::disableIndications()
 {
     //handler.complete();
 }
 
 void IndicationProvider::createSubscription(
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array<CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array<CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
 void IndicationProvider::modifySubscription(
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array<CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array<CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
 void IndicationProvider::deleteSubscription(
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array<CIMObjectPath> & classNames)
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array<CIMObjectPath>& classNames)
 {
 }
-

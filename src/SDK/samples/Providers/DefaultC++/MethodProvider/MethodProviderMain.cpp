@@ -32,15 +32,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & className)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
+    const String& className)
 {
-    if(String::equalNoCase(className, "SampleMethodProvider"))
+    if (String::equalNoCase(className, "SampleMethodProvider"))
     {
-	return(new MethodProvider());
+        return new MethodProvider();
     }
 
-    return(0);
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END
-

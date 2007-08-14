@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Adrain Schuur (schuur@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,14 +38,13 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& name)
 {
-	if(String::equalNoCase(name, "sampleinstancequeryprovider") ||
-		String::equalNoCase(name, "sampleinstancequeryprovider (PROVIDER)"))
-	{
-		return(new InstanceQueryProvider());
-	}
+    if (String::equalNoCase(name, "sampleinstancequeryprovider") ||
+        String::equalNoCase(name, "sampleinstancequeryprovider (PROVIDER)"))
+    {
+        return new InstanceQueryProvider();
+    }
 
-	return(0);
+    return 0;
 }
-

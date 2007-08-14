@@ -52,7 +52,7 @@ static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
 
-RT_IndicationProvider::RT_IndicationProvider (void) throw ()
+RT_IndicationProvider::RT_IndicationProvider() throw ()
 {
 #if defined(PEGASUS_OS_DARWIN)
     _handler = 0;
@@ -62,22 +62,22 @@ RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 #endif
 }
 
-RT_IndicationProvider::~RT_IndicationProvider (void) throw ()
+RT_IndicationProvider::~RT_IndicationProvider() throw ()
 {
 }
 
-void RT_IndicationProvider::initialize (CIMOMHandle & cimom)
+void RT_IndicationProvider::initialize(CIMOMHandle& cimom)
 {
   _cimom = cimom;
 }
 
-void RT_IndicationProvider::terminate (void)
+void RT_IndicationProvider::terminate()
 {
     delete this;
 }
 
-void RT_IndicationProvider::enableIndications (
-    IndicationResponseHandler & handler)
+void RT_IndicationProvider::enableIndications(
+    IndicationResponseHandler& handler)
 {
     //
     //  enableIndications should not be called if indications have already been
@@ -85,14 +85,14 @@ void RT_IndicationProvider::enableIndications (
     //
     if (_enabled)
     {
-        PEGASUS_ASSERT (false);
+        PEGASUS_ASSERT(false);
     }
 
     _enabled = true;
     _handler = &handler;
 }
 
-void _generateIndication (
+void _generateIndication(
     IndicationResponseHandler * handler,
     const CIMName methodName,
     Uint32 indicationNumber)
@@ -159,12 +159,12 @@ void _generateIndication (
 
         char buffer[32];
         sprintf(buffer, "%d", _nextUID++);
-        indicationInstance.addProperty
-            (CIMProperty ("IndicationIdentifier",String(buffer)));
+        indicationInstance.addProperty(
+            CIMProperty("IndicationIdentifier", String(buffer)));
 
-        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-        indicationInstance.addProperty
-            (CIMProperty ("IndicationTime", currentDateTime));
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime();
+        indicationInstance.addProperty(
+            CIMProperty("IndicationTime", currentDateTime));
 
         //
         //  For SendTestIndicationMissingProperty, leave out the
@@ -173,8 +173,8 @@ void _generateIndication (
         if (!methodName.equal("SendTestIndicationMissingProperty"))
         {
             Array <String> correlatedIndications;
-            indicationInstance.addProperty
-                (CIMProperty ("CorrelatedIndications", correlatedIndications));
+            indicationInstance.addProperty(
+                CIMProperty("CorrelatedIndications", correlatedIndications));
         }
 
         if ((methodName.equal("SendTestIndicationNormal")) ||
@@ -185,43 +185,47 @@ void _generateIndication (
             (methodName.equal("SendTestIndicationUnmatchingNamespace")) ||
             (methodName.equal("SendTestIndicationUnmatchingClassName")))
         {
-            indicationInstance.addProperty
-                (CIMProperty ("MethodName", CIMValue (methodName.getString())));
+            indicationInstance.addProperty(
+                CIMProperty("MethodName", CIMValue(methodName.getString())));
         }
         else if (methodName.equal("SendTestIndicationTrap"))
         {
-            indicationInstance.addProperty
-                (CIMProperty("MethodName",
-                 CIMValue(methodName.getString())));
+            indicationInstance.addProperty(
+                CIMProperty(
+                    "MethodName",
+                    CIMValue(methodName.getString())));
 
-            indicationInstance.addProperty
-                (CIMProperty("IndicationNumber",
-                 CIMValue(Uint64(indicationNumber))));
+            indicationInstance.addProperty(
+                CIMProperty(
+                    "IndicationNumber",
+                    CIMValue(Uint64(indicationNumber))));
 
-            indicationInstance.addProperty
-                (CIMProperty("TestOidDataType",
-                 String("1.3.6.1.4.1.892.2.3.5006.5002")));
-
+            indicationInstance.addProperty(
+                CIMProperty(
+                    "TestOidDataType",
+                    String("1.3.6.1.4.1.892.2.3.5006.5002")));
         }
         else
         {
-            indicationInstance.addProperty
-                (CIMProperty ("MethodName",
-                    CIMValue (String ("generateIndication"))));
+            indicationInstance.addProperty(
+                CIMProperty(
+                    "MethodName",
+                    CIMValue(String("generateIndication"))));
         }
 
         //
         //  For SendTestIndicationExtraProperty, add an extra property,
         //  ExtraProperty, that is not a member of the indication class
         //
-        if (methodName.equal ("SendTestIndicationExtraProperty"))
+        if (methodName.equal("SendTestIndicationExtraProperty"))
         {
-            indicationInstance.addProperty
-                (CIMProperty ("ExtraProperty",
-                    CIMValue (String ("extraProperty"))));
+            indicationInstance.addProperty(
+                CIMProperty(
+                    "ExtraProperty",
+                    CIMValue(String("extraProperty"))));
         }
 
-        CIMIndication cimIndication (indicationInstance);
+        CIMIndication cimIndication(indicationInstance);
 
         //
         //  For SendTestIndicationSubclass,
@@ -230,10 +234,10 @@ void _generateIndication (
         //  SendTestIndicationUnmatchingClassName, include
         //  SubscriptionInstanceNamesContainer in operation context
         //
-        if ((methodName.equal ("SendTestIndicationSubclass")) ||
-            (methodName.equal ("SendTestIndicationMatchingInstance")) ||
-            (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
-            (methodName.equal ("SendTestIndicationUnmatchingClassName")))
+        if ((methodName.equal("SendTestIndicationSubclass")) ||
+            (methodName.equal("SendTestIndicationMatchingInstance")) ||
+            (methodName.equal("SendTestIndicationUnmatchingNamespace")) ||
+            (methodName.equal("SendTestIndicationUnmatchingClassName")))
         {
             Array <CIMObjectPath> subscriptionInstanceNames;
             Array <CIMKeyBinding> subscriptionKeyBindings;
@@ -244,12 +248,12 @@ void _generateIndication (
                     "CreationClassName=\"CIM_IndicationFilter\","
                     "Name=\"PIFilter01\","
                     "SystemCreationClassName=\"");
-            filterString.append(System::getSystemCreationClassName ());
+            filterString.append(System::getSystemCreationClassName());
             filterString.append("\",SystemName=\"");
-            filterString.append(System::getFullyQualifiedHostName ());
+            filterString.append(System::getFullyQualifiedHostName());
             filterString.append("\"");
-            subscriptionKeyBindings.append(CIMKeyBinding ("Filter",
-                filterString, CIMKeyBinding::REFERENCE));
+            subscriptionKeyBindings.append(CIMKeyBinding(
+                "Filter", filterString, CIMKeyBinding::REFERENCE));
 
             String handlerString;
             handlerString.append(
@@ -257,22 +261,22 @@ void _generateIndication (
                     "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
                     "Name=\"PIHandler01\","
                     "SystemCreationClassName=\"");
-            handlerString.append(System::getSystemCreationClassName ());
+            handlerString.append(System::getSystemCreationClassName());
             handlerString.append("\",SystemName=\"");
-            handlerString.append(System::getFullyQualifiedHostName ());
+            handlerString.append(System::getFullyQualifiedHostName());
             handlerString.append("\"");
-            subscriptionKeyBindings.append(CIMKeyBinding ("Handler",
-                handlerString, CIMKeyBinding::REFERENCE));
+            subscriptionKeyBindings.append(CIMKeyBinding(
+                "Handler", handlerString, CIMKeyBinding::REFERENCE));
 
             CIMObjectPath subscriptionPath("",
                 PEGASUS_NAMESPACENAME_INTEROP,
-                CIMName ("CIM_IndicationSubscription"),
+                CIMName("CIM_IndicationSubscription"),
                 subscriptionKeyBindings);
             subscriptionInstanceNames.append(subscriptionPath);
 
             OperationContext context;
-            context.insert(SubscriptionInstanceNamesContainer
-                (subscriptionInstanceNames));
+            context.insert(SubscriptionInstanceNamesContainer(
+                subscriptionInstanceNames));
 
             handler->deliver(context, indicationInstance);
         }
@@ -299,24 +303,24 @@ void _generateIndication (
             OperationContext context;
 
             // add trap OID to the context
-            context.insert
-                (SnmpTrapOidContainer("1.3.6.1.4.1.900.2.3.9002.9600"));
+            context.insert(
+                SnmpTrapOidContainer("1.3.6.1.4.1.900.2.3.9002.9600"));
             handler->deliver(context, indicationInstance);
         }
     }
 }
 
-void RT_IndicationProvider::disableIndications (void)
+void RT_IndicationProvider::disableIndications()
 {
     _enabled = false;
-    _handler->complete ();
+    _handler->complete();
 }
 
-void RT_IndicationProvider::createSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void RT_IndicationProvider::createSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
     String funcName("RT_IndicationProvider::createSubscription ");
@@ -325,11 +329,11 @@ void RT_IndicationProvider::createSubscription (
     _numSubscriptions++;
 }
 
-void RT_IndicationProvider::modifySubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void RT_IndicationProvider::modifySubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
     String funcName("RT_IndicationProvider::modifySubscription ");
@@ -338,10 +342,10 @@ void RT_IndicationProvider::modifySubscription (
     _generateIndication(_handler, "modifySubscription", 0);
 }
 
-void RT_IndicationProvider::deleteSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames)
+void RT_IndicationProvider::deleteSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames)
 {
     _numSubscriptions--;
 
@@ -350,31 +354,31 @@ void RT_IndicationProvider::deleteSubscription (
 }
 
 void RT_IndicationProvider::invokeMethod(
-    const OperationContext & context,
-    const CIMObjectPath & objectReference,
-    const CIMName & methodName,
-    const Array<CIMParamValue> & inParameters,
-    MethodResultResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectReference,
+    const CIMName& methodName,
+    const Array<CIMParamValue>& inParameters,
+    MethodResultResponseHandler& handler)
 {
     Uint32 indicationSendCount = 1;
     Boolean sendIndication = false;
     handler.processing();
 
-    if (objectReference.getClassName().equal ("RT_TestIndication") &&
+    if (objectReference.getClassName().equal("RT_TestIndication") &&
         _enabled)
     {
-        if ((methodName.equal ("SendTestIndication")) ||
-            (methodName.equal ("SendTestIndicationNormal")) ||
-            (methodName.equal ("SendTestIndicationMissingProperty")) ||
-            (methodName.equal ("SendTestIndicationExtraProperty")) ||
-            (methodName.equal ("SendTestIndicationMatchingInstance")) ||
-            (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
-            (methodName.equal ("SendTestIndicationUnmatchingClassName")))
+        if ((methodName.equal("SendTestIndication")) ||
+            (methodName.equal("SendTestIndicationNormal")) ||
+            (methodName.equal("SendTestIndicationMissingProperty")) ||
+            (methodName.equal("SendTestIndicationExtraProperty")) ||
+            (methodName.equal("SendTestIndicationMatchingInstance")) ||
+            (methodName.equal("SendTestIndicationUnmatchingNamespace")) ||
+            (methodName.equal("SendTestIndicationUnmatchingClassName")))
         {
             sendIndication = true;
-            handler.deliver( CIMValue( 0 ) );
+            handler.deliver(CIMValue(0));
         }
-        else if (methodName.equal ("SendTestIndicationTrap"))
+        else if (methodName.equal("SendTestIndicationTrap"))
         {
             inParameters[0].getValue().get(indicationSendCount);
             sendIndication = true;
@@ -382,10 +386,11 @@ void RT_IndicationProvider::invokeMethod(
         }
     }
 
-    else if ((objectReference.getClassName ().equal
-        ("RT_TestIndicationSubclass")) && _enabled)
+    else if ((objectReference.getClassName().equal(
+                 "RT_TestIndicationSubclass")) &&
+             _enabled)
     {
-        if (methodName.equal ("SendTestIndicationSubclass"))
+        if (methodName.equal("SendTestIndicationSubclass"))
         {
             sendIndication = true;
             handler.deliver( CIMValue( 0 ) );

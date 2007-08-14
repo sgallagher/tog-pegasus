@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,13 +38,13 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & providerName)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
+    const String& providerName)
 {
-    if(String::equalNoCase(providerName, "SampleIndicationProvider"))
+    if (String::equalNoCase(providerName, "SampleIndicationProvider"))
     {
-	return(new IndicationProvider());
+        return new IndicationProvider();
     }
 
-    return(0);
+    return 0;
 }
-

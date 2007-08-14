@@ -40,43 +40,43 @@ PEGASUS_USING_STD;
 
 PEGASUS_USING_PEGASUS;
 
-static IndicationResponseHandler * _handler = 0; 
+static IndicationResponseHandler* _handler = 0;
 static Boolean _enabled = false;
 
-void _generateIndication (
-    IndicationResponseHandler * handler,
-    const CIMName methodName);
+void _generateIndication(
+    IndicationResponseHandler* handler,
+    const CIMName& methodName);
 
-IndicationProvider::IndicationProvider (void) throw ()
+IndicationProvider::IndicationProvider() throw ()
 {
 }
 
-IndicationProvider::~IndicationProvider (void) throw ()
+IndicationProvider::~IndicationProvider() throw ()
 {
 }
 
-void IndicationProvider::initialize (CIMOMHandle & cimom)
+void IndicationProvider::initialize(CIMOMHandle& cimom)
 {
 }
 
-void IndicationProvider::terminate (void)
+void IndicationProvider::terminate()
 {
 }
 
-void IndicationProvider::enableIndications (
-    IndicationResponseHandler & handler)
+void IndicationProvider::enableIndications(
+    IndicationResponseHandler& handler)
 {
     _enabled = true;
     _handler = &handler;
 }
 
-void _generateIndication (
-    IndicationResponseHandler * handler,
-    const CIMName methodName)
+void _generateIndication(
+    IndicationResponseHandler* handler,
+    const CIMName& methodName)
 {
     if (_enabled)
     {
-        CIMInstance indicationInstance (CIMName("RT_TestIndication"));
+        CIMInstance indicationInstance(CIMName("RT_TestIndication"));
 
         CIMObjectPath path ;
         path.setNameSpace("SDKExamples/DefaultCXX");
@@ -84,89 +84,91 @@ void _generateIndication (
 
         indicationInstance.setPath(path);
 
-        char buffer [32];  // Should need 21 chars max
-        sprintf (buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
-            CIMDateTime::getCurrentDateTime ().toMicroSeconds ());
-        indicationInstance.addProperty
-            (CIMProperty ("IndicationIdentifier",String(buffer)));
+        char buffer[32];  // Should need 21 chars max
+        sprintf(buffer,
+            "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+            CIMDateTime::getCurrentDateTime().toMicroSeconds());
+        indicationInstance.addProperty(
+            CIMProperty("IndicationIdentifier", String(buffer)));
 
-        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-        indicationInstance.addProperty
-            (CIMProperty ("IndicationTime", currentDateTime));
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime();
+        indicationInstance.addProperty(
+            CIMProperty("IndicationTime", currentDateTime));
 
-        Array<String> correlatedIndications; 
-        indicationInstance.addProperty
-            (CIMProperty ("CorrelatedIndications", correlatedIndications));
+        Array<String> correlatedIndications;
+        indicationInstance.addProperty(
+            CIMProperty("CorrelatedIndications", correlatedIndications));
 
-        indicationInstance.addProperty
-            (CIMProperty ("MethodName", CIMValue(methodName.getString())));
-        
-        CIMIndication cimIndication (indicationInstance);
+        indicationInstance.addProperty(
+            CIMProperty("MethodName", CIMValue(methodName.getString())));
 
-        handler->deliver (indicationInstance);
+        CIMIndication cimIndication(indicationInstance);
+
+        handler->deliver(indicationInstance);
     }
 }
 
-void IndicationProvider::disableIndications (void)
+void IndicationProvider::disableIndications()
 {
     _enabled = false;
-    _handler->complete ();
+    _handler->complete();
 }
 
-void IndicationProvider::createSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void IndicationProvider::createSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void IndicationProvider::modifySubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void IndicationProvider::modifySubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void IndicationProvider::deleteSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames)
+void IndicationProvider::deleteSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames)
 {
 }
 
 void IndicationProvider::invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectReference,
+    const CIMName& methodName,
+    const Array<CIMParamValue>& inParameters,
+    MethodResultResponseHandler& handler)
 {
     Boolean sendIndication = false;
     handler.processing();
 
-    if (objectReference.getClassName().equal ("RT_TestIndication") &&
+    if (objectReference.getClassName().equal("RT_TestIndication") &&
         _enabled)
-    {                
-        if(methodName.equal("SendTestIndication"))
+    {
+        if (methodName.equal("SendTestIndication"))
         {
             sendIndication = true;
-            handler.deliver( CIMValue( 0 ) );
+            handler.deliver(CIMValue(0));
         }
     }
 
     else
     {
-        handler.deliver( CIMValue( 1 ) );
+        handler.deliver(CIMValue(1));
         PEGASUS_STD(cout) << "Provider is not enabled." << PEGASUS_STD(endl);
     }
 
     handler.complete();
 
     if (sendIndication)
+    {
         _generateIndication(_handler,"generateIndication");
+    }
 }
-

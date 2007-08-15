@@ -54,7 +54,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-static int MAX_CONNECTION_QUEUE_LENGTH = -1;
+static int _maxConnectionQueueLength = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -136,7 +136,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
    Socket::initializeInterface();
 
    /*
-        Platforms interpret the value of MAX_CONNECTION_QUEUE_LENGTH
+        Platforms interpret the value of _maxConnectionQueueLength
         differently.  Some platforms interpret the value literally, while
         others multiply a fudge factor. When the server is under stress from
         multiple clients with multiple requests, toggling this number may
@@ -144,32 +144,42 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
         value, we allow an environment variable to be set which specifies a
         number greater than the maximum concurrent client connections
         possible.  If this environment var is not specified, then
-        MAX_CONNECTION_QUEUE_LENGTH = 15.
+        _maxConnectionQueueLength = 15.
    */
 
 //To engage runtime backlog queue length: uncomment the following block AND
-//comment out the line MAX_CONNECTION_QUEUE_LENGTH = 15
+//comment out the line _maxConnectionQueueLength = 15
 
 /*
-    if (MAX_CONNECTION_QUEUE_LENGTH == -1)
+    if (_maxConnectionQueueLength == -1)
     {
         const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
         if (!env)
         {
-            MAX_CONNECTION_QUEUE_LENGTH = 15;
+            _maxConnectionQueueLength = 15;
         }
         else
         {
             char* end = NULL;
-            MAX_CONNECTION_QUEUE_LENGTH = strtol(env, &end, 10);
+            _maxConnectionQueueLength = strtol(env, &end, 10);
             if (*end)
-                MAX_CONNECTION_QUEUE_LENGTH = 15;
-            cout << " MAX_CONNECTION_QUEUE_LENGTH = " <<
-                MAX_CONNECTION_QUEUE_LENGTH << endl;
+                _maxConnectionQueueLength = 15;
+            cout << " _maxConnectionQueueLength = " <<
+                _maxConnectionQueueLength << endl;
         }
     }
 */
-    MAX_CONNECTION_QUEUE_LENGTH = 15;
+#ifdef PEGASUS_WMIMAPPER
+    //The WMI Mapper can be used as a proxy to multiple WMI Servers.
+    //If a client application simultaneously initiates connections
+    //to many Windows systems, many of these connections may be routed
+    //to a single WMI Mapper. A larger _maxConnectionQueueLength
+    //value is required to allow these connections to be initiated
+    //successfully.
+    _maxConnectionQueueLength = 40;
+#else
+    _maxConnectionQueueLength = 15;
+#endif
 }
 
 HTTPAcceptor::~HTTPAcceptor()
@@ -485,9 +495,9 @@ void HTTPAcceptor::_bind()
 
     // Set up listening on the given socket:
 
-    //int const MAX_CONNECTION_QUEUE_LENGTH = 15;
+    //int const _maxConnectionQueueLength = 15;
 
-    if (listen(_rep->socket, MAX_CONNECTION_QUEUE_LENGTH) < 0)
+    if (listen(_rep->socket, _maxConnectionQueueLength) < 0)
     {
         Socket::close(_rep->socket);
         delete _rep;

@@ -708,10 +708,6 @@ void getProperties(IWbemClassObject *pClass,
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
                 "getProperties() - %s property not found", 
                 (LPCTSTR)sPropName.getCString()));
-
-            //reset
-            throw CIMException(CIM_ERR_FAILED, 
-                "[getProperties] Property Not Found");
             
             hr = S_OK;
         }

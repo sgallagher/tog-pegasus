@@ -5056,7 +5056,7 @@ CIMDirectAccessRep::CIMDirectAccessRep() :
     pvdrmgrsvc_(NULL), pvdrregimgr_(NULL), reposi_(NULL),
     opreqdispatch_(NULL), nspvdr_(NULL), interoppvdr_(NULL),
     pvdrregipvdr_(NULL), statdatapvdr_(NULL), cfgpvdr_(NULL),
-    controlsvc_(NULL), numsubscri_(0), responsemsg_(NULL),queryPvdr_(NULL)
+    queryPvdr_(NULL), controlsvc_(NULL), numsubscri_(0), responsemsg_(NULL)
 {
     // fix; make as much of the following on-demand rather than creating them
     // all here in ctor.

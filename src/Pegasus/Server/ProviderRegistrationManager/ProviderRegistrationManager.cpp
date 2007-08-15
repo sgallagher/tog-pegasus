@@ -52,6 +52,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+extern bool runtime_context_is_directaccess_cim;
+#endif
+
 /**
     ProviderRegistration table is used to keep track of provider registration
     data.
@@ -1761,12 +1765,24 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
         CIMObjectPath reference ("", CIMNamespaceName (),
             PEGASUS_CLASSNAME_PROVIDERMODULE, moduleKeyBindings);
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+        if (!runtime_context_is_directaccess_cim)
+        {
+            //
+            // update repository
+            //
+            _repository->setProperty(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                reference, _PROPERTY_OPERATIONALSTATUS, outStatus);
+        }
+#else
         //
         // update repository
         //
         _repository->setProperty(
             PEGASUS_NAMESPACENAME_INTEROP,
             reference, _PROPERTY_OPERATIONALSTATUS, outStatus);
+#endif
 
         //
         //  get instance from the repository

@@ -103,6 +103,13 @@ ProviderManagerService::ProviderManagerService(
         ConfigManager::getInstance()->getCurrentValue(
             "forceProviderProcesses"));
 
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+    if (runtime_context_is_directaccess_cim)
+    {
+        _forceProviderProcesses = false;
+    }
+#endif
+
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
     if (_forceProviderProcesses)
     {
@@ -117,9 +124,18 @@ ProviderManagerService::ProviderManagerService(
             createDefaultProviderManagerCallback);
     }
 #else
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+    if (!runtime_context_is_directaccess_cim)
+    {
+        _oopProviderManagerRouter = new OOPProviderManagerRouter(
+            indicationCallback, responseChunkCallback,
+            providerModuleFailureCallback);
+    }
+#else
     _oopProviderManagerRouter = new OOPProviderManagerRouter(
         indicationCallback, responseChunkCallback,
         providerModuleFailureCallback);
+#endif
 
     if (!_forceProviderProcesses)
     {
@@ -734,6 +750,14 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             }
         }
 #endif
+
+#ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
+        if (runtime_context_is_directaccess_cim)
+        {
+            return _basicProviderManagerRouter->processMessage(request);
+        }
+#endif
+
         // Forward the request to the appropriate ProviderManagerRouter, based
         // on the CIM Server configuration and the UserContext setting.
 

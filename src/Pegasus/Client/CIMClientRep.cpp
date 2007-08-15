@@ -1170,6 +1170,21 @@ Message* CIMClientRep::_doRequest(
         request.reset();
         throw NotConnectedException();
     }
+
+    //
+    //  Set HTTP method in request to POST
+    //
+    //Bug 478/418 - Change this to do post call, not mpost
+    request->setHttpMethod (HTTP_METHOD__POST);
+
+    // Set the Accept-Languages and Content-Languages into
+    // the request message
+
+    request->operationContext.set(
+        AcceptLanguageListContainer(requestAcceptLanguages));
+    request->operationContext.set(
+        ContentLanguageListContainer(requestContentLanguages));
+
 #ifdef PEGASUS_USE_DIRECTACCESS_FOR_LOCAL_DEPEND
     try
     {
@@ -1265,21 +1280,6 @@ Message* CIMClientRep::_doRequest(
 
     // ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
-
-    //
-    //  Set HTTP method in request to POST
-    //
-    //Bug 478/418 - Change this to do post call, not mpost
-    request->setHttpMethod (HTTP_METHOD__POST);
-
-    // Set the Accept-Languages and Content-Languages into
-    // the request message
-
-    request->operationContext.set(
-        AcceptLanguageListContainer(requestAcceptLanguages));
-    request->operationContext.set(
-        ContentLanguageListContainer(requestContentLanguages));
-
 
     //gathering statistical information about client operation
     perfDataStore.reset();

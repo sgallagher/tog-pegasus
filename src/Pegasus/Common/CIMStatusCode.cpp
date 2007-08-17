@@ -82,7 +82,7 @@ String cimStatusCodeToString(
 
     MessageLoaderParms parms(
         "Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE",
-        "Unrecognized CIM status code \"$0\"", Uint32(code));
+        "Unrecognized CIM status code \"$0\"", (Uint32)code);
 
     if (contentLanguages.size() > 0)
     {
@@ -106,7 +106,7 @@ ContentLanguageList cimStatusCodeToString_Thread(
 
     MessageLoaderParms parms(
         "Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE",
-        "Unrecognized CIM status code \"$0\"", Uint32(code));
+        "Unrecognized CIM status code \"$0\"", (Uint32)code);
 
     //parms.useThreadLocale = true;
     message = MessageLoader::getMessage(parms);

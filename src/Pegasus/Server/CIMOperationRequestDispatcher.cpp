@@ -3929,7 +3929,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
-                CIMResponseMessage* response = request->buildResponse();
+                response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
+                    request->buildResponse()));
                 response->cimException =
                     PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
             }
@@ -4156,7 +4157,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
-                CIMResponseMessage* response = request->buildResponse();
+                response.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+                    request->buildResponse()));
                 response->cimException =
                     PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
             }
@@ -4371,7 +4373,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
-                CIMResponseMessage* response = request->buildResponse();
+                response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
+                    request->buildResponse()));
                 response->cimException =
                     PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
             }
@@ -4588,7 +4591,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
-                CIMResponseMessage* response = request->buildResponse();
+                response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
+                    request->buildResponse()));
                 response->cimException =
                     PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
             }

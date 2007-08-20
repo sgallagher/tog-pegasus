@@ -468,6 +468,8 @@ extern "C"
         CMPI_Object *obj = (CMPI_Object*)o;
         String str;
         char msg[128];
+
+        CMSetStatus(rc,CMPI_RC_OK);
         if (obj==NULL)
         {
             sprintf(msg,"** Null object ptr (%p) **",o);
@@ -535,6 +537,7 @@ extern "C"
         CMPIStatus *rc)
     {
 
+        CMSetStatus(rc,CMPI_RC_OK);
         if ((eCp==NULL) || (type==NULL))
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);

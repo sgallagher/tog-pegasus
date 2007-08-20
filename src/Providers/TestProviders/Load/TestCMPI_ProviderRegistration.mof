@@ -136,6 +136,41 @@ instance of PG_ProviderCapabilities
 };
 
 // ===================================================================
+// Method provider for Enumeration
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Enumeration provider";
+   Name = "TestCMPIEnumerationProviderModule";
+  // The library name on disk
+   Location = "cmpiTestEnumerationProvider";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIEnumerationProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIEnumerationProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIEnumerationProviderModule";
+   ProviderName = "TestCMPIEnumerationProvider";
+   CapabilityID = "CMPI Test Enumeration Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_Enumeration";
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 5 }; // Method
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+
+// ===================================================================
 // Instance provider that fails loading. The provider returns a NULL pointer
 // when _CreateInstance function is called. (the entry point)
 // ===================================================================

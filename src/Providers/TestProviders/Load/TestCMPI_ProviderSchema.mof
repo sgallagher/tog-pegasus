@@ -114,6 +114,11 @@ class TestCMPI_Method : TestCMPI_Parent
     Uint32 testArrayClone();
 };
 
+class TestCMPI_Enumeration : TestCMPI_Parent
+{
+    Uint32 testEnumeration();
+};
+
 class TestCMPI_Fail_1: TestCMPI_Parent
 {
 };

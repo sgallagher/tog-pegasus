@@ -29,16 +29,13 @@
 //
 //==============================================================================
 //
-// Author: Muni s Reddy (mreddy@in.ibm.com)   for bug #4792
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
 #include "CLITestProvider.h"
-//#include <fstream>
 #include <Pegasus/Common/PegasusAssert.h>
+
+PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
-//PEGASUS_USING_STD;
 
 
 CLITestProvider::CLITestProvider()
@@ -51,14 +48,22 @@ CLITestProvider::~CLITestProvider()
 
 void CLITestProvider::initialize(CIMOMHandle & cimom)
 {
+    _cimom = cimom;
+
+    CIMInstance instance("Test_CLITestProviderClass");
+
+    instance.addProperty(CIMProperty("Id", String("Mike")));
+
+    instance.addProperty(CIMProperty("Name", String("Bob")));
+    instance.setPath(CIMObjectPath("Test_CLITestProviderClass.Id=\"Mike\""));
+
+    _instances.append(instance);
 }
 
 void CLITestProvider::terminate()
 {
     delete this;
 }
-
-
 
 void CLITestProvider::invokeMethod(
     const OperationContext & context,
@@ -75,6 +80,7 @@ void CLITestProvider::invokeMethod(
         CIMNamespaceName(),
         objectReference.getClassName(),
         objectReference.getKeyBindings());
+
     handler.processing();
 
     String outString = "CLITestProvider  Tests : ";
@@ -85,34 +91,39 @@ void CLITestProvider::invokeMethod(
         {
             if (inParameters.size() > 0)
             {
-	            for(Uint32 i = 0; i < inParameters.size(); ++i)
-    	        {
+                for(Uint32 i = 0; i < inParameters.size(); ++i)
+                {
                     CIMValue paramVal = inParameters[i].getValue();
                     if (!paramVal.isNull())
                     {
-                    	if(paramVal.getType() == CIMTYPE_REFERENCE)
+                        if(paramVal.getType() == CIMTYPE_REFERENCE)
                         {
-                        	CIMObjectPath cop,cop1("test/Testprovider:class.k1=\"v1\",k2=\"v2\",k3=\"v3\"");
-                        	paramVal.get(cop);
-                        	PEGASUS_TEST_ASSERT(cop.identical(cop1) == true);
-                        	outString.append("	\n Passed Reference params Test1	");
-                        	PEGASUS_TEST_ASSERT(!cop.identical(cop1) == false);
-                        	outString.append("	\n Passed Reference params Test2	");
+                            CIMObjectPath cop,cop1(
+                                "test/Testprovider:class.k1="
+                                "\"v1\",k2=\"v2\",k3=\"v3\"");
+                            paramVal.get(cop);
+                            PEGASUS_TEST_ASSERT(cop.identical(cop1) == true);
+                            outString.append(
+                                "\n Passed Reference params Test1 ");
+                            PEGASUS_TEST_ASSERT(!cop.identical(cop1) == false);
+                            outString.append(
+                                "\n Passed Reference params Test2    ");
                         }
                         else
                         {
-                        	//This code gets excuted for non reference parameters.
-                        	String replyName;
-                        	paramVal.get(replyName);
-                      	    if (replyName != String::EMPTY)
-                    	    {
-                     		    outString.append(replyName);
-                     		    outString.append("\n");
-                     		    outString.append("Passed String Param Test\n");
-                    	    }
-               	        }
+                            //This code gets excuted for non reference
+                            //parameters.
+                            String replyName;
+                            paramVal.get(replyName);
+                            if (replyName != String::EMPTY)
+                            {
+                                outString.append(replyName);
+                                outString.append("\n");
+                                outString.append("Passed String Param Test\n");
+                            }
+                        }
 
-            	    outString.append("\n");
+                        outString.append("\n");
                     }
                     else
                     {
@@ -132,4 +143,146 @@ void CLITestProvider::invokeMethod(
     handler.complete();
 }
 
+
+void CLITestProvider::getInstance(
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
+{
+    handler.processing();
+
+    // create relative object path for comparison
+    CIMObjectPath cimObjectPath(instanceReference);
+
+    cimObjectPath.setHost(String());
+    cimObjectPath.setNameSpace(CIMNamespaceName());
+
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(cimObjectPath == _instances[i].getPath())
+        {
+            try
+            {
+                handler.deliver(_instances[i]);
+            }
+            catch(CIMException& e)
+            {
+                cerr << "Exception Occured : " << e.getMessage() << endl;
+            }
+            break;
+        }
+    }
+
+    handler.complete();
+}
+
+void CLITestProvider::enumerateInstances(
+    const OperationContext & context,
+    const CIMObjectPath & ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
+{
+    handler.processing();
+
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        try
+        {
+            handler.deliver(_instances[i]);
+        }
+        catch(CIMException& e)
+        {
+            cerr << "Exception Occured : " << e.getMessage() << endl;
+        }
+    }
+
+    handler.complete();
+}
+
+void CLITestProvider::enumerateInstanceNames(
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
+{
+    handler.processing();
+
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        try
+        {
+            handler.deliver(_instances[i].getPath());
+        }
+        catch(CIMException& e)
+        {
+            cerr << "Exception Occured : " << e.getMessage() << endl;
+        }
+    }
+
+    handler.complete();
+}
+
+void CLITestProvider::modifyInstance(
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
+{
+
+    handler.processing();
+
+    // create relative object path for comparison
+    CIMObjectPath cimObjectPath(instanceReference);
+
+    cimObjectPath.setHost(String());
+    cimObjectPath.setNameSpace(CIMNamespaceName());
+
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(cimObjectPath == _instances[i].getPath())
+        {
+            String strNewValue;
+            CIMConstProperty nameProperty  = instanceObject.getProperty(
+                instanceObject.findProperty("Name"));
+            CIMValue cimValueObj = nameProperty.getValue();
+            cimValueObj.get(strNewValue);
+
+            try
+            {
+                _instances[i].removeProperty(
+                    _instances[i].findProperty("Name"));
+                _instances[i].addProperty(CIMProperty("Name", strNewValue));
+            }
+            catch(CIMException& e)
+            {
+                cerr << "Exception Occured : "<< e.getMessage() << endl;
+            }
+            break;
+        }
+    }
+    handler.complete();
+}
+
+void CLITestProvider::createInstance(
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
+
+void CLITestProvider::deleteInstance(
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & hadler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
 

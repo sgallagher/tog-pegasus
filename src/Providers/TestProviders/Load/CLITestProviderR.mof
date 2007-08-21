@@ -55,7 +55,7 @@ instance of PG_ProviderCapabilities
     CapabilityID = "CLITestProviderCapability1";
     ClassName = "Test_CLITestProviderClass";
     Namespaces = { "test/TestProvider" };
-    ProviderType = { 5 };
+    ProviderType = { 2,5 };
     SupportedProperties = NULL;
     SupportedMethods = { "ReferenceParamTest" };
 };

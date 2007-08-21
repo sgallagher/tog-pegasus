@@ -31,16 +31,16 @@
 # Test the cimcli test Provider using the script
 #//==============================================================================
 #//
-#// Author: Muni s Reddy (mreddy@in.ibm.com)   for bug #4792
-#//
-#// Modified By:
-#//
 #///////////////////////////////////////////////////////////////////////////////
 
 ROOT = $(PEGASUS_ROOT)
+DIR = Providers/TestProviders/CLITestProvider/tests
+
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
-SHH = @
+
+RESULTFILE = $(ROOT)/src/$(DIR)/result
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 # sampleprovider\Load puts the sample MOF into a separate namespace.
 # The following variable defines this namespace. Note that
@@ -61,12 +61,22 @@ messages:
 
 poststarttests:
 
+	@$(RM) $(RESULTFILE)
 	@$(ECHO) 1. +++++ Test For Reference params
 
-	$(SSH)cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
+	@cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
 
 	@$(ECHO) 2. +++++ Test String  params  which include square brackets
-	$(SSH)cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a="\[string-param\]"
+	@cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a="\[string-param\]"
+
+	@$(ECHO) 3. +++++ Test_CLITestProviderClass Instances Getproperty and setProperty for cimcli operation
+
+#	@cimcli sp  -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" Name John
+	@cimcli gp  -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" Name >> $(RESULTFILE)
+	
+	@$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
+	@$(ECHO) +++++ TST_Person Instances GetProperty and SetProperty tests Passed.
+
 clean:
 
 # END_OF_FILE

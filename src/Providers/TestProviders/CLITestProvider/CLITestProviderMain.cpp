@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Muni s Reddy (mreddy@in.ibm.com)   for bug #4792
-//
-// Modified By:
-//
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,12 +38,12 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & className)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+    const String & className)
 {
-
     if(String::equalNoCase(className, "CLITestProvider"))
     {
-	    return(new CLITestProvider());
+        return(new CLITestProvider());
     }
 
     return(0);

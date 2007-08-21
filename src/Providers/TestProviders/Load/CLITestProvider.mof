@@ -33,6 +33,7 @@ class Test_CLITestProviderClass
 {
     [key]
     string Id;
+    String Name;
 
     uint32 ReferenceParamTest(
         [in] uint32 InParam1,

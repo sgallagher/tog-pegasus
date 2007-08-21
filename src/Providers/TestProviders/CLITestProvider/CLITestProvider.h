@@ -29,41 +29,81 @@
 //
 //==============================================================================
 //
-// Author: Muni s Reddy (mreddy@in.ibm.com)   for bug #4792
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
 #ifndef Pegasus_CLITestProvider_h
 #define Pegasus_CLITestProvider_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/Provider/CIMInstanceProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
-class CLITestProvider : public PEGASUS_NAMESPACE(CIMMethodProvider)
+PEGASUS_USING_PEGASUS;
+
+class CLITestProvider : public CIMMethodProvider, public CIMInstanceProvider
 {
 public:
-	CLITestProvider(void);
-	virtual ~CLITestProvider(void);
+    CLITestProvider();
+    virtual ~CLITestProvider();
 
-	// CIMProvider interface
-	virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-	// CIMMethodProviderFacade
-	virtual void invokeMethod(
-		const PEGASUS_NAMESPACE(OperationContext) & context,
-		const PEGASUS_NAMESPACE(CIMObjectPath) & objectReference,
-		const PEGASUS_NAMESPACE(CIMName) & methodName,
-		const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMParamValue)> & inParameters,
-		PEGASUS_NAMESPACE(MethodResultResponseHandler) & handler);
+    // CIMMethodProviderFacade
+    virtual void invokeMethod(
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array <CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
+
+    virtual void getInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
+
+    virtual void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
+
+    virtual void enumerateInstanceNames(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ObjectPathResponseHandler & handler);
+
+    virtual void modifyInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList & propertyList,
+        ResponseHandler & handler);
+
+    virtual void createInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        ObjectPathResponseHandler & handler);
+
+    virtual void deleteInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ResponseHandler & handler);
+
+protected:
+    Array<CIMInstance> _instances;
 
 private:
     CIMOMHandle _cimom;
 
 };
-
-PEGASUS_NAMESPACE_END
 
 #endif

@@ -1321,7 +1321,6 @@ int getProperty(CIMClient& client, Options& opts)
     cimValue = client.getProperty( opts.nameSpace,
                                    opts.instanceName,
                                    opts.propertyName);
-
     if (opts.time)
     {
         opts.elapsedTime.stop();
@@ -1329,7 +1328,18 @@ int getProperty(CIMClient& client, Options& opts)
         opts.saveElapsedTime = opts.elapsedTime.getElapsed();
     }
 
-    // ATTN: TODO: display returned property
+    if (opts.summary)
+    {
+        if (opts.time)
+        {
+            cout << opts.saveElapsedTime << endl;
+        }
+    }
+    else
+    {
+        cout << opts.propertyName << " = " << cimValue.toString() << endl;
+    }
+    
     return(0);
 }
 

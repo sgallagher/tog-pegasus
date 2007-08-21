@@ -589,23 +589,20 @@ int main(int argc, char** argv)
                     break;
 
                 case ID_GetProperty :
-                    // ATTN: This one is wrong
                     if (argc != 4)
-                        cout << "Usage: cli getproperty <instancename>"
-                                    " <propertyname>"
-                            << endl;
-
-                    if (argc > 2)
                     {
-                        opts.instanceName = argv[2];
-                        opts.inputObjectName = argv[2];
+                        cout << "Usage: cli getproperty <instancename>"
+                            "<propertyname>" << endl;
+                        exit(1);
                     }
 
-                    if (argc > 3)
-                        opts.propertyName = argv[3];
+                    opts.instanceName = argv[2];
+                    opts.inputObjectName = argv[2];
+                    opts.propertyName = argv[3];
 
                     getProperty(client, opts);
                     break;
+
                 case ID_SetProperty :
                     if (argc != 5)
                         cout <<

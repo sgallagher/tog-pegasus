@@ -41,6 +41,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 PEGASUS_USING_STD;
 
@@ -81,7 +83,7 @@ static Boolean getUtilGetHostName(String& csName)
      // Now get the official hostname.  If this call fails then return
      // the value from gethostname().
 
-     if (he=gethostbyname(hostName))
+     if ((he=gethostbyname(hostName)))
      {
          csName.assign(he->h_name);
      }
@@ -203,7 +205,19 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
-    return false;
+    int mib[2] = { CTL_KERN, KERN_BOOTTIME };
+    struct timeval   tv;
+    size_t len = sizeof(tv);
+
+    if (sysctl(mib, 2, &tv, &len, NULL, 0) == -1) 
+    {
+        return false;
+    }
+    else
+    {
+        lastBootUpTime = time_t_to_CIMDateTime(&(tv.tv_sec));
+        return true;
+    }
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
@@ -316,7 +330,21 @@ Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
 
 Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 {
-    return false;
+    int mib[2] = { CTL_KERN, KERN_BOOTTIME };
+    struct timeval   tv;
+    size_t len = sizeof(tv);
+
+    if (sysctl(mib, 2, &tv, &len, NULL, 0) == -1)
+    {
+        return false;
+    }
+    else
+    {
+        time_t now;
+        now = time(NULL);
+        mUpTime = difftime(now,tv.tv_sec);
+        return true;
+    }
 }
 
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)

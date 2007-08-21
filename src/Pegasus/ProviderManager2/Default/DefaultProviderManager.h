@@ -80,9 +80,12 @@ private:
 
     ProviderOperationCounter _getProvider(
         const String& moduleFileName,
+        const String& moduleName,
         const String& providerName);
 
-    ProviderMessageHandler* _lookupProvider(const String& providerName);
+    ProviderMessageHandler* _lookupProvider(
+        const String& moduleName,
+        const String& providerName);
 
     ProviderMessageHandler* _initProvider(
         ProviderMessageHandler* provider,
@@ -92,7 +95,9 @@ private:
 
     void _shutdownAllProviders();
 
-    Sint16 _disableProvider(const String& providerName);
+    Sint16 _disableProvider(
+        const String& moduleFileName,
+        const String& providerName);
 
     void _unloadProvider(ProviderMessageHandler* provider);
 

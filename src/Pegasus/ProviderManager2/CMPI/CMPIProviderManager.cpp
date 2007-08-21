@@ -3832,7 +3832,12 @@ ProviderName CMPIProviderManager::_resolveProviderName(
     String providerName;
     String fileName;
     String location;
+    String moduleName;
     CIMValue genericValue;
+
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("Name")).getValue();
+    genericValue.get(moduleName);
 
     genericValue = providerId.getProvider().getProperty(
         providerId.getProvider().findProperty("Name")).getValue();
@@ -3856,10 +3861,9 @@ ProviderName CMPIProviderManager::_resolveProviderName(
             providerName, fullName);
 
     }
-    ProviderName name(providerName, fileName, String::EMPTY, 0);
+    ProviderName name(moduleName, providerName, fileName);
     name.setLocation(location);
     return name;
-//    return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
 void CMPIProviderManager::_callEnableIndications

@@ -115,13 +115,18 @@ Message* DefaultProviderManager::processMessage(Message* message)
         case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
         case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         {
+            ProviderIdContainer providerId = 
+                request->operationContext.get(ProviderIdContainer::NAME);
+
             // resolve provider name
-            ProviderName name = _resolveProviderName(
-                request->operationContext.get(ProviderIdContainer::NAME));
+            ProviderName name = _resolveProviderName(providerId);
 
             // get cached or load new provider module
             ProviderOperationCounter poc(
-                _getProvider(name.getPhysicalName(), name.getLogicalName()));
+                _getProvider(
+                    name.getPhysicalName(), 
+                    name.getModuleName(), 
+                    name.getLogicalName()));
 
             response = poc.GetProvider().processMessage(request);
             break;
@@ -149,13 +154,18 @@ Message* DefaultProviderManager::processMessage(Message* message)
 #if 0
         case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
         {
+            ProviderIdContainer providerId = 
+                request->operationContext.get(ProviderIdContainer::NAME);
+
             // resolve provider name
-            ProviderName name = _resolveProviderName(
-                request->operationContext.get(ProviderIdContainer::NAME));
+            ProviderName name = _resolveProviderName(providerId);
 
             // get cached or load new provider module
             ProviderOperationCounter poc(
-                _getProvider(name.getPhysicalName(), name.getLogicalName()));
+                _getProvider(
+                    name.getPhysicalName(), 
+                    name.getModuleName(), 
+                    name.getLogicalName()));
 
             break;
         }
@@ -229,7 +239,7 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
                 providerInstances[i].findProperty("Name")).
                     getValue().get(pName);
 
-            Sint16 ret_value = _disableProvider(pName);
+            Sint16 ret_value = _disableProvider(moduleName, pName);
 
             if (ret_value == 0)
             {
@@ -374,8 +384,12 @@ ProviderName DefaultProviderManager::_resolveProviderName(
 {
     String providerName;
     String fileName;
-    String interfaceName;
+    String moduleName;
     CIMValue genericValue;
+
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("Name")).getValue();
+    genericValue.get(moduleName);
 
     genericValue = providerId.getProvider().getProperty(
         providerId.getProvider().findProperty("Name")).getValue();
@@ -384,11 +398,6 @@ ProviderName DefaultProviderManager::_resolveProviderName(
     genericValue = providerId.getModule().getProperty(
         providerId.getModule().findProperty("Location")).getValue();
     genericValue.get(fileName);
-
-    // ATTN: This attribute is probably not required
-    genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty("InterfaceType")).getValue();
-    genericValue.get(interfaceName);
 
     String resolvedFileName = _resolvePhysicalName(fileName);
 
@@ -406,17 +415,18 @@ ProviderName DefaultProviderManager::_resolveProviderName(
             FileSystem::buildLibraryFileName(fileName), moduleName));
     }
 
-    return ProviderName(providerName, resolvedFileName, interfaceName, 0);
+    return ProviderName(moduleName, providerName, resolvedFileName);
 }
 
 ProviderOperationCounter DefaultProviderManager::_getProvider(
     const String& moduleFileName,
+    const String& moduleName,
     const String& providerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_getProvider");
 
-    ProviderMessageHandler* pr = _lookupProvider(providerName);
+    ProviderMessageHandler* pr = _lookupProvider(moduleName, providerName);
 
     if (!pr->status.isInitialized())
     {
@@ -442,6 +452,7 @@ ProviderOperationCounter DefaultProviderManager::_getProvider(
 }
 
 ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
+    const String& moduleName,
     const String& providerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -450,9 +461,17 @@ ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
     // lock the providerTable mutex
     AutoMutex lock(_providerTableMutex);
 
+    // Construct the lookup key. We need a compound key to differentiate
+    // providers with the same name from different modules. The size field is
+    // added to handle the unlikely case when moduleName+providerName
+    // produce identical strings but define different providers.
+    char buffer[12];
+    sprintf(buffer, "%u:", providerName.size());
+    const String key = buffer + moduleName + ":" + providerName;
+
     // look up provider in cache
     ProviderMessageHandler* pr = 0;
-    if (_providers.lookup(providerName, pr))
+    if (_providers.lookup(key, pr))
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Found Provider " + providerName + " in Provider Manager Cache");
@@ -465,7 +484,7 @@ ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
             _subscriptionInitComplete);
 
         // insert provider in provider table
-        _providers.insert(providerName, pr);
+        _providers.insert(key, pr);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Created provider " + pr->getName());
@@ -726,12 +745,14 @@ void DefaultProviderManager::_shutdownAllProviders()
     PEG_METHOD_EXIT();
 }
 
-Sint16 DefaultProviderManager::_disableProvider(const String& providerName)
+Sint16 DefaultProviderManager::_disableProvider(
+    const String& moduleName,
+    const String& providerName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_disableProvider");
 
-    ProviderMessageHandler* pr = _lookupProvider(providerName);
+    ProviderMessageHandler* pr = _lookupProvider(moduleName, providerName);
     if (!pr->status.isInitialized())
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,

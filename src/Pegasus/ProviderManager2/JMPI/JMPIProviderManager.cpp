@@ -30,6 +30,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+// NOCHKSRC
 
 #include "JMPIProviderManager.h"
 
@@ -6981,8 +6982,12 @@ ProviderName JMPIProviderManager::_resolveProviderName(
 {
     String providerName;
     String fileName;
-    String interfaceName;
+    String moduleName;
     CIMValue genericValue;
+
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("Name")).getValue();
+    genericValue.get(moduleName);
 
     genericValue = providerId.getProvider().getProperty(
         providerId.getProvider().findProperty("Name")).getValue();
@@ -6993,12 +6998,7 @@ ProviderName JMPIProviderManager::_resolveProviderName(
     genericValue.get(fileName);
     fileName = resolveFileName(fileName);
 
-    // ATTN: This attribute is probably not required
-    genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty("InterfaceType")).getValue();
-    genericValue.get(interfaceName);
-
-    return ProviderName(providerName, fileName, interfaceName, 0);
+    return ProviderName(moduleName, providerName, fileName);
 }
 
 String JMPIProviderManager::resolveFileName(String fileName)

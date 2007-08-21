@@ -37,45 +37,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderName::ProviderName() : _capabilities(0)
-{
-}
-
 ProviderName::ProviderName(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    const Uint32 capabilities,
-    const CIMName& method)
-    : _capabilities(capabilities)
-{
-    _nameSpace = nameSpace;
-    _className = className;
-    _method = method;
-}
-
-ProviderName::ProviderName(
-    const CIMObjectPath& path,
-    const Uint32 capabilities,
-    const CIMName& method)
-    : _capabilities(capabilities)
-{
-    _nameSpace = path.getNameSpace();
-    _className = path.getClassName();
-    _method = method;
-}
-
-ProviderName::ProviderName(
+    const String& moduleName,
     const String& logicalName,
-    const String& physicalName,
-    const String& interfaceName,
-    const Uint32 capabilities,
-    const CIMName& method)
-    : _capabilities(capabilities)
+    const String& physicalName)
 {
+    _moduleName = moduleName;
     _logicalName = logicalName;
     _physicalName = physicalName;
-    _interfaceName = interfaceName;
-    _method = method;
 }
 
 ProviderName::~ProviderName()
@@ -87,19 +56,14 @@ String ProviderName::getPhysicalName() const
     return _physicalName;
 }
 
-void ProviderName::setPhysicalName(const String& physicalName)
+String ProviderName::getModuleName() const
 {
-    _physicalName = physicalName;
+    return _moduleName;
 }
 
 String ProviderName::getLogicalName() const
 {
     return _logicalName;
-}
-
-String ProviderName::getInterfaceName() const
-{
-    return _interfaceName;
 }
 
 String ProviderName::getLocation() const
@@ -111,25 +75,4 @@ void ProviderName::setLocation(const String& location)
 {
     _location = location;
 }
-
-Uint32 ProviderName::getCapabilitiesMask() const
-{
-    return _capabilities;
-}
-
-CIMName ProviderName::getMethodName() const
-{
-    return _method;
-}
-
-CIMName ProviderName::getClassName() const
-{
-   return _className;
-}
-
-CIMNamespaceName ProviderName::getNameSpace() const
-{
-   return _nameSpace;
-}
-
 PEGASUS_NAMESPACE_END

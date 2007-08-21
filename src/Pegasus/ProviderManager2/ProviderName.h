@@ -46,49 +46,27 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PPM_LINKAGE ProviderName
 {
 public:
-    ProviderName();
-    
-    ProviderName(
-        const String& logicalName,
-        const String& physicalName,
-        const String& interfaceName,
-        const Uint32 capabilities,
-        const CIMName& method = CIMName());
 
     ProviderName(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        const Uint32 capabilities,
-        const CIMName& method = CIMName());
-        
-     ProviderName(
-        const CIMObjectPath& path,
-        const Uint32 capabilities,
-        const CIMName& method = CIMName());
-        
+        const String& moduleName,
+        const String& logicalName,
+        const String& physicalName);
+
    ~ProviderName();
 
     String getLogicalName() const;
     String getPhysicalName() const;
-    void setPhysicalName(const String& physicalName);
-    String getInterfaceName() const;
+    String getModuleName() const;
     String getLocation() const;
     void setLocation(const String&);
-    Uint32 getCapabilitiesMask() const;
-    CIMName getMethodName() const;
-    CIMNamespaceName getNameSpace() const;
-    CIMName getClassName() const;
 
 private:
-    CIMNamespaceName _nameSpace;
-    CIMName _className;
+    ProviderName();
+    
     String _physicalName;
-    String _interfaceName;
+    String _moduleName;
     String _logicalName;
     String _location;
-    Uint32 _capabilities;
-    
-    CIMName _method;
 };
 
 PEGASUS_NAMESPACE_END

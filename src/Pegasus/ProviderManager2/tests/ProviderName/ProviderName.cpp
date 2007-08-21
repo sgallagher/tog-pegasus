@@ -47,36 +47,23 @@ static char * verbose;
 void test01()
 {
     /**
-        Added to cover the Function ProviderName::ProviderName(void);
-    */
-    ProviderName pn;
-
-    /**
         Added to cover the Function
         ProviderName::ProviderName(
-        const CIMNamespaceName & nameSpace,const CIMName & className,
-        const Uint32 capabilities,const CIMName & method)
-    */
-    CIMNamespaceName nsn("/root/cimv");
-    CIMName classname("MyClass");
-    CIMName method("MyMethod");
-    ProviderName pn1(nsn,classname,1,method);
-
-    /**
-        Added to cover the Function
-        ProviderName::ProviderName(
+        const String& moduleName,
         const String & logicalName,
-        const String & physicalName,
-        const String & interfaceName,
-        const Uint32 capabilities,
-        const CIMName & method)
+        const String & physicalName)
     */
     ProviderName pnobj(
+        "dummymodulename",
         "dummylogicalname",
-        "dummyphysicalname",
-        "dummyinterfacename",
-        1,
-        method);
+        "dummyphysicalname");
+
+    /**
+        Added to cover the Function
+        String ProviderName::getModuleName(void) const
+    */
+    String get_module_name = pnobj.getModuleName();
+    PEGASUS_TEST_ASSERT(get_module_name == "dummymodulename");
 
     /**
         Added to cover the Function
@@ -86,69 +73,14 @@ void test01()
     PEGASUS_TEST_ASSERT(get_logical_name == "dummylogicalname");
 
     /**
-        Added to cover the Function
-        ProviderName::ProviderName(
-            const CIMObjectPath & path,
-            const Uint32 capabilities,
-            const CIMName & method)
-    */
-    CIMObjectPath cobjpath("//localhost/root/cimv2:MyClass");
-    ProviderName pn2(cobjpath,1,method);
-
-    /**
-        Added to cover the Function
-        void ProviderName::setPhysicalName(const String & physicalName)
-    */
-    pn.setPhysicalName("PhysicalName1");
-    String set_phy_name = pn.getPhysicalName();
-    PEGASUS_TEST_ASSERT(set_phy_name == "PhysicalName1");
-
-    /**
-        Added to cover the Function
-        String ProviderName::getInterfaceName(void) const
-    */
-    String get_inf_name = pn1.getInterfaceName();
-    PEGASUS_TEST_ASSERT(get_inf_name == "");
-
-    /**
         Added to cover the Functions
         void ProviderName::setLocation(const String &location)
                         AND
         String ProviderName::getLocation(void) const
     */
-    pn2.setLocation("//localhost/root/dummy");
-    String get_loc = pn2.getLocation();
+    pnobj.setLocation("//localhost/root/dummy");
+    String get_loc = pnobj.getLocation();
     PEGASUS_TEST_ASSERT(get_loc == "//localhost/root/dummy");
-
-    /**
-        Added to cover the Function
-        Uint32 ProviderName::getCapabilitiesMask(void) const
-    */
-    Uint32 get_cap = pn2.getCapabilitiesMask();
-    PEGASUS_TEST_ASSERT(get_cap == 1);
-    Uint32 get_cap1 = pn.getCapabilitiesMask();
-    PEGASUS_TEST_ASSERT(get_cap1 == 0);
-
-    /**
-        Added to cover the Function
-        CIMName ProviderName::getMethodName(void) const
-    */
-    CIMName get_met_name = pn1.getMethodName();
-    PEGASUS_TEST_ASSERT(get_met_name.getString() == "MyMethod");
-
-    /**
-        Added to cover the Function
-        CIMName ProviderName::getClassName() const
-    */
-    CIMName get_cl_name = pn1.getClassName();
-    PEGASUS_TEST_ASSERT(get_cl_name.getString() == "MyClass");
-
-    /**
-        Added to cover the Function
-        CIMNamespaceName ProviderName::getNameSpace() const
-    */
-    CIMNamespaceName ret_cnsn = pn1.getNameSpace();
-    PEGASUS_TEST_ASSERT(ret_cnsn.getString() == "root/cimv");
 }
 
 int main(int argc, char** argv)

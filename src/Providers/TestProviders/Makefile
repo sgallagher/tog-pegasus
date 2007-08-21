@@ -110,7 +110,9 @@ DIRS += \
 	CMPI/TestIndicationStressTestProvider \
 	CMPI/TestIndicationStressTestProvider/tests \
 	CMPI/TestCMPIEnumeration \
-	CMPI/TestCMPIEnumeration/tests
+	CMPI/TestCMPIEnumeration/tests \
+	CMPI/TestCMPIBrokerEnc \
+	CMPI/TestCMPIBrokerEnc/tests 
 
 ifndef PEGASUS_DISABLE_CQL
 DIRS += \

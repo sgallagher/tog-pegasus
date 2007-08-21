@@ -119,6 +119,11 @@ class TestCMPI_Enumeration : TestCMPI_Parent
     Uint32 testEnumeration();
 };
 
+class TestCMPI_BrokerEnc : TestCMPI_Parent
+{
+    Uint32 testBrokerEnc();
+};
+
 class TestCMPI_Fail_1: TestCMPI_Parent
 {
 };

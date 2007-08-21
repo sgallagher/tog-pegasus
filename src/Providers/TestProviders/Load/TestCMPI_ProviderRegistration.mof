@@ -171,6 +171,42 @@ instance of PG_ProviderCapabilities
 };
 
 // ===================================================================
+// Method provider for CMPI_BrokerEnc.cpp
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test BrokerEnc provider";
+   Name = "TestCMPIBrokerEncProviderModule";
+   // The library name on disk
+   Location = "cmpiTestBrokerEncProvider";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIBrokerEncProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIBrokerEncProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIBrokerEncProviderModule";
+   ProviderName = "TestCMPIBrokerEncProvider";
+   CapabilityID = "CMPI Test BrokerEnc Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_BrokerEnc";
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 5 }; // Method
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+
+
+// ===================================================================
 // Instance provider that fails loading. The provider returns a NULL pointer
 // when _CreateInstance function is called. (the entry point)
 // ===================================================================

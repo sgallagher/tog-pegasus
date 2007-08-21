@@ -92,7 +92,9 @@ usage2: FORCE
 	$(USAGE)
 	$(USAGE)"The following require the repository to be pre-built."
 	$(USAGE)
-	$(USAGE)"run_SSL_TS1             - Executes the SSL tests"
+	$(USAGE)"run_SSL_CBA_TS1         - Executes the Certificate based authentication test suite."
+	$(USAGE)"run_SSL_IPV4_TS1        - Executes the IPv4 SSL connection test suite."
+	$(USAGE)"run_SSL_IPV6_TS1        - Executes the IPv6 SSL connection test suite."
 	$(USAGE)"run_OOP_TS1             - Executes the Out Of Process Provider tests"
 	$(USAGE)"run_G11N_TS1            - Executes the Globalization tests"
 	$(USAGE)
@@ -294,7 +296,9 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS2
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOPProvFail_TS3
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_IPV4_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_IPV6_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_CBA_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SDK_TS1
@@ -527,7 +531,71 @@ endif
 ###############################################################################
  
 ###############################################################################
-##  SSL Test Suite 1: SSL Tests
+##  SSL IPv4 Test Suite : Tests SSL connections for IPv4
+##
+##  Configuration Options: enableHttpsConnection=true
+##  NOTE : Authentication is not enabled as we are only verifying
+##         if SSL based IPv6 connections are working correctly. The osinfo
+##         client requires a password to be passed for a remote connection
+##         otherwise it will prompt for one. As a work around, 
+##         we are providing a dummy password. 
+##
+###############################################################################
+SSL_IPV4_TS1_CONFIG_OPTIONS = enableHttpsConnection=true 
+SSL_IPV4_TS1_CMD_1 = \
+        osinfo -s -w notapassword -h 127.0.0.1 -p 5989
+SSL_IPV4_TS1_CMD_2 = \
+        osinfo -s -w notapassword -h localhost -p 5989
+
+ifdef PEGASUS_HAS_SSL
+    run_SSL_IPV4_TS1: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_IPV4_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_IPV4_TS1_CMD_1)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_IPV4_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_IPV4_TS1_CMD_2)"
+else
+    run_SSL_IPV4_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_SSL_IPV4_TS1"
+endif
+
+###############################################################################
+##  SSL IPv6 Test Suite : Tests SSL connections for IPv6
+##
+##  Configuration Options: enableHttpsConnection=true
+##  NOTE : Authentication is not enabled as we are only verifying
+##         if SSL based IPv6 connections are working correctly. The osinfo
+##         client requires a password to be passed for a remote connection
+##         otherwise it will prompt for one. As a work around,
+##         we are providing a dummy password. 
+##
+###############################################################################
+SSL_IPV6_TS1_CONFIG_OPTIONS = enableHttpsConnection=true 
+SSL_IPV6_TS1_CMD_1 = \
+        osinfo -s -w notapassword -h ::1 -p 5989
+SSL_IPV6_TS1_CMD_2 = \
+        osinfo -s -w notapassword -h ::ffff:127.0.0.1 -p 5989
+
+ifdef PEGASUS_HAS_SSL
+    run_SSL_IPV6_TS1: FORCE
+    ifeq ($(PEGASUS_TEST_IPV6), true)
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_IPV6_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_IPV6_TS1_CMD_1)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_IPV6_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_IPV6_TS1_CMD_2)"
+    else
+	@ $(ECHO) "+++++ PEGASUS_TEST_IPV6 not defined: Skipping run_SSL_IPV6_TS1"
+    endif
+else
+    run_SSL_IPV6_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_SSL_IPV6_TS1"
+endif
+
+###############################################################################
+##  CBA SSL Test Suite 1: Certificate based authentication Tests
 ##
 ##  Configuration Options: enableAuthentication=true
 ##                         enableHttpsConnection=true
@@ -535,29 +603,29 @@ endif
 ##                         sslTrustStoreUserName=$(CURRENT_USER)
 ##
 ###############################################################################
-SSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true \
+SSL_CBA_TS1_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true \
        sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
-SSL_TS1_TEST_CMDS = \
+SSL_CBA_TS1_TEST_CMD_1 = \
        $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/cimtrust/tests@@SSLCertificateTest1
-SSL_TS2_TEST_CMDS = \
+SSL_CBA_TS1_TEST_CMD_2 = \
        $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/cimcrl/tests@@SSLCRLTest1
 
 ifdef PEGASUS_HAS_SSL
 ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
-run_SSL_TS1: FORCE
+run_SSL_CBA_TS1: FORCE
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
-            CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
-            TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_CBA_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_CBA_TS1_TEST_CMD_1)"
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
-            CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
-            TESTSUITE_CMDS="$(SSL_TS2_TEST_CMDS)"
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_CBA_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_CBA_TS1_TEST_CMD_2)"
 else
-run_SSL_TS1: FORCE
-	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_SSL_TS1"	
+run_SSL_CBA_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_SSL_CBA_TS1"	
 endif
 else
-run_SSL_TS1: FORCE
-	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_SSL_TS1 poststarttest"
+run_SSL_CBA_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_SSL_CBA_TS1"
 
 endif
 

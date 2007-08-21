@@ -38,6 +38,9 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 LOCAL_DEFINES = -DPEGASUS_CMPI_PROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 endif
 
+# The below library is added for tracing - bug 6789
+LIBRARIES = pegcommon 
+
 LIBRARY = cmpiCppImpl
 
 SOURCES = \

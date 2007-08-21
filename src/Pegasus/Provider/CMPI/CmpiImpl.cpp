@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -53,7 +53,10 @@
 # include <Pegasus/Common/Config.h>
 #endif
 
+#include <Pegasus/Common/Tracer.h>
+
 PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 //---------------------------------------------------
 //--
@@ -84,7 +87,7 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup(
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*>(mi->hdl);
         if (cmi->isUnloadable())
         {
-            if (cmi->getProviderBase() && 
+            if (cmi->getProviderBase() &&
                 cmi->getProviderBase()->decUseCount()==0)
             {
                 cmi->getProviderBase()->setBaseMI(0);
@@ -149,6 +152,9 @@ CMPIStatus CmpiInstanceMI::driveEnumInstanceNames(
     const CMPIResult* eRslt,
     const CMPIObjectPath* eCop)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::driveEnumInstanceNames()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -156,13 +162,19 @@ CMPIStatus CmpiInstanceMI::driveEnumInstanceNames(
         CmpiObjectPath cop((CMPIObjectPath*)eCop);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+        PEG_METHOD_EXIT();
         return imi->enumInstanceNames(ctx,rslt,cop).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s ", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -174,6 +186,9 @@ CMPIStatus CmpiInstanceMI::driveEnumInstances(
     const CMPIObjectPath* eCop,
     const char* *properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::driveEnumInstances()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -181,14 +196,20 @@ CMPIStatus CmpiInstanceMI::driveEnumInstances(
         CmpiObjectPath cop((CMPIObjectPath*)eCop);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+        PEG_METHOD_EXIT();
         return imi->enumInstances
             (ctx,rslt,cop,properties).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s ", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -200,6 +221,9 @@ CMPIStatus CmpiInstanceMI::driveGetInstance(
     const CMPIObjectPath* eCop,
     const char* *properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::driveGetInstance()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -207,14 +231,20 @@ CMPIStatus CmpiInstanceMI::driveGetInstance(
         CmpiObjectPath cop((CMPIObjectPath*)eCop);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+        PEG_METHOD_EXIT();
         return imi->getInstance
             (ctx,rslt,cop,properties).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -226,6 +256,9 @@ CMPIStatus CmpiInstanceMI::driveCreateInstance(
     const CMPIObjectPath* eCop,
     const CMPIInstance* eInst)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::driveCreateInstance()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -234,14 +267,20 @@ CMPIStatus CmpiInstanceMI::driveCreateInstance(
         CmpiInstance inst(eInst);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+        PEG_METHOD_EXIT();
         return imi->createInstance
             (ctx,rslt,cop,inst).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -251,9 +290,12 @@ CMPIStatus CmpiInstanceMI::driveSetInstance(
     const CMPIContext* eCtx,
     const CMPIResult* eRslt,
     const CMPIObjectPath* eCop,
-    const CMPIInstance* eInst, 
+    const CMPIInstance* eInst,
     const char* *properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::driveSetInstance()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -262,14 +304,20 @@ CMPIStatus CmpiInstanceMI::driveSetInstance(
         CmpiInstance inst(eInst);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+        PEG_METHOD_EXIT();
         return imi->setInstance
             (ctx,rslt,cop,inst,(const char**)properties).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -280,6 +328,9 @@ CMPIStatus CmpiInstanceMI::driveDeleteInstance(
     const CMPIResult* eRslt,
     const CMPIObjectPath* eCop)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::driveDeleteInstance()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -287,15 +338,20 @@ CMPIStatus CmpiInstanceMI::driveDeleteInstance(
         CmpiObjectPath cop((CMPIObjectPath*)eCop);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+        PEG_METHOD_EXIT();
         return imi->deleteInstance
             (ctx,rslt,cop).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
-
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -308,6 +364,9 @@ CMPIStatus CmpiInstanceMI::driveExecQuery(
     const char* language,
     const char* query)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::driveExecQuery()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -315,14 +374,20 @@ CMPIStatus CmpiInstanceMI::driveExecQuery(
         CmpiObjectPath cop((CMPIObjectPath*)eCop);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
+        PEG_METHOD_EXIT();
         return imi->execQuery
             (ctx,rslt,cop,language,query).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -344,6 +409,10 @@ CmpiStatus CmpiInstanceMI::enumInstanceNames(
     CmpiResult& rslt,
     const CmpiObjectPath& cop)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::enumInstanceNames()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -353,6 +422,10 @@ CmpiStatus CmpiInstanceMI::enumInstances(
     const CmpiObjectPath& cop,
     const char* *properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::enumInstance()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -362,6 +435,10 @@ CmpiStatus CmpiInstanceMI::getInstance(
     const CmpiObjectPath& cop,
     const char* *properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::getInstance()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -371,6 +448,10 @@ CmpiStatus CmpiInstanceMI::createInstance(
     const CmpiObjectPath& cop,
     const CmpiInstance& inst)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::createInstance()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -381,6 +462,10 @@ CmpiStatus CmpiInstanceMI::setInstance(
     const  CmpiInstance& inst,
     const char* *properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::setInstance()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -389,6 +474,10 @@ CmpiStatus CmpiInstanceMI::deleteInstance(
     CmpiResult& rslt,
     const CmpiObjectPath& cop)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiInstanceMI::deleteInstance()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -399,6 +488,8 @@ CmpiStatus CmpiInstanceMI::execQuery(
     const char* language,
     const char* query)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiInstanceMI::execQuery()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -420,6 +511,9 @@ CMPIStatus CmpiAssociationMI::driveAssociators(
     const char* resultRole,
     const char** properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::driveAssociators()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -427,6 +521,7 @@ CMPIStatus CmpiAssociationMI::driveAssociators(
         CmpiObjectPath cop((CMPIObjectPath*)eOp);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+        PEG_METHOD_EXIT();
         return ami->associators(
             ctx,
             rslt,
@@ -439,9 +534,14 @@ CMPIStatus CmpiAssociationMI::driveAssociators(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -456,6 +556,9 @@ CMPIStatus CmpiAssociationMI::driveAssociatorNames(
     const char* role,
     const char* resultRole)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::driveAssociatorNames()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -463,6 +566,7 @@ CMPIStatus CmpiAssociationMI::driveAssociatorNames(
         CmpiObjectPath cop((CMPIObjectPath*)eOp);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+        PEG_METHOD_EXIT();
         return ami->associatorNames(
             ctx,
             rslt,
@@ -474,9 +578,14 @@ CMPIStatus CmpiAssociationMI::driveAssociatorNames(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -490,6 +599,9 @@ CMPIStatus CmpiAssociationMI::driveReferences(
     const char* role,
     const char** properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::driveReferences()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -497,6 +609,7 @@ CMPIStatus CmpiAssociationMI::driveReferences(
         CmpiObjectPath cop((CMPIObjectPath*)eOp);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+        PEG_METHOD_EXIT();
         return ami->references(
             ctx,
             rslt,
@@ -507,9 +620,14 @@ CMPIStatus CmpiAssociationMI::driveReferences(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -522,6 +640,9 @@ CMPIStatus CmpiAssociationMI::driveReferenceNames(
     const char* resultClass,
     const char* role)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::driveReferenceNames()");
     try
     {
         CmpiContext ctx((CMPIContext*)eCtx);
@@ -529,6 +650,7 @@ CMPIStatus CmpiAssociationMI::driveReferenceNames(
         CmpiObjectPath cop((CMPIObjectPath*)eOp);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiAssociationMI* ami = dynamic_cast<CmpiAssociationMI*>(cmi);
+        PEG_METHOD_EXIT();
         return ami->referenceNames(
             ctx,
             rslt,
@@ -538,9 +660,14 @@ CMPIStatus CmpiAssociationMI::driveReferenceNames(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -569,6 +696,10 @@ CmpiStatus CmpiAssociationMI::associators(
     const char* resultRole,
     const char** properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::associators()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -581,6 +712,10 @@ CmpiStatus CmpiAssociationMI::associatorNames(
     const char* role,
     const char* resultRole)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::associatorNames()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -592,6 +727,10 @@ CmpiStatus CmpiAssociationMI::references(
     const char* role,
     const char** properties)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::references()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -602,6 +741,10 @@ CmpiStatus CmpiAssociationMI::referenceNames(
     const char* resultClass,
     const char* role)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiAssociationMI::referenceNames()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -621,6 +764,9 @@ CMPIStatus CmpiMethodMI::driveInvokeMethod(
     const CMPIArgs* eIn,
     CMPIArgs* eOut)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiMethodMI::driveInvokeMethod()");
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
@@ -630,14 +776,20 @@ CMPIStatus CmpiMethodMI::driveInvokeMethod(
         CmpiArgs out(eOut);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiMethodMI* mmi = dynamic_cast<CmpiMethodMI*>(cmi);
+        PEG_METHOD_EXIT();
         return mmi->invokeMethod
             (ctx,rslt,cop,methodName,in,out).status();
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -662,6 +814,10 @@ CmpiStatus CmpiMethodMI::invokeMethod(
     const CmpiArgs& in,
     CmpiArgs& out)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiMethodMI::invokeMethod()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -685,6 +841,9 @@ CMPIStatus CmpiPropertyMI::driveSetProperty(
     const char* name,
     CMPIData eData)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiPropertyMI::driveSetProperty()");
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
@@ -693,6 +852,7 @@ CMPIStatus CmpiPropertyMI::driveSetProperty(
         const CmpiData data(eData);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiPropertyMI* pmi = dynamic_cast<CmpiPropertyMI*>(cmi);
+        PEG_METHOD_EXIT();
         return pmi->setProperty(
             ctx,
             rslt,
@@ -702,9 +862,14 @@ CMPIStatus CmpiPropertyMI::driveSetProperty(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -716,6 +881,9 @@ CMPIStatus CmpiPropertyMI::driveGetProperty(
     const CMPIObjectPath* eCop,
     const char* name)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiPropertyMI::driveGetProperty()");
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
@@ -723,6 +891,7 @@ CMPIStatus CmpiPropertyMI::driveGetProperty(
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiPropertyMI* pmi = dynamic_cast<CmpiPropertyMI*>(cmi);
+        PEG_METHOD_EXIT();
         return pmi->getProperty(
             ctx,
             rslt,
@@ -731,9 +900,14 @@ CMPIStatus CmpiPropertyMI::driveGetProperty(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        PEG_METHOD_EXIT();
         return stat.status();
     }
 }
@@ -752,6 +926,10 @@ CmpiStatus CmpiPropertyMI::setProperty(
     const char* name,
     const CmpiData& data)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiPropertyMI::setProperty()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -761,6 +939,10 @@ CmpiStatus CmpiPropertyMI::getProperty(
     const CmpiObjectPath& op,
     const char* name)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiPropertyMI::getProperty()");
+    PEG_METHOD_EXIT();
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -784,7 +966,7 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
     const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
-    const CMPIObjectPath* eCop, 
+    const CMPIObjectPath* eCop,
     const char* user)
 {
     try
@@ -805,6 +987,10 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
@@ -837,6 +1023,10 @@ CMPIStatus CmpiIndicationMI::driveMustPoll(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
@@ -850,7 +1040,7 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
     const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
-    const CMPIObjectPath* eCop, 
+    const CMPIObjectPath* eCop,
     CMPIBoolean first)
 {
     try
@@ -871,6 +1061,10 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
@@ -884,7 +1078,7 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
-    const CMPIObjectPath* eCop, 
+    const CMPIObjectPath* eCop,
     CMPIBoolean last)
 {
     try
@@ -905,6 +1099,10 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
@@ -923,6 +1121,10 @@ void CmpiIndicationMI::driveEnableIndications(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
@@ -940,6 +1142,10 @@ void CmpiIndicationMI::driveDisableIndications(
     }
     catch (const CmpiStatus& stat)
     {
+        PEG_TRACE((
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "caught status : %d  %s", stat.rc(), stat.msg()));
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
@@ -1472,7 +1678,7 @@ CmpiData::operator CmpiDateTime() const
     {
         return CmpiDateTime(_data.value.dateTime);
     }
-        
+
 }
 
 CmpiData::operator CMPISint8() const
@@ -1485,7 +1691,7 @@ CmpiData::operator CMPISint8() const
     {
         return _data.value.sint8;
     }
-        
+
 }
 CmpiData::operator CMPISint16() const
 {
@@ -2419,7 +2625,7 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const
     {
         throw CmpiStatus(rc);
     }
-    if (name) 
+    if (name)
     {
         *name=CmpiString(s);
     }
@@ -2567,6 +2773,9 @@ CmpiEnumeration CmpiBroker::enumInstanceNames(
     const CmpiContext& ctx,
     const CmpiObjectPath& cop)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiBroker::enumInstanceNames()");
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPIEnumeration* en=getEnc()->bft->enumInstanceNames(
         getEnc(),
@@ -2577,6 +2786,7 @@ CmpiEnumeration CmpiBroker::enumInstanceNames(
     {
         throw CmpiStatus(rc);
     }
+    PEG_METHOD_EXIT();
     return CmpiEnumeration(en);
 }
 
@@ -2585,6 +2795,7 @@ CmpiInstance CmpiBroker::getInstance(
     const CmpiObjectPath& cop,
     const char** properties)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::getInstance()");
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPIInstance* ci=getEnc()->bft->getInstance(
         getEnc(),
@@ -2596,6 +2807,7 @@ CmpiInstance CmpiBroker::getInstance(
     {
         throw CmpiStatus(rc);
     }
+    PEG_METHOD_EXIT();
     return CmpiInstance(ci);
 }
 
@@ -2606,6 +2818,7 @@ CmpiObjectPath CmpiBroker::createInstance(
     const CmpiObjectPath& cop,
     const CmpiInstance& inst)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::createInstance()");
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPIObjectPath* co=getEnc()->bft->createInstance(
         getEnc(),
@@ -2617,6 +2830,7 @@ CmpiObjectPath CmpiBroker::createInstance(
     {
         throw CmpiStatus(rc);
     }
+    PEG_METHOD_EXIT();
     return CmpiObjectPath(co);
 }
 
@@ -2626,6 +2840,7 @@ void CmpiBroker::setInstance(
     const CmpiInstance& inst,
     const char** properties)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::setInstance()");
 #ifdef CMPI_VER_100
     CMPIStatus rc=getEnc()->bft->modifyInstance(
         getEnc(),
@@ -2645,12 +2860,14 @@ void CmpiBroker::setInstance(
     {
         throw CmpiStatus(rc);
     }
+    PEG_METHOD_EXIT();
 }
 
 void CmpiBroker::deleteInstance(
     const CmpiContext& ctx,
     const CmpiObjectPath& cop)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::deleteInstance()");
     CMPIStatus rc=getEnc()->bft->deleteInstance(
         getEnc(),
         ctx.getEnc(),
@@ -2659,6 +2876,7 @@ void CmpiBroker::deleteInstance(
     {
         throw CmpiStatus(rc);
     }
+    PEG_METHOD_EXIT();
 }
 
 CmpiEnumeration CmpiBroker::execQuery(
@@ -2667,6 +2885,8 @@ CmpiEnumeration CmpiBroker::execQuery(
     const char* query,
     const char* language)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::execQuery()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
 }
@@ -2677,6 +2897,7 @@ CmpiEnumeration CmpiBroker::enumInstances(
     const CmpiObjectPath& cop,
     const char** properties)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::enumInstance()");
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPIEnumeration* en=getEnc()->bft->enumInstances(
         getEnc(),
@@ -2688,6 +2909,7 @@ CmpiEnumeration CmpiBroker::enumInstances(
     {
         throw CmpiStatus(rc);
     }
+    PEG_METHOD_EXIT();
     return CmpiEnumeration(en);
 }
 
@@ -2700,6 +2922,8 @@ CmpiEnumeration CmpiBroker::associators(
     const char* resultRole,
     const char** properties)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::associators()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
 }
@@ -2712,6 +2936,10 @@ CmpiEnumeration CmpiBroker::associatorNames(
     const char* role,
     const char* resultRole)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CmpiBroker::associatorNames()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
 }
@@ -2723,6 +2951,8 @@ CmpiEnumeration CmpiBroker::references(
     const char* role,
     const char** properties)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::references()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
 }
@@ -2733,6 +2963,8 @@ CmpiEnumeration CmpiBroker::referenceNames(
     const char* resultClass,
     const char* role)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::referenceNames()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
     return NULL;
 }
@@ -2744,6 +2976,8 @@ CmpiData CmpiBroker::invokeMethod(
     const CmpiArgs& in,
     CmpiArgs& out)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::invokeMethod()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
     return CmpiData();
 }
@@ -2754,6 +2988,8 @@ void CmpiBroker::setProperty(
     const char* name,
     const CmpiData& data)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::setProperty()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
@@ -2762,6 +2998,8 @@ CmpiData CmpiBroker::getProperty(
     const CmpiObjectPath& cop,
     const char* name)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CmpiBroker::getProperty()");
+    PEG_METHOD_EXIT();
     throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
     return CmpiData();
 }
@@ -3119,7 +3357,7 @@ CmpiSelectExp::CmpiSelectExp()
 //--
 //---------------------------------------------------
 
-/** 
+/**
    Constructor from CMPI type.
 */
 CmpiDateTime::CmpiDateTime(const CMPIDateTime* newEnc)
@@ -3279,6 +3517,7 @@ CMPIBroker* CmpiProviderBase::getBroker()
 
 void CmpiProviderBase::setBroker(const CMPIBroker *mb)
 {
+
     if (mb)
     {
         __providerBaseBroker.hdl = mb->hdl;
@@ -3286,3 +3525,4 @@ void CmpiProviderBase::setBroker(const CMPIBroker *mb)
         __providerBaseBroker.eft = mb->eft;
     }
 }
+

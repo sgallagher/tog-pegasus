@@ -171,7 +171,11 @@ protected:
       Boolean _enableIndicationService;
 
    private:
+      void CIMOperationRequestDispatcher::_handleOperationMessage(
+          Message *request);
 
+      static ThreadReturnType PEGASUS_THREAD_CDECL _callMethodHandler(
+          void *parm);
 };
 
 PEGASUS_NAMESPACE_END

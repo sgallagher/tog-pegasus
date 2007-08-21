@@ -79,6 +79,11 @@ PEGASUS_USING_STD;
 #define TRC_WMI_MAPPER TRC_DISPATCHER
 #endif
 
+typedef struct threadParm
+{
+    Message* request;
+    CIMOperationRequestDispatcher* dispatcher;
+} ThreadParm_t;
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher( )
 //    CIMRepository* repository,
 //    ProviderRegistrationManager* providerRegistrationManager)
@@ -136,11 +141,22 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
     PEG_METHOD_EXIT();
 }
 
+ThreadReturnType PEGASUS_THREAD_CDECL 
+    CIMOperationRequestDispatcher::_callMethodHandler(void *parm)
+{
+    ThreadParm_t* myParms = reinterpret_cast<ThreadParm_t *>(parm);
+    myParms->dispatcher->_handleOperationMessage(myParms->request);
+    delete myParms;
 
-void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
+    return 0;
+}
+
+
+void CIMOperationRequestDispatcher::_handleOperationMessage(Message *request)
 {
     PEG_METHOD_ENTER(TRC_WMI_MAPPER,
-        "CIMOperationRequestDispatcher::handleEnqueue(Message *request)");
+        "CIMOperationRequestDispatcher::_handleOperationMessage("
+        "Message *request)");
 
     if(!request)
     {
@@ -279,18 +295,44 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
     PEG_METHOD_EXIT();
 }
 
+
+
 // allocate a CIM Operation_async,  opnode, context, and response handler
 // initialize with pointers to async top and async bottom
 // link to the waiting q
 void CIMOperationRequestDispatcher::handleEnqueue()
 {
     PEG_METHOD_ENTER(TRC_WMI_MAPPER,
-        "CIMOperationRequestDispatcher::handleEnqueue");
+        "CIMOperationRequestDispatcher::_handleOperationMessage");
 
     Message* request = dequeue();
 
     if(request)
         handleEnqueue(request);
+
+    PEG_METHOD_EXIT();
+}
+
+void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
+{
+    PEG_METHOD_ENTER(TRC_WMI_MAPPER,
+        "CIMOperationRequestDispatcher::handleEnqueue(Message *request)");
+
+    if(!request)
+    {
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    ThreadParm_t* myParm = new ThreadParm_t;
+
+    myParm->dispatcher = this;
+    myParm->request = request;
+
+    // allocate and run one thread for each request
+    MessageQueueService::get_thread_pool()->allocate_and_awaken(
+        myParm, 
+        _callMethodHandler);
 
     PEG_METHOD_EXIT();
 }

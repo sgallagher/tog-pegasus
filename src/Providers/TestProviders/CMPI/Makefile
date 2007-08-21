@@ -29,57 +29,46 @@
 #//
 #//==============================================================================
 
-ROOT = ../../..
+ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg
+    TestUtilLib \
+    TestMethod \
+    TestMethod/tests \
+    TestError \
+    TestError/tests \
+    TestProperty/tests \
+    TestFail_1 \
+    TestFail_1/tests \
+    TestFail_2 \
+    TestFail_2/tests\
+    TestFail_3 \
+    TestFail_3/tests \
+    TestFail_4 \
+    TestFail_4/tests \
+    TestProviderThreaded \
+    TestProviderThreaded/tests \
+    TestAssociation \
+    TestAssociation/tests \
+    TestIndicationStressTestProvider \
+    TestIndicationStressTestProvider/tests \
+    TestCMPIEnumeration \
+    TestCMPIEnumeration/tests \
+    TestCMPIBrokerEnc \
+    TestCMPIBrokerEnc/tests
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+ifndef PEGASUS_DISABLE_CQL
 DIRS += \
-	TestServerProfileProviders
+    TestIndications \
+    TestIndications/tests
+
+ifdef PEGASUS_ENABLE_EXECQUERY
+DIRS += \
+    TestExecQuery \
+    TestExecQuery/tests
 endif
-
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
-DIRS += \
-	EmbeddedInstanceProvider \
-	EmbeddedInstanceProvider/testClient
-endif
-
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI
 endif
 
 include $(ROOT)/mak/recurse.mak

@@ -30,6 +30,7 @@
 //==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
+// NOCHKSRC
 
 #include "CertificateProvider.h"
 
@@ -349,6 +350,9 @@ _sslContextMgr(sslContextMgr)
         configManager->getCurrentValue("enableAuthentication"));
 
     _sslTrustStore = ConfigManager::getHomedPath(configManager->getCurrentValue("sslTrustStore"));
+
+    _sslClientVerificationNotDisabled = (configManager->getCurrentValue(
+        "sslClientVerificationMode") != "disabled");
 
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     _crlStore = ConfigManager::getHomedPath(configManager->getCurrentValue("crlStore"));
@@ -1144,10 +1148,13 @@ void CertificateProvider::deleteInstance(
             {
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Successfully deleted CRL file " + crlFileName);
 
-                //
-                // reload the CRL store to refresh the cache
-                //
-                _sslContextMgr->reloadCRLStore();
+                if (_sslClientVerificationNotDisabled)
+                {
+                    //
+                    // reload the CRL store to refresh the cache
+                    //
+                    _sslContextMgr->reloadCRLStore();
+                }
 
                 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                             "The CRL from issuer $0 has been deleted.",
@@ -1324,20 +1331,23 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
     //
     // Request SSLContextManager to delete the certificate from the cache
     //
-    try
+    if (_sslClientVerificationNotDisabled)
     {
-        _sslContextMgr->reloadTrustStore();
-    }
-    catch (SSLException& ex)
-    {
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
-           "Trust store reload failed, " + ex.getMessage());
+        try
+        {
+            _sslContextMgr->reloadTrustStore();
+        }
+        catch (SSLException& ex)
+        {
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+               "Trust store reload failed, " + ex.getMessage());
 
-        MessageLoaderParms parms(
-            "ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED",
-            "Trust store reload failed, certificate deletion will" 
-            " not be effective until cimserver restart.");
+            MessageLoaderParms parms(
+                "ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED",
+                "Trust store reload failed, certificate deletion will" 
+                " not be effective until cimserver restart.");
                 throw CIMException(CIM_ERR_FAILED, parms);
+        }
     }
 }
 
@@ -1935,9 +1945,12 @@ void CertificateProvider::invokeMethod(
                         "The CRL for issuer $1 has been updated.", 
                         issuerName);
 
-			//reload the CRL store
-			PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "Loading CRL store after an update");
-            _sslContextMgr->reloadCRLStore();
+            if (_sslClientVerificationNotDisabled)
+            {
+                //reload the CRL store
+                PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "Loading CRL store after an update");
+                _sslContextMgr->reloadCRLStore();
+            }
 
             CIMValue returnValue(Boolean(true));
     

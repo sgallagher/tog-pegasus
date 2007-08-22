@@ -574,6 +574,10 @@ endif
 ##         otherwise it will prompt for one. As a work around,
 ##         we are providing a dummy password. 
 ##
+##         The IPv4-mapped IPv6 address test is only enabled for unix
+##         platforms as Windows does not support IPv4-mapped IPv6 addresses
+##         on certain versions. 
+##
 ###############################################################################
 SSL_IPV6_TS1_CONFIG_OPTIONS = enableHttpsConnection=true 
 SSL_IPV6_TS1_CMD_1 = \
@@ -587,9 +591,11 @@ ifdef PEGASUS_HAS_SSL
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(SSL_IPV6_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(SSL_IPV6_TS1_CMD_1)"
+      ifeq ($(OS_TYPE), unix)
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(SSL_IPV6_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(SSL_IPV6_TS1_CMD_2)"
+      endif
     else
 	@ $(ECHO) "+++++ PEGASUS_TEST_IPV6 not defined: Skipping run_SSL_IPV6_TS1"
     endif

@@ -156,12 +156,12 @@ SSLSocket::~SSLSocket()
 }
 
 
-Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
+Boolean SSLSocket::incompleteSecureReadOccurred(Sint32 retCode)
 {
     Sint32 err = SSL_get_error(_SSLConnection, retCode);
 
-    PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-        "In SSLSocket::incompleteReadOccurred : err = %d", err));
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+        "In SSLSocket::incompleteSecureReadOccurred : err = %d", err));
 
     return ((err == SSL_ERROR_SYSCALL) &&
             (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
@@ -558,11 +558,11 @@ MP_Socket::~MP_Socket()
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
-Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
+Boolean MP_Socket::incompleteSecureReadOccurred(Sint32 retCode)
 {
     if (_isSecure)
-        return _sslsock->incompleteReadOccurred(retCode);
-    return (retCode <=  0);
+        return _sslsock->incompleteSecureReadOccurred(retCode);
+    return false;
 }
 
 SocketHandle MP_Socket::getSocket()
@@ -686,9 +686,9 @@ MP_Socket::~MP_Socket() {}
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
-Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
+Boolean MP_Socket::incompleteSecureReadOccurred(Sint32 retCode)
 {
-   return (retCode <= 0);
+    return false;
 }
 
 SocketHandle MP_Socket::getSocket()

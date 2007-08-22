@@ -103,6 +103,7 @@ usage2: FORCE
 	$(USAGE)"serversuite             - the collection of test run by the servertests rule"
 	$(USAGE)"run_STRESS_TS1          - Executes the stresstests"
 	$(USAGE)"slptests                - Executes the slptests"
+	$(USAGE)"run_Cmpi_Sub            - Executes the CMPI subscription tests" 
 	$(USAGE)
 
 
@@ -303,6 +304,9 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SDK_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_ExportClientSSL_TS1
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cmpi_Sub
+endif
 
 #####################
 #
@@ -754,7 +758,30 @@ run_Cimsub_InterOp: FORCE
 ###############################################################################
 
 ###############################################################################
-
+## CMPI subscription activation Test Suite 1:
+##
+## Configuration Options: (none)
+##
+###############################################################################
+CMPI_SUB_TEST_CONFIG_OPTIONS=
+CMPI_SUBa_TEST_CMDS = \
+	TestIndicationStressTest TestCMPI_IndicationStressTestClass test/TestProvider setup WQL
+CMPI_SUBb_TEST_CMDS = \
+	TestIndicationStressTest TestCMPI_IndicationStressTestClass test/TestProvider getSubscriptionCount
+CMPI_SUBc_TEST_CMDS =  \
+	TestIndicationStressTest TestCMPI_IndicationStressTestClass test/TestProvider cleanup
+run_Cmpi_Sub: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(CMPI_SUB_TEST_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(CMPI_SUBa_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(CMPI_SUB_TEST_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(CMPI_SUBb_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(CMPI_SUB_TEST_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(CMPI_SUBc_TEST_CMDS)"
+ 
+##############################################################################
 
 
 ##############################################################################

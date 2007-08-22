@@ -365,44 +365,44 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIInstance"
         " : (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CDGetType (_broker, objPath, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIObjectPath:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     cmpiStr = CMNewString(_broker, "Test1", & rc);
     type = CDGetType (_broker, cmpiStr, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIString:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CDGetType (_broker, _broker, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIBroker:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     cmpiArray = CMNewArray(_broker, cmpiCnt,cmpiType, &rc);
     type = CDGetType (_broker, cmpiArray, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIArray:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CDGetType (_broker, cmpiDateTime, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIDateTime:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
     type = CDGetType (_broker, ctx, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIContext:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     new_ctx = CBPrepareAttachThread(_broker, ctx);
 
@@ -410,13 +410,13 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIContext with "
         "CMPI_Context_Ftab: (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CDGetType (_broker, rslt, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIResult:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     rc1 = NULL;
     selExp = CMNewSelectExp(_broker,
@@ -437,7 +437,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPISelectExp:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     rc = CMRelease(objPath1);
     PROV_LOG ("++++ Status of CMRelease(objPath1): (%s)",
@@ -460,13 +460,13 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIEnumeration:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CDGetType (_broker, args, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIArgs:"
         " (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
 
     PROV_LOG ("++++ Calling mbEncIsOfType function ");
@@ -682,58 +682,58 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     type = CMGetMessage (_broker,
         "msgid",
         "Test 0 arguments",
-        NULL,
+        &rc,
         0);
     PROV_LOG ("++++ Status of GetMessage with 0 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0",
-        NULL,
+        &rc,
         CMFmtArgs1(CMFmtChars("one argument")));
     PROV_LOG ("++++ Status of GetMessage with 1 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1",
-        NULL,
+        &rc,
         CMFmtArgs2(CMFmtChars("Sint32 ::"),
             CMFmtSint(-1)));
     PROV_LOG ("++++ Status of GetMessage with 2 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1, $2",
-        NULL,
+        &rc,
         CMFmtArgs3(CMFmtChars("Sint32, Uint32 ::"),
             CMFmtSint(-1),
             CMFmtUint(1)));
     PROV_LOG ("++++ Status of GetMessage with 3 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1, $2, $3",
-        NULL,
+        &rc,
         CMFmtArgs4(CMFmtChars("Sint32, Uint32, Sint64 ::"),
             CMFmtSint(-1),
             CMFmtUint(1),
             CMFmtSint64(-64)));
     PROV_LOG ("++++ Status of GetMessage with 4 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1, $2, $3, $4",
-        NULL,
+        &rc,
         CMFmtArgs5(CMFmtChars("Sint32, Uint32, Sint64, Uint64 ::"),
             CMFmtSint(-1),
             CMFmtUint(1),
@@ -741,12 +741,12 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtUint64(64)));
     PROV_LOG ("++++ Status of GetMessage with 5 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1, $2, $3, $4, $5",
-        NULL,
+        &rc,
         CMFmtArgs6(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64 ::"),
             CMFmtSint(-1),
             CMFmtUint(1),
@@ -755,12 +755,12 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtReal(64.64)));
     PROV_LOG ("++++ Status of GetMessage with 6 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1, $2, $3, $4, $5, $6",
-        NULL,
+        &rc,
         CMFmtArgs7(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64,"
             " Boolean:: "),
             CMFmtSint(-1),
@@ -771,12 +771,12 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtBoolean(1)));
     PROV_LOG ("++++ Status of GetMessage with 7 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1, $2, $3, $4, $5, $6, $7",
-        NULL,
+        &rc,
         CMFmtArgs8(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64,"
             " Boolean, chars:: "),
             CMFmtSint(-1),
@@ -788,12 +788,12 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtChars("chars")));
     PROV_LOG ("++++ Status of GetMessage with 8 arguments(%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage (_broker,
         "msgid",
         "Test $0 $1, $2, $3, $4, $5, $6, $7, $8",
-        NULL,
+        &rc,
         CMFmtArgs9(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64,"
             " Boolean, chars, String :: "),
             CMFmtSint(-1),
@@ -806,7 +806,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtString(cmpiStr)));
     PROV_LOG ("++++ Status of GetMessage with 9 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     strcpy(path,"path");
     rc = CMOpenMessageFile(_broker, path, &msgFileHandle);
@@ -817,62 +817,62 @@ static int _testBrokerEnc (const CMPIContext * ctx,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test zero arguments",
-        NULL,
+        &rc,
         0);
     PROV_LOG ("++++ Status of GetMessage2 with 0 argument (%s) type (%s)",
             strCMPIStatus (rc),
-            CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
    
     type = CMGetMessage2(_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0",
-        NULL,
+        &rc,
         CMFmtArgs1(CMFmtChars("Single argument")));
     PROV_LOG ("++++ Status of GetMessage2 with 1 argument (%s) type (%s)",
             strCMPIStatus (rc),
-            CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
    
     type = CMGetMessage2(_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1",
-        NULL,
+        &rc,
         CMFmtArgs2(CMFmtChars("Sint32 ::"),CMFmtSint(1)));
     PROV_LOG ("++++ Status of GetMessage2 with 2 arguments (%s) type (%s)",
             strCMPIStatus (rc),
-            CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
    
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1, $2",
-        NULL,
+        &rc,
         CMFmtArgs3(CMFmtChars("Sint32, Uint32 :: "),
             CMFmtSint(-1),
             CMFmtUint(1)));
     PROV_LOG ("++++ Status of GetMessage2 with 3 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1, $2, $3",
-        NULL,
+        &rc,
         CMFmtArgs4(CMFmtChars("Sint32, Uint32, Sint64 :: "),
             CMFmtSint(-1),
             CMFmtUint(1),
             CMFmtSint64(-64)));
     PROV_LOG ("++++ Status of GetMessage2 with 4 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1, $2, $3, $4",
-        NULL,
+        &rc,
         CMFmtArgs5(CMFmtChars("Sint32, Uint32, Sint64, Uint64 :: "),
             CMFmtSint(-1),
             CMFmtUint(1),
@@ -880,13 +880,13 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtUint64(64)));
     PROV_LOG ("++++ Status of GetMessage2 with 5 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1, $2, $3, $4, $5",
-        NULL,
+        &rc,
         CMFmtArgs6(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64 :: "),
             CMFmtSint(-1),
             CMFmtUint(1),
@@ -895,13 +895,13 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtReal(64.64)));
     PROV_LOG ("++++ Status of GetMessage2 with 6 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1, $2, $3, $4, $5, $6",
-        NULL,
+        &rc,
         CMFmtArgs7(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64,"
             " Boolean :: "),
             CMFmtSint(-1),
@@ -912,13 +912,13 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtBoolean(1)));
     PROV_LOG ("++++ Status of GetMessage2 with 7 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1, $2, $3, $4, $5, $6, $7",
-        NULL,
+        &rc,
         CMFmtArgs8(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64,"
             " Boolean, chars :: "),
             CMFmtSint(-1),
@@ -930,13 +930,13 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtChars("chars")));
     PROV_LOG ("++++ Status of GetMessage2 with 8 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
         "Test $0 $1, $2, $3, $4, $5, $6, $7, $8",
-        NULL,
+        &rc,
         CMFmtArgs9(CMFmtChars("Sint32, Uint32, Sint64, Uint64, Real64,"
             " Boolean, chars, String :: "),
             CMFmtSint(-1),
@@ -949,7 +949,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             CMFmtString(cmpiStr)));
     PROV_LOG ("++++ Status of GetMessage2 with 9 arguments (%s) type (%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     rc = CMCloseMessageFile(_broker, msgFileHandle);
     PROV_LOG ("++++ Status of CMCloseMessageFile (%s) ",

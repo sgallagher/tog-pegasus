@@ -4535,6 +4535,9 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS12567:
         *    Substitution {0} is a user name (a string)
         *    Do not translate 'READ', 'CIMSERV CL(WBEM)' as it are RACF names
+        *
+        *    This message is no longer used as of version 2.7
+        * @version 2.6
         */
         Pegasus.Common.SocketzOS_inline.NOREAD_CIMSERV_ACCESS:string {"PGS12567W: Request UserID {0} doesn't have READ permission to profile CIMSERV CL(WBEM)."}
 
@@ -4616,6 +4619,23 @@ CIM server listening on HTTPS port {0}."}
          * @version 2.7
          */
      Pegasus.Server.HTTPAuthenticatorDelegator.CERTIFICATE_USER_NOT_VALID:string{"PGS13005:  The user ''{0}'' registered to this certificate is not a valid user."}
+
+        /**
+        * @note  PGS13006:
+        *    Substitution {0} is a user name (a string)
+        *    Do not translate 'READ', 'CIMSERV CL(WBEM)' as it are RACF names
+        * @version 2.7
+        */
+        Pegasus.Server.HTTPAuthenticatorDelegator.ATTLS_NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS:string {"PGS13006: Request UserID {0} doesn't have READ permission to profile CIMSERV CL(WBEM)."}
+
+        /**
+        * @note  PGS13007:
+        *    Substitution {0} is a user name (a string)
+        *    Do not translate 'READ', 'CIMSERV CL(WBEM)' as it are RACF names
+        * @version 2.7
+        */
+        Pegasus.Server.HTTPAuthenticatorDelegator.UNIXSOCKET_NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS:string {"PGS13007: Request UserID {0} doesn't have READ permission to profile CIMSERV CL(WBEM)."}
+
 
 
     // ==========================================================

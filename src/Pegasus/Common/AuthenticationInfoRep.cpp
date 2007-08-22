@@ -41,6 +41,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 const String AuthenticationInfoRep::AUTH_TYPE_SSL = "SSL";
+const String AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET = "LDS";
+const String AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS = "ATTLS";
 
 AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     : _connectionAuthenticated(false),
@@ -70,6 +72,26 @@ void AuthenticationInfoRep::setConnectionAuthenticated(
 
     PEG_METHOD_EXIT();
 }
+
+#ifdef PEGASUS_OS_ZOS
+
+    // The connection user is for z/OS only.
+    // On z/OS Unix Local Domain Sockets and sockets
+    // protected by AT-TLS are able to get the user ID of
+    // the connected user.
+    // This information is needed for later authentication 
+    //  steps.
+
+void AuthenticationInfoRep::setConnectionUser(const String& userName)
+{
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setConnectionUser()");
+
+    _connectionUser = userName;
+
+    PEG_METHOD_EXIT();
+}
+#endif
 
 void AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
 {

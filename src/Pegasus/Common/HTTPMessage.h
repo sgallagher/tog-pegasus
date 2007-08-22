@@ -109,6 +109,17 @@ public:
         Uint32& statusCode,
         String& reasonPhrase);
 
+    static Boolean parseLocalAuthHeader(
+        const String& authHeader,
+        String& authType,
+        String& userName,
+        String& cookie);
+
+    static Boolean parseHttpAuthHeader(
+        const String& authHeader,
+        String& authType,
+        String& cookie);
+
     /**
         Advances a given pointer to the first character that is not
         HTTP header whitespace (space or tabs).

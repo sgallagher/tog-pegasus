@@ -35,6 +35,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/HTTPMessage.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -136,7 +137,7 @@ Boolean AuthenticationManager::performHttpAuthentication(
     //
     // Parse the HTTP authentication header for authentication information
     //
-    if ( !_parseHttpAuthHeader(authHeader, authType, cookie) )
+    if ( !HTTPMessage::parseHttpAuthHeader(authHeader, authType, cookie) )
     {
         PEG_METHOD_EXIT();
         return false;
@@ -196,7 +197,8 @@ Boolean AuthenticationManager::performPegasusAuthentication(
     //
     // Parse the pegasus authentication header authentication information
     //
-    if ( !_parseLocalAuthHeader(authHeader, authType, userName, cookie) )
+    if ( !HTTPMessage::parseLocalAuthHeader(authHeader,
+              authType, userName, cookie) )
     {
         PEG_METHOD_EXIT();
         return false;
@@ -246,7 +248,8 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
     //
     // Parse the pegasus authentication header authentication information
     //
-    if ( !_parseLocalAuthHeader(authHeader, authType, userName, cookie) )
+    if ( !HTTPMessage::parseLocalAuthHeader(authHeader, 
+              authType, userName, cookie) )
     {
         PEG_METHOD_EXIT();
         return respHeader;
@@ -295,101 +298,6 @@ String AuthenticationManager::getHttpAuthResponseHeader()
     return respHeader;
 }
 
-//
-// parse the local authentication header
-//
-Boolean AuthenticationManager::_parseLocalAuthHeader(
-    const String& authHeader,
-    String& authType,
-    String& userName,
-    String& cookie)
-{
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationManager::_parseLocalAuthHeader()");
-
-    //
-    // Extract the authentication type:
-    //
-    Uint32 space = authHeader.find(' ');
-
-    if ( space == PEG_NOT_FOUND )
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    authType = authHeader.subString(0, space);
-
-    Uint32 startQuote = authHeader.find(space, '"');
-
-    if ( startQuote == PEG_NOT_FOUND )
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    Uint32 endQuote = authHeader.find(startQuote + 1, '"');
-
-    if ( endQuote == PEG_NOT_FOUND )
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    String temp = authHeader.subString(
-        startQuote + 1, (endQuote - startQuote - 1));
-
-    //
-    // Extract the user name and cookie:
-    //
-    Uint32 colon = temp.find(0, ':');
-
-    if ( colon == PEG_NOT_FOUND )
-    {
-        userName = temp;
-    }
-    else
-    {
-        userName = temp.subString(0, colon);
-        cookie = temp;
-    }
-
-    PEG_METHOD_EXIT();
-
-    return true;
-}
-
-//
-// parse the HTTP authentication header
-//
-Boolean AuthenticationManager::_parseHttpAuthHeader(
-    const String& authHeader, String& authType, String& cookie)
-{
-    PEG_METHOD_ENTER(
-        TRC_AUTHENTICATION, "AuthenticationManager::_parseHttpAuthHeader()");
-
-    //
-    // Extract the authentication type:
-    //
-    Uint32 space = authHeader.find(' ');
-
-    if ( space == PEG_NOT_FOUND )
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    authType = authHeader.subString(0, space);
-
-    //
-    // Extract the cookie:
-    //
-    cookie = authHeader.subString(space + 1);
-
-    PEG_METHOD_EXIT();
-
-    return true;
-}
 //
 // Get local authentication handler
 //

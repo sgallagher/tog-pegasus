@@ -794,6 +794,11 @@ Sint32 MP_Socket::accept()
     }
     else
     {
+        // ********************************************************************
+        // If the socket is a UNIX Domain socket on z/OS, the local security
+        // credentials are read form the socket.
+        // ********************************************************************
+        LocalSocket_zOS_query();
         PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "---> Normal HTTP processing.");
         rc = 1;

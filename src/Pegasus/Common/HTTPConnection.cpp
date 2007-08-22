@@ -213,10 +213,10 @@ HTTPConnection::HTTPConnection(
     _socket->disableBlocking();
     _authInfo.reset(new AuthenticationInfo(true));
 
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     // Add SSL verification information to the authentication information
     if (_socket->isSecure())
     {
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
         if (_socket->isPeerVerificationEnabled() &&
             _socket->isCertificateVerified())
         {
@@ -225,15 +225,15 @@ HTTPConnection::HTTPConnection(
             _authInfo->setClientCertificateChain(
                 _socket->getPeerCertificateChain());
         }
+    }
 #else
         if (_socket->isClientAuthenticated())
         {
+            _authInfo->setAuthType(_socket->getAuthType());
             _authInfo->setConnectionAuthenticated(true);
-            _authInfo->setAuthenticatedUser(_socket->getAuthenticatedUser());
+            _authInfo->setConnectionUser(_socket->getAuthenticatedUser());
         }
 #endif
-
-    }
 
     _responsePending = false;
     _connectionRequestCount = 0;
@@ -1885,10 +1885,10 @@ void HTTPConnection::_handleReadEvent()
         }
         else
         {
-            // Add SSL verification information to the authentication info
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        // Add SSL verification information to the authentication information
             if (_socket->isSecure())
             {
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
                 if (_socket->isPeerVerificationEnabled() &&
                     _socket->isCertificateVerified())
                 {
@@ -1898,15 +1898,15 @@ void HTTPConnection::_handleReadEvent()
                     _authInfo->setClientCertificateChain(
                         _socket->getPeerCertificateChain());
                 }
-#else
-                if (_socket->isClientAuthenticated())
-                {
-                    _authInfo->setConnectionAuthenticated(true);
-                    _authInfo->setAuthenticatedUser(
-                        _socket->getAuthenticatedUser());
-                }
-#endif
             }
+#else
+            if (_socket->isClientAuthenticated())
+            {
+                _authInfo->setAuthType(_socket->getAuthType());
+                _authInfo->setConnectionAuthenticated(true);
+                _authInfo->setConnectionUser(_socket->getAuthenticatedUser());
+            }
+#endif
 
             // Go back to the select() and wait for data on the connection
             _acceptPending = false;

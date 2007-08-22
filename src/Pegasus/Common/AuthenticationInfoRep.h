@@ -63,6 +63,8 @@ public:
     //We also need to be able to check whether the type is SSL, so I'm adding a
     //string here to make it less arbitrary.  PEP165
     static const String AUTH_TYPE_SSL;
+    static const String AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
+    static const String AUTH_TYPE_ZOS_ATTLS;
 
     AuthenticationInfoRep(Boolean flag);
 
@@ -76,6 +78,24 @@ public:
     }
 
     void   setAuthenticatedUser(const String& userName);
+
+#ifdef PEGASUS_OS_ZOS
+
+    // The connection user is for z/OS only.
+    // On z/OS Unix Local Domain Sockets and sockets
+    // protected by AT-TLS are able to get the user ID of
+    // the connected user.
+    // This information is needed for later authentication 
+    //  steps.
+
+    String getConnectionUser() const
+    {
+        return _connectionUser;
+    }
+
+    void   setConnectionUser(const String& userName);
+
+#endif
 
     String getAuthenticatedPassword() const
     {
@@ -160,6 +180,9 @@ private:
     String  _authPassword;
     String  _localAuthSecret;
     String  _localAuthFilePath;
+#ifdef PEGASUS_OS_ZOS
+    String  _connectionUser;
+#endif
     String  _authType;
     Boolean _connectionAuthenticated;
     String  _ipAddress;

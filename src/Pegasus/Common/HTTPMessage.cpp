@@ -520,4 +520,98 @@ Boolean HTTPMessage::isSupportedContentType(const String& cimContentType)
     return !*str;
 }
 
+//
+// parse the local authentication header
+//
+Boolean HTTPMessage::parseLocalAuthHeader(
+    const String& authHeader,
+    String& authType,
+    String& userName,
+    String& cookie)
+{
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPMessage::parseLocalAuthHeader()");
+
+    //
+    // Extract the authentication type:
+    //
+    Uint32 space = authHeader.find(' ');
+
+    if ( space == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    authType = authHeader.subString(0, space);
+
+    Uint32 startQuote = authHeader.find(space, '"');
+
+    if ( startQuote == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    Uint32 endQuote = authHeader.find(startQuote + 1, '"');
+
+    if ( endQuote == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    String temp = authHeader.subString(
+        startQuote + 1, (endQuote - startQuote - 1));
+
+    //
+    // Extract the user name and cookie:
+    //
+    Uint32 colon = temp.find(0, ':');
+
+    if ( colon == PEG_NOT_FOUND )
+    {
+        userName = temp;
+    }
+    else
+    {
+        userName = temp.subString(0, colon);
+        cookie = temp;
+    }
+
+    PEG_METHOD_EXIT();
+
+    return true;
+}
+
+//
+// parse the HTTP authentication header
+//
+Boolean HTTPMessage::parseHttpAuthHeader(
+    const String& authHeader, String& authTypeString, String& cookie)
+{
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPMessage::parseHttpAuthHeader()");
+
+    //
+    // Extract the authentication type:
+    //
+    Uint32 space = authHeader.find(' ');
+
+    if ( space == PEG_NOT_FOUND )
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    authTypeString = authHeader.subString(0, space);
+
+    //
+    // Extract the cookie:
+    //
+    cookie = authHeader.subString(space + 1);
+
+    PEG_METHOD_EXIT();
+
+    return true;
+}
+
 PEGASUS_NAMESPACE_END

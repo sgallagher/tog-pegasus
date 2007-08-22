@@ -165,6 +165,37 @@ public:
         _rep->setAuthenticatedUser(userName);
     }
 
+#ifdef PEGASUS_OS_ZOS
+
+    /** The connection user is for z/OS only.
+        On z/OS Unix Local Domain Sockets and sockets
+        protected by AT-TLS are able to get the user ID of
+        the connected user.
+        This information is needed for later authentication 
+        steps.
+     */
+
+    /** Get the connection user name
+        @return the connection user name
+    */
+    String getConnectionUser() const
+    {
+        _checkRep();
+        return _rep->getConnectionUser();
+    }
+
+    /** Sets the connection user name
+        @param userName - string containing the user name 
+                           provided by the connection
+    */
+    void   setConnectionUser(const String& userName)
+    {
+        _checkRep();
+        _rep->setConnectionUser(userName);
+    }
+
+#endif
+
     /** Get the previously authenticated password
         @return the authenticated password
     */

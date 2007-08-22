@@ -179,7 +179,10 @@ public:
 #ifdef PEGASUS_OS_ZOS
     // Return the authenicated user name
     String getAuthenticatedUser() { return String(_username); }
+    // Is the client authenticated ?
     Boolean isClientAuthenticated() { return _userAuthenticated; }
+    // What was type of authentication ?
+    String getAuthType() { return _authType; }
 #endif
 
     union {
@@ -192,13 +195,20 @@ private:
     Uint32    _socketWriteTimeout;
 
 #ifdef PEGASUS_OS_ZOS
-
+    // Query a AT-TLS secured socket for the authenticated 
+    // client userID.
     int ATTLS_zOS_query();
-    // The user name if authenticated through ATTLS.
+
+    // Query a UNIX Domain socket (local socket) for
+    // the connected client userID.
+    int LocalSocket_zOS_query();
+
+    // The user name if authenticated.
     char _username[10];
-    // The client IP address for audit logging.
-    String _clientIPAddress;
+    // Was a user authenticated ?
     Boolean _userAuthenticated;
+    // Was it AT-TLS or UNIX Domain authentication ?
+    String _authType;
 #endif
 
 };

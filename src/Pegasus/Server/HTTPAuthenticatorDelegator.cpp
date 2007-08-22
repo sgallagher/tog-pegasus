@@ -48,6 +48,16 @@
 # include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
 #endif
 
+#ifdef PEGASUS_ZOS_SECURITY
+// This include file will not be provided in the OpenGroup CVS for now.
+// Do NOT try to include it in your compile
+#include <Pegasus/Common/safCheckzOS_inline.h>
+#endif
+
+#ifdef PEGASUS_OS_ZOS
+#include <sys/ps.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -258,6 +268,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     String connectClose;
     Boolean closeConnect = false;
 
+    //
+    // Process M-POST and POST messages:
+    //
+
+    PEG_LOGGER_TRACE((
+        Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "HTTPAuthenticatorDelegator - HTTP processing start"));
+
+
     httpMessage->parse(startLine, headers, contentLength);
 
     //
@@ -276,10 +295,121 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     }
 
     //
+    // Check and set languages
+    //
+    AcceptLanguageList acceptLanguages;
+    ContentLanguageList contentLanguages;
+    try
+    {
+        // Get and validate the Accept-Language header, if set
+        String acceptLanguageHeader;
+        if (HTTPMessage::lookupHeader(
+                headers,
+                _HTTP_HEADER_ACCEPT_LANGUAGE,
+                acceptLanguageHeader,
+                false))
+        {
+            acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
+                acceptLanguageHeader);
+            httpMessage->acceptLanguagesDecoded = true;
+        }
+
+        // Get and validate the Content-Language header, if set
+        String contentLanguageHeader;
+        if (HTTPMessage::lookupHeader(
+                headers,
+                _HTTP_HEADER_CONTENT_LANGUAGE,
+                contentLanguageHeader,
+                false))
+        {
+            contentLanguages = LanguageParser::parseContentLanguageHeader(
+                contentLanguageHeader);
+            httpMessage->contentLanguagesDecoded = true;
+        }
+    }
+    catch (Exception& e)
+    {
+        // clear any existing languages to force messages to come from the
+        // root bundle
+        Thread::clearLanguages();
+        MessageLoaderParms msgParms(
+            "Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID",
+            "request-not-valid");
+        String msg(MessageLoader::getMessage(msgParms));
+
+        _sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            msg,
+            e.getMessage(),
+            closeConnect);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    Thread::setLanguages(new AcceptLanguageList(acceptLanguages));
+    httpMessage->acceptLanguages = acceptLanguages;
+    httpMessage->contentLanguages = contentLanguages;
+
+    //
+    // Parse the request line:
+    //
+    String methodName;
+    String requestUri;
+    String httpVersion;
+    HttpMethod httpMethod = HTTP_METHOD__POST;
+
+    HTTPMessage::parseRequestLine(
+        startLine, methodName, requestUri, httpVersion);
+
+    //
+    //  Set HTTP method for the request
+    //
+    if (methodName == _HTTP_METHOD_MPOST)
+    {
+        httpMethod = HTTP_METHOD_M_POST;
+    }
+
+    if (methodName != _HTTP_METHOD_MPOST && methodName != _HTTP_METHOD)
+    {
+        // Only POST and M-POST are implemented by this server
+        _sendHttpError(
+            queueId,
+            HTTP_STATUS_NOTIMPLEMENTED,
+            String::EMPTY,
+            String::EMPTY,
+            closeConnect);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    if ((httpMethod == HTTP_METHOD_M_POST) &&
+             (httpVersion == _HTTP_VERSION_1_0))
+    {
+        //
+        //  M-POST method is not valid with version 1.0
+        //
+        _sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            String::EMPTY,
+            String::EMPTY,
+            closeConnect);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    PEG_LOGGER_TRACE((
+        Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "HTTPAuthenticatorDelegator - Authentication processing start"));
+
+    //
     // Handle authentication:
     //
     ConfigManager* configManager = ConfigManager::getInstance();
-    Boolean enableAuthentication = false;
+    Boolean enableAuthentication = 
+        ConfigManager::parseBooleanValue(configManager->getCurrentValue(
+            _CONFIG_PARAM_ENABLEAUTHENTICATION));
 
     Boolean isRequestAuthenticated = 
         httpMessage->authInfo->isConnectionAuthenticated();
@@ -299,10 +429,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     }
 #endif
 
-    if (ConfigManager::parseBooleanValue(configManager->getCurrentValue(
-            _CONFIG_PARAM_ENABLEAUTHENTICATION)))
+    if (enableAuthentication)
     {
-        enableAuthentication = true;
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
         // If we are using Kerberos (sa pointer is set), the client has
         // already authenticated, and the client is NOT attempting to
@@ -317,7 +446,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             isRequestAuthenticated = true;
         }
 #endif
-
+        if (isRequestAuthenticated)
+        {
+            if (httpMessage->authInfo->getAuthType()== 
+                    AuthenticationInfoRep::AUTH_TYPE_SSL)
+            {
         // Get the user name associated with the certificate (using the
         // certificate chain, if necessary).
 
@@ -326,10 +459,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         String subjectName;
         char serialNumber[32];
 
-        if (isRequestAuthenticated &&
-            (String::equal(httpMessage->authInfo->getAuthType(),
-                AuthenticationInfoRep::AUTH_TYPE_SSL)))
-        {
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                 "Client was authenticated via trusted SSL certificate.");
 
@@ -596,127 +725,189 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 "HTTPAuthenticatorDelegator - The trusted client certificate "
                     "is registered to $0.",
                 certUserName);
-        }
-    } //end enableAuthentication
+            } // end AuthenticationInfoRep::AUTH_TYPE_SSL
 
-    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "Exited authentication loop");
+#ifdef PEGASUS_OS_ZOS
+            if (httpMessage->authInfo->getAuthType()== 
+                    AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS)
+            {
+                String connectionUserName = 
+                    httpMessage->authInfo->getConnectionUser();
 
-    AcceptLanguageList acceptLanguages;
-    ContentLanguageList contentLanguages;
-    try
-    {
-        // Get and validate the Accept-Language header, if set
-        String acceptLanguageHeader;
-        if (HTTPMessage::lookupHeader(
-                headers,
-                _HTTP_HEADER_ACCEPT_LANGUAGE,
-                acceptLanguageHeader,
-                false))
-        {
-            acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
-                acceptLanguageHeader);
-            httpMessage->acceptLanguagesDecoded = true;
-        }
+                // If authenticated user not the connected user 
+                // then check CIMSERV profile.
+                if (!String::equalNoCase(connectionUserName,
+                        httpMessage->authInfo->getAuthenticatedUser()))
+                {
 
-        // Get and validate the Content-Language header, if set
-        String contentLanguageHeader;
-        if (HTTPMessage::lookupHeader(
-                headers,
-                _HTTP_HEADER_CONTENT_LANGUAGE,
-                contentLanguageHeader,
-                false))
-        {
-            contentLanguages = LanguageParser::parseContentLanguageHeader(
-                contentLanguageHeader);
-            httpMessage->contentLanguagesDecoded = true;
-        }
-    }
-    catch (Exception& e)
-    {
-        // clear any existing languages to force messages to come from the
-        // root bundle
-        Thread::clearLanguages();
-        MessageLoaderParms msgParms(
-            "Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID",
-            "request-not-valid");
-        String msg(MessageLoader::getMessage(msgParms));
+#ifdef PEGASUS_ZOS_SECURITY
+                   if ( !CheckProfileCIMSERVclassWBEM(connectionUserName, 
+                             __READ_RESOURCE))
+                   {
+                       Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, 
+                           Logger::WARNING,
+                           "Pegasus.Server.HTTPAuthenticatorDelegator."
+                               "ATTLS_NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+                           "Request UserID $0 doesn't have READ permission"
+                           " to profile CIMSERV CL(WBEM).",
+                           connectionUserName);
 
-        _sendHttpError(
-            queueId,
-            HTTP_STATUS_BADREQUEST,
-            msg,
-            e.getMessage(),
-            closeConnect);
-        PEG_METHOD_EXIT();
-        return;
-    }
+                       _sendHttpError(
+                           queueId,
+                           HTTP_STATUS_UNAUTHORIZED,
+                           String::EMPTY,
+                           String::EMPTY,
+                           closeConnect);
 
-    Thread::setLanguages(new AcceptLanguageList(acceptLanguages));
-    httpMessage->acceptLanguages = acceptLanguages;
-    httpMessage->contentLanguages = contentLanguages;
+                       PEG_METHOD_EXIT();
+                       return;
+                   }
+#endif
+                   PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                       "Client UserID '%s'was authenticated via AT-TLS.",
+                       (const char*)connectionUserName.getCString()));
 
-    //
-    // Parse the request line:
-    //
-    String methodName;
-    String requestUri;
-    String httpVersion;
-    HttpMethod httpMethod = HTTP_METHOD__POST;
+                   httpMessage->authInfo->setAuthenticatedUser(
+                       connectionUserName);
 
-    HTTPMessage::parseRequestLine(
-        startLine, methodName, requestUri, httpVersion);
+                   // For audit loging, only the mapping of the client IP to 
+                   // the resolved user ID is from interest.
+                   // The SAF facility logs the certificate validation and 
+                   // the mapping of certificate subject to a local userID.
+                   PEG_AUDIT_LOG(logCertificateBasedUserValidation(
+                                    connectionUserName,
+                                    String::EMPTY,
+                                    String::EMPTY,
+                                    String::EMPTY,
+                                    httpMessage->ipAddress,
+                                    true));
 
-    //
-    //  Set HTTP method for the request
-    //
-    if (methodName == _HTTP_METHOD_MPOST)
-    {
-        httpMethod = HTTP_METHOD_M_POST;
-    }
+                }// end is authenticated ?
 
-    if (methodName != _HTTP_METHOD_MPOST && methodName != _HTTP_METHOD)
-    {
-        // Only POST and M-POST are implemented by this server
-        _sendHttpError(
-            queueId,
-            HTTP_STATUS_NOTIMPLEMENTED,
-            String::EMPTY,
-            String::EMPTY,
-            closeConnect);
-    }
-    else if ((httpMethod == HTTP_METHOD_M_POST) &&
-             (httpVersion == _HTTP_VERSION_1_0))
-    {
-        //
-        //  M-POST method is not valid with version 1.0
-        //
-        _sendHttpError(
-            queueId,
-            HTTP_STATUS_BADREQUEST,
-            String::EMPTY,
-            String::EMPTY,
-            closeConnect);
-    }
+            } // end AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS
+
+            if (httpMessage->authInfo->getAuthType()== 
+                    AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET)
+            {
+                String connectionUserName = 
+                    httpMessage->authInfo->getConnectionUser();
+
+                String requestUserName;              
+                String authHeader;
+                String authHttpType;
+                String cookie;
+
+                // if lookupHeader() is not successfull parseLocalAuthHeader() 
+                // must not be called !!
+                if ( HTTPMessage::lookupHeader(headers,
+                        _HTTP_HEADER_PEGASUSAUTHORIZATION, authHeader, false)&&
+                     HTTPMessage::parseLocalAuthHeader(authHeader,
+                         authHttpType, requestUserName, cookie))
+                {
+                    String cimServerUserName = System::getEffectiveUserName();
+
+                    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                               "CIM server UserID = '%s', "
+                               "Request UserID = '%s', "
+                               "Local authenticated UserID = '%s'.",
+                               (const char*) cimServerUserName.getCString(),
+                               (const char*) requestUserName.getCString(),
+                               (const char*) connectionUserName.getCString()
+                             ));
+
+                    // if the request name and the user connected to the socket 
+                    // are the same, or if the currnet user running the 
+                    // cim server and the connected user are the same then
+                    // assign the request user id as authenticated user id.
+                    if( String::equalNoCase(
+                            requestUserName,connectionUserName) || 
+                        String::equalNoCase(
+                            cimServerUserName,connectionUserName))
+                    {
+                        // If the designate new authenticated user, the user of
+                        // the request, is not already the authenticated user 
+                        // then set the authenticated user and check CIMSERV.
+                        if (!String::equalNoCase(requestUserName,
+                             httpMessage->authInfo->getAuthenticatedUser()))
+                        {
+
+#ifdef PEGASUS_ZOS_SECURITY
+                           if ( !CheckProfileCIMSERVclassWBEM(requestUserName, 
+                                     __READ_RESOURCE))
+                           {
+                               Logger::put_l(Logger::STANDARD_LOG, 
+                                   ZOS_SECURITY_NAME, 
+                                   Logger::WARNING,
+                                   "Pegasus.Server.HTTPAuthenticatorDelegator."
+                                       "UNIXSOCKET_NOREAD_CIMSERV_ACCESS."
+                                       "PEGASUS_OS_ZOS",
+                                   "Request UserID $0 doesn't have READ "
+                                       "permission to profile "
+                                       "CIMSERV CL(WBEM).",
+                                   requestUserName);
+
+                               _sendHttpError(
+                                   queueId,
+                                   HTTP_STATUS_UNAUTHORIZED,
+                                   String::EMPTY,
+                                   String::EMPTY,
+                                   closeConnect);
+
+                               PEG_METHOD_EXIT();
+                               return ;
+                           }
+#endif
+                           httpMessage->authInfo->setAuthenticatedUser(
+                               requestUserName);
+
+                           PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                                "New authenticated User = '%s'.",
+                                (const char*)requestUserName.getCString()
+                                ));
+
+                           // Write local authentication audit reckord.
+                           PEG_AUDIT_LOG(logLocalAuthentication(
+                                            requestUserName,true));
+
+                        } // end changed authenticated user
+
+                    } // end select authenticated user
+                    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                         "User authenticated for request = '%s'.",
+                         (const char*)httpMessage->authInfo->
+                               getAuthenticatedUser().getCString()
+                         ));
+                } // end lookup header
+                else
+                {                   
+                    MessageLoaderParms msgParms(
+                        "Pegasus.Server.HTTPAuthenticatorDelegator."
+                            "AUTHORIZATION_HEADER_ERROR",
+                        "Authorization header error");
+                    String msg(MessageLoader::getMessage(msgParms));
+                    _sendHttpError(
+                        queueId,
+                        HTTP_STATUS_BADREQUEST,
+                        String::EMPTY,
+                        msg,
+                        closeConnect);
+
+                    PEG_METHOD_EXIT();
+                    return;
+                }
+            } // end AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET
+#endif
+        } // end isRequestAuthenticated
     else
-    {
-        //
-        // Process M-POST and POST messages:
-        //
+        { // !isRequestAuthenticated
 
-        PEG_LOGGER_TRACE((
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "HTTPAuthenticatorDelegator - M-POST/POST processing start"));
-
-        if (!isRequestAuthenticated && enableAuthentication)
-        {
-            //
-            // Search for Authorization header:
-            //
             String authorization;
 
+            //
+            // do Local/Pegasus authenticatio
+            //
             if (HTTPMessage::lookupHeader(headers,
-                    _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false) &&
-                enableAuthentication)
+                    _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false))
             {
                 try
                 {
@@ -772,17 +963,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     PEG_METHOD_EXIT();
                     return;
                 }
-            }
+            } // end PEGASUS/LOCAL authentication
 
+            //
+            // do HTTP authentication
+            //
             if (HTTPMessage::lookupHeader(
-                    headers, _HTTP_HEADER_AUTHORIZATION, authorization, false)
-                && enableAuthentication)
+                    headers, _HTTP_HEADER_AUTHORIZATION, 
+                    authorization, false))        
             {
-                //
-                // Do http authentication if not authenticated already
-                //
-                if (!isRequestAuthenticated)
-                {
                     isRequestAuthenticated =
                         _authenticationManager->performHttpAuthentication(
                             authorization,
@@ -828,214 +1017,37 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         PEG_METHOD_EXIT();
                         return;
                     }
-                }  // first not authenticated check
-            }  // "Authorization" header check
-        } //end if (!authenticated && enableAuthentication)
+            }  // End if HTTP Authorization 
+
+        } //end if (!isRequestAuthenticated)
+
+    } //end enableAuthentication
+
+    PEG_LOGGER_TRACE((
+        Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "HTTPAuthenticatorDelegator - Authentication processing ended"));
+
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-        // The pointer to the sa is created in the authenticator so we need
-        // to also assign it here.
-        sa = httpMessage->authInfo->getSecurityAssociation();
-        if (sa)
+    // The pointer to the sa is created in the authenticator so we need
+    // to also assign it here.
+    sa = httpMessage->authInfo->getSecurityAssociation();
+    if (sa)
+    {
+        // 0 - continue, 1 = send success, 2 = send response
+        Uint32 sendAction = 0;
+
+        // The following is processing to unwrap (decrypt) the request
+        // from the client when using kerberos authentication.
+        sa->unwrapRequestMessage(
+            httpMessage->message, 
+            contentLength, 
+            isRequestAuthenticated, 
+            sendAction);
+
+        if (sendAction)  // send success or send response
         {
-            // 0 - continue, 1 = send success, 2 = send response
-            Uint32 sendAction = 0;
-
-            // The following is processing to unwrap (decrypt) the request
-            // from the client when using kerberos authentication.
-            sa->unwrapRequestMessage(
-                httpMessage->message, 
-                contentLength, 
-                isRequestAuthenticated, 
-                sendAction);
-
-            if (sendAction)  // send success or send response
-            {
-                if (httpMessage->message.size() == 0)
-                {
-                    MessageLoaderParms msgParms(
-                        "Pegasus.Server.HTTPAuthenticatorDelegator."
-                            "AUTHORIZATION_HEADER_ERROR",
-                        "Authorization header error");
-                    String msg(MessageLoader::getMessage(msgParms));
-                    _sendHttpError(
-                        queueId,
-                        HTTP_STATUS_BADREQUEST,
-                        String::EMPTY,
-                        msg,
-                        closeConnect);
-                }
-                else
-                {
-                    if (sendAction == 1)  // Send success
-                    {
-                        _sendSuccess(
-                            queueId,
-                            String(
-                                httpMessage->message.getData(),
-                                httpMessage->message.size()),
-                            closeConnect);
-                    }
-
-                    if (sendAction == 2)  // Send response
-                    {
-                        _sendResponse(
-                            queueId,
-                            httpMessage->message,
-                            closeConnect);
-                    }
-                }
-
-                PEG_METHOD_EXIT();
-                return;
-            }
-        }
-#endif
-
-        if (isRequestAuthenticated || !enableAuthentication)
-        {
-            // Final bastion to ensure the remote privileged user access
-            // check is done as it should be
-            // check for remote privileged User Access
-            if (!httpMessage->authInfo->getRemotePrivilegedUserAccessChecked())
-            {
-                // the AuthenticationHandler did not process the
-                // enableRemotePrivilegedUserAccess check
-                // time to do it ourselves
-                String userName = httpMessage->authInfo->getAuthenticatedUser();
-                if (!AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
-                        userName))
-                {
-                    // Send client a message that we can't proceed to talk
-                    // to him
-                    // HTTP 401 ?
-                    MessageLoaderParms msgParms(
-                        "Server.CIMOperationRequestAuthorizer."
-                            "REMOTE_NOT_ENABLED",
-                        "Remote privileged user access is not enabled.");
-                    String msg(MessageLoader::getMessage(msgParms));
-                    _sendHttpError(
-                        queueId,
-                        HTTP_STATUS_UNAUTHORIZED,
-                        String::EMPTY,
-                        msg,
-                        closeConnect);
-                    PEG_METHOD_EXIT();
-                    return;
-                }
-                httpMessage->authInfo->setRemotePrivilegedUserAccessChecked();
-            }
-
-            //
-            // Search for "CIMOperation" header:
-            //
-            String cimOperation;
-
-            if (HTTPMessage::lookupHeader(
-                headers, _HTTP_HEADER_CIMOPERATION, cimOperation, true))
-            {
-                PEG_LOGGER_TRACE(
-                    (Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                     "HTTPAuthenticatorDelegator - CIMOperation: $0 ",
-                     cimOperation));
-
-                MessageQueue* queue =
-                    MessageQueue::lookup(_operationMessageQueueId);
-
-                if (queue)
-                {
-                    httpMessage->dest = queue->getQueueId();
-
-                    try
-                    {
-                        queue->enqueue(httpMessage);
-                    }
-                    catch (const bad_alloc&)
-                    {
-                        delete httpMessage;
-                        _sendHttpError(
-                            queueId,
-                            HTTP_STATUS_REQUEST_TOO_LARGE,
-                            String::EMPTY,
-                            String::EMPTY,
-                            closeConnect);
-                        PEG_METHOD_EXIT();
-                        deleteMessage = false;
-                        return;
-                    }
-                    deleteMessage = false;
-                }
-            }
-            else if (HTTPMessage::lookupHeader(
-                headers, _HTTP_HEADER_CIMEXPORT, cimOperation, true))
-            {
-                Logger::put(
-                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
-
-                MessageQueue* queue =
-                    MessageQueue::lookup(_exportMessageQueueId);
-
-                if (queue)
-                {
-                    httpMessage->dest = queue->getQueueId();
-
-                    queue->enqueue(httpMessage);
-                    deleteMessage = false;
-                }
-            }
-            else
-            {
-                // We don't recognize this request message type
-
-                // The Specification for CIM Operations over HTTP reads:
-                //
-                //     3.3.4. CIMOperation
-                //
-                //     If a CIM Server receives a CIM Operation request without
-                //     this [CIMOperation] header, it MUST NOT process it as if
-                //     it were a CIM Operation Request.  The status code
-                //     returned by the CIM Server in response to such a request
-                //     is outside of the scope of this specification.
-                //
-                //     3.3.5. CIMExport
-                //
-                //     If a CIM Listener receives a CIM Export request without
-                //     this [CIMExport] header, it MUST NOT process it.  The
-                //     status code returned by the CIM Listener in response to
-                //     such a request is outside of the scope of this
-                //     specification.
-                //
-                // The author has chosen to send a 400 Bad Request error, but
-                // without the CIMError header since this request must not be
-                // processed as a CIM request.
-
-                _sendHttpError(
-                    queueId,
-                    HTTP_STATUS_BADREQUEST,
-                    String::EMPTY,
-                    String::EMPTY,
-                    closeConnect);
-                PEG_METHOD_EXIT();
-                return;
-            } // bad request
-        } // isRequestAuthenticated and enableAuthentication check
-        else
-        {  // client not authenticated; send challenge
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-            String authResp =
-                _authenticationManager->getHttpAuthResponseHeader(
-                    httpMessage->authInfo);
-#else
-            String authResp =
-                _authenticationManager->getHttpAuthResponseHeader();
-#endif
-
-            if (!String::equal(authResp, String::EMPTY))
-            {
-                _sendChallenge(queueId, authResp,closeConnect);
-            }
-            else
+            if (httpMessage->message.size() == 0)
             {
                 MessageLoaderParms msgParms(
                     "Pegasus.Server.HTTPAuthenticatorDelegator."
@@ -1049,10 +1061,193 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     msg,
                     closeConnect);
             }
-        }
-    } // M-POST and POST processing
+            else
+            {
+                if (sendAction == 1)  // Send success
+                {
+                    _sendSuccess(
+                        queueId,
+                        String(
+                            httpMessage->message.getData(),
+                            httpMessage->message.size()),
+                        closeConnect);
+                }
 
-    PEG_METHOD_EXIT();
+                if (sendAction == 2)  // Send response
+                {
+                    _sendResponse(
+                        queueId,
+                        httpMessage->message,
+                        closeConnect);
+                }
+            }
+
+            PEG_METHOD_EXIT();
+            return;
+        }
+    }
+#endif
+
+    if (isRequestAuthenticated || !enableAuthentication)
+    {
+        // Final bastion to ensure the remote privileged user access
+        // check is done as it should be
+        // check for remote privileged User Access
+        if (!httpMessage->authInfo->getRemotePrivilegedUserAccessChecked())
+        {
+            // the AuthenticationHandler did not process the
+            // enableRemotePrivilegedUserAccess check
+            // time to do it ourselves
+            String userName = httpMessage->authInfo->getAuthenticatedUser();
+            if (!AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
+                    userName))
+            {
+                // Send client a message that we can't proceed to talk
+                // to him
+                // HTTP 401 ?
+                MessageLoaderParms msgParms(
+                    "Server.CIMOperationRequestAuthorizer."
+                        "REMOTE_NOT_ENABLED",
+                    "Remote privileged user access is not enabled.");
+                String msg(MessageLoader::getMessage(msgParms));
+                _sendHttpError(
+                    queueId,
+                    HTTP_STATUS_UNAUTHORIZED,
+                    String::EMPTY,
+                    msg,
+                    closeConnect);
+                PEG_METHOD_EXIT();
+                return;
+            }
+            httpMessage->authInfo->setRemotePrivilegedUserAccessChecked();
+        }
+
+        //
+        // Search for "CIMOperation" header:
+        //
+        String cimOperation;
+
+        if (HTTPMessage::lookupHeader(
+            headers, _HTTP_HEADER_CIMOPERATION, cimOperation, true))
+        {
+            PEG_LOGGER_TRACE(
+                (Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                 "HTTPAuthenticatorDelegator - CIMOperation: $0 ",
+                 cimOperation));
+
+            MessageQueue* queue =
+                MessageQueue::lookup(_operationMessageQueueId);
+
+            if (queue)
+            {
+                httpMessage->dest = queue->getQueueId();
+
+                try
+                {
+                    queue->enqueue(httpMessage);
+                }
+                catch (const bad_alloc&)
+                {
+                    delete httpMessage;
+                    _sendHttpError(
+                        queueId,
+                        HTTP_STATUS_REQUEST_TOO_LARGE,
+                        String::EMPTY,
+                        String::EMPTY,
+                        closeConnect);
+                    PEG_METHOD_EXIT();
+                    deleteMessage = false;
+                    return;
+                }
+                deleteMessage = false;
+            }
+        }
+        else if (HTTPMessage::lookupHeader(
+            headers, _HTTP_HEADER_CIMEXPORT, cimOperation, true))
+        {
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
+
+            MessageQueue* queue =
+                MessageQueue::lookup(_exportMessageQueueId);
+
+            if (queue)
+            {
+                httpMessage->dest = queue->getQueueId();
+
+                queue->enqueue(httpMessage);
+                deleteMessage = false;
+            }
+        }
+        else
+        {
+            // We don't recognize this request message type
+
+            // The Specification for CIM Operations over HTTP reads:
+            //
+            //     3.3.4. CIMOperation
+            //
+            //     If a CIM Server receives a CIM Operation request without
+            //     this [CIMOperation] header, it MUST NOT process it as if
+            //     it were a CIM Operation Request.  The status code
+            //     returned by the CIM Server in response to such a request
+            //     is outside of the scope of this specification.
+            //
+            //     3.3.5. CIMExport
+            //
+            //     If a CIM Listener receives a CIM Export request without
+            //     this [CIMExport] header, it MUST NOT process it.  The
+            //     status code returned by the CIM Listener in response to
+            //     such a request is outside of the scope of this
+            //     specification.
+            //
+            // The author has chosen to send a 400 Bad Request error, but
+            // without the CIMError header since this request must not be
+            // processed as a CIM request.
+
+            _sendHttpError(
+                queueId,
+                HTTP_STATUS_BADREQUEST,
+                String::EMPTY,
+                String::EMPTY,
+                closeConnect);
+            PEG_METHOD_EXIT();
+            return;
+        } // bad request
+    } // isRequestAuthenticated and enableAuthentication check
+    else
+    {  // client not authenticated; send challenge
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+        String authResp =
+            _authenticationManager->getHttpAuthResponseHeader(
+                httpMessage->authInfo);
+#else
+        String authResp =
+            _authenticationManager->getHttpAuthResponseHeader();
+#endif
+
+        if (!String::equal(authResp, String::EMPTY))
+        {
+            _sendChallenge(queueId, authResp,closeConnect);
+        }
+        else
+        {
+            MessageLoaderParms msgParms(
+                "Pegasus.Server.HTTPAuthenticatorDelegator."
+                    "AUTHORIZATION_HEADER_ERROR",
+                "Authorization header error");
+            String msg(MessageLoader::getMessage(msgParms));
+            _sendHttpError(
+                queueId,
+                HTTP_STATUS_BADREQUEST,
+                String::EMPTY,
+                msg,
+                closeConnect);
+        }
+    }
+
+PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

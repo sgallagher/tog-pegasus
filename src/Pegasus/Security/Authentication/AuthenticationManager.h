@@ -113,17 +113,6 @@ public:
 
 private:
 
-    Boolean _parseLocalAuthHeader(
-        const String& authHeader,
-        String& authType,
-        String& userName,
-        String& cookie);
-
-    Boolean _parseHttpAuthHeader(
-        const String& authHeader,
-        String& authType,
-        String& cookie);
-
     Authenticator* _getLocalAuthHandler();
 
     Authenticator* _getHttpAuthHandler();

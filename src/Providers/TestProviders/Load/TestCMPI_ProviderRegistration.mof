@@ -419,5 +419,5 @@ instance of PG_ProviderCapabilities
     Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
-    SupportedMethods = {"SendTestIndicationNormal"};
+    SupportedMethods = {"SendTestIndicationNormal","getSubscriptionCount"};
 };

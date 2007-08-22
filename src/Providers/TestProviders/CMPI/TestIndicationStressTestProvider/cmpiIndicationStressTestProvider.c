@@ -217,6 +217,13 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
     int i = 0;
     CMPIUint32 seqNum;
 
+    if (!strcmp(methodName, "getSubscriptionCount"))
+    {
+        CMReturnData (rslt, (CMPIValue *)&_numSubscriptions, CMPI_uint32);
+        CMReturnDone(rslt);
+        CMReturn (CMPI_RC_OK);
+    }
+
     data = CMGetArgAt (in, 0, NULL, NULL);
     if (data.type == CMPI_uint32)
     {

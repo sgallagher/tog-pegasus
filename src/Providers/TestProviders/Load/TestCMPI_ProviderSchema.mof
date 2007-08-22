@@ -159,4 +159,6 @@ class TestCMPI_IndicationStressTestClass : CIM_Indication
   uint64 IndicationSequenceNumber;
   [Static]
   uint32 SendTestIndicationNormal(uint32 indicationSendCount);
+  [Static]
+  uint32 getSubscriptionCount();
 };

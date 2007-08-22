@@ -717,6 +717,7 @@ SSLContextRep::~SSLContextRep()
         if ( _countRep == 0 )
         {
             free_ssl();
+            ERR_free_strings();
         }
 
     }

@@ -176,22 +176,32 @@ SSLSocket::~SSLSocket()
 Boolean SSLSocket::incompleteSecureReadOccurred(Sint32 retCode)
 {
     Sint32 err = SSL_get_error(static_cast<SSL*>(_SSLConnection), retCode);
+
+    Boolean isIncompleteRead = 
+        ((err == SSL_ERROR_SYSCALL) &&
+        (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
+        (err == SSL_ERROR_WANT_READ) ||
+        (err == SSL_ERROR_WANT_WRITE);
+
     if (Tracer::isTraceOn())
     {
         unsigned long rc = ERR_get_error ();
-        char buff[120];
-        SSL_load_error_strings();
+        char buff[256];
         ERR_error_string_n (rc, buff, sizeof (buff)); // added in OpenSSL 0.9.6
 
         PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
             "In SSLSocket::incompleteSecureReadOccurred : err = %d %s",
             err, buff));
+
+        if (!isIncompleteRead && retCode < 0)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL4,
+                "In SSLSocket::incompleteSecureReadOccurred : err = %d %s",
+                err, buff));
+        }
     }
 
-    return ((err == SSL_ERROR_SYSCALL) &&
-            (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
-           (err == SSL_ERROR_WANT_READ) ||
-           (err == SSL_ERROR_WANT_WRITE);
+    return isIncompleteRead;
 }
 
 Sint32 SSLSocket::read(void* ptr, Uint32 size)
@@ -344,16 +354,6 @@ Sint32 SSLSocket::accept()
     if (ssl_rc < 0)
     {
         ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
-        if (Tracer::isTraceOn())
-        {
-            unsigned long rc = ERR_get_error ();
-            char buff[120];
-            SSL_load_error_strings();
-            // added in OpenSSL 0.9.6:
-            ERR_error_string_n(rc, buff, sizeof(buff));
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
-                "---> SSL: Not accepted %d %s", ssl_rsn, buff ));
-        }
 
         if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
             (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -363,6 +363,16 @@ Sint32 SSLSocket::accept()
         }
         else
         {
+            if (Tracer::isTraceOn())
+            {
+                unsigned long rc = ERR_get_error ();
+                char buff[256];
+                // added in OpenSSL 0.9.6:
+                ERR_error_string_n(rc, buff, sizeof(buff));
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                    "---> SSL: Not accepted %d %s", ssl_rsn, buff ));
+            }
+
             PEG_METHOD_EXIT();
             return -1;
         }
@@ -453,16 +463,6 @@ redo_connect:
     if (ssl_rc < 0)
     {
         ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
-        if (Tracer::isTraceOn())
-        {
-            unsigned long rc = ERR_get_error ();
-            char buff[120];
-            SSL_load_error_strings();
-            // added in OpenSSL 0.9.6:
-            ERR_error_string_n(rc, buff, sizeof(buff));
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
-                "---> SSL: Not connected %d %s", ssl_rsn, buff));
-        }
 
         if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
             (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -471,6 +471,16 @@ redo_connect:
         }
         else
         {
+            if (Tracer::isTraceOn())
+            {
+                unsigned long rc = ERR_get_error ();
+                char buff[256];
+                // added in OpenSSL 0.9.6:
+                ERR_error_string_n(rc, buff, sizeof(buff));
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                    "---> SSL: Not connected %d %s", ssl_rsn, buff));
+            }
+
             PEG_METHOD_EXIT();
             return -1;
         }

@@ -72,9 +72,7 @@ void _Test01()
 
     size = 1428;
     index = 2860;
-    // ATTN: Use this test case to reproduce Bug 5962
-    // CIMObjectPath instName3("X.key1=1003,key2=\"Hello \nWorld  \r 3\"");
-    CIMObjectPath instName3("X.key1=1003,key2=\"Hello World 3\"");
+    CIMObjectPath instName3("X.key1=1003,key2=\"Hello \nWorld\\\\n \\\"\r 3\"");
     result = InstanceIndexFile::createEntry(PATH, instName3, index, size);
     PEGASUS_TEST_ASSERT(result);
 

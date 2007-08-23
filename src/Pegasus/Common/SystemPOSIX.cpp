@@ -1238,12 +1238,12 @@ AutoFileLock::~AutoFileLock()
 
 //==============================================================================
 //
-// PEGASUS_OS_AIX & PEGASUS_OS_PASE
+// PEGASUS_OS_AIX
 //
 //==============================================================================
 
 // System Initializater for AIX
-#if defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
+#ifdef PEGASUS_OS_AIX
 # include <cstdlib>
 
 class SystemInitializer

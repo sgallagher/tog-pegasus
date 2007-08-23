@@ -53,9 +53,6 @@
 #include "SSLContext.h"
 #include "SSLContextRep.h"
 
-#ifdef PEGASUS_OS_PASE
-# include <ILEWrapper/ILEUtilities.h>
-#endif
 //
 // Typedef's for OpenSSL callback functions.
 //
@@ -734,7 +731,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
     Boolean ret;
     int retVal = 0;
 
-#if defined(PEGASUS_SSL_RANDOMFILE) && !defined(PEGASUS_OS_PASE)
+#ifdef PEGASUS_SSL_RANDOMFILE
     if ( RAND_status() == 0 )
     {
         //
@@ -822,17 +819,6 @@ void SSLContextRep::_randomInit(const String& randomFile)
     int seedRet = RAND_status();
     if (seedRet == 0)
     {
-// pase for different logic
-#ifdef PEGASUS_OS_PASE
-        unsigned char prn[1024];
-
-        umeGenerateRandomNumber(prn);
-
-        RAND_seed(prn, 1024);
-        
-        if (RAND_status() == 0)
-        {
-#endif
         PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
             "Not enough seed data, RAND_status = %d",
             seedRet));
@@ -841,9 +827,6 @@ void SSLContextRep::_randomInit(const String& randomFile)
             "Common.SSLContext.NOT_ENOUGH_SEED_DATA",
             "Not enough seed data.");
         throw SSLException(parms);
-#ifdef PEGASUS_OS_PASE
-        }
-#endif
     }
 
     PEG_METHOD_EXIT();

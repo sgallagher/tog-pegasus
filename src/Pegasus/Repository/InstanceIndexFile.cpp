@@ -55,6 +55,7 @@ static const Uint32 _MAX_FREE_COUNT = 16;
 // Local routines:
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifdef PEGASUS_OS_ZOS
 
 static Uint32 getOffset( streampos sp )
@@ -68,7 +69,76 @@ static Uint32 getOffset( streampos sp )
 
     return result;
 }
+
 #endif
+
+//
+// Converts a CIMObjectPath to a form that can be used as a key in the index
+// file.  Newline and carriage return characters are escaped to prevent
+// problems with the line-based file format.
+//
+
+static String _convertInstanceNameToKey(const CIMObjectPath& instanceName)
+{
+    String instanceNameString(instanceName.toString());
+    const Uint32 stringLength = instanceNameString.size();
+    String keyString;
+    keyString.reserveCapacity(stringLength);
+
+    for (Uint32 i = 0; i < stringLength; i++)
+    {
+        Char16 instanceNameChar = instanceNameString[i];
+
+        if (instanceNameChar == '\n')
+        {
+            keyString.append("\\n");
+        }
+        else if (instanceNameChar == '\r')
+        {
+            keyString.append("\\r");
+        }
+        else
+        {
+            keyString.append(instanceNameChar);
+        }
+    }
+
+    return keyString;
+}
+
+//
+// Converts an index file key to a CIMObjectPath object.  Newline and
+// carriage return characters are un-escaped.
+//
+
+static CIMObjectPath _convertKeyToInstanceName(const char* key)
+{
+    String keyString(key);
+
+    for (Uint32 i = 0; i < keyString.size() - 1; i++)
+    {
+        if (keyString[i] == '\\')
+        {
+            if (keyString[i+1] == 'n')
+            {
+                keyString[i] = '\n';
+                keyString.remove(i+1, 1);
+            }
+            else if (keyString[i+1] == 'r')
+            {
+                keyString[i] = '\r';
+                keyString.remove(i+1, 1);
+            }
+            else
+            {
+                i++;
+            }
+        }
+    }
+
+    return CIMObjectPath(keyString);
+}
+
 //
 // Gets one line from the given file.
 //
@@ -489,7 +559,7 @@ Boolean InstanceIndexFile::enumerateEntries(
             freeFlags.append(freeFlag);
             indices.append(index);
             sizes.append(size);
-            instanceNames.append (CIMObjectPath (instanceName));
+            instanceNames.append(_convertKeyToInstanceName(instanceName));
         }
     }
 
@@ -654,7 +724,7 @@ Boolean InstanceIndexFile::_appendEntry(
 
     // Calling getCString to ensure that utf-8 goes to the file
     // Calling write to ensure no data conversion by the stream
-    CString name = instanceName.toString().getCString();
+    CString name = _convertInstanceNameToKey(instanceName).getCString();
     fs.write((const char *)name,
         static_cast<streamsize>(strlen((const char *)name)));
     fs << endl;
@@ -748,11 +818,11 @@ Boolean InstanceIndexFile::_lookupEntry(
         // are not normalized, then the hashcodes cannot be used for
         // the look up (because the hash is based on the normalized path).
         if (freeFlag == 0 &&
-            CIMObjectPath(instanceNameTmp) == shortInstanceName)
+            _convertKeyToInstanceName(instanceNameTmp) == shortInstanceName)
 #else
         if (freeFlag == 0 &&
             hashCode == targetHashCode &&
-            CIMObjectPath(instanceNameTmp) == shortInstanceName)
+            _convertKeyToInstanceName(instanceNameTmp) == shortInstanceName)
 #endif
         {
             indexOut = index;
@@ -835,7 +905,7 @@ Boolean InstanceIndexFile::compact(
         }
         else
         {
-            if (!_appendEntry(tmpFs, CIMObjectPath (instanceName),
+            if (!_appendEntry(tmpFs, _convertKeyToInstanceName(instanceName),
                 index - adjust, size))
             {
                 error = true;

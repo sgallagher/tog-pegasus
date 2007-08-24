@@ -369,7 +369,7 @@ JMPIProviderManager::~JMPIProviderManager(void)
 Boolean JMPIProviderManager::insertProvider(const ProviderName & name,
             const String &ns, const String &cn)
 {
-    String key(ns+String("::")+cn+String("::")+CIMValue(name.getCapabilitiesMask()).toString());
+    String key(ns + String("::") + cn);
 
     DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::insertProvider: "<<key<<PEGASUS_STD(endl));
 

@@ -64,13 +64,17 @@ Boolean CMPI_SelectExpAccessor_WQL::getValue(
         {
             case CMPI_sint32:
                 value=WQLOperand(data.value.sint32, WQL_INTEGER_VALUE_TAG);
+                break;
             case CMPI_sint16:
                 value=WQLOperand(data.value.sint16, WQL_INTEGER_VALUE_TAG);
+                break;
             case CMPI_sint8:
                 value=WQLOperand(data.value.sint8, WQL_INTEGER_VALUE_TAG);
+                break;
             case CMPI_sint64:
                 value=WQLOperand(data.value.sint64, WQL_INTEGER_VALUE_TAG);
-            default: ;
+                break;
+            default:
                 rv=false;
         }
     }
@@ -92,13 +96,17 @@ Boolean CMPI_SelectExpAccessor_WQL::getValue(
         {
             case CMPI_uint32:
                 value=WQLOperand(data.value.sint32, WQL_INTEGER_VALUE_TAG);
+                break;
             case CMPI_uint16:
                 value=WQLOperand(data.value.sint16, WQL_INTEGER_VALUE_TAG);
+                break;
             case CMPI_uint8:
                 value=WQLOperand(data.value.sint32, WQL_INTEGER_VALUE_TAG);
+                break;
             case CMPI_uint64:
                 value=WQLOperand(data.value.sint64, WQL_INTEGER_VALUE_TAG);
-            default: ;
+                break;
+            default: 
                 rv=false;
         }
     }
@@ -108,10 +116,13 @@ Boolean CMPI_SelectExpAccessor_WQL::getValue(
             case CMPI_boolean:
                 value=WQLOperand((Boolean)data.value.boolean,
                 WQL_BOOLEAN_VALUE_TAG);
+                break;
             case CMPI_real32:
                 value=WQLOperand(data.value.real32, WQL_DOUBLE_VALUE_TAG);
+                break;
             case CMPI_real64:
                 value=WQLOperand(data.value.real64, WQL_DOUBLE_VALUE_TAG);
+                break;
             default:
                 rv=false;
         }

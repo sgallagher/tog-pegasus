@@ -578,8 +578,8 @@ inline static CMPIString *CMGetMessage(
 
 #  define CMFmtSint(v)    CMPI_sint32,((long int)v)
 #  define CMFmtUint(v)    CMPI_uint32,((unsigned long int)v)
-#  define CMFmtSint64(v)  CMPI_sint64,((long long int)v)
-#  define CMFmtUint64(v)  CMPI_uint64,((unsigned long long int)v)
+#  define CMFmtSint64(v)  CMPI_sint64,((CMPISint64)v)
+#  define CMFmtUint64(v)  CMPI_uint64,((CMPIUint64)v)
 #  define CMFmtReal(v)    CMPI_real64,((double)v)
 #  define CMFmtBoolean(v) CMPI_boolean,((int)v)
 #  define CMFmtChars(v)   CMPI_chars,((char*)v)

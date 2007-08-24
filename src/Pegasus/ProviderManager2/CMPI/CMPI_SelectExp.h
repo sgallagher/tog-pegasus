@@ -64,7 +64,8 @@ struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp
         String lang_);
     CMPI_SelectExp(WQLSelectStatement*, Boolean persistent_ = false);
 #ifndef PEGASUS_DISABLE_CQL
-    CMPI_SelectExp(CQLSelectStatement*, Boolean persistent_ = false);
+    CMPI_SelectExp(CQLSelectStatement*, Boolean persistent_ = false,
+        QueryContext *context = 0);
 #endif
     ~CMPI_SelectExp();
     CMPI_Object *next,*prev;

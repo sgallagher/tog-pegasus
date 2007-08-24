@@ -161,7 +161,89 @@
        -- Instance_accessor (Property: s64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 7, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.c, RS: 'c'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.n32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 2 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_Indication.n16, RS: 17
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 3 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.n64, RS: 23
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 4 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.r32, RS: 1.0000000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 5 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.r64, RS: 1.2000000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 6 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 5
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.b, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s8, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 2
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 3
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 4
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -186,7 +268,89 @@
        -- Instance_accessor (Property: s64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 7, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.c, RS: 'c'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.n32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 2 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_Indication.n16, RS: 17
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 3 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.n64, RS: 23
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 4 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.r32, RS: 1.0000000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 5 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.r64, RS: 1.2000000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 6 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 5
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.b, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s8, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 2
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 3
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 4
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -286,7 +450,34 @@
        -- Instance_accessor (Property: PropertyB)
        -- Instance_accessor (Property: s)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -301,7 +492,34 @@
        -- Instance_accessor (Property: PropertyB)
        -- Instance_accessor (Property: s)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -404,7 +622,32 @@
        -- Instance_accessor (Property: s)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 3, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 2 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -427,7 +670,32 @@
        -- Instance_accessor (Property: s)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 3, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 2 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -517,7 +785,26 @@
        -- Instance_accessor (Property: PropertyB)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 3
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 2
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'AccessorPropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -535,7 +822,26 @@
        -- Instance_accessor (Property: PropertyB)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 3
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 2
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'AccessorPropertyA'
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -625,7 +931,24 @@
        -- Instance_accessor (Property: c)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.s, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.c, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -651,7 +974,24 @@
        -- Instance_accessor (Property: c)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.s, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.c, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -736,7 +1076,21 @@
        -- Instance_accessor (Property: n32)
        -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n32, RS: 42
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.r64, RS: 2.2000000000000002
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #5.5 CMNewSelectExp with WQL
@@ -751,7 +1105,7 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n32)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+       -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -770,7 +1124,21 @@
        -- Instance_accessor (Property: n32)
        -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n32, RS: 42
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.r64, RS: 2.2000000000000002
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- CBDetachThread called
@@ -879,7 +1247,31 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 4
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n8, RS: 8
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 2
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 3
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.n64, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -902,7 +1294,10 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n8)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+       -- Instance_accessor (Property: n16)
+       -- Instance_accessor (Property: n32)
+       -- Instance_accessor (Property: n64)
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -932,7 +1327,31 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 4
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n8, RS: 8
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 2
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 3
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.n64, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -1048,7 +1467,37 @@
        -- Instance_accessor (Property: s64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 3, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s8, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s16, RS: 256
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s32, RS: 9999
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 2 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.s64, RS: 2232
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -1071,7 +1520,10 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s8)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+       -- Instance_accessor (Property: s16)
+       -- Instance_accessor (Property: s32)
+       -- Instance_accessor (Property: s64)
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1101,7 +1553,37 @@
        -- Instance_accessor (Property: s64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 3, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s8, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s16, RS: 256
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_Indication.s32, RS: 9999
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 2 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_Indication.s64, RS: 2232
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -1189,7 +1671,24 @@
        -- Instance_accessor (Property: r32)
        -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_Indication.r32, RS: 1.2300000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.r64, RS: 3.1400000000000001
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #5.5 CMNewSelectExp with WQL
@@ -1204,7 +1703,7 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: r32)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+       -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1223,7 +1722,24 @@
        -- Instance_accessor (Property: r32)
        -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_Indication.r32, RS: 1.2300000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.r64, RS: 3.1400000000000001
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- CBDetachThread called
@@ -1315,7 +1831,24 @@
        -- Instance_accessor (Property: b)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.c, RS: TestCMPI_Indication.c
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.b, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.
@@ -1355,7 +1888,24 @@
        -- Instance_accessor (Property: b)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.c, RS: TestCMPI_Indication.c
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.b, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Instance evaluated to true. Delievering indication.

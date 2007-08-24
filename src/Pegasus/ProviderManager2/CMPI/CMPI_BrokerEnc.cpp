@@ -1405,7 +1405,8 @@ extern "C"
             {
                 CMSetStatus (st, CMPI_RC_OK);
             }
-            return((CMPISelectExp *) new CMPI_SelectExp(selectStatement));
+            return((CMPISelectExp *) new CMPI_SelectExp(
+                selectStatement, false, qcontext.clone()));
         }
 #endif
         if (st)

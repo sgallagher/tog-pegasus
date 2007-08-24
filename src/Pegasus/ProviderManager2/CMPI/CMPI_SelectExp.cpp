@@ -612,8 +612,9 @@ CMPI_SelectExp::CMPI_SelectExp (
 }
 
 #ifndef PEGASUS_DISABLE_CQL
-CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st, Boolean persistent_)
-    :ctx (OperationContext ()),cql_stmt (st), persistent (persistent_)
+CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st, Boolean persistent_,
+    QueryContext *context):ctx (OperationContext ()),cql_stmt (st), 
+    _context(context), persistent (persistent_)
 {
     /** Adding the object to the garbage collector.
     */
@@ -628,7 +629,6 @@ CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st, Boolean persistent_)
     cql_dnf = NULL;
     wql_stmt = NULL;
     tableau = NULL;
-    _context = NULL;
     cond = st->getQuery ();
     lang = CALL_SIGN_CQL;
     classNames = st->getClassPathList ();

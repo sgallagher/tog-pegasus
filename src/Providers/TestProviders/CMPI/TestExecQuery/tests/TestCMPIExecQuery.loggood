@@ -36,7 +36,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n32)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n32, RS: 42
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42], language: [DMTF:CQL]
@@ -71,7 +80,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n32)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n32, RS: 42
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42], language: [WQL]
@@ -105,7 +123,6 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n32)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -145,7 +162,16 @@
  -- #B Evalute using accessor
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp: Unknown operation, LS: NULL_VALUE, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery) returns true when using CIMxCQL query language.
@@ -175,7 +201,16 @@
  -- #B Evalute using accessor
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp: Unknown operation, LS: NULL_VALUE, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery) returns true when using DMTF:CQL query language.
@@ -264,7 +299,16 @@
        -- Instance_accessor (Property: s)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s) returns true when using CIMxCQL query language.
@@ -295,7 +339,16 @@
        -- Instance_accessor (Property: s)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s) returns true when using DMTF:CQL query language.
@@ -368,7 +421,21 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64) returns true when using CIMxCQL query language.
@@ -400,7 +467,21 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64) returns true when using DMTF:CQL query language.
@@ -431,7 +512,7 @@
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: n64)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -454,7 +535,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n64, RS: 40
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT s FROM TestCMPI_ExecQuery where n64=40], language: [DMTF:CQL]
@@ -467,7 +557,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n64, RS: 40
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT s FROM TestCMPI_ExecQuery where n64=40], language: [WQL]
@@ -480,7 +579,6 @@
  !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n64)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -522,7 +620,24 @@
        -- Instance_accessor (Property: n16)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)) returns true when using CIMxCQL query language.
@@ -554,7 +669,24 @@
        -- Instance_accessor (Property: n16)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_boolean , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: NULL_VALUE
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)) returns true when using DMTF:CQL query language.
@@ -584,7 +716,7 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: n16)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -658,7 +790,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s<s], language: [DMTF:CQL]
@@ -686,7 +827,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s<s], language: [WQL]
@@ -755,7 +905,24 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64) returns true when using CIMxCQL query language.
@@ -787,7 +954,24 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64) returns true when using DMTF:CQL query language.
@@ -818,7 +1002,7 @@
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: n64)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -861,7 +1045,24 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64) returns true when using CIMxCQL query language.
@@ -893,7 +1094,24 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 2, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ ---    #B CMGetSubCondAt @ 1 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64) returns true when using DMTF:CQL query language.
@@ -924,7 +1142,7 @@
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: s)
        -- Instance_accessor (Property: n64)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -966,7 +1184,7 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n64)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1006,7 +1224,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n16)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.n16, RS: 4
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16 < 4], language: [DMTF:CQL]
@@ -1034,7 +1261,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n16)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.n16, RS: 4
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where n16 < 4], language: [WQL]
@@ -1061,7 +1297,6 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n16)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1103,7 +1338,21 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_ExecQuery.n16, RS: 4
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.n64, RS: 100
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100) returns true when using CIMxCQL query language.
@@ -1135,7 +1384,21 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 2
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_ExecQuery.n16, RS: 4
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ --- #D CMGetPredicateAt, 1
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.n64, RS: 100
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100) returns true when using DMTF:CQL query language.
@@ -1164,7 +1427,8 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n16)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+       -- Instance_accessor (Property: n64)
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1206,7 +1470,16 @@
        -- Instance_accessor (Property: s)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s>=s) returns true when using CIMxCQL query language.
@@ -1237,7 +1510,16 @@
        -- Instance_accessor (Property: s)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.s, RS: TestCMPI_ExecQuery.s
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where s>=s) returns true when using DMTF:CQL query language.
@@ -1309,7 +1591,16 @@
        -- Instance_accessor (Property: c)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.c, RS: TestCMPI_ExecQuery.c
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where c=c) returns true when using CIMxCQL query language.
@@ -1340,7 +1631,16 @@
        -- Instance_accessor (Property: c)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: Unknown , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.c, RS: TestCMPI_ExecQuery.c
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where c=c) returns true when using DMTF:CQL query language.
@@ -1412,7 +1712,16 @@
        -- Instance_accessor (Property: b)
  !!!! CMPI_RC_ERR_FAILED [Validation type mismatch error for type: BOOLEAN]
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.b, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where b=1], language: [DMTF:CQL]
@@ -1442,7 +1751,16 @@
        -- Instance_accessor (Property: b)
  !!!! CMPI_RC_ERR_FAILED [Validation type mismatch error for type: BOOLEAN]
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.b, RS: 1
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where b=1], language: [WQL]
@@ -1511,7 +1829,7 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n8)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1553,7 +1871,16 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n64=64) returns true when using CIMxCQL query language.
@@ -1584,7 +1911,16 @@
        -- Instance_accessor (Property: n64)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.n64, RS: 64
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n64=64) returns true when using DMTF:CQL query language.
@@ -1613,7 +1949,7 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n64)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1655,7 +1991,16 @@
        -- Instance_accessor (Property: n32)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.n32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n32<=32) returns true when using CIMxCQL query language.
@@ -1686,7 +2031,16 @@
        -- Instance_accessor (Property: n32)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.n32, RS: 32
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n32<=32) returns true when using DMTF:CQL query language.
@@ -1715,7 +2069,7 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n32)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1757,7 +2111,16 @@
        -- Instance_accessor (Property: n16)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.n16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n16>=16) returns true when using CIMxCQL query language.
@@ -1788,7 +2151,16 @@
        -- Instance_accessor (Property: n16)
  -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.n16, RS: 16
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  Query (SELECT * FROM TestCMPI_ExecQuery where n16>=16) returns true when using DMTF:CQL query language.
@@ -1817,7 +2189,7 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: n16)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1857,7 +2229,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: r32)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.r32, RS: 1.2320000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where r32=1.232], language: [DMTF:CQL]
@@ -1885,7 +2266,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: r32)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_real32 , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_ExecQuery.r32, RS: 1.2320000000000000
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where r32=1.232], language: [WQL]
@@ -1912,7 +2302,6 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: r32)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -1951,7 +2340,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.r64, RS: 112323
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where r64>=112323], language: [DMTF:CQL]
@@ -1979,7 +2377,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: r64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_GreaterThanOrEquals , LS: TestCMPI_ExecQuery.r64, RS: 112323
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where r64>=112323], language: [WQL]
@@ -2048,7 +2455,7 @@
  -- Evalute using instance returns true
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s8)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
+ -- Evalute using accessor returns true
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -2088,7 +2495,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s16)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_sint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.s16, RS: -11
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s16<=-11], language: [DMTF:CQL]
@@ -2116,7 +2532,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s16)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_sint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.s16, RS: -11
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s16<=-11], language: [WQL]
@@ -2143,7 +2568,6 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s16)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -2182,7 +2606,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s32)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_sint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_ExecQuery.s32, RS: -11
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s32>-11], language: [DMTF:CQL]
@@ -2210,7 +2643,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s32)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_sint64 , CMPIPredOp:  CMPI_PredOp_GreaterThan , LS: TestCMPI_ExecQuery.s32, RS: -11
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s32>-11], language: [WQL]
@@ -2237,7 +2679,6 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s32)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD
@@ -2276,7 +2717,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_sint64 , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.s64, RS: -11
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s64<-11], language: [DMTF:CQL]
@@ -2304,7 +2754,16 @@
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s64)
  -- #C Continue evaluating using GetDOC
- !!!! CMPI_RC_ERROR_SYSTEM []
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_sint64 , CMPIPredOp:  CMPI_PredOp_LessThan , LS: TestCMPI_ExecQuery.s64, RS: -11
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  -- #D Continue evaluating using GetCOD
  !!!! CMPI_RC_ERR_NOT_SUPPORTED []
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s64<-11], language: [WQL]
@@ -2331,7 +2790,6 @@
  -- #A Evaluate using instance
  -- #B Evalute using accessor
        -- Instance_accessor (Property: s64)
- !!!! CMPI_RC_ERR_FAILED [type mismatch]
  -- #C Continue evaluating using GetDOC
  !!!! CMPI_RC_ERR_FAILED [parse error: syntax error]
  -- #D Continue evaluating using GetCOD

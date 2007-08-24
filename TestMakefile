@@ -304,7 +304,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestSuites
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SDK_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_ExportClientSSL_TS1
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cmpi_Sub
 endif
 

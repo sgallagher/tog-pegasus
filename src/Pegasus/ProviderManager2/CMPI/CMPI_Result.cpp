@@ -118,7 +118,7 @@ CMPIStatus resolveEmbeddedInstanceTypes(
                    Remove the old property, add the new, and adjust the
                    loop counters appropriately.
                 */
-                inst.removeProperty(propIndex);
+                inst.removeProperty(i);
                 inst.addProperty(normalizedProperty);
                 --i;
                 --n;

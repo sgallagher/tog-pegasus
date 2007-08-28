@@ -4617,6 +4617,12 @@ CIM server listening on HTTPS port {0}."}
          */
      Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME:string{"PGS13004:  No username is registered to this certificate."}
 
+        /**
+         * @note PGS13005:
+         * @version 2.6.2
+         */
+     Pegasus.Server.HTTPAuthenticatorDelegator.CERTIFICATE_USER_NOT_VALID:string{"PGS13005:  The user ''{0}'' registered to this certificate is not a valid user."}
+
 
     // ==========================================================
         // Messages for Server.CIMServer

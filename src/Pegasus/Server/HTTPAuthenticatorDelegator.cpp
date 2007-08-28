@@ -530,13 +530,30 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // Validate user information
             //
 
-            if (!_authenticationManager->validateUserForHttpAuth(certUserName))
+            if (certUserName == String::EMPTY)
             {
                 MessageLoaderParms msgParms(
                     "Pegasus.Server.HTTPAuthenticatorDelegator."
                         "BAD_CERTIFICATE_USERNAME",
-                    "The username registered to this certificate is not a "
-                        "valid user.");
+                    "No username is registered to this certificate.");
+                _sendHttpError(
+                    queueId,
+                    HTTP_STATUS_UNAUTHORIZED,
+                    String::EMPTY,
+                    MessageLoader::getMessage(msgParms),
+                    closeConnect);
+                PEG_METHOD_EXIT();
+                return;
+            }
+
+            if (!_authenticationManager->validateUserForHttpAuth(certUserName))
+            {
+                MessageLoaderParms msgParms(
+                    "Pegasus.Server.HTTPAuthenticatorDelegator."
+                        "CERTIFICATE_USER_NOT_VALID",
+                    "The '$0' user registered to this certificate is not a "
+                        "valid user.", 
+                        certUserName);
                 _sendHttpError(
                     queueId,
                     HTTP_STATUS_UNAUTHORIZED,
@@ -810,7 +827,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // The following is processing to unwrap (decrypt) the request
             // from the client when using kerberos authentication.
             sa->unwrapRequestMessage(
-                httpMessage->message, contentLength, isRequestAuthenticated, sendAction);
+                httpMessage->message, 
+                contentLength, 
+                isRequestAuthenticated, 
+                sendAction);
 
             if (sendAction)  // send success or send response
             {

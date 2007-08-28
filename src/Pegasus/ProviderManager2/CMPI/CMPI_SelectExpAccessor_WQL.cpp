@@ -101,7 +101,7 @@ Boolean CMPI_SelectExpAccessor_WQL::getValue(
                 value=WQLOperand(data.value.sint16, WQL_INTEGER_VALUE_TAG);
                 break;
             case CMPI_uint8:
-                value=WQLOperand(data.value.sint32, WQL_INTEGER_VALUE_TAG);
+                value=WQLOperand(data.value.sint8, WQL_INTEGER_VALUE_TAG);
                 break;
             case CMPI_uint64:
                 value=WQLOperand(data.value.sint64, WQL_INTEGER_VALUE_TAG);

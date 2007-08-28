@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #include "ProviderRegistrationManager.h"
 
 #include <Pegasus/Common/ArrayInternal.h>
@@ -4001,25 +4003,18 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
         Uint32 _queueId = _service->getQueueId();
 
         // create request envelope
-        AsyncLegacyOperationStart asyncRequest(
-            NULL,
-            _queueId,
-            notify_req,
-            _queueId);
+        AsyncLegacyOperationStart* asyncRequest =
+            new AsyncLegacyOperationStart(
+                NULL,
+                _queueId,
+                notify_req,
+                _queueId);
 
-        AutoPtr<AsyncReply> asyncReply(
-            controller->ClientSendWait(_queueId, &asyncRequest));
-
-        AutoPtr <CIMNotifyProviderRegistrationResponseMessage> response
-            (reinterpret_cast <CIMNotifyProviderRegistrationResponseMessage *>
-            ((dynamic_cast <AsyncLegacyOperationResult *>
-            (asyncReply.get ()))->get_result ()));
-
-        if (response->cimException.getCode () != CIM_ERR_SUCCESS)
-        {
-            CIMException e = response->cimException;
-            throw e;
-        }
+        //
+        // The IndicationService logs errors that may result from this
+        // operation.  They are not propagated back in the response message.
+        //
+        controller->ClientSendForget(_queueId, asyncRequest);
     }
 }
 

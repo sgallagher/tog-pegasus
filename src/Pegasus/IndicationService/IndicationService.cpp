@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -2418,8 +2420,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMNotifyProviderRegistrationRequestMessage* request =
         (CIMNotifyProviderRegistrationRequestMessage*) message;
 
-    CIMException cimException;
-
     ProviderIdContainer pidc = request->operationContext.get
         (ProviderIdContainer::NAME);
     CIMInstance provider = pidc.getProvider();
@@ -2857,7 +2857,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     //  Send response
     //
     CIMResponseMessage * response = request->buildResponse ();
-    response->cimException = cimException;
     _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();

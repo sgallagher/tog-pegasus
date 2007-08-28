@@ -53,7 +53,7 @@ poststarttests:
 ##==============================================================================
 
 static:
-	g++ -static -o chksrc chksrc.c
+	gcc -static -o chksrc chksrc.c
 
 install:
 	cp chksrc /usr/local/bin/chksrc

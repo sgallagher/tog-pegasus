@@ -55,37 +55,49 @@
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 #include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 
-#define HANDLE_PROVIDER_EXCEPTION(providerCall, handler)               \
-    try                                                                \
-    {                                                                  \
-        providerCall;                                                  \
-    }                                                                  \
-    catch (CIMException& e)                                            \
-    {                                                                  \
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,          \
-            "Provider CIMException: " + e.getMessage());               \
-        handler.setCIMException(e);                                    \
-    }                                                                  \
-    catch (Exception& e)                                               \
-    {                                                                  \
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,          \
-            "Provider Exception: " + e.getMessage());                  \
-        handler.setStatus(                                             \
-            CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage());  \
-    }                                                                  \
-    catch (const PEGASUS_STD(exception)& e)                            \
+#define HANDLE_PROVIDER_CALL(traceString, providerCall, handler)       \
+    do                                                                 \
     {                                                                  \
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,                \
-            "Provider exception: %s", e.what()));                      \
-        handler.setStatus(CIM_ERR_FAILED, e.what());                   \
-    }                                                                  \
-    catch (...)                                                        \
-    {                                                                  \
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,         \
-            "Provider unknown exception");                             \
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");           \
-    }
-
+            "Calling provider." #traceString ": %s",                   \
+            (const char*)_fullyQualifiedProviderName.getCString()));   \
+        try                                                            \
+        {                                                              \
+            providerCall;                                              \
+        }                                                              \
+        catch (CIMException& e)                                        \
+        {                                                              \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
+                "Provider CIMException: %s",                           \
+                (const char*)e.getMessage().getCString()));            \
+            handler.setCIMException(e);                                \
+        }                                                              \
+        catch (Exception& e)                                           \
+        {                                                              \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
+                "Provider Exception: %s",                              \
+                (const char*)e.getMessage().getCString()));            \
+            handler.setStatus(                                         \
+                CIM_ERR_FAILED,                                        \
+                e.getContentLanguages(),                               \
+                e.getMessage());                                       \
+        }                                                              \
+        catch (const PEGASUS_STD(exception)& e)                        \
+        {                                                              \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
+                "Provider exception: %s", e.what()));                  \
+            handler.setStatus(CIM_ERR_FAILED, e.what());               \
+        }                                                              \
+        catch (...)                                                    \
+        {                                                              \
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,     \
+                "Provider unknown exception");                         \
+            handler.setStatus(CIM_ERR_FAILED, "Unknown error.");       \
+        }                                                              \
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,                \
+            "Returned from provider." #traceString ": %s",             \
+            (const char*)_fullyQualifiedProviderName.getCString()));   \
+    } while (0)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -108,12 +120,14 @@ inline T* getProviderInterface(CIMProvider* provider)
 // Default Provider Manager
 //
 ProviderMessageHandler::ProviderMessageHandler(
+    const String& moduleName,
     const String& name,
     CIMProvider* provider,
     PEGASUS_INDICATION_CALLBACK_T indicationCallback,
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     Boolean subscriptionInitComplete)
     : _name(name),
+      _fullyQualifiedProviderName(moduleName + ":" + name),
       _provider(provider),
       _indicationCallback(indicationCallback),
       _responseChunkCallback(responseChunkCallback),
@@ -143,12 +157,34 @@ void ProviderMessageHandler::setProvider(CIMProvider* provider)
 
 void ProviderMessageHandler::initialize(CIMOMHandle& cimom)
 {
-    _provider->initialize(cimom);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Calling provider.initialize: %s",
+        (const char*)_fullyQualifiedProviderName.getCString()));
+
+    try
+    {
+        _provider->initialize(cimom);
+    }
+    catch (...)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught exception from provider %s initialize() method.",
+            (const char*)_fullyQualifiedProviderName.getCString()));
+        throw;
+    }
+
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Returned from provider.initialize: %s",
+        (const char*)_fullyQualifiedProviderName.getCString()));
 }
 
 void ProviderMessageHandler::terminate()
 {
     _disableIndications();
+
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Calling provider.terminate: %s",
+        (const char*)_fullyQualifiedProviderName.getCString()));
 
     try
     {
@@ -156,10 +192,15 @@ void ProviderMessageHandler::terminate()
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Caught exception from provider " + _name +
-                " terminate() method.");
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught exception from provider %s terminate() method.",
+            (const char*)_fullyQualifiedProviderName.getCString()));
+        throw;
     }
+
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Returned from provider.terminate: %s",
+        (const char*)_fullyQualifiedProviderName.getCString()));
 }
 
 void ProviderMessageHandler::subscriptionInitComplete()
@@ -343,12 +384,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetInstanceRequest(
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.getInstance: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        getInstance,
         provider->getInstance(
             providerContext,
             objectPath,
@@ -356,7 +395,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetInstanceRequest(
             request->includeClassOrigin,
             request->propertyList,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -400,12 +439,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.enumerateInstances: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        enumerateInstances,
         provider->enumerateInstances(
             providerContext,
             objectPath,
@@ -413,7 +450,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
             request->includeClassOrigin,
             request->propertyList,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -458,17 +495,15 @@ CIMResponseMessage*
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.enumerateInstanceNames: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        enumerateInstanceNames,
         provider->enumerateInstanceNames(
             providerContext,
             objectPath,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -513,18 +548,16 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateInstanceRequest(
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.createInstance: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        createInstance,
         provider->createInstance(
             providerContext,
             objectPath,
             request->newInstance,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -569,12 +602,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifyInstanceRequest(
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.modifyInstance: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        modifyInstance,
         provider->modifyInstance(
             providerContext,
             objectPath,
@@ -582,7 +613,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifyInstanceRequest(
             request->includeQualifiers,
             request->propertyList,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -627,17 +658,15 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteInstanceRequest(
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.deleteInstance: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        deleteInstance,
         provider->deleteInstance(
             providerContext,
             objectPath,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -683,18 +712,16 @@ CIMResponseMessage* ProviderMessageHandler::_handleExecQueryRequest(
     CIMInstanceQueryProvider* provider =
         getProviderInterface<CIMInstanceQueryProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.execQuery: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        execQuery,
         provider->execQuery(
             providerContext,
             objectPath,
             qx,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -745,12 +772,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.associators: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        associators,
         provider->associators(
             providerContext,
             objectPath,
@@ -762,7 +787,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
             request->includeClassOrigin,
             request->propertyList,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -813,12 +838,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.associatorNames: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        associatorNames,
         provider->associatorNames(
             providerContext,
             objectPath,
@@ -827,7 +850,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
             request->role,
             request->resultRole,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -878,12 +901,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.references: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        references,
         provider->references(
             providerContext,
             objectPath,
@@ -893,7 +914,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
             request->includeClassOrigin,
             request->propertyList,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -944,19 +965,17 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferenceNamesRequest(
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.referenceNames: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        referenceNames,
         provider->referenceNames(
             providerContext,
             objectPath,
             request->resultClass,
             request->role,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -1029,12 +1048,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.getInstance: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        getInstance,
         provider->getInstance(
             providerContext,
             objectPath,
@@ -1042,7 +1059,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
             getInstanceRequest.includeClassOrigin,
             getInstanceRequest.propertyList,
             handler),
-        handler)
+        handler);
 
     //
     // Copy the GetInstance response into the GetProperty response message
@@ -1144,12 +1161,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.modifyInstance: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        modifyInstance,
         provider->modifyInstance(
             providerContext,
             objectPath,
@@ -1157,7 +1172,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
             modifyInstanceRequest.includeQualifiers,
             modifyInstanceRequest.propertyList,
             handler),
-        handler)
+        handler);
 
     //
     // Copy the ModifyInstance response into the GetProperty response message
@@ -1209,19 +1224,17 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
     CIMMethodProvider* provider =
         getProviderInterface<CIMMethodProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.invokeMethod: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        invokeMethod,
         provider->invokeMethod(
             providerContext,
             objectPath,
             request->methodName,
             request->inParameters,
             handler),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -1300,19 +1313,17 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateSubscriptionRequest(
     CIMIndicationProvider* provider =
         getProviderInterface<CIMIndicationProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.createSubscription: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        createSubscription,
         provider->createSubscription(
             providerContext,
             request->subscriptionInstance.getPath(),
             classNames,
             request->propertyList,
             request->repeatNotificationPolicy),
-        handler)
+        handler);
 
     //
     //  Increment count of current subscriptions for this provider
@@ -1403,19 +1414,17 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
     CIMIndicationProvider* provider =
         getProviderInterface<CIMIndicationProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.modifySubscription: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        modifySubscription,
         provider->modifySubscription(
             providerContext,
             request->subscriptionInstance.getPath(),
             classNames,
             request->propertyList,
             request->repeatNotificationPolicy),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -1481,17 +1490,15 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
     CIMIndicationProvider* provider =
         getProviderInterface<CIMIndicationProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.deleteSubscription: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        deleteSubscription,
         provider->deleteSubscription(
             providerContext,
             request->subscriptionInstance.getPath(),
             classNames),
-        handler)
+        handler);
 
     //
     //  Decrement count of current subscriptions for this provider
@@ -1547,17 +1554,15 @@ CIMResponseMessage* ProviderMessageHandler::_handleExportIndicationRequest(
     CIMIndicationConsumerProvider* provider =
         getProviderInterface<CIMIndicationConsumerProvider>(_provider);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Calling provider.consumeIndication: " + _name);
-
     StatProviderTimeMeasurement providerTime(response.get());
 
-    HANDLE_PROVIDER_EXCEPTION(
+    HANDLE_PROVIDER_CALL(
+        consumeIndication,
         provider->consumeIndication(
             providerContext,
             request->destinationPath,
             request->indicationInstance),
-        handler)
+        handler);
 
     PEG_METHOD_EXIT();
     return response.release();
@@ -1585,10 +1590,26 @@ void ProviderMessageHandler::_enableIndications()
         CIMIndicationProvider* provider =
             getProviderInterface<CIMIndicationProvider>(_provider);
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.enableIndications: " + _name);
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.enableIndications: %s",
+            (const char*)_fullyQualifiedProviderName.getCString()));
 
-        provider->enableIndications(*indicationResponseHandler);
+        try
+        {
+            provider->enableIndications(*indicationResponseHandler);
+        }
+        catch (...)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Caught exception from provider %s "
+                    "enableIndications() method.",
+                (const char*)_fullyQualifiedProviderName.getCString()));
+            throw;
+        }
+
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Returned from provider.enableIndications: %s",
+            (const char*)_fullyQualifiedProviderName.getCString()));
     }
     catch (Exception& e)
     {
@@ -1599,7 +1620,7 @@ void ProviderMessageHandler::_enableIndications()
             "ProviderManager.Default.DefaultProviderManager."
                 "ENABLE_INDICATIONS_FAILED",
             "Failed to enable indications for provider $0: $1.",
-            _name, e.getMessage());
+             _fullyQualifiedProviderName, e.getMessage());
     }
     catch(...)
     {
@@ -1610,7 +1631,7 @@ void ProviderMessageHandler::_enableIndications()
             "ProviderManager.Default.DefaultProviderManager."
                 "ENABLE_INDICATIONS_FAILED_UNKNOWN",
             "Failed to enable indications for provider $0.",
-            _name);
+            _fullyQualifiedProviderName);
     }
 
     PEG_METHOD_EXIT();
@@ -1628,8 +1649,9 @@ void ProviderMessageHandler::_disableIndications()
             CIMIndicationProvider* provider =
                 getProviderInterface<CIMIndicationProvider>(_provider);
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Calling provider.disableIndications: " + _name);
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Calling provider.disableIndications: %s",
+                (const char*)_fullyQualifiedProviderName.getCString()));
 
             try
             {
@@ -1637,17 +1659,24 @@ void ProviderMessageHandler::_disableIndications()
             }
             catch (...)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "Caught exception from provider " + _name +
-                        " disableIndications() method.");
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Caught exception from provider %s "
+                        "disableIndications() method.",
+                    (const char*)_fullyQualifiedProviderName.getCString()));
+                throw;
             }
+
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Returned from  provider.disableIndications: %s",
+                (const char*)_fullyQualifiedProviderName.getCString()));
 
             status.setIndicationsEnabled(false);
 
             status.resetSubscriptions();
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Destroying indication response handler for " + _name);
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Destroying indication response handler for %s",
+                (const char*)_fullyQualifiedProviderName.getCString()));
 
             delete _indicationResponseHandler;
             _indicationResponseHandler = 0;
@@ -1655,9 +1684,10 @@ void ProviderMessageHandler::_disableIndications()
     }
     catch(...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-            "Error occured disabling indications in provider " + _name);
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            "Error occured disabling indications in provider %s",
+            (const char*)_fullyQualifiedProviderName.getCString()));
     }
+    PEG_METHOD_EXIT();
 }
-
 PEGASUS_NAMESPACE_END

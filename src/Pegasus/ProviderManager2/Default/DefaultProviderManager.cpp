@@ -480,7 +480,8 @@ ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
     {
         // create provider
         pr = new ProviderMessageHandler(
-            providerName, 0, _indicationCallback, _responseChunkCallback,
+            moduleName, providerName, 
+            0, _indicationCallback, _responseChunkCallback,
             _subscriptionInitComplete);
 
         // insert provider in provider table

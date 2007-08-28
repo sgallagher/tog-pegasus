@@ -336,7 +336,8 @@ void testGetPropertyError()
     oc.insert(ContentLanguageListContainer(ContentLanguageList()));
 
     GetPropertyErrorProvider np;
-    ProviderMessageHandler pmh("GetPropertyErrorProvider", &np, 0, 0, false);
+    ProviderMessageHandler pmh("GetPropertyErrorModule", 
+        "GetPropertyErrorProvider", &np, 0, 0, false);
 
     // Test GetProperty where the requested property is not contained in the
     // instance delivered.
@@ -366,14 +367,15 @@ int main(int argc, char** argv)
     try
     {
         ExceptionProvider ep;
-        ProviderMessageHandler pmh("Test", &ep, 0, 0, false);
+        ProviderMessageHandler pmh("TestModule", "Test", &ep, 0, 0, false);
         testExceptions(&pmh, "CIM_Exception");
         testExceptions(&pmh, "Regular_Exception");
         testExceptions(&pmh, "Cxx_Exception");
         testExceptions(&pmh, "Other_Exception");
 
         NotARealProvider np;
-        ProviderMessageHandler pmh2("BadProvider", &np, 0, 0, false);
+        ProviderMessageHandler pmh2("BadModule", "BadProvider",
+            &np, 0, 0, false);
         testExceptions(&pmh2, "Not_Provider");
 
         testGetPropertyError();

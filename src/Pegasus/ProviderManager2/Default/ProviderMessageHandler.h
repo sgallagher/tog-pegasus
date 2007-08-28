@@ -47,6 +47,7 @@ class PEGASUS_DEFPM_LINKAGE ProviderMessageHandler
 {
 public:
     ProviderMessageHandler(
+        const String& moduleName,
         const String& name,
         CIMProvider* provider,
         PEGASUS_INDICATION_CALLBACK_T indicationCallback,
@@ -125,6 +126,7 @@ private:
     void _disableIndications();
 
     String _name;
+    String _fullyQualifiedProviderName;
     CIMProvider* _provider;
     PEGASUS_INDICATION_CALLBACK_T _indicationCallback;
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T _responseChunkCallback;

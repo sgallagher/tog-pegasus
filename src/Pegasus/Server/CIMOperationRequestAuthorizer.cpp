@@ -1,42 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#ifndef PEGASUS_PAM_AUTHENTICATION
-# include <Pegasus/Security/UserManager/UserManager.h>
-#endif
+#include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include "CIMOperationRequestAuthorizer.h"
 
@@ -170,7 +170,13 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
     // Set the client's requested language into this service thread.
     // This will allow functions in this service to return messages
     // in the correct language.
-    req->updateThreadLanguages();
+    if (req->thread_changed())
+    {
+        AutoPtr<AcceptLanguageList> langs(new AcceptLanguageList(
+            ((AcceptLanguageListContainer)req->operationContext.get(
+                AcceptLanguageListContainer::NAME)).getLanguages()));
+        Thread::setLanguages(langs.release());
+    }
 
     //
     // If CIMOM is shutting down, return "Service Unavailable" response
@@ -192,7 +198,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
         IdentityContainer::NAME))).getUserName();
     String authType = req->authType;
     CIMNamespaceName nameSpace = req->nameSpace;
-    String cimMethodName;
+    String cimMethodName = String::EMPTY;
 
     switch (req->getType())
     {
@@ -293,7 +299,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -316,8 +322,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                     MessageLoaderParms(
                         "Server.CIMOperationRequestAuthorizer."
                             "NAMESPACE_AUTHORIZATION_FAILED",
-                        "User '$0' is not authorized to run '$1' in the "
-                            "namespace '$2'",
+                        "User '$0' is not authorized to run '$1' "
+                            "in the namespace '$2'",
                         userName, cimMethodName, nameSpace.getString())));
         }
         else
@@ -331,8 +337,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                     MessageLoaderParms(
                         "Server.CIMOperationRequestAuthorizer."
                             "NAMESPACE_AUTHORIZATION_FAILED",
-                        "User '$0' is not authorized to run '$1' in the "
-                            "namespace '$2'",
+                        "User '$0' is not authorized to run '$1' "
+                            "in the namespace '$2'",
                         userName, cimMethodName, nameSpace.getString())));
         }
         PEG_METHOD_EXIT();
@@ -349,7 +355,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
     {
         if ( ! System::isPrivilegedUser(userName) )
         {
-            const Uint32 size = _authorizedUserGroups.size();
+            Uint32 size = _authorizedUserGroups.size();
 
             if (size > 0)
             {
@@ -377,10 +383,9 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                 //
                 if (!authorized)
                 {
-                    PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
-                        "Authorization Failed: User '%s' "
-                        "is not a member of the authorized groups",
-                        (const char*)userName.getCString()));
+                    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+                        "Authorization Failed: User '" + userName +
+                            "' is not a member of the authorized groups");
 
                     MessageLoaderParms msgLoaderParms(
                         "Server.CIMOperationRequestAuthorizer."
@@ -448,9 +453,17 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
         //
         // If the user is not privileged, perform the authorization check.
         //
+#if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
         if (!System::isPrivilegedUser(userName))
+#else
+        // On OS/400, always check authorization if remote user.
+        // Always allow local privileged users through.
+        // Check authorization for local non-privileged users.
+        // (User authorization to providers are checked downstream from here).
+        if (!String::equalNoCase(authType,"Local") ||
+            !System::isPrivilegedUser(userName))
+#endif
         {
-#ifndef PEGASUS_PAM_AUTHENTICATION
             UserManager* userManager = UserManager::getInstance();
 
             if (!userManager ||
@@ -468,8 +481,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                           MessageLoaderParms(
                               "Server.CIMOperationRequestAuthorizer."
                                   "NAMESPACE_AUTHORIZATION_FAILED",
-                              "User '$0' is not authorized to run '$1' in the "
-                                  "namespace '$2'",
+                              "User '$0' is not authorized to run '$1' "
+                                  "in the namespace '$2'",
                               userName, cimMethodName, nameSpace.getString())));
                 }
                 else
@@ -483,17 +496,15 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                             MessageLoaderParms(
                                 "Server.CIMOperationRequestAuthorizer."
                                     "NAMESPACE_AUTHORIZATION_FAILED",
-                                "User '$0' is not authorized to run '$1' in "
-                                    "the namespace '$2'",
-                                userName,
-                                cimMethodName,
+                                "User '$0' is not authorized to run '$1' "
+                                    "in the namespace '$2'",
+                                userName, cimMethodName, 
                                 nameSpace.getString())));
                 }
 
                 PEG_METHOD_EXIT();
                 return;
             }
-#endif
         }
     }
 
@@ -512,9 +523,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue()
 
     Message* request = dequeue();
     if (request)
-    {
         handleEnqueue(request);
-    }
 
     PEG_METHOD_EXIT();
 }
@@ -536,7 +545,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
 
     Array<String> authorizedGroups;
 
-    String groupNames;
+    String groupNames = String::EMPTY;
 
     //
     // Get a config manager instance
@@ -548,7 +557,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
     //
     // Check if the group name is empty
     //
-    if (groupNames.size() == 0 )
+    if (groupNames == String::EMPTY || groupNames == "")
     {
         PEG_METHOD_EXIT();
         return authorizedGroups;
@@ -562,7 +571,7 @@ Array<String> CIMOperationRequestAuthorizer::_getAuthorizedUserGroups()
     Uint32 position = 0;
     String groupName;
 
-    while (groupNames.size() != 0 )
+    while (groupNames != String::EMPTY)
     {
         //
         // Get a group name from user groups

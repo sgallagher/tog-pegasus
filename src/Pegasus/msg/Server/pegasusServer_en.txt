@@ -2135,6 +2135,7 @@ not be valid."}
         * @note  PGS05200
         *    Substitution {0} is the name of the CIM operation (a string)
         *    Substitution {1} is the namespace (a string)
+        *    This message is no longer used in 2.6.2. Message PGS05203 obsoletes this message.
         */
         Server.CIMOperationRequestAuthorizer.NOT_AUTHORIZED:string {"PGS05200: The user is not authorized to run {0} in the namespace {1}."}
 
@@ -2145,6 +2146,15 @@ not be valid."}
         *    Substitution {0} is the user name requesting a CIM operation (a string)
         */
         Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:string {"PGS05202: User ''{0}'' is not authorized to access CIM data."}
+
+        /**
+        * @note  PGS05203
+        *    Substitution {0} is the name of the user (a string)
+        *    Substitution {1} is the name of the CIM operation (a string)
+        *    Substitution {2} is the namespace (a string)
+        *    @version 2.6.2
+        */
+        Server.CIMOperationRequestAuthorizer.NAMESPACE_AUTHORIZATION_FAILED:string {"PGS05203: The user ''{0}'' is not authorized to run ''{1}'' in the namespace ''{2}''."}
 
 
         // ==========================================================

@@ -752,6 +752,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                            " to profile CIMSERV CL(WBEM).",
                            connectionUserName);
 
+                       PEG_AUDIT_LOG(logCertificateBasedUserValidation(
+                                        connectionUserName,
+                                        String::EMPTY,
+                                        String::EMPTY,
+                                        String::EMPTY,
+                                        httpMessage->ipAddress,
+                                        false));
+
                        _sendHttpError(
                            queueId,
                            HTTP_STATUS_UNAUTHORIZED,
@@ -865,18 +873,38 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                 (const char*)requestUserName.getCString()
                                 ));
 
-                           // Write local authentication audit reckord.
-                           PEG_AUDIT_LOG(logLocalAuthentication(
-                                            requestUserName,true));
-
                         } // end changed authenticated user
 
-                    } // end select authenticated user
                     PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                          "User authenticated for request = '%s'.",
                          (const char*)httpMessage->authInfo->
                                getAuthenticatedUser().getCString()
                          ));
+
+                        // Write local authentication audit record.
+                        PEG_AUDIT_LOG(logLocalAuthentication(
+                             requestUserName,true));
+
+                    } // end select authenticated user
+                    else
+                    {
+                        PEG_AUDIT_LOG(logLocalAuthentication(
+                             requestUserName,false));
+
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                             "User '%s' not authorized for request",
+                             (const char*)requestUserName.getCString()));
+
+                        _sendHttpError(
+                            queueId,
+                            HTTP_STATUS_UNAUTHORIZED,
+                            String::EMPTY,
+                            String::EMPTY,
+                            closeConnect);
+
+                        PEG_METHOD_EXIT();
+                        return;
+                    }
                 } // end lookup header
                 else
                 {                   

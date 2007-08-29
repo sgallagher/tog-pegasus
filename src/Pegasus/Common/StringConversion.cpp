@@ -262,4 +262,384 @@ const char* Sint64ToString(char buffer[22], Sint64 x, Uint32& size)
     return Converter<Sint64, Uint64>::sintToString(buffer, x, size);
 }
 
+//------------------------------------------------------------------------------
+//
+// decimalStringToUint64
+//
+//      ( positiveDecimalDigit *decimalDigit | "0" )
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::decimalStringToUint64(
+    const char* stringValue,
+    Uint64& x)
+{
+    x = 0;
+    const char* p = stringValue;
+
+    if (!p || !*p)
+    {
+        return false;
+    }
+
+    if (*p == '0')
+    {
+        // A decimal string that starts with '0' must be exactly "0".
+        return p[1] == '\0';
+    }
+
+    // Add on each digit, checking for overflow errors
+    while (isdigit(*p))
+    {
+        // Make sure we won't overflow when we multiply by 10
+        if (x > PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)/10)
+        {
+            return false;
+        }
+        x = 10 * x;
+
+        // Make sure we won't overflow when we add the next digit
+        Uint64 newDigit = (*p++ - '0');
+        if (PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF) - x < newDigit)
+        {
+            return false;
+        }
+        x = x + newDigit;
+    }
+
+    // If we found a non-decimal digit, report an error
+    return (!*p);
+}
+
+//------------------------------------------------------------------------------
+//
+// hexStringToUint64
+//
+//      ( "0x" | "0X" ) 1*hexDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::hexStringToUint64(
+    const char* stringValue,
+    Uint64& x)
+{
+    x = 0;
+    const char* p = stringValue;
+
+    if (!p || !*p)
+    {
+        return false;
+    }
+
+    if ((p[0] != '0') || ((p[1] != 'x') && (p[1] != 'X')))
+    {
+        return false;
+    }
+
+    // Skip over the "0x"
+    p+=2;
+
+    // At least one hexadecimal digit is required
+    if (!*p)
+    {
+        return false;
+    }
+
+    // Add on each digit, checking for overflow errors
+    while (isxdigit(*p))
+    {
+        // Make sure we won't overflow when we multiply by 16
+        if (x & 0xF000000000000000)
+        {
+            return false;
+        }
+
+        x = (x << 4) + Uint64(hexCharToNumeric(*p++));
+    }
+
+    // If we found a non-hexadecimal digit, report an error
+    return (!*p);
+}
+
+//------------------------------------------------------------------------------
+//
+// octalStringToUint64
+//
+//      "0" 1*octalDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::octalStringToUint64(
+    const char* stringValue,
+    Uint64& x)
+{
+    x = 0;
+    const char* p = stringValue;
+
+    if (!p || !*p)
+    {
+        return false;
+    }
+
+    if (*p++ != '0')
+    {
+        return false;
+    }
+
+    // At least one octal digit is required
+    if (!*p)
+    {
+        return false;
+    }
+
+    // Add on each digit, checking for overflow errors
+    while ((*p >= '0') && (*p <= '7'))
+    {
+        // Make sure we won't overflow when we multiply by 8
+        if (x & 0xE000000000000000)
+        {
+            return false;
+        }
+
+        x = (x << 3) + Uint64(*p++ - '0');
+    }
+
+    // If we found a non-octal digit, report an error
+    return (!*p);
+}
+
+//------------------------------------------------------------------------------
+//
+// binaryStringToUint64
+//
+//      1*binaryDigit ( "b" | "B" )
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::binaryStringToUint64(
+    const char* stringValue,
+    Uint64& x)
+{
+    x = 0;
+    const char* p = stringValue;
+
+    if (!p || !*p)
+    {
+        return false;
+    }
+
+    // At least two characters are required
+    if (!*(p+1))
+    {
+        return false;
+    }
+
+    // Add on each digit, checking for overflow errors
+    while ((*p == '0') || (*p == '1'))
+    {
+        // Make sure we won't overflow when we multiply by 2
+        if (x & 0x8000000000000000)
+        {
+            return false;
+        }
+
+        // We can't overflow when we add the next digit
+        x = (x << 1) + Uint64(*p++ - '0');
+    }
+
+    if ((*p != 'b') && (*p != 'B'))
+    {
+        return false;
+    }
+
+    // No additional characters are permitted
+    return (!*++p);
+}
+
+Boolean StringConversion::checkUintBounds(
+    Uint64 x,
+    CIMType type)
+{
+    switch (type)
+    {
+        case CIMTYPE_UINT8:
+            return !(x & PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFF00));
+        case CIMTYPE_UINT16:
+            return !(x & PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFF0000));
+        case CIMTYPE_UINT32:
+            return !(x & PEGASUS_UINT64_LITERAL(0xFFFFFFFF00000000));
+        case CIMTYPE_UINT64:
+            return true;
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+//
+// stringToSint64
+//
+//      [ "+" | "-" ] (unsigned integer format)
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::stringToSint64(
+    const char* stringValue,
+    Boolean (*uint64Converter)(const char*, Uint64&),
+    Sint64& x)
+{
+    x = 0;
+
+    if (!stringValue)
+    {
+        return false;
+    }
+
+    // Skip optional sign
+
+    Boolean negative = *stringValue == '-';
+
+    if (negative || *stringValue == '+')
+    {
+        stringValue++;
+    }
+
+    // Convert the remaining unsigned integer
+
+    Uint64 uint64Value = 0;
+    if (!(uint64Converter(stringValue, uint64Value)))
+    {
+        return false;
+    }
+
+    // Convert the unsigned integer to a signed integer
+
+    if (negative)
+    {
+        if (uint64Value > PEGASUS_UINT64_LITERAL(0x8000000000000000))
+        {
+            return false;
+        }
+        x = -Sint64(uint64Value);
+    }
+    else
+    {
+        if (uint64Value > PEGASUS_UINT64_LITERAL(0x7FFFFFFFFFFFFFFF))
+        {
+            return false;
+        }
+        x = Sint64(uint64Value);
+    }
+
+    return true;
+}
+
+Boolean StringConversion::checkSintBounds(
+    Sint64 x,
+    CIMType type)
+{
+    switch (type)
+    {
+        case CIMTYPE_SINT8:
+            return (((x & PEGASUS_SINT64_LITERAL(0xFFFFFFFFFFFFFF80)) == 0) ||
+                    ((x & PEGASUS_SINT64_LITERAL(0xFFFFFFFFFFFFFF80)) ==
+                          PEGASUS_SINT64_LITERAL(0xFFFFFFFFFFFFFF80)));
+        case CIMTYPE_SINT16:
+            return (((x & PEGASUS_SINT64_LITERAL(0xFFFFFFFFFFFF8000)) == 0) ||
+                    ((x & PEGASUS_SINT64_LITERAL(0xFFFFFFFFFFFF8000)) ==
+                          PEGASUS_SINT64_LITERAL(0xFFFFFFFFFFFF8000)));
+        case CIMTYPE_SINT32:
+            return (((x & PEGASUS_SINT64_LITERAL(0xFFFFFFFF80000000)) == 0) ||
+                    ((x & PEGASUS_SINT64_LITERAL(0xFFFFFFFF80000000)) ==
+                          PEGASUS_SINT64_LITERAL(0xFFFFFFFF80000000)));
+        case CIMTYPE_SINT64:
+            return true;
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+//
+// stringToReal64
+//
+//      [ "+" | "-" ] *decimalDigit "." 1*decimalDigit
+//          [ ( "e" | "E" ) [ "+" | "-" ] 1*decimalDigit ]
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::stringToReal64(
+    const char* stringValue,
+    Real64& x)
+{
+    //
+    // Check the string against the DMTF-defined grammar
+    //
+    const char* p = stringValue;
+
+    if (!p || !*p)
+        return false;
+
+    // Skip optional sign:
+
+    if (*p == '+' || *p  == '-')
+        p++;
+
+    // Skip optional first set of digits:
+
+    while (isdigit(*p))
+        p++;
+
+    // Test required dot:
+
+    if (*p++ != '.')
+        return false;
+
+    // One or more digits required:
+
+    if (!isdigit(*p++))
+        return false;
+
+    while (isdigit(*p))
+        p++;
+
+    // If there is an exponent now:
+
+    if (*p)
+    {
+        // Test exponent:
+
+        if (*p != 'e' && *p != 'E')
+            return false;
+
+        p++;
+
+        // Skip optional sign:
+
+        if (*p == '+' || *p  == '-')
+            p++;
+
+        // One or more digits required:
+
+        if (!isdigit(*p++))
+            return false;
+
+        while (isdigit(*p))
+            p++;
+    }
+
+    if (*p)
+        return false;
+
+    //
+    // Do the conversion
+    //
+    char* end;
+
+    errno = 0;
+    x = strtod(stringValue, &end);
+
+    return (!*end && (errno != ERANGE));
+}
+
 PEGASUS_NAMESPACE_END

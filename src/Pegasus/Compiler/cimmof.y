@@ -79,6 +79,7 @@
 #include <cstring>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/StringConversion.h>
 #include "cimmofParser.h"
 #include "valueFactory.h"
 #include "memobjs.h"
@@ -287,7 +288,7 @@ static void MOF_trace2(const char * str, const char * S);
 %type <strval>         stringValue stringValues initializer constantValue
 %type <strval>         TOK_ALIAS_IDENTIFIER  alias
 %type <strval>         TOK_POSITIVE_DECIMAL_VALUE TOK_OCTAL_VALUE TOK_HEX_VALUE
-%type <strval>         TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
+%type <strval>         TOK_BINARY_VALUE TOK_SIGNED_DECIMAL_VALUE
 %type <strval>         TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
 %type <strval>         TOK_UNEXPECTED_CHAR
 %type <typedinitializer> typedInitializer typedDefaultValue
@@ -577,7 +578,11 @@ propertyName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
 
 array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
      TOK_RIGHTSQUAREBRACKET
-        { $$ = valueFactory::Stoi(*$2);
+        {
+            Uint64 u64;
+            /* ATTN: Handle unsuccessful case */
+            StringConversion::decimalStringToUint64($2->getCString(), u64);
+            $$ = u64;
             delete $2;
         }
     | TOK_LEFTSQUAREBRACKET TOK_RIGHTSQUAREBRACKET
@@ -670,22 +675,10 @@ nonNullConstantValue: integerValue { $$ = $1; }
 
 
 integerValue: TOK_POSITIVE_DECIMAL_VALUE
-    | TOK_SIGNED_DECIMAL_VALUE
     | TOK_OCTAL_VALUE
-        {
-            $$ = new String(cimmofParser::Instance()->oct_to_dec(*$1));
-            delete $1;
-        }
     | TOK_HEX_VALUE
-        {
-            $$ = new String(cimmofParser::Instance()->hex_to_dec(*$1));
-            delete $1;
-        }
     | TOK_BINARY_VALUE
-        {
-            $$ = new String(cimmofParser::Instance()->binary_to_dec(*$1));
-            delete $1;
-        };
+    | TOK_SIGNED_DECIMAL_VALUE;
 
 
 booleanValue: TOK_FALSE

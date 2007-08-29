@@ -43,6 +43,8 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
+/* NOCHKSRC */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
@@ -264,6 +266,7 @@
 #include <cstring>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/StringConversion.h>
 #include "cimmofParser.h"
 #include "valueFactory.h"
 #include "memobjs.h"
@@ -372,7 +375,7 @@ static void MOF_trace2(const char * str, const char * S);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 170 "cimmof.y"
+#line 171 "cimmof.y"
 {
   //char                     *strval;
   CIMClass                 *mofclass;
@@ -395,9 +398,9 @@ typedef union YYSTYPE
   struct pragma            *pragma;
   TYPED_INITIALIZER_VALUE  *typedinitializer;
 }
-/* Line 187 of yacc.c.  */
-#line 400 "cimmoftemp"
-    YYSTYPE;
+/* Line 193 of yacc.c.  */
+#line 401 "cimmoftemp"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -409,7 +412,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 413 "cimmoftemp"
+#line 414 "cimmoftemp"
 
 #ifdef short
 # undef short
@@ -541,7 +544,7 @@ YYID (i)
 #  endif
 #  if (defined __cplusplus && ! defined _STDLIB_H \
        && ! ((defined YYMALLOC || defined malloc) \
-         && (defined YYFREE || defined free)))
+	     && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   ifndef _STDLIB_H
 #    define _STDLIB_H 1
@@ -567,7 +570,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-     || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+	 || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -592,13 +595,13 @@ union yyalloc
 #   define YYCOPY(To, From, Count) \
       __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
 #  else
-#   define YYCOPY(To, From, Count)      \
-      do                    \
-    {                   \
-      YYSIZE_T yyi;             \
-      for (yyi = 0; yyi < (Count); yyi++)   \
-        (To)[yyi] = (From)[yyi];        \
-    }                   \
+#   define YYCOPY(To, From, Count)		\
+      do					\
+	{					\
+	  YYSIZE_T yyi;				\
+	  for (yyi = 0; yyi < (Count); yyi++)	\
+	    (To)[yyi] = (From)[yyi];		\
+	}					\
       while (YYID (0))
 #  endif
 # endif
@@ -608,15 +611,15 @@ union yyalloc
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack)                    \
-    do                                  \
-      {                                 \
-    YYSIZE_T yynewbytes;                        \
-    YYCOPY (&yyptr->Stack, Stack, yysize);              \
-    Stack = &yyptr->Stack;                      \
-    yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
-    yyptr += yynewbytes / sizeof (*yyptr);              \
-      }                                 \
+# define YYSTACK_RELOCATE(Stack)					\
+    do									\
+      {									\
+	YYSIZE_T yynewbytes;						\
+	YYCOPY (&yyptr->Stack, Stack, yysize);				\
+	Stack = &yyptr->Stack;						\
+	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
+	yyptr += yynewbytes / sizeof (*yyptr);				\
+      }									\
     while (YYID (0))
 
 #endif
@@ -639,7 +642,7 @@ union yyalloc
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   322
 
-#define YYTRANSLATE(YYX)                        \
+#define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
@@ -723,8 +726,8 @@ static const yytype_int16 yyrhs[] =
       -1,   108,    -1,   109,    -1,   103,    -1,    42,    -1,   108,
       -1,   109,    -1,   102,    -1,   101,    11,   102,    -1,   103,
       -1,    42,    -1,   104,    -1,    51,    -1,     8,    -1,   106,
-      -1,   105,    -1,    47,    -1,    61,    -1,    43,    -1,    34,
-      -1,     7,    -1,    32,    -1,    66,    -1,   107,    -1,   106,
+      -1,   105,    -1,    47,    -1,    43,    -1,    34,    -1,     7,
+      -1,    61,    -1,    32,    -1,    66,    -1,   107,    -1,   106,
      107,    -1,    63,    -1,    38,   101,    55,    -1,    38,    55,
       -1,   110,    -1,   111,    -1,    13,   112,   114,    13,    -1,
      119,    -1,   113,    10,    -1,    -1,   107,    -1,    74,    46,
@@ -754,23 +757,23 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   306,   306,   309,   310,   314,   315,   320,   324,   336,
-     344,   364,   367,   368,   371,   372,   375,   376,   379,   385,
-     390,   410,   421,   440,   443,   446,   452,   453,   454,   457,
-     485,   486,   497,   511,   530,   541,   558,   561,   564,   565,
-     568,   572,   575,   578,   583,   586,   589,   591,   598,   600,
-     602,   609,   615,   621,   627,   637,   640,   653,   655,   659,
-     660,   662,   664,   666,   672,   673,   674,   679,   684,   691,
-     693,   697,   698,   704,   736,   738,   742,   743,   746,   763,
-     792,   794,   797,   800,   806,   808,   812,   823,   826,   835,
-     840,   851,   874,   892,   897,   898,   905,   963,   967,   973,
-     980,   983,  1002,  1012,  1021,  1024,  1030,  1031,  1036,  1038,
-    1039,  1040,  1042,  1043,  1044,  1045,  1046,  1050,  1053,  1059,
-    1063,  1064,  1078,  1080,  1081,  1082,  1083,  1086,  1088,  1091,
-    1092,  1096,  1097,  1098,  1099,  1100,  1103,  1104,  1105,  1106,
-    1107,  1108,  1109,  1110,  1111,  1114,  1116,  1126,  1128,  1132,
-    1137,  1139,  1142,  1156,  1158,  1164,  1170,  1176,  1182,  1189,
-    1192
+       0,   307,   307,   310,   311,   315,   316,   321,   325,   337,
+     345,   365,   368,   369,   372,   373,   376,   377,   380,   386,
+     391,   411,   422,   441,   444,   447,   453,   454,   455,   458,
+     486,   487,   498,   512,   531,   542,   559,   562,   565,   566,
+     569,   573,   576,   579,   588,   591,   594,   596,   603,   605,
+     607,   614,   620,   626,   632,   642,   645,   658,   660,   664,
+     665,   667,   669,   671,   677,   678,   679,   680,   681,   684,
+     686,   690,   691,   697,   729,   731,   735,   736,   739,   756,
+     785,   787,   790,   793,   799,   801,   805,   816,   819,   828,
+     833,   844,   867,   885,   890,   891,   898,   956,   960,   966,
+     973,   976,   995,  1005,  1014,  1017,  1023,  1024,  1029,  1031,
+    1032,  1033,  1035,  1036,  1037,  1038,  1039,  1043,  1046,  1052,
+    1056,  1057,  1071,  1073,  1074,  1075,  1076,  1079,  1081,  1084,
+    1085,  1089,  1090,  1091,  1092,  1093,  1096,  1097,  1098,  1099,
+    1100,  1101,  1102,  1103,  1104,  1107,  1109,  1119,  1121,  1125,
+    1130,  1132,  1135,  1149,  1151,  1157,  1163,  1169,  1175,  1182,
+    1185
 };
 #endif
 
@@ -896,8 +899,8 @@ static const yytype_uint8 yydefact[] =
        0,   134,   144,   135,   145,   146,   139,   141,   143,   137,
      133,   138,   140,   142,   136,    45,   131,   132,     0,   118,
        0,    15,     0,    17,    36,     0,     0,     0,     0,     0,
-      95,     0,     0,    13,    89,   151,    68,    61,    69,    67,
-      58,    66,    64,    60,    75,    65,    70,     0,    55,    57,
+      95,     0,     0,    13,    89,   151,    67,    61,    69,    66,
+      58,    65,    64,    60,    75,    68,    70,     0,    55,    57,
       59,    63,    62,    71,     0,     0,   123,   122,   124,   125,
      126,   129,   152,   127,    99,   101,     0,    47,     0,     0,
        0,     0,   106,    14,   148,     0,    34,    32,     0,    42,
@@ -1074,44 +1077,44 @@ static const yytype_uint8 yystos[] =
      116,   117,    11,    31,   116,    99,   102,   108,   109
 };
 
-#define yyerrok     (yyerrstatus = 0)
-#define yyclearin   (yychar = YYEMPTY)
-#define YYEMPTY     (-2)
-#define YYEOF       0
+#define yyerrok		(yyerrstatus = 0)
+#define yyclearin	(yychar = YYEMPTY)
+#define YYEMPTY		(-2)
+#define YYEOF		0
 
-#define YYACCEPT    goto yyacceptlab
-#define YYABORT     goto yyabortlab
-#define YYERROR     goto yyerrorlab
+#define YYACCEPT	goto yyacceptlab
+#define YYABORT		goto yyabortlab
+#define YYERROR		goto yyerrorlab
 
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
    Once GCC version 2 has supplanted version 1, this can go.  */
 
-#define YYFAIL      goto yyerrlab
+#define YYFAIL		goto yyerrlab
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)                  \
-do                              \
-  if (yychar == YYEMPTY && yylen == 1)              \
-    {                               \
-      yychar = (Token);                     \
-      yylval = (Value);                     \
-      yytoken = YYTRANSLATE (yychar);               \
-      YYPOPSTACK (1);                       \
-      goto yybackup;                        \
-    }                               \
-  else                              \
-    {                               \
+#define YYBACKUP(Token, Value)					\
+do								\
+  if (yychar == YYEMPTY && yylen == 1)				\
+    {								\
+      yychar = (Token);						\
+      yylval = (Value);						\
+      yytoken = YYTRANSLATE (yychar);				\
+      YYPOPSTACK (1);						\
+      goto yybackup;						\
+    }								\
+  else								\
+    {								\
       yyerror (YY_("syntax error: cannot back up")); \
-      YYERROR;                          \
-    }                               \
+      YYERROR;							\
+    }								\
 while (YYID (0))
 
 
-#define YYTERROR    1
-#define YYERRCODE   256
+#define YYTERROR	1
+#define YYERRCODE	256
 
 
 /* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
@@ -1120,22 +1123,22 @@ while (YYID (0))
 
 #define YYRHSLOC(Rhs, K) ((Rhs)[K])
 #ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)                \
-    do                                  \
+# define YYLLOC_DEFAULT(Current, Rhs, N)				\
+    do									\
       if (YYID (N))                                                    \
-    {                               \
-      (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;    \
-      (Current).first_column = YYRHSLOC (Rhs, 1).first_column;  \
-      (Current).last_line    = YYRHSLOC (Rhs, N).last_line;     \
-      (Current).last_column  = YYRHSLOC (Rhs, N).last_column;   \
-    }                               \
-      else                              \
-    {                               \
-      (Current).first_line   = (Current).last_line   =      \
-        YYRHSLOC (Rhs, 0).last_line;                \
-      (Current).first_column = (Current).last_column =      \
-        YYRHSLOC (Rhs, 0).last_column;              \
-    }                               \
+	{								\
+	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
+	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
+	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
+	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
+	}								\
+      else								\
+	{								\
+	  (Current).first_line   = (Current).last_line   =		\
+	    YYRHSLOC (Rhs, 0).last_line;				\
+	  (Current).first_column = (Current).last_column =		\
+	    YYRHSLOC (Rhs, 0).last_column;				\
+	}								\
     while (YYID (0))
 #endif
 
@@ -1146,10 +1149,10 @@ while (YYID (0))
 
 #ifndef YY_LOCATION_PRINT
 # if YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)          \
-     fprintf (File, "%d.%d-%d.%d",          \
-          (Loc).first_line, (Loc).first_column, \
-          (Loc).last_line,  (Loc).last_column)
+#  define YY_LOCATION_PRINT(File, Loc)			\
+     fprintf (File, "%d.%d-%d.%d",			\
+	      (Loc).first_line, (Loc).first_column,	\
+	      (Loc).last_line,  (Loc).last_column)
 # else
 #  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 # endif
@@ -1172,21 +1175,21 @@ while (YYID (0))
 #  define YYFPRINTF fprintf
 # endif
 
-# define YYDPRINTF(Args)            \
-do {                        \
-  if (yydebug)                  \
-    YYFPRINTF Args;             \
+# define YYDPRINTF(Args)			\
+do {						\
+  if (yydebug)					\
+    YYFPRINTF Args;				\
 } while (YYID (0))
 
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)            \
-do {                                      \
-  if (yydebug)                                \
-    {                                     \
-      YYFPRINTF (stderr, "%s ", Title);                   \
-      yy_symbol_print (stderr,                        \
-          Type, Value); \
-      YYFPRINTF (stderr, "\n");                       \
-    }                                     \
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)			  \
+do {									  \
+  if (yydebug)								  \
+    {									  \
+      YYFPRINTF (stderr, "%s ", Title);					  \
+      yy_symbol_print (stderr,						  \
+		  Type, Value); \
+      YYFPRINTF (stderr, "\n");						  \
+    }									  \
 } while (YYID (0))
 
 
@@ -1218,7 +1221,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
   switch (yytype)
     {
       default:
-    break;
+	break;
     }
 }
 
@@ -1270,10 +1273,10 @@ yy_stack_print (bottom, top)
   YYFPRINTF (stderr, "\n");
 }
 
-# define YY_STACK_PRINT(Bottom, Top)                \
-do {                                \
-  if (yydebug)                          \
-    yy_stack_print ((Bottom), (Top));               \
+# define YY_STACK_PRINT(Bottom, Top)				\
+do {								\
+  if (yydebug)							\
+    yy_stack_print ((Bottom), (Top));				\
 } while (YYID (0))
 
 
@@ -1296,21 +1299,21 @@ yy_reduce_print (yyvsp, yyrule)
   int yyi;
   unsigned long int yylno = yyrline[yyrule];
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
-         yyrule - 1, yylno);
+	     yyrule - 1, yylno);
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
       fprintf (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
-               &(yyvsp[(yyi + 1) - (yynrhs)])
-                           );
+		       &(yyvsp[(yyi + 1) - (yynrhs)])
+		       		       );
       fprintf (stderr, "\n");
     }
 }
 
-# define YY_REDUCE_PRINT(Rule)      \
-do {                    \
-  if (yydebug)              \
+# define YY_REDUCE_PRINT(Rule)		\
+do {					\
+  if (yydebug)				\
     yy_reduce_print (yyvsp, Rule); \
 } while (YYID (0))
 
@@ -1326,7 +1329,7 @@ int yydebug;
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */
-#ifndef YYINITDEPTH
+#ifndef	YYINITDEPTH
 # define YYINITDEPTH 200
 #endif
 
@@ -1413,27 +1416,27 @@ yytnamerr (char *yyres, const char *yystr)
       char const *yyp = yystr;
 
       for (;;)
-    switch (*++yyp)
-      {
-      case '\'':
-      case ',':
-        goto do_not_strip_quotes;
+	switch (*++yyp)
+	  {
+	  case '\'':
+	  case ',':
+	    goto do_not_strip_quotes;
 
-      case '\\':
-        if (*++yyp != '\\')
-          goto do_not_strip_quotes;
-        /* Fall through.  */
-      default:
-        if (yyres)
-          yyres[yyn] = *yyp;
-        yyn++;
-        break;
+	  case '\\':
+	    if (*++yyp != '\\')
+	      goto do_not_strip_quotes;
+	    /* Fall through.  */
+	  default:
+	    if (yyres)
+	      yyres[yyn] = *yyp;
+	    yyn++;
+	    break;
 
-      case '"':
-        if (yyres)
-          yyres[yyn] = '\0';
-        return yyn;
-      }
+	  case '"':
+	    if (yyres)
+	      yyres[yyn] = '\0';
+	    return yyn;
+	  }
     do_not_strip_quotes: ;
     }
 
@@ -1471,7 +1474,7 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 
 # if 0
       /* This is so xgettext sees the translatable formats that are
-     constructed on the fly.  */
+	 constructed on the fly.  */
       YY_("syntax error, unexpected %s");
       YY_("syntax error, unexpected %s, expecting %s");
       YY_("syntax error, unexpected %s, expecting %s or %s");
@@ -1484,13 +1487,13 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
       static char const yyexpecting[] = ", expecting %s";
       static char const yyor[] = " or %s";
       char yyformat[sizeof yyunexpected
-            + sizeof yyexpecting - 1
-            + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
-               * (sizeof yyor - 1))];
+		    + sizeof yyexpecting - 1
+		    + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
+		       * (sizeof yyor - 1))];
       char const *yyprefix = yyexpecting;
 
       /* Start YYX at -YYN if negative to avoid negative indexes in
-     YYCHECK.  */
+	 YYCHECK.  */
       int yyxbegin = yyn < 0 ? -yyn : 0;
 
       /* Stay within bounds of both yycheck and yytname.  */
@@ -1502,22 +1505,22 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
       yyfmt = yystpcpy (yyformat, yyunexpected);
 
       for (yyx = yyxbegin; yyx < yyxend; ++yyx)
-    if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-      {
-        if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
-          {
-        yycount = 1;
-        yysize = yysize0;
-        yyformat[sizeof yyunexpected - 1] = '\0';
-        break;
-          }
-        yyarg[yycount++] = yytname[yyx];
-        yysize1 = yysize + yytnamerr (0, yytname[yyx]);
-        yysize_overflow |= (yysize1 < yysize);
-        yysize = yysize1;
-        yyfmt = yystpcpy (yyfmt, yyprefix);
-        yyprefix = yyor;
-      }
+	if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
+	  {
+	    if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+	      {
+		yycount = 1;
+		yysize = yysize0;
+		yyformat[sizeof yyunexpected - 1] = '\0';
+		break;
+	      }
+	    yyarg[yycount++] = yytname[yyx];
+	    yysize1 = yysize + yytnamerr (0, yytname[yyx]);
+	    yysize_overflow |= (yysize1 < yysize);
+	    yysize = yysize1;
+	    yyfmt = yystpcpy (yyfmt, yyprefix);
+	    yyprefix = yyor;
+	  }
 
       yyf = YY_(yyformat);
       yysize1 = yysize + yystrlen (yyf);
@@ -1525,29 +1528,29 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
       yysize = yysize1;
 
       if (yysize_overflow)
-    return YYSIZE_MAXIMUM;
+	return YYSIZE_MAXIMUM;
 
       if (yyresult)
-    {
-      /* Avoid sprintf, as that infringes on the user's name space.
-         Don't have undefined behavior even if the translation
-         produced a string with the wrong number of "%s"s.  */
-      char *yyp = yyresult;
-      int yyi = 0;
-      while ((*yyp = *yyf) != '\0')
-        {
-          if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
-        {
-          yyp += yytnamerr (yyp, yyarg[yyi++]);
-          yyf += 2;
-        }
-          else
-        {
-          yyp++;
-          yyf++;
-        }
-        }
-    }
+	{
+	  /* Avoid sprintf, as that infringes on the user's name space.
+	     Don't have undefined behavior even if the translation
+	     produced a string with the wrong number of "%s"s.  */
+	  char *yyp = yyresult;
+	  int yyi = 0;
+	  while ((*yyp = *yyf) != '\0')
+	    {
+	      if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
+		{
+		  yyp += yytnamerr (yyp, yyarg[yyi++]);
+		  yyf += 2;
+		}
+	      else
+		{
+		  yyp++;
+		  yyf++;
+		}
+	    }
+	}
       return yysize;
     }
 }
@@ -1581,7 +1584,7 @@ yydestruct (yymsg, yytype, yyvaluep)
     {
 
       default:
-    break;
+	break;
     }
 }
 
@@ -1694,7 +1697,7 @@ yyparse ()
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;     /* Cause a token to be read.  */
+  yychar = YYEMPTY;		/* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
@@ -1724,25 +1727,25 @@ yyparse ()
 
 #ifdef yyoverflow
       {
-    /* Give user a chance to reallocate the stack.  Use copies of
-       these so that the &'s don't force the real ones into
-       memory.  */
-    YYSTYPE *yyvs1 = yyvs;
-    yytype_int16 *yyss1 = yyss;
+	/* Give user a chance to reallocate the stack.  Use copies of
+	   these so that the &'s don't force the real ones into
+	   memory.  */
+	YYSTYPE *yyvs1 = yyvs;
+	yytype_int16 *yyss1 = yyss;
 
 
-    /* Each stack pointer address is followed by the size of the
-       data in use in that stack, in bytes.  This used to be a
-       conditional around just the two extra args, but that might
-       be undefined if yyoverflow is a macro.  */
-    yyoverflow (YY_("memory exhausted"),
-            &yyss1, yysize * sizeof (*yyssp),
-            &yyvs1, yysize * sizeof (*yyvsp),
+	/* Each stack pointer address is followed by the size of the
+	   data in use in that stack, in bytes.  This used to be a
+	   conditional around just the two extra args, but that might
+	   be undefined if yyoverflow is a macro.  */
+	yyoverflow (YY_("memory exhausted"),
+		    &yyss1, yysize * sizeof (*yyssp),
+		    &yyvs1, yysize * sizeof (*yyvsp),
 
-            &yystacksize);
+		    &yystacksize);
 
-    yyss = yyss1;
-    yyvs = yyvs1;
+	yyss = yyss1;
+	yyvs = yyvs1;
       }
 #else /* no yyoverflow */
 # ifndef YYSTACK_RELOCATE
@@ -1750,23 +1753,23 @@ yyparse ()
 # else
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
-    goto yyexhaustedlab;
+	goto yyexhaustedlab;
       yystacksize *= 2;
       if (YYMAXDEPTH < yystacksize)
-    yystacksize = YYMAXDEPTH;
+	yystacksize = YYMAXDEPTH;
 
       {
-    yytype_int16 *yyss1 = yyss;
-    union yyalloc *yyptr =
-      (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
-    if (! yyptr)
-      goto yyexhaustedlab;
-    YYSTACK_RELOCATE (yyss);
-    YYSTACK_RELOCATE (yyvs);
+	yytype_int16 *yyss1 = yyss;
+	union yyalloc *yyptr =
+	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
+	if (! yyptr)
+	  goto yyexhaustedlab;
+	YYSTACK_RELOCATE (yyss);
+	YYSTACK_RELOCATE (yyvs);
 
 #  undef YYSTACK_RELOCATE
-    if (yyss1 != yyssa)
-      YYSTACK_FREE (yyss1);
+	if (yyss1 != yyssa)
+	  YYSTACK_FREE (yyss1);
       }
 # endif
 #endif /* no yyoverflow */
@@ -1776,10 +1779,10 @@ yyparse ()
 
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-          (unsigned long int) yystacksize));
+		  (unsigned long int) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
-    YYABORT;
+	YYABORT;
     }
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
@@ -1828,7 +1831,7 @@ yybackup:
   if (yyn <= 0)
     {
       if (yyn == 0 || yyn == YYTABLE_NINF)
-    goto yyerrlab;
+	goto yyerrlab;
       yyn = -yyn;
       goto yyreduce;
     }
@@ -1886,12 +1889,12 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 314 "cimmof.y"
+#line 315 "cimmof.y"
     { /* FIXME: Where do we put directives? */ ;}
     break;
 
   case 6:
-#line 316 "cimmof.y"
+#line 317 "cimmof.y"
     { 
             cimmofParser::Instance()->addQualifier((yyvsp[(1) - (1)].mofqualifier));
             delete (yyvsp[(1) - (1)].mofqualifier);
@@ -1899,21 +1902,21 @@ yyreduce:
     break;
 
   case 7:
-#line 321 "cimmof.y"
+#line 322 "cimmof.y"
     { 
             cimmofParser::Instance()->addClass((yyvsp[(1) - (1)].mofclass));
         ;}
     break;
 
   case 8:
-#line 325 "cimmof.y"
+#line 326 "cimmof.y"
     {
         cimmofParser::Instance()->addInstance((yyvsp[(1) - (1)].instance));
         ;}
     break;
 
   case 9:
-#line 337 "cimmof.y"
+#line 338 "cimmof.y"
     {
     YACCTRACE("classDeclaration");
     if (g_currentAliasDecl != String::EMPTY)
@@ -1922,7 +1925,7 @@ yyreduce:
     break;
 
   case 10:
-#line 345 "cimmof.y"
+#line 346 "cimmof.y"
     {
     // create new instance of class with className and superclassName
     // put returned class object on stack
@@ -1943,22 +1946,22 @@ yyreduce:
     break;
 
   case 11:
-#line 364 "cimmof.y"
+#line 365 "cimmof.y"
     {;}
     break;
 
   case 12:
-#line 367 "cimmof.y"
+#line 368 "cimmof.y"
     { (yyval.cimnameval) = new CIMName(*(yyvsp[(2) - (2)].cimnameval)); ;}
     break;
 
   case 13:
-#line 368 "cimmof.y"
+#line 369 "cimmof.y"
     { (yyval.cimnameval) = new CIMName(); ;}
     break;
 
   case 18:
-#line 380 "cimmof.y"
+#line 381 "cimmof.y"
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *(yyvsp[(1) - (1)].property));
@@ -1967,7 +1970,7 @@ yyreduce:
     break;
 
   case 19:
-#line 386 "cimmof.y"
+#line 387 "cimmof.y"
     {
         YACCTRACE("classFeature:applyMethod");
         cimmofParser::Instance()->applyMethod(*g_currentClass, *(yyvsp[(1) - (1)].method)); 
@@ -1975,7 +1978,7 @@ yyreduce:
     break;
 
   case 20:
-#line 391 "cimmof.y"
+#line 392 "cimmof.y"
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *(yyvsp[(1) - (1)].property));
@@ -1984,7 +1987,7 @@ yyreduce:
     break;
 
   case 21:
-#line 411 "cimmof.y"
+#line 412 "cimmof.y"
     {
     YACCTRACE("methodDeclaration");
     (yyval.method) = (yyvsp[(2) - (4)].method);
@@ -1992,7 +1995,7 @@ yyreduce:
     break;
 
   case 22:
-#line 422 "cimmof.y"
+#line 423 "cimmof.y"
     {
     YACCTRACE("methodHead");
     if (g_currentMethod)
@@ -2012,12 +2015,12 @@ yyreduce:
     break;
 
   case 25:
-#line 446 "cimmof.y"
+#line 447 "cimmof.y"
     { (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval)); ;}
     break;
 
   case 29:
-#line 458 "cimmof.y"
+#line 459 "cimmof.y"
     {
     // ATTN: P2 2002 Question Need to create default value including type?
 
@@ -2046,17 +2049,17 @@ yyreduce:
     break;
 
   case 30:
-#line 485 "cimmof.y"
+#line 486 "cimmof.y"
     { (yyval.datatype) = (yyvsp[(1) - (1)].datatype); ;}
     break;
 
   case 31:
-#line 486 "cimmof.y"
+#line 487 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_REFERENCE; ;}
     break;
 
   case 32:
-#line 498 "cimmof.y"
+#line 499 "cimmof.y"
     {
     // set body to stack and apply qualifier list
     // ATTN: the apply qualifer only works here because
@@ -2071,7 +2074,7 @@ yyreduce:
     break;
 
   case 33:
-#line 512 "cimmof.y"
+#line 513 "cimmof.y"
     {
     CIMValue *v = valueFactory::createValue((yyvsp[(1) - (4)].datatype), (yyvsp[(3) - (4)].ival),
             ((yyvsp[(4) - (4)].typedinitializer)->type == CIMMOF_NULL_VALUE), (yyvsp[(4) - (4)].typedinitializer)->value);
@@ -2091,7 +2094,7 @@ yyreduce:
     break;
 
   case 35:
-#line 543 "cimmof.y"
+#line 544 "cimmof.y"
     {
     String s(*(yyvsp[(2) - (6)].strval));
     if (!String::equal(*(yyvsp[(5) - (6)].strval), String::EMPTY))
@@ -2108,65 +2111,69 @@ yyreduce:
     break;
 
   case 36:
-#line 558 "cimmof.y"
+#line 559 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 37:
-#line 561 "cimmof.y"
+#line 562 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 38:
-#line 564 "cimmof.y"
+#line 565 "cimmof.y"
     { (yyval.strval) = (yyvsp[(2) - (2)].strval); ;}
     break;
 
   case 39:
-#line 565 "cimmof.y"
+#line 566 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 40:
-#line 568 "cimmof.y"
+#line 569 "cimmof.y"
     {
     g_referenceClassName = *(yyvsp[(1) - (2)].cimnameval); ;}
     break;
 
   case 41:
-#line 572 "cimmof.y"
+#line 573 "cimmof.y"
     { (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval)); ;}
     break;
 
   case 42:
-#line 575 "cimmof.y"
+#line 576 "cimmof.y"
     { (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval)); ;}
     break;
 
   case 43:
-#line 580 "cimmof.y"
-    { (yyval.ival) = valueFactory::Stoi(*(yyvsp[(2) - (3)].strval));
+#line 581 "cimmof.y"
+    {
+            Uint64 u64;
+            /* ATTN: Handle unsuccessful case */
+            StringConversion::decimalStringToUint64((yyvsp[(2) - (3)].strval)->getCString(), u64);
+            (yyval.ival) = u64;
             delete (yyvsp[(2) - (3)].strval);
         ;}
     break;
 
   case 44:
-#line 584 "cimmof.y"
+#line 589 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 45:
-#line 586 "cimmof.y"
+#line 591 "cimmof.y"
     { (yyval.ival) = -1; ;}
     break;
 
   case 46:
-#line 589 "cimmof.y"
+#line 594 "cimmof.y"
     { (yyval.typedinitializer) = (yyvsp[(2) - (2)].typedinitializer); ;}
     break;
 
   case 47:
-#line 591 "cimmof.y"
+#line 596 "cimmof.y"
     {   /* empty */
         g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
         g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2175,22 +2182,22 @@ yyreduce:
     break;
 
   case 48:
-#line 599 "cimmof.y"
+#line 604 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 49:
-#line 601 "cimmof.y"
+#line 606 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 50:
-#line 603 "cimmof.y"
+#line 608 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 51:
-#line 610 "cimmof.y"
+#line 615 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2199,7 +2206,7 @@ yyreduce:
     break;
 
   case 52:
-#line 616 "cimmof.y"
+#line 621 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2208,7 +2215,7 @@ yyreduce:
     break;
 
   case 53:
-#line 622 "cimmof.y"
+#line 627 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2217,7 +2224,7 @@ yyreduce:
     break;
 
   case 54:
-#line 628 "cimmof.y"
+#line 633 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_REFERENCE_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2226,13 +2233,13 @@ yyreduce:
     break;
 
   case 55:
-#line 638 "cimmof.y"
+#line 643 "cimmof.y"
     {
         *(yyval.strval) = valueFactory::stringWComma(String(*(yyvsp[(1) - (1)].strval))); ;}
     break;
 
   case 56:
-#line 641 "cimmof.y"
+#line 646 "cimmof.y"
     {
             YACCTRACE("constantValues:1, Value= " << *(yyvsp[(3) - (3)].strval));
             (*(yyval.strval)).append(",");
@@ -2243,90 +2250,66 @@ yyreduce:
     break;
 
   case 57:
-#line 654 "cimmof.y"
+#line 659 "cimmof.y"
     {(yyval.strval) = (yyvsp[(1) - (1)].strval);;}
     break;
 
   case 58:
-#line 656 "cimmof.y"
+#line 661 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 59:
-#line 659 "cimmof.y"
+#line 664 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 60:
-#line 661 "cimmof.y"
+#line 666 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 61:
-#line 663 "cimmof.y"
+#line 668 "cimmof.y"
     { (yyval.strval) =  (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 62:
-#line 665 "cimmof.y"
+#line 670 "cimmof.y"
     { ;}
     break;
 
   case 63:
-#line 667 "cimmof.y"
+#line 672 "cimmof.y"
     {
             (yyval.strval) = new String((yyvsp[(1) - (1)].ival) ? "T" : "F");
     ;}
     break;
 
-  case 66:
-#line 675 "cimmof.y"
-    {
-            (yyval.strval) = new String(cimmofParser::Instance()->oct_to_dec(*(yyvsp[(1) - (1)].strval)));
-            delete (yyvsp[(1) - (1)].strval);
-        ;}
-    break;
-
-  case 67:
-#line 680 "cimmof.y"
-    {
-            (yyval.strval) = new String(cimmofParser::Instance()->hex_to_dec(*(yyvsp[(1) - (1)].strval)));
-            delete (yyvsp[(1) - (1)].strval);
-        ;}
-    break;
-
-  case 68:
-#line 685 "cimmof.y"
-    {
-            (yyval.strval) = new String(cimmofParser::Instance()->binary_to_dec(*(yyvsp[(1) - (1)].strval)));
-            delete (yyvsp[(1) - (1)].strval);
-        ;}
-    break;
-
   case 69:
-#line 692 "cimmof.y"
+#line 685 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 70:
-#line 694 "cimmof.y"
+#line 687 "cimmof.y"
     { (yyval.ival) = 1; ;}
     break;
 
   case 71:
-#line 697 "cimmof.y"
+#line 690 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 72:
-#line 699 "cimmof.y"
+#line 692 "cimmof.y"
     {
         (*(yyval.strval)).append(*(yyvsp[(2) - (2)].strval));  delete (yyvsp[(2) - (2)].strval);
     ;}
     break;
 
   case 73:
-#line 705 "cimmof.y"
+#line 698 "cimmof.y"
     {
    //String oldrep = *$1;
    //String s(oldrep), s1(String::EMPTY);
@@ -2358,27 +2341,27 @@ yyreduce:
     break;
 
   case 74:
-#line 737 "cimmof.y"
+#line 730 "cimmof.y"
     { (yyval.strval) = (yyvsp[(2) - (3)].strval); ;}
     break;
 
   case 75:
-#line 739 "cimmof.y"
+#line 732 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 76:
-#line 742 "cimmof.y"
+#line 735 "cimmof.y"
     {;}
     break;
 
   case 77:
-#line 743 "cimmof.y"
+#line 736 "cimmof.y"
     {  ;}
     break;
 
   case 78:
-#line 747 "cimmof.y"
+#line 740 "cimmof.y"
     {
     // The objectName string is decomposed for syntactical purposes
     // and reassembled here for later parsing in creation of an objname instance
@@ -2396,7 +2379,7 @@ yyreduce:
     break;
 
   case 79:
-#line 764 "cimmof.y"
+#line 757 "cimmof.y"
     {
 
     CIMObjectPath AOP;
@@ -2426,22 +2409,22 @@ yyreduce:
     break;
 
   case 80:
-#line 793 "cimmof.y"
+#line 786 "cimmof.y"
     { ;}
     break;
 
   case 81:
-#line 794 "cimmof.y"
+#line 787 "cimmof.y"
     { (yyval.strval) = new String(String::EMPTY); ;}
     break;
 
   case 82:
-#line 797 "cimmof.y"
+#line 790 "cimmof.y"
     {;}
     break;
 
   case 83:
-#line 800 "cimmof.y"
+#line 793 "cimmof.y"
     {
     modelPath *m = new modelPath((*(yyvsp[(1) - (3)].cimnameval)).getString(), g_KeyBindingArray);
     g_KeyBindingArray.clear();
@@ -2449,17 +2432,17 @@ yyreduce:
     break;
 
   case 84:
-#line 807 "cimmof.y"
+#line 800 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 85:
-#line 809 "cimmof.y"
+#line 802 "cimmof.y"
     { (yyval.ival) = 0; ;}
     break;
 
   case 86:
-#line 813 "cimmof.y"
+#line 806 "cimmof.y"
     {
         CIMKeyBinding *kb = new CIMKeyBinding(*(yyvsp[(1) - (3)].strval), *(yyvsp[(3) - (3)].strval),
                                modelPath::KeyBindingTypeOf(*(yyvsp[(3) - (3)].strval)));
@@ -2471,7 +2454,7 @@ yyreduce:
     break;
 
   case 88:
-#line 827 "cimmof.y"
+#line 820 "cimmof.y"
     {
         (yyval.strval) = (yyvsp[(2) - (2)].strval);
         g_currentAliasDecl = *(yyvsp[(2) - (2)].strval);
@@ -2483,14 +2466,14 @@ yyreduce:
     break;
 
   case 89:
-#line 835 "cimmof.y"
+#line 828 "cimmof.y"
     {
         (yyval.strval) = new String(String::EMPTY);
         g_currentAliasDecl = String::EMPTY;}
     break;
 
   case 91:
-#line 852 "cimmof.y"
+#line 845 "cimmof.y"
     {
     (yyval.instance) = g_currentInstance;
     if (g_currentAliasDecl != String::EMPTY)
@@ -2513,7 +2496,7 @@ yyreduce:
     break;
 
   case 92:
-#line 875 "cimmof.y"
+#line 868 "cimmof.y"
     {
     if (g_currentInstance)
         delete g_currentInstance;
@@ -2531,7 +2514,7 @@ yyreduce:
     break;
 
   case 96:
-#line 907 "cimmof.y"
+#line 900 "cimmof.y"
     {
     cimmofParser *cp = cimmofParser::Instance();
     // ATTN: P1 InstanceUpdate function 2001 BB  Instance update needs
@@ -2578,33 +2561,33 @@ yyreduce:
     break;
 
   case 97:
-#line 964 "cimmof.y"
+#line 957 "cimmof.y"
     {
         //printf("compilerDirectiveInclude ");
     ;}
     break;
 
   case 98:
-#line 968 "cimmof.y"
+#line 961 "cimmof.y"
     {
         //printf("compilerDirectivePragma ");
     ;}
     break;
 
   case 99:
-#line 975 "cimmof.y"
+#line 968 "cimmof.y"
     {
       cimmofParser::Instance()->enterInlineInclude(*(yyvsp[(4) - (5)].strval)); delete (yyvsp[(4) - (5)].strval);
     ;}
     break;
 
   case 100:
-#line 980 "cimmof.y"
+#line 973 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 101:
-#line 985 "cimmof.y"
+#line 978 "cimmof.y"
     {
         cimmofParser::Instance()->processPragma(*(yyvsp[(2) - (5)].strval), *(yyvsp[(4) - (5)].strval));
         delete (yyvsp[(2) - (5)].strval);
@@ -2613,7 +2596,7 @@ yyreduce:
     break;
 
   case 102:
-#line 1004 "cimmof.y"
+#line 997 "cimmof.y"
     {
 //    CIMQualifierDecl *qd = new CIMQualifierDecl($2, $3, $4, $5);
     (yyval.mofqualifier) = cimmofParser::Instance()->newQualifierDecl(*(yyvsp[(2) - (6)].strval), (yyvsp[(3) - (6)].value), *(yyvsp[(4) - (6)].scope), *(yyvsp[(5) - (6)].flavor));
@@ -2623,7 +2606,7 @@ yyreduce:
     break;
 
   case 103:
-#line 1013 "cimmof.y"
+#line 1006 "cimmof.y"
     {
     (yyval.value) = valueFactory::createValue((yyvsp[(2) - (4)].datatype), (yyvsp[(3) - (4)].ival),
                                    ((yyvsp[(4) - (4)].typedinitializer)->type == CIMMOF_NULL_VALUE),
@@ -2633,211 +2616,211 @@ yyreduce:
     break;
 
   case 104:
-#line 1021 "cimmof.y"
+#line 1014 "cimmof.y"
     { (yyval.scope) = (yyvsp[(2) - (3)].scope); ;}
     break;
 
   case 105:
-#line 1025 "cimmof.y"
+#line 1018 "cimmof.y"
     {
     g_scope = CIMScope (CIMScope::NONE);
     ;}
     break;
 
   case 106:
-#line 1030 "cimmof.y"
+#line 1023 "cimmof.y"
     { (yyval.scope) = (yyvsp[(1) - (1)].scope); ;}
     break;
 
   case 107:
-#line 1032 "cimmof.y"
+#line 1025 "cimmof.y"
     { (yyval.scope)->addScope(*(yyvsp[(3) - (3)].scope)); ;}
     break;
 
   case 108:
-#line 1036 "cimmof.y"
+#line 1029 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::CLASS);        ;}
     break;
 
   case 109:
-#line 1038 "cimmof.y"
+#line 1031 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::CLASS); ;}
     break;
 
   case 110:
-#line 1039 "cimmof.y"
+#line 1032 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::ASSOCIATION);  ;}
     break;
 
   case 111:
-#line 1040 "cimmof.y"
+#line 1033 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::INDICATION);   ;}
     break;
 
   case 112:
-#line 1042 "cimmof.y"
+#line 1035 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::PROPERTY);     ;}
     break;
 
   case 113:
-#line 1043 "cimmof.y"
+#line 1036 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::REFERENCE);    ;}
     break;
 
   case 114:
-#line 1044 "cimmof.y"
+#line 1037 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::METHOD);       ;}
     break;
 
   case 115:
-#line 1045 "cimmof.y"
+#line 1038 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::PARAMETER);    ;}
     break;
 
   case 116:
-#line 1046 "cimmof.y"
+#line 1039 "cimmof.y"
     { (yyval.scope) = new CIMScope(CIMScope::ANY);          ;}
     break;
 
   case 117:
-#line 1051 "cimmof.y"
+#line 1044 "cimmof.y"
     { (yyval.flavor) = &g_flavor; ;}
     break;
 
   case 118:
-#line 1053 "cimmof.y"
+#line 1046 "cimmof.y"
     { (yyval.flavor) = new CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 119:
-#line 1060 "cimmof.y"
+#line 1053 "cimmof.y"
     {g_flavor = CIMFlavor (CIMFlavor::NONE);;}
     break;
 
   case 122:
-#line 1079 "cimmof.y"
+#line 1072 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE); ;}
     break;
 
   case 123:
-#line 1080 "cimmof.y"
+#line 1073 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::DISABLEOVERRIDE); ;}
     break;
 
   case 124:
-#line 1081 "cimmof.y"
+#line 1074 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::RESTRICTED); ;}
     break;
 
   case 125:
-#line 1082 "cimmof.y"
+#line 1075 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::TOSUBELEMENTS); ;}
     break;
 
   case 126:
-#line 1083 "cimmof.y"
+#line 1076 "cimmof.y"
     { g_flavor.addFlavor (CIMFlavor::TRANSLATABLE); ;}
     break;
 
   case 127:
-#line 1086 "cimmof.y"
+#line 1079 "cimmof.y"
     { (yyval.flavor) = &g_flavor; ;}
     break;
 
   case 128:
-#line 1088 "cimmof.y"
+#line 1081 "cimmof.y"
     { (yyval.flavor) = new CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 131:
-#line 1096 "cimmof.y"
+#line 1089 "cimmof.y"
     { (yyval.datatype) = (yyvsp[(1) - (1)].datatype); ;}
     break;
 
   case 132:
-#line 1097 "cimmof.y"
+#line 1090 "cimmof.y"
     { (yyval.datatype) = (yyvsp[(1) - (1)].datatype); ;}
     break;
 
   case 133:
-#line 1098 "cimmof.y"
+#line 1091 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_STRING;   ;}
     break;
 
   case 134:
-#line 1099 "cimmof.y"
+#line 1092 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_BOOLEAN;  ;}
     break;
 
   case 135:
-#line 1100 "cimmof.y"
+#line 1093 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_DATETIME; ;}
     break;
 
   case 136:
-#line 1103 "cimmof.y"
+#line 1096 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT8;  ;}
     break;
 
   case 137:
-#line 1104 "cimmof.y"
+#line 1097 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT8;  ;}
     break;
 
   case 138:
-#line 1105 "cimmof.y"
+#line 1098 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT16; ;}
     break;
 
   case 139:
-#line 1106 "cimmof.y"
+#line 1099 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT16; ;}
     break;
 
   case 140:
-#line 1107 "cimmof.y"
+#line 1100 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT32; ;}
     break;
 
   case 141:
-#line 1108 "cimmof.y"
+#line 1101 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT32; ;}
     break;
 
   case 142:
-#line 1109 "cimmof.y"
+#line 1102 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_UINT64; ;}
     break;
 
   case 143:
-#line 1110 "cimmof.y"
+#line 1103 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_SINT64; ;}
     break;
 
   case 144:
-#line 1111 "cimmof.y"
+#line 1104 "cimmof.y"
     { (yyval.datatype) = CIMTYPE_CHAR16; ;}
     break;
 
   case 145:
-#line 1115 "cimmof.y"
+#line 1108 "cimmof.y"
     { (yyval.datatype) =CIMTYPE_REAL32; ;}
     break;
 
   case 146:
-#line 1117 "cimmof.y"
+#line 1110 "cimmof.y"
     { (yyval.datatype) =CIMTYPE_REAL64; ;}
     break;
 
   case 148:
-#line 1128 "cimmof.y"
+#line 1121 "cimmof.y"
     {
             //yydebug = 1; stderr = stdout;
         ;}
     break;
 
   case 149:
-#line 1132 "cimmof.y"
+#line 1125 "cimmof.y"
     {
     //yydebug = 1; stderr = stdout;
     YACCTRACE("qualifierListbegin");
@@ -2845,17 +2828,17 @@ yyreduce:
     break;
 
   case 150:
-#line 1138 "cimmof.y"
+#line 1131 "cimmof.y"
     { ;}
     break;
 
   case 151:
-#line 1140 "cimmof.y"
+#line 1133 "cimmof.y"
     { ;}
     break;
 
   case 152:
-#line 1143 "cimmof.y"
+#line 1136 "cimmof.y"
     {
     cimmofParser *p = cimmofParser::Instance();
     // The qualifier value can't be set until we know the contents of the
@@ -2871,20 +2854,20 @@ yyreduce:
     break;
 
   case 153:
-#line 1156 "cimmof.y"
+#line 1149 "cimmof.y"
     {
         g_flavor = CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 154:
-#line 1158 "cimmof.y"
+#line 1151 "cimmof.y"
     {
         (yyval.strval) = new String((*(yyvsp[(1) - (1)].scope)).toString ());
         g_flavor = CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 155:
-#line 1165 "cimmof.y"
+#line 1158 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(2) - (3)].strval);
@@ -2893,7 +2876,7 @@ yyreduce:
     break;
 
   case 156:
-#line 1171 "cimmof.y"
+#line 1164 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2902,7 +2885,7 @@ yyreduce:
     break;
 
   case 157:
-#line 1177 "cimmof.y"
+#line 1170 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2911,7 +2894,7 @@ yyreduce:
     break;
 
   case 158:
-#line 1182 "cimmof.y"
+#line 1175 "cimmof.y"
     {   /* empty */
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2920,18 +2903,18 @@ yyreduce:
     break;
 
   case 159:
-#line 1189 "cimmof.y"
+#line 1182 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 160:
-#line 1192 "cimmof.y"
+#line 1185 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2935 "cimmoftemp"
+#line 2916 "cimmoftemp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2970,35 +2953,35 @@ yyerrlab:
       yyerror (YY_("syntax error"));
 #else
       {
-    YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
-    if (yymsg_alloc < yysize && yymsg_alloc < YYSTACK_ALLOC_MAXIMUM)
-      {
-        YYSIZE_T yyalloc = 2 * yysize;
-        if (! (yysize <= yyalloc && yyalloc <= YYSTACK_ALLOC_MAXIMUM))
-          yyalloc = YYSTACK_ALLOC_MAXIMUM;
-        if (yymsg != yymsgbuf)
-          YYSTACK_FREE (yymsg);
-        yymsg = (char *) YYSTACK_ALLOC (yyalloc);
-        if (yymsg)
-          yymsg_alloc = yyalloc;
-        else
-          {
-        yymsg = yymsgbuf;
-        yymsg_alloc = sizeof yymsgbuf;
-          }
-      }
+	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
+	if (yymsg_alloc < yysize && yymsg_alloc < YYSTACK_ALLOC_MAXIMUM)
+	  {
+	    YYSIZE_T yyalloc = 2 * yysize;
+	    if (! (yysize <= yyalloc && yyalloc <= YYSTACK_ALLOC_MAXIMUM))
+	      yyalloc = YYSTACK_ALLOC_MAXIMUM;
+	    if (yymsg != yymsgbuf)
+	      YYSTACK_FREE (yymsg);
+	    yymsg = (char *) YYSTACK_ALLOC (yyalloc);
+	    if (yymsg)
+	      yymsg_alloc = yyalloc;
+	    else
+	      {
+		yymsg = yymsgbuf;
+		yymsg_alloc = sizeof yymsgbuf;
+	      }
+	  }
 
-    if (0 < yysize && yysize <= yymsg_alloc)
-      {
-        (void) yysyntax_error (yymsg, yystate, yychar);
-        yyerror (yymsg);
-      }
-    else
-      {
-        yyerror (YY_("syntax error"));
-        if (yysize != 0)
-          goto yyexhaustedlab;
-      }
+	if (0 < yysize && yysize <= yymsg_alloc)
+	  {
+	    (void) yysyntax_error (yymsg, yystate, yychar);
+	    yyerror (yymsg);
+	  }
+	else
+	  {
+	    yyerror (YY_("syntax error"));
+	    if (yysize != 0)
+	      goto yyexhaustedlab;
+	  }
       }
 #endif
     }
@@ -3008,20 +2991,20 @@ yyerrlab:
   if (yyerrstatus == 3)
     {
       /* If just tried and failed to reuse look-ahead token after an
-     error, discard it.  */
+	 error, discard it.  */
 
       if (yychar <= YYEOF)
-    {
-      /* Return failure if at end of input.  */
-      if (yychar == YYEOF)
-        YYABORT;
-    }
+	{
+	  /* Return failure if at end of input.  */
+	  if (yychar == YYEOF)
+	    YYABORT;
+	}
       else
-    {
-      yydestruct ("Error: discarding",
-              yytoken, &yylval);
-      yychar = YYEMPTY;
-    }
+	{
+	  yydestruct ("Error: discarding",
+		      yytoken, &yylval);
+	  yychar = YYEMPTY;
+	}
     }
 
   /* Else will try to reuse look-ahead token after shifting the error
@@ -3053,29 +3036,29 @@ yyerrorlab:
 | yyerrlab1 -- common code for both syntax error and YYERROR.  |
 `-------------------------------------------------------------*/
 yyerrlab1:
-  yyerrstatus = 3;  /* Each real token shifted decrements this.  */
+  yyerrstatus = 3;	/* Each real token shifted decrements this.  */
 
   for (;;)
     {
       yyn = yypact[yystate];
       if (yyn != YYPACT_NINF)
-    {
-      yyn += YYTERROR;
-      if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
-        {
-          yyn = yytable[yyn];
-          if (0 < yyn)
-        break;
-        }
-    }
+	{
+	  yyn += YYTERROR;
+	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
+	    {
+	      yyn = yytable[yyn];
+	      if (0 < yyn)
+		break;
+	    }
+	}
 
       /* Pop the current state because it cannot handle the error token.  */
       if (yyssp == yyss)
-    YYABORT;
+	YYABORT;
 
 
       yydestruct ("Error: popping",
-          yystos[yystate], yyvsp);
+		  yystos[yystate], yyvsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -3121,7 +3104,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEOF && yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-         yytoken, &yylval);
+		 yytoken, &yylval);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -3129,7 +3112,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-          yystos[*yyssp], yyvsp);
+		  yystos[*yyssp], yyvsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -3145,7 +3128,7 @@ yyreturn:
 }
 
 
-#line 1194 "cimmof.y"
+#line 1187 "cimmof.y"
 
 
 /*

@@ -45,6 +45,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/StringConversion.h>
 
 // put any debug include, I'd say about here
 
@@ -78,96 +79,84 @@ String valueFactory::stringWComma(String tmp)
 }
 
 
+/**
+    Converts a String to a Uint64 according to the DMTF specification for MOF
+    encoding.  A CIMType specification also allows for overflow checking of
+    smaller unsigned integer type (e.g., Uint8, Uint16, Uint32).
+    @param val The String to convert
+    @param type A CIMType to use for bounds checking
+    @return The converted Uint64 value
+*/
+static Uint64 stringToUint(
+    const String &val,
+    CIMType type)
+{
+    Uint64 u64;
+    CString valCString = val.getCString();
 
-long
-valueFactory::Stoi(const String &val) {
-#if 0
-    unsigned int end = val.size();
-    String s;
-    for (unsigned int i = 0; i < end; i++)
+    Boolean success =
+        (StringConversion::decimalStringToUint64(valCString, u64) ||
+         StringConversion::hexStringToUint64(valCString, u64) ||
+         StringConversion::octalStringToUint64(valCString, u64) ||
+         StringConversion::binaryStringToUint64(valCString, u64)) &&
+        StringConversion::checkUintBounds(u64, type);
+
+    if (!success)
     {
-        switch(val[i])
-        {
-            case '1': s.append("1"); break;
-            case '2': s.append("2"); break;
-            case '3': s.append("3"); break;
-            case '4': s.append("4"); break;
-            case '5': s.append("5"); break;
-            case '6': s.append("6"); break;
-            case '7': s.append("7"); break;
-            case '8': s.append("8"); break;
-            case '9': s.append("9"); break;
-            case '0': s.append("0"); break;
+        // ATTN: Handle unsuccessful case
+        return 0;
     }
-  }
-  return atol(s.getCString());
-#else
-  long longValue;
-  if (!sscanf(val.getCString(), "%ld", &longValue))
-  {
-//   ATTN-DME-P3-20020602: How should this error condition be handled?
-     return 0;
-  }
-  else return longValue;
-#endif
+
+    return u64;
 }
 
-static double
-Stof(const String &val)
+/**
+    Converts a String to an Sint64 according to the DMTF specification for MOF
+    encoding.  A CIMType specification also allows for overflow checking of
+    smaller unsigned integer type (e.g., Sint8, Sint16, Sint32).
+    @param val The String to convert
+    @param type A CIMType to use for bounds checking
+    @return The converted Sint64 value
+*/
+static Sint64 stringToSint(
+    const String &val,
+    CIMType type)
 {
-    unsigned int end = val.size();
-    String s;
-    for (unsigned int i = 0; i < end; i++)
+    Sint64 s64;
+    CString valCString = val.getCString();
+
+    Boolean success =
+        (StringConversion::stringToSint64(
+             valCString, StringConversion::decimalStringToUint64, s64) ||
+         StringConversion::stringToSint64(
+             valCString, StringConversion::hexStringToUint64, s64) ||
+         StringConversion::stringToSint64(
+             valCString, StringConversion::octalStringToUint64, s64) ||
+         StringConversion::stringToSint64(
+             valCString, StringConversion::binaryStringToUint64, s64)) &&
+        StringConversion::checkSintBounds(s64, type);
+
+    if (!success)
     {
-        switch(val[i])
-        {
-            case '1': s.append("1"); break;
-            case '2': s.append("2"); break;
-            case '3': s.append("3"); break;
-            case '4': s.append("4"); break;
-            case '5': s.append("5"); break;
-            case '6': s.append("6"); break;
-            case '7': s.append("7"); break;
-            case '8': s.append("8"); break;
-            case '9': s.append("9"); break;
-            case '0': s.append("0"); break;
-            case '.': s.append("."); break;
-            case 'E':
-            case 'e': s.append("E"); break;
-        }
+        // ATTN: Handle unsuccessful case
+        return 0;
     }
-    return atof(s.getCString());
+
+    return s64;
 }
 
-static CIMDateTime &
-StoDT(const String &val, CIMDateTime &dt)
+static Real64 stringToReal(const String &val)
 {
-    unsigned int end = val.size();
-    String s;
-    for (unsigned int i = 0; i < end; i++)
+    Real64 r64;
+    Boolean success = StringConversion::stringToReal64(val.getCString(), r64);
+
+    if (!success)
     {
-        switch(val[i])
-        {
-            case '1': s.append("1"); break;
-            case '2': s.append("2"); break;
-            case '3': s.append("3"); break;
-            case '4': s.append("4"); break;
-            case '5': s.append("5"); break;
-            case '6': s.append("6"); break;
-            case '7': s.append("7"); break;
-            case '8': s.append("8"); break;
-            case '9': s.append("9"); break;
-            case '0': s.append("0"); break;
-            case '.': s.append("."); break;
-            case '+': s.append("+"); break;
-            case '-': s.append("-"); break;
-            case ':': s.append(":"); break;
-        }
+        // ATTN: Handle unsuccessful case
+        return 0.0;
     }
-    if (s != "") {
-        dt.set (s);
-    }
-    return dt;
+
+    return r64;
 }
 
 //-------------------------------------------------------------------------
@@ -292,7 +281,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint8)valueFactory::Stoi(sval));
+                        a->append((Uint8)stringToUint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -305,7 +294,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint8)valueFactory::Stoi(sval));
+                        a->append((Sint8)stringToSint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -318,7 +307,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint16)valueFactory::Stoi(sval));
+                        a->append((Uint16)stringToUint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -331,7 +320,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint16)valueFactory::Stoi(sval));
+                        a->append((Sint16)stringToSint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -344,7 +333,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint32)valueFactory::Stoi(sval));
+                        a->append((Uint32)stringToUint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -357,7 +346,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint32)valueFactory::Stoi(sval));
+                        a->append((Sint32)stringToSint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -370,7 +359,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint64)valueFactory::Stoi(sval));
+                        a->append((Uint64)stringToUint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -383,7 +372,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint64)valueFactory::Stoi(sval));
+                        a->append((Sint64)stringToSint(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -396,7 +385,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Real32)Stof(sval));
+                        a->append((Real32)stringToReal(sval));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -410,7 +399,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                      {
                          start =
                             nextcsv(rep, ',', start, end, sval);
-                         a->append((Real64)Stof(sval));
+                         a->append((Real64)stringToReal(sval));
                      } while (start < end);
                  }
                  return new CIMValue(*a);
@@ -449,9 +438,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                  while (strsize &&
                          (start = nextcsv(rep, ',', start, end, sval)) < end )
                  {
-                     CIMDateTime dt;
-                     StoDT(sval, dt);
-                     a->append(dt);
+                     a->append(CIMDateTime(sval));
                  }
                  return new CIMValue(*a);
              }
@@ -495,20 +482,20 @@ CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
     }
 
     switch(type) {
-    case CIMTYPE_UINT8:   return new CIMValue((Uint8)  valueFactory::Stoi(rep));
-    case CIMTYPE_SINT8:   return new CIMValue((Sint8)  valueFactory::Stoi(rep));
-    case CIMTYPE_UINT16:  return new CIMValue((Uint16) valueFactory::Stoi(rep));
-    case CIMTYPE_SINT16:  return new CIMValue((Sint16) valueFactory::Stoi(rep));
-    case CIMTYPE_UINT32:  return new CIMValue((Uint32) valueFactory::Stoi(rep));
-    case CIMTYPE_SINT32:  return new CIMValue((Sint32) valueFactory::Stoi(rep));
-    case CIMTYPE_UINT64:  return new CIMValue((Uint64) valueFactory::Stoi(rep));
-    case CIMTYPE_SINT64:  return new CIMValue((Sint64) valueFactory::Stoi(rep));
-    case CIMTYPE_REAL32:  return new CIMValue((Real32) Stof(rep));
-    case CIMTYPE_REAL64:  return new CIMValue((Real64) Stof(rep));
-    case CIMTYPE_CHAR16:  return new CIMValue((Char16) rep[0]);
+    case CIMTYPE_UINT8:  return new CIMValue((Uint8)  stringToUint(rep, type));
+    case CIMTYPE_SINT8:  return new CIMValue((Sint8)  stringToSint(rep, type));
+    case CIMTYPE_UINT16: return new CIMValue((Uint16) stringToUint(rep, type));
+    case CIMTYPE_SINT16: return new CIMValue((Sint16) stringToSint(rep, type));
+    case CIMTYPE_UINT32: return new CIMValue((Uint32) stringToUint(rep, type));
+    case CIMTYPE_SINT32: return new CIMValue((Sint32) stringToSint(rep, type));
+    case CIMTYPE_UINT64: return new CIMValue((Uint64) stringToUint(rep, type));
+    case CIMTYPE_SINT64: return new CIMValue((Sint64) stringToSint(rep, type));
+    case CIMTYPE_REAL32: return new CIMValue((Real32) stringToReal(rep));
+    case CIMTYPE_REAL64: return new CIMValue((Real64) stringToReal(rep));
+    case CIMTYPE_CHAR16: return new CIMValue((Char16) rep[0]);
     case CIMTYPE_BOOLEAN: return new CIMValue((Boolean) (rep[0] == 'T'?1:0));
-    case CIMTYPE_STRING:  return new CIMValue(rep);
-    case CIMTYPE_DATETIME:return new CIMValue(StoDT(rep, dt));
+    case CIMTYPE_STRING: return new CIMValue(rep);
+    case CIMTYPE_DATETIME: return new CIMValue(CIMDateTime(rep));
     case CIMTYPE_REFERENCE: return build_reference_value(rep);
 //  PEP 194:
 //  Note that "object" (ie. CIMTYPE_OBJECT) is not a real CIM datatype, just a

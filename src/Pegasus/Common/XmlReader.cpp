@@ -51,11 +51,9 @@
 #include "XmlConstants.h"
 
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include "CIMNameUnchecked.h"
-
-#define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
-#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -721,7 +719,7 @@ Boolean XmlReader::getCimBooleanAttribute(
         if (!required)
             return defaultValue;
 
-        char buffer[62];
+        char buffer[MESSAGE_SIZE];
         sprintf(buffer, "%s.%s", attributeName, tagName);
 
         MessageLoaderParms mlParms(
@@ -736,7 +734,7 @@ Boolean XmlReader::getCimBooleanAttribute(
     else if (strcmp(tmp, "false") == 0)
         return false;
 
-    char buffer[62];
+    char buffer[MESSAGE_SIZE];
     sprintf(buffer, "%s.%s", attributeName, tagName);
 
     MessageLoaderParms mlParms(
@@ -747,104 +745,6 @@ Boolean XmlReader::getCimBooleanAttribute(
     throw XmlSemanticError(lineNumber, mlParms);
 
     return false;
-}
-
-//------------------------------------------------------------------------------
-//
-// SringToReal()
-//
-//      [ "+" | "-" ] *decimalDigit "." 1*decimalDigit
-//          [ ( "e" | "E" ) [ "+" | "-" ] 1*decimalDigit ]
-//
-//------------------------------------------------------------------------------
-
-Boolean XmlReader::stringToReal(const char* stringValue, Real64& x)
-{
-    //
-    // Check the string against the DMTF-defined grammar
-    //
-    const char* p = stringValue;
-
-    if (!*p)
-        return false;
-
-    // Skip optional sign:
-
-    if (*p == '+' || *p  == '-')
-        p++;
-
-    // Skip optional first set of digits:
-
-    while (isdigit(*p))
-        p++;
-
-    // Test required dot:
-
-    if (*p++ != '.')
-        return false;
-
-    // One or more digits required:
-
-    if (!isdigit(*p++))
-        return false;
-
-    while (isdigit(*p))
-        p++;
-
-    // If there is an exponent now:
-
-    if (*p)
-    {
-        // Test exponent:
-
-        if (*p != 'e' && *p != 'E')
-            return false;
-
-        p++;
-
-        // Skip optional sign:
-
-        if (*p == '+' || *p  == '-')
-            p++;
-
-        // One or more digits required:
-
-        if (!isdigit(*p++))
-            return false;
-
-        while (isdigit(*p))
-            p++;
-    }
-
-    if (*p)
-        return false;
-
-    //
-    // Do the conversion
-    //
-    char* end;
-    errno = 0;
-    x = strtod(stringValue, &end);
-    if (*end || (errno == ERANGE))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-inline Uint8 _xmlReader_hexCharToNumeric(const char c)
-{
-    Uint8 n;
-
-    if (isdigit(c))
-        n = (c - '0');
-    else if (isupper(c))
-        n = (c - 'A' + 10);
-    else // if (islower(c))
-        n = (c - 'a' + 10);
-
-    return n;
 }
 
 // See http://www.ietf.org/rfc/rfc2396.txt section 2
@@ -869,8 +769,10 @@ String XmlReader::decodeURICharacters(String uriString)
                 throw ParseError(MessageLoader::getMessage(mlParms));
             }
 
-            Uint8 digit1 = _xmlReader_hexCharToNumeric(char(uriString[++i]));
-            Uint8 digit2 = _xmlReader_hexCharToNumeric(char(uriString[++i]));
+            Uint8 digit1 =
+                StringConversion::hexCharToNumeric(char(uriString[++i]));
+            Uint8 digit2 =
+                StringConversion::hexCharToNumeric(char(uriString[++i]));
             if ( (digit1 > 15) || (digit2 > 15) )
             {
                 MessageLoaderParms mlParms(
@@ -915,120 +817,10 @@ Boolean XmlReader::stringToSignedInteger(
     const char* stringValue,
     Sint64& x)
 {
-    x = 0;
-    const char* p = stringValue;
-
-    if (!p || !*p)
-        return false;
-
-    // Skip optional sign:
-
-    Boolean negative = *p == '-';
-
-    if (negative || *p == '+')
-        p++;
-
-    if (*p == '0')
-    {
-        if ( (p[1] == 'x') || (p[1] == 'X') )
-        {
-            // Convert a hexadecimal string
-
-            // Skip over the "0x"
-            p+=2;
-
-            // At least one hexadecimal digit is required
-            if (!isxdigit(*p))
-                return false;
-
-            // Build the Sint64 as a negative number, regardless of the
-            // eventual sign (negative numbers can be bigger than positive ones)
-
-            // Add on each digit, checking for overflow errors
-            while (isxdigit(*p))
-            {
-                // Make sure we won't overflow when we multiply by 16
-                if (x < PEGASUS_SINT64_MIN/16)
-                {
-                    return false;
-                }
-                x = x << 4;
-
-                // Make sure we don't overflow when we add the next digit
-                Sint64 newDigit = Sint64(_xmlReader_hexCharToNumeric(*p++));
-                if (PEGASUS_SINT64_MIN - x > -newDigit)
-                {
-                    return false;
-                }
-                x = x - newDigit;
-            }
-
-            // If we found a non-hexadecimal digit, report an error
-            if (*p)
-                return false;
-
-            // Return the integer to positive, if necessary, checking for an
-            // overflow error
-            if (!negative)
-            {
-                if (x == PEGASUS_SINT64_MIN)
-                {
-                    return false;
-                }
-                x = -x;
-            }
-            return true;
-        }
-        else
-        {
-            // A decimal string that starts with '0' must be exactly "0".
-            return p[1] == '\0';
-        }
-    }
-
-    // Expect a positive decimal digit:
-
-    // At least one decimal digit is required
-    if (!isdigit(*p))
-        return false;
-
-    // Build the Sint64 as a negative number, regardless of the
-    // eventual sign (negative numbers can be bigger than positive ones)
-
-    // Add on each digit, checking for overflow errors
-    while (isdigit(*p))
-    {
-        // Make sure we won't overflow when we multiply by 10
-        if (x < PEGASUS_SINT64_MIN/10)
-        {
-            return false;
-        }
-        x = 10 * x;
-
-        // Make sure we won't overflow when we add the next digit
-        Sint64 newDigit = (*p++ - '0');
-        if (PEGASUS_SINT64_MIN - x > -newDigit)
-        {
-            return false;
-        }
-        x = x - newDigit;
-    }
-
-    // If we found a non-decimal digit, report an error
-    if (*p)
-        return false;
-
-    // Return the integer to positive, if necessary, checking for an
-    // overflow error
-    if (!negative)
-    {
-        if (x == PEGASUS_SINT64_MIN)
-        {
-            return false;
-        }
-        x = -x;
-    }
-    return true;
+    return (StringConversion::stringToSint64(
+                stringValue, StringConversion::decimalStringToUint64, x) ||
+            StringConversion::stringToSint64(
+                stringValue, StringConversion::hexStringToUint64, x));
 }
 
 //------------------------------------------------------------------------------
@@ -1045,83 +837,8 @@ Boolean XmlReader::stringToUnsignedInteger(
     const char* stringValue,
     Uint64& x)
 {
-    x = 0;
-    const char* p = stringValue;
-
-    if (!p || !*p)
-        return false;
-
-    if (*p == '0')
-    {
-        if ( (p[1] == 'x') || (p[1] == 'X') )
-        {
-            // Convert a hexadecimal string
-
-            // Skip over the "0x"
-            p+=2;
-
-            // At least one hexadecimal digit is required
-            if (!*p)
-                return false;
-
-            // Add on each digit, checking for overflow errors
-            while (isxdigit(*p))
-            {
-                // Make sure we won't overflow when we multiply by 16
-                if (x > PEGASUS_UINT64_MAX/16)
-                {
-                    return false;
-                }
-                x = x << 4;
-
-                // We can't overflow when we add the next digit
-                Uint64 newDigit = Uint64(_xmlReader_hexCharToNumeric(*p++));
-                if (PEGASUS_UINT64_MAX - x < newDigit)
-                {
-                    return false;
-                }
-                x = x + newDigit;
-            }
-
-            // If we found a non-hexadecimal digit, report an error
-            if (*p)
-                return false;
-
-            return true;
-        }
-        else
-        {
-            // A decimal string that starts with '0' must be exactly "0".
-            return p[1] == '\0';
-        }
-    }
-
-    // Expect a positive decimal digit:
-
-    // Add on each digit, checking for overflow errors
-    while (isdigit(*p))
-    {
-        // Make sure we won't overflow when we multiply by 10
-        if (x > PEGASUS_UINT64_MAX/10)
-        {
-            return false;
-        }
-        x = 10 * x;
-
-        // Make sure we won't overflow when we add the next digit
-        Uint64 newDigit = (*p++ - '0');
-        if (PEGASUS_UINT64_MAX - x < newDigit)
-        {
-            return false;
-        }
-        x = x + newDigit;
-    }
-
-    // If we found a non-decimal digit, report an error
-    if (*p)
-        return false;
-
-    return true;
+    return (StringConversion::decimalStringToUint64(stringValue, x) ||
+            StringConversion::hexStringToUint64(stringValue, x));
 }
 
 //------------------------------------------------------------------------------
@@ -1167,17 +884,6 @@ CIMValue XmlReader::stringToValue(
 
         case CIMTYPE_CHAR16:
         {
-
-// remove this test, utf-8 can be up to 6 bytes per char
-/*
-            if (strlen(valueString) != 1)
-            {
-                MessageLoaderParms mlParms(
-                    "Common.XmlReader.INVALID_CHAR16_VALUE",
-                    "Invalid char16 value");
-                throw XmlSemanticError(lineNumber, mlParms);
-            }
-*/
             // Converts UTF-8 to UTF-16
             String tmp(valueString);
             if (tmp.size() != 1)
@@ -1210,7 +916,7 @@ CIMValue XmlReader::stringToValue(
             {
                 case CIMTYPE_UINT8:
                 {
-                    if (x >= (Uint64(1)<<8))
+                    if (!StringConversion::checkUintBounds(x, type))
                     {
                         MessageLoaderParms mlParms(
                             "Common.XmlReader.U8_VALUE_OUT_OF_RANGE",
@@ -1221,7 +927,7 @@ CIMValue XmlReader::stringToValue(
                 }
                 case CIMTYPE_UINT16:
                 {
-                    if (x >= (Uint64(1)<<16))
+                    if (!StringConversion::checkUintBounds(x, type))
                     {
                         MessageLoaderParms mlParms(
                             "Common.XmlReader.U16_VALUE_OUT_OF_RANGE",
@@ -1232,7 +938,7 @@ CIMValue XmlReader::stringToValue(
                 }
                 case CIMTYPE_UINT32:
                 {
-                    if (x >= (Uint64(1)<<32))
+                    if (!StringConversion::checkUintBounds(x, type))
                     {
                         MessageLoaderParms mlParms(
                             "Common.XmlReader.U32_VALUE_OUT_OF_RANGE",
@@ -1265,7 +971,7 @@ CIMValue XmlReader::stringToValue(
             {
                 case CIMTYPE_SINT8:
                 {
-                    if ((x >= (Sint64(1)<<7)) || (x < (-(Sint64(1)<<7))))
+                    if (!StringConversion::checkSintBounds(x, type))
                     {
                         MessageLoaderParms mlParms(
                             "Common.XmlReader.S8_VALUE_OUT_OF_RANGE",
@@ -1276,7 +982,7 @@ CIMValue XmlReader::stringToValue(
                 }
                 case CIMTYPE_SINT16:
                 {
-                    if ((x >= (Sint64(1)<<15)) || (x < (-(Sint64(1)<<15))))
+                    if (!StringConversion::checkSintBounds(x, type))
                     {
                         MessageLoaderParms mlParms(
                             "Common.XmlReader.S16_VALUE_OUT_OF_RANGE",
@@ -1287,7 +993,7 @@ CIMValue XmlReader::stringToValue(
                 }
                 case CIMTYPE_SINT32:
                 {
-                    if ((x >= (Sint64(1)<<31)) || (x < (-(Sint64(1)<<31))))
+                    if (!StringConversion::checkSintBounds(x, type))
                     {
                         MessageLoaderParms mlParms(
                             "Common.XmlReader.S32_VALUE_OUT_OF_RANGE",
@@ -1331,7 +1037,7 @@ CIMValue XmlReader::stringToValue(
         {
             Real64 x;
 
-            if (!stringToReal(valueString, x))
+            if (!StringConversion::stringToReal64(valueString, x))
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_RN_VALUE",
@@ -1345,7 +1051,7 @@ CIMValue XmlReader::stringToValue(
         {
             Real64 x;
 
-            if (!stringToReal(valueString, x))
+            if (!StringConversion::stringToReal64(valueString, x))
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_RN_VALUE",
@@ -2192,7 +1898,8 @@ Boolean XmlReader::getArraySizeAttribute(
 
     Uint64 arraySize;
 
-    if (!stringToUnsignedInteger(tmp, arraySize) || arraySize == 0)
+    if (!stringToUnsignedInteger(tmp, arraySize) || (arraySize == 0) ||
+        !StringConversion::checkUintBounds(arraySize, CIMTYPE_UINT32))
     {
         char message[128];
         sprintf(message, "%s.%s", tagName, "ARRAYSIZE");

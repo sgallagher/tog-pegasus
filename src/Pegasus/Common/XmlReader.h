@@ -166,10 +166,6 @@ public:
 
     static String decodeURICharacters(String uriString);
 
-    static Boolean stringToReal(
-        const char* stringValue,
-        Real64& x);
-
     static Boolean stringToSignedInteger(
         const char* stringValue,
         Sint64& x);

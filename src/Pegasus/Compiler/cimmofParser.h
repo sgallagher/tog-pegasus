@@ -172,19 +172,6 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
         void log_parse_error(char *token, const char *errmsg) const;
 
         //------------------------------------------------------------------
-        // Do various representation transformations.
-        // These are in this class simply because there wasn't another
-        // conventient place for them.  They could just as well be static
-        // methods of some convenience class.
-        //------------------------------------------------------------------
-        //    Octal character input to decimal character output
-        char *oct_to_dec(const String &octrep) const;
-        //    Hex character input to decimal character output
-        char *hex_to_dec(const String &hexrep) const;
-        //    Binary character input to decimal character output
-        char *binary_to_dec(const String &binrep) const;
-
-        //------------------------------------------------------------------
         // Handle the processing of CIM-specific constructs
         //------------------------------------------------------------------
         // This is called after a completed #pragma production is formed

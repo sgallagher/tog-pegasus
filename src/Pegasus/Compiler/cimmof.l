@@ -97,18 +97,19 @@ class          { return(TOK_CLASS); }
 \)             { return(TOK_RIGHTPAREN); }
 \:             { return(TOK_COLON); }
 ;              { return(TOK_SEMICOLON); }
-[+-]?[0-9]*\.[0-9]+([eE][+-]?[0-9]*)? {
+[+-]?[0-9]*\.[0-9]+([eE][+-]?[0-9]+)? {
                    cimmof_lval.strval = new String(yytext);
                    return(TOK_REAL_VALUE); }
-[+-]0[0-7]+    { cimmof_lval.strval = new String(yytext);
+[+-]?0[0-7]+   { cimmof_lval.strval = new String(yytext);
                    return(TOK_OCTAL_VALUE); }
-0x[0-9A-Fa-f]+ { cimmof_lval.strval = new String(yytext);
+[+-]?0x[0-9A-Fa-f]+ { cimmof_lval.strval = new String(yytext);
                    return(TOK_HEX_VALUE); }
-[+-][01]+[Bb]  { cimmof_lval.strval = new String(yytext);
+[+-]?[01]+[Bb] { cimmof_lval.strval = new String(yytext);
                    return(TOK_BINARY_VALUE); }
-[0-9]+         { cimmof_lval.strval = new String(yytext);
+[1-9][0-9]*    { cimmof_lval.strval = new String(yytext);
                    return(TOK_POSITIVE_DECIMAL_VALUE); }
-[+-][0-9]+     { cimmof_lval.strval = new String(yytext);
+[+-]?[0-9]+    { /* Note: All non-zero unsigned integers are handled above */
+                 cimmof_lval.strval = new String(yytext);
                    return(TOK_SIGNED_DECIMAL_VALUE); }
 \=             { return(TOK_EQUAL); }
 ,              { return(TOK_COMMA); }

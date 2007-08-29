@@ -58,49 +58,6 @@ int CQL_parse();
 
 Boolean cqlcli_verbose = false;
 
-void hackInstances(Array<CIMInstance>& instances)
-{
-    for (Uint32 i=0; i < instances.size(); i++)
-    {
-        CIMInstance inst = instances[i];
-        // Only hack it if it is an instance of CQL_TestPropertyTypes
-        if (inst.getClassName() ==  "CQL_TestPropertyTypes")
-        {
-            // The properties which the mof compiler messes up will be
-            // removed and added manually.
-            // Start with Instance #1
-            Uint64 instID;
-            inst.getProperty(
-                inst.findProperty("InstanceID")).getValue().get(instID);
-            if (instID == 1)
-            {
-                // The stupid mof compiler loses the negative on floats.
-                // PropertyReal32 = -32.0
-                inst.removeProperty(inst.findProperty("PropertyReal32"));
-                Real32 real32Val = -32.0;
-                inst.addProperty(CIMProperty("PropertyReal32",
-                    CIMValue(real32Val)));
-
-                // PropertySint64Lower = -9223372036854775808
-                inst.removeProperty(inst.findProperty("PropertySint64Lower"));
-                Sint64 sint64Val = PEGASUS_SINT64_MIN;
-                inst.addProperty(CIMProperty("PropertySint64Lower",
-                    CIMValue(sint64Val)));
-
-                // PropertySint64Upper = 9223372036854775807
-                inst.removeProperty(inst.findProperty("PropertySint64Upper"));
-                sint64Val = PEGASUS_SINT64_MAX;
-                inst.addProperty(CIMProperty("PropertySint64Upper",
-                    CIMValue(sint64Val)));
-            }
-            // Then do Instance #2
-            else if (instID == 2)
-            {
-            }
-        }
-    }
-}
-
 String getStatementString(const String& stmt)
 {
     // Returns the select statement string, but takes
@@ -540,11 +497,6 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
                   Array<CIMInstance>& _instances,
                   String testOption)
 {
-    // Not liking how the mof compiler is working with CQL_TestPropertyTypes,
-    // so I am going to hack the instances so that they have the values
-    // I need for the function tests.
-    hackInstances(_instances);
-
     if (testOption == String::EMPTY || testOption == "1")
     {
         cout << "=========Evaluate Query==============" << endl;

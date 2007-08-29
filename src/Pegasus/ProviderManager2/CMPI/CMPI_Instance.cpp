@@ -221,11 +221,28 @@ extern "C"
             if (cp.getType() == CIMTYPE_INSTANCE && 
                 v.getType() == CIMTYPE_OBJECT)
             {
-                CIMObject co;
-                v.get(co);
-
-                if (co.isInstance())
-                    v.set(CIMInstance(co));
+                if (cp.isArray())
+                {
+                    if (!v.isArray())
+                    {
+                        throw TypeMismatchException();
+                    }
+                    Array<CIMObject> tmpObjs;
+                    Array<CIMInstance> tmpInsts;
+                    v.get(tmpObjs);
+                    for (Uint32 i = 0; i < tmpObjs.size() ; ++i)
+                    {
+                        tmpInsts.append(CIMInstance(tmpObjs[i]));
+                    } 
+                    v.set(tmpInsts);
+                }
+                else
+                {  
+                    CIMObject co;
+                    v.get(co);
+                    if (co.isInstance())
+                        v.set(CIMInstance(co));
+                }
             }
 
             try

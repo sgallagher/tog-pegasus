@@ -227,7 +227,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                     break;
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CMPI_instance:
-                    CopyToEncArray(CIMInstance,inst);
+                    CopyToEncArray(CIMObject,inst);
                     break;
 #endif
                 case CMPI_boolean:
@@ -501,7 +501,20 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     break;
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CMPI_instance:
-                    CopyFromEncArray(CIMInstance,CMPIInstance,inst);
+                    if (v.getType() == CIMTYPE_OBJECT)
+                    {
+                        Array<CIMObject> tmpObjs;
+                        v.get(tmpObjs);
+                        for (int i = 0; i < aSize ; ++i)
+                        {
+                          aData[i].value.inst = reinterpret_cast<CMPIInstance*>(
+                                new CMPI_Object(new CIMInstance(tmpObjs[i])));
+                        } 
+                    }
+                    else
+                    {
+                        CopyFromEncArray(CIMInstance,CMPIInstance,inst);
+                    }
                     break;
 #endif
                 case CMPI_boolean:

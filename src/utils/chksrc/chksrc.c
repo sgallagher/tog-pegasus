@@ -60,9 +60,11 @@ void chksrc(const char* path,
     {
         const char* cvsroot;
 
-        // Check to see whether chksrc was run by an ordinary user or by the 
-        // CVS server. In the latter case, CVSROOT is "/cvs/MSB" rather than
-        // ":pserver:<username>@cvs.opengroup.org:/cvs/MSB".
+        /*
+           Check to see whether chksrc was run by an ordinary user or by the 
+           CVS server. In the latter case, CVSROOT is "/cvs/MSB" rather than
+           ":pserver:<username>@cvs.opengroup.org:/cvs/MSB".
+        */
 
         if ((cvsroot = getenv("CVSROOT")) && strcmp(cvsroot, "/cvs/MSB") == 0)
             return;

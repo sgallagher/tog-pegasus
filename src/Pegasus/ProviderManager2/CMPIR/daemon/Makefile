@@ -36,11 +36,6 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_DEFAULT_CMPIR 
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
-
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 SYS_LIBS = ws2_32.lib advapi32.lib netapi32.lib
 endif

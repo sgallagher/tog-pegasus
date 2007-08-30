@@ -40,11 +40,6 @@ else
 LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
 endif
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
-
 VMS_HAS_CC = yes
 
 LIBRARIES = cmpiUtilLib

@@ -35,11 +35,6 @@ DIR = Providers/TestProviders/CMPI/TestCMPIEnumeration
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
-
 LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
 
 VMS_HAS_CC = yes

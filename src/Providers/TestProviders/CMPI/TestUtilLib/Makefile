@@ -35,11 +35,6 @@ DIR = Providers/TestProviders/CMPI/TestUtilLib
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
-
 ifeq ($(OS),VMS)
 LOCAL_DEFINES = -DPEGASUS_ROOT="""$(PEGASUS_ROOT)"""
 else

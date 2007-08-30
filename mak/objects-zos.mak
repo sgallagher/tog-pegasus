@@ -52,3 +52,11 @@ $(OBJ_DIR)/%.o: %.cpp $(ERROR)
 	@ $(RM) $(_TMP_O)
 	@ $(TOUCH) $@
 	@ $(ECHO)
+
+$(OBJ_DIR)/%.o: %.c $(ERROR)
+	$(CC) -c -o $(_TMP_O) $(FLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.c > $*.lst
+	@ $(ZIP) -m $@.lst.zip $*.lst
+	@ $(COPY) $(_TMP_O) $@
+	@ $(RM) $(_TMP_O)
+	@ $(TOUCH) $@
+	@ $(ECHO)

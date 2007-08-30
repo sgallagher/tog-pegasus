@@ -34,11 +34,6 @@ DIR = Pegasus/ProviderManager2/CMPIR/native
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
-
 EXTRA_INCLUDES = $(SYS_INCLUDES) -I..
 
 LOCAL_DEFINES =  -DPEGASUS_CMPI_NATIVE_INTERNAL

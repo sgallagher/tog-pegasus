@@ -34,11 +34,6 @@ include $(ROOT)/mak/config.mak
 
 DIR = Pegasus/ProviderManager2/CMPIR/tools/AppendNS
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
-
 PROGRAM = AppendNS
 
 SOURCES = \

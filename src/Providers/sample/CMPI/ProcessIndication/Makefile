@@ -34,11 +34,6 @@ DIR = Providers/sample/CMPI/ProcessIndication
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
-
 VMS_HAS_CC = yes
 
 LIBRARY = CMPI_RT_Sample

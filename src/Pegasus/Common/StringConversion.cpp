@@ -31,6 +31,8 @@
 
 #include "StringConversion.h"
 
+#include <errno.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 struct Uint32ToStringElement
@@ -349,7 +351,7 @@ Boolean StringConversion::hexStringToUint64(
     while (isxdigit(*p))
     {
         // Make sure we won't overflow when we multiply by 16
-        if (x & 0xF000000000000000)
+        if (x & PEGASUS_UINT64_LITERAL(0xF000000000000000))
         {
             return false;
         }
@@ -396,7 +398,7 @@ Boolean StringConversion::octalStringToUint64(
     while ((*p >= '0') && (*p <= '7'))
     {
         // Make sure we won't overflow when we multiply by 8
-        if (x & 0xE000000000000000)
+        if (x & PEGASUS_UINT64_LITERAL(0xE000000000000000))
         {
             return false;
         }
@@ -438,7 +440,7 @@ Boolean StringConversion::binaryStringToUint64(
     while ((*p == '0') || (*p == '1'))
     {
         // Make sure we won't overflow when we multiply by 2
-        if (x & 0x8000000000000000)
+        if (x & PEGASUS_UINT64_LITERAL(0x8000000000000000))
         {
             return false;
         }
@@ -470,6 +472,8 @@ Boolean StringConversion::checkUintBounds(
             return !(x & PEGASUS_UINT64_LITERAL(0xFFFFFFFF00000000));
         case CIMTYPE_UINT64:
             return true;
+        default:
+            break;
     }
 
     return false;
@@ -554,6 +558,8 @@ Boolean StringConversion::checkSintBounds(
                           PEGASUS_SINT64_LITERAL(0xFFFFFFFF80000000)));
         case CIMTYPE_SINT64:
             return true;
+        default:
+            break;
     }
 
     return false;
